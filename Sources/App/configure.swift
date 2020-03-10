@@ -24,6 +24,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
 
   // Run migrations on the database
   var migrations = MigrationConfig()
+  migrations.add(model: Package.self, database: .psql)
   services.register(migrations)
 }
 
