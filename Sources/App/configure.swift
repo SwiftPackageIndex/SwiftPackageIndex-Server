@@ -1,9 +1,9 @@
-import FluentSQLite
+import FluentPostgreSQL
 import Vapor
 
 public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
   // Register providers first
-  try services.register(FluentSQLiteProvider())
+  try services.register(FluentPostgreSQLProvider())
 
   // Register routes to the router
   let router = EngineRouter.default()
@@ -11,21 +11,36 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
   services.register(router, as: Router.self)
 
   // Register middleware
-  var middlewares = MiddlewareConfig() // Create _empty_ middleware config
-  // middlewares.use(FileMiddleware.self) // Serves files from `Public/` directory
-  middlewares.use(ErrorMiddleware.self) // Catches errors and converts to HTTP response
+  var middlewares = MiddlewareConfig()
+  middlewares.use(FileMiddleware.self)
+  middlewares.use(ErrorMiddleware.self)
   services.register(middlewares)
 
-  // Configure a SQLite database
-  let sqlite = try SQLiteDatabase(storage: .memory)
-
-  // Register the configured SQLite database to the database config.
+  // Configure the database
   var databases = DatabasesConfig()
-  databases.add(database: sqlite, as: .sqlite)
+  let database = PostgreSQLDatabase(config: databaseConfig(env))
+  databases.add(database: database, as: .psql)
   services.register(databases)
 
-  // Configure migrations
+  // Run migrations on the database
   var migrations = MigrationConfig()
-  migrations.add(model: Todo.self, database: .sqlite)
+  migrations.add(model: Todo.self, database: .psql)
   services.register(migrations)
+}
+
+func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig {
+  func databaseName() -> String {
+    switch env {
+      case .development: return "swiftpackageindex_dev"
+      case .testing: return "swiftpackageindex_test"
+      case .production: return "swiftpackageindex_prod"
+      default: preconditionFailure("Unknown application environment")
+    }
+  }
+
+  return PostgreSQLDatabaseConfig(
+    hostname: Environment.get("DATABASE_HOST") ?? "localhost",
+    username: Environment.get("DATABASE_USERNAME") ?? "swiftpackageindex",
+    database: databaseName(),
+    password: Environment.get("DATABASE_PASSWORD"))
 }
