@@ -26,6 +26,11 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
   var migrations = MigrationConfig()
   migrations.add(model: Package.self, database: .psql)
   services.register(migrations)
+
+  // Add the Fluent commands, for example "revert"
+  var commandConfig = CommandConfig.default()
+  commandConfig.useFluentCommands()
+  services.register(commandConfig)
 }
 
 func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig {
