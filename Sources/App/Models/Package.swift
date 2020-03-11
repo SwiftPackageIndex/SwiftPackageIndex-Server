@@ -1,7 +1,7 @@
 import Vapor
 import FluentPostgreSQL
 
-final class Package: PostgreSQLUUIDModel {
+final class Package {
   var id: UUID?
   var url: URL
 
@@ -11,6 +11,7 @@ final class Package: PostgreSQLUUIDModel {
   }
 }
 
+extension Package: PostgreSQLUUIDModel { }
 extension Package: Migration { }
 extension Package: Content { }
 extension Package: Parameter { }
