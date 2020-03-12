@@ -27,9 +27,10 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
   migrations.add(model: Package.self, database: .psql)
   services.register(migrations)
 
-  // Add the Fluent commands, for example "revert"
+  // Add the built in Fluent commands, and all commands in this project
   var commandConfig = CommandConfig.default()
   commandConfig.useFluentCommands()
+  commandConfig.use(ReconcilePackageListCommand(), as: ReconcilePackageListCommand.name)
   services.register(commandConfig)
 }
 
