@@ -70,7 +70,7 @@ final class ReconcilePackageListCommand: Command
       // Loop through because we need to be able to handle errors and manage futures instead of just using a map
       for urlString in urlStrings {
         guard let url = URL(string: urlString) else {
-          errorNotifications.append(self.sendInvalidURLString(urlString, on: context))
+          try errorNotifications.append(self.sendInvalidURLString(urlString, on: context))
           continue
         }
         urls.append(url)
@@ -79,10 +79,17 @@ final class ReconcilePackageListCommand: Command
     }
   }
   
-  func sendInvalidURLString(_ invalidURL: String, on context: CommandContext) -> Future<Void> {
+  func sendInvalidURLString(_ invalidURL: String, on context: CommandContext) throws -> Future<Void> {
     print("Found invalid URL string: \(invalidURL)")
     // We can do what we want here with sending emails/notifications to Rollbar etc
-    return context.container.future()
+    if let rollbarAPIToken = Environment.get("ROLLBAR_API_KEY") {
+      return try context.container.make(Client.self).post("https://api.rollbar.com/api/1/item/") { rollbarRequest in
+        let data = try RollbarCreateItem(accessToken: rollbarAPIToken, environment: Environment.detect().name, level: .warning, body: "URL \(invalidURL) is not a valid URL")
+        try rollbarRequest.content.encode(data)
+      }.transform(to: ())
+    } else {
+      return context.container.future()
+    }
   }
   
   func fetchCurrentPackageList(_ context: CommandContext) throws -> Future<[URL]>
@@ -100,4 +107,50 @@ final class ReconcilePackageListCommand: Command
       else { preconditionFailure("Failed to create the master package list URL") }
     return url
   }
+}
+
+struct RollbarCreateItem: Content {
+  
+  init(accessToken: String, environment: String, level: RollbarItemLevel, body: String) {
+    self.accessToken = accessToken
+    let body = RollbarCreateItemData.RollbarCreateItemDataBody(message: body)
+    self.data = RollbarCreateItemData(environment: environment, body: body, level: level)
+  }
+  
+  let accessToken: String
+  let data: RollbarCreateItemData
+  
+  enum CodingKeys: String, CodingKey {
+      case accessToken = "access_token"
+      case data = "data"
+  }
+  
+  struct RollbarCreateItemData: Content {
+    let environment: String
+    let body: RollbarCreateItemDataBody
+    let level: RollbarItemLevel
+    let language = "swift"
+    let framework = "vapor"
+    let uuid = UUID().uuidString
+    
+    struct RollbarCreateItemDataBody: Content {
+      init(message: String) {
+        self.message = .init(body: message)
+      }
+      
+      let message: RollbarCreateItemDataBodyMessage
+      
+      struct RollbarCreateItemDataBodyMessage: Content {
+        let body: String
+      }
+    }
+  }
+}
+
+enum RollbarItemLevel: String, Codable {
+  case criticil = "critical"
+  case error = "error"
+  case warning = "warning"
+  case info = "info"
+  case debug = "debug"
 }
