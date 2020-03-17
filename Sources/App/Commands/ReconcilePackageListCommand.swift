@@ -67,6 +67,7 @@ final class ReconcilePackageListCommand: Command
       var errorNotifications = [Future<Void>]()
       var urls = [URL]()
       
+      // Loop through because we need to be able to handle errors and manage futures instead of just using a map
       for urlString in urlStrings {
         guard let url = URL(string: urlString) else {
           errorNotifications.append(self.sendInvalidURLString(urlString, on: context))
@@ -80,6 +81,7 @@ final class ReconcilePackageListCommand: Command
   
   func sendInvalidURLString(_ invalidURL: String, on context: CommandContext) -> Future<Void> {
     print("Found invalid URL string: \(invalidURL)")
+    // We can do what we want here with sending emails/notifications to Rollbar etc
     return context.container.future()
   }
   
