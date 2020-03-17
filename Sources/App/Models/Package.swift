@@ -1,8 +1,11 @@
 import Vapor
+import Fluent
 import FluentPostgreSQL
 
 final class Package
 {
+  static let entity = "packages"
+  
   var id: UUID?
   var url: URL?
 
@@ -16,6 +19,14 @@ final class Package
   {
     self.id = id
     self.url = URL(string: urlString)
+  }
+}
+
+extension Package
+{
+  static func findByUrl(on connection: DatabaseConnectable, url: URL) -> Package
+  {
+    return Package.query(on: connection).filter(\.url).all()
   }
 }
 

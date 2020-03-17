@@ -1,4 +1,6 @@
 import Vapor
+import Fluent
+import FluentPostgreSQL
 
 final class ReconcilePackageListCommand: Command
 {
@@ -9,35 +11,63 @@ final class ReconcilePackageListCommand: Command
   var help = ["Synchronise the database with the master package list from GitHub."]
 
   func run(using context: CommandContext) throws -> Future<Void> {
-    // Grab futures for the GitHub master package list and the database's current package list
+    // Grab the GitHub master package list and the database's current package list
     let masterPackageList = try fetchMasterPackageList(context)
     let currentPackageList = try fetchCurrentPackageList(context)
 
-    return masterPackageList.and(currentPackageList).map { (master, current) in
-      // Reconcile the package lists
+    // Reconcile the package lists and add/remove any new/deleted packages
+    return masterPackageList.and(currentPackageList).flatMap { (master, current) in
       let reconciler = PackageListReconciler(masterPackageList: master, currentPackageList: current)
-      print("master = \(master)")
-      print("current = \(current)")
 
-//      let createQueries = context.container.withPooledConnection(to: .psql) { database in
+      return context.container.withPooledConnection(to: .psql) { database in
+        let packagesToAddFutures = reconciler.packagesToAdd.map { url -> Future<Package> in
+          let package = Package(url: url)
+          return package.create(on: database)
+        }
+
+        let packagesToDeleteFutures = reconciler.packagesToDelete.map { url in
+          return Package.query(on: database).filter(\.url == url)
+        }
+
+        print(packagesToAddFutures)
+
+
+//        .flatten(on: database)
+//        .transform(to: ())
+
+        return packagesToAddFutures.flatten(on: database).transform(to: ())
+      }
+    }
+  }
+
+
+//    return masterPackageList.and(currentPackageList).map { (master, current) in
+//      // Reconcile the package lists
+//      print("master = \(master)")
+//      print("current = \(current)")
+//
+//
+//      return context.container.withPooledConnection(to: .psql) { database in
 //        // Add the new packages first
 //        let additions = reconciler.packagesToAdd.map { url in
 //          print("Inserting \(url)")
 //          let package = Package(url: url)
 //          return package.create(on: database)
-//        }.flatten(on: context)
+//        }
+//        .flatten(on: context)
+//        .transform(to: ())
 //
 //        print(additions)
 //        return additions
 //      }
-
-
-
-
-      print(reconciler.packagesToAdd.count)
-      print(reconciler.packagesToDelete.count)
-    }
-  }
+//
+//
+//
+//
+//      print(reconciler.packagesToAdd.count)
+//      print(reconciler.packagesToDelete.count)
+//    }
+//  }
 
   func fetchMasterPackageList(_ context: CommandContext) throws -> Future<[URL]>
   {
