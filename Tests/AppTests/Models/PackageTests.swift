@@ -24,28 +24,12 @@ final class PackageTests: XCTestCase
 
   func testPackageCreationWithUrl() throws
   {
-    let url = URL(string: "https://example.com/")
+    let url = URL(string: "https://example.com/")!
     let package = Package(url: url)
     XCTAssertEqual(package.url, url)
   }
 
-  func testPackageCreationWithUrlString() throws
-  {
-    let urlString = "https://example.com/"
-    let package = Package(urlString: urlString)
-    XCTAssertEqual(package.url, URL(string: urlString))
-  }
-
-  func testPackageCreationWithBadUrlString() throws
-  {
-    let urlString = "Hello, world!"
-    let package = Package(urlString: urlString)
-    XCTAssertNil(package.url)
-  }
-
   static let allTests = [
-    ("testPackageCreationWithUrl", testPackageCreationWithUrl),
-    ("testPackageCreationWithUrlString", testPackageCreationWithUrlString),
-    ("testPackageCreationWithBadUrlString", testPackageCreationWithBadUrlString)
+    ("testPackageCreationWithUrl", testPackageCreationWithUrl)
   ]
 }
