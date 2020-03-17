@@ -33,7 +33,7 @@ extension Package
   }
 }
 
-extension Package: Migration
+extension Package: PostgreSQLMigration
 {
   static func prepare(on connection: PostgreSQLConnection) -> Future<Void>
   {
@@ -45,7 +45,7 @@ extension Package: Migration
   }
 }
 
-extension Package: PostgreSQLUUIDModel { }
+extension Package: PostgreSQLUUIDModel {}
 extension Package: Content { }
 extension Package: Parameter { }
 
