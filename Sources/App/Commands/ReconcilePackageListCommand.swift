@@ -20,54 +20,40 @@ final class ReconcilePackageListCommand: Command
       let reconciler = PackageListReconciler(masterPackageList: master, currentPackageList: current)
 
       return context.container.withPooledConnection(to: .psql) { database in
-        let packagesToAddFutures = reconciler.packagesToAdd.map { url -> Future<Package> in
+        // Add any new packages
+        let packageAdditions = reconciler.packagesToAdd.map { url -> Future<Package> in
           let package = Package(url: url)
           return package.create(on: database)
         }
 
-        let packagesToDeleteFutures = reconciler.packagesToDelete.map { url in
-          return Package.query(on: database).filter(\.url == url)
+        // Delete any removed packages
+        let packageDeletions = reconciler.packagesToDelete.map { url in
+          return Package.findByUrl(on: database, url: url).map { package in
+            return package.delete(on: database)
+          }
         }
 
-        print(packagesToAddFutures)
+        let tmpUuid = UUID("00b71921-d558-48d9-92a1-0a10c5788b7b")!
+        let tmpUuidFindByUuid = Package.find(tmpUuid, on: database)
+          .unwrap(or: PackageError.recordNotFound)
+          .map { package in
+            print("package.url = \(String(describing: package.url))")
+        }
 
+        let tmpUrl = URL(string: "https://github.com/jpsim/SourceKitten.git")!
+        let tmpUuidFindByUrl = Package.findByUrl(on: database, url: tmpUrl)
+          .map { package in
+            print("package.url = \(String(describing: package.url))")
+        }
 
-//        .flatten(on: database)
-//        .transform(to: ())
-
-        return packagesToAddFutures.flatten(on: database).transform(to: ())
+        return packageAdditions.flatten(on: database)
+//          .and(packageDeletions.flatten(on: database))
+          .and(tmpUuidFindByUuid)
+          .and(tmpUuidFindByUrl)
+          .transform(to: ())
       }
     }
   }
-
-
-//    return masterPackageList.and(currentPackageList).map { (master, current) in
-//      // Reconcile the package lists
-//      print("master = \(master)")
-//      print("current = \(current)")
-//
-//
-//      return context.container.withPooledConnection(to: .psql) { database in
-//        // Add the new packages first
-//        let additions = reconciler.packagesToAdd.map { url in
-//          print("Inserting \(url)")
-//          let package = Package(url: url)
-//          return package.create(on: database)
-//        }
-//        .flatten(on: context)
-//        .transform(to: ())
-//
-//        print(additions)
-//        return additions
-//      }
-//
-//
-//
-//
-//      print(reconciler.packagesToAdd.count)
-//      print(reconciler.packagesToDelete.count)
-//    }
-//  }
 
   func fetchMasterPackageList(_ context: CommandContext) throws -> Future<[URL]>
   {
@@ -79,8 +65,9 @@ final class ReconcilePackageListCommand: Command
         return try response.content.decode([String].self)
     }.map { urlStrings in
       urlStrings.compactMap { urlString in
-        // Throw away bad URLs for now - This feels all sorts of wrong as we'll never know if URLs are being ignored. However it'll do for now as I don't know how to split this async chain into two.
-        URL(string: urlString)
+        // Throw away bad URLs for now - This feels all sorts of wrong as we'll never know if URLs are being ignored. Issue tracked as #2 - https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/2
+        if Int.random(in: 1...700) == 4 { return nil }
+        else { return URL(string: urlString) }
       }
     }
   }

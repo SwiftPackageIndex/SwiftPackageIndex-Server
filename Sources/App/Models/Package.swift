@@ -24,13 +24,32 @@ final class Package
 
 extension Package
 {
-  static func findByUrl(on connection: DatabaseConnectable, url: URL) -> Package
+  static func findByUrl(on connection: DatabaseConnectable, url: URL) -> Future<Package>
   {
-    return Package.query(on: connection).filter(\.url).all()
+    return Package.query(on: connection)
+      .filter(\.url == url)
+      .first()
+      .unwrap(or: PackageError.recordNotFound)
+  }
+}
+
+extension Package: Migration
+{
+  static func prepare(on connection: PostgreSQLConnection) -> Future<Void>
+  {
+    return Database.create(self, on: connection) { builder in
+      try addProperties(to: builder)
+
+      builder.unique(on: \.url)
+    }
   }
 }
 
 extension Package: PostgreSQLUUIDModel { }
-extension Package: Migration { }
 extension Package: Content { }
 extension Package: Parameter { }
+
+enum PackageError: Error
+{
+  case recordNotFound
+}
