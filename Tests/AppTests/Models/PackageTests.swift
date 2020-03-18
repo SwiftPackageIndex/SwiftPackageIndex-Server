@@ -40,8 +40,9 @@ final class PackageTests: XCTestCase
     XCTAssertEqual(existingPackage.url, existingUrl)
 
     let nonExistentUrl = URL(string: "https://github.com/apple/shiny.git")!
-    let nonExistentPackage = try Package.findByUrl(on: database, url: nonExistentUrl).wait()
-    XCTAssertNil(nonExistentPackage)
+    XCTAssertThrowsError(try Package.findByUrl(on: database, url: nonExistentUrl).wait()) { error in
+      XCTAssertEqual(error as? PackageError, PackageError.recordNotFound)
+    }
   }
 
   /// Helper method to create test Package data.
