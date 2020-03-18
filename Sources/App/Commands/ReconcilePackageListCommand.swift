@@ -10,7 +10,8 @@ final class ReconcilePackageListCommand: Command
   var options: [CommandOption] = []
   var help = ["Synchronise the database with the master package list from GitHub."]
   
-  func run(using context: CommandContext) throws -> Future<Void> {
+  func run(using context: CommandContext) throws -> Future<Void>
+  {
     // Grab the GitHub master package list and the database's current package list
     let masterPackageList = try fetchMasterPackageList(context)
     let currentPackageList = try fetchCurrentPackageList(context)
