@@ -39,7 +39,7 @@ struct RollbarCreateItem: Content {
 }
 
 enum RollbarItemLevel: String, Codable {
-  case criticil = "critical"
+  case critical = "critical"
   case error = "error"
   case warning = "warning"
   case info = "info"
