@@ -53,9 +53,4 @@ final class PackageTests: XCTestCase
     let package = Package(url: url)
     let _ = try! package.create(on: database).wait()
   }
-
-  static let allTests = [
-    ("testPackageCreationWithUrl", testPackageCreationWithUrl),
-    ("testFindPackageByURL", testFindPackageByURL)
-  ]
 }

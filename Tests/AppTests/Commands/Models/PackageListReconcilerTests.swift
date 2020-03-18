@@ -97,13 +97,6 @@ final class PackageListReconcilerTests: XCTestCase
       URL(string: "https://example.com/third")!,
       URL(string: "https://example.com/fourth")!])
   }
-
-  static let allTests = [
-    ("testReconcileNoChanges", testReconcileNoChanges),
-    ("testReconcileAddingPackages", testReconcileAddingPackages),
-    ("testReconcileDeletingPackages", testReconcileDeletingPackages),
-    ("testReconcileAddingAndDeletingPackages", testReconcileAddingAndDeletingPackages)
-  ]
 }
 
 /// As package lists come from sets, their elements can be in any order. Compare them as sorted arrays.
