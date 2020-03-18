@@ -7,35 +7,24 @@ final class Package: Codable
   static let entity = "packages"
   
   var id: UUID?
-  var url: URL
+  private var urlString: String
 
   init(id: UUID? = nil, url: URL)
   {
     self.id = id
-    self.url = url
+    self.urlString = url.absoluteString
   }
 
-  init(from decoder: Decoder) throws
+  var url: URL
   {
-    let values = try decoder.container(keyedBy: CodingKeys.self)
-    self.id = try values.decode(UUID.self, forKey: .id)
-
-    guard let url = URL(string: try values.decode(String.self, forKey: .url))
-      else { preconditionFailure("Expected a valid URL") }
-    self.url = url
-  }
-
-  func encode(to encoder: Encoder) throws
-  {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(id, forKey: .id)
-    try container.encode(url.absoluteString, forKey: .url)
-  }
-
-  enum CodingKeys: String, CodingKey
-  {
-    case id
-    case url
+    get {
+      guard let url = URL(string: urlString)
+        else { preconditionFailure("Expected a valid URL in urlString") }
+      return url
+    }
+    set {
+      urlString = newValue.absoluteString
+    }
   }
 }
 
@@ -44,7 +33,7 @@ extension Package
   static func findByUrl(on connection: DatabaseConnectable, url: URL) -> Future<Package>
   {
     return Package.query(on: connection)
-      .filter(\.url == url)
+      .filter(\.urlString == url.absoluteString)
       .first()
       .unwrap(or: PackageError.recordNotFound)
   }
@@ -55,10 +44,9 @@ extension Package: PostgreSQLMigration
   static func prepare(on connection: PostgreSQLConnection) -> Future<Void>
   {
     return Database.create(Package.self, on: connection) { builder in
-      builder.field(for: \.id, isIdentifier: true)
-      builder.field(for: \.url, type: .text)
+      try addProperties(to: builder)
 
-      builder.unique(on: \.url)
+      builder.unique(on: \.urlString)
     }
   }
 }
