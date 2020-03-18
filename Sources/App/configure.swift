@@ -21,6 +21,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
   var databases = DatabasesConfig()
   let database = PostgreSQLDatabase(config: databaseConfig(env))
   databases.add(database: database, as: .psql)
+  databases.enableLogging(on: .psql)
   services.register(databases)
 
   // Run migrations on the database
@@ -50,5 +51,6 @@ func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig
     hostname: Environment.get("DATABASE_HOST") ?? "localhost",
     username: Environment.get("DATABASE_USERNAME") ?? "swiftpackageindex",
     database: databaseName(),
-    password: Environment.get("DATABASE_PASSWORD"))
+    password: Environment.get("DATABASE_PASSWORD") ?? "password"
+  )
 }
