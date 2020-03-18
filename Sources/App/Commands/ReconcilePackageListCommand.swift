@@ -29,28 +29,17 @@ final class ReconcilePackageListCommand: Command
         
         // Delete any removed packages
         let packageDeletions = reconciler.packagesToDelete.map { url in
-          return Package.findByUrl(on: database, url: url).map { package in
-            return package.delete(on: database)
+          return Package.findByUrl(on: database, url: url).map { package -> Future<Void> in
+            print("Deleting \(package.url)")
+            return package.delete(on: database).map {
+              print("Deleted \(package.url)")
+            }
           }
         }
-        
-        let tmpUuid = UUID("00b71921-d558-48d9-92a1-0a10c5788b7b")!
-        let tmpUuidFindByUuid = Package.find(tmpUuid, on: database)
-          .unwrap(or: PackageError.recordNotFound)
-          .map { package in
-            print("package.url = \(String(describing: package.url))")
-        }
-        
-        let tmpUrl = URL(string: "https://github.com/jpsim/SourceKitten.git")!
-        let tmpUuidFindByUrl = Package.findByUrl(on: database, url: tmpUrl)
-          .map { package in
-            print("package.url = \(String(describing: package.url))")
-        }
-        
+
+        // Queue up all of the additions and deletions for execution
         return packageAdditions.flatten(on: database)
-          //          .and(packageDeletions.flatten(on: database))
-          .and(tmpUuidFindByUuid)
-          .and(tmpUuidFindByUrl)
+          .and(packageDeletions.flatten(on: database))
           .transform(to: ())
       }
     }
@@ -69,6 +58,16 @@ final class ReconcilePackageListCommand: Command
       var errorNotifications = [Future<Void>]()
 
       for urlString in urlStrings {
+        // This should delete/re-insert a few (5 or so) random packages per run of this command.
+        // ---
+        // This is just debugging code I put in to exercise the creation/deletion code. I was going
+        // to suggest that `ReconcilePackageListCommand` didn't really need testing since the logic
+        // gets tested in `PackageListReconciler`, but the fact that nothing is being deleted makes
+        // that look a little foolish.
+        if Int.random(in: 1...700) == 1 {
+          continue
+        }
+
         // If this isn't a valid URL, post an error
         guard let url = URL(string: urlString) else {
           try errorNotifications.append(self.sendInvalidURLString(urlString, on: context))
