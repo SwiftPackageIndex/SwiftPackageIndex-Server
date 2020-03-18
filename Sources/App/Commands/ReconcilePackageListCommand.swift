@@ -65,24 +65,39 @@ final class ReconcilePackageListCommand: Command
         response.http.contentType = .json
         return try response.content.decode([String].self)
     }.flatMap { urlStrings in
-      var errorNotifications = [Future<Void>]()
       var urls = [URL]()
-      
-      // Loop through because we need to be able to handle errors and manage futures instead of just using a map
+      var errorNotifications = [Future<Void>]()
+
       for urlString in urlStrings {
+        // If this isn't a valid URL, post an error
         guard let url = URL(string: urlString) else {
           try errorNotifications.append(self.sendInvalidURLString(urlString, on: context))
           continue
         }
+
+        // Otherwise, we're all good
         urls.append(url)
       }
-      return errorNotifications.flatten(on: context.container).transform(to: urls)
+
+      return errorNotifications
+        .flatten(on: context.container)
+        .transform(to: urls)
     }
   }
   
-  func sendInvalidURLString(_ invalidURL: String, on context: CommandContext) throws -> Future<Void> {
-    print("Found invalid URL string: \(invalidURL)")
-    // We can do what we want here with sending emails/notifications to Rollbar etc
+  func fetchCurrentPackageList(_ context: CommandContext) throws -> Future<[URL]>
+  {
+    return context.container.withPooledConnection(to: .psql) { database in
+      return Package.query(on: database).all()
+    }.map { packages in
+      // Grab just the package URLs
+      packages.compactMap { $0.url }
+    }
+  }
+
+  func sendInvalidURLString(_ invalidURL: String, on context: CommandContext) throws -> Future<Void>
+  {
+    // Send a notification of the invalid package to Rollbar
     if let rollbarAPIToken = Environment.get("ROLLBAR_API_KEY") {
       return try context.container.make(Client.self).post("https://api.rollbar.com/api/1/item/") { rollbarRequest in
         let data = try RollbarCreateItem(accessToken: rollbarAPIToken, environment: Environment.detect().name, level: .warning, body: "URL \(invalidURL) is not a valid URL")
@@ -93,17 +108,8 @@ final class ReconcilePackageListCommand: Command
     }
   }
   
-  func fetchCurrentPackageList(_ context: CommandContext) throws -> Future<[URL]>
+  var masterPackageListURL: URL
   {
-    return context.container.withPooledConnection(to: .psql) { database in
-      return Package.query(on: database).all()
-    }.map { packages in
-      // Grab all the package URLs
-      packages.compactMap { $0.url }
-    }
-  }
-  
-  var masterPackageListURL: URL {
     guard let url = URL(string: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json")
       else { preconditionFailure("Failed to create the master package list URL") }
     return url
