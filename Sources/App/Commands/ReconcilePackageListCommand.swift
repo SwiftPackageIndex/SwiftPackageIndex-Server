@@ -29,18 +29,20 @@ final class ReconcilePackageListCommand: Command
         
         // Delete any removed packages
         let packageDeletions = reconciler.packagesToDelete.map { url in
-          return Package.findByUrl(on: database, url: url).map { package -> Future<Void> in
+          return Package.findByUrl(on: database, url: url).flatMap { package -> Future<Void> in
             print("Deleting \(package.url)")
             return package.delete(on: database).map {
               print("Deleted \(package.url)")
             }
           }
         }
-
+        
         // Queue up all of the additions and deletions for execution
-        return packageAdditions.flatten(on: database)
-          .and(packageDeletions.flatten(on: database))
-          .transform(to: ())
+        
+        return map(packageAdditions.flatten(on: database), packageDeletions.flatten(on: database)) { additions, _ in
+          print("Added \(additions.count) additions")
+          print("Finished")
+        }
       }
     }
   }
@@ -56,7 +58,7 @@ final class ReconcilePackageListCommand: Command
     }.flatMap { urlStrings in
       var urls = [URL]()
       var errorNotifications = [Future<Void>]()
-
+      
       for urlString in urlStrings {
         // This should delete/re-insert a few (5 or so) random packages per run of this command.
         // ---
@@ -67,17 +69,17 @@ final class ReconcilePackageListCommand: Command
         if Int.random(in: 1...700) == 1 {
           continue
         }
-
+        
         // If this isn't a valid URL, post an error
         guard let url = URL(string: urlString) else {
           try errorNotifications.append(self.sendInvalidURLString(urlString, on: context))
           continue
         }
-
+        
         // Otherwise, we're all good
         urls.append(url)
       }
-
+      
       return errorNotifications
         .flatten(on: context.container)
         .transform(to: urls)
@@ -93,7 +95,7 @@ final class ReconcilePackageListCommand: Command
       packages.compactMap { $0.url }
     }
   }
-
+  
   func sendInvalidURLString(_ invalidURL: String, on context: CommandContext) throws -> Future<Void>
   {
     // Send a notification of the invalid package to Rollbar
