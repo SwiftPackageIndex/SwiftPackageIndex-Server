@@ -38,7 +38,8 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
 
 func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig
 {
-  func databaseName() -> String {
+  func databaseName() -> String
+  {
     switch env {
       case .development: return "swiftpackageindex_dev"
       case .testing: return "swiftpackageindex_test"
@@ -47,10 +48,22 @@ func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig
     }
   }
 
+  func databasePort() -> Int
+  {
+    switch env {
+      case .development: return 5432
+      case .testing: return 5433
+      case .production: return 5432
+      default: preconditionFailure("Unknown application environment")
+    }
+  }
+
   return PostgreSQLDatabaseConfig(
     hostname: Environment.get("DATABASE_HOST") ?? "localhost",
+    port: databasePort(),
     username: Environment.get("DATABASE_USERNAME") ?? "swiftpackageindex",
     database: databaseName(),
-    password: Environment.get("DATABASE_PASSWORD") ?? "password"
+    password: Environment.get("DATABASE_PASSWORD") ?? "password",
+    transport: .cleartext
   )
 }
