@@ -21,7 +21,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
   var databases = DatabasesConfig()
   let database = PostgreSQLDatabase(config: databaseConfig(env))
   databases.add(database: database, as: .psql)
-  databases.enableLogging(on: .psql)
+  if Environment.get("ENABLE_LOGGING") != nil {
+    databases.enableLogging(on: .psql)
+  }
   services.register(databases)
 
   // Run migrations on the database
