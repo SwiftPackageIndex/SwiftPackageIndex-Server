@@ -24,25 +24,26 @@ final class ReconcilePackageListCommand: Command
         // Add any new packages
         let packageAdditions = reconciler.packagesToAdd.map { url -> Future<Package> in
           let package = Package(url: url)
-          return package.create(on: database)
-        }
+          return package.create(on: database).map { package -> Package in
+            print("Added \(package.url)")
+            return package
+          }
+        }.flatten(on: database)
         
         // Delete any removed packages
         let packageDeletions = reconciler.packagesToDelete.map { url in
           return Package.findByUrl(on: database, url: url).flatMap { package -> Future<Void> in
-            print("Deleting \(package.url)")
             return package.delete(on: database).map {
               print("Deleted \(package.url)")
             }
           }
-        }
+        }.flatten(on: database)
+
+        print("Additions \(packageAdditions) and Deletions \(packageDeletions)")
         
         // Queue up all of the additions and deletions for execution
-        
-        return map(packageAdditions.flatten(on: database), packageDeletions.flatten(on: database)) { additions, _ in
-          print("Added \(additions.count) additions")
-          print("Finished")
-        }
+        return packageAdditions.and(packageDeletions)
+          .transform(to: ())
       }
     }
   }
