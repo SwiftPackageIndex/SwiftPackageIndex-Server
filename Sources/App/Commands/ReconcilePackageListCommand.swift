@@ -61,16 +61,6 @@ final class ReconcilePackageListCommand: Command
       var errorNotifications = [Future<Void>]()
       
       for urlString in urlStrings {
-        // This should delete/re-insert a few (5 or so) random packages per run of this command.
-        // ---
-        // This is just debugging code I put in to exercise the creation/deletion code. I was going
-        // to suggest that `ReconcilePackageListCommand` didn't really need testing since the logic
-        // gets tested in `PackageListReconciler`, but the fact that nothing is being deleted makes
-        // that look a little foolish.
-        if Int.random(in: 1...700) == 1 {
-          continue
-        }
-        
         // If this isn't a valid URL, post an error
         guard let url = URL(string: urlString) else {
           try errorNotifications.append(self.sendInvalidURLString(urlString, on: context))
