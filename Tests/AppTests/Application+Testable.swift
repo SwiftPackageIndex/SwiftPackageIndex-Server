@@ -4,19 +4,29 @@ import App
 
 extension Application
 {
-  static func testable(envArgs: [String]? = nil) throws -> Application
+  static func testable(environmentArguments: [String]? = nil) throws -> Application
   {
     var config = Config.default()
     var services = Services.default()
-    var env = Environment.testing
+    var environment = Environment.testing
 
-    if let environmentArgs = envArgs {
-      env.arguments = environmentArgs
+    // Does the testing environment have any custom environment arguments?
+    if let environmentArguments = environmentArguments {
+      environment.arguments = environmentArguments
     }
 
-    try App.configure(&config, &env, &services)
-    let app = try Application(config: config, environment: env,services: services)
+    try App.configure(&config, &environment, &services)
 
+    // Configure a fake network client and keep a reference to it
+    let basicContainer = BasicContainer(config: config, environment: environment, services: services, on: <#T##Worker#>)
+    let fakeClient = FakeClient(container: BasicContainer)
+
+    services.register(Client.self) { container -> FakeClient in
+      return fakeClient
+    }
+    config.prefer(FakeClient.self, for: Client.self)
+
+    let app = try Application(config: config, environment: environment, services: services)
     try App.boot(app)
     return app
   }
@@ -24,9 +34,20 @@ extension Application
   static func reset() throws
   {
     let revertEnvironment = ["vapor", "revert", "--all", "-y"]
-    try Application.testable(envArgs: revertEnvironment).asyncRun().wait()
+    try Application.testable(environmentArguments: revertEnvironment)
+      .asyncRun()
+      .wait()
+
     let migrateEnvironment = ["vapor", "migrate", "-y"]
-    try Application.testable(envArgs: migrateEnvironment).asyncRun().wait()
+    try Application.testable(environmentArguments: migrateEnvironment)
+      .asyncRun()
+      .wait()
+  }
+
+  static var fakeClient: FakeClient? {
+    get {
+      return objc_getAssociatedObject(self, &AssociatedObjectKeys.fakeClientKey) as? FakeClient
+    }
   }
 
   func sendRequest<T>(to path: String, method: HTTPMethod, headers: HTTPHeaders = .init(), body: T? = nil) throws -> Response where T: Content
@@ -61,6 +82,11 @@ extension Application
   {
     let emptyContent: EmptyContent? = nil
     return try self.getResponse(to: path, method: method, headers: headers, data: emptyContent, decodeTo: type)
+  }
+
+  private struct AssociatedObjectKeys
+  {
+    static var fakeClientKey = "fakeClient"
   }
 }
 
