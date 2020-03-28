@@ -31,7 +31,9 @@ final class ReconcilePackageListCommandTests: XCTestCase
     TestData.createPackage(on:database, urlString: "https://github.com/Alamofire/Alamofire.git")
     TestData.createPackage(on:database, urlString: "https://github.com/vapor/vapor.git")
 
-    let fakeClient = app.fakeClient
+    let fakeClient = try app.make(FakeClient.self)
+    let fakePackageList = [ "https://github.com/vapor/vapor.git", "https://github.com/zntfdr/AStack.git" ]
+    fakeClient.registerClientResponse(for: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json", content: fakePackageList)
 
     let countBeforeReconcile = try Package.query(on: database).count().wait()
     XCTAssertEqual(countBeforeReconcile, 2)

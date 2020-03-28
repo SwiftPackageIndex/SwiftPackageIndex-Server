@@ -4,28 +4,26 @@ import App
 final class FakeClient: Client, Service
 {
   var container: Container
-  let clientResponses: [String: FakeClientResponse] = [:]
+  private var clientResponses: [String: FakeClientResponse] = [:]
 
   init(container: Container)
   {
     self.container = container
   }
 
-  func send(_ req: Request) -> EventLoopFuture<Response>
+  func send(_ request: Request) -> EventLoopFuture<Response>
   {
-    print("REQUESTING \(req.http.urlString)")
-
-    guard let response = clientResponses[req.http.urlString] else {
-      return req.future(error: VaporError(identifier: "FakeClient", reason: "Unexpected URL"))
+    guard let response = clientResponses[request.http.urlString] else {
+      return request.future(error: VaporError(identifier: "FakeClient", reason: "Unexpected URL"))
     }
 
-    return createResponse(with: response, on: req)
+    return createResponse(with: response, on: request)
   }
 
   private func createResponse(with clientResponse: FakeClientResponse, on req: Request) -> Future<Response>
   {
     if clientResponse.failRequest {
-      return req.future(error: VaporError(identifier: "FakeClient", reason: "Client failed"))
+      return req.future(error: VaporError(identifier: "FakeClient", reason: "Client response was requested to fail"))
     }
 
     var response = HTTPResponse(status: clientResponse.responseStatus, body: clientResponse.responseBody)
@@ -41,6 +39,15 @@ final class FakeClient: Client, Service
 //    try? wrappedResponse.content.encode(data)
 //    return req.future(wrappedResponse)
 //  }
+
+  func registerClientResponse<T>(for urlString: String, failRequest: Bool = false, status: HTTPStatus = .ok, content: T) where T: Encodable
+  {
+    let encoder = JSONEncoder()
+    let data = try! encoder.encode(content)
+    guard let responseBody = String(data: data, encoding: .utf8)
+      else { preconditionFailure("Failed to encode JSON response body") }
+    clientResponses[urlString] = FakeClientResponse(responseStatus: status, responseBody: responseBody)
+  }
 }
 
 struct FakeClientResponse

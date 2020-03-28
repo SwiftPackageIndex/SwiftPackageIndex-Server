@@ -17,12 +17,9 @@ extension Application
 
     try App.configure(&config, &environment, &services)
 
-    // Configure a fake network client and keep a reference to it
-    let basicContainer = BasicContainer(config: config, environment: environment, services: services, on: <#T##Worker#>)
-    let fakeClient = FakeClient(container: BasicContainer)
-
-    services.register(Client.self) { container -> FakeClient in
-      return fakeClient
+    // Configure a fake networking client
+    services.register(Client.self) { container in
+      return FakeClient(container: container)
     }
     config.prefer(FakeClient.self, for: Client.self)
 
@@ -42,12 +39,6 @@ extension Application
     try Application.testable(environmentArguments: migrateEnvironment)
       .asyncRun()
       .wait()
-  }
-
-  static var fakeClient: FakeClient? {
-    get {
-      return objc_getAssociatedObject(self, &AssociatedObjectKeys.fakeClientKey) as? FakeClient
-    }
   }
 
   func sendRequest<T>(to path: String, method: HTTPMethod, headers: HTTPHeaders = .init(), body: T? = nil) throws -> Response where T: Content
@@ -82,11 +73,6 @@ extension Application
   {
     let emptyContent: EmptyContent? = nil
     return try self.getResponse(to: path, method: method, headers: headers, data: emptyContent, decodeTo: type)
-  }
-
-  private struct AssociatedObjectKeys
-  {
-    static var fakeClientKey = "fakeClient"
   }
 }
 
