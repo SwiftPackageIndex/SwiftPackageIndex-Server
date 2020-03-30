@@ -2,6 +2,8 @@ import Vapor
 import FluentPostgreSQL
 import App
 
+var singletonFakeClient: FakeClient!
+
 extension Application
 {
   static func testable(environmentArguments: [String]? = nil) throws -> Application
@@ -17,9 +19,16 @@ extension Application
 
     try App.configure(&config, &environment, &services)
 
-    // Configure a fake networking client
-    services.register(Client.self) { container in
-      return FakeClient(container: container)
+    // Register a fake networking client. I know this code is nasty, but using a singleton like this is the
+    // cleanest way I could find to be able to get back the same instance of the client inside a test case.
+    // To get back the same client inside a test case, do `let fakeClient = try app.make(FakeClient.self)`
+    services.register(Client.self) { container -> FakeClient in
+      if let fakeClient = singletonFakeClient {
+        return fakeClient
+      } else {
+        singletonFakeClient = FakeClient(container: container)
+        return singletonFakeClient
+      }
     }
     config.prefer(FakeClient.self, for: Client.self)
 
