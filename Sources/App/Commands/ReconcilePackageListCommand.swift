@@ -39,8 +39,6 @@ final class ReconcilePackageListCommand: Command
           }
         }.flatten(on: database)
 
-        print("Additions \(packageAdditions) and Deletions \(packageDeletions)")
-        
         // Queue up all of the additions and deletions for execution
         return packageAdditions.and(packageDeletions)
           .transform(to: ())
