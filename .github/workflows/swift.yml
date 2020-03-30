@@ -26,8 +26,9 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
     - name: Install libssl-dev
       run: apt-get update && apt-get install libssl-dev
-    - name: Run Tests
+    - name: Run tests
       run: swift test --enable-test-discovery -v
