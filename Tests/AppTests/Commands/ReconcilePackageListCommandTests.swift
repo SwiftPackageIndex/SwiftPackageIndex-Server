@@ -13,9 +13,13 @@ final class ReconcilePackageListCommandTests: XCTestCase
   {
     super .setUp()
 
+    print("--------------- APPRESET")
     try! Application.reset()
+    print("--------------- APPTESTABLE")
     app = try! Application.testable()
+    print("--------------- CONNECTION")
     database = try! app.newConnection(to: .psql).wait()
+    print("--------------- DONE")
   }
 
   override func tearDown()
