@@ -13,7 +13,5 @@ jobs:
       image: vapor/swift:5.2-bionic
     steps:
     - uses: actions/checkout@v2
-    - name: Build
-      run: swift build --enable-test-discovery -v
-    - name: Test
+    - name: Run Tests
       run: swift test --enable-test-discovery -v
