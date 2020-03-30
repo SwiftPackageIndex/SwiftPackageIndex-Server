@@ -1,7 +1,8 @@
 import FluentPostgreSQL
 import Vapor
 
-public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
+public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws
+{
   // Register providers first
   try services.register(FluentPostgreSQLProvider())
 
@@ -20,6 +21,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
   var databases = DatabasesConfig()
   let database = PostgreSQLDatabase(config: databaseConfig(env))
   databases.add(database: database, as: .psql)
+  if Environment.get("ENABLE_LOGGING") != nil {
+    databases.enableLogging(on: .psql)
+  }
   services.register(databases)
 
   // Run migrations on the database
@@ -27,14 +31,17 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
   migrations.add(model: Package.self, database: .psql)
   services.register(migrations)
 
-  // Add the Fluent commands, for example "revert"
+  // Add the built in Fluent commands, and all commands in this project
   var commandConfig = CommandConfig.default()
   commandConfig.useFluentCommands()
+  commandConfig.use(ReconcilePackageListCommand(), as: ReconcilePackageListCommand.name)
   services.register(commandConfig)
 }
 
-func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig {
-  func databaseName() -> String {
+func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig
+{
+  func databaseName() -> String
+  {
     switch env {
       case .development: return "swiftpackageindex_dev"
       case .testing: return "swiftpackageindex_test"
@@ -43,9 +50,22 @@ func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig {
     }
   }
 
+  func databasePort() -> Int
+  {
+    switch env {
+      case .development: return 5432
+      case .testing: return 5433
+      case .production: return 5432
+      default: preconditionFailure("Unknown application environment")
+    }
+  }
+
   return PostgreSQLDatabaseConfig(
     hostname: Environment.get("DATABASE_HOST") ?? "localhost",
+    port: databasePort(),
     username: Environment.get("DATABASE_USERNAME") ?? "swiftpackageindex",
     database: databaseName(),
-    password: Environment.get("DATABASE_PASSWORD"))
+    password: Environment.get("DATABASE_PASSWORD") ?? "password",
+    transport: .cleartext
+  )
 }

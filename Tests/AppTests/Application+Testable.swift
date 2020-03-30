@@ -2,21 +2,37 @@ import Vapor
 import FluentPostgreSQL
 import App
 
+var singletonFakeClient: FakeClient!
+
 extension Application
 {
-  static func testable(envArgs: [String]? = nil) throws -> Application
+  static func testable(environmentArguments: [String]? = nil) throws -> Application
   {
     var config = Config.default()
     var services = Services.default()
-    var env = Environment.testing
+    var environment = Environment.testing
 
-    if let environmentArgs = envArgs {
-      env.arguments = environmentArgs
+    // Does the testing environment have any custom environment arguments?
+    if let environmentArguments = environmentArguments {
+      environment.arguments = environmentArguments
     }
 
-    try App.configure(&config, &env, &services)
-    let app = try Application(config: config, environment: env,services: services)
+    try App.configure(&config, &environment, &services)
 
+    // Register a fake networking client. I know this code is nasty, but using a singleton like this is the
+    // cleanest way I could find to be able to get back the same instance of the client inside a test case.
+    // To get back the same client inside a test case, do `let fakeClient = try app.make(FakeClient.self)`
+    services.register(Client.self) { container -> FakeClient in
+      if let fakeClient = singletonFakeClient {
+        return fakeClient
+      } else {
+        singletonFakeClient = FakeClient(container: container)
+        return singletonFakeClient
+      }
+    }
+    config.prefer(FakeClient.self, for: Client.self)
+
+    let app = try Application(config: config, environment: environment, services: services)
     try App.boot(app)
     return app
   }
@@ -24,9 +40,14 @@ extension Application
   static func reset() throws
   {
     let revertEnvironment = ["vapor", "revert", "--all", "-y"]
-    try Application.testable(envArgs: revertEnvironment).asyncRun().wait()
+    try Application.testable(environmentArguments: revertEnvironment)
+      .asyncRun()
+      .wait()
+
     let migrateEnvironment = ["vapor", "migrate", "-y"]
-    try Application.testable(envArgs: migrateEnvironment).asyncRun().wait()
+    try Application.testable(environmentArguments: migrateEnvironment)
+      .asyncRun()
+      .wait()
   }
 
   func sendRequest<T>(to path: String, method: HTTPMethod, headers: HTTPHeaders = .init(), body: T? = nil) throws -> Response where T: Content

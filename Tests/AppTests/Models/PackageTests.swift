@@ -7,45 +7,44 @@ import XCTest
 final class PackageTests: XCTestCase
 {
   var app: Application!
-  var conn: PostgreSQLConnection!
+  var database: PostgreSQLConnection!
 
   override func setUp()
   {
+    super .setUp()
+
     try! Application.reset()
     app = try! Application.testable()
-    conn = try! app.newConnection(to: .psql).wait()
+    database = try! app.newConnection(to: .psql).wait()
   }
 
   override func tearDown()
   {
-    conn.close()
+    super .tearDown()
+
+    database.close()
     try? app.syncShutdownGracefully()
   }
 
   func testPackageCreationWithUrl() throws
   {
-    let url = URL(string: "https://example.com/")
+    let url = URL(string: "https://example.com/")!
     let package = Package(url: url)
     XCTAssertEqual(package.url, url)
   }
 
-  func testPackageCreationWithUrlString() throws
+  func testFindPackageByURL() throws
   {
-    let urlString = "https://example.com/"
-    let package = Package(urlString: urlString)
-    XCTAssertEqual(package.url, URL(string: urlString))
-  }
+    let alamofireUrlString = "https://github.com/Alamofire/Alamofire.git"
+    TestData.createPackage(on:database, urlString: alamofireUrlString)
 
-  func testPackageCreationWithBadUrlString() throws
-  {
-    let urlString = "Hello, world!"
-    let package = Package(urlString: urlString)
-    XCTAssertNil(package.url)
-  }
+    let existingUrl = URL(string: alamofireUrlString)!
+    let existingPackage = try Package.findByUrl(on: database, url: existingUrl).wait()
+    XCTAssertEqual(existingPackage.url, existingUrl)
 
-  static let allTests = [
-    ("testPackageCreationWithUrl", testPackageCreationWithUrl),
-    ("testPackageCreationWithUrlString", testPackageCreationWithUrlString),
-    ("testPackageCreationWithBadUrlString", testPackageCreationWithBadUrlString)
-  ]
+    let nonExistentUrl = URL(string: "https://github.com/apple/shiny.git")!
+    XCTAssertThrowsError(try Package.findByUrl(on: database, url: nonExistentUrl).wait()) { error in
+      XCTAssertEqual(error as? PackageError, PackageError.recordNotFound)
+    }
+  }
 }

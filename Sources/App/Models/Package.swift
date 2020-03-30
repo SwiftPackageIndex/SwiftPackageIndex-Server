@@ -1,25 +1,61 @@
 import Vapor
+import Fluent
 import FluentPostgreSQL
 
-final class Package
+final class Package: Codable
 {
+  static let entity = "packages"
+  
   var id: UUID?
-  var url: URL?
+  private var urlString: String
 
-  init(id: UUID? = nil, url: URL? = nil)
+  init(id: UUID? = nil, url: URL)
   {
     self.id = id
-    self.url = url
+    self.urlString = url.absoluteString
   }
 
-  init(id: UUID? = nil, urlString: String)
+  var url: URL
   {
-    self.id = id
-    self.url = URL(string: urlString)
+    get {
+      guard let url = URL(string: urlString)
+        else { preconditionFailure("Expected a valid URL in urlString") }
+      return url
+    }
+    set {
+      urlString = newValue.absoluteString
+    }
+  }
+}
+
+extension Package
+{
+  static func findByUrl(on connection: DatabaseConnectable, url: URL) -> Future<Package>
+  {
+    return Package.query(on: connection)
+      .filter(\.urlString == url.absoluteString)
+      .first()
+      .unwrap(or: PackageError.recordNotFound)
+  }
+}
+
+extension Package: PostgreSQLMigration
+{
+  static func prepare(on connection: PostgreSQLConnection) -> Future<Void>
+  {
+    return Database.create(Package.self, on: connection) { builder in
+      try addProperties(to: builder)
+
+      builder.unique(on: \.urlString)
+    }
   }
 }
 
 extension Package: PostgreSQLUUIDModel { }
-extension Package: Migration { }
 extension Package: Content { }
 extension Package: Parameter { }
+
+enum PackageError: Error
+{
+  case recordNotFound
+}
