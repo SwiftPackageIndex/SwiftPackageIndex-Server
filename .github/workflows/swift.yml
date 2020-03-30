@@ -26,6 +26,8 @@ jobs:
       uses: actions/checkout@v2
     - name: Install libssl-dev
       run: apt-get update && apt-get install libssl-dev
+    - name: Run a Postgres connection test
+      run: pg_isready -h localhost -p 5432
     - name: Run tests
       run: swift test --enable-test-discovery -v
       env:
