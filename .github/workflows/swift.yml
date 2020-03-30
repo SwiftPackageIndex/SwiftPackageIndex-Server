@@ -31,8 +31,9 @@ jobs:
     - name: Install libssl-dev
       run: apt-get update && apt-get install libssl-dev postgresql-client -y
     - name: Run a Postgres connection test
-      run: pg_isready -h localhost -p 5432
+      run: pg_isready -h postgres -p 5432
     - name: Run tests
       run: swift test --enable-test-discovery -v
       env:
+        DATABASE_HOST: postgres
         DATABASE_PORT: 5432
