@@ -15,10 +15,11 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_PORT: 5433
           POSTGRES_DB: swiftpackageindex_test
           POSTGRES_USER: swiftpackageindex
           POSTGRES_PASSWORD: password
+        ports:
+          - "5433:5432"
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
