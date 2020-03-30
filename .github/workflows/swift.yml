@@ -14,6 +14,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install libssl-dev
-      run: sudo apt-get install libssl-dev
+      run: apt-get install libssl-dev
     - name: Run Tests
       run: swift test --enable-test-discovery -v
