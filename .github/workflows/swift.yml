@@ -31,13 +31,7 @@ jobs:
     - name: Install libssl-dev
       run: apt-get update && apt-get install libssl-dev -y
     - name: Run tests
-      run: swift test --enable-test-discovery -v > test_output.txt
+      run: swift test --enable-test-discovery -v
       env:
         DATABASE_HOST: postgres
         DATABASE_PORT: 5432
-    - name: Upload test output
-      if: always()
-      uses: actions/upload-artifact@v1
-      with:
-        name: Test output
-        path: test_output.txt
