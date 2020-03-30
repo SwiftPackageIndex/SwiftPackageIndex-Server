@@ -11,8 +11,8 @@ final class ReconcilePackageListCommandTests: XCTestCase
 
   override func setUp()
   {
+    print("--------------- SUPER")
     super .setUp()
-
     print("--------------- APPRESET")
     try! Application.reset()
     print("--------------- APPTESTABLE")
@@ -32,6 +32,8 @@ final class ReconcilePackageListCommandTests: XCTestCase
 
   func testAddingAndDeletingPackages() throws
   {
+    print("--------------- TEST STARTING")
+
     TestData.createPackage(on:database, urlString: "https://github.com/Alamofire/Alamofire.git")
     TestData.createPackage(on:database, urlString: "https://github.com/vapor/vapor.git")
 

@@ -6,7 +6,6 @@ final class PackageListReconcilerTests: XCTestCase
 {
   func testReconcileNoChanges()
   {
-    print("--------------- DOES THIS EVEN PRINT?")
     let master = [
       URL(string: "https://example.com/first")!,
       URL(string: "https://example.com/second")!,
