@@ -49,5 +49,11 @@ final class ReconcilePackageListCommandTests: XCTestCase
       let package = try Package.findByUrl(on: database, url: packageUrl).wait()
       XCTAssertEqual(package.url, packageUrl)
     }
+
+    // Validate that the database does not contain the deleted package
+    let deletedPackageUrl = URL(string: "https://github.com/Alamofire/Alamofire.git")!
+    XCTAssertThrowsError(try Package.findByUrl(on: database, url: deletedPackageUrl).wait()) { error in
+      XCTAssertEqual(error as? PackageError, PackageError.recordNotFound)
+    }
   }
 }
