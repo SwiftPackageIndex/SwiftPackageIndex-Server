@@ -25,7 +25,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Install libssl-dev
-      run: apt-get update && apt-get install libssl-dev postgresql-client
+      run: apt-get update && apt-get install libssl-dev postgresql-client -y
     - name: Run a Postgres connection test
       run: pg_isready -h localhost -p 5432
     - name: Run tests
