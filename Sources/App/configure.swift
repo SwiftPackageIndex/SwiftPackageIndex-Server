@@ -53,7 +53,6 @@ func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig
   func databasePort() -> Int
   {
     if let environmentPort = Environment.get("DATABASE_PORT") {
-      print("--------------- RUNNING ON \(environmentPort)")
       return Int(environmentPort) ?? 5432
     }
 
@@ -64,6 +63,8 @@ func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig
       default: preconditionFailure("Unknown application environment")
     }
   }
+
+  print("--------------- RUNNING ON \(databasePort())")
 
   return PostgreSQLDatabaseConfig(
     hostname: Environment.get("DATABASE_HOST") ?? "localhost",
