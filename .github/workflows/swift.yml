@@ -26,6 +26,9 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
 
+      - name: Install node
+        run: apt install nodejs
+
       # Performs a clean installation of all dependencies in the `package.json` file
       # For more information, see https://docs.npmjs.com/cli/ci.html
       - name: Install dependencies
