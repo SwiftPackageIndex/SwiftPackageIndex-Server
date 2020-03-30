@@ -52,6 +52,10 @@ func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig
 
   func databasePort() -> Int
   {
+    if let environmentPort = Environment.get("DATABASE_PORT") {
+      return Int(environmentPort) ?? 5432
+    }
+
     switch env {
       case .development: return 5432
       case .testing: return 5433
