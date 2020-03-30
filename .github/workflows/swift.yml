@@ -8,10 +8,12 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
+    container:
+      image: vapor/swift:5.2-bionic
     steps:
     - uses: actions/checkout@v2
     - name: Build
       run: swift build -v
     - name: Test
-      run: swift test -v
+      run: swift test --enable-test-discovery -v
