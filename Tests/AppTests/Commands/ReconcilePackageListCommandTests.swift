@@ -8,7 +8,7 @@ import XCTest
 @testable import App
 
 final class ReconcilePackageListCommandTests: XCTestCase {
-  var app: Application!
+    var app: Application!
   var database: PostgreSQLConnection!
 
   override func setUp() {
@@ -20,8 +20,6 @@ final class ReconcilePackageListCommandTests: XCTestCase {
   }
 
   override func tearDown() {
-    super.tearDown()
-
     database.close()
     try? app.syncShutdownGracefully()
   }

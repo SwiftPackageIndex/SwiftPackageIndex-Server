@@ -2,7 +2,8 @@ import Fluent
 import FluentPostgreSQL
 import Vapor
 
-final class ReconcilePackageListCommand: Command {
+final class ReconcilePackageListCommand: Command
+{
   static let name = "reconcile_package_list"
 
   var arguments: [CommandArgument] = []
@@ -10,6 +11,9 @@ final class ReconcilePackageListCommand: Command {
   var help = ["Synchronise the database with the master package list from GitHub."]
 
   func run(using context: CommandContext) throws -> Future<Void> {
+
+
+
     // Grab the GitHub master package list and the database's current package list
     let masterPackageList = try fetchMasterPackageList(context)
     let currentPackageList = try fetchCurrentPackageList(context)
