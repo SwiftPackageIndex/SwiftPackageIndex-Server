@@ -7,6 +7,13 @@ on:
     branches: [ master ]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run swiftlint
+        uses: norio-nomura/action-swiftlint@3.1.0
   test:
     runs-on: ubuntu-latest
     container:
