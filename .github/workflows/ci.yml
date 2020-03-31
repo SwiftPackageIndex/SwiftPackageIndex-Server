@@ -8,13 +8,17 @@ on:
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run swiftlint
         uses: norio-nomura/action-swiftlint@3.1.0
+        with:
+          args: --strict
   test:
+    name: Test
     runs-on: ubuntu-latest
     container:
       image: vapor/swift:5.2-bionic
