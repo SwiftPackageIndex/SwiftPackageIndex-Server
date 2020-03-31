@@ -4,10 +4,8 @@ import App
 
 var singletonFakeClient: FakeClient!
 
-extension Application
-{
-  static func testable(environmentArguments: [String]? = nil) throws -> Application
-  {
+extension Application {
+  static func testable(environmentArguments: [String]? = nil) throws -> Application {
     var config = Config.default()
     var services = Services.default()
     var environment = Environment.testing
@@ -37,8 +35,7 @@ extension Application
     return app
   }
 
-  static func reset() throws
-  {
+  static func reset() throws {
     let revertEnvironment = ["vapor", "revert", "--all", "-y"]
     try Application.testable(environmentArguments: revertEnvironment)
       .asyncRun()
@@ -50,8 +47,7 @@ extension Application
       .wait()
   }
 
-  func sendRequest<T>(to path: String, method: HTTPMethod, headers: HTTPHeaders = .init(), body: T? = nil) throws -> Response where T: Content
-  {
+  func sendRequest<T>(to path: String, method: HTTPMethod, headers: HTTPHeaders = .init(), body: T? = nil) throws -> Response where T: Content {
     let responder = try self.make(Responder.self)
     let request = HTTPRequest(method: method, url: URL(string: path)!, headers: headers)
     let wrappedRequest = Request(http: request, using: self)
@@ -61,25 +57,21 @@ extension Application
     return try responder.respond(to: wrappedRequest).wait()
   }
 
-  func sendRequest(to path: String, method: HTTPMethod, headers: HTTPHeaders = .init()) throws -> Response
-  {
+  func sendRequest(to path: String, method: HTTPMethod, headers: HTTPHeaders = .init()) throws -> Response {
     let emptyContent: EmptyContent? = nil
     return try sendRequest(to: path, method: method, headers: headers, body: emptyContent)
   }
 
-  func sendRequest<T>(to path: String, method: HTTPMethod, headers: HTTPHeaders, data: T) throws where T: Content
-  {
+  func sendRequest<T>(to path: String, method: HTTPMethod, headers: HTTPHeaders, data: T) throws where T: Content {
     _ = try self.sendRequest(to: path, method: method, headers: headers, body: data)
   }
 
-  func getResponse<C, T>(to path: String, method: HTTPMethod = .GET, headers: HTTPHeaders = .init(), data: C? = nil, decodeTo type: T.Type) throws -> T where C: Content, T: Decodable
-  {
+  func getResponse<C, T>(to path: String, method: HTTPMethod = .GET, headers: HTTPHeaders = .init(), data: C? = nil, decodeTo type: T.Type) throws -> T where C: Content, T: Decodable {
     let response = try self.sendRequest(to: path, method: method, headers: headers, body: data)
     return try response.content.decode(type).wait()
   }
 
-  func getResponse<T>(to path: String, method: HTTPMethod = .GET, headers: HTTPHeaders = .init(), decodeTo type: T.Type) throws -> T where T: Decodable
-  {
+  func getResponse<T>(to path: String, method: HTTPMethod = .GET, headers: HTTPHeaders = .init(), decodeTo type: T.Type) throws -> T where T: Decodable {
     let emptyContent: EmptyContent? = nil
     return try self.getResponse(to: path, method: method, headers: headers, data: emptyContent, decodeTo: type)
   }

@@ -1,18 +1,15 @@
 import Vapor
 import App
 
-final class FakeClient: Client, Service
-{
+final class FakeClient: Client, Service {
   var container: Container
   private var clientResponses: [String: FakeClientResponse] = [:]
 
-  init(container: Container)
-  {
+  init(container: Container) {
     self.container = container
   }
 
-  func send(_ request: Request) -> EventLoopFuture<Response>
-  {
+  func send(_ request: Request) -> EventLoopFuture<Response> {
     guard let response = clientResponses[request.http.urlString] else {
       return request.future(error: VaporError(identifier: "FakeClient", reason: "Unexpected URL"))
     }
@@ -20,8 +17,7 @@ final class FakeClient: Client, Service
     return createResponse(with: response, on: request)
   }
 
-  private func createResponse(with clientResponse: FakeClientResponse, on req: Request) -> Future<Response>
-  {
+  private func createResponse(with clientResponse: FakeClientResponse, on req: Request) -> Future<Response> {
     if clientResponse.failRequest {
       return req.future(error: VaporError(identifier: "FakeClient", reason: "Client response was requested to fail"))
     }
@@ -40,8 +36,7 @@ final class FakeClient: Client, Service
 //    return req.future(wrappedResponse)
 //  }
 
-  func registerClientResponse<T>(for urlString: String, failRequest: Bool = false, status: HTTPStatus = .ok, content: T) where T: Encodable
-  {
+  func registerClientResponse<T>(for urlString: String, failRequest: Bool = false, status: HTTPStatus = .ok, content: T) where T: Encodable {
     let encoder = JSONEncoder()
     let data = try! encoder.encode(content)
     guard let responseBody = String(data: data, encoding: .utf8)
@@ -50,14 +45,12 @@ final class FakeClient: Client, Service
   }
 }
 
-struct FakeClientResponse
-{
+struct FakeClientResponse {
   let failRequest: Bool
   let responseStatus: HTTPStatus
   let responseBody: String
 
-  init(failRequest: Bool = false, responseStatus: HTTPStatus = .ok, responseBody: String = "{}")
-  {
+  init(failRequest: Bool = false, responseStatus: HTTPStatus = .ok, responseBody: String = "{}") {
     self.failRequest = failRequest
     self.responseStatus = responseStatus
     self.responseBody = responseBody

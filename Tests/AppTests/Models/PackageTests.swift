@@ -4,13 +4,11 @@ import XCTest
 
 @testable import App
 
-final class PackageTests: XCTestCase
-{
+final class PackageTests: XCTestCase {
   var app: Application!
   var database: PostgreSQLConnection!
 
-  override func setUp()
-  {
+  override func setUp() {
     super .setUp()
 
     try! Application.reset()
@@ -18,25 +16,22 @@ final class PackageTests: XCTestCase
     database = try! app.newConnection(to: .psql).wait()
   }
 
-  override func tearDown()
-  {
+  override func tearDown() {
     super .tearDown()
 
     database.close()
     try? app.syncShutdownGracefully()
   }
 
-  func testPackageCreationWithUrl() throws
-  {
+  func testPackageCreationWithUrl() throws {
     let url = URL(string: "https://example.com/")!
     let package = Package(url: url)
     XCTAssertEqual(package.url, url)
   }
 
-  func testFindPackageByURL() throws
-  {
+  func testFindPackageByURL() throws {
     let alamofireUrlString = "https://github.com/Alamofire/Alamofire.git"
-    TestData.createPackage(on:database, urlString: alamofireUrlString)
+    TestData.createPackage(on: database, urlString: alamofireUrlString)
 
     let existingUrl = URL(string: alamofireUrlString)!
     let existingPackage = try Package.findByUrl(on: database, url: existingUrl).wait()

@@ -1,8 +1,7 @@
 import FluentPostgreSQL
 import Vapor
 
-public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws
-{
+public func configure(_ config: inout Config, _ env: inout Environment, _ services: inout Services) throws {
   // Register providers first
   try services.register(FluentPostgreSQLProvider())
 
@@ -38,10 +37,8 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
   services.register(commandConfig)
 }
 
-func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig
-{
-  func databaseName() -> String
-  {
+func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig {
+  func databaseName() -> String {
     switch env {
       case .development: return "swiftpackageindex_dev"
       case .testing: return "swiftpackageindex_test"
@@ -50,8 +47,7 @@ func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig
     }
   }
 
-  func databasePort() -> Int
-  {
+  func databasePort() -> Int {
     if let environmentPort = Environment.get("DATABASE_PORT") {
       return Int(environmentPort) ?? 5432
     }

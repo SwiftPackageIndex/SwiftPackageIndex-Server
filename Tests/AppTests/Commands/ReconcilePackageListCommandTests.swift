@@ -4,13 +4,11 @@ import XCTest
 
 @testable import App
 
-final class ReconcilePackageListCommandTests: XCTestCase
-{
+final class ReconcilePackageListCommandTests: XCTestCase {
   var app: Application!
   var database: PostgreSQLConnection!
 
-  override func setUp()
-  {
+  override func setUp() {
     print("--------------- SUPER")
     super .setUp()
     print("--------------- APPRESET")
@@ -22,20 +20,18 @@ final class ReconcilePackageListCommandTests: XCTestCase
     print("--------------- DONE")
   }
 
-  override func tearDown()
-  {
+  override func tearDown() {
     super .tearDown()
 
     database.close()
     try? app.syncShutdownGracefully()
   }
 
-  func testAddingAndDeletingPackages() throws
-  {
+  func testAddingAndDeletingPackages() throws {
     print("--------------- TEST STARTING")
 
-    TestData.createPackage(on:database, urlString: "https://github.com/Alamofire/Alamofire.git")
-    TestData.createPackage(on:database, urlString: "https://github.com/vapor/vapor.git")
+    TestData.createPackage(on: database, urlString: "https://github.com/Alamofire/Alamofire.git")
+    TestData.createPackage(on: database, urlString: "https://github.com/vapor/vapor.git")
 
     let fakeClient = try app.make(FakeClient.self)
     let fakePackageList = [ "https://github.com/vapor/vapor.git", "https://github.com/zntfdr/AStack.git" ]

@@ -1,8 +1,7 @@
 import Foundation
 import Vapor
 
-class PackageListReconciler
-{
+class PackageListReconciler {
   /// The list of new packages after reconciling
   var packagesToAdd: [URL]
 
@@ -15,8 +14,7 @@ class PackageListReconciler
   /// - Parameters:
   ///   - masterPackageList: The master package list from the GitHub master repository
   ///   - currentPackageList: The current package list according to the database
-  init(masterPackageList: [URL], currentPackageList: [URL])
-  {
+  init(masterPackageList: [URL], currentPackageList: [URL]) {
     let masterPackageSet = Set(masterPackageList)
     let currentPackageSet = Set(currentPackageList)
 

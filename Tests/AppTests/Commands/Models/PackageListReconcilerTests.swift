@@ -2,10 +2,8 @@ import XCTest
 
 @testable import App
 
-final class PackageListReconcilerTests: XCTestCase
-{
-  func testReconcileNoChanges()
-  {
+final class PackageListReconcilerTests: XCTestCase {
+  func testReconcileNoChanges() {
     let master = [
       URL(string: "https://example.com/first")!,
       URL(string: "https://example.com/second")!,
@@ -23,8 +21,7 @@ final class PackageListReconcilerTests: XCTestCase
     AssertEqualPackageLists(reconciler.packagesToAdd, [])
   }
 
-  func testReconcileAddingPackages()
-  {
+  func testReconcileAddingPackages() {
     let master = [
       URL(string: "https://example.com/first")!,
       URL(string: "https://example.com/second")!,
@@ -41,8 +38,7 @@ final class PackageListReconcilerTests: XCTestCase
     AssertEqualPackageLists(reconciler.packagesToDelete, [])
   }
 
-  func testReconcilingPackagesWithDuplicates()
-  {
+  func testReconcilingPackagesWithDuplicates() {
     let master = [
       URL(string: "https://example.com/first")!,
       URL(string: "https://example.com/first")!,
@@ -57,8 +53,7 @@ final class PackageListReconcilerTests: XCTestCase
     AssertEqualPackageLists(reconciler.packagesToDelete, [])
   }
 
-  func testReconcileDeletingPackages()
-  {
+  func testReconcileDeletingPackages() {
     let master = [URL(string: "https://example.com/first")!]
     let current = [
       URL(string: "https://example.com/first")!,
@@ -75,8 +70,7 @@ final class PackageListReconcilerTests: XCTestCase
       URL(string: "https://example.com/fourth")!])
   }
 
-  func testReconcileAddingAndDeletingPackages()
-  {
+  func testReconcileAddingAndDeletingPackages() {
     let master = [
       URL(string: "https://example.com/first")!,
       URL(string: "https://example.com/second")!,
@@ -103,8 +97,7 @@ final class PackageListReconcilerTests: XCTestCase
 /// - Parameters:
 ///   - first: The first array.
 ///   - second: The second array.
-func AssertEqualPackageLists(_ first: [URL], _ second: [URL], file: StaticString = #file, line: UInt = #line)
-{
+func AssertEqualPackageLists(_ first: [URL], _ second: [URL], file: StaticString = #file, line: UInt = #line) {
   // Sorted arrays should be exactly equal
   let firstSorted = first.map { $0.absoluteString }.sorted()
   let secondSorted = second.map { $0.absoluteString }.sorted()
