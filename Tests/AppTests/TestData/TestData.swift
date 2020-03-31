@@ -4,7 +4,7 @@ import DatabaseKit
 
 @testable import App
 
-class TestData {
+enum TestData {
   /// Helper method to create a test Package in the database.
   /// - Parameters:
   ///   - database: A database connection to use for creating the test package.

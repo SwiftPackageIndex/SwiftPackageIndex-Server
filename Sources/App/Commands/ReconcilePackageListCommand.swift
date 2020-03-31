@@ -1,6 +1,6 @@
-import Vapor
 import Fluent
 import FluentPostgreSQL
+import Vapor
 
 final class ReconcilePackageListCommand: Command {
   static let name = "reconcile_package_list"
@@ -51,7 +51,7 @@ final class ReconcilePackageListCommand: Command {
         // GitHub serves the file as text/plain so it needs to be forced as JSON
         response.http.contentType = .json
         return try response.content.decode([String].self)
-    }.flatMap { urlStrings in
+      }.flatMap { urlStrings in
       var urls = [URL]()
       var errorNotifications = [Future<Void>]()
 
@@ -69,7 +69,7 @@ final class ReconcilePackageListCommand: Command {
       return errorNotifications
         .flatten(on: context.container)
         .transform(to: urls)
-    }
+      }
   }
 
   func fetchCurrentPackageList(_ context: CommandContext) throws -> Future<[URL]> {

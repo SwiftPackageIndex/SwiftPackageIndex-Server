@@ -1,17 +1,19 @@
-import Vapor
-import FluentPostgreSQL
+// swiftlint:disable force_unwrapping
+
 import App
+import FluentPostgreSQL
+import Vapor
 
 var singletonFakeClient: FakeClient!
 
 extension Application {
-  static func testable(environmentArguments: [String]? = nil) throws -> Application {
+  static func testable(environmentArguments: [String] = []) throws -> Application {
     var config = Config.default()
     var services = Services.default()
     var environment = Environment.testing
 
     // Does the testing environment have any custom environment arguments?
-    if let environmentArguments = environmentArguments {
+    if environmentArguments.isEmpty == false {
       environment.arguments = environmentArguments
     }
 

@@ -1,7 +1,7 @@
 // swiftlint:disable force_try
 
-import Vapor
 import App
+import Vapor
 
 final class FakeClient: Client, Service {
   var container: Container

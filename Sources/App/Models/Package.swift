@@ -1,6 +1,6 @@
-import Vapor
 import Fluent
 import FluentPostgreSQL
+import Vapor
 
 final class Package: Codable {
   static let entity = "packages"

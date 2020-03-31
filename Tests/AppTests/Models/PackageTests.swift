@@ -1,7 +1,8 @@
 // swiftlint:disable force_try
+// swiftlint:disable force_unwrapping
 
-import Vapor
 import FluentPostgreSQL
+import Vapor
 import XCTest
 
 @testable import App
@@ -11,7 +12,7 @@ final class PackageTests: XCTestCase {
   var database: PostgreSQLConnection!
 
   override func setUp() {
-    super .setUp()
+    super.setUp()
 
     try! Application.reset()
     app = try! Application.testable()
@@ -19,7 +20,7 @@ final class PackageTests: XCTestCase {
   }
 
   override func tearDown() {
-    super .tearDown()
+    super.tearDown()
 
     database.close()
     try? app.syncShutdownGracefully()
