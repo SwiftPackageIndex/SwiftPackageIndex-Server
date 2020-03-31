@@ -1,3 +1,16 @@
 included:
   - Sources
   - Tests
+
+disabled_rules:
+  - line_length
+
+identifier_name:
+  excluded:
+    - id
+
+switch_case_alignment:
+  indented_cases: true
+
+nesting:
+  type_level: 3

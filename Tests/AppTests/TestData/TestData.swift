@@ -1,3 +1,5 @@
+// swiftlint:disable force_try
+
 import DatabaseKit
 
 @testable import App

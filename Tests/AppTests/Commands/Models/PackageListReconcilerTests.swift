@@ -17,8 +17,8 @@ final class PackageListReconcilerTests: XCTestCase {
 
     let reconciler = PackageListReconciler(masterPackageList: master, currentPackageList: current)
 
-    AssertEqualPackageLists(reconciler.packagesToDelete, [])
-    AssertEqualPackageLists(reconciler.packagesToAdd, [])
+    XCTAssertEqualPackageLists(reconciler.packagesToDelete, [])
+    XCTAssertEqualPackageLists(reconciler.packagesToAdd, [])
   }
 
   func testReconcileAddingPackages() {
@@ -31,11 +31,11 @@ final class PackageListReconcilerTests: XCTestCase {
 
     let reconciler = PackageListReconciler(masterPackageList: master, currentPackageList: current)
 
-    AssertEqualPackageLists(reconciler.packagesToAdd, [
+    XCTAssertEqualPackageLists(reconciler.packagesToAdd, [
       URL(string: "https://example.com/second")!,
       URL(string: "https://example.com/third")!,
       URL(string: "https://example.com/fourth")!])
-    AssertEqualPackageLists(reconciler.packagesToDelete, [])
+    XCTAssertEqualPackageLists(reconciler.packagesToDelete, [])
   }
 
   func testReconcilingPackagesWithDuplicates() {
@@ -47,10 +47,10 @@ final class PackageListReconcilerTests: XCTestCase {
 
     let reconciler = PackageListReconciler(masterPackageList: master, currentPackageList: current)
 
-    AssertEqualPackageLists(reconciler.packagesToAdd, [
+    XCTAssertEqualPackageLists(reconciler.packagesToAdd, [
       URL(string: "https://example.com/first")!,
       URL(string: "https://example.com/second")!])
-    AssertEqualPackageLists(reconciler.packagesToDelete, [])
+    XCTAssertEqualPackageLists(reconciler.packagesToDelete, [])
   }
 
   func testReconcileDeletingPackages() {
@@ -63,8 +63,8 @@ final class PackageListReconcilerTests: XCTestCase {
 
     let reconciler = PackageListReconciler(masterPackageList: master, currentPackageList: current)
 
-    AssertEqualPackageLists(reconciler.packagesToAdd, [])
-    AssertEqualPackageLists(reconciler.packagesToDelete, [
+    XCTAssertEqualPackageLists(reconciler.packagesToAdd, [])
+    XCTAssertEqualPackageLists(reconciler.packagesToDelete, [
       URL(string: "https://example.com/second")!,
       URL(string: "https://example.com/third")!,
       URL(string: "https://example.com/fourth")!])
@@ -84,10 +84,10 @@ final class PackageListReconcilerTests: XCTestCase {
 
     let reconciler = PackageListReconciler(masterPackageList: master, currentPackageList: current)
 
-    AssertEqualPackageLists(reconciler.packagesToAdd, [
+    XCTAssertEqualPackageLists(reconciler.packagesToAdd, [
       URL(string: "https://example.com/fifth")!,
       URL(string: "https://example.com/sixth")!])
-    AssertEqualPackageLists(reconciler.packagesToDelete, [
+    XCTAssertEqualPackageLists(reconciler.packagesToDelete, [
       URL(string: "https://example.com/third")!,
       URL(string: "https://example.com/fourth")!])
   }
@@ -97,7 +97,7 @@ final class PackageListReconcilerTests: XCTestCase {
 /// - Parameters:
 ///   - first: The first array.
 ///   - second: The second array.
-func AssertEqualPackageLists(_ first: [URL], _ second: [URL], file: StaticString = #file, line: UInt = #line) {
+func XCTAssertEqualPackageLists(_ first: [URL], _ second: [URL], file: StaticString = #file, line: UInt = #line) {
   // Sorted arrays should be exactly equal
   let firstSorted = first.map { $0.absoluteString }.sorted()
   let secondSorted = second.map { $0.absoluteString }.sorted()
