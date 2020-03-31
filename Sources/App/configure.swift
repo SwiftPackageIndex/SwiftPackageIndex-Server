@@ -60,8 +60,6 @@ func databaseConfig(_ env: Environment) -> PostgreSQLDatabaseConfig {
     }
   }
 
-  print("--------------- RUNNING ON \(databasePort())")
-
   return PostgreSQLDatabaseConfig(
     hostname: Environment.get("DATABASE_HOST") ?? "localhost",
     port: databasePort(),

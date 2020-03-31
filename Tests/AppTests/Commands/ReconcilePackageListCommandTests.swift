@@ -11,15 +11,11 @@ final class ReconcilePackageListCommandTests: XCTestCase {
   var database: PostgreSQLConnection!
 
   override func setUp() {
-    print("--------------- SUPER")
     super .setUp()
-    print("--------------- APPRESET")
+
     try! Application.reset()
-    print("--------------- APPTESTABLE")
     app = try! Application.testable()
-    print("--------------- CONNECTION")
     database = try! app.newConnection(to: .psql).wait()
-    print("--------------- DONE")
   }
 
   override func tearDown() {
@@ -30,8 +26,6 @@ final class ReconcilePackageListCommandTests: XCTestCase {
   }
 
   func testAddingAndDeletingPackages() throws {
-    print("--------------- TEST STARTING")
-
     TestData.createPackage(on: database, urlString: "https://github.com/Alamofire/Alamofire.git")
     TestData.createPackage(on: database, urlString: "https://github.com/vapor/vapor.git")
 
