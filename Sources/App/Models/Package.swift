@@ -13,7 +13,7 @@ final class Package: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
-    @Field(key: "url")
+    @Field(key: "url")  // TODO: add index
     var url: String
 
     @Field(key: "last_commit_at")
