@@ -16,6 +16,8 @@ public func configure(_ app: Application) throws {
 
     app.migrations.add(CreatePackage())
 
+    app.commands.use(IngestorCommand(), as: "ingest")
+
     // register routes
     try routes(app)
 }
