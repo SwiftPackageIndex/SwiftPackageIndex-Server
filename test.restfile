@@ -30,3 +30,8 @@ requests:
             status: 200
         log: json
 
+    get-package:
+        url: ${base_url}/packages/${all-packages[0].id}
+        validation:
+            status: 200
+        log: json

@@ -11,6 +11,11 @@ struct PackageController {
         return pkg.save(on: req.db).map { pkg }
     }
 
+    func get(req: Request) throws -> EventLoopFuture<Package> {
+        return Package.find(req.parameters.get("id"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+    }
+
     func delete(req: Request) throws -> EventLoopFuture<HTTPStatus> {
         return Package.find(req.parameters.get("id"), on: req.db)
             .unwrap(or: Abort(.notFound))

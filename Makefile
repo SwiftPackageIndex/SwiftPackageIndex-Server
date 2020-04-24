@@ -3,7 +3,7 @@ VAPOR=vapor-beta
 build:
 	$(VAPOR) build
 
-run:
+run: build
 	$(VAPOR) run
 
 db-up:

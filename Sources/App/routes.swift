@@ -12,6 +12,7 @@ func routes(_ app: Application) throws {
 
     let controller = PackageController()
     app.get("packages", use: controller.index)
+    app.get("packages", ":id", use: controller.get)
     app.post("packages", use: controller.create)
     app.delete("packages", ":id", use: controller.delete)
 }
