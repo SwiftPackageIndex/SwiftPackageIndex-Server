@@ -7,8 +7,17 @@ final class Package: Model, Content {
     @ID(key: .id)
     var id: UUID?
 
+    @Timestamp(key: "created_at", on: .create)
+    var createdAt: Date?
+
+    @Timestamp(key: "updated_at", on: .update)
+    var updatedAt: Date?
+
     @Field(key: "url")
     var url: String
+
+    @Field(key: "last_commit_at")
+    var lastCommitAt: Date?
 
     init() { }
 

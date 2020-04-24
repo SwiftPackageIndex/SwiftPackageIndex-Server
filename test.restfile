@@ -21,6 +21,7 @@ requests:
         body:
             json:
                 url: https://github.com/finestructure/Arena
+                lastCommitAt: "2020-04-24T13:03:09Z"
         validation:
             status: 200
 

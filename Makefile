@@ -12,7 +12,10 @@ db-up:
 db-down:
 	docker rm -f spmidx_dev
 
-migrate:
+migrate: build
 	$(VAPOR) run migrate
+
+revert: build
+	$(VAPOR) run migrate --revert
 
 db-reset: db-down db-up
