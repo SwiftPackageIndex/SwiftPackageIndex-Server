@@ -1,0 +1,2 @@
+run:
+	vapor-beta run
