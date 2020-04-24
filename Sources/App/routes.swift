@@ -10,8 +10,8 @@ func routes(_ app: Application) throws {
         return "Hello, world!"
     }
 
-    let todoController = TodoController()
-    app.get("todos", use: todoController.index)
-    app.post("todos", use: todoController.create)
-    app.delete("todos", ":todoID", use: todoController.delete)
+    let controller = PackageController()
+    app.get("packages", use: controller.index)
+    app.post("packages", use: controller.create)
+    app.delete("packages", ":id", use: controller.delete)
 }

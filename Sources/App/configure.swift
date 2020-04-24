@@ -14,7 +14,7 @@ public func configure(_ app: Application) throws {
         database: Environment.get("DATABASE_NAME")!
     ), as: .psql)
 
-    app.migrations.add(CreateTodo())
+    app.migrations.add(CreatePackage())
 
     // register routes
     try routes(app)

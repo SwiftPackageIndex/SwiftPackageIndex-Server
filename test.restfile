@@ -8,3 +8,25 @@ requests:
         validation:
             status: 200
         log: true
+        
+    hello-param:
+        url: ${base_url}/hello?name=foo
+        validation:
+            status: 200
+        log: true
+
+    create-package:
+        url: ${base_url}/packages/
+        method: POST
+        body:
+            json:
+                url: https://github.com/finestructure/Arena
+        validation:
+            status: 200
+
+    all-packages:
+        url: ${base_url}/packages
+        validation:
+            status: 200
+        log: json
+

@@ -1,5 +1,8 @@
 VAPOR=vapor-beta
 
+build:
+	$(VAPOR) build
+
 run:
 	$(VAPOR) run
 
