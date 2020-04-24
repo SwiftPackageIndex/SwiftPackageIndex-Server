@@ -3,8 +3,17 @@ VAPOR=vapor-beta
 build:
 	$(VAPOR) build
 
-run: build
+run:
 	$(VAPOR) run
+
+migrate:
+	$(VAPOR) run migrate
+
+revert:
+	$(VAPOR) run migrate --revert
+
+routes:
+	$(VAPOR) run routes
 
 db-up:
 	docker run --name spmidx_dev -e POSTGRES_DB=spmidx_dev -e POSTGRES_USER=spmidx_dev -e POSTGRES_PASSWORD=xxx -p 5432:5432 -d postgres
@@ -12,10 +21,5 @@ db-up:
 db-down:
 	docker rm -f spmidx_dev
 
-migrate: build
-	$(VAPOR) run migrate
-
-revert: build
-	$(VAPOR) run migrate --revert
-
 db-reset: db-down db-up
+
