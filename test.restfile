@@ -36,3 +36,14 @@ requests:
         validation:
             status: 200
         log: json
+    
+    put-package:
+        url: ${base_url}/packages/${all-packages[0].id}
+        method: PUT  # TODO: add PATCH to rester
+        body:
+            json:
+                url: https://github.com/finestructure/Arena
+                lastCommitAt: "2019-03-23T00:00:00Z"
+        validation:
+            status: 200
+        log: json

@@ -16,6 +16,14 @@ struct PackageController {
             .unwrap(or: Abort(.notFound))
     }
 
+    func replace(req: Request) throws -> EventLoopFuture<HTTPStatus> {
+        let pkg = try req.content.decode(Package.self)
+        return Package.find(req.parameters.get("id"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .flatMap { _ in pkg.save(on: req.db) }
+            .transform(to: .ok)
+    }
+
     func delete(req: Request) throws -> EventLoopFuture<HTTPStatus> {
         return Package.find(req.parameters.get("id"), on: req.db)
             .unwrap(or: Abort(.notFound))
