@@ -1,0 +1,10 @@
+variables:
+    base_url: http://localhost:8080
+
+requests:
+
+    hello:
+        url: ${base_url}/hello
+        validation:
+            status: 200
+        log: true
