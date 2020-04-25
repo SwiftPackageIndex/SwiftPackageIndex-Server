@@ -1,11 +1,6 @@
 import Vapor
 import Fluent
 
-let masterPackageListURL = URI(string: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json")
-
-enum IngestorError: Error {
-    case recordNotFound
-}
 
 struct IngestorCommand: Command {
     struct Signature: CommandSignature {

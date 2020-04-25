@@ -16,7 +16,7 @@ final class Package: Model, Content {
     @Field(key: "url")  // TODO: add index
     var url: String
 
-    @Field(key: "last_commit_at")
+    @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository?
     var lastCommitAt: Date?
 
     init() { }

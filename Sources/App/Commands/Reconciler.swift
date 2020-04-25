@@ -2,6 +2,9 @@ import Fluent
 import Vapor
 
 
+let masterPackageListURL = URI(string: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json")
+
+
 struct ReconcilerCommand: Command {
     struct Signature: CommandSignature { }
 
@@ -28,6 +31,7 @@ func fetchMasterPackageList(_ context: CommandContext) throws -> EventLoopFuture
         .flatMapEachCompactThrowing(URL.init(string:))
 }
 
+
 func fetchCurrentPackageList(_ context: CommandContext) throws -> EventLoopFuture<[URL]> {
     context.application.db.query(Package.self)
         .all()
@@ -35,11 +39,13 @@ func fetchCurrentPackageList(_ context: CommandContext) throws -> EventLoopFutur
         .mapEachCompact(URL.init(string:))
 }
 
+
 func diff(source: [URL], target: [URL]) -> (toAdd: Set<URL>, toDelete: Set<URL>) {
     let s = Set(source)
     let t = Set(target)
     return (toAdd: s.subtracting(t), toDelete: t.subtracting(s))
 }
+
 
 func reconcileLists(db: Database, source: [URL], target: [URL]) -> EventLoopFuture<Void> {
     let (toAdd, toDelete) = diff(source: source, target: target)
@@ -54,7 +60,7 @@ func reconcileLists(db: Database, source: [URL], target: [URL]) -> EventLoopFutu
                 Package.query(on: db)
                     .filter(by: url)
                     .first()
-                    .unwrap(or: IngestorError.recordNotFound)
+                    .unwrap(or: Abort(.notFound))
                     .flatMap { pkg in
                         pkg.delete(on: db)
                 }
