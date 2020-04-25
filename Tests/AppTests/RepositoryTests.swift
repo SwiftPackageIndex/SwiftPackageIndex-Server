@@ -4,7 +4,7 @@ import XCTVapor
 
 
 final class ModelTests: XCTestCase {
-    func test_relationship() throws {
+    func test_package_relationship() throws {
         let app = try setup(.testing)
         defer { app.shutdown() }
 
@@ -22,5 +22,11 @@ final class ModelTests: XCTestCase {
             XCTAssertThrowsError(try repo.save(on: app.db).wait())
             XCTAssertEqual(try Repository.query(on: app.db).all().wait().count, 1)
         }
+    }
+
+    func test_forkedFrom_relationship() throws {
+        let app = try setup(.testing)
+        defer { app.shutdown() }
+        XCTAssert(false, "implement me")
     }
 }

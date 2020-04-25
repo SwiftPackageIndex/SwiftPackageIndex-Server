@@ -16,6 +16,21 @@ final class Repository: Model, Content {
     @Parent(key: "package_id")
     var package: Package
 
+    @Field(key: "description")
+    var description: String
+
+    @Field(key: "license")
+    var license: String
+
+    @Field(key: "stars")
+    var stars: Int
+
+    @Field(key: "forks")
+    var forks: Int
+
+    @OptionalParent(key: "forked_from_id")
+    var forkedFrom: Package?  // TODO: sas 2020-04-25: should this link live in Package?
+
     init() { }
 
     init(id: UUID? = nil, package: Package) throws {
