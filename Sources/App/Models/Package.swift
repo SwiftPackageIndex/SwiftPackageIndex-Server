@@ -26,3 +26,10 @@ final class Package: Model, Content {
         self.url = url.absoluteString
     }
 }
+
+
+extension QueryBuilder where Model == Package {
+    func filter(by url: URL) -> Self {
+        filter("url", .equal, url.absoluteString)
+    }
+}

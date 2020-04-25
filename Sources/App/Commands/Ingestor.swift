@@ -30,8 +30,7 @@ struct IngestorCommand: Command {
                     toDelete
                         .map { url in
                             Package.query(on: db)
-                                // TODO: outline this into a custom filer on Package
-                                .filter("url", .equal, url.absoluteString)
+                                .filter(by: url)
                                 .first()
                                 .unwrap(or: IngestorError.recordNotFound)
                                 .flatMap { pkg in

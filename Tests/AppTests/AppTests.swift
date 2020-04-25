@@ -1,4 +1,5 @@
 import Foundation
+import Fluent
 
 @testable import App
 
@@ -6,7 +7,7 @@ import XCTVapor
 
 
 final class AppTests: XCTestCase {
-    func _testHelloWorld() throws {
+    func testHelloWorld() throws {
         let app = Application(.testing)
         defer { app.shutdown() }
         try configure(app)
@@ -38,5 +39,34 @@ final class AppTests: XCTestCase {
         XCTAssertEqual(p.id?.uuidString, "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
         XCTAssertEqual(p.url, "https://github.com/finestructure/Arena")
         XCTAssertEqual(p.lastCommitAt?.description, "2020-04-24 13:03:09 +0000")
+    }
+
+    func test_Package_filter_by_url() throws {
+        let app = try setup(.testing)
+        defer { app.shutdown() }
+
+        try ["https://foo.com/1", "https://foo.com/2"].forEach {
+            try Package(url: $0.url).save(on: app.db).wait()
+        }
+        let res = try Package.query(on: app.db).filter(by: "https://foo.com/1".url).all().wait()
+        XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
+    }
+}
+
+
+func setup(_ environment: Environment, resetDb: Bool = true) throws -> Application {
+    let app = Application(.testing)
+    try configure(app)
+    if resetDb {
+        try app.autoRevert().wait()
+        try app.autoMigrate().wait()
+    }
+    return app
+}
+
+
+extension String {
+    var url: URL {
+        URL(string: self)!
     }
 }
