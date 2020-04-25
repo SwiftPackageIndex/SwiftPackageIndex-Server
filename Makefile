@@ -19,10 +19,10 @@ ingest:
 	$(VAPOR) run ingest
 
 db-up:
-	docker run --name spmidx_dev -e POSTGRES_DB=spmidx_dev -e POSTGRES_USER=spmidx_dev -e POSTGRES_PASSWORD=xxx -p 5432:5432 -d postgres
+	docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 5432:5432 -d postgres
 
 db-down:
-	docker rm -f spmidx_dev
+	docker rm -f spi_dev
 
 db-reset: db-down db-up
 

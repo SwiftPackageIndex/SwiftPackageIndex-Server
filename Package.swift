@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "SPMidx",
+    name: "SPI-Server",
     platforms: [
        .macOS(.v10_15)
     ],
