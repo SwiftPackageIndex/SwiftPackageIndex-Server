@@ -18,6 +18,9 @@ routes:
 ingest:
 	$(VAPOR) run ingest
 
+reconcile:
+	$(VAPOR) run reconcile
+
 db-up:
 	docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 5432:5432 -d postgres
 

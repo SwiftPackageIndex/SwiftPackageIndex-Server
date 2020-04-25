@@ -13,10 +13,10 @@ final class Package: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
-    @Field(key: "url")  // TODO: add index
+    @Field(key: "url")
     var url: String
 
-    @Field(key: "last_commit_at")
+    @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository?
     var lastCommitAt: Date?
 
     init() { }
@@ -24,5 +24,12 @@ final class Package: Model, Content {
     init(id: UUID? = nil, url: URL) {
         self.id = id
         self.url = url.absoluteString
+    }
+}
+
+
+extension QueryBuilder where Model == Package {
+    func filter(by url: URL) -> Self {
+        filter("url", .equal, url.absoluteString)
     }
 }
