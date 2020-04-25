@@ -27,5 +27,5 @@ db-up:
 db-down:
 	docker rm -f spi_dev
 
-db-reset: db-down db-up
+reset: db-down db-up migrate
 
