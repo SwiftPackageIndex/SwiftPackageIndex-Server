@@ -13,7 +13,7 @@ final class Package: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
-    @Field(key: "url")  // TODO: add index
+    @Field(key: "url")
     var url: String
 
     @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository?
