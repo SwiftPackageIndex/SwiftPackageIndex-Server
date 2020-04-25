@@ -3,11 +3,18 @@
 import XCTVapor
 
 
-final class ModelTests: XCTestCase {
-    func test_package_relationship() throws {
-        let app = try setup(.testing)
-        defer { app.shutdown() }
+final class RepositoryTests: XCTestCase {
+    var app: Application!
 
+    override func setUpWithError() throws {
+        app = try setup(.testing)
+    }
+
+    override func tearDownWithError() throws {
+        app.shutdown()
+    }
+
+    func test_package_relationship() throws {
         let pkg = Package(url: "p1".url)
         try pkg.save(on: app.db).wait()
         let repo = try Repository(package: pkg)
@@ -25,8 +32,15 @@ final class ModelTests: XCTestCase {
     }
 
     func test_forkedFrom_relationship() throws {
-        let app = try setup(.testing)
-        defer { app.shutdown() }
-        XCTAssert(false, "implement me")
+        let p1 = Package(url: "p1".url)
+        try p1.save(on: app.db).wait()
+        let p2 = Package(url: "p2".url)
+        try p2.save(on: app.db).wait()
+
+        // test forked from link
+        let parent = try Repository(package: p1)
+        try parent.save(on: app.db).wait()
+        let child = try Repository(package: p2, forkedFrom: parent)
+        try child.save(on: app.db).wait()
     }
 }

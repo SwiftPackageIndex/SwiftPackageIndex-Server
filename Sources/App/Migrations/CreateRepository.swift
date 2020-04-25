@@ -15,7 +15,7 @@ struct CreateRepository: Migration {
             .field("license", .string)  // TODO: make enum?
             .field("stars", .int)
             .field("forks", .int)
-            .field("forked_from_id", .uuid, .references("packages", "id"))
+            .field("forked_from_id", .uuid, .references("repositories", "id"))
             .unique(on: "forked_from_id")
             .create()
     }

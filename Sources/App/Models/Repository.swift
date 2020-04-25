@@ -17,24 +17,27 @@ final class Repository: Model, Content {
     var package: Package
 
     @Field(key: "description")
-    var description: String
+    var description: String?
 
     @Field(key: "license")
-    var license: String
+    var license: String?
 
     @Field(key: "stars")
-    var stars: Int
+    var stars: Int?
 
     @Field(key: "forks")
-    var forks: Int
+    var forks: Int?
 
     @OptionalParent(key: "forked_from_id")
-    var forkedFrom: Package?  // TODO: sas 2020-04-25: should this link live in Package?
+    var forkedFrom: Repository?
 
     init() { }
 
-    init(id: UUID? = nil, package: Package) throws {
+    init(id: UUID? = nil, package: Package, forkedFrom: Repository? = nil) throws {
         self.id = id
         self.$package.id = try package.requireID()
+        if let forkId = forkedFrom?.id {
+            self.$forkedFrom.id = forkId
+        }
     }
 }

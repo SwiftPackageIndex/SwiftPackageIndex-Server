@@ -6,6 +6,16 @@ import XCTVapor
 
 
 final class PackageTests: XCTestCase {
+    var app: Application!
+
+    override func setUpWithError() throws {
+        app = try setup(.testing)
+    }
+
+    override func tearDownWithError() throws {
+        app.shutdown()
+    }
+
     func test_encode() throws {
         let p = Package(id: UUID(), url: URL(string: "https://github.com/finestructure/Arena")!)
         p.lastCommitAt = Date()
@@ -30,17 +40,11 @@ final class PackageTests: XCTestCase {
     }
 
     func test_unique_url() throws {
-        let app = try setup(.testing)
-        defer { app.shutdown() }
-
         try Package(url: "p1".url).save(on: app.db).wait()
         XCTAssertThrowsError(try Package(url: "p1".url).save(on: app.db).wait())
     }
 
     func test_filter_by_url() throws {
-        let app = try setup(.testing)
-        defer { app.shutdown() }
-
         try ["https://foo.com/1", "https://foo.com/2"].forEach {
             try Package(url: $0.url).save(on: app.db).wait()
         }
