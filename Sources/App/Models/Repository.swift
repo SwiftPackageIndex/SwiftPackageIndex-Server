@@ -13,9 +13,13 @@ final class Repository: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
+    @Parent(key: "package_id")
+    var package: Package
+
     init() { }
 
-    init(id: UUID? = nil) {
+    init(id: UUID? = nil, package: Package) throws {
         self.id = id
+        self.$package.id = try package.requireID()
     }
 }
