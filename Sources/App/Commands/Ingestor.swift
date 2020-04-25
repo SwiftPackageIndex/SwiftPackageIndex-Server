@@ -1,4 +1,5 @@
 import Vapor
+import Fluent
 
 let masterPackageListURL = URI(string: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json")
 
@@ -7,51 +8,35 @@ enum IngestorError: Error {
 }
 
 struct IngestorCommand: Command {
-    struct Signature: CommandSignature { }
+    struct Signature: CommandSignature {
+        @Option(name: "limit", short: "l")
+        var limit: Int?
+    }
 
     var help: String {
         "Ingests packages"
     }
 
     func run(using context: CommandContext, signature: Signature) throws {
+        //        let limit = signature.limit
         context.console.print("Ingesting ...")
-        let masterList = try fetchMasterPackageList(context)
-        let currentList = try fetchCurrentPackageList(context)
 
-        let requests = masterList.and(currentList)
-            .flatMap { (master, current) -> EventLoopFuture<Void> in
-                let (toAdd, toDelete) = self.diff(source: master, target: current)
-                let insertions = context.application.db.withConnection { db in
-                    toAdd.map { Package(url: $0) }
-                        .map { $0.create(on: db) }
-                        .flatten(on: db.eventLoop)
-                }
-                let deletions: EventLoopFuture<Void> = context.application.db.withConnection { db in
-                    toDelete
-                        .map { url in
-                            Package.query(on: db)
-                                .filter(by: url)
-                                .first()
-                                .unwrap(or: IngestorError.recordNotFound)
-                                .flatMap { pkg in
-                                    pkg.delete(on: db)
-                            }
-                    }
-                    .flatten(on: db.eventLoop)
-                }
-                return insertions.and(deletions).transform(to: ())
+        do {  // reconcile lists
+            let masterList = try fetchMasterPackageList(context)
+            let currentList = try fetchCurrentPackageList(context)
+
+            let requests = masterList.and(currentList)
+                .flatMap { self.reconcileLists(db: context.application.db, source: $0, target: $1) }
+            try requests.wait()
         }
-        try requests.wait()
     }
 
     func fetchMasterPackageList(_ context: CommandContext) throws -> EventLoopFuture<[URL]> {
         context.application.client
-                    .get(masterPackageListURL)
-                    .flatMapThrowing {
-                        try $0.content.decode([String].self, using: JSONDecoder())
-        }
+            .get(masterPackageListURL)
+            .flatMapThrowing { try $0.content.decode([String].self, using: JSONDecoder()) }
             // TODO: send error notification for failing URLs
-        .flatMapEachCompactThrowing(URL.init(string:))
+            .flatMapEachCompactThrowing(URL.init(string:))
     }
 
     func fetchCurrentPackageList(_ context: CommandContext) throws -> EventLoopFuture<[URL]> {
@@ -65,5 +50,28 @@ struct IngestorCommand: Command {
         let s = Set(source)
         let t = Set(target)
         return (toAdd: s.subtracting(t), toDelete: t.subtracting(s))
+    }
+
+    func reconcileLists(db: Database, source: [URL], target: [URL]) -> EventLoopFuture<Void> {
+        let (toAdd, toDelete) = self.diff(source: source, target: target)
+        let insertions = db.withConnection { db in
+            toAdd.map { Package(url: $0) }
+                .map { $0.create(on: db) }
+                .flatten(on: db.eventLoop)
+        }
+        let deletions: EventLoopFuture<Void> = db.withConnection { db in
+            toDelete
+                .map { url in
+                    Package.query(on: db)
+                        .filter(by: url)
+                        .first()
+                        .unwrap(or: IngestorError.recordNotFound)
+                        .flatMap { pkg in
+                            pkg.delete(on: db)
+                    }
+            }
+            .flatten(on: db.eventLoop)
+        }
+        return insertions.and(deletions).transform(to: ())
     }
 }
