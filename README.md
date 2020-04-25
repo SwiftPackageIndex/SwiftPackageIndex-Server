@@ -16,6 +16,12 @@ make migrate
 
 will set up the schema (or migrate it if you've made changes).
 
+```
+make run
+```
+
+to bring up the server locally.
+
 You can reset the database to a clean slate by tearing down the containers with
 
 ```
