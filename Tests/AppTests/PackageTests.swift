@@ -29,6 +29,14 @@ final class PackageTests: XCTestCase {
         XCTAssertEqual(p.lastCommitAt?.description, "2020-04-24 13:03:09 +0000")
     }
 
+    func test_unique_url() throws {
+        let app = try setup(.testing)
+        defer { app.shutdown() }
+
+        try Package(url: "p1".url).save(on: app.db).wait()
+        XCTAssertThrowsError(try Package(url: "p1".url).save(on: app.db).wait())
+    }
+
     func test_filter_by_url() throws {
         let app = try setup(.testing)
         defer { app.shutdown() }

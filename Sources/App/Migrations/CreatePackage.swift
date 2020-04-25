@@ -8,8 +8,8 @@ struct CreatePackage: Migration {
             .field("updated_at", .datetime)
             .field("url", .string, .required)
             .field("last_commit_at", .datetime)
+            .unique(on: "url")
             .create()
-            .map { createIndex(database: database, model: "packages", field: "url") }
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
