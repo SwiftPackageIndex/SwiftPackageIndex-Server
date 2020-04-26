@@ -51,6 +51,19 @@ final class PackageTests: XCTestCase {
         let res = try Package.query(on: app.db).filter(by: "https://foo.com/1".url).all().wait()
         XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
     }
-}
 
+    // TODO: move to other test
+    func test_apiUri() throws {
+        do {
+            let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server.git".url)
+            XCTAssertEqual(try Github.apiUri(for: pkg).string,
+                           "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server")
+        }
+        do {
+            let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server".url)
+            XCTAssertEqual(try Github.apiUri(for: pkg).string,
+                           "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server")
+        }
+    }
+}
 
