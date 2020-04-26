@@ -43,4 +43,17 @@ final class Repository: Model, Content {
             self.$forkedFrom.id = forkId
         }
     }
+
+    init(id: UUID? = nil, package: Package, metadata: Github.Metadata) throws {
+        self.id = id
+        self.$package.id = try package.requireID()
+        self.description = metadata.description
+        self.license = metadata.license?.key
+        self.stars = metadata.stargazersCount
+        self.forks = metadata.forksCount
+        // if let parent = metadata.parent {
+        //   TODO: find parent repo and assing it
+        //            self.$forkedFrom.id = forkId
+        // }
+    }
 }

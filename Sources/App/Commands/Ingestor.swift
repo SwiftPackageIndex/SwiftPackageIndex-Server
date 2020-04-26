@@ -4,6 +4,7 @@ import Fluent
 
 enum IngestorError: Error {
     case invalidPackageUrl
+    case requestFailed(HTTPStatus)
 }
 
 
@@ -16,23 +17,26 @@ enum Github {
         var fullName: String
         var url: String
     }
-    struct Repository: Decodable {
+    struct Metadata: Decodable {
         var defaultBranch: String
-        var description: String
+        var description: String?
         var forksCount: Int
-        var license: License
+        var license: License?
         var stargazersCount: Int
         var parent: Parent?
     }
 
-    static func fetchRepository(client: Client, package: Package) throws -> EventLoopFuture<Repository> {
+    static func fetchRepository(client: Client, package: Package) throws -> EventLoopFuture<Metadata> {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
         let url = try apiUri(for: package)
         let request = client
             .get(url, headers: getHeaders)
-            .flatMapThrowing { try $0.content.decode(Repository.self, using: decoder) }
+            .flatMapThrowing { response -> Metadata in
+                guard response.status == .ok else { throw IngestorError.requestFailed(response.status) }
+                return try response.content.decode(Metadata.self, using: decoder)
+        }
         return request
     }
 
@@ -76,14 +80,27 @@ struct IngestorCommand: Command {
         let db = context.application.db
         let client = context.application.client
 
-        let req = Package.query(on: db)
+        let metaDataFutures = Package.query(on: db)
             .limit(limit)
             .all()
-            .flatMapEachThrowing { try Github.fetchRepository(client: client, package: $0) }
+            .flatMapEachThrowing { try Github.fetchRepository(client: client, package: $0).and(value: $0) }
             .flatMap { $0.flatten(on: db.eventLoop) }
+        let updates = metaDataFutures
+            .flatMapEachThrowing { (ghRepo, pkg) -> EventLoopFuture<Void> in
+                try insertOrUpdateRepository(on: db, for: pkg, metadata: ghRepo)
+        }
+        .flatMap { $0.flatten(on: db.eventLoop) }
 
-        let res = try req.wait()
-        dump(res)
+        try updates.wait()
     }
 
 }
+
+
+func insertOrUpdateRepository(on db: Database, for package: Package, metadata: Github.Metadata) throws -> EventLoopFuture<Void> {
+    // TODO: fetch existing
+    try Repository(package: package, metadata: metadata)
+        .create(on: db)
+}
+
+
