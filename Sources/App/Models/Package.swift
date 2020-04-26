@@ -30,6 +30,15 @@ final class Package: Model, Content {
 
 extension QueryBuilder where Model == Package {
     func filter(by url: URL) -> Self {
-        filter("url", .equal, url.absoluteString)
+        filter(\.$url == url.absoluteString)
+    }
+}
+
+
+extension QueryBuilder where Model == Package {
+    func ingestionBatch(limit: Int) -> EventLoopFuture<[Package]> {
+        sort(\.$updatedAt)
+        .limit(limit)
+        .all()
     }
 }

@@ -25,12 +25,12 @@ struct IngestorCommand: Command {
         let db = context.application.db
         let client = context.application.client
 
-        let metaDataFutures = Package.query(on: db)
-            .limit(limit)
-            .all()
-            .flatMapEachThrowing { try Github.fetchRepository(client: client, package: $0).and(value: $0) }
+        let metaData = Package.query(on: db)
+            .ingestionBatch(limit: limit)
+            .flatMapEachThrowing { try Github.fetchRepository(client: client,
+                                                              package: $0).and(value: $0) }
             .flatMap { $0.flatten(on: db.eventLoop) }
-        let updates = metaDataFutures
+        let updates = metaData
             .flatMapEachThrowing { (ghRepo, pkg) -> EventLoopFuture<Void> in
                 try insertOrUpdateRepository(on: db, for: pkg, metadata: ghRepo)
         }
