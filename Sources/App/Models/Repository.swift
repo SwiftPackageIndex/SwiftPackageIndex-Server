@@ -1,6 +1,9 @@
 import Fluent
 import Vapor
 
+
+// TODO: sas 2020-04-26: discuss whether we want to inline Repository with Package rather than
+// maintain a 1-1 link. Or are expecting that not to be a 1-1 link at some point?
 final class Repository: Model, Content {
     static let schema = "repositories"
 
