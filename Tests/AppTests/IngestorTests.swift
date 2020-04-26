@@ -25,6 +25,8 @@ class IngestorTests: XCTestCase {
 
         let packages = try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
 
+        // TODO: mock out Github.fetchRepository and test Github separately
+        // while using the Github mock here, for higher level tests
         let client = MockClient { resp in
             resp.status = .ok
             resp.body = makeBody("""
