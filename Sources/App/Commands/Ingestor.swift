@@ -17,28 +17,26 @@ struct IngestorCommand: Command {
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
         context.console.print("Ingesting (limit: \(limit)) ...")
-
-        // for selected packages:
-        // - fetch meta data
-        // - create/update repository
-
-        let db = context.application.db
-        let client = context.application.client
-
-        let metaData = Package.query(on: db)
-            .ingestionBatch(limit: limit)
-            .flatMapEachThrowing { try Github.fetchRepository(client: client,
-                                                              package: $0).and(value: $0) }
-            .flatMap { $0.flatten(on: db.eventLoop) }
-        let updates = metaData
-            .flatMapEachThrowing { (ghRepo, pkg) -> EventLoopFuture<Void> in
-                try insertOrUpdateRepository(on: db, for: pkg, metadata: ghRepo)
-        }
-        .flatMap { $0.flatten(on: db.eventLoop) }
-
-        try updates.wait()
+        let request = try ingest(client: context.application.client,
+                                 database: context.application.db,
+                                 limit: limit)
+        try request.wait()
     }
 
+}
+
+
+func ingest(client: Client, database: Database, limit: Int) throws -> EventLoopFuture<Void> {
+    let metaData = Package.query(on: database)
+        .ingestionBatch(limit: limit)
+        .flatMapEachThrowing { try Github.fetchRepository(client: client,
+                                                          package: $0).and(value: $0) }
+        .flatMap { $0.flatten(on: database.eventLoop) }
+    return metaData
+        .flatMapEachThrowing { (ghRepo, pkg) -> EventLoopFuture<Void> in
+            try insertOrUpdateRepository(on: database, for: pkg, metadata: ghRepo)
+    }
+    .flatMap { $0.flatten(on: database.eventLoop) }
 }
 
 

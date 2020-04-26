@@ -22,6 +22,9 @@ final class Repository: Model, Content {
     @Field(key: "description")
     var description: String?
 
+    @Field(key: "default_branch")
+    var defaultBranch: String?
+
     @Field(key: "license")
     var license: String?
 
@@ -48,6 +51,7 @@ final class Repository: Model, Content {
         self.id = id
         self.$package.id = try package.requireID()
         self.description = metadata.description
+        self.defaultBranch = metadata.defaultBranch
         self.license = metadata.license?.key
         self.stars = metadata.stargazersCount
         self.forks = metadata.forksCount

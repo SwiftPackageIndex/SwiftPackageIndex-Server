@@ -62,10 +62,3 @@ final class PackageTests: XCTestCase {
         XCTAssertEqual(batch, ["https://foo.com/2", "https://foo.com/1"])
     }
 }
-
-
-func savePackage(on db: Database, _ url: URL) throws -> Package {
-    let p = Package(id: UUID(), url: url)
-    try p.save(on: db).wait()
-    return p
-}

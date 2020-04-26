@@ -23,7 +23,7 @@ class ReconcilerTests: XCTestCase {
         ]
         Current.fetchMasterPackageList = { _ in mockFetchMasterPackageList(urls) }
 
-        try reconcile(with: app.client, database: app.db).wait()
+        try reconcile(client: app.client, database: app.db).wait()
 
         let packages = try Package.query(on: app.db).all().wait()
         XCTAssertEqual(packages.map(\.url).sorted(), urls.sorted())

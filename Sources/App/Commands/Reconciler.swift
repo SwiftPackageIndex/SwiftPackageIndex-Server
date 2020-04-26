@@ -9,14 +9,14 @@ struct ReconcilerCommand: Command {
 
     func run(using context: CommandContext, signature: Signature) throws {
         context.console.print("Reconciling ...")
-        let request = try reconcile(with: context.application.client,
+        let request = try reconcile(client: context.application.client,
                                     database: context.application.db)
         try request.wait()
     }
 }
 
 
-func reconcile(with client: Client, database: Database) throws -> EventLoopFuture<Void> {
+func reconcile(client: Client, database: Database) throws -> EventLoopFuture<Void> {
     let masterList = try Current.fetchMasterPackageList(client)
     let currentList = try fetchCurrentPackageList(database)
 
