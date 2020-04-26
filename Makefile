@@ -16,7 +16,7 @@ routes:
 	$(VAPOR) run routes
 
 ingest:
-	$(VAPOR) run ingest
+	$(VAPOR) run ingest --limit 10
 
 reconcile:
 	$(VAPOR) run reconcile
