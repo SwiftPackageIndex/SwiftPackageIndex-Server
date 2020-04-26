@@ -43,9 +43,18 @@ struct IngestorCommand: Command {
 
 
 func insertOrUpdateRepository(on db: Database, for package: Package, metadata: Github.Metadata) throws -> EventLoopFuture<Void> {
-    // TODO: fetch existing
-    try Repository(package: package, metadata: metadata)
-        .create(on: db)
+    Repository.query(on: db)
+        .filter(try \.$package.$id == package.requireID())
+        .first()
+        .flatMapThrowing { repo -> EventLoopFuture<Void> in
+            if let repo = repo {
+                // TODO: update
+                return repo.save(on: db)
+            } else {
+                return try Repository(package: package, metadata: metadata)
+                    .create(on: db)
+            }
+    }.transform(to: ())
 }
 
 

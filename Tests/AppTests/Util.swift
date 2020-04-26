@@ -18,3 +18,8 @@ extension String {
         URL(string: self)!
     }
 }
+
+
+func mockFetchMasterPackageList(_ urls: [String]) -> EventLoopFuture<[URL]> {
+    EmbeddedEventLoop().makeSucceededFuture(urls.compactMap(URL.init(string:)))
+}

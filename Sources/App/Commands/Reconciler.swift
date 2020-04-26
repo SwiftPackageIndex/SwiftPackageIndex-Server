@@ -2,9 +2,6 @@ import Fluent
 import Vapor
 
 
-let masterPackageListURL = URI(string: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json")
-
-
 struct ReconcilerCommand: Command {
     struct Signature: CommandSignature { }
 
@@ -12,28 +9,33 @@ struct ReconcilerCommand: Command {
 
     func run(using context: CommandContext, signature: Signature) throws {
         context.console.print("Reconciling ...")
-
-        let masterList = try fetchMasterPackageList(context)
-        let currentList = try fetchCurrentPackageList(context)
-
-        let requests = masterList.and(currentList)
-            .flatMap { reconcileLists(db: context.application.db, source: $0, target: $1) }
-        try requests.wait()
+        let request = try reconcile(with: context.application.client,
+                                    database: context.application.db)
+        try request.wait()
     }
 }
 
 
-func fetchMasterPackageList(_ context: CommandContext) throws -> EventLoopFuture<[URL]> {
-    context.application.client
-        .get(masterPackageListURL)
+func reconcile(with client: Client, database: Database) throws -> EventLoopFuture<Void> {
+    let masterList = try Current.fetchMasterPackageList(client)
+    let currentList = try fetchCurrentPackageList(database)
+
+    return masterList.and(currentList)
+        .flatMap { reconcileLists(db: database, source: $0, target: $1) }
+}
+
+
+func liveFetchMasterPackageList(_ client: Client) throws -> EventLoopFuture<[URL]> {
+    client
+        .get(Constants.masterPackageListUri)
         .flatMapThrowing { try $0.content.decode([String].self, using: JSONDecoder()) }
         // TODO: send error notification for failing URLs
         .flatMapEachCompactThrowing(URL.init(string:))
 }
 
 
-func fetchCurrentPackageList(_ context: CommandContext) throws -> EventLoopFuture<[URL]> {
-    context.application.db.query(Package.self)
+func fetchCurrentPackageList(_ db: Database) throws -> EventLoopFuture<[URL]> {
+    db.query(Package.self)
         .all()
         .mapEach(\.url)
         .mapEachCompact(URL.init(string:))
