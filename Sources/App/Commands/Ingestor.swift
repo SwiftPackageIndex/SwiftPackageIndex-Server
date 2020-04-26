@@ -2,6 +2,26 @@ import Vapor
 import Fluent
 
 
+enum App {
+    struct Environment {
+        var githubToken: () -> String?
+    }
+}
+
+extension App.Environment {
+    static let live: Self = .init(
+        githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] }
+    )
+}
+
+
+#if DEBUG
+var Current: App.Environment = .live
+#else
+let Current: App.Environment = .live
+#endif
+
+
 enum IngestorError: Error {
     case invalidPackageUrl
     case requestFailed(HTTPStatus)
@@ -43,7 +63,11 @@ enum Github {
     static var getHeaders: HTTPHeaders {
         // Set User-Agent or we get a 403
         // https://developer.github.com/v3/#user-agent-required
-        .init([("User-Agent", "SPI-Server")])
+        var headers = HTTPHeaders([("User-Agent", "SPI-Server")])
+        if let token = Current.githubToken() {
+            headers.add(name: "Authorization", value: token)
+        }
+        return headers
     }
 
     static func apiUri(for package: Package) throws -> URI {
