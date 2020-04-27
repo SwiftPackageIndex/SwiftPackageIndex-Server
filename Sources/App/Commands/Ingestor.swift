@@ -29,8 +29,7 @@ struct IngestorCommand: Command {
 func ingest(client: Client, database: Database, limit: Int) throws -> EventLoopFuture<Void> {
     let metaData = Package.query(on: database)
         .ingestionBatch(limit: limit)
-        .flatMapEachThrowing { try Github.fetchRepository(client: client,
-                                                          package: $0).and(value: $0) }
+        .flatMapEachThrowing { try Current.fetchRepository(client, $0).and(value: $0) }
         .flatMap { $0.flatten(on: database.eventLoop) }
     return metaData
         .flatMapEachThrowing { (ghRepo, pkg) -> EventLoopFuture<Void> in

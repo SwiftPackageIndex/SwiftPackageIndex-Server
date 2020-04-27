@@ -10,32 +10,21 @@ import Vapor
 
 struct AppEnvironment {
     var fetchMasterPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
+    var fetchRepository: (_ client: Client, _ package: Package) throws -> EventLoopFuture<Github.Metadata>
     var githubToken: () -> String?
 }
 
 extension AppEnvironment {
     static let live: Self = .init(
         fetchMasterPackageList: liveFetchMasterPackageList,
-        githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] }
-    )
-}
-
-extension AppEnvironment {
-    static let mock: Self = .init(
-        fetchMasterPackageList: { _ in
-            let eventLoop = EmbeddedEventLoop()
-            return eventLoop.makeSucceededFuture([
-                URL(string: "https://github.com/finestructure/Gala")!,
-                URL(string: "https://github.com/finestructure/SwiftPMLibrary-Server")!,
-            ])
-        },
+        fetchRepository: Github.fetchRepository(client:package:),
         githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] }
     )
 }
 
 
 #if DEBUG
-var Current: AppEnvironment = .mock
+var Current: AppEnvironment = .e2eTesting
 #else
 let Current: AppEnvironment = .live
 #endif

@@ -21,7 +21,7 @@ class ReconcilerTests: XCTestCase {
             "https://github.com/finestructure/Rester",
             "https://github.com/finestructure/SwiftPMLibrary-Server"
         ]
-        Current.fetchMasterPackageList = { _ in mockFetchMasterPackageList(urls) }
+        Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
 
         try reconcile(client: app.client, database: app.db).wait()
 

@@ -5,6 +5,8 @@ import Vapor
 
 
 func setup(_ environment: Environment, resetDb: Bool = true) throws -> Application {
+    // Always start with a baseline mock environment to avoid hitting live resources
+    Current = .mock
     let app = Application(.testing)
     try configure(app)
     if resetDb {
@@ -19,11 +21,6 @@ extension String {
     var url: URL {
         URL(string: self)!
     }
-}
-
-
-func mockFetchMasterPackageList(_ urls: [String]) -> EventLoopFuture<[URL]> {
-    EmbeddedEventLoop().makeSucceededFuture(urls.compactMap(URL.init(string:)))
 }
 
 

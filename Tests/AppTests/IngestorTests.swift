@@ -16,29 +16,18 @@ class IngestorTests: XCTestCase {
     }
 
     func test_basic_ingestion() throws {
-        let urls = [
-            "https://github.com/finestructure/Gala",
-            "https://github.com/finestructure/Rester",
-            "https://github.com/finestructure/SwiftPMLibrary-Server"
-        ]
-        Current.fetchMasterPackageList = { _ in mockFetchMasterPackageList(urls) }
-
+        // setup
+        let urls = ["https://github.com/finestructure/Gala",
+                    "https://github.com/finestructure/Rester",
+                    "https://github.com/finestructure/SwiftPMLibrary-Server"]
+        Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
+        Current.fetchRepository = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
 
-        // TODO: mock out Github.fetchRepository and test Github separately
-        // while using the Github mock here, for higher level tests
-        let client = MockClient { resp in
-            resp.status = .ok
-            resp.body = makeBody("""
-            {
-            "default_branch": "master",
-            "forks_count": 1,
-            "stargazers_count": 2,
-            }
-            """)
-        }
-        try ingest(client: client, database: app.db, limit: 10).wait()
+        // MUT
+        try ingest(client: app.client, database: app.db, limit: 10).wait()
 
+        // validate
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.map(\.$package.id), packages.map(\.id))
         repos.forEach {
@@ -46,9 +35,10 @@ class IngestorTests: XCTestCase {
             XCTAssertNotNil($0.$package.id)
             XCTAssertNotNil($0.createdAt)
             XCTAssertNotNil($0.updatedAt)
+            XCTAssertNotNil($0.description)
             XCTAssertEqual($0.defaultBranch, "master")
-            XCTAssertEqual($0.forks, 1)
-            XCTAssertEqual($0.stars, 2)
+            XCTAssert($0.forks! > 0)
+            XCTAssert($0.stars! > 0)
         }
     }
 
