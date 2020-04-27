@@ -1,31 +1,29 @@
-import Foundation
-import Fluent
-
 @testable import App
 
+import Fluent
+import Vapor
 import XCTVapor
 
 
-final class AppTests: XCTestCase {
-    func testHelloWorld() throws {
-        let app = Application(.testing)
-        defer { app.shutdown() }
-        try configure(app)
+final class PackageTests: XCTestCase {
+    var app: Application!
 
-        try app.test(.GET, "hello") { res in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.body.string, "Hello, world!")
-        }
+    override func setUpWithError() throws {
+        app = try setup(.testing)
     }
 
-    func test_Package_encode() throws {
+    override func tearDownWithError() throws {
+        app.shutdown()
+    }
+
+    func test_encode() throws {
         let p = Package(id: UUID(), url: URL(string: "https://github.com/finestructure/Arena")!)
         p.lastCommitAt = Date()
         let data = try JSONEncoder().encode(p)
         XCTAssertTrue(!data.isEmpty)
     }
 
-    func test_Package_decode() throws {
+    func test_decode() throws {
         let timestamp: TimeInterval = 609426189  // Apr 24, 2020, just before 13:00 UTC
                                                  // Date.timeIntervalSinceReferenceDate
         let json = """
@@ -41,32 +39,26 @@ final class AppTests: XCTestCase {
         XCTAssertEqual(p.lastCommitAt?.description, "2020-04-24 13:03:09 +0000")
     }
 
-    func test_Package_filter_by_url() throws {
-        let app = try setup(.testing)
-        defer { app.shutdown() }
+    func test_unique_url() throws {
+        try Package(url: "p1".url).save(on: app.db).wait()
+        XCTAssertThrowsError(try Package(url: "p1".url).save(on: app.db).wait())
+    }
 
+    func test_filter_by_url() throws {
         try ["https://foo.com/1", "https://foo.com/2"].forEach {
             try Package(url: $0.url).save(on: app.db).wait()
         }
         let res = try Package.query(on: app.db).filter(by: "https://foo.com/1".url).all().wait()
         XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
     }
-}
 
-
-func setup(_ environment: Environment, resetDb: Bool = true) throws -> Application {
-    let app = Application(.testing)
-    try configure(app)
-    if resetDb {
-        try app.autoRevert().wait()
-        try app.autoMigrate().wait()
-    }
-    return app
-}
-
-
-extension String {
-    var url: URL {
-        URL(string: self)!
+    func test_ingestionBatch() throws {
+        let packages = try ["https://foo.com/1", "https://foo.com/2"].map {
+            try savePackage(on: app.db, $0.url)
+        }
+        try Package.update(packages[0])(on: app.db).wait()
+        let batch = try Package.query(on: app.db).ingestionBatch(limit: 10).wait()
+            .map(\.url)
+        XCTAssertEqual(batch, ["https://foo.com/2", "https://foo.com/1"])
     }
 }

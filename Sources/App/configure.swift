@@ -15,6 +15,7 @@ public func configure(_ app: Application) throws {
     ), as: .psql)
 
     app.migrations.add(CreatePackage())
+    app.migrations.add(CreateRepository())
 
     app.commands.use(IngestorCommand(), as: "ingest")
     app.commands.use(ReconcilerCommand(), as: "reconcile")
