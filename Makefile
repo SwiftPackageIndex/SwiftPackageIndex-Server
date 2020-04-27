@@ -6,6 +6,15 @@ build:
 run:
 	$(VAPOR) run
 
+test:
+	swift test --enable-test-discovery
+
+test-docker:
+	@# run tests inside a docker container
+	docker run --rm -v $(PWD):/host -w /host --network="host" vapor/swift:5.2-bionic make test
+
+test-e2e: reset reconcile ingest
+
 migrate:
 	$(VAPOR) run migrate
 
@@ -16,7 +25,7 @@ routes:
 	$(VAPOR) run routes
 
 ingest:
-	$(VAPOR) run ingest
+	$(VAPOR) run ingest --limit 10
 
 reconcile:
 	$(VAPOR) run reconcile

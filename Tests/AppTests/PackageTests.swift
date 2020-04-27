@@ -1,7 +1,7 @@
-import Fluent
-
 @testable import App
 
+import Fluent
+import Vapor
 import XCTVapor
 
 
@@ -51,6 +51,14 @@ final class PackageTests: XCTestCase {
         let res = try Package.query(on: app.db).filter(by: "https://foo.com/1".url).all().wait()
         XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
     }
+
+    func test_ingestionBatch() throws {
+        let packages = try ["https://foo.com/1", "https://foo.com/2"].map {
+            try savePackage(on: app.db, $0.url)
+        }
+        try Package.update(packages[0])(on: app.db).wait()
+        let batch = try Package.query(on: app.db).ingestionBatch(limit: 10).wait()
+            .map(\.url)
+        XCTAssertEqual(batch, ["https://foo.com/2", "https://foo.com/1"])
+    }
 }
-
-

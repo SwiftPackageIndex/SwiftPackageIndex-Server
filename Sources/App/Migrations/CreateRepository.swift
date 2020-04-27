@@ -12,6 +12,7 @@ struct CreateRepository: Migration {
             // https://discordapp.com/channels/431917998102675485/684159753189982218/703351108915036171
             .unique(on: "package_id")
             .field("description", .string)
+            .field("default_branch", .string)
             .field("license", .string)  // TODO: make enum?
             .field("stars", .int)
             .field("forks", .int)
