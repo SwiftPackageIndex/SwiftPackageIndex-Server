@@ -49,7 +49,6 @@ class GithubTests: XCTestCase {
         let pkg = Package(url: "https://foo/bar".url)
         let client = MockClient { resp in
             resp.status = .ok
-            resp.body = makeBody("irrelevant for this test")
         }
         XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
             switch $0 as? AppError {
@@ -61,7 +60,34 @@ class GithubTests: XCTestCase {
         }
     }
 
-    // TODO:
-    // - decoding error
-    // - rate limiting
+    func test_fetchRepository_badData() throws {
+        let pkg = Package(url: "https://github.com/foo/bar".url)
+        let client = MockClient { resp in
+            resp.status = .ok
+            resp.body = makeBody("bad data")
+        }
+        XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
+            switch $0 as? DecodingError {
+                case .dataCorrupted(_):
+                    break
+                default:
+                    XCTFail("unexpected error: \($0.localizedDescription)")
+            }
+        }
+    }
+
+    func test_fetchRepository_rateLimiting() throws {
+        let pkg = Package(url: "https://github.com/foo/bar".url)
+        let client = MockClient { resp in
+            resp.status = .tooManyRequests
+        }
+        XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
+            switch $0 as? AppError {
+                case .requestFailed(.tooManyRequests):
+                    break
+                default:
+                    XCTFail("unexpected error: \($0.localizedDescription)")
+            }
+        }
+    }
 }
