@@ -24,6 +24,7 @@ class IngestorTests: XCTestCase {
         Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
         Current.fetchRepository = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
+        let lastUpdate = Date()
 
         // MUT
         try ingest(client: app.client, database: app.db, limit: 10).wait()
@@ -40,6 +41,10 @@ class IngestorTests: XCTestCase {
             XCTAssertEqual($0.defaultBranch, "master")
             XCTAssert($0.forks! > 0)
             XCTAssert($0.stars! > 0)
+        }
+        // assert packages have been updated
+        (try Package.query(on: app.db).all().wait()).forEach {
+            XCTAssert($0.updatedAt! > lastUpdate)
         }
     }
 

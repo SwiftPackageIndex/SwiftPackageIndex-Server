@@ -34,6 +34,8 @@ func ingest(client: Client, database: Database, limit: Int) throws -> EventLoopF
     return metadata
         .flatMapEachThrowing { (md, pkg) -> EventLoopFuture<Void> in
             try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
+                // mark package as updated
+                .flatMap { pkg.update(on: database) }
         }
         .flatMap { $0.flatten(on: database.eventLoop) }
 }
