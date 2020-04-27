@@ -3,39 +3,11 @@ name: Continuous Integration
 on: [push]
 
 jobs:
-  # test-linux:
-  #   name: Test
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: vapor/swift:5.2-bionic
-  #   services:
-  #     postgres:
-  #       image: postgres:12
-  #       env:
-  #         POSTGRES_DB: swiftpackageindex_test
-  #         POSTGRES_USER: swiftpackageindex
-  #         POSTGRES_PASSWORD: password
-  #       ports:
-  #         - 5432:5432
-  #       options: >-
-  #         --health-cmd pg_isready
-  #         --health-interval 10s
-  #         --health-timeout 5s
-  #         --health-retries 5
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v2
-  #   - name: Install libssl-dev
-  #     run: apt-get update && apt-get install libssl-dev -y
-  #   - name: Run tests
-  #     run: swift test --enable-test-discovery -v
-  #     env:
-  #       DATABASE_HOST: postgres
-  #       DATABASE_PORT: 5432
-
-  test-macos:
-    name: Test macOS
-    runs-on: macOS-latest
+  test-linux:
+    name: Test
+    runs-on: ubuntu-latest
+    container:
+      image: vapor/swift:5.2-bionic
     services:
       postgres:
         image: postgres:12
@@ -51,13 +23,41 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v2
-      - name: Select Xcode 11.4
-        run: sudo xcode-select -s /Applications/Xcode_11.4.app
-      - name: Log Xcode version
-        run: /usr/bin/xcodebuild -version
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install libssl-dev
+        run: apt-get update && apt-get install libssl-dev -y
       - name: Run tests
         run: make test
         env:
           DATABASE_HOST: postgres
           DATABASE_PORT: 5432
+
+  # test-macos:
+  #   name: Test macOS
+  #   runs-on: macOS-latest
+  #   services:
+  #     postgres:
+  #       image: postgres:12
+  #       env:
+  #         POSTGRES_DB: spi_dev
+  #         POSTGRES_USER: spi_dev
+  #         POSTGRES_PASSWORD: xxx
+  #       ports:
+  #         - 5432:5432
+  #       options: >-
+  #         --health-cmd pg_isready
+  #         --health-interval 10s
+  #         --health-timeout 5s
+  #         --health-retries 5
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Select Xcode 11.4
+  #       run: sudo xcode-select -s /Applications/Xcode_11.4.app
+  #     - name: Log Xcode version
+  #       run: /usr/bin/xcodebuild -version
+  #     - name: Run tests
+  #       run: make test
+  #       env:
+  #         DATABASE_HOST: postgres
+  #         DATABASE_PORT: 5432
