@@ -1,6 +1,8 @@
 import Vapor
 
 
+#if DEBUG
+
 extension AppEnvironment {
     static let mock: Self = .init(
         fetchMasterPackageList: { _ in
@@ -152,3 +154,5 @@ extension Github.Metadata {
               parent: nil)
     }
 }
+
+#endif
