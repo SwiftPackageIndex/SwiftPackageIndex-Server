@@ -51,11 +51,9 @@ class GithubTests: XCTestCase {
             resp.status = .ok
         }
         XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
-            switch $0 as? AppError {
-                case .invalidPackageUrl:
-                    break
-                default:
-                    XCTFail("unexpected error: \($0.localizedDescription)")
+            guard case AppError.invalidPackageUrl = $0 else {
+                XCTFail("unexpected error: \($0.localizedDescription)")
+                return
             }
         }
     }
@@ -67,11 +65,9 @@ class GithubTests: XCTestCase {
             resp.body = makeBody("bad data")
         }
         XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
-            switch $0 as? DecodingError {
-                case .dataCorrupted(_):
-                    break
-                default:
-                    XCTFail("unexpected error: \($0.localizedDescription)")
+            guard case DecodingError.dataCorrupted = $0 else {
+                XCTFail("unexpected error: \($0.localizedDescription)")
+                return
             }
         }
     }
@@ -82,11 +78,9 @@ class GithubTests: XCTestCase {
             resp.status = .tooManyRequests
         }
         XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
-            switch $0 as? AppError {
-                case .requestFailed(.tooManyRequests):
-                    break
-                default:
-                    XCTFail("unexpected error: \($0.localizedDescription)")
+            guard case AppError.requestFailed(.tooManyRequests) = $0 else {
+                XCTFail("unexpected error: \($0.localizedDescription)")
+                return
             }
         }
     }
