@@ -6,7 +6,12 @@ import XCTest
 class GithubTests: XCTestCase {
 
     func test_getHeader() throws {
-        // TODO with & without GH token
+        XCTAssertEqual(Github.getHeaders, .init([("User-Agent", "SPI-Server")]))
+        Current.githubToken = { "foobar" }
+        XCTAssertEqual(Github.getHeaders, .init([
+            ("User-Agent", "SPI-Server"),
+            ("Authorization", "token foobar")
+        ]))
     }
 
     func test_Github_apiUri() throws {
@@ -23,26 +28,60 @@ class GithubTests: XCTestCase {
     }
 
     func test_fetchRepository() throws {
-        // TODO: add scenarios
-        // - happy path
-        // - decoding error
-        // - rate limiting
-        // - general error
-
-        // To mock use:
-        // TODO: mock out Github.fetchRepository and test Github separately
-        // while using the Github mock here, for higher level tests
-        //        let client = MockClient { resp in
-        //            resp.status = .ok
-        //            resp.body = makeBody("""
-        //            {
-        //            "default_branch": "master",
-        //            "forks_count": 1,
-        //            "stargazers_count": 2,
-        //            }
-        //            """)
-        //        }
-        //        try Github.fetchRepository(client: client, package: pkg).wait()
+        let pkg = Package(url: "https://github.com/foo/bar".url)
+        let client = MockClient { resp in
+            resp.status = .ok
+            resp.body = makeBody("""
+                    {
+                    "default_branch": "master",
+                    "forks_count": 1,
+                    "stargazers_count": 2,
+                    }
+                    """)
+        }
+        let meta = try Github.fetchRepository(client: client, package: pkg).wait()
+        XCTAssertEqual(meta.defaultBranch, "master")
+        XCTAssertEqual(meta.forksCount, 1)
+        XCTAssertEqual(meta.stargazersCount, 2)
     }
 
+    func test_fetchRepository_badUrl() throws {
+        let pkg = Package(url: "https://foo/bar".url)
+        let client = MockClient { resp in
+            resp.status = .ok
+        }
+        XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
+            guard case AppError.invalidPackageUrl = $0 else {
+                XCTFail("unexpected error: \($0.localizedDescription)")
+                return
+            }
+        }
+    }
+
+    func test_fetchRepository_badData() throws {
+        let pkg = Package(url: "https://github.com/foo/bar".url)
+        let client = MockClient { resp in
+            resp.status = .ok
+            resp.body = makeBody("bad data")
+        }
+        XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
+            guard case DecodingError.dataCorrupted = $0 else {
+                XCTFail("unexpected error: \($0.localizedDescription)")
+                return
+            }
+        }
+    }
+
+    func test_fetchRepository_rateLimiting() throws {
+        let pkg = Package(url: "https://github.com/foo/bar".url)
+        let client = MockClient { resp in
+            resp.status = .tooManyRequests
+        }
+        XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
+            guard case AppError.requestFailed(.tooManyRequests) = $0 else {
+                XCTFail("unexpected error: \($0.localizedDescription)")
+                return
+            }
+        }
+    }
 }
