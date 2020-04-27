@@ -11,4 +11,5 @@ import Vapor
 enum AppError: Error {
     case invalidPackageUrl
     case requestFailed(HTTPStatus)
+    case genericError(String)
 }

@@ -24,6 +24,7 @@ extension String {
 }
 
 
+@discardableResult
 func savePackage(on db: Database, _ url: URL) throws -> Package {
     let p = Package(id: UUID(), url: url)
     try p.save(on: db).wait()
@@ -31,6 +32,7 @@ func savePackage(on db: Database, _ url: URL) throws -> Package {
 }
 
 
+@discardableResult
 func savePackages(on db: Database, _ urls: [URL]) throws -> [Package] {
     try urls.map { try savePackage(on: db, $0) }
 }
