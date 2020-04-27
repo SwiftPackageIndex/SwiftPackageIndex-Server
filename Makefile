@@ -7,7 +7,13 @@ run:
 	$(VAPOR) run
 
 test:
-	swift test --enable-test-discovery -v
+	swift test --enable-test-discovery
+
+test-docker:
+	@# run tests inside a docker container
+	docker run --rm -v $(PWD):/host -w /host --network="host" vapor/swift:5.2-bionic make test
+
+test-e2e: reset reconcile ingest
 
 migrate:
 	$(VAPOR) run migrate
