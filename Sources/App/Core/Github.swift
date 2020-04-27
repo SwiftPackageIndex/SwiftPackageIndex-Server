@@ -45,7 +45,7 @@ enum Github {
         // https://developer.github.com/v3/#user-agent-required
         var headers = HTTPHeaders([("User-Agent", "SPI-Server")])
         if let token = Current.githubToken() {
-            headers.add(name: "Authorization", value: token)
+            headers.add(name: "Authorization", value: "token \(token)")
         }
         return headers
     }

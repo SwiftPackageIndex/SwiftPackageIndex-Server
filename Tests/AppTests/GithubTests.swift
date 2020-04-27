@@ -6,7 +6,12 @@ import XCTest
 class GithubTests: XCTestCase {
 
     func test_getHeader() throws {
-        // TODO with & without GH token
+        XCTAssertEqual(Github.getHeaders, .init([("User-Agent", "SPI-Server")]))
+        Current.githubToken = { "foobar" }
+        XCTAssertEqual(Github.getHeaders, .init([
+            ("User-Agent", "SPI-Server"),
+            ("Authorization", "token foobar")
+        ]))
     }
 
     func test_Github_apiUri() throws {
