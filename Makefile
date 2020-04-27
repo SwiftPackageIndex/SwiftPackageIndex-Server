@@ -7,7 +7,7 @@ run:
 	$(VAPOR) run
 
 test:
-	swift test
+	swift test --enable-test-discovery -v
 
 migrate:
 	$(VAPOR) run migrate
