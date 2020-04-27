@@ -6,6 +6,9 @@ build:
 run:
 	$(VAPOR) run
 
+test:
+	swift test
+
 migrate:
 	$(VAPOR) run migrate
 
