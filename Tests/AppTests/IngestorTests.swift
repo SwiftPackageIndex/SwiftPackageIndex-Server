@@ -81,6 +81,8 @@ class IngestorTests: XCTestCase {
 
     func test_insertOrUpdateRepository_bulk() throws {
         // test flattening of many updates
+        // Mainly a debug test for the issue described here:
+        // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
         let packages = try savePackages(on: app.db, testUrls100)
         let req = try packages
             .map { ($0, Github.Metadata.mock(for: $0)) }
