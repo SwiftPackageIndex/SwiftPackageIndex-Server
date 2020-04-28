@@ -27,17 +27,21 @@ struct IngestorCommand: Command {
 
 
 func ingest(client: Client, database: Database, limit: Int) throws -> EventLoopFuture<Void> {
-    let metadata = Package.query(on: database)
+    fetchMetadata(client: client, database: database, limit: limit)
+        .flatMapEachThrowing { (pkg, md) in
+            try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
+                .flatMap { pkg.update(on: database) }  // mark package as updated
+        }
+        .flatMap { $0.flatten(on: database.eventLoop) }
+}
+
+
+func fetchMetadata(client: Client, database: Database, limit: Int) -> EventLoopFuture<[(Package, Github.Metadata)]> {
+    Package.query(on: database)
         .ingestionBatch(limit: limit)
         .flatMapEachThrowing { try Current.fetchMetadata(client, $0).and(value: $0) }
         .flatMap { $0.flatten(on: database.eventLoop) }
-    return metadata
-        .flatMapEachThrowing { (md, pkg) -> EventLoopFuture<Void> in
-            try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
-                // mark package as updated
-                .flatMap { pkg.update(on: database) }
-        }
-        .flatMap { $0.flatten(on: database.eventLoop) }
+        .mapEach { ($0.1, $0.0) }  // flip parameters into logical order
 }
 
 
