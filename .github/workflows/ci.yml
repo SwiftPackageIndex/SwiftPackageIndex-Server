@@ -29,7 +29,7 @@ jobs:
         run: make test
         env:
           DATABASE_HOST: postgres
-          DATABASE_PORT: 5432
+          DATABASE_PORT: 5433
 
   # test-macos:
   #   name: Test macOS
