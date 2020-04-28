@@ -8,13 +8,19 @@ func setup(_ environment: Environment, resetDb: Bool = true) throws -> Applicati
     // Always start with a baseline mock environment to avoid hitting live resources
     Current = .mock
     
-    let app = Application(.testing)
-    try configure(app)
-    if resetDb {
-        try app.autoRevert().wait()
-        try app.autoMigrate().wait()
+    do {
+        let app = Application(.testing)
+        try configure(app)
+        if resetDb {
+            try app.autoRevert().wait()
+            try app.autoMigrate().wait()
+        }
+        return app
+    } catch {
+        print(error.localizedDescription)
+        print("Failed to create test application - check the DB credentials/availability!")
+        throw error
     }
-    return app
 }
 
 
