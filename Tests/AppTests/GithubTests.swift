@@ -83,7 +83,7 @@ class GithubTests: XCTestCase {
             resp.status = .tooManyRequests
         }
         XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
-            guard case AppError.requestFailed(.tooManyRequests) = $0 else {
+            guard case AppError.metadataRequestFailed(.tooManyRequests, _) = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
                 return
             }

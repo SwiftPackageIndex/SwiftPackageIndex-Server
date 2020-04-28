@@ -34,7 +34,9 @@ enum Github {
         let request = client
             .get(url, headers: getHeaders)
             .flatMapThrowing { response -> Metadata in
-                guard response.status == .ok else { throw AppError.requestFailed(response.status) }
+                guard response.status == .ok else {
+                    throw AppError.metadataRequestFailed(response.status, url)
+                }
                 return try response.content.decode(Metadata.self, using: decoder)
         }
         return request

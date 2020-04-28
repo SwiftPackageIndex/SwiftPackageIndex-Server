@@ -99,7 +99,7 @@ class IngestorTests: XCTestCase {
         // setup
         let urls = ["1", "2", "3"]
         Current.fetchMetadata = { _, pkg in
-            if pkg.url == "2" { throw AppError.requestFailed(.badRequest) }
+            if pkg.url == "2" { throw AppError.metadataRequestFailed(.badRequest, URI("2")) }
             return .just(value: .mock(for: pkg))
         }
         try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
@@ -116,7 +116,7 @@ class IngestorTests: XCTestCase {
         // setup
         let urls = ["1", "2", "3"]
         Current.fetchMetadata = { _, pkg in
-            if pkg.url == "2" { throw AppError.requestFailed(.badRequest) }
+            if pkg.url == "2" { throw AppError.metadataRequestFailed(.badRequest, URI("2")) }
             return .just(value: .mock(for: pkg))
         }
         try savePackages(on: app.db, urls.compactMap(URL.init(string:)))

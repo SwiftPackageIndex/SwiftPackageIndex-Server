@@ -17,16 +17,17 @@ struct IngestorCommand: Command {
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
         context.console.print("Ingesting (limit: \(limit)) ...")
-        let request = try ingest(client: context.application.client,
-                                 database: context.application.db,
-                                 limit: limit)
+        let request = ingest(client: context.application.client,
+                             database: context.application.db,
+                             limit: limit)
+        context.console.info("Processing ...", newLine: true)
         try request.wait()
     }
 
 }
 
 
-func ingest(client: Client, database: Database, limit: Int) throws -> EventLoopFuture<Void> {
+func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
     fetchMetadata(client: client, database: database, limit: limit)
         .flatMapEachThrowing { result in
             // TODO: sas 2020-04-28: this body can probably be written more concisely
