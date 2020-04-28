@@ -26,7 +26,7 @@ enum Github {
         var parent: Parent?
     }
 
-    static func fetchRepository(client: Client, package: Package) throws -> EventLoopFuture<Metadata> {
+    static func fetchMetadata(client: Client, package: Package) throws -> EventLoopFuture<Metadata> {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 

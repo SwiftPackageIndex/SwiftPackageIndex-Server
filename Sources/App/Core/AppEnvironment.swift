@@ -17,7 +17,7 @@ struct AppEnvironment {
 extension AppEnvironment {
     static let live: Self = .init(
         fetchMasterPackageList: liveFetchMasterPackageList,
-        fetchMetadata: Github.fetchRepository(client:package:),
+        fetchMetadata: Github.fetchMetadata(client:package:),
         githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] }
     )
 }
