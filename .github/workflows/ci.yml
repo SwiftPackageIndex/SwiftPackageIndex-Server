@@ -26,7 +26,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run tests
-        run: make test
+        run: make test-docker
         env:
           DATABASE_HOST: postgres
           DATABASE_PORT: 5433
