@@ -7,6 +7,7 @@ import Vapor
 func setup(_ environment: Environment, resetDb: Bool = true) throws -> Application {
     // Always start with a baseline mock environment to avoid hitting live resources
     Current = .mock
+    
     let app = Application(.testing)
     try configure(app)
     if resetDb {
