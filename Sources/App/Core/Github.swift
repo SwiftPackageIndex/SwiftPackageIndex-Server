@@ -55,7 +55,7 @@ enum Github {
     static func apiUri(for package: Package) throws -> URI {
         let githubPrefix = "https://github.com/"
         let gitSuffix = ".git"
-        guard package.url.hasPrefix(githubPrefix) else { throw AppError.invalidPackageUrl }
+        guard package.url.hasPrefix(githubPrefix) else { throw AppError.invalidPackageUrl(package.url) }
         var url = package.url.dropFirst(githubPrefix.count)
         if url.hasSuffix(gitSuffix) { url = url.dropLast(gitSuffix.count) }
         return URI(string: "https://api.github.com/repos/\(url)")

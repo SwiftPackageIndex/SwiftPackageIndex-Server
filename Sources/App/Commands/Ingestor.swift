@@ -41,11 +41,11 @@ func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<V
                             .flatMap { pkg.update(on: database) }  // mark package as updated
                     } catch {
                         // TODO: log somewhere more actionable - table or online service
-                        database.logger.error("ingest: \(error.localizedDescription)")
+                        database.logger.error("\(#function): \(error.localizedDescription)")
                 }
                 case let .failure(error):
                     // TODO: log somewhere more actionable - table or online service
-                    database.logger.error("ingest: \(error.localizedDescription)")
+                    database.logger.error("\(#function): \(error.localizedDescription)")
             }
             return database.eventLoop.makeSucceededFuture(())
     }
