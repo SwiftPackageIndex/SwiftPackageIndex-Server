@@ -152,7 +152,7 @@ extension Github.Metadata {
     static func mock(for package: Package) -> Self {
         // populate with some mock data derived from the package
         .init(defaultBranch: "master",
-              description: "This is package " + package.url.dropFirst("https://github.com/".count),
+              description: "This is package " + package.url,
               forksCount: package.url.count,
               license: .init(key: "mit"),
               stargazersCount: package.url.count + 1,

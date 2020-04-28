@@ -6,12 +6,17 @@ import XCTest
 class GithubTests: XCTestCase {
 
     func test_getHeader() throws {
-        XCTAssertEqual(Github.getHeaders, .init([("User-Agent", "SPI-Server")]))
-        Current.githubToken = { "foobar" }
-        XCTAssertEqual(Github.getHeaders, .init([
-            ("User-Agent", "SPI-Server"),
-            ("Authorization", "token foobar")
-        ]))
+        do { // without token
+            Current.githubToken = { nil }
+            XCTAssertEqual(Github.getHeaders, .init([("User-Agent", "SPI-Server")]))
+        }
+        do { // with token
+            Current.githubToken = { "foobar" }
+            XCTAssertEqual(Github.getHeaders, .init([
+                ("User-Agent", "SPI-Server"),
+                ("Authorization", "token foobar")
+            ]))
+        }
     }
 
     func test_Github_apiUri() throws {

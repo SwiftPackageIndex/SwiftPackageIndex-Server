@@ -29,17 +29,26 @@ struct IngestorCommand: Command {
 func ingest(client: Client, database: Database, limit: Int) throws -> EventLoopFuture<Void> {
     fetchMetadata(client: client, database: database, limit: limit)
         .flatMapEachThrowing { result in
+            // TODO: sas 2020-04-28: this body can probably be written more concisely
+            // There must be a way to pick out the success and do a single error handler
+            // I was hoping to tack on a flatMapError but that only work on the pipeline
+            // as a whole.
             switch result {
                 case let .success((pkg, md)):
-                    // TODO: report and absorb error
-                    return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
-                        .flatMap { pkg.update(on: database) }  // mark package as updated
+                    do {
+                        return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
+                            .flatMap { pkg.update(on: database) }  // mark package as updated
+                    } catch {
+                        // TODO: log somewhere more actionable - table or online service
+                        database.logger.error("ingest: \(error.localizedDescription)")
+                }
                 case let .failure(error):
-                    // TODO: report and absorb error
-                    throw error
+                    // TODO: log somewhere more actionable - table or online service
+                    database.logger.error("ingest: \(error.localizedDescription)")
             }
-        }
-        .flatMap { $0.flatten(on: database.eventLoop) }
+            return database.eventLoop.makeSucceededFuture(())
+    }
+    .flatMap { .andAllComplete($0, on: database.eventLoop) }
 }
 
 
