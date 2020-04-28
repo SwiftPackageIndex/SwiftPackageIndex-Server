@@ -58,13 +58,12 @@ func fetchMetadata(client: Client, database: Database, limit: Int) -> EventLoopF
         .ingestionBatch(limit: limit)
         .flatMapEach(on: database.eventLoop) { pkg in
             do {
-                return try
-                    database.eventLoop.makeSucceededFuture(pkg)
-                        .and(Current.fetchMetadata(client, pkg))
-                        .map {
-                            Result<(Package, Github.Metadata), Error>.success($0)}
+                return try Current.fetchMetadata(client, pkg)
+                    .map { .success((pkg, $0)) }
+                    .flatMapErrorThrowing { .failure($0) }
+            } catch {
+                return database.eventLoop.makeSucceededFuture(.failure(error))
             }
-            catch { return database.eventLoop.makeSucceededFuture(Result.failure(error)) }
     }
 }
 
