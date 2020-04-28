@@ -34,10 +34,10 @@ reconcile:
 db-up: db-up-dev db-up-test
 
 db-up-dev:
-	docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 5432:5432 -d postgres
+	docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 6432:5432 -d postgres
 
 db-up-test:
-	docker run --name spi_test -e POSTGRES_DB=spi_test -e POSTGRES_USER=spi_test -e POSTGRES_PASSWORD=xxx -p 5433:5432 -d postgres
+	docker run --name spi_test -e POSTGRES_DB=spi_test -e POSTGRES_USER=spi_test -e POSTGRES_PASSWORD=xxx -p 5432:5432 -d postgres
 
 db-down: db-down-dev db-down-test
 
