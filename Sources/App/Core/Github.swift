@@ -35,7 +35,7 @@ enum Github {
             .get(url, headers: getHeaders)
             .flatMapThrowing { response -> Metadata in
                 guard response.status == .ok else {
-                    throw AppError.metadataRequestFailed(response.status, url)
+                    throw AppError.metadataRequestFailed(package.id, response.status, url)
                 }
                 return try response.content.decode(Metadata.self, using: decoder)
         }
@@ -55,7 +55,7 @@ enum Github {
     static func apiUri(for package: Package) throws -> URI {
         let githubPrefix = "https://github.com/"
         let gitSuffix = ".git"
-        guard package.url.hasPrefix(githubPrefix) else { throw AppError.invalidPackageUrl(package.url) }
+        guard package.url.hasPrefix(githubPrefix) else { throw AppError.invalidPackageUrl(package.id, package.url) }
         var url = package.url.dropFirst(githubPrefix.count)
         if url.hasSuffix(gitSuffix) { url = url.dropLast(gitSuffix.count) }
         return URI(string: "https://api.github.com/repos/\(url)")

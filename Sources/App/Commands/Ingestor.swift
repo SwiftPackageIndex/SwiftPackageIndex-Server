@@ -27,29 +27,42 @@ struct IngestorCommand: Command {
 }
 
 
+// TODO: Move to Package.setStatus or somewhere
+func setStatus(_ database: Database, id: Package.Id?, status: Status) -> EventLoopFuture<Void> {
+    Package.find(id, on: database).flatMap { pkg -> EventLoopFuture<Void> in
+        guard let pkg = pkg else { return database.eventLoop.makeSucceededFuture(()) }
+        pkg.status = status
+        return pkg.save(on: database)
+    }
+}
+
+
 func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
     fetchMetadata(client: client, database: database, limit: limit)
         .flatMapEachThrowing { result in
-            // TODO: sas 2020-04-28: this body can probably be written more concisely
-            // There must be a way to pick out the success and do a single error handler
-            // I was hoping to tack on a flatMapError but that only work on the pipeline
-            // as a whole.
-            switch result {
-                case let .success((pkg, md)):
-                    do {
-                        return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
-                            .flatMap { pkg.update(on: database) }  // mark package as updated
-                    } catch {
-                        // TODO: log somewhere more actionable - table or online service
-                        database.logger.error("\(#function): \(error.localizedDescription)")
-                }
-                case let .failure(error):
-                    // TODO: log somewhere more actionable - table or online service
-                    database.logger.error("\(#function): \(error.localizedDescription)")
+            do {
+                let (pkg, md) = try result.get()
+                return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
+                    .flatMap {
+                        pkg.status = .ok
+                        return pkg.save(on: database)
+                    }
+            } catch let AppError.invalidPackageUrl(id, url) {
+                database.logger.error("\(#function): \(AppError.invalidPackageUrl(id, url).localizedDescription)")
+                return setStatus(database, id: id, status: .invalidUrl)
+            } catch let AppError.metadataRequestFailed(id, status, uri) {
+                database.logger.error("\(#function): \(AppError.metadataRequestFailed(id, status, uri).localizedDescription)")
+                return setStatus(database, id: id, status: .metadataRequestFailed)
+            } catch let AppError.genericError(id, msg) {
+                database.logger.error("\(#function): \(AppError.genericError(id, msg))")
+                return setStatus(database, id: id, status: .ingestionFailed)
+            } catch {
+                // TODO: log somewhere more actionable - table or online service
+                database.logger.error("\(#function): \(error.localizedDescription)")
+                return database.eventLoop.makeSucceededFuture(())
             }
-            return database.eventLoop.makeSucceededFuture(())
-    }
-    .flatMap { .andAllComplete($0, on: database.eventLoop) }
+        }
+        .flatMap { .andAllComplete($0, on: database.eventLoop) }
 }
 
 
@@ -87,7 +100,8 @@ func insertOrUpdateRepository(on db: Database, for package: Package, metadata: G
                         .save(on: db)
                 } catch {
                     return db.eventLoop.makeFailedFuture(
-                        AppError.genericError("Failed to create Repository for \(package.url)")
+                        AppError.genericError(package.id,
+                                              "Failed to create Repository for \(package.url)")
                     )
                 }
             }

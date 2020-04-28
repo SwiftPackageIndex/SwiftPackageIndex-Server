@@ -44,6 +44,7 @@ class IngestorTests: XCTestCase {
         // assert packages have been updated
         (try Package.query(on: app.db).all().wait()).forEach {
             XCTAssert($0.updatedAt! > lastUpdate)
+            XCTAssertEqual($0.status, .ok)
         }
     }
 
@@ -100,7 +101,7 @@ class IngestorTests: XCTestCase {
         let urls = ["1", "2", "3"]
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "2" {
-               return .just(error: AppError.metadataRequestFailed(.badRequest, URI("2")))
+               return .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("2")))
             }
             return .just(value: .mock(for: pkg))
         }
@@ -117,13 +118,13 @@ class IngestorTests: XCTestCase {
     func test_ingest_badMetadata() throws {
         // setup
         let urls = ["1", "2", "3"]
+        let packages = try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "2" {
-                return .just(error: AppError.metadataRequestFailed(.badRequest, URI("2")))
+                return .just(error: AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2")))
             }
             return .just(value: .mock(for: pkg))
         }
-        try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
         let lastUpdate = Date()
 
         // MUT
@@ -136,10 +137,11 @@ class IngestorTests: XCTestCase {
                        [.some("This is package 1"), .some("This is package 3")])
         (try Package.query(on: app.db).all().wait()).forEach {
             if $0.url == "2" {
-                XCTAssert($0.updatedAt! < lastUpdate)
+                XCTAssertEqual($0.status, .metadataRequestFailed)
             } else {
-                XCTAssert($0.updatedAt! > lastUpdate)
+                XCTAssertEqual($0.status, .ok)
             }
+            XCTAssert($0.updatedAt! > lastUpdate)
         }
     }
 

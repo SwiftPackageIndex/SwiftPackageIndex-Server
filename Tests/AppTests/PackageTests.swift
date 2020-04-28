@@ -16,6 +16,12 @@ final class PackageTests: XCTestCase {
         app.shutdown()
     }
 
+    func test_save_status() throws {
+        try Package(url: "1".url, status: .ok).save(on: app.db).wait()
+        let pkg = try XCTUnwrap(try Package.query(on: app.db).first().wait())
+        XCTAssertEqual(pkg.status, .ok)
+    }
+
     func test_encode() throws {
         let p = Package(id: UUID(), url: URL(string: "https://github.com/finestructure/Arena")!)
         p.lastCommitAt = Date()
