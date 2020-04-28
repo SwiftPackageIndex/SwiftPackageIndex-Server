@@ -6,12 +6,17 @@ import XCTest
 class GithubTests: XCTestCase {
 
     func test_getHeader() throws {
-        XCTAssertEqual(Github.getHeaders, .init([("User-Agent", "SPI-Server")]))
-        Current.githubToken = { "foobar" }
-        XCTAssertEqual(Github.getHeaders, .init([
-            ("User-Agent", "SPI-Server"),
-            ("Authorization", "token foobar")
-        ]))
+        do { // without token
+            Current.githubToken = { nil }
+            XCTAssertEqual(Github.getHeaders, .init([("User-Agent", "SPI-Server")]))
+        }
+        do { // with token
+            Current.githubToken = { "foobar" }
+            XCTAssertEqual(Github.getHeaders, .init([
+                ("User-Agent", "SPI-Server"),
+                ("Authorization", "token foobar")
+            ]))
+        }
     }
 
     func test_Github_apiUri() throws {
@@ -39,7 +44,7 @@ class GithubTests: XCTestCase {
                     }
                     """)
         }
-        let meta = try Github.fetchRepository(client: client, package: pkg).wait()
+        let meta = try Github.fetchMetadata(client: client, package: pkg).wait()
         XCTAssertEqual(meta.defaultBranch, "master")
         XCTAssertEqual(meta.forksCount, 1)
         XCTAssertEqual(meta.stargazersCount, 2)
@@ -50,7 +55,7 @@ class GithubTests: XCTestCase {
         let client = MockClient { resp in
             resp.status = .ok
         }
-        XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
             guard case AppError.invalidPackageUrl = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
                 return
@@ -64,7 +69,7 @@ class GithubTests: XCTestCase {
             resp.status = .ok
             resp.body = makeBody("bad data")
         }
-        XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
             guard case DecodingError.dataCorrupted = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
                 return
@@ -77,8 +82,8 @@ class GithubTests: XCTestCase {
         let client = MockClient { resp in
             resp.status = .tooManyRequests
         }
-        XCTAssertThrowsError(try Github.fetchRepository(client: client, package: pkg).wait()) {
-            guard case AppError.requestFailed(.tooManyRequests) = $0 else {
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
+            guard case AppError.metadataRequestFailed(.tooManyRequests, _) = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
                 return
             }

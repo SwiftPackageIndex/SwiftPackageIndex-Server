@@ -26,7 +26,7 @@ enum Github {
         var parent: Parent?
     }
 
-    static func fetchRepository(client: Client, package: Package) throws -> EventLoopFuture<Metadata> {
+    static func fetchMetadata(client: Client, package: Package) throws -> EventLoopFuture<Metadata> {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
@@ -34,7 +34,9 @@ enum Github {
         let request = client
             .get(url, headers: getHeaders)
             .flatMapThrowing { response -> Metadata in
-                guard response.status == .ok else { throw AppError.requestFailed(response.status) }
+                guard response.status == .ok else {
+                    throw AppError.metadataRequestFailed(response.status, url)
+                }
                 return try response.content.decode(Metadata.self, using: decoder)
         }
         return request

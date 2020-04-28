@@ -16,13 +16,12 @@ class IngestorTests: XCTestCase {
         app.shutdown()
     }
 
-    func test_basic_ingestion() throws {
+    func test_ingest_basic() throws {
         // setup
         let urls = ["https://github.com/finestructure/Gala",
                     "https://github.com/finestructure/Rester",
                     "https://github.com/finestructure/SwiftPMLibrary-Server"]
-        Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
-        Current.fetchRepository = { _, pkg in .just(value: .mock(for: pkg)) }
+        Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
         let lastUpdate = Date()
 
@@ -49,11 +48,11 @@ class IngestorTests: XCTestCase {
     }
 
     func test_insertOrUpdateRepository() throws {
-        let pkg = try savePackage(on: app.db, "https://github.com/finestructure/Gala".url)
+        let pkg = try savePackage(on: app.db, "foo".url)
         do {  // test insert
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: .mock(for: pkg)).wait()
             let repos = try Repository.query(on: app.db).all().wait()
-            XCTAssertEqual(repos.map(\.description), [.some("This is package finestructure/Gala")])
+            XCTAssertEqual(repos.map(\.description), [.some("This is package foo")])
         }
         do {  // test update - run the same package again, with different metadata
             var md = Github.Metadata.mock(for: pkg)
@@ -66,8 +65,7 @@ class IngestorTests: XCTestCase {
 
     func test_partial_save_issue() throws {
         // setup
-        Current.fetchMasterPackageList = { _ in .just(value: testUrls) }
-        Current.fetchRepository = { _, pkg in .just(value: .mock(for: pkg)) }
+        Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, testUrls)
 
         // MUT
@@ -97,4 +95,54 @@ class IngestorTests: XCTestCase {
                        packages.map(\.id).compactMap { $0?.uuidString }.sorted())
     }
 
+    func test_fetchMetadata_badMetadata() throws {
+        // setup
+        let urls = ["1", "2", "3"]
+        Current.fetchMetadata = { _, pkg in
+            if pkg.url == "2" {
+               return .just(error: AppError.metadataRequestFailed(.badRequest, URI("2")))
+            }
+            return .just(value: .mock(for: pkg))
+        }
+        try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
+
+        // MUT
+        let md = try fetchMetadata(client: app.client, database: app.db, limit: 10).wait()
+
+        // validate
+        XCTAssertEqual(md.count, 3)
+        XCTAssertEqual(md.map(\.isSuccess), [true, false, true])
+    }
+
+    func test_ingest_badMetadata() throws {
+        // setup
+        let urls = ["1", "2", "3"]
+        Current.fetchMetadata = { _, pkg in
+            if pkg.url == "2" {
+                return .just(error: AppError.metadataRequestFailed(.badRequest, URI("2")))
+            }
+            return .just(value: .mock(for: pkg))
+        }
+        try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
+        let lastUpdate = Date()
+
+        // MUT
+        try ingest(client: app.client, database: app.db, limit: 10).wait()
+
+        // validate
+        let repos = try Repository.query(on: app.db).all().wait()
+        XCTAssertEqual(repos.count, 2)
+        XCTAssertEqual(repos.map(\.description),
+                       [.some("This is package 1"), .some("This is package 3")])
+        (try Package.query(on: app.db).all().wait()).forEach {
+            if $0.url == "2" {
+                XCTAssert($0.updatedAt! < lastUpdate)
+            } else {
+                XCTAssert($0.updatedAt! > lastUpdate)
+            }
+        }
+    }
+
 }
+
+

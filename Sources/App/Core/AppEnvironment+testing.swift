@@ -9,14 +9,19 @@ extension AppEnvironment {
             .just(value: ["https://github.com/finestructure/Gala",
                           "https://github.com/finestructure/SwiftPMLibrary-Server"].urls)
         },
-        fetchRepository: { _, _ in .just(value: .mock) },
+        fetchMetadata: { _, _ in .just(value: .mock) },
         githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] }
     )
 
-    static let e2eTesting: Self = .init(
+    static let e2eTestingShort: Self = .init(
         fetchMasterPackageList: { _ in .just(value: testUrls) },
-        //        fetchMasterPackageList: liveFetchMasterPackageList,
-        fetchRepository: { _, pkg in .just(value: .mock(for: pkg)) },
+        fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
+        githubToken: { nil }
+    )
+
+    static let e2eTestingFull: Self = .init(
+        fetchMasterPackageList: liveFetchMasterPackageList,
+        fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
         githubToken: { nil }
     )
 }
@@ -147,7 +152,7 @@ extension Github.Metadata {
     static func mock(for package: Package) -> Self {
         // populate with some mock data derived from the package
         .init(defaultBranch: "master",
-              description: "This is package " + package.url.dropFirst("https://github.com/".count),
+              description: "This is package " + package.url,
               forksCount: package.url.count,
               license: .init(key: "mit"),
               stargazersCount: package.url.count + 1,

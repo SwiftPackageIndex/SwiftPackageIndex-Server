@@ -17,27 +17,54 @@ struct IngestorCommand: Command {
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
         context.console.print("Ingesting (limit: \(limit)) ...")
-        let request = try ingest(client: context.application.client,
-                                 database: context.application.db,
-                                 limit: limit)
+        let request = ingest(client: context.application.client,
+                             database: context.application.db,
+                             limit: limit)
+        context.console.info("Processing ...", newLine: true)
         try request.wait()
     }
 
 }
 
 
-func ingest(client: Client, database: Database, limit: Int) throws -> EventLoopFuture<Void> {
-    let metadata = Package.query(on: database)
+func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
+    fetchMetadata(client: client, database: database, limit: limit)
+        .flatMapEachThrowing { result in
+            // TODO: sas 2020-04-28: this body can probably be written more concisely
+            // There must be a way to pick out the success and do a single error handler
+            // I was hoping to tack on a flatMapError but that only work on the pipeline
+            // as a whole.
+            switch result {
+                case let .success((pkg, md)):
+                    do {
+                        return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
+                            .flatMap { pkg.update(on: database) }  // mark package as updated
+                    } catch {
+                        // TODO: log somewhere more actionable - table or online service
+                        database.logger.error("ingest: \(error.localizedDescription)")
+                }
+                case let .failure(error):
+                    // TODO: log somewhere more actionable - table or online service
+                    database.logger.error("ingest: \(error.localizedDescription)")
+            }
+            return database.eventLoop.makeSucceededFuture(())
+    }
+    .flatMap { .andAllComplete($0, on: database.eventLoop) }
+}
+
+
+func fetchMetadata(client: Client, database: Database, limit: Int) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
+    Package.query(on: database)
         .ingestionBatch(limit: limit)
-        .flatMapEachThrowing { try Current.fetchRepository(client, $0).and(value: $0) }
-        .flatMap { $0.flatten(on: database.eventLoop) }
-    return metadata
-        .flatMapEachThrowing { (md, pkg) -> EventLoopFuture<Void> in
-            try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
-                // mark package as updated
-                .flatMap { pkg.update(on: database) }
-        }
-        .flatMap { $0.flatten(on: database.eventLoop) }
+        .flatMapEach(on: database.eventLoop) { pkg in
+            do {
+                return try Current.fetchMetadata(client, pkg)
+                    .map { .success((pkg, $0)) }
+                    .flatMapErrorThrowing { .failure($0) }
+            } catch {
+                return database.eventLoop.makeSucceededFuture(.failure(error))
+            }
+    }
 }
 
 

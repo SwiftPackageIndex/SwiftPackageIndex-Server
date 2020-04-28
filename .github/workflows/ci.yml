@@ -12,11 +12,11 @@ jobs:
       postgres:
         image: postgres:12
         env:
-          POSTGRES_DB: spi_dev
-          POSTGRES_USER: spi_dev
+          POSTGRES_DB: spi_test
+          POSTGRES_USER: spi_test
           POSTGRES_PASSWORD: xxx
         ports:
-          - 5432:5432
+          - '5432:5432'
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -29,7 +29,7 @@ jobs:
         run: make test
         env:
           DATABASE_HOST: postgres
-          DATABASE_PORT: 5432
+          DATABASE_PORT: '5432'
 
   # test-macos:
   #   name: Test macOS
