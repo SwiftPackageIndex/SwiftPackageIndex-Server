@@ -24,7 +24,7 @@ extension AppEnvironment {
 
 
 #if DEBUG
-var Current: AppEnvironment = .e2eTesting
+var Current: AppEnvironment = .live
 #else
 let Current: AppEnvironment = .live
 #endif

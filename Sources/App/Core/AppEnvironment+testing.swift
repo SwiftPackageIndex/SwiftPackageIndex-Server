@@ -13,9 +13,14 @@ extension AppEnvironment {
         githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] }
     )
 
-    static let e2eTesting: Self = .init(
+    static let e2eTestingShort: Self = .init(
         fetchMasterPackageList: { _ in .just(value: testUrls) },
-        //        fetchMasterPackageList: liveFetchMasterPackageList,
+        fetchRepository: { _, pkg in .just(value: .mock(for: pkg)) },
+        githubToken: { nil }
+    )
+
+    static let e2eTestingFull: Self = .init(
+        fetchMasterPackageList: liveFetchMasterPackageList,
         fetchRepository: { _, pkg in .just(value: .mock(for: pkg)) },
         githubToken: { nil }
     )
