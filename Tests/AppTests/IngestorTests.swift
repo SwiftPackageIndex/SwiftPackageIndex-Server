@@ -16,13 +16,13 @@ class IngestorTests: XCTestCase {
         app.shutdown()
     }
 
-    func test_basic_ingestion() throws {
+    func test_ingest_basic() throws {
         // setup
         let urls = ["https://github.com/finestructure/Gala",
                     "https://github.com/finestructure/Rester",
                     "https://github.com/finestructure/SwiftPMLibrary-Server"]
         Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
-        Current.fetchRepository = { _, pkg in .just(value: .mock(for: pkg)) }
+        Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
         let lastUpdate = Date()
 
@@ -67,7 +67,7 @@ class IngestorTests: XCTestCase {
     func test_partial_save_issue() throws {
         // setup
         Current.fetchMasterPackageList = { _ in .just(value: testUrls) }
-        Current.fetchRepository = { _, pkg in .just(value: .mock(for: pkg)) }
+        Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, testUrls)
 
         // MUT

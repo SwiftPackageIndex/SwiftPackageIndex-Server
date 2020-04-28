@@ -10,14 +10,14 @@ import Vapor
 
 struct AppEnvironment {
     var fetchMasterPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
-    var fetchRepository: (_ client: Client, _ package: Package) throws -> EventLoopFuture<Github.Metadata>
+    var fetchMetadata: (_ client: Client, _ package: Package) throws -> EventLoopFuture<Github.Metadata>
     var githubToken: () -> String?
 }
 
 extension AppEnvironment {
     static let live: Self = .init(
         fetchMasterPackageList: liveFetchMasterPackageList,
-        fetchRepository: Github.fetchRepository(client:package:),
+        fetchMetadata: Github.fetchRepository(client:package:),
         githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] }
     )
 }

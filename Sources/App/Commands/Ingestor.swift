@@ -29,7 +29,7 @@ struct IngestorCommand: Command {
 func ingest(client: Client, database: Database, limit: Int) throws -> EventLoopFuture<Void> {
     let metadata = Package.query(on: database)
         .ingestionBatch(limit: limit)
-        .flatMapEachThrowing { try Current.fetchRepository(client, $0).and(value: $0) }
+        .flatMapEachThrowing { try Current.fetchMetadata(client, $0).and(value: $0) }
         .flatMap { $0.flatten(on: database.eventLoop) }
     return metadata
         .flatMapEachThrowing { (md, pkg) -> EventLoopFuture<Void> in

@@ -9,19 +9,19 @@ extension AppEnvironment {
             .just(value: ["https://github.com/finestructure/Gala",
                           "https://github.com/finestructure/SwiftPMLibrary-Server"].urls)
         },
-        fetchRepository: { _, _ in .just(value: .mock) },
+        fetchMetadata: { _, _ in .just(value: .mock) },
         githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] }
     )
 
     static let e2eTestingShort: Self = .init(
         fetchMasterPackageList: { _ in .just(value: testUrls) },
-        fetchRepository: { _, pkg in .just(value: .mock(for: pkg)) },
+        fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
         githubToken: { nil }
     )
 
     static let e2eTestingFull: Self = .init(
         fetchMasterPackageList: liveFetchMasterPackageList,
-        fetchRepository: { _, pkg in .just(value: .mock(for: pkg)) },
+        fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
         githubToken: { nil }
     )
 }
