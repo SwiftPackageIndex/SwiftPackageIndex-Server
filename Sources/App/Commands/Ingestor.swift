@@ -28,20 +28,34 @@ struct IngestorCommand: Command {
 
 func ingest(client: Client, database: Database, limit: Int) throws -> EventLoopFuture<Void> {
     fetchMetadata(client: client, database: database, limit: limit)
-        .flatMapEachThrowing { (pkg, md) in
-            try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
-                .flatMap { pkg.update(on: database) }  // mark package as updated
+        .flatMapEachThrowing { result in
+            switch result {
+                case let .success((pkg, md)):
+                    // TODO: report and absorb error
+                    return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
+                        .flatMap { pkg.update(on: database) }  // mark package as updated
+                case let .failure(error):
+                    // TODO: report and absorb error
+                    throw error
+            }
         }
         .flatMap { $0.flatten(on: database.eventLoop) }
 }
 
 
-func fetchMetadata(client: Client, database: Database, limit: Int) -> EventLoopFuture<[(Package, Github.Metadata)]> {
+func fetchMetadata(client: Client, database: Database, limit: Int) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
     Package.query(on: database)
         .ingestionBatch(limit: limit)
-        .flatMapEachThrowing { try Current.fetchMetadata(client, $0).and(value: $0) }
-        .flatMap { $0.flatten(on: database.eventLoop) }
-        .mapEach { ($0.1, $0.0) }  // flip parameters into logical order
+        .flatMapEach(on: database.eventLoop) { pkg in
+            do {
+                return try
+                    database.eventLoop.makeSucceededFuture(pkg)
+                        .and(Current.fetchMetadata(client, pkg))
+                        .map {
+                            Result<(Package, Github.Metadata), Error>.success($0)}
+            }
+            catch { return database.eventLoop.makeSucceededFuture(Result.failure(error)) }
+    }
 }
 
 

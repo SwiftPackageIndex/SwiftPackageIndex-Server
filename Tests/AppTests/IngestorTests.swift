@@ -21,7 +21,6 @@ class IngestorTests: XCTestCase {
         let urls = ["https://github.com/finestructure/Gala",
                     "https://github.com/finestructure/Rester",
                     "https://github.com/finestructure/SwiftPMLibrary-Server"]
-        Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
         Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
         let lastUpdate = Date()
@@ -66,7 +65,6 @@ class IngestorTests: XCTestCase {
 
     func test_partial_save_issue() throws {
         // setup
-        Current.fetchMasterPackageList = { _ in .just(value: testUrls) }
         Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, testUrls)
 
@@ -97,4 +95,23 @@ class IngestorTests: XCTestCase {
                        packages.map(\.id).compactMap { $0?.uuidString }.sorted())
     }
 
+    func test_fetchMetadata_badMetadata() throws {
+        // setup
+        let urls = ["1", "2", "3"]
+        Current.fetchMetadata = { _, pkg in
+            if pkg.url == "2" { throw AppError.requestFailed(.badRequest) }
+            return .just(value: .mock(for: pkg))
+        }
+        try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
+
+        // MUT
+        let md = try fetchMetadata(client: app.client, database: app.db, limit: 10).wait()
+
+        // validate
+        XCTAssertEqual(md.count, 3)
+        XCTAssertEqual(md.map(\.isSuccess), [true, false, true])
+    }
+
 }
+
+
