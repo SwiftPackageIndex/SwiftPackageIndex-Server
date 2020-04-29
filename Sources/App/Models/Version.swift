@@ -13,6 +13,7 @@ struct SemVer: Content, Equatable {
 
 extension SemVer: ExpressibleByStringLiteral {
     // TODO: sas-2020-04-29: This can/should probably be improved...
+    // Or should we just save versions as flat strings?
     init(stringLiteral value: StringLiteralType) {
         let parts = value.split(separator: ".").map(String.init).compactMap(Int.init)
         switch parts.count {
