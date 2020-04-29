@@ -5,7 +5,6 @@ import Vapor
 typealias Platform = String
 
 
-// TODO: explore using a .custom() type here or maybe .json?
 struct SemVer: Content, Equatable {
     var major: Int
     var minor: Int
@@ -13,6 +12,7 @@ struct SemVer: Content, Equatable {
 }
 
 extension SemVer: ExpressibleByStringLiteral {
+    // TODO: sas-2020-04-29: This can/should probably be improved...
     init(stringLiteral value: StringLiteralType) {
         let parts = value.split(separator: ".").map(String.init).compactMap(Int.init)
         switch parts.count {
@@ -23,12 +23,6 @@ extension SemVer: ExpressibleByStringLiteral {
         }
     }
 }
-
-//extension SemVer: CustomStringConvertible {
-//    var description: String {
-//        "\(major).\(minor).\(patch)"
-//    }
-//}
 
 
 final class Version: Model, Content {
@@ -61,6 +55,9 @@ final class Version: Model, Content {
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
 
+    // TODO: sas-2020-04-29: If we're handling Swift versions specifically here, maybe we should just
+    // use an enum? The set of versions should be fairly limited and it might be nicer to query.
+    // Although JSON querying with PGSQL is quite good.
     @Field(key: "swift_versions")
     var swiftVersions: [SemVer]
 
