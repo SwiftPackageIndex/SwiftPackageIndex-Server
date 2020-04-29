@@ -11,6 +11,7 @@ struct CreateVersion: Migration {
             .field("tag_name", .string)
             .field("package_name", .string)
             .field("commit", .string)
+            .field("supported_platforms", .array(of: .string))
             .create()
     }
 

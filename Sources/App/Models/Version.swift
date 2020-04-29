@@ -2,6 +2,9 @@ import Fluent
 import Vapor
 
 
+typealias Platform = String
+
+
 final class Version: Model, Content {
     static let schema = "versions"
 
@@ -29,8 +32,8 @@ final class Version: Model, Content {
     @Field(key: "commit")
     var commit: String?
 
-    // TODO: supportedPlatforms
-    // [Platform]
+    @Field(key: "supported_platforms")
+    var supportedPlatforms: [Platform]
 
     // TODO: swiftVersions
     // [???]
