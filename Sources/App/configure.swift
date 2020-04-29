@@ -28,6 +28,7 @@ public func configure(_ app: Application) throws {
 
     app.migrations.add(CreatePackage())
     app.migrations.add(CreateRepository())
+    app.migrations.add(CreateVersion())
 
     app.commands.use(IngestorCommand(), as: "ingest")
     app.commands.use(ReconcilerCommand(), as: "reconcile")
