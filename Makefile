@@ -1,4 +1,5 @@
 VAPOR=vapor-beta
+DOCKER_IMAGE=finestructure/spi-server
 
 build:
 	$(VAPOR) build
@@ -8,6 +9,12 @@ run:
 
 test:
 	swift test --enable-test-discovery --enable-code-coverage
+
+build-docker:
+	docker-compose build
+
+push:
+	docker push $(DOCKER_IMAGE)
 
 test-docker:
 	@# run tests inside a docker container
