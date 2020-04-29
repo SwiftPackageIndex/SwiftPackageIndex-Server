@@ -8,8 +8,23 @@
 import Vapor
 
 
-enum AppError: Error {
-    case invalidPackageUrl
-    case metadataRequestFailed(HTTPStatus, URI)
-    case genericError(String)
+enum AppError: LocalizedError {
+    case invalidPackageUrl(Package.Id?, String)
+    case metadataRequestFailed(Package.Id?, HTTPStatus, URI)
+    case genericError(Package.Id?, String)
+
+    var localizedDescription: String {
+        switch self {
+            case let .invalidPackageUrl(id, value):
+                return "Invalid packge URL: \(value) (id: \(id.map { "\($0)" } ?? "-"))"
+            case let .metadataRequestFailed(id, status, uri):
+                return "Metadata request for URI '\(uri.description)' failed with status '\(status)'  (id: \(id.map { "\($0)" } ?? "-"))"
+            case let .genericError(id, value):
+                return "Generic error: \(value) (id: \(id.map { "\($0)" } ?? "-"))"
+        }
+    }
+
+    var errorDescription: String? {
+        localizedDescription
+    }
 }

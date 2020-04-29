@@ -16,6 +16,19 @@ final class PackageTests: XCTestCase {
         app.shutdown()
     }
 
+    func test_save_status() throws {
+        do {  // default status
+            try Package(url: "1".url).save(on: app.db).wait()
+            let pkg = try XCTUnwrap(try Package.query(on: app.db).first().wait())
+            XCTAssertEqual(pkg.status, .none)
+        }
+        do {  // with status
+            try Package(url: "2".url, status: .ok).save(on: app.db).wait()
+            let pkg = try XCTUnwrap(try Package.query(on: app.db).filter(by: "2".url).first().wait())
+            XCTAssertEqual(pkg.status, .ok)
+        }
+    }
+
     func test_encode() throws {
         let p = Package(id: UUID(), url: URL(string: "https://github.com/finestructure/Arena")!)
         p.lastCommitAt = Date()
@@ -30,12 +43,14 @@ final class PackageTests: XCTestCase {
         {
             "id": "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE",
             "url": "https://github.com/finestructure/Arena",
+            "status": "ok",
             "lastCommitAt": \(timestamp)
         }
         """
         let p = try JSONDecoder().decode(Package.self, from: Data(json.utf8))
         XCTAssertEqual(p.id?.uuidString, "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
         XCTAssertEqual(p.url, "https://github.com/finestructure/Arena")
+        XCTAssertEqual(p.status, .ok)
         XCTAssertEqual(p.lastCommitAt?.description, "2020-04-24 13:03:09 +0000")
     }
 

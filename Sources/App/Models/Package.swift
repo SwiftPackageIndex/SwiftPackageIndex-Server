@@ -1,11 +1,24 @@
 import Fluent
 import Vapor
 
+
+enum Status: String, Codable {
+    case none
+    case ok
+    case invalidUrl = "invalid_url"
+    case notFound = "not_found"
+    case metadataRequestFailed = "metadata_request_failed"
+    case ingestionFailed = "ingestion_failed"
+}
+
+
 final class Package: Model, Content {
     static let schema = "packages"
-    
+
+    typealias Id = UUID
+
     @ID(key: .id)
-    var id: UUID?
+    var id: Id?
 
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
@@ -16,14 +29,18 @@ final class Package: Model, Content {
     @Field(key: "url")
     var url: String
 
+    @Enum(key: "status")
+    var status: Status
+
     @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository?
     var lastCommitAt: Date?
 
     init() { }
 
-    init(id: UUID? = nil, url: URL) {
+    init(id: UUID? = nil, url: URL, status: Status = .none) {
         self.id = id
         self.url = url.absoluteString
+        self.status = status
     }
 }
 
