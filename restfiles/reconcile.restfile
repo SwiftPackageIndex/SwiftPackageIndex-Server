@@ -1,0 +1,10 @@
+variables:
+    base_url: http://localhost:8080
+
+requests:
+
+    reconcile:
+        url: ${base_url}/packages/run/reconcile
+        validation:
+            status: 200
+        log: json

@@ -1,0 +1,10 @@
+variables:
+    base_url: http://localhost:8080
+
+requests:
+
+    ingest:
+        url: ${base_url}/packages/run/ingest
+        validation:
+            status: 200
+        log: json
