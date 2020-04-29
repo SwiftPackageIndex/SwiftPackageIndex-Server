@@ -3,24 +3,13 @@ variables:
 
 requests:
 
-    hello:
-        url: ${base_url}/hello
-        validation:
-            status: 200
-        log: true
-        
-    hello-param:
-        url: ${base_url}/hello?name=foo
-        validation:
-            status: 200
-        log: true
-
     create-package:
         url: ${base_url}/packages/
         method: POST
         body:
             json:
-                url: https://github.com/finestructure/Arena
+                url: https://github.com/foo/1
+                status: none
                 lastCommitAt: "2020-04-24T13:03:09Z"
         validation:
             status: 200
@@ -42,8 +31,15 @@ requests:
         method: PUT  # TODO: add PATCH to rester
         body:
             json:
-                url: https://github.com/finestructure/Arena
+                url: https://github.com/foo/2
+                status: ok
                 lastCommitAt: "2019-03-23T00:00:00Z"
         validation:
             status: 200
         log: json
+
+    delete-package:
+        url: ${base_url}/packages/${all-packages[0].id}
+        method: DELETE
+        validation:
+            status: 200
