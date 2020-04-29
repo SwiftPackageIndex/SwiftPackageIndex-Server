@@ -8,12 +8,6 @@
 import Foundation
 
 
-struct ExportConnectionDescription {
-    let source: String
-    let target: String
-}
-
-
 func homePage() -> HTML.Node {
     let title = "Swift Package Index"
     return .html([
