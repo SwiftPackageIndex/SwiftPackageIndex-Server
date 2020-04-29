@@ -22,13 +22,14 @@ volumes:
 x-shared_environment: &shared_environment
   LOG_LEVEL: ${LOG_LEVEL:-debug}
   DATABASE_HOST: db
-  DATABASE_NAME: vapor_database
-  DATABASE_USERNAME: vapor_username
-  DATABASE_PASSWORD: vapor_password
+  DATABASE_PORT: 5432
+  DATABASE_NAME: spi_dev
+  DATABASE_USERNAME: spi_dev
+  DATABASE_PASSWORD: xxx
 
 services:
   app:
-    image: spi-server:latest
+    image: spi:latest
     build:
       context: .
     environment:
@@ -39,7 +40,7 @@ services:
       - '8080:80'
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "80"]
   migrate:
-    image: spi-server:latest
+    image: spi:latest
     build:
       context: .
     environment:
@@ -50,7 +51,7 @@ services:
     deploy:
       replicas: 0
   revert:
-    image: spi-server:latest
+    image: spi:latest
     build:
       context: .
     environment:
@@ -66,8 +67,8 @@ services:
       - db_data:/var/lib/postgresql/data/pgdata
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_USER: vapor_username
-      POSTGRES_PASSWORD: vapor_password
-      POSTGRES_DB: vapor_database
+      POSTGRES_USER: spi_dev
+      POSTGRES_PASSWORD: xxx
+      POSTGRES_DB: spi_dev
     ports:
       - '5432:5432'
