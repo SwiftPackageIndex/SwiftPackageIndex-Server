@@ -39,8 +39,8 @@ will kick off a local test run of the server update process (reconciliation, ing
 The `ingest-loop.sh` script can serve as a simple way to run a full ingestion cycle:
 
 ```
-make reset  # clear dev db
-make reconcile
+make reset        # clear dev db
+make reconcile    # import package list
 ./ingest-loop.sh  # ingest metadata for 100 packages, pause for 10 sec, repeat
 ```
 
