@@ -49,7 +49,7 @@ make reconcile    # import package list
 You can poke at the API using [Rester](https//github.com/finestructure/Rester) by running the Restfile `test.restfile`:
 
 ```
-rester test.testfile
+rester restfiles/test.testfile
 ```
 
 This does not replace testing but helps with API exploration and integration testing.

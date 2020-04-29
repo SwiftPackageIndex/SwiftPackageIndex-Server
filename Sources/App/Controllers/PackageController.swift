@@ -30,4 +30,38 @@ struct PackageController {
             .flatMap { $0.delete(on: req.db) }
             .transform(to: .ok)
     }
+
+    func run(req: Request) throws -> EventLoopFuture<Command.Response> {
+        let cmd = req.parameters.get("command")
+            .flatMap(Command.init(rawValue:))
+        let limit = req.query[Int.self, at: "limit"] ?? 10
+        switch cmd {
+            case .reconcile:
+                return try reconcile(client: req.client, database: req.db)
+                    .flatMap {
+                        Package.query(on: req.db).count()
+                            .map { Command.Response.init(status: "ok", rows: $0) }
+                }
+            case .ingest:
+                return ingest(client: req.client, database: req.db, limit: limit)
+                    .map {
+                        Command.Response(status: "ok", rows: limit)
+            }
+            case .none:
+                return req.eventLoop.makeFailedFuture(Abort(.notFound))
+        }
+    }
+}
+
+
+extension PackageController {
+    enum Command: String {
+        case reconcile
+        case ingest
+
+        struct Response: Content {
+            var status: String
+            var rows: Int
+        }
+    }
 }

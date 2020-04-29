@@ -16,4 +16,6 @@ func routes(_ app: Application) throws {
     app.post("packages", use: controller.create)
     app.put("packages", ":id", use: controller.replace)
     app.delete("packages", ":id", use: controller.delete)
+
+    app.get("packages", "run", ":command", use: controller.run)
 }
