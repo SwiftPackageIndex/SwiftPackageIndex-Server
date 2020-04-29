@@ -24,6 +24,7 @@ class VersionTests: XCTestCase {
         v.packageName = "pname"
         v.tagName = "tag"
         v.supportedPlatforms = ["ios_13", "macos_10.15"]
+        v.swiftVersions = ["4.0", "5.2"]
         try v.save(on: app.db).wait()
         do {
             let v = try XCTUnwrap(Version.find(v.id, on: app.db).wait())
@@ -32,6 +33,7 @@ class VersionTests: XCTestCase {
             XCTAssertEqual(v.packageName, "pname")
             XCTAssertEqual(v.tagName, "tag")
             XCTAssertEqual(v.supportedPlatforms, ["ios_13", "macos_10.15"])
+            XCTAssertEqual(v.swiftVersions, ["4.0", "5.2"])
         }
     }
 }

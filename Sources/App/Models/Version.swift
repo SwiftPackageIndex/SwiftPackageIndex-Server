@@ -5,6 +5,10 @@ import Vapor
 typealias Platform = String
 
 
+// TODO: explore using a .custom() type here or maybe .json?
+typealias SemVer = String
+
+
 final class Version: Model, Content {
     static let schema = "versions"
 
@@ -35,8 +39,8 @@ final class Version: Model, Content {
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
 
-    // TODO: swiftVersions
-    // [???]
+    @Field(key: "swift_versions")
+    var swiftVersions: [SemVer]
 
     init() { }
 
