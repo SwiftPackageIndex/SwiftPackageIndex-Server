@@ -27,16 +27,6 @@ struct IngestorCommand: Command {
 }
 
 
-// TODO: Move to Package.setStatus or somewhere
-func setStatus(_ database: Database, id: Package.Id?, status: Status) -> EventLoopFuture<Void> {
-    Package.find(id, on: database).flatMap { pkg -> EventLoopFuture<Void> in
-        guard let pkg = pkg else { return database.eventLoop.makeSucceededFuture(()) }
-        pkg.status = status
-        return pkg.save(on: database)
-    }
-}
-
-
 func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
     fetchMetadata(client: client, database: database, limit: limit)
         .flatMapEachThrowing { result in
@@ -47,19 +37,8 @@ func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<V
                         pkg.status = .ok
                         return pkg.save(on: database)
                     }
-            } catch let AppError.invalidPackageUrl(id, url) {
-                database.logger.error("\(#function): \(AppError.invalidPackageUrl(id, url).localizedDescription)")
-                return setStatus(database, id: id, status: .invalidUrl)
-            } catch let AppError.metadataRequestFailed(id, status, uri) {
-                database.logger.error("\(#function): \(AppError.metadataRequestFailed(id, status, uri).localizedDescription)")
-                return setStatus(database, id: id, status: .metadataRequestFailed)
-            } catch let AppError.genericError(id, msg) {
-                database.logger.error("\(#function): \(AppError.genericError(id, msg))")
-                return setStatus(database, id: id, status: .ingestionFailed)
             } catch {
-                // TODO: log somewhere more actionable - table or online service
-                database.logger.error("\(#function): \(error.localizedDescription)")
-                return database.eventLoop.makeSucceededFuture(())
+                return recordIngestionError(database: database, error: error)
             }
         }
         .flatMap { .andAllComplete($0, on: database.eventLoop) }
@@ -109,3 +88,26 @@ func insertOrUpdateRepository(on db: Database, for package: Package, metadata: G
 }
 
 
+func recordIngestionError(database: Database, error: Error) -> EventLoopFuture<Void> {
+    func setStatus(id: Package.Id?, status: Status) -> EventLoopFuture<Void> {
+        Package.find(id, on: database).flatMap { pkg in
+            guard let pkg = pkg else { return database.eventLoop.makeSucceededFuture(()) }
+            pkg.status = status
+            return pkg.save(on: database)
+        }
+    }
+
+    database.logger.error("Ingestion error: \(error.localizedDescription)")
+
+    switch error {
+        case let AppError.invalidPackageUrl(id, _):
+            return setStatus(id: id, status: .invalidUrl)
+        case let AppError.metadataRequestFailed(id, _, _):
+            return setStatus(id: id, status: .metadataRequestFailed)
+        case let AppError.genericError(id, _):
+            return setStatus(id: id, status: .ingestionFailed)
+        default:
+            // TODO: log somewhere more actionable - table or online service
+            return database.eventLoop.makeSucceededFuture(())
+    }
+}

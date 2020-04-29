@@ -1,5 +1,6 @@
 import Fluent
 import Vapor
+import XCTest
 
 @testable import App
 
@@ -18,7 +19,7 @@ func setup(_ environment: Environment, resetDb: Bool = true) throws -> Applicati
 }
 
 
-// MARK: - Package creation helpers
+// MARK: - Package db helpers
 
 
 @discardableResult
@@ -32,6 +33,11 @@ func savePackage(on db: Database, _ url: URL) throws -> Package {
 @discardableResult
 func savePackages(on db: Database, _ urls: [URL]) throws -> [Package] {
     try urls.map { try savePackage(on: db, $0) }
+}
+
+
+func fetch(id: Package.Id?, on db: Database, file: StaticString = #file, line: UInt = #line) throws -> Package {
+    try XCTUnwrap(try Package.find(id, on: db).wait(), file: file, line: line)
 }
 
 

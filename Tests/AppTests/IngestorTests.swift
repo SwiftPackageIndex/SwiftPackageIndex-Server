@@ -115,6 +115,13 @@ class IngestorTests: XCTestCase {
         XCTAssertEqual(md.map(\.isSuccess), [true, false, true])
     }
 
+    func test_recordIngestionError() throws {
+        let pkg = try savePackage(on: app.db, "1".url)
+        try recordIngestionError(database: app.db,
+                                 error: AppError.invalidPackageUrl(pkg.id, "foo")).wait()
+        XCTAssertEqual(try fetch(id: pkg.id, on: app.db).status, .invalidUrl)
+    }
+
     func test_ingest_badMetadata() throws {
         // setup
         let urls = ["1", "2", "3"]
