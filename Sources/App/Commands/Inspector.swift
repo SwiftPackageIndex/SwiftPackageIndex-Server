@@ -1,5 +1,6 @@
 import Fluent
 import Vapor
+import ShellOut
 
 
 struct InspectorCommand: Command {
@@ -23,8 +24,7 @@ struct InspectorCommand: Command {
 
 func inspect(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
     // get or create directory
-    let checkoutDir = application.directory.workingDirectory + "SPI-checkouts"
-    print(checkoutDir)
+    let checkoutDir = application.directory.checkouts
     if !FileManager.default.fileExists(atPath: checkoutDir) {
         application.logger.info("Creating checkouts directory at path: \(checkoutDir)")
         try FileManager.default.createDirectory(atPath: checkoutDir,
@@ -32,32 +32,49 @@ func inspect(application: Application, limit: Int) throws -> EventLoopFuture<Voi
                                                 attributes: nil)
     }
 
-    // fetch packages that need updating
-    let checkouts = refreshCheckouts(database: application.db, limit: limit)
-
-
-    // pull or clone repo
+    // pull or clone repos
+    let checkouts = refreshCheckouts(application: application, limit: limit)
 
     return checkouts.transform(to: ())
 }
 
 
-func refreshCheckouts(database: Database, limit: Int) -> EventLoopFuture<[Result<Package, Error>]>  {
-    Package.query(on: database)
+func refreshCheckouts(application: Application, limit: Int) -> EventLoopFuture<[Result<Package, Error>]>  {
+    Package.query(on: application.db)
         .updateCandidates(limit: limit)
-        .flatMapEach(on: database.eventLoop) { pkg in
+        .flatMapEach(on: application.db.eventLoop) { pkg in
             do {
-                return try pullOrClone(eventLoop: database.eventLoop, package: pkg)
+                return try pullOrClone(application: application, package: pkg)
                     .map { .success($0) }
                     .flatMapErrorThrowing { .failure($0) }
             } catch {
-                return database.eventLoop.makeSucceededFuture(.failure(error))
+                return application.db.eventLoop.makeSucceededFuture(.failure(error))
             }
     }
 }
 
 
-func pullOrClone(eventLoop: EventLoop, package: Package) throws -> EventLoopFuture<Package> {
-    print("🚧 pulling \(package.url)")
-    return eventLoop.makeSucceededFuture(package)
+func pullOrClone(application: Application, package: Package) throws -> EventLoopFuture<Package> {
+    guard let basename = package.localCacheDirectory else {
+        throw AppError.invalidPackageUrl(package.id, package.url)
+    }
+    let path = application.directory.checkouts + "/" + basename
+    let promise = application.eventLoopGroup.next().makePromise(of: Package.self)
+    application.threadPool.submit { _ in
+        do {
+            if FileManager.default.fileExists(atPath: path) {
+                application.logger.info("pulling \(package.url) in \(path)")
+                try shellOut(to: .gitPull(), at: path)
+            } else {
+                application.logger.info("cloning \(package.url) to \(path)")
+                try shellOut(to: .gitClone(url: URL(string: package.url)!, to: path))
+            }
+            application.logger.info("done")
+            promise.succeed(package)
+        } catch {
+            application.logger.error("Clone/pull failed for package \(package.url): \(error.localizedDescription)")
+            promise.fail(error)
+        }
+    }
+    return promise.futureResult
 }
