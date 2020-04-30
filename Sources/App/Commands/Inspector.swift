@@ -59,24 +59,14 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
         throw AppError.invalidPackageUrl(package.id, package.url)
     }
     let path = application.directory.checkouts + "/" + basename
-    let promise = application.eventLoopGroup.next().makePromise(of: Package.self)
-    // FIXME: use runIfActive instead
-    // https://discordapp.com/channels/431917998102675485/444249946808647699/705452538438221845
-    //    application.threadPool.runIfActive(eventLoop: <#T##EventLoop#>, <#T##body: () throws -> T##() throws -> T#>)
-    application.threadPool.submit { _ in
-        do {
-            if FileManager.default.fileExists(atPath: path) {
-                application.logger.info("pulling \(package.url) in \(path)")
-                try shellOut(to: .gitPull(), at: path)
-            } else {
-                application.logger.info("cloning \(package.url) to \(path)")
-                try shellOut(to: .gitClone(url: URL(string: package.url)!, to: path))
-            }
-            promise.succeed(package)
-        } catch {
-            application.logger.error("Clone/pull failed for package \(package.url): \(error.localizedDescription)")
-            promise.fail(error)
+    return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
+        if FileManager.default.fileExists(atPath: path) {
+            application.logger.info("pulling \(package.url) in \(path)")
+            try shellOut(to: .gitPull(), at: path)
+        } else {
+            application.logger.info("cloning \(package.url) to \(path)")
+            try shellOut(to: .gitClone(url: URL(string: package.url)!, to: path))
         }
+        return package
     }
-    return promise.futureResult
 }
