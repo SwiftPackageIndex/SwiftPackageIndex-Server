@@ -8,7 +8,7 @@ struct ReconcilerCommand: Command {
     var help: String { "Reconcile master package list with server" }
 
     func run(using context: CommandContext, signature: Signature) throws {
-        context.console.print("Reconciling ...")
+        context.console.info("Reconciling ...")
         let request = try reconcile(client: context.application.client,
                                     database: context.application.db)
         try request.wait()

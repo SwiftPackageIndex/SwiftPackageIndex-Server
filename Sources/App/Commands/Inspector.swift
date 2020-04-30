@@ -69,7 +69,6 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
                 application.logger.info("cloning \(package.url) to \(path)")
                 try shellOut(to: .gitClone(url: URL(string: package.url)!, to: path))
             }
-            application.logger.info("done")
             promise.succeed(package)
         } catch {
             application.logger.error("Clone/pull failed for package \(package.url): \(error.localizedDescription)")
