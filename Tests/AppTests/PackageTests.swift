@@ -109,4 +109,18 @@ final class PackageTests: XCTestCase {
             XCTAssertEqual(pkg.repository, repo)
         }
     }
+
+    func test_versions() throws {
+        let pkg = try savePackage(on: app.db, "1".url)
+        let versions = [
+            try Version(package: pkg, branchName: "branch"),
+            try Version(package: pkg, branchName: "default"),
+            try Version(package: pkg, tagName: "tag"),
+        ]
+        try versions.create(on: app.db).wait()
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$versions).first().wait())
+            XCTAssertEqual(pkg.versions.count, 3)
+        }
+    }
 }

@@ -38,6 +38,9 @@ final class Package: Model, Content {
     @Children(for: \.$package)
     var repositories: [Repository]
 
+    @Children(for: \.$package)
+    var versions: [Version]
+
     init() { }
 
     init(id: UUID? = nil, url: URL, status: Status = .none) {
