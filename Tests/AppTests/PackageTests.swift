@@ -95,4 +95,18 @@ final class PackageTests: XCTestCase {
             .map(\.url)
         XCTAssertEqual(batch, ["https://foo.com/2", "https://foo.com/1"])
     }
+
+    func test_repository() throws {
+        let pkg = try savePackage(on: app.db, "1".url)
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$repositories).first().wait())
+            XCTAssertEqual(pkg.repository, nil)
+        }
+        do {
+            let repo = try Repository(package: pkg)
+            try repo.save(on: app.db).wait()
+            let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$repositories).first().wait())
+            XCTAssertEqual(pkg.repository, repo)
+        }
+    }
 }

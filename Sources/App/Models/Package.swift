@@ -35,12 +35,22 @@ final class Package: Model, Content {
     @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository?
     var lastCommitAt: Date?
 
+    @Children(for: \.$package)
+    var repositories: [Repository]
+
     init() { }
 
     init(id: UUID? = nil, url: URL, status: Status = .none) {
         self.id = id
         self.url = url.absoluteString
         self.status = status
+    }
+}
+
+
+extension Package {
+    var repository: Repository? {
+        get { repositories.first }
     }
 }
 

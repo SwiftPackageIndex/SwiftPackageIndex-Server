@@ -61,3 +61,10 @@ final class Repository: Model, Content {
         // }
     }
 }
+
+
+extension Repository: Equatable {
+    static func == (lhs: Repository, rhs: Repository) -> Bool {
+        lhs.id == rhs.id
+    }
+}
