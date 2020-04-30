@@ -9,7 +9,7 @@ import Vapor
 
 
 enum AppError: LocalizedError {
-    case invalidPackageUrl(Package.Id?, String)
+    case invalidPackageUrl(Package.Id?, String)  // TODO: perhaps rename `invalidPackage`
     case metadataRequestFailed(Package.Id?, HTTPStatus, URI)
     case genericError(Package.Id?, String)
 

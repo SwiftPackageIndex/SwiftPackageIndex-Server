@@ -16,6 +16,25 @@ final class PackageTests: XCTestCase {
         app.shutdown()
     }
 
+    func test_localCacheDirectory() throws {
+        XCTAssertEqual(
+            Package(url: "https://github.com/finestructure/Arena".url).localCacheDirectory,
+            "github.com-finestructure-arena")
+        XCTAssertEqual(
+            Package(url: "https://github.com/finestructure/Arena.git".url).localCacheDirectory,
+            "github.com-finestructure-arena")
+        XCTAssertEqual(
+            Package(url: "http://github.com/finestructure/Arena.git".url).localCacheDirectory,
+            "github.com-finestructure-arena")
+        XCTAssertEqual(
+            Package(url: "http://github.com/FINESTRUCTURE/ARENA.GIT".url).localCacheDirectory,
+            "github.com-finestructure-arena")
+        XCTAssertEqual(Package(url: "foo".url).localCacheDirectory, nil)
+        XCTAssertEqual(Package(url: "http://foo".url).localCacheDirectory, nil)
+        XCTAssertEqual(Package(url: "file://foo".url).localCacheDirectory, nil)
+        XCTAssertEqual(Package(url: "http:///foo/bar".url).localCacheDirectory, nil)
+    }
+
     func test_save_status() throws {
         do {  // default status
             try Package(url: "1".url).save(on: app.db).wait()
@@ -67,12 +86,12 @@ final class PackageTests: XCTestCase {
         XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
     }
 
-    func test_ingestionBatch() throws {
+    func test_updateCandidates() throws {
         let packages = try ["https://foo.com/1", "https://foo.com/2"].map {
             try savePackage(on: app.db, $0.url)
         }
         try Package.update(packages[0])(on: app.db).wait()
-        let batch = try Package.query(on: app.db).ingestionBatch(limit: 10).wait()
+        let batch = try Package.query(on: app.db).updateCandidates(limit: 10).wait()
             .map(\.url)
         XCTAssertEqual(batch, ["https://foo.com/2", "https://foo.com/1"])
     }

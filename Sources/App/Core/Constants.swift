@@ -10,4 +10,6 @@ import Vapor
 
 enum Constants {
     static let masterPackageListUri = URI(string: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json")
+    static let githubComPrefix = "https://github.com/"
+    static let gitSuffix = ".git"
 }

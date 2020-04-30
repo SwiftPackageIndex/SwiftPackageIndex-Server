@@ -30,8 +30,9 @@ public func configure(_ app: Application) throws {
     app.migrations.add(CreateRepository())
     app.migrations.add(CreateVersion())
 
-    app.commands.use(IngestorCommand(), as: "ingest")
     app.commands.use(ReconcilerCommand(), as: "reconcile")
+    app.commands.use(IngestorCommand(), as: "ingest")
+    app.commands.use(InspectorCommand(), as: "inspect")
 
     // register routes
     try routes(app)
