@@ -51,23 +51,12 @@ func diff(source: [URL], target: [URL]) -> (toAdd: Set<URL>, toDelete: Set<URL>)
 
 func reconcileLists(db: Database, source: [URL], target: [URL]) -> EventLoopFuture<Void> {
     let (toAdd, toDelete) = diff(source: source, target: target)
-    let insertions = db.withConnection { db in
-        toAdd.map { Package(url: $0) }
-            .map { $0.create(on: db) }
-            .flatten(on: db.eventLoop)
-    }
-    let deletions: EventLoopFuture<Void> = db.withConnection { db in
-        toDelete
-            .map { url in
-                Package.query(on: db)
-                    .filter(by: url)
-                    .first()
-                    .unwrap(or: Abort(.notFound))
-                    .flatMap { pkg in
-                        pkg.delete(on: db)
-                }
-        }
-        .flatten(on: db.eventLoop)
-    }
-    return insertions.and(deletions).transform(to: ())
+    let insert = toAdd.map { Package(url: $0) }.create(on: db)
+    let delete = toDelete
+        .map { url in
+            Package.query(on: db)
+                .filter(by: url)
+                .delete()
+        }.flatten(on: db.eventLoop)
+    return insert.and(delete).transform(to: ())
 }
