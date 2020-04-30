@@ -26,6 +26,7 @@ x-shared_environment: &shared_environment
   DATABASE_NAME: spi_dev
   DATABASE_USERNAME: spi_dev
   DATABASE_PASSWORD: xxx
+  GITHUB_TOKEN: ${GITHUB_TOKEN}
 
 services:
   app:
