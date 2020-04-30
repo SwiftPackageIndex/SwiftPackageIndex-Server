@@ -16,6 +16,25 @@ final class PackageTests: XCTestCase {
         app.shutdown()
     }
 
+    func test_localCacheDirectory() throws {
+        XCTAssertEqual(
+            Package(url: "https://github.com/finestructure/Arena".url).localCacheDirectory,
+            "github.com-finestructure-arena")
+        XCTAssertEqual(
+            Package(url: "https://github.com/finestructure/Arena.git".url).localCacheDirectory,
+            "github.com-finestructure-arena")
+        XCTAssertEqual(
+            Package(url: "http://github.com/finestructure/Arena.git".url).localCacheDirectory,
+            "github.com-finestructure-arena")
+        XCTAssertEqual(
+            Package(url: "http://github.com/FINESTRUCTURE/ARENA.GIT".url).localCacheDirectory,
+            "github.com-finestructure-arena")
+        XCTAssertEqual(Package(url: "foo".url).localCacheDirectory, nil)
+        XCTAssertEqual(Package(url: "http://foo".url).localCacheDirectory, nil)
+        XCTAssertEqual(Package(url: "file://foo".url).localCacheDirectory, nil)
+        XCTAssertEqual(Package(url: "http:///foo/bar".url).localCacheDirectory, nil)
+    }
+
     func test_save_status() throws {
         do {  // default status
             try Package(url: "1".url).save(on: app.db).wait()

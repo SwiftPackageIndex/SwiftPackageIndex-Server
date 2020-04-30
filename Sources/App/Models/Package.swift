@@ -45,6 +45,23 @@ final class Package: Model, Content {
 }
 
 
+extension Package {
+    var localCacheDirectory: String? {
+        URL(string: url).flatMap {
+            guard let host = $0.host, !host.isEmpty else { return nil }
+            let trunk = $0.path
+                .replacingOccurrences(of: "/", with: "-")
+                .lowercased()
+                .droppingGitExtension
+            guard !trunk.isEmpty else { return nil }
+            return trunk.hasPrefix("-")
+                ? host + trunk
+                : host + "-" + trunk
+        }
+    }
+}
+
+
 extension QueryBuilder where Model == Package {
     func filter(by url: URL) -> Self {
         filter(\.$url == url.absoluteString)
