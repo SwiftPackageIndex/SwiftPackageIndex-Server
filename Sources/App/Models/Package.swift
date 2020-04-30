@@ -53,7 +53,8 @@ extension QueryBuilder where Model == Package {
 
 
 extension QueryBuilder where Model == Package {
-    func ingestionBatch(limit: Int) -> EventLoopFuture<[Package]> {
+    func updateCandidates(limit: Int) -> EventLoopFuture<[Package]> {
+        // TODO: filter out updated in last X minutes
         sort(\.$updatedAt)
         .limit(limit)
         .all()

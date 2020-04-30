@@ -3,20 +3,18 @@ import Fluent
 
 
 struct IngestorCommand: Command {
-    let defaultLimit = 2
+    let defaultLimit = 1
 
     struct Signature: CommandSignature {
         @Option(name: "limit", short: "l")
         var limit: Int?
     }
 
-    var help: String {
-        "Ingests packages"
-    }
+    var help: String { "Run package ingestion (fetching repository metadata)" }
 
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
-        context.console.print("Ingesting (limit: \(limit)) ...")
+        context.console.info("Ingesting (limit: \(limit)) ...")
         let request = ingest(client: context.application.client,
                              database: context.application.db,
                              limit: limit)
@@ -47,7 +45,7 @@ func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<V
 
 func fetchMetadata(client: Client, database: Database, limit: Int) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
     Package.query(on: database)
-        .ingestionBatch(limit: limit)
+        .updateCandidates(limit: limit)
         .flatMapEach(on: database.eventLoop) { pkg in
             do {
                 return try Current.fetchMetadata(client, pkg)
