@@ -39,9 +39,21 @@ final class Repository: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, package: Package, forkedFrom: Repository? = nil) throws {
+    init(id: UUID? = nil,
+         package: Package,
+         description: String? = nil,
+         defaultBranch: String? = nil,
+         license: String? = nil,
+         stars: Int? = nil,
+         forks: Int? = nil,
+         forkedFrom: Repository? = nil) throws {
         self.id = id
         self.$package.id = try package.requireID()
+        self.description = description
+        self.defaultBranch = defaultBranch
+        self.license = license
+        self.stars = stars
+        self.forks = forks
         if let forkId = forkedFrom?.id {
             self.$forkedFrom.id = forkId
         }

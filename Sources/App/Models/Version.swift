@@ -81,3 +81,10 @@ final class Version: Model, Content {
         self.supportedPlatforms = supportedPlatforms
     }
 }
+
+
+extension Version: Equatable {
+    static func == (lhs: Version, rhs: Version) -> Bool {
+        lhs.id == rhs.id
+    }
+}

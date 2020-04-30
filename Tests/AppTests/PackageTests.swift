@@ -123,4 +123,34 @@ final class PackageTests: XCTestCase {
             XCTAssertEqual(pkg.versions.count, 3)
         }
     }
+
+    func test_defaultVersion() throws {
+        let pkg = try savePackage(on: app.db, "1".url)
+        let versions = [
+            try Version(package: pkg, branchName: "branch"),
+            try Version(package: pkg, branchName: "default"),
+            try Version(package: pkg, tagName: "tag"),
+        ]
+        try versions.create(on: app.db).wait()
+        do {  // no default branch set on pkg - default version is nil
+            let pkg = try XCTUnwrap(
+                Package
+                    .query(on: app.db)
+                    .with(\.$versions)
+                    .with(\.$repositories)
+                    .first().wait())
+            XCTAssertEqual(pkg.defaultVersion, nil)
+        }
+        // set default branch
+        try Repository(package: pkg, defaultBranch: "default").save(on: app.db).wait()
+        do {  // default version is available now
+            let pkg = try XCTUnwrap(
+                Package
+                    .query(on: app.db)
+                    .with(\.$versions)
+                    .with(\.$repositories)
+                    .first().wait())
+            XCTAssertEqual(pkg.defaultVersion, versions[1])
+        }
+    }
 }
