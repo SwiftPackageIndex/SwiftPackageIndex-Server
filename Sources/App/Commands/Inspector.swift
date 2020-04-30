@@ -60,6 +60,9 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
     }
     let path = application.directory.checkouts + "/" + basename
     let promise = application.eventLoopGroup.next().makePromise(of: Package.self)
+    // FIXME: use runIfActive instead
+    // https://discordapp.com/channels/431917998102675485/444249946808647699/705452538438221845
+    //    application.threadPool.runIfActive(eventLoop: <#T##EventLoop#>, <#T##body: () throws -> T##() throws -> T#>)
     application.threadPool.submit { _ in
         do {
             if FileManager.default.fileExists(atPath: path) {
