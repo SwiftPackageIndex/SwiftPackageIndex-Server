@@ -32,11 +32,14 @@ revert:
 routes:
 	$(VAPOR) run routes
 
-ingest:
-	$(VAPOR) run ingest --limit 10
-
 reconcile:
 	$(VAPOR) run reconcile
+
+ingest:
+	$(VAPOR) run ingest --limit 1
+
+inspect:
+	$(VAPOR) run inspect --limit 1
 
 db-up: db-up-dev db-up-test
 
