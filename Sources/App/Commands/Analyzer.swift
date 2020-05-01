@@ -3,7 +3,7 @@ import Vapor
 import ShellOut
 
 
-struct InspectorCommand: Command {
+struct AnalyzerCommand: Command {
     let defaultLimit = 1
 
     struct Signature: CommandSignature {
@@ -11,18 +11,18 @@ struct InspectorCommand: Command {
         var limit: Int?
     }
 
-    var help: String { "Run package inspection (fetching git repository and inspecting content)" }
+    var help: String { "Run package analysis (fetching git repository and inspecting content)" }
 
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
-        context.console.info("Inspecting (limit: \(limit)) ...")
+        context.console.info("Analyzing (limit: \(limit)) ...")
 
-        try inspect(application: context.application, limit: limit).wait()
+        try analyze(application: context.application, limit: limit).wait()
     }
 }
 
 
-func inspect(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
+func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
     // get or create directory
     let checkoutDir = application.directory.checkouts
     if !FileManager.default.fileExists(atPath: checkoutDir) {
