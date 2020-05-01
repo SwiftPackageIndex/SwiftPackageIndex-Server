@@ -42,13 +42,13 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
 
 func refreshCheckouts(application: Application, limit: Int) -> EventLoopFuture<[Result<Package, Error>]>  {
     Package.fetchUpdateCandidates(application.db, limit: limit)
-        .flatMapEach(on: application.db.eventLoop) { pkg in
+        .flatMapEach(on: application.eventLoopGroup.next()) { pkg in
             do {
                 return try pullOrClone(application: application, package: pkg)
                     .map { .success($0) }
                     .flatMapErrorThrowing { .failure($0) }
             } catch {
-                return application.db.eventLoop.makeSucceededFuture(.failure(error))
+                return application.eventLoopGroup.next().makeSucceededFuture(.failure(error))
             }
     }
 }
