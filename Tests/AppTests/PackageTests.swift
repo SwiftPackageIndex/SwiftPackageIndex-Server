@@ -5,17 +5,8 @@ import Vapor
 import XCTVapor
 
 
-final class PackageTests: XCTestCase {
-    var app: Application!
-
-    override func setUpWithError() throws {
-        app = try setup(.testing)
-    }
-
-    override func tearDownWithError() throws {
-        app.shutdown()
-    }
-
+final class PackageTests: AppTestCase {
+    
     func test_localCacheDirectory() throws {
         XCTAssertEqual(
             Package(url: "https://github.com/finestructure/Arena".url).localCacheDirectory,

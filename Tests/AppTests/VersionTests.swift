@@ -3,17 +3,8 @@
 import XCTVapor
 
 
-class VersionTests: XCTestCase {
-    var app: Application!
-
-    override func setUpWithError() throws {
-        app = try setup(.testing)
-    }
-
-    override func tearDownWithError() throws {
-        app.shutdown()
-    }
-
+class VersionTests: AppTestCase {
+    
     func test_Version_save() throws {
         let pkg = try savePackage(on: app.db, "1".url)
         let v = try Version(package: pkg)

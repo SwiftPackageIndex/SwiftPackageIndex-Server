@@ -5,17 +5,8 @@ import Vapor
 import XCTest
 
 
-class IngestorTests: XCTestCase {
-    var app: Application!
-
-    override func setUpWithError() throws {
-        app = try setup(.testing)
-    }
-
-    override func tearDownWithError() throws {
-        app.shutdown()
-    }
-
+class IngestorTests: AppTestCase {
+    
     func test_ingest_basic() throws {
         // setup
         let urls = ["https://github.com/finestructure/Gala",

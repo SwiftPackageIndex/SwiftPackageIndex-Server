@@ -4,17 +4,8 @@ import Vapor
 import XCTest
 
 
-class ReconcilerTests: XCTestCase {
-    var app: Application!
-
-    override func setUpWithError() throws {
-        app = try setup(.testing)
-    }
-
-    override func tearDownWithError() throws {
-        app.shutdown()
-    }
-
+class ReconcilerTests: AppTestCase {
+    
     func test_basic_reconciliation() throws {
         let urls = ["1", "2", "3"]
         Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
