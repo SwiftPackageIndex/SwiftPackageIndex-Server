@@ -33,23 +33,22 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
                                                   attributes: nil)
     }
 
-    // pull or clone repos
-    let checkouts = refreshCheckouts(application: application, limit: limit)
+    let checkouts = Package.fetchUpdateCandidates(application.db, limit: limit)
+        .flatMapEach(on: application.eventLoopGroup.next()) { pkg in
+            refreshCheckout(application: application, package: pkg)
+    }
 
     return checkouts.transform(to: ())
 }
 
 
-func refreshCheckouts(application: Application, limit: Int) -> EventLoopFuture<[Result<Package, Error>]>  {
-    Package.fetchUpdateCandidates(application.db, limit: limit)
-        .flatMapEach(on: application.eventLoopGroup.next()) { pkg in
-            do {
-                return try pullOrClone(application: application, package: pkg)
-                    .map { .success($0) }
-                    .flatMapErrorThrowing { .failure($0) }
-            } catch {
-                return application.eventLoopGroup.next().makeSucceededFuture(.failure(error))
-            }
+func refreshCheckout(application: Application, package: Package) -> EventLoopFuture<Result<Package, Error>>  {
+    do {
+        return try pullOrClone(application: application, package: package)
+            .map { .success($0) }
+            .flatMapErrorThrowing { .failure($0) }
+    } catch {
+        return application.eventLoopGroup.next().makeSucceededFuture(.failure(error))
     }
 }
 
