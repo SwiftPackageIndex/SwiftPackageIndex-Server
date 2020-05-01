@@ -39,9 +39,10 @@ struct FileManager {
 
 
 struct Shell {
-    var run: (ShellOutCommand, String) throws -> Void
+    var run: (ShellOutCommand, String) throws -> String
     // also provide pass-through methods to preserve argument labels
-    func run(command: ShellOutCommand, at path: String = ".") throws {
+    @discardableResult
+    func run(command: ShellOutCommand, at path: String = ".") throws -> String {
         try run(command, path)
     }
 

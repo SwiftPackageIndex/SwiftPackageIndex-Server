@@ -25,6 +25,21 @@ extension SemVer: ExpressibleByStringLiteral {
     }
 }
 
+extension SemVer {
+    // TODO: having two very similar initialisers is not ideal but we need both at the moment.
+    // One to support DB serialization (stringLiteral one) and one to parse incoming data
+    // which can fail.
+    init?(string: String) {
+        let parts = string.split(separator: ".").map(String.init).compactMap(Int.init)
+        switch parts.count {
+            case 1: self = .init(major: parts[0], minor: 0, patch: 0)
+            case 2: self = .init(major: parts[0], minor: parts[1], patch: 0)
+            case 3: self = .init(major: parts[0], minor: parts[1], patch: parts[2])
+            default: return nil
+        }
+    }
+}
+
 
 final class Version: Model, Content {
     static let schema = "versions"

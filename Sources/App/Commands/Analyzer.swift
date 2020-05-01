@@ -85,10 +85,30 @@ func reconcileVersions(application: Application, package: Package) throws -> Eve
     guard let path = application.directory.checkoutPath(for: package) else {
         throw AppError.invalidPackageUrl(package.id, package.url)
     }
-    let check = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
-        application.logger.info("listing tags for package \(package.url)")
-        try Current.shell.run(command: .init(string: "git tag"), at: path)
+    guard let pkgId = package.id else {
+        throw AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
     }
-    // create or update versions (start with delete and recreate?)
-    return check
+    let tags: EventLoopFuture<[String]> = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
+        application.logger.info("listing tags for package \(package.url)")
+        let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
+        return tags.split(separator: "\n").map(String.init)
+    }
+
+    // first stab: delete ...
+    let delete = Version.query(on: application.db)
+        .filter(\.$package.$id == pkgId)
+        .delete()
+    // ... and insert
+    let insert = tags
+        .flatMapEachThrowing { try Version(package: package, tagName: $0)}
+        .flatMap { $0.create(on: application.db) }
+
+    return delete.flatMap { insert }
 }
+
+
+//func parseVersions(_ string: String) -> [SemVer] {
+//    string.split(separator: "\n")
+//        .map(String.init)
+//        .compactMap(SemVer.init(string:))
+//}
