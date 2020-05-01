@@ -34,9 +34,15 @@ class AnalyzerTests: AppTestCase {
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
         XCTAssertEqual(commands,
                        ["git clone https://github.com/foo/1 \"\(outDir)/github.com-foo-1\" --quiet",
-                        "git pull --quiet"]
+                        "git pull --quiet",
+                        "git tag",
+                        "git tag"]
         )
     }
 
     // TODO: refresh checkout with error (continuation)
+
+    func test_reconcileVersions() throws {
+        // TODO
+    }
 }

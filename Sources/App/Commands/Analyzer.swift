@@ -38,7 +38,17 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
             refreshCheckout(application: application, package: pkg)
     }
 
-    return checkouts.transform(to: ())
+    // get versions
+    let versions = checkouts
+        .flatMapEach(on: application.eventLoopGroup.next()) { result -> EventLoopFuture<Void> in
+            do {
+                let pkg = try result.get()
+                return try reconcileVersions(application: application, package: pkg)
+            } catch {
+                return application.eventLoopGroup.next().makeFailedFuture(error)
+            }
+    }
+    return versions.transform(to: ())
 }
 
 
@@ -54,10 +64,9 @@ func refreshCheckout(application: Application, package: Package) -> EventLoopFut
 
 
 func pullOrClone(application: Application, package: Package) throws -> EventLoopFuture<Package> {
-    guard let basename = package.localCacheDirectory else {
+    guard let path = application.directory.checkoutPath(for: package) else {
         throw AppError.invalidPackageUrl(package.id, package.url)
     }
-    let path = application.directory.checkouts + "/" + basename
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         if Current.fileManager.fileExists(atPath: path) {
             application.logger.info("pulling \(package.url) in \(path)")
@@ -68,4 +77,18 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
         }
         return package
     }
+}
+
+
+func reconcileVersions(application: Application, package: Package) throws -> EventLoopFuture<Void> {
+    // fetch tags
+    guard let path = application.directory.checkoutPath(for: package) else {
+        throw AppError.invalidPackageUrl(package.id, package.url)
+    }
+    let check = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
+        application.logger.info("listing tags for package \(package.url)")
+        try Current.shell.run(command: .init(string: "git tag"), at: path)
+    }
+    // create or update versions (start with delete and recreate?)
+    return check
 }
