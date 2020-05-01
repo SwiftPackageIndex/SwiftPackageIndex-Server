@@ -10,20 +10,32 @@ extension AppEnvironment {
                           "https://github.com/finestructure/SwiftPMLibrary-Server"].urls)
         },
         fetchMetadata: { _, _ in .just(value: .mock) },
+        fileManager: { .mock },
         githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] }
     )
 
     static let e2eTestingShort: Self = .init(
         fetchMasterPackageList: { _ in .just(value: testUrls) },
         fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
+        fileManager: { .mock },
         githubToken: { nil }
     )
 
     static let e2eTestingFull: Self = .init(
         fetchMasterPackageList: liveFetchMasterPackageList,
         fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
+        fileManager: { .mock },
         githubToken: { nil }
     )
+}
+
+
+extension FileManager {
+    static let mock = Self.mock(fileExists: true)
+    static func mock(fileExists: Bool) -> Self {
+        .init(fileExists: { _ in fileExists },
+              createDirectory: { _, _, _ in })
+    }
 }
 
 

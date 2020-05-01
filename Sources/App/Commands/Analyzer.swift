@@ -25,11 +25,11 @@ struct AnalyzerCommand: Command {
 func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
     // get or create directory
     let checkoutDir = application.directory.checkouts
-    if !FileManager.default.fileExists(atPath: checkoutDir) {
+    if !Current.fileManager().fileExists(atPath: checkoutDir) {
         application.logger.info("Creating checkouts directory at path: \(checkoutDir)")
-        try FileManager.default.createDirectory(atPath: checkoutDir,
-                                                withIntermediateDirectories: false,
-                                                attributes: nil)
+        try Current.fileManager().createDirectory(atPath: checkoutDir,
+                                                  withIntermediateDirectories: false,
+                                                  attributes: nil)
     }
 
     // pull or clone repos
@@ -59,7 +59,7 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
     }
     let path = application.directory.checkouts + "/" + basename
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
-        if FileManager.default.fileExists(atPath: path) {
+        if Current.fileManager().fileExists(atPath: path) {
             application.logger.info("pulling \(package.url) in \(path)")
             try shellOut(to: .gitPull(), at: path)
         } else {
