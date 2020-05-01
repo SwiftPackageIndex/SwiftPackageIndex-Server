@@ -11,21 +11,24 @@ extension AppEnvironment {
         },
         fetchMetadata: { _, _ in .just(value: .mock) },
         fileManager: .mock,
-        githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] }
+        githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] },
+        shell: .mock
     )
 
     static let e2eTestingShort: Self = .init(
         fetchMasterPackageList: { _ in .just(value: testUrls) },
         fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
         fileManager: .mock,
-        githubToken: { nil }
+        githubToken: { nil },
+        shell: .mock
     )
 
     static let e2eTestingFull: Self = .init(
         fetchMasterPackageList: liveFetchMasterPackageList,
         fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
         fileManager: .mock,
-        githubToken: { nil }
+        githubToken: { nil },
+        shell: .mock
     )
 }
 
@@ -33,9 +36,21 @@ extension AppEnvironment {
 extension FileManager {
     static let mock = Self.mock(fileExists: true)
     static func mock(fileExists: Bool) -> Self {
-        .init(fileExists: { _ in fileExists },
-              createDirectory: { _, _, _ in })
+        .init(fileExists: { path in
+            print("ℹ️ MOCK: file at \(path) exists")
+            return fileExists
+        },
+              createDirectory: { path, _, _ in
+                print("ℹ️ MOCK: imagine we're creating a directory at path: \(path)")
+        })
     }
+}
+
+
+extension Shell {
+    static let mock: Self = .init(run: { cmd, path in
+        print("ℹ️ MOCK: imagine we're running \(cmd) at path: \(path)")
+    })
 }
 
 
