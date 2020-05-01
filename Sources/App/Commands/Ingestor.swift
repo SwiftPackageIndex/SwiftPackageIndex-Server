@@ -43,9 +43,9 @@ func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<V
 }
 
 
+// TODO: rename or split out package fetching
 func fetchMetadata(client: Client, database: Database, limit: Int) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
-    Package.query(on: database)
-        .fetchUpdateCandidates(limit: limit)
+    Package.fetchUpdateCandidates(database, limit: limit)
         .flatMapEach(on: database.eventLoop) { pkg in
             do {
                 return try Current.fetchMetadata(client, pkg)
