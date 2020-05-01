@@ -41,7 +41,7 @@ func inspect(application: Application, limit: Int) throws -> EventLoopFuture<Voi
 
 func refreshCheckouts(application: Application, limit: Int) -> EventLoopFuture<[Result<Package, Error>]>  {
     Package.query(on: application.db)
-        .updateCandidates(limit: limit)
+        .fetchUpdateCandidates(limit: limit)
         .flatMapEach(on: application.db.eventLoop) { pkg in
             do {
                 return try pullOrClone(application: application, package: pkg)

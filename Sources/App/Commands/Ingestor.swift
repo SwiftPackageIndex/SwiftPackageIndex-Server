@@ -45,7 +45,7 @@ func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<V
 
 func fetchMetadata(client: Client, database: Database, limit: Int) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
     Package.query(on: database)
-        .updateCandidates(limit: limit)
+        .fetchUpdateCandidates(limit: limit)
         .flatMapEach(on: database.eventLoop) { pkg in
             do {
                 return try Current.fetchMetadata(client, pkg)
