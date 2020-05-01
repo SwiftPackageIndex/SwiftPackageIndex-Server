@@ -26,40 +26,43 @@ struct IngestorCommand: Command {
 
 
 func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
-    fetchMetadata(client: client, database: database, limit: limit)
-        .flatMapEachThrowing { result in
-            do {
-                let (pkg, md) = try result.get()
-                return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
-                    .flatMap {
-                        pkg.status = .ok
-                        return pkg.save(on: database)
-                    }
-            } catch {
-                return recordIngestionError(database: database, error: error)
-            }
-        }
+    Package.fetchUpdateCandidates(database, limit: limit)
+        .flatMapEach(on: database.eventLoop) { fetchMetadata(for: $0, with: client) }
+        .flatMapEachThrowing { updateTables(on: database, result: $0) }
         .flatMap { .andAllComplete($0, on: database.eventLoop) }
 }
 
 
-func fetchMetadata(client: Client, database: Database, limit: Int) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
-    Package.query(on: database)
-        .updateCandidates(limit: limit)
-        .flatMapEach(on: database.eventLoop) { pkg in
-            do {
-                return try Current.fetchMetadata(client, pkg)
-                    .map { .success((pkg, $0)) }
-                    .flatMapErrorThrowing { .failure($0) }
-            } catch {
-                return database.eventLoop.makeSucceededFuture(.failure(error))
-            }
+typealias PackageMetadata = (Package, Github.Metadata)
+
+
+func fetchMetadata(for package: Package, with client: Client) -> EventLoopFuture<Result<PackageMetadata, Error>> {
+    do {
+        return try Current.fetchMetadata(client, package)
+            .map { .success((package, $0)) }
+            .flatMapErrorThrowing { .failure($0) }
+    } catch {
+        return client.eventLoop.makeSucceededFuture(.failure(error))
     }
 }
 
 
-func insertOrUpdateRepository(on db: Database, for package: Package, metadata: Github.Metadata) throws -> EventLoopFuture<Void> {
-    Repository.query(on: db)
+func updateTables(on database: Database, result: Result<PackageMetadata, Error>) -> EventLoopFuture<Void> {
+    do {
+        let (pkg, md) = try result.get()
+        return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
+            .flatMap {
+                pkg.status = .ok
+                return pkg.save(on: database)
+            }
+    } catch {
+        return recordIngestionError(database: database, error: error)
+    }
+}
+
+
+func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github.Metadata) throws -> EventLoopFuture<Void> {
+    Repository.query(on: database)
         .filter(try \.$package.$id == package.requireID())
         .first()
         .flatMap { repo -> EventLoopFuture<Void> in
@@ -70,13 +73,13 @@ func insertOrUpdateRepository(on db: Database, for package: Package, metadata: G
                 repo.license = metadata.license?.key
                 repo.stars = metadata.stargazersCount
                 // TODO: find and assign parent repo
-                return repo.save(on: db)
+                return repo.save(on: database)
             } else {
                 do {
                     return try Repository(package: package, metadata: metadata)
-                        .save(on: db)
+                        .save(on: database)
                 } catch {
-                    return db.eventLoop.makeFailedFuture(
+                    return database.eventLoop.makeFailedFuture(
                         AppError.genericError(package.id,
                                               "Failed to create Repository for \(package.url)")
                     )

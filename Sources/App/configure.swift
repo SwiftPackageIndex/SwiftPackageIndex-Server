@@ -32,7 +32,7 @@ public func configure(_ app: Application) throws {
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")
-    app.commands.use(InspectorCommand(), as: "inspect")
+    app.commands.use(AnalyzerCommand(), as: "analyze")
 
     // register routes
     try routes(app)

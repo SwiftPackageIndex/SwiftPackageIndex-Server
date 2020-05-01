@@ -77,12 +77,12 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
     }
 
-    func test_updateCandidates() throws {
+    func test_fetchUpdateCandidates() throws {
         let packages = try ["https://foo.com/1", "https://foo.com/2"].map {
             try savePackage(on: app.db, $0.url)
         }
         try Package.update(packages[0])(on: app.db).wait()
-        let batch = try Package.query(on: app.db).updateCandidates(limit: 10).wait()
+        let batch = try Package.fetchUpdateCandidates(app.db, limit: 10).wait()
             .map(\.url)
         XCTAssertEqual(batch, ["https://foo.com/2", "https://foo.com/1"])
     }

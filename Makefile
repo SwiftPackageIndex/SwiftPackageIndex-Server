@@ -38,8 +38,8 @@ reconcile:
 ingest:
 	$(VAPOR) run ingest --limit 1
 
-inspect:
-	$(VAPOR) run inspect --limit 1
+analyze:
+	$(VAPOR) run analyze --limit 1
 
 db-up: db-up-dev db-up-test
 
