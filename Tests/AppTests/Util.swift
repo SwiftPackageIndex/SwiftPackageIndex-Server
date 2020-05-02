@@ -5,6 +5,9 @@ import XCTest
 @testable import App
 
 
+// MARK: - Test helpers
+
+
 func setup(_ environment: Environment, resetDb: Bool = true) throws -> Application {
     // Always start with a baseline mock environment to avoid hitting live resources
     Current = .mock
@@ -16,6 +19,20 @@ func setup(_ environment: Environment, resetDb: Bool = true) throws -> Applicati
         try app.autoMigrate().wait()
     }
     return app
+}
+
+
+func loadData(for fixture: String) throws -> Data {
+    let url = fixturesDirectory().appendingPathComponent(fixture)
+    return try Data(contentsOf: url)
+}
+
+
+func fixturesDirectory(path: String = #file) -> URL {
+    let url = URL(fileURLWithPath: path)
+    let testsDir = url.deletingLastPathComponent()
+    let res = testsDir.appendingPathComponent("Fixtures")
+    return res
 }
 
 
