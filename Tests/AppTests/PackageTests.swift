@@ -7,23 +7,23 @@ import XCTVapor
 
 final class PackageTests: AppTestCase {
     
-    func test_localCacheDirectory() throws {
+    func test_cacheDirectoryName() throws {
         XCTAssertEqual(
-            Package(url: "https://github.com/finestructure/Arena".url).localCacheDirectory,
+            Package(url: "https://github.com/finestructure/Arena".url).cacheDirectoryName,
             "github.com-finestructure-arena")
         XCTAssertEqual(
-            Package(url: "https://github.com/finestructure/Arena.git".url).localCacheDirectory,
+            Package(url: "https://github.com/finestructure/Arena.git".url).cacheDirectoryName,
             "github.com-finestructure-arena")
         XCTAssertEqual(
-            Package(url: "http://github.com/finestructure/Arena.git".url).localCacheDirectory,
+            Package(url: "http://github.com/finestructure/Arena.git".url).cacheDirectoryName,
             "github.com-finestructure-arena")
         XCTAssertEqual(
-            Package(url: "http://github.com/FINESTRUCTURE/ARENA.GIT".url).localCacheDirectory,
+            Package(url: "http://github.com/FINESTRUCTURE/ARENA.GIT".url).cacheDirectoryName,
             "github.com-finestructure-arena")
-        XCTAssertEqual(Package(url: "foo".url).localCacheDirectory, nil)
-        XCTAssertEqual(Package(url: "http://foo".url).localCacheDirectory, nil)
-        XCTAssertEqual(Package(url: "file://foo".url).localCacheDirectory, nil)
-        XCTAssertEqual(Package(url: "http:///foo/bar".url).localCacheDirectory, nil)
+        XCTAssertEqual(Package(url: "foo".url).cacheDirectoryName, nil)
+        XCTAssertEqual(Package(url: "http://foo".url).cacheDirectoryName, nil)
+        XCTAssertEqual(Package(url: "file://foo".url).cacheDirectoryName, nil)
+        XCTAssertEqual(Package(url: "http:///foo/bar".url).cacheDirectoryName, nil)
     }
 
     func test_save_status() throws {

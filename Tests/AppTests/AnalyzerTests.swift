@@ -46,31 +46,6 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(versions.compactMap(\.tagName).sorted(), ["1.0", "1.0", "1.1", "1.1"])
     }
 
-    // TODO: refresh checkout with error (continuation)
-
-    // TODO: move to own file
-    //    func test_parse_SemVer() throws {
-    //        XCTAssertEqual(SemVer(string: "1.2.3"), SemVer(major: 1, minor: 2, patch: 3))
-    //        XCTAssertEqual(SemVer(string: "1.2"), SemVer(major: 1, minor: 2, patch: 0))
-    //        XCTAssertEqual(SemVer(string: "1"), SemVer(major: 1, minor: 0, patch: 0))
-    //        XCTAssertEqual(SemVer(string: ""), nil)
-    //        // FIXME: this should pass but currently equals SemVer("1.2.0")
-    //        //        XCTAssertEqual(SemVer(string: "1.2.3rc"), nil)
-    //    }
-
-    //    func test_parse_version_output() throws {
-    //        let str = """
-    //            0.1.0
-    //            0.1.1
-    //            0.2.0
-    //            """
-    //        XCTAssertEqual(parseVersions(str), [
-    //            SemVer("0.1.0"),
-    //            SemVer("0.1.1"),
-    //            SemVer("0.2.0"),
-    //        ])
-    //    }
-
     func test_reconcileVersions() throws {
         // TODO
     }

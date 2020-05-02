@@ -64,7 +64,7 @@ func refreshCheckout(application: Application, package: Package) -> EventLoopFut
 
 
 func pullOrClone(application: Application, package: Package) throws -> EventLoopFuture<Package> {
-    guard let path = application.directory.checkoutPath(for: package) else {
+    guard let path = application.directory.cacheDirectoryPath(for: package) else {
         throw AppError.invalidPackageUrl(package.id, package.url)
     }
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
@@ -82,7 +82,7 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
 
 func reconcileVersions(application: Application, package: Package) throws -> EventLoopFuture<Void> {
     // fetch tags
-    guard let path = application.directory.checkoutPath(for: package) else {
+    guard let path = application.directory.cacheDirectoryPath(for: package) else {
         throw AppError.invalidPackageUrl(package.id, package.url)
     }
     guard let pkgId = package.id else {
@@ -105,10 +105,3 @@ func reconcileVersions(application: Application, package: Package) throws -> Eve
 
     return delete.flatMap { insert }
 }
-
-
-//func parseVersions(_ string: String) -> [SemVer] {
-//    string.split(separator: "\n")
-//        .map(String.init)
-//        .compactMap(SemVer.init(string:))
-//}

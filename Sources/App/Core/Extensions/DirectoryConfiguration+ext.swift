@@ -6,8 +6,8 @@ extension DirectoryConfiguration {
         workingDirectory + "SPI-checkouts"
     }
 
-    func checkoutPath(for package: Package) -> String? {
-        guard let basename = package.localCacheDirectory else { return nil }
-        return checkouts + "/" + basename
+    func cacheDirectoryPath(for package: Package) -> String? {
+        guard let dirname = package.cacheDirectoryName else { return nil }
+        return checkouts + "/" + dirname
     }
 }

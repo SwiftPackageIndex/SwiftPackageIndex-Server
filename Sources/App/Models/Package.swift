@@ -78,7 +78,7 @@ extension Package {
 extension Package {
     /// Cache directory basename, i.e. this is intended to be appended to
     /// the path of a directory where all checkouts are cached.
-    var localCacheDirectory: String? {
+    var cacheDirectoryName: String? {
         URL(string: url).flatMap {
             guard let host = $0.host, !host.isEmpty else { return nil }
             let trunk = $0.path
