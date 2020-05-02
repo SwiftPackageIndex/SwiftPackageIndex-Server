@@ -36,13 +36,17 @@ extension AppEnvironment {
 extension FileManager {
     static let mock = Self.mock(fileExists: true)
     static func mock(fileExists: Bool) -> Self {
-        .init(fileExists: { path in
-            print("ℹ️ MOCK: file at \(path) exists")
-            return fileExists
-        },
-              createDirectory: { path, _, _ in
+        .init(
+            createDirectory: { path, _, _ in
                 print("ℹ️ MOCK: imagine we're creating a directory at path: \(path)")
-        })
+            },
+            fileExists: { path in
+                print("ℹ️ MOCK: file at \(path) exists")
+              
+                return fileExists
+            },
+            workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
+        )
     }
 }
 

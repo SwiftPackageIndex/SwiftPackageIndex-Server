@@ -24,7 +24,7 @@ struct AnalyzerCommand: Command {
 
 func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
     // get or create directory
-    let checkoutDir = application.directory.checkouts
+    let checkoutDir = Current.fileManager.checkouts
     application.logger.info("Checkout directory: \(checkoutDir)")
     if !Current.fileManager.fileExists(atPath: checkoutDir) {
         application.logger.info("Creating checkout directory at path: \(checkoutDir)")
@@ -76,7 +76,7 @@ func refreshCheckout(application: Application, package: Package) -> EventLoopFut
 
 
 func pullOrClone(application: Application, package: Package) throws -> EventLoopFuture<Package> {
-    guard let path = application.directory.cacheDirectoryPath(for: package) else {
+    guard let path = Current.fileManager.cacheDirectoryPath(for: package) else {
         throw AppError.invalidPackageUrl(package.id, package.url)
     }
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
@@ -106,7 +106,7 @@ func reconcileVersions(application: Application, result: Result<Package, Error>)
 
 func _reconcileVersions(application: Application, package: Package) throws -> EventLoopFuture<[Version]> {
     // fetch tags
-    guard let path = application.directory.cacheDirectoryPath(for: package) else {
+    guard let path = Current.fileManager.cacheDirectoryPath(for: package) else {
         throw AppError.invalidPackageUrl(package.id, package.url)
     }
     guard let pkgId = package.id else {
