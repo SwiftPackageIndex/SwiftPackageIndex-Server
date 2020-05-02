@@ -46,6 +46,11 @@ struct PackageController {
                 return ingest(client: req.client, database: req.db, limit: limit)
                     .map {
                         Command.Response(status: "ok", rows: limit)
+                }
+            case .analyze:
+                return try analyze(application: req.application, limit: limit)
+                    .map {
+                        Command.Response(status: "ok", rows: limit)
             }
             case .none:
                 return req.eventLoop.makeFailedFuture(Abort(.notFound))
@@ -58,6 +63,7 @@ extension PackageController {
     enum Command: String {
         case reconcile
         case ingest
+        case analyze
 
         struct Response: Content {
             var status: String

@@ -4,7 +4,7 @@ import XCTest
 
 
 class GithubTests: XCTestCase {
-
+    
     func test_getHeader() throws {
         do { // without token
             Current.githubToken = { nil }

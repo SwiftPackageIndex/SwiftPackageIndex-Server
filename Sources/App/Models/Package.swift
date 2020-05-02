@@ -35,12 +35,39 @@ final class Package: Model, Content {
     @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository?
     var lastCommitAt: Date?
 
+    @Children(for: \.$package)
+    var repositories: [Repository]
+
+    @Children(for: \.$package)
+    var versions: [Version]
+
     init() { }
 
     init(id: UUID? = nil, url: URL, status: Status = .none) {
         self.id = id
         self.url = url.absoluteString
         self.status = status
+    }
+}
+
+
+extension Package {
+    var repository: Repository? {
+        repositories.first
+    }
+}
+
+
+extension Package {
+    var defaultVersion: Version? {
+        // TODO: sas 2020-04-30: find a more convenient way to use this. In order to avoid
+        // fatalErrors from lack of lazy loading, the caller needs to use it on a Package that's
+        // been fetched like so:
+        //   Package.query(on: db).with(\.$versions).with(\.$repositories)
+        // That's awkward. Should instead defaultBranch take a parameter (on: db) and do this
+        // itself?
+        guard let defaultBranch = repository?.defaultBranch else { return nil }
+        return versions.first(where: { $0.branchName == defaultBranch })
     }
 }
 
@@ -69,11 +96,12 @@ extension QueryBuilder where Model == Package {
 }
 
 
-extension QueryBuilder where Model == Package {
-    func updateCandidates(limit: Int) -> EventLoopFuture<[Package]> {
-        // TODO: filter out updated in last X minutes
-        sort(\.$updatedAt)
-        .limit(limit)
-        .all()
+extension Package {
+    static func fetchUpdateCandidates(_ database: Database, limit: Int) -> EventLoopFuture<[Package]> {
+        Package.query(on: database)
+            // TODO: filter out updated in last X minutes
+            .sort(\.$updatedAt)
+            .limit(limit)
+            .all()
     }
 }

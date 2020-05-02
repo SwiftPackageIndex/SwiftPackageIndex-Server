@@ -5,17 +5,8 @@ import Vapor
 import XCTest
 
 
-class IngestorTests: XCTestCase {
-    var app: Application!
-
-    override func setUpWithError() throws {
-        app = try setup(.testing)
-    }
-
-    override func tearDownWithError() throws {
-        app.shutdown()
-    }
-
+class IngestorTests: AppTestCase {
+    
     func test_ingest_basic() throws {
         // setup
         let urls = ["https://github.com/finestructure/Gala",
@@ -98,6 +89,22 @@ class IngestorTests: XCTestCase {
 
     func test_fetchMetadata_badMetadata() throws {
         // setup
+        Current.fetchMetadata = { _, _ in
+            .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
+        }
+        let pkg = try savePackage(on: app.db, "1".url)
+
+        // MUT
+        let md = try fetchMetadata(for: pkg, with: app.client).wait()
+
+        // validate
+        XCTAssert(md.isFailure)
+    }
+
+    func test_fetchMetadata_badMetadata_bulk() throws {
+        // Test to ensure fetch failures don't break the pipeline
+        // (which is easy to get wrong by not catching and rewrapping into a future)
+        // setup
         let urls = ["1", "2", "3"]
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "2" {
@@ -105,10 +112,12 @@ class IngestorTests: XCTestCase {
             }
             return .just(value: .mock(for: pkg))
         }
-        try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
+        try urls.urls.map { Package(url: $0) }.save(on: app.db).wait()
 
         // MUT
-        let md = try fetchMetadata(client: app.client, database: app.db, limit: 10).wait()
+        let md = try Package.query(on: app.db).all()
+            .flatMapEach(on: app.db.eventLoop) { fetchMetadata(for: $0, with: self.app.client) }
+            .wait()
 
         // validate
         XCTAssertEqual(md.count, 3)

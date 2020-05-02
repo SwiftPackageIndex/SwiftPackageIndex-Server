@@ -3,7 +3,7 @@ import Vapor
 import ShellOut
 
 
-struct InspectorCommand: Command {
+struct AnalyzerCommand: Command {
     let defaultLimit = 1
 
     struct Signature: CommandSignature {
@@ -11,18 +11,18 @@ struct InspectorCommand: Command {
         var limit: Int?
     }
 
-    var help: String { "Run package inspection (fetching git repository and inspecting content)" }
+    var help: String { "Run package analysis (fetching git repository and inspecting content)" }
 
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
-        context.console.info("Inspecting (limit: \(limit)) ...")
+        context.console.info("Analyzing (limit: \(limit)) ...")
 
-        try inspect(application: context.application, limit: limit).wait()
+        try analyze(application: context.application, limit: limit).wait()
     }
 }
 
 
-func inspect(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
+func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
     // get or create directory
     let checkoutDir = application.directory.checkouts
     if !FileManager.default.fileExists(atPath: checkoutDir) {
@@ -40,8 +40,7 @@ func inspect(application: Application, limit: Int) throws -> EventLoopFuture<Voi
 
 
 func refreshCheckouts(application: Application, limit: Int) -> EventLoopFuture<[Result<Package, Error>]>  {
-    Package.query(on: application.db)
-        .updateCandidates(limit: limit)
+    Package.fetchUpdateCandidates(application.db, limit: limit)
         .flatMapEach(on: application.db.eventLoop) { pkg in
             do {
                 return try pullOrClone(application: application, package: pkg)
@@ -59,21 +58,14 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
         throw AppError.invalidPackageUrl(package.id, package.url)
     }
     let path = application.directory.checkouts + "/" + basename
-    let promise = application.eventLoopGroup.next().makePromise(of: Package.self)
-    application.threadPool.submit { _ in
-        do {
-            if FileManager.default.fileExists(atPath: path) {
-                application.logger.info("pulling \(package.url) in \(path)")
-                try shellOut(to: .gitPull(), at: path)
-            } else {
-                application.logger.info("cloning \(package.url) to \(path)")
-                try shellOut(to: .gitClone(url: URL(string: package.url)!, to: path))
-            }
-            promise.succeed(package)
-        } catch {
-            application.logger.error("Clone/pull failed for package \(package.url): \(error.localizedDescription)")
-            promise.fail(error)
+    return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
+        if FileManager.default.fileExists(atPath: path) {
+            application.logger.info("pulling \(package.url) in \(path)")
+            try shellOut(to: .gitPull(), at: path)
+        } else {
+            application.logger.info("cloning \(package.url) to \(path)")
+            try shellOut(to: .gitClone(url: URL(string: package.url)!, to: path))
         }
+        return package
     }
-    return promise.futureResult
 }

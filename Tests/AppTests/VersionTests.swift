@@ -3,17 +3,8 @@
 import XCTVapor
 
 
-class VersionTests: XCTestCase {
-    var app: Application!
-
-    override func setUpWithError() throws {
-        app = try setup(.testing)
-    }
-
-    override func tearDownWithError() throws {
-        app.shutdown()
-    }
-
+class VersionTests: AppTestCase {
+    
     func test_Version_save() throws {
         let pkg = try savePackage(on: app.db, "1".url)
         let v = try Version(package: pkg)
@@ -35,5 +26,15 @@ class VersionTests: XCTestCase {
             XCTAssertEqual(v.supportedPlatforms, ["ios_13", "macos_10.15"])
             XCTAssertEqual(v.swiftVersions, ["4.0.0", "5.2.0"])
         }
+    }
+
+    func test_Version_empty_supportedPlatforms_error() throws {
+        // Test for
+        // invalid field: swift_versions type: Array<SemVer> error: Unexpected data type: JSONB[]. Expected array.
+        // Fix is .sql(.default("{}"))
+        let pkg = try savePackage(on: app.db, "1".url)
+        let v = try Version(package: pkg)
+        try v.save(on: app.db).wait()
+        _ = try XCTUnwrap(Version.find(v.id, on: app.db).wait())
     }
 }

@@ -5,17 +5,8 @@ import Vapor
 import XCTVapor
 
 
-final class PackageTests: XCTestCase {
-    var app: Application!
-
-    override func setUpWithError() throws {
-        app = try setup(.testing)
-    }
-
-    override func tearDownWithError() throws {
-        app.shutdown()
-    }
-
+final class PackageTests: AppTestCase {
+    
     func test_localCacheDirectory() throws {
         XCTAssertEqual(
             Package(url: "https://github.com/finestructure/Arena".url).localCacheDirectory,
@@ -86,13 +77,71 @@ final class PackageTests: XCTestCase {
         XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
     }
 
-    func test_updateCandidates() throws {
+    func test_fetchUpdateCandidates() throws {
         let packages = try ["https://foo.com/1", "https://foo.com/2"].map {
             try savePackage(on: app.db, $0.url)
         }
         try Package.update(packages[0])(on: app.db).wait()
-        let batch = try Package.query(on: app.db).updateCandidates(limit: 10).wait()
+        let batch = try Package.fetchUpdateCandidates(app.db, limit: 10).wait()
             .map(\.url)
         XCTAssertEqual(batch, ["https://foo.com/2", "https://foo.com/1"])
+    }
+
+    func test_repository() throws {
+        let pkg = try savePackage(on: app.db, "1".url)
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$repositories).first().wait())
+            XCTAssertEqual(pkg.repository, nil)
+        }
+        do {
+            let repo = try Repository(package: pkg)
+            try repo.save(on: app.db).wait()
+            let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$repositories).first().wait())
+            XCTAssertEqual(pkg.repository, repo)
+        }
+    }
+
+    func test_versions() throws {
+        let pkg = try savePackage(on: app.db, "1".url)
+        let versions = [
+            try Version(package: pkg, branchName: "branch"),
+            try Version(package: pkg, branchName: "default"),
+            try Version(package: pkg, tagName: "tag"),
+        ]
+        try versions.create(on: app.db).wait()
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$versions).first().wait())
+            XCTAssertEqual(pkg.versions.count, 3)
+        }
+    }
+
+    func test_defaultVersion() throws {
+        let pkg = try savePackage(on: app.db, "1".url)
+        let versions = [
+            try Version(package: pkg, branchName: "branch"),
+            try Version(package: pkg, branchName: "default"),
+            try Version(package: pkg, tagName: "tag"),
+        ]
+        try versions.create(on: app.db).wait()
+        do {  // no default branch set on pkg - default version is nil
+            let pkg = try XCTUnwrap(
+                Package
+                    .query(on: app.db)
+                    .with(\.$versions)
+                    .with(\.$repositories)
+                    .first().wait())
+            XCTAssertEqual(pkg.defaultVersion, nil)
+        }
+        // set default branch
+        try Repository(package: pkg, defaultBranch: "default").save(on: app.db).wait()
+        do {  // default version is available now
+            let pkg = try XCTUnwrap(
+                Package
+                    .query(on: app.db)
+                    .with(\.$versions)
+                    .with(\.$repositories)
+                    .first().wait())
+            XCTAssertEqual(pkg.defaultVersion, versions[1])
+        }
     }
 }

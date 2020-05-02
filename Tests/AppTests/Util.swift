@@ -94,3 +94,12 @@ extension Result {
         return false
     }
 }
+
+
+extension Array where Element: FluentKit.Model {
+    public func save(on database: Database) -> EventLoopFuture<Void> {
+        map {
+            $0.save(on: database)
+        }.flatten(on: database.eventLoop)
+    }
+}

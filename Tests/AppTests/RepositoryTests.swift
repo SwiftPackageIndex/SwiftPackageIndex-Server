@@ -3,17 +3,8 @@
 import XCTVapor
 
 
-final class RepositoryTests: XCTestCase {
-    var app: Application!
-
-    override func setUpWithError() throws {
-        app = try setup(.testing)
-    }
-
-    override func tearDownWithError() throws {
-        app.shutdown()
-    }
-
+final class RepositoryTests: AppTestCase {
+    
     func test_package_relationship() throws {
         let pkg = Package(url: "p1".url)
         try pkg.save(on: app.db).wait()
