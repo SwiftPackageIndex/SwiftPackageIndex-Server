@@ -38,7 +38,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
             refreshCheckout(application: application, package: pkg)
     }
 
-    // get versions
+    // reconcile versions
     let versions = checkouts
         .flatMapEach(on: application.eventLoopGroup.next()) { result -> EventLoopFuture<Void> in
             do {
@@ -48,6 +48,23 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
                 return application.eventLoopGroup.next().makeFailedFuture(error)
             }
     }
+
+    // TODO: get manifests (per version)
+    // - checkout at version
+    // - if Package.swift exists: run dump-package and decode
+    // - if Package.swift exists: run tools-version
+
+    // TODO: get products (per version, from manifest)
+
+    // TODO: update version data:
+    // - name
+    // - swift version
+    // - supported platforms
+
+    // TODO: update version.products
+    // - set up `products` model
+    // - delete and recreate
+
     return versions.transform(to: ())
 }
 
@@ -94,11 +111,13 @@ func reconcileVersions(application: Application, package: Package) throws -> Eve
         return tags.split(separator: "\n").map(String.init)
     }
 
-    // first stab: delete ...
+    // TODO: sas 2020-05-02: is is necessary to reconcile versions or is delete and recreate ok?
+    // It certainly is simpler.
+    // Delete ...
     let delete = Version.query(on: application.db)
         .filter(\.$package.$id == pkgId)
         .delete()
-    // ... and insert
+    // ... and insert versions
     let insert = tags
         .flatMapEachThrowing { try Version(package: package, tagName: $0)}
         .flatMap { $0.create(on: application.db) }
