@@ -47,6 +47,32 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_reconcileVersions() throws {
-        // TODO
+        // TODO - test failure scenarios
+        // TODO - test delete isolation
+    }
+
+    func test_getManifests() throws {
+        // setup
+        var commands = [String]()
+        Current.shell.run = { cmd, _ in
+            commands.append(cmd.string);
+            if cmd.string == "swift package dump-package" {
+                return #"{ "name": "SPI-Server"}"#
+            }
+            return ""
+        }
+        let pkg = try savePackage(on: app.db, "https://github.com/foo/1".url)
+        let version = try Version(id: UUID(), package: pkg, tagName: "0.4.2")
+        try version.save(on: app.db).wait()
+
+        // MUT
+        let m = try getManifest(for: version, package: pkg)
+
+        // validation
+        XCTAssertEqual(commands, [
+            "git checkout \"0.4.2\" --quiet",
+            "swift package dump-package"
+        ])
+        XCTAssertEqual(m.name, "SPI-Server")
     }
 }

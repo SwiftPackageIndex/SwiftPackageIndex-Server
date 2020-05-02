@@ -134,3 +134,19 @@ func _reconcileVersions(application: Application, package: Package) throws -> Ev
 
     return delete.flatMap { insert }
 }
+
+
+func getManifest(for version: Version, package: Package) throws -> Manifest {
+    // check out version in cache directory
+    guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
+        throw AppError.invalidPackageUrl(package.id, package.url)
+    }
+    // FIXME: here we'll want to be able to use tag or default branch
+    guard let revision = version.tagName else {
+        throw AppError.invalidRevision(version.id, version.tagName)
+    }
+    try Current.shell.run(command: .gitCheckout(branch: revision), at: cacheDir)
+    let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
+    // TODO: also run tools-version while we're here
+    return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+}

@@ -8,8 +8,10 @@ typealias Platform = String
 final class Version: Model, Content {
     static let schema = "versions"
 
+    typealias Id = UUID
+
     @ID(key: .id)
-    var id: UUID?
+    var id: Id?
 
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
