@@ -40,13 +40,8 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
 
     // reconcile versions
     let versions = checkouts
-        .flatMapEach(on: application.eventLoopGroup.next()) { result -> EventLoopFuture<Void> in
-            do {
-                let pkg = try result.get()
-                return try reconcileVersions(application: application, package: pkg)
-            } catch {
-                return application.eventLoopGroup.next().makeFailedFuture(error)
-            }
+        .flatMapEach(on: application.eventLoopGroup.next()) {
+            reconcileVersions(application: application, result: $0)
     }
 
     // TODO: get manifests (per version)
@@ -97,7 +92,19 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
 }
 
 
-func reconcileVersions(application: Application, package: Package) throws -> EventLoopFuture<Void> {
+/// Wrapper around _reconcileVersions to create a non-throwing version (mainly to ensure
+/// that failed futures don't slip through and break the pipeline).
+func reconcileVersions(application: Application, result: Result<Package, Error>) -> EventLoopFuture<[Version]> {
+    do {
+        let pkg = try result.get()
+        return try _reconcileVersions(application: application, package: pkg)
+    } catch {
+        return application.eventLoopGroup.next().makeFailedFuture(error)
+    }
+}
+
+
+func _reconcileVersions(application: Application, package: Package) throws -> EventLoopFuture<[Version]> {
     // fetch tags
     guard let path = application.directory.cacheDirectoryPath(for: package) else {
         throw AppError.invalidPackageUrl(package.id, package.url)
@@ -118,9 +125,12 @@ func reconcileVersions(application: Application, package: Package) throws -> Eve
         .filter(\.$package.$id == pkgId)
         .delete()
     // ... and insert versions
-    let insert = tags
-        .flatMapEachThrowing { try Version(package: package, tagName: $0)}
-        .flatMap { $0.create(on: application.db) }
+    let insert: EventLoopFuture<[Version]> = tags
+        .flatMapEachThrowing { try Version(package: package, tagName: $0) }
+        .flatMap { versions in
+            versions.create(on: application.db)
+                .map { versions }
+        }
 
     return delete.flatMap { insert }
 }
