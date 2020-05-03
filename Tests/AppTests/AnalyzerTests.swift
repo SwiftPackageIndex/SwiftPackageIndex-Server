@@ -68,9 +68,13 @@ class AnalyzerTests: AppTestCase {
             ]
         assert(commands: commands, expectations: expecations)
 
-        let versions = try Version.query(on: app.db).all().wait()
-        // TODO: filter by package
-        XCTAssertEqual(versions.compactMap(\.tagName).sorted(), ["1.0", "1.1", "2.0", "2.1"])
+        // TODO: This is monstrous... create a helper? There has to be a better way?
+        let pkg1 = try Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first().wait()!
+        XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1"])
+        XCTAssertEqual(pkg1.versions.map(\.tagName), ["1.0", "1.1"])
+        let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
+        XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2"])
+        XCTAssertEqual(pkg2.versions.map(\.tagName), ["2.0", "2.1"])
     }
 
     func test_continue_on_exception() throws {

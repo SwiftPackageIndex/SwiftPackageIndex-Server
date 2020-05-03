@@ -46,24 +46,29 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
 
     let manifests = packageAndVersions
         .mapEach { (pkg, versions) in
-            // TODO: figure out what to pass on here - we're assembling a tree:
-            // pkg 1..n versions 1..1 manifests + later 1..n products
-            // should we update version within the call or right here?
-            (pkg, versions.map { getManifest(package: pkg, version: $0) })
+            // TODO: this is going to turn into an even messies stack once we add products...
+            // probably better to pass on (Version, Result<Manifest, Error>) to a separate step
+            versions.map { version -> EventLoopFuture<Void> in
+                switch getManifest(package: pkg, version: version) {
+                    case .success(let manifest):
+                        version.packageName = manifest.name
+                        // TODO:
+                        // version.swiftVersions =
+                        // version.supportedPlatforms
+                        return version.save(on: application.db)
+                    case .failure(let error):
+                        return application.eventLoopGroup.next().makeFailedFuture(error)
+                }
+            }
     }
 
     // TODO: get products (per version, from manifest)
-
-    // TODO: update version data:
-    // - name
-    // - swift version
-    // - supported platforms
 
     // TODO: update version.products
     // - set up `products` model
     // - delete and recreate
 
-    return packageAndVersions.transform(to: ())
+    return manifests.transform(to: ())
 }
 
 
