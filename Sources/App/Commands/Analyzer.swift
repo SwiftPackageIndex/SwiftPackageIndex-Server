@@ -157,8 +157,7 @@ func updateVersion(on database: Database, version: Version, manifest: Result<Man
         case .success(let manifest):
             version.packageName = manifest.name
             version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SemVer.parse) ?? []
-            // TODO:
-            // version.supportedPlatforms
+            version.supportedPlatforms = manifest.platforms?.map { $0.description } ?? []
             return version.save(on: database)
         case .failure(let error):
             return database.eventLoop.makeFailedFuture(error)

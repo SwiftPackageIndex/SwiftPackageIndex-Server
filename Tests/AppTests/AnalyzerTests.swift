@@ -147,13 +147,17 @@ class AnalyzerTests: AppTestCase {
         let pkg = Package(id: UUID(), url: "1".url)
         try pkg.save(on: app.db).wait()
         let version = try Version(package: pkg)
-        let manifest = Manifest(name: "foo", swiftLanguageVersions: ["1", "2", "3.0.0rc"])
+        let manifest = Manifest(name: "foo",
+                                swiftLanguageVersions: ["1", "2", "3.0.0rc"],
+                                platforms: [.init(platformName: .ios, version: "11.0"),
+                                            .init(platformName: .macos, version: "10.10")])
         try updateVersion(on: app.db, version: version, manifest: .success(manifest)).wait()
 
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!
         XCTAssertEqual(v.packageName, "foo")
         XCTAssertEqual(v.swiftVersions, ["1.0.0", "2.0.0"])
+        XCTAssertEqual(v.supportedPlatforms, ["ios_11.0", "macos_10.10"])
     }
 }
 

@@ -35,6 +35,7 @@ final class Version: Model, Content {
     @Field(key: "commit")
     var commit: String?
 
+    // TODO: sas-2020-05-03: currently concatenating os + version - we could save the structure instead
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
 
