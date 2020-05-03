@@ -1,3 +1,5 @@
+import Foundation
+
 
 extension String {
     var droppingGithubComPrefix: String {
@@ -12,5 +14,9 @@ extension String {
             return String(dropLast(Constants.gitSuffix.count))
         }
         return self
+    }
+
+    func contained(in characterSet: CharacterSet) -> Bool {
+        unicodeScalars.allSatisfy({ characterSet.contains($0) })
     }
 }

@@ -21,3 +21,20 @@ extension SemVer: ExpressibleByStringLiteral {
         }
     }
 }
+
+
+extension SemVer {
+    // TODO: sas-2020-05-03: This could also be init?(rawValue: String) but that might be confusing
+    // with the existing init(stringLiteral:) that we need to db decoding.
+    static func parse(_ string: String) -> Self? {
+        let parts = string.split(separator: ".").map(String.init)
+        guard parts.allSatisfy({ $0.contained(in: .decimalDigits) }) else { return nil }
+        let numbers = parts.compactMap(Int.init)
+        switch numbers.count {
+            case 1: return .init(major: numbers[0], minor: 0, patch: 0)
+            case 2: return .init(major: numbers[0], minor: numbers[1], patch: 0)
+            case 3: return .init(major: numbers[0], minor: numbers[1], patch: numbers[2])
+            default: return nil
+        }
+    }
+}
