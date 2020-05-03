@@ -44,23 +44,12 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
             reconcileVersions(application: application, result: $0)
     }
 
-    let manifests = packageAndVersions
+    let updates = packageAndVersions
         .mapEach { (pkg, versions) in
-            // TODO: this is going to turn into an even messies stack once we add products...
-            // probably better to pass on (Version, Result<Manifest, Error>) to a separate step
-            versions.map { version -> EventLoopFuture<Void> in
-                switch getManifest(package: pkg, version: version) {
-                    case .success(let manifest):
-                        version.packageName = manifest.name
-                        // TODO:
-                        // version.swiftVersions =
-                        // version.supportedPlatforms
-                        return version.save(on: application.db)
-                    case .failure(let error):
-                        return application.eventLoopGroup.next().makeFailedFuture(error)
-                }
-            }
-    }
+            versions
+                .map { ($0, getManifest(package: pkg, version: $0)) }
+                .map { updateVersion(on: application.db, version: $0, manifest: $1) }
+        }
 
     // TODO: get products (per version, from manifest)
 
@@ -68,7 +57,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
     // - set up `products` model
     // - delete and recreate
 
-    return manifests.transform(to: ())
+    return updates.transform(to: ())
 }
 
 
@@ -159,5 +148,19 @@ func getManifest(package: Package, version: Version) -> Result<Manifest, Error> 
         let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
         // TODO: also run tools-version while we're here
         return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+    }
+}
+
+
+func updateVersion(on database: Database, version: Version, manifest: Result<Manifest, Error>) -> EventLoopFuture<Void> {
+    switch manifest {
+        case .success(let manifest):
+            version.packageName = manifest.name
+            // TODO:
+            // version.swiftVersions =
+            // version.supportedPlatforms
+            return version.save(on: database)
+        case .failure(let error):
+            return database.eventLoop.makeFailedFuture(error)
     }
 }

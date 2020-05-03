@@ -141,6 +141,10 @@ class AnalyzerTests: AppTestCase {
         ])
         XCTAssertEqual(m.name, "SPI-Server")
     }
+
+    func test_updateVersion() throws {
+        // take Result<Manifest, Error> and update + save Version model
+    }
 }
 
 
