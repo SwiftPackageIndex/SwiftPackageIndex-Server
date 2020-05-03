@@ -18,9 +18,7 @@ class AnalyzerTests: AppTestCase {
             }
             return false
         }
-        Current.fileManager.createDirectory = { path, _, _ in
-            checkoutDir = path
-        }
+        Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
         var commands = [Command]()
         Current.shell.run = { cmd, path in
             commands.append(.init(command: cmd.string, path: path))
@@ -69,6 +67,41 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(versions.compactMap(\.tagName).sorted(), ["1.0", "1.0", "1.1", "1.1"])
     }
 
+    func test_continue_on_exception() throws {
+        // Test to ensure exceptions don't break processing
+        // setup
+        let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
+        try savePackages(on: app.db, urls.urls)
+        var checkoutDir: String? = nil
+        Current.fileManager.fileExists = { path in
+            // let the check for the second repo checkout path succedd to simulate pull
+            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" {
+                return true
+            }
+            return false
+        }
+        Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
+        var commands = [Command]()
+        Current.shell.run = { cmd, path in
+            commands.append(.init(command: cmd.string, path: path))
+            if cmd.string == "git tag" {
+                return ["1.0", "1.1"].joined(separator: "\n")
+            }
+            // returning a blank string will cause an exception when trying to
+            // decode it as the manifest result - we use this to simulate errors
+            return ""
+        }
+
+        // MUT
+        try analyze(application: app, limit: 10).wait()
+
+        // validation (not in detail, this is just to ensure command count is as expected)
+        // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
+        // which we intentionally broke. Command count must remain the same.
+        // TODO: perhaps find a better way to assert success than counting commands - Version count?
+        XCTAssertEqual(commands.count, 12, "was: \(dump(commands))")
+    }
+
     func test_reconcileVersions() throws {
         // TODO - test failure scenarios
         // TODO - test delete isolation
@@ -89,7 +122,7 @@ class AnalyzerTests: AppTestCase {
         try version.save(on: app.db).wait()
 
         // MUT
-        let m = try getManifest(package: pkg, version: version)
+        let m = try getManifest(package: pkg, version: version).get()
 
         // validation
         XCTAssertEqual(commands, [

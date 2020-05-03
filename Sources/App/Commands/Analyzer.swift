@@ -45,15 +45,12 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
     }
 
     let manifests = packageAndVersions
-        .flatMapEachThrowing { (pkg, versions) in
-            // FIXME: catch and continue - this is currently aborting on failure
-            try versions.map { try getManifest(package: pkg, version: $0) }
+        .mapEach { (pkg, versions) in
+            // TODO: figure out what to pass on here - we're assembling a tree:
+            // pkg 1..n versions 1..1 manifests + later 1..n products
+            // should we update version within the call or right here?
+            (pkg, versions.map { getManifest(package: pkg, version: $0) })
     }
-
-    // TODO: get manifests (per version)
-    // - checkout at version
-    // - if Package.swift exists: run dump-package and decode
-    // - if Package.swift exists: run tools-version
 
     // TODO: get products (per version, from manifest)
 
@@ -143,17 +140,19 @@ func _reconcileVersions(application: Application, package: Package) throws -> Ev
 }
 
 
-func getManifest(package: Package, version: Version) throws -> Manifest {
-    // check out version in cache directory
-    guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        throw AppError.invalidPackageUrl(package.id, package.url)
+func getManifest(package: Package, version: Version) -> Result<Manifest, Error> {
+    Result {
+        // check out version in cache directory
+        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
+            throw AppError.invalidPackageUrl(package.id, package.url)
+        }
+        // FIXME: here we'll want to be able to use tag or default branch
+        guard let revision = version.tagName else {
+            throw AppError.invalidRevision(version.id, version.tagName)
+        }
+        try Current.shell.run(command: .gitCheckout(branch: revision), at: cacheDir)
+        let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
+        // TODO: also run tools-version while we're here
+        return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
     }
-    // FIXME: here we'll want to be able to use tag or default branch
-    guard let revision = version.tagName else {
-        throw AppError.invalidRevision(version.id, version.tagName)
-    }
-    try Current.shell.run(command: .gitCheckout(branch: revision), at: cacheDir)
-    let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
-    // TODO: also run tools-version while we're here
-    return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
 }
