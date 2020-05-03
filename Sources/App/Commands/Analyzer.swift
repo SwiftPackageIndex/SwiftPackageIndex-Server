@@ -39,9 +39,15 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
     }
 
     // reconcile versions
-    let versions = checkouts
+    let packageAndVersions = checkouts
         .flatMapEach(on: application.eventLoopGroup.next()) {
             reconcileVersions(application: application, result: $0)
+    }
+
+    let manifests = packageAndVersions
+        .flatMapEachThrowing { (pkg, versions) in
+            // FIXME: catch and continue - this is currently aborting on failure
+            try versions.map { try getManifest(package: pkg, version: $0) }
     }
 
     // TODO: get manifests (per version)
@@ -60,7 +66,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
     // - set up `products` model
     // - delete and recreate
 
-    return versions.transform(to: ())
+    return packageAndVersions.transform(to: ())
 }
 
 
@@ -94,10 +100,11 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
 
 /// Wrapper around _reconcileVersions to create a non-throwing version (mainly to ensure
 /// that failed futures don't slip through and break the pipeline).
-func reconcileVersions(application: Application, result: Result<Package, Error>) -> EventLoopFuture<[Version]> {
+func reconcileVersions(application: Application, result: Result<Package, Error>) -> EventLoopFuture<(Package, [Version])> {
     do {
         let pkg = try result.get()
         return try _reconcileVersions(application: application, package: pkg)
+            .map { (pkg, $0) }
     } catch {
         return application.eventLoopGroup.next().makeFailedFuture(error)
     }
@@ -136,7 +143,7 @@ func _reconcileVersions(application: Application, package: Package) throws -> Ev
 }
 
 
-func getManifest(for version: Version, package: Package) throws -> Manifest {
+func getManifest(package: Package, version: Version) throws -> Manifest {
     // check out version in cache directory
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         throw AppError.invalidPackageUrl(package.id, package.url)
