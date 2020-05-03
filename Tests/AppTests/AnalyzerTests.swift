@@ -143,7 +143,7 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_updateVersion() throws {
-        // take Result<Manifest, Error> and update + save Version model
+        // setup
         let pkg = Package(id: UUID(), url: "1".url)
         try pkg.save(on: app.db).wait()
         let version = try Version(package: pkg)
@@ -151,6 +151,8 @@ class AnalyzerTests: AppTestCase {
                                 swiftLanguageVersions: ["1", "2", "3.0.0rc"],
                                 platforms: [.init(platformName: .ios, version: "11.0"),
                                             .init(platformName: .macos, version: "10.10")])
+
+        // MUT
         try updateVersion(on: app.db, version: version, manifest: .success(manifest)).wait()
 
         // read back and validate

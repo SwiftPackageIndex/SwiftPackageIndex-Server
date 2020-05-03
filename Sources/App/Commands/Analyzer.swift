@@ -57,6 +57,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
     // - set up `products` model
     // - delete and recreate
 
+    // TODO: mark package as updated
     return updates.transform(to: ())
 }
 
@@ -115,8 +116,9 @@ func _reconcileVersions(application: Application, package: Package) throws -> Ev
         let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
         return tags.split(separator: "\n").map(String.init)
     }
+    // FIXME: also save version for default branch (currently only looking at tags)
 
-    // TODO: sas 2020-05-02: is is necessary to reconcile versions or is delete and recreate ok?
+    // TODO: sas 2020-05-02: is it necessary to reconcile versions or is delete and recreate ok?
     // It certainly is simpler.
     // Delete ...
     let delete = Version.query(on: application.db)
