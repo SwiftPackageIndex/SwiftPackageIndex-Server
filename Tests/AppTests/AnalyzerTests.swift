@@ -27,6 +27,9 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "git tag" {
                 return ["1.0", "1.1"].joined(separator: "\n")
             }
+            if cmd.string == "swift package dump-package" {
+                return #"{ "name": "SPI-Server"}"#
+            }
             return ""
         }
 
