@@ -22,11 +22,17 @@ class AnalyzerTests: AppTestCase {
         var commands = [Command]()
         Current.shell.run = { cmd, path in
             commands.append(.init(command: cmd.string, path: path))
-            if cmd.string == "git tag" {
+            if cmd.string == "git tag" && path.hasSuffix("foo-1") {
                 return ["1.0", "1.1"].joined(separator: "\n")
             }
-            if cmd.string == "swift package dump-package" {
-                return #"{ "name": "SPI-Server"}"#
+            if cmd.string == "git tag" && path.hasSuffix("foo-2") {
+                return ["2.0", "2.1"].joined(separator: "\n")
+            }
+            if cmd.string == "swift package dump-package" && path.hasSuffix("foo-1") {
+                return #"{ "name": "foo-1"}"#
+            }
+            if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
+                return #"{ "name": "foo-2"}"#
             }
             return ""
         }
@@ -55,16 +61,16 @@ class AnalyzerTests: AppTestCase {
             .init(command: "git checkout \"1.1\" --quiet", path: path1),
             .init(command: "swift package dump-package", path: path1),
             //   - second repo
-            .init(command: "git checkout \"1.0\" --quiet", path: path2),
+            .init(command: "git checkout \"2.0\" --quiet", path: path2),
             .init(command: "swift package dump-package", path: path2),
-            .init(command: "git checkout \"1.1\" --quiet", path: path2),
+            .init(command: "git checkout \"2.1\" --quiet", path: path2),
             .init(command: "swift package dump-package", path: path2),
             ]
         assert(commands: commands, expectations: expecations)
 
         let versions = try Version.query(on: app.db).all().wait()
         // TODO: filter by package
-        XCTAssertEqual(versions.compactMap(\.tagName).sorted(), ["1.0", "1.0", "1.1", "1.1"])
+        XCTAssertEqual(versions.compactMap(\.tagName).sorted(), ["1.0", "1.1", "2.0", "2.1"])
     }
 
     func test_continue_on_exception() throws {
