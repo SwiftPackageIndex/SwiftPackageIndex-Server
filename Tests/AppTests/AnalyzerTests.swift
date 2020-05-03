@@ -77,6 +77,28 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg2.versions.map(\.tagName), ["2.0", "2.1"])
     }
 
+    func test_error_status() throws {
+        // Ensure packages aren't updated when encour
+        // setup
+        let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
+        try savePackages(on: app.db, urls.urls)
+        let lastUpdate = Date()
+        Current.shell.run = { cmd, path in
+            if cmd.string == "git tag" { return "1.0" }
+            if cmd.string == "swift package dump-package" { return "bad data" }
+            return ""
+        }
+
+        // MUT
+        try analyze(application: app, limit: 10).wait()
+
+        // assert packages have been updated
+        (try Package.query(on: app.db).all().wait()).forEach {
+            XCTAssert($0.updatedAt! > lastUpdate)
+            XCTAssertEqual($0.status, .analysisFailed)
+        }
+    }
+
     func test_continue_on_exception() throws {
         // Test to ensure exceptions don't break processing
         // setup

@@ -9,6 +9,7 @@ enum Status: String, Codable {
     case notFound = "not_found"
     case metadataRequestFailed = "metadata_request_failed"
     case ingestionFailed = "ingestion_failed"
+    case analysisFailed = "analysis_failed"
 }
 
 

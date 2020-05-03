@@ -45,11 +45,29 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
     }
 
     let updates = packageAndVersions
-        .mapEach { (pkg, versions) in
-            versions
+        .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Void>]) in
+            let res = versions
                 .map { ($0, getManifest(package: pkg, version: $0)) }
-                .map { updateVersion(on: application.db, version: $0, manifest: $1) }
+                .map { updateVersion(on: application.db, version: $0, manifest: $1)
+            }
+            return (pkg, res)
+    }
+
+    let status = updates.flatMapEach(on: application.db.eventLoop) { results -> EventLoopFuture<[Void]> in
+        let (pkg, updates) = results
+        let res = EventLoopFuture<Void>.whenAllComplete(updates, on: application.db.eventLoop)
+            .flatMapEach(on: application.db.eventLoop) { (result) -> EventLoopFuture<Void> in
+                switch result {
+                    case .success:
+                        pkg.status = .ok
+                    case .failure(let error):
+                        application.logger.error("Analysis error: \(error.localizedDescription)")
+                        pkg.status = .analysisFailed
+                }
+                return pkg.save(on: application.db)
         }
+        return res
+    }
 
     // TODO: get products (per version, from manifest)
 
@@ -57,8 +75,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
     // - set up `products` model
     // - delete and recreate
 
-    // TODO: mark package as updated
-    return updates.transform(to: ())
+    return status.transform(to: ())
 }
 
 
@@ -148,7 +165,8 @@ func getManifest(package: Package, version: Version) -> Result<Manifest, Error> 
         }
         try Current.shell.run(command: .gitCheckout(branch: revision), at: cacheDir)
         let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
-        // TODO: also run tools-version while we're here
+        // TODO: sas-2020-05-03: do we need to run tools-version? There's a toolsVersion key in the JSON
+        // Plus it may not be a good substitute for swift versions?
         return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
     }
 }
