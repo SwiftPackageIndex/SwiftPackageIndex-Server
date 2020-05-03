@@ -144,6 +144,16 @@ class AnalyzerTests: AppTestCase {
 
     func test_updateVersion() throws {
         // take Result<Manifest, Error> and update + save Version model
+        let pkg = Package(id: UUID(), url: "1".url)
+        try pkg.save(on: app.db).wait()
+        let version = try Version(package: pkg)
+        let manifest = Manifest(name: "foo", swiftLanguageVersions: ["1", "2", "3.0.0rc"])
+        try updateVersion(on: app.db, version: version, manifest: .success(manifest)).wait()
+
+        // read back and validate
+        let v = try Version.query(on: app.db).first().wait()!
+        XCTAssertEqual(v.packageName, "foo")
+        XCTAssertEqual(v.swiftVersions, ["1.0.0", "2.0.0"])
     }
 }
 

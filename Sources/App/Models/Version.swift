@@ -41,6 +41,7 @@ final class Version: Model, Content {
     // TODO: sas-2020-04-29: If we're handling Swift versions specifically here, maybe we should just
     // use an enum? The set of versions should be fairly limited and it might be nicer to query.
     // Although JSON querying with PGSQL is quite good.
+    // Or just keep the String we're getting from dump-package instead of parsing it?
     @Field(key: "swift_versions")
     var swiftVersions: [SemVer]
 
