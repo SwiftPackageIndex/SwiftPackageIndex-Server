@@ -48,7 +48,7 @@ final class Version: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil,
+    init(id: Id? = nil,
          package: Package,
          branchName: String? = nil,
          tagName: String? = nil,
