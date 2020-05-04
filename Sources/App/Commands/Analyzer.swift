@@ -45,7 +45,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
     }
 
     let versionUpdates = packageAndVersions
-        .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Void>]) in
+        .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Version>]) in
             let res = versions
                 .map { ($0, getManifest(package: pkg, version: $0)) }
                 .map { updateVersion(on: application.db, version: $0, manifest: $1) }
@@ -172,13 +172,14 @@ func getManifest(package: Package, version: Version) -> Result<Manifest, Error> 
 }
 
 
-func updateVersion(on database: Database, version: Version, manifest: Result<Manifest, Error>) -> EventLoopFuture<Void> {
+func updateVersion(on database: Database, version: Version, manifest: Result<Manifest, Error>) -> EventLoopFuture<Version> {
     switch manifest {
         case .success(let manifest):
             version.packageName = manifest.name
             version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SemVer.parse) ?? []
             version.supportedPlatforms = manifest.platforms?.map { $0.description } ?? []
             return version.save(on: database)
+                .transform(to: version)
         case .failure(let error):
             return database.eventLoop.makeFailedFuture(error)
     }
