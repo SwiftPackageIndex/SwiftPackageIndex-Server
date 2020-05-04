@@ -190,8 +190,15 @@ func updateVersion(on database: Database, version: Version, manifest: Result<Man
 
 
 func updateProducts(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
-    // FIXME: implement
-    // TODO: ensure deleting the versions has cascade deleted the products
-    // TODO: create Product records from Manifest
-    database.eventLoop.makeSucceededFuture(())
+    let products = manifest.products.compactMap { p -> Product? in
+        let type: Product.`Type`
+        switch p.type {
+            case .executable: type = .executable
+            case .library:    type = .library
+        }
+        // Using `try?` here because the only way this could error is version.id being nil
+        // - that should never happen and even in the pathological case we can skip the product
+        return try? Product(version: version, type: type, name: p.name)
+    }
+    return products.create(on: database)
 }

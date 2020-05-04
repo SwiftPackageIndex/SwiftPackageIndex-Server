@@ -192,6 +192,23 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(v.swiftVersions, ["1.0.0", "2.0.0"])
         XCTAssertEqual(v.supportedPlatforms, ["ios_11.0", "macos_10.10"])
     }
+
+    func test_updateProducts() throws {
+        // setup
+        let p = Package(id: UUID(), url: "1".url, status: .none)
+        let v = try Version(id: UUID(), package: p, tagName: "1.0.0", packageName: "1")
+        let m = Manifest(name: "1", products: [.init(name: "p1", type: .library),
+                                               .init(name: "p2", type: .executable)])
+        try p.save(on: app.db).wait()
+        try v.save(on: app.db).wait()
+
+        // MUT
+        try updateProducts(on: app.db, version: v, manifest: m).wait()
+
+        // validation
+        let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
+        XCTAssertEqual(products.map(\.name), ["p1", "p2"])
+    }
 }
 
 
