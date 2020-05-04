@@ -18,9 +18,9 @@ import Foundation
 //)
 
 
-struct Manifest: Codable, Equatable {
-    struct Platform: Codable, Equatable {
-        enum Name: String, Codable, Equatable {
+struct Manifest: Decodable, Equatable {
+    struct Platform: Decodable, Equatable {
+        enum Name: String, Decodable, Equatable {
             case macos
             case ios
             case tvos
@@ -29,8 +29,13 @@ struct Manifest: Codable, Equatable {
         var platformName: Name
         var version: String
     }
-    struct Product: Codable, Equatable {
+    struct Product: Decodable, Equatable {
+        enum `Type`: String, CodingKey, CaseIterable {
+            case executable
+            case library
+        }
         var name: String
+        var type: `Type`
     }
     var name: String
     var platforms: [Platform]?
@@ -41,4 +46,21 @@ struct Manifest: Codable, Equatable {
 
 extension Manifest.Platform: CustomStringConvertible {
     var description: String { "\(platformName)_\(version)" }
+}
+
+
+extension Manifest.Product.`Type`: Decodable {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: Self.self)
+        for k in Self.allCases {
+            if let _ = try? container.decodeNil(forKey: k) {
+                self = k
+                return
+            }
+
+        }
+        throw DecodingError.dataCorrupted(
+            DecodingError.Context(codingPath: container.codingPath,
+                                  debugDescription: "none of the required keys found"))
+    }
 }
