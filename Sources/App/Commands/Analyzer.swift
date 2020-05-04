@@ -53,10 +53,11 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
             return (pkg, res)
     }
 
-    let status = updates.flatMapEach(on: application.db.eventLoop) { results -> EventLoopFuture<[Void]> in
+    let setStatus = updates.flatMapEach(on: application.db.eventLoop) { results -> EventLoopFuture<[Void]> in
         let (pkg, updates) = results
         let res = EventLoopFuture<Void>.whenAllComplete(updates, on: application.db.eventLoop)
-            .flatMapEach(on: application.db.eventLoop) { (result) -> EventLoopFuture<Void> in
+            //            .flatMapEach(on: application.db.eventLoop) { (result) -> EventLoopFuture<Void> in
+            .mapEach { result -> EventLoopFuture<Void> in
                 switch result {
                     case .success:
                         pkg.status = .ok
@@ -67,6 +68,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
                 return pkg.save(on: application.db)
         }
         return res
+            .flatMap { $0.flatten(on: application.db.eventLoop) }
     }
 
     // TODO: get products (per version, from manifest)
@@ -75,7 +77,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
     // - set up `products` model
     // - delete and recreate
 
-    return status.transform(to: ())
+    return setStatus.transform(to: ())
 }
 
 
@@ -178,8 +180,10 @@ func updateVersion(on database: Database, version: Version, manifest: Result<Man
             version.packageName = manifest.name
             version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SemVer.parse) ?? []
             version.supportedPlatforms = manifest.platforms?.map { $0.description } ?? []
+            print("🚧 saving updated version")
             return version.save(on: database)
         case .failure(let error):
+            print("❌ error updating version")
             return database.eventLoop.makeFailedFuture(error)
     }
 }
