@@ -48,16 +48,16 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
         .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Void>]) in
             let res = versions
                 .map { ($0, getManifest(package: pkg, version: $0)) }
-                .map { updateVersion(on: application.db, version: $0, manifest: $1)
-            }
+                .map { updateVersion(on: application.db, version: $0, manifest: $1) }
             return (pkg, res)
     }
 
-    let setStatus = updates.flatMapEach(on: application.db.eventLoop) { results -> EventLoopFuture<[Void]> in
-        let (pkg, updates) = results
-        let res = EventLoopFuture<Void>.whenAllComplete(updates, on: application.db.eventLoop)
-            //            .flatMapEach(on: application.db.eventLoop) { (result) -> EventLoopFuture<Void> in
-            .mapEach { result -> EventLoopFuture<Void> in
+    // FIXME: sas 2020-05-04: Workaround for partial flush described here:
+    // https://discordapp.com/channels/431917998102675485/444249946808647699/706796431540748372
+    let fulfilledUpdates = try updates.wait()
+    let setStatus = fulfilledUpdates.map { (pkg, updates) -> EventLoopFuture<[Void]> in
+        EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
+            .flatMapEach(on: application.db.eventLoop) { result -> EventLoopFuture<Void> in
                 switch result {
                     case .success:
                         pkg.status = .ok
@@ -67,9 +67,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
                 }
                 return pkg.save(on: application.db)
         }
-        return res
-            .flatMap { $0.flatten(on: application.db.eventLoop) }
-    }
+    }.flatten(on: application.db.eventLoop)
 
     // TODO: get products (per version, from manifest)
 

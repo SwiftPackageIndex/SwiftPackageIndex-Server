@@ -77,15 +77,22 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg2.versions.map(\.tagName), ["2.0", "2.1"])
     }
 
-    func test_error_status() throws {
-        // Ensure packages aren't updated when encour
+    func test_package_status() throws {
+        // Ensure packages record success/error status
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         try savePackages(on: app.db, urls.urls)
         let lastUpdate = Date()
         Current.shell.run = { cmd, path in
             if cmd.string == "git tag" { return "1.0" }
-            if cmd.string == "swift package dump-package" { return "bad data" }
+            // first package fails
+            if cmd.string == "swift package dump-package" && path.hasSuffix("foo-1") {
+                return "bad data"
+            }
+            // second package succeeds
+            if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
+                return #"{ "name": "SPI-Server"}"#
+            }
             return ""
         }
 
@@ -93,10 +100,9 @@ class AnalyzerTests: AppTestCase {
         try analyze(application: app, limit: 10).wait()
 
         // assert packages have been updated
-        (try Package.query(on: app.db).all().wait()).forEach {
-            XCTAssert($0.updatedAt! > lastUpdate)
-            XCTAssertEqual($0.status, .analysisFailed)
-        }
+        let packages = try Package.query(on: app.db).sort(\.$createdAt).all().wait()
+        packages.forEach { XCTAssert($0.updatedAt! > lastUpdate) }
+        XCTAssertEqual(packages.map(\.status), [.analysisFailed, .ok])
     }
 
     func test_continue_on_exception() throws {
