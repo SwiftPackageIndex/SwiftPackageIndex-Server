@@ -29,10 +29,10 @@ class AnalyzerTests: AppTestCase {
                 return ["2.0", "2.1"].joined(separator: "\n")
             }
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-1") {
-                return #"{ "name": "foo-1"}"#
+                return #"{ "name": "foo-1", "products": [] }"#
             }
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
-                return #"{ "name": "foo-2"}"#
+                return #"{ "name": "foo-2", "products": [] }"#
             }
             return ""
         }
@@ -91,7 +91,7 @@ class AnalyzerTests: AppTestCase {
             }
             // second package succeeds
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
-                return #"{ "name": "SPI-Server"}"#
+                return #"{ "name": "SPI-Server", "products": [] }"#
             }
             return ""
         }
@@ -151,7 +151,7 @@ class AnalyzerTests: AppTestCase {
         Current.shell.run = { cmd, _ in
             commands.append(cmd.string);
             if cmd.string == "swift package dump-package" {
-                return #"{ "name": "SPI-Server"}"#
+                return #"{ "name": "SPI-Server", "products": [] }"#
             }
             return ""
         }
@@ -176,9 +176,10 @@ class AnalyzerTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         let version = try Version(package: pkg)
         let manifest = Manifest(name: "foo",
-                                swiftLanguageVersions: ["1", "2", "3.0.0rc"],
                                 platforms: [.init(platformName: .ios, version: "11.0"),
-                                            .init(platformName: .macos, version: "10.10")])
+                                            .init(platformName: .macos, version: "10.10")],
+                                products: [],
+                                swiftLanguageVersions: ["1", "2", "3.0.0rc"])
 
         // MUT
         try updateVersion(on: app.db, version: version, manifest: .success(manifest)).wait()

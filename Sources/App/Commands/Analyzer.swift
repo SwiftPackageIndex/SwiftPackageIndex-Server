@@ -44,7 +44,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
             reconcileVersions(application: application, result: $0)
     }
 
-    let updates = packageAndVersions
+    let versionUpdates = packageAndVersions
         .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Void>]) in
             let res = versions
                 .map { ($0, getManifest(package: pkg, version: $0)) }
@@ -52,9 +52,15 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
             return (pkg, res)
     }
 
+    // TODO: get products (per version, from manifest)
+
+    // TODO: update version.products
+    // - set up `products` model
+    // - delete and recreate
+
     // FIXME: sas 2020-05-04: Workaround for partial flush described here:
     // https://discordapp.com/channels/431917998102675485/444249946808647699/706796431540748372
-    let fulfilledUpdates = try updates.wait()
+    let fulfilledUpdates = try versionUpdates.wait()
     let setStatus = fulfilledUpdates.map { (pkg, updates) -> EventLoopFuture<[Void]> in
         EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
             .flatMapEach(on: application.db.eventLoop) { result -> EventLoopFuture<Void> in
@@ -68,12 +74,6 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
                 return pkg.save(on: application.db)
         }
     }.flatten(on: application.db.eventLoop)
-
-    // TODO: get products (per version, from manifest)
-
-    // TODO: update version.products
-    // - set up `products` model
-    // - delete and recreate
 
     return setStatus.transform(to: ())
 }
