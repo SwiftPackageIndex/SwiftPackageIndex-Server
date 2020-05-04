@@ -45,10 +45,13 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
     }
 
     let versionUpdates = packageAndVersions
-        .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Version>]) in
+        .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Void>]) in
             let res = versions
                 .map { ($0, getManifest(package: pkg, version: $0)) }
-                .map { updateVersion(on: application.db, version: $0, manifest: $1) }
+                .map {
+                    updateVersion(on: application.db, version: $0, manifest: $1)
+                        .flatMap { updateProducts(on: application.db, version: $0, manifest: $1) }
+            }
             return (pkg, res)
     }
 
@@ -172,15 +175,23 @@ func getManifest(package: Package, version: Version) -> Result<Manifest, Error> 
 }
 
 
-func updateVersion(on database: Database, version: Version, manifest: Result<Manifest, Error>) -> EventLoopFuture<Version> {
+func updateVersion(on database: Database, version: Version, manifest: Result<Manifest, Error>) -> EventLoopFuture<(Version, Manifest)> {
     switch manifest {
         case .success(let manifest):
             version.packageName = manifest.name
             version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SemVer.parse) ?? []
             version.supportedPlatforms = manifest.platforms?.map { $0.description } ?? []
             return version.save(on: database)
-                .transform(to: version)
+                .transform(to: (version, manifest))
         case .failure(let error):
             return database.eventLoop.makeFailedFuture(error)
     }
+}
+
+
+func updateProducts(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
+    // FIXME: implement
+    // TODO: ensure deleting the versions has cascade deleted the products
+    // TODO: create Product records from Manifest
+    database.eventLoop.makeSucceededFuture(())
 }
