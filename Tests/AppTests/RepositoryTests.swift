@@ -34,4 +34,23 @@ final class RepositoryTests: AppTestCase {
         let child = try Repository(package: p2, forkedFrom: parent)
         try child.save(on: app.db).wait()
     }
+
+    func test_delete_cascade() throws {
+        // delete package must delete repository
+        let pkg = Package(id: UUID(), url: "1".url, status: .none)
+        let repo = try Repository(id: UUID(), package: pkg)
+        try pkg.save(on: app.db).wait()
+        try repo.save(on: app.db).wait()
+
+        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
+        XCTAssertEqual(try Repository.query(on: app.db).count().wait(), 1)
+
+        // MUT
+        try pkg.delete(on: app.db).wait()
+
+        // version and product should be deleted
+        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 0)
+        XCTAssertEqual(try Repository.query(on: app.db).count().wait(), 0)
+    }
+
 }

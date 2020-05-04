@@ -184,7 +184,7 @@ class AnalyzerTests: AppTestCase {
                                 swiftLanguageVersions: ["1", "2", "3.0.0rc"])
 
         // MUT
-        try updateVersion(on: app.db, version: version, manifest: .success(manifest)).wait()
+        _ = try updateVersion(on: app.db, version: version, manifest: .success(manifest)).wait()
 
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!

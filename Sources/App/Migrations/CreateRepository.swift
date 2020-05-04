@@ -6,7 +6,7 @@ struct CreateRepository: Migration {
             .id()
             .field("created_at", .datetime)
             .field("updated_at", .datetime)
-            .field("package_id", .uuid, .references("packages", "id"))
+            .field("package_id", .uuid, .references("packages", "id", onDelete: .cascade))
             // sas 2020-04-25: Make it a 1-1 relationship
             // TODO: adapt to "official" way, once it's there
             // https://discordapp.com/channels/431917998102675485/684159753189982218/703351108915036171
