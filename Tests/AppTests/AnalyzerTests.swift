@@ -29,10 +29,10 @@ class AnalyzerTests: AppTestCase {
                 return ["2.0", "2.1"].joined(separator: "\n")
             }
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-1") {
-                return #"{ "name": "foo-1", "products": [] }"#
+                return #"{ "name": "foo-1", "products": [{"name":"p1","type":{"executable": null}}] }"#
             }
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
-                return #"{ "name": "foo-2", "products": [] }"#
+                return #"{ "name": "foo-2", "products": [{"name":"p2","type":{"library": []}}] }"#
             }
             return ""
         }
@@ -68,6 +68,7 @@ class AnalyzerTests: AppTestCase {
             ]
         assert(commands: commands, expectations: expecations)
 
+        // validate versions
         // TODO: This is monstrous... create a helper? There has to be a better way?
         let pkg1 = try Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1"])
@@ -77,6 +78,22 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2"])
         XCTAssertEqual(pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.tagName),
                        ["2.0", "2.1"])
+
+        // validate products (each version has 2 products)
+        let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
+        XCTAssertEqual(products.count, 4)
+        XCTAssertEqual(products[0].name, "p1")
+        XCTAssertEqual(products[0].type, .executable)
+        XCTAssertEqual(products[0].$version.id, pkg1.versions[0].id)
+        XCTAssertEqual(products[1].name, "p1")
+        XCTAssertEqual(products[1].type, .executable)
+        XCTAssertEqual(products[1].$version.id, pkg1.versions[1].id)
+        XCTAssertEqual(products[2].name, "p2")
+        XCTAssertEqual(products[2].type, .library)
+        XCTAssertEqual(products[2].$version.id, pkg2.versions[0].id)
+        XCTAssertEqual(products[3].name, "p2")
+        XCTAssertEqual(products[3].type, .library)
+        XCTAssertEqual(products[3].$version.id, pkg2.versions[1].id)
     }
 
     func test_package_status() throws {

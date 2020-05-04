@@ -55,12 +55,6 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
             return (pkg, res)
     }
 
-    // TODO: get products (per version, from manifest)
-
-    // TODO: update version.products
-    // - set up `products` model
-    // - delete and recreate
-
     // FIXME: sas 2020-05-04: Workaround for partial flush described here:
     // https://discordapp.com/channels/431917998102675485/444249946808647699/706796431540748372
     let fulfilledUpdates = try versionUpdates.wait()
