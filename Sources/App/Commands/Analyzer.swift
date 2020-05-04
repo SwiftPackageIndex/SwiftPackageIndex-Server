@@ -178,10 +178,8 @@ func updateVersion(on database: Database, version: Version, manifest: Result<Man
             version.packageName = manifest.name
             version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SemVer.parse) ?? []
             version.supportedPlatforms = manifest.platforms?.map { $0.description } ?? []
-            print("🚧 saving updated version")
             return version.save(on: database)
         case .failure(let error):
-            print("❌ error updating version")
             return database.eventLoop.makeFailedFuture(error)
     }
 }
