@@ -12,4 +12,8 @@ class SemVerTests: XCTestCase {
         XCTAssertEqual(SemVer.parse("1.2.3rc"), nil)
     }
 
+    func test_isValid() throws {
+        XCTAssert(SemVer.isValid("1.2.3"))
+        XCTAssert(!SemVer.isValid("swift-2.2-SNAPSHOT-2016-01-11-a"))
+    }
 }

@@ -37,6 +37,8 @@ extension SemVer {
             default: return nil
         }
     }
+
+    static func isValid(_ string: String) -> Bool { parse(string) != nil }
 }
 
 
