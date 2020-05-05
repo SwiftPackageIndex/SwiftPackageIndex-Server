@@ -38,3 +38,8 @@ extension SemVer {
         }
     }
 }
+
+
+extension SemVer: CustomStringConvertible {
+    var description: String { "\(major).\(minor).\(patch)" }
+}
