@@ -157,7 +157,7 @@ class AnalyzerTests: AppTestCase {
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
         // TODO: perhaps find a better way to assert success than counting commands - Version count?
-        XCTAssertEqual(commands.count, 12, "was: \(dump(commands))")
+        XCTAssertEqual(commands.count, 13, "was: \(dump(commands))")
     }
 
     func test_reconcileVersions() throws {
