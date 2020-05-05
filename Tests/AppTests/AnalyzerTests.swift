@@ -50,6 +50,7 @@ class AnalyzerTests: AppTestCase {
             // clone of pkg1 and pull of pkg2
             .init(command: "git clone https://github.com/foo/1 \"\(outDir)/github.com-foo-1\" --quiet",
                 path: "."),  // "outDir" is translated to "." in this context
+            .init(command: "git checkout \"master\" --quiet", path: path2),
             .init(command: "git pull --quiet", path: path2),
             // next, both repos have their tags listed
             .init(command: "git tag", path: path1),
