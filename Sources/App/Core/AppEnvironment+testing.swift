@@ -10,20 +10,47 @@ extension AppEnvironment {
                           "https://github.com/finestructure/SwiftPMLibrary-Server"].urls)
         },
         fetchMetadata: { _, _ in .just(value: .mock) },
-        githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] }
+        fileManager: .mock,
+        githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] },
+        shell: .mock
     )
 
     static let e2eTestingShort: Self = .init(
         fetchMasterPackageList: { _ in .just(value: testUrls) },
         fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
-        githubToken: { nil }
+        fileManager: .mock,
+        githubToken: { nil },
+        shell: .mock
     )
 
     static let e2eTestingFull: Self = .init(
         fetchMasterPackageList: liveFetchMasterPackageList,
         fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
-        githubToken: { nil }
+        fileManager: .mock,
+        githubToken: { nil },
+        shell: .mock
     )
+}
+
+
+extension FileManager {
+    static let mock = Self.mock(fileExists: true)
+    static func mock(fileExists: Bool) -> Self {
+        .init(fileExists: { path in
+            print("ℹ️ MOCK: file at \(path) exists")
+            return fileExists
+        },
+              createDirectory: { path, _, _ in
+                print("ℹ️ MOCK: imagine we're creating a directory at path: \(path)")
+        })
+    }
+}
+
+
+extension Shell {
+    static let mock: Self = .init(run: { cmd, path in
+        print("ℹ️ MOCK: imagine we're running \(cmd) at path: \(path)")
+    })
 }
 
 
