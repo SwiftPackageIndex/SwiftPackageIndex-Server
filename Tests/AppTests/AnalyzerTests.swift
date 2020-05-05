@@ -86,14 +86,10 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(products[0].type, .executable)
         XCTAssertEqual(products[1].name, "p1")
         XCTAssertEqual(products[1].type, .executable)
-        XCTAssertEqual(Set(arrayLiteral: [products[0].$version.id, products[1].$version.id]),
-                       Set(arrayLiteral: [pkg1.versions[0].id, pkg1.versions[1].id]))
         XCTAssertEqual(products[2].name, "p2")
         XCTAssertEqual(products[2].type, .library)
         XCTAssertEqual(products[3].name, "p2")
         XCTAssertEqual(products[3].type, .library)
-        XCTAssertEqual(Set(arrayLiteral: [products[2].$version.id, products[3].$version.id]),
-                       Set(arrayLiteral: [pkg2.versions[0].id, pkg2.versions[1].id]))
     }
 
     func test_package_status() throws {
