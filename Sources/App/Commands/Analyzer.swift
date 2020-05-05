@@ -9,20 +9,44 @@ struct AnalyzerCommand: Command {
     struct Signature: CommandSignature {
         @Option(name: "limit", short: "l")
         var limit: Int?
+        @Option(name: "id")
+        var id: String?
     }
 
     var help: String { "Run package analysis (fetching git repository and inspecting content)" }
 
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
-        context.console.info("Analyzing (limit: \(limit)) ...")
-
-        try analyze(application: context.application, limit: limit).wait()
+        let id = signature.id.flatMap(UUID.init(uuidString:))
+        if let id = id {
+            context.console.info("Analyzing (id: \(id)) ...")
+            try analyze(application: context.application, id: id).wait()
+        } else {
+            context.console.info("Analyzing (limit: \(limit)) ...")
+            try analyze(application: context.application, limit: limit).wait()
+        }
     }
 }
 
 
+func analyze(application: Application, id: Package.Id) throws -> EventLoopFuture<Void> {
+    let packages = Package.query(on: application.db)
+        .with(\.$repositories)
+        .filter(\.$id == id)
+        .first()
+        .unwrap(or: Abort(.notFound))
+        .map { [$0] }
+    return try analyze(application: application, packages: packages)
+}
+
+
 func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
+    let packages = Package.fetchUpdateCandidates(application.db, limit: limit)
+    return try analyze(application: application, packages: packages)
+}
+
+
+func analyze(application: Application, packages: EventLoopFuture<[Package]>) throws -> EventLoopFuture<Void> {
     // get or create directory
     let checkoutDir = Current.fileManager.checkouts
     application.logger.info("Checkout directory: \(checkoutDir)")
@@ -33,7 +57,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
                                                   attributes: nil)
     }
 
-    let checkouts = Package.fetchUpdateCandidates(application.db, limit: limit)
+    let checkouts = packages
         .flatMapEach(on: application.eventLoopGroup.next()) { pkg in
             refreshCheckout(application: application, package: pkg)
     }
@@ -57,6 +81,8 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
 
     // FIXME: sas 2020-05-04: Workaround for partial flush described here:
     // https://discordapp.com/channels/431917998102675485/444249946808647699/706796431540748372
+    // FIXME: this breaks exposing this via the API:
+    // Precondition failed: BUG DETECTED: wait() must not be called when on an EventLoop.
     let fulfilledUpdates = try versionUpdates.wait()
     let setStatus = fulfilledUpdates.map { (pkg, updates) -> EventLoopFuture<[Void]> in
         EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
