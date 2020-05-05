@@ -5,32 +5,13 @@ import Vapor
 typealias Platform = String
 
 
-struct SemVer: Content, Equatable {
-    var major: Int
-    var minor: Int
-    var patch: Int
-}
-
-extension SemVer: ExpressibleByStringLiteral {
-    // TODO: sas-2020-04-29: This can/should probably be improved...
-    // Or should we just save versions as flat strings?
-    init(stringLiteral value: StringLiteralType) {
-        let parts = value.split(separator: ".").map(String.init).compactMap(Int.init)
-        switch parts.count {
-            case 1: self = .init(major: parts[0], minor: 0, patch: 0)
-            case 2: self = .init(major: parts[0], minor: parts[1], patch: 0)
-            case 3: self = .init(major: parts[0], minor: parts[1], patch: parts[2])
-            default: self = .init(major: 0, minor: 0, patch: 0)
-        }
-    }
-}
-
-
 final class Version: Model, Content {
     static let schema = "versions"
 
+    typealias Id = UUID
+
     @ID(key: .id)
-    var id: UUID?
+    var id: Id?
 
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
@@ -54,12 +35,14 @@ final class Version: Model, Content {
     @Field(key: "commit")
     var commit: String?
 
+    // TODO: sas-2020-05-03: currently concatenating os + version - we could save the structure instead
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
 
     // TODO: sas-2020-04-29: If we're handling Swift versions specifically here, maybe we should just
     // use an enum? The set of versions should be fairly limited and it might be nicer to query.
     // Although JSON querying with PGSQL is quite good.
+    // Or just keep the String we're getting from dump-package instead of parsing it?
     @Field(key: "swift_versions")
     var swiftVersions: [SemVer]
 

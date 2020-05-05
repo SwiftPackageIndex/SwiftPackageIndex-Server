@@ -22,26 +22,42 @@ extension AppEnvironment {
 
 
 struct FileManager {
-    var fileExists: (String) -> Bool
     var createDirectory: (String, Bool, [FileAttributeKey : Any]?) throws -> Void
+    var fileExists: (String) -> Bool
+    var workingDirectory: () -> String
     // also provide pass-through methods to preserve argument labels
-    func fileExists(atPath path: String) -> Bool { fileExists(path) }
     func createDirectory(atPath path: String,
                          withIntermediateDirectories createIntermediates: Bool,
                          attributes: [FileAttributeKey : Any]?) throws {
         try createDirectory(path, createIntermediates, attributes)
     }
+    func fileExists(atPath path: String) -> Bool { fileExists(path) }
 
     static let live: Self = .init(
+        createDirectory: Foundation.FileManager.default.createDirectory(atPath:withIntermediateDirectories:attributes:),
         fileExists: Foundation.FileManager.default.fileExists(atPath:),
-        createDirectory: Foundation.FileManager.default.createDirectory(atPath:withIntermediateDirectories:attributes:))
+        workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
+    )
+}
+
+
+extension FileManager {
+    var checkouts: String {
+        workingDirectory() + "SPI-checkouts"
+    }
+
+    func cacheDirectoryPath(for package: Package) -> String? {
+        guard let dirname = package.cacheDirectoryName else { return nil }
+        return checkouts + "/" + dirname
+    }
 }
 
 
 struct Shell {
-    var run: (ShellOutCommand, String) throws -> Void
+    var run: (ShellOutCommand, String) throws -> String
     // also provide pass-through methods to preserve argument labels
-    func run(command: ShellOutCommand, at path: String = ".") throws {
+    @discardableResult
+    func run(command: ShellOutCommand, at path: String = ".") throws -> String {
         try run(command, path)
     }
 

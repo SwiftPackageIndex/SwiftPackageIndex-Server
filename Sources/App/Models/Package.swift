@@ -9,6 +9,7 @@ enum Status: String, Codable {
     case notFound = "not_found"
     case metadataRequestFailed = "metadata_request_failed"
     case ingestionFailed = "ingestion_failed"
+    case analysisFailed = "analysis_failed"
 }
 
 
@@ -59,6 +60,9 @@ extension Package {
 
 
 extension Package {
+    // FIXME: this was premature - rework as discussed here:
+    // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/21#discussion_r418602062
+    @available(*, deprecated)
     var defaultVersion: Version? {
         // TODO: sas 2020-04-30: find a more convenient way to use this. In order to avoid
         // fatalErrors from lack of lazy loading, the caller needs to use it on a Package that's
@@ -73,7 +77,9 @@ extension Package {
 
 
 extension Package {
-    var localCacheDirectory: String? {
+    /// Cache directory basename, i.e. this is intended to be appended to
+    /// the path of a directory where all checkouts are cached.
+    var cacheDirectoryName: String? {
         URL(string: url).flatMap {
             guard let host = $0.host, !host.isEmpty else { return nil }
             let trunk = $0.path
