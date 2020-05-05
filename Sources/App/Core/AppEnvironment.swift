@@ -42,13 +42,13 @@ struct FileManager {
 
 
 extension FileManager {
-    var checkouts: String {
+    var checkoutsDirectory: String {
         workingDirectory() + "SPI-checkouts"
     }
 
     func cacheDirectoryPath(for package: Package) -> String? {
         guard let dirname = package.cacheDirectoryName else { return nil }
-        return checkouts + "/" + dirname
+        return checkoutsDirectory + "/" + dirname
     }
 }
 

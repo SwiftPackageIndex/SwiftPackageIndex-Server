@@ -13,9 +13,8 @@ class AnalyzerTests: AppTestCase {
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
-            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" {
-                return true
-            }
+            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
+            if path.hasSuffix("Package.swift") { return true }
             return false
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
@@ -49,7 +48,7 @@ class AnalyzerTests: AppTestCase {
         let expecations: [Command] = [
             // clone of pkg1 and pull of pkg2
             .init(command: "git clone https://github.com/foo/1 \"\(outDir)/github.com-foo-1\" --quiet",
-                path: "."),  // "outDir" is translated to "." in this context
+                path: outDir),
             .init(command: "git checkout \"master\" --quiet", path: path2),
             .init(command: "git pull --quiet", path: path2),
             // next, both repos have their tags listed
@@ -133,9 +132,8 @@ class AnalyzerTests: AppTestCase {
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
-            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" {
-                return true
-            }
+            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
+            if path.hasSuffix("Package.swift") { return true }
             return false
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }

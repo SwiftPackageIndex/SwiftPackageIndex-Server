@@ -48,7 +48,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
 
 func analyze(application: Application, packages: EventLoopFuture<[Package]>) throws -> EventLoopFuture<Void> {
     // get or create directory
-    let checkoutDir = Current.fileManager.checkouts
+    let checkoutDir = Current.fileManager.checkoutsDirectory
     application.logger.info("Checkout directory: \(checkoutDir)")
     if !Current.fileManager.fileExists(atPath: checkoutDir) {
         application.logger.info("Creating checkout directory at path: \(checkoutDir)")
@@ -125,7 +125,8 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
             try Current.shell.run(command: .gitPull(), at: path)
         } else {
             application.logger.info("cloning \(package.url) to \(path)")
-            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: path))
+            let wdir = Current.fileManager.checkoutsDirectory
+            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: path), at: wdir)
         }
         return package
     }
@@ -189,6 +190,11 @@ func getManifest(package: Package, version: Version) -> Result<Manifest, Error> 
             throw AppError.invalidRevision(version.id, version.tagName)
         }
         try Current.shell.run(command: .gitCheckout(branch: revision), at: cacheDir)
+        guard Current.fileManager.fileExists(atPath: cacheDir + "/Package.swift") else {
+            // It's important to check for Package.swift - otherwise `dump-package` will go
+            // up the tree through parent directories to find one
+            throw AppError.invalidRevision(version.id, "no Package.swift")
+        }
         let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
         // TODO: sas-2020-05-03: do we need to run tools-version? There's a toolsVersion key in the JSON
         // Plus it may not be a good substitute for swift versions?
