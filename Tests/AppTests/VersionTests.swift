@@ -37,4 +37,22 @@ class VersionTests: AppTestCase {
         try v.save(on: app.db).wait()
         _ = try XCTUnwrap(Version.find(v.id, on: app.db).wait())
     }
+
+    func test_delete_cascade() throws {
+        // delete package must delete version
+        let pkg = Package(id: UUID(), url: "1".url, status: .none)
+        let ver = try Version(id: UUID(), package: pkg)
+        try pkg.save(on: app.db).wait()
+        try ver.save(on: app.db).wait()
+
+        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
+        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 1)
+
+        // MUT
+        try pkg.delete(on: app.db).wait()
+
+        // version should be deleted
+        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 0)
+        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 0)
+    }
 }

@@ -7,8 +7,10 @@ import Vapor
 final class Repository: Model, Content {
     static let schema = "repositories"
 
+    typealias Id = UUID
+
     @ID(key: .id)
-    var id: UUID?
+    var id: Id?
 
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
@@ -39,7 +41,7 @@ final class Repository: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil,
+    init(id: Id? = nil,
          package: Package,
          description: String? = nil,
          defaultBranch: String? = nil,
@@ -59,7 +61,7 @@ final class Repository: Model, Content {
         }
     }
 
-    init(id: UUID? = nil, package: Package, metadata: Github.Metadata) throws {
+    init(id: Id? = nil, package: Package, metadata: Github.Metadata) throws {
         self.id = id
         self.$package.id = try package.requireID()
         self.description = metadata.description

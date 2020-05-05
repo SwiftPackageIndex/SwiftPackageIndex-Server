@@ -1,0 +1,987 @@
+{
+  "cLanguageStandard" : null,
+  "cxxLanguageStandard" : null,
+  "dependencies" : [
+
+  ],
+  "name" : "swift-nio",
+  "pkgConfig" : null,
+  "platforms" : [
+
+  ],
+  "products" : [
+    {
+      "name" : "NIOEchoServer",
+      "targets" : [
+        "NIOEchoServer"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIOEchoClient",
+      "targets" : [
+        "NIOEchoClient"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIOChatServer",
+      "targets" : [
+        "NIOChatServer"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIOChatClient",
+      "targets" : [
+        "NIOChatClient"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIOHTTP1Server",
+      "targets" : [
+        "NIOHTTP1Server"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIOHTTP1Client",
+      "targets" : [
+        "NIOHTTP1Client"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIOWebSocketServer",
+      "targets" : [
+        "NIOWebSocketServer"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIOWebSocketClient",
+      "targets" : [
+        "NIOWebSocketClient"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIOPerformanceTester",
+      "targets" : [
+        "NIOPerformanceTester"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIOMulticastChat",
+      "targets" : [
+        "NIOMulticastChat"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIOUDPEchoServer",
+      "targets" : [
+        "NIOUDPEchoServer"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIOUDPEchoClient",
+      "targets" : [
+        "NIOUDPEchoClient"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "NIO",
+      "targets" : [
+        "NIO"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    },
+    {
+      "name" : "_NIO1APIShims",
+      "targets" : [
+        "_NIO1APIShims"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    },
+    {
+      "name" : "NIOTLS",
+      "targets" : [
+        "NIOTLS"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    },
+    {
+      "name" : "NIOHTTP1",
+      "targets" : [
+        "NIOHTTP1"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    },
+    {
+      "name" : "NIOConcurrencyHelpers",
+      "targets" : [
+        "NIOConcurrencyHelpers"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    },
+    {
+      "name" : "NIOFoundationCompat",
+      "targets" : [
+        "NIOFoundationCompat"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    },
+    {
+      "name" : "NIOWebSocket",
+      "targets" : [
+        "NIOWebSocket"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    },
+    {
+      "name" : "NIOTestUtils",
+      "targets" : [
+        "NIOTestUtils"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    }
+  ],
+  "providers" : null,
+  "swiftLanguageVersions" : null,
+  "targets" : [
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOHTTP1"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOTLS"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOFoundationCompat"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOWebSocket"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "_NIO1APIShims",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "CNIOLinux"
+          ]
+        },
+        {
+          "byName" : [
+            "CNIODarwin"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOConcurrencyHelpers"
+          ]
+        },
+        {
+          "byName" : [
+            "CNIOAtomics"
+          ]
+        },
+        {
+          "byName" : [
+            "CNIOSHA1"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIO",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOFoundationCompat",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "CNIOAtomics",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "CNIOSHA1",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "CNIOLinux",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "CNIODarwin",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "CNIOAtomics"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOConcurrencyHelpers",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOConcurrencyHelpers"
+          ]
+        },
+        {
+          "byName" : [
+            "CNIOHTTPParser"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOHTTP1",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOConcurrencyHelpers"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOEchoServer",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOConcurrencyHelpers"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOEchoClient",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOHTTP1"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOConcurrencyHelpers"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOHTTP1Server",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOHTTP1"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOConcurrencyHelpers"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOHTTP1Client",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "CNIOHTTPParser",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOTLS",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOConcurrencyHelpers"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOChatServer",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOConcurrencyHelpers"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOChatClient",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOHTTP1"
+          ]
+        },
+        {
+          "byName" : [
+            "CNIOSHA1"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOWebSocket",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOHTTP1"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOWebSocket"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOWebSocketServer",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOHTTP1"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOWebSocket"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOWebSocketClient",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOHTTP1"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOFoundationCompat"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOPerformanceTester",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOMulticastChat",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOUDPEchoServer",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOUDPEchoClient",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOTestUtils",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOFoundationCompat"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOTestUtils"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOConcurrencyHelpers"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIOConcurrencyHelpers"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOConcurrencyHelpersTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIOHTTP1"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOFoundationCompat"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOTestUtils"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOHTTP1Tests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOTLS"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOFoundationCompat"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOTLSTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIO"
+          ]
+        },
+        {
+          "byName" : [
+            "NIOWebSocket"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOWebSocketTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "NIOTestUtils"
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "NIOTestUtilsTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    }
+  ],
+  "toolsVersion" : {
+    "_version" : "5.0.0"
+  }
+}

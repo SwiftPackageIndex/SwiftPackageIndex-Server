@@ -44,17 +44,20 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
             reconcileVersions(application: application, result: $0)
     }
 
-    let updates = packageAndVersions
+    let versionUpdates = packageAndVersions
         .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Void>]) in
             let res = versions
                 .map { ($0, getManifest(package: pkg, version: $0)) }
-                .map { updateVersion(on: application.db, version: $0, manifest: $1) }
+                .map {
+                    updateVersion(on: application.db, version: $0, manifest: $1)
+                        .flatMap { updateProducts(on: application.db, version: $0, manifest: $1) }
+            }
             return (pkg, res)
     }
 
     // FIXME: sas 2020-05-04: Workaround for partial flush described here:
     // https://discordapp.com/channels/431917998102675485/444249946808647699/706796431540748372
-    let fulfilledUpdates = try updates.wait()
+    let fulfilledUpdates = try versionUpdates.wait()
     let setStatus = fulfilledUpdates.map { (pkg, updates) -> EventLoopFuture<[Void]> in
         EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
             .flatMapEach(on: application.db.eventLoop) { result -> EventLoopFuture<Void> in
@@ -68,12 +71,6 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
                 return pkg.save(on: application.db)
         }
     }.flatten(on: application.db.eventLoop)
-
-    // TODO: get products (per version, from manifest)
-
-    // TODO: update version.products
-    // - set up `products` model
-    // - delete and recreate
 
     return setStatus.transform(to: ())
 }
@@ -172,14 +169,30 @@ func getManifest(package: Package, version: Version) -> Result<Manifest, Error> 
 }
 
 
-func updateVersion(on database: Database, version: Version, manifest: Result<Manifest, Error>) -> EventLoopFuture<Void> {
+func updateVersion(on database: Database, version: Version, manifest: Result<Manifest, Error>) -> EventLoopFuture<(Version, Manifest)> {
     switch manifest {
         case .success(let manifest):
             version.packageName = manifest.name
             version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SemVer.parse) ?? []
             version.supportedPlatforms = manifest.platforms?.map { $0.description } ?? []
             return version.save(on: database)
+                .transform(to: (version, manifest))
         case .failure(let error):
             return database.eventLoop.makeFailedFuture(error)
     }
+}
+
+
+func updateProducts(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
+    let products = manifest.products.compactMap { p -> Product? in
+        let type: Product.`Type`
+        switch p.type {
+            case .executable: type = .executable
+            case .library:    type = .library
+        }
+        // Using `try?` here because the only way this could error is version.id being nil
+        // - that should never happen and even in the pathological case we can skip the product
+        return try? Product(version: version, type: type, name: p.name)
+    }
+    return products.create(on: database)
 }
