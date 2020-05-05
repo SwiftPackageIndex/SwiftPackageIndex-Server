@@ -85,16 +85,23 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
     // Precondition failed: BUG DETECTED: wait() must not be called when on an EventLoop.
     let fulfilledUpdates = try versionUpdates.wait()
     let setStatus = fulfilledUpdates.map { (pkg, updates) -> EventLoopFuture<[Void]> in
-        EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
-            .flatMapEach(on: application.db.eventLoop) { result -> EventLoopFuture<Void> in
-                switch result {
-                    case .success:
-                        pkg.status = .ok
-                    case .failure(let error):
-                        application.logger.error("Analysis error: \(error.localizedDescription)")
-                        pkg.status = .analysisFailed
-                }
-                return pkg.save(on: application.db)
+        if updates.isEmpty {
+            // Make sure we mark pkg as updated even if it has no versions - we don't want to
+            // get stuck reprocessing it all the time
+            // Simply mark it updated, don't touch the status
+            return pkg.update(on: application.db).map { [] }
+        } else {
+            return EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
+                .flatMapEach(on: application.db.eventLoop) { result -> EventLoopFuture<Void> in
+                    switch result {
+                        case .success:
+                            pkg.status = .ok
+                        case .failure(let error):
+                            application.logger.error("Analysis error: \(error.localizedDescription)")
+                            pkg.status = .analysisFailed
+                    }
+                    return pkg.save(on: application.db)
+            }
         }
     }.flatten(on: application.db.eventLoop)
 
