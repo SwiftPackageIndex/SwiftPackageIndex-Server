@@ -127,6 +127,8 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         if Current.fileManager.fileExists(atPath: path) {
             application.logger.info("pulling \(package.url) in \(path)")
+            // git reset --hard to deal with stray .DS_Store files on macOS
+            try Current.shell.run(command: .init(string: "git reset --hard"), at: path)
             let branch = package.repository?.defaultBranch ?? "master"
             try Current.shell.run(command: .gitCheckout(branch: branch), at: path)
             try Current.shell.run(command: .gitPull(), at: path)

@@ -49,6 +49,7 @@ class AnalyzerTests: AppTestCase {
             // clone of pkg1 and pull of pkg2
             .init(command: "git clone https://github.com/foo/1 \"\(outDir)/github.com-foo-1\" --quiet",
                 path: outDir),
+            .init(command: "git reset --hard", path: path2),
             .init(command: "git checkout \"master\" --quiet", path: path2),
             .init(command: "git pull --quiet", path: path2),
             // next, both repos have their tags listed
@@ -151,7 +152,7 @@ class AnalyzerTests: AppTestCase {
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
         // TODO: perhaps find a better way to assert success than counting commands - Version count?
-        XCTAssertEqual(commands.count, 13, "was: \(dump(commands))")
+        XCTAssertEqual(commands.count, 14, "was: \(dump(commands))")
     }
 
     func test_reconcileVersions() throws {
