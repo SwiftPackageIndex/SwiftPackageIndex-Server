@@ -41,7 +41,7 @@ func analyze(application: Application, id: Package.Id) throws -> EventLoopFuture
 
 
 func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
-    let packages = Package.fetchUpdateCandidates(application.db, limit: limit)
+    let packages = Package.fetchCandidates(application.db, for: .analysis, limit: limit)
     return try analyze(application: application, packages: packages)
 }
 

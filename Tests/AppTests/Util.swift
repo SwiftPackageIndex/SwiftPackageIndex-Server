@@ -40,16 +40,16 @@ func fixturesDirectory(path: String = #file) -> URL {
 
 
 @discardableResult
-func savePackage(on db: Database, _ url: URL) throws -> Package {
-    let p = Package(id: UUID(), url: url)
+func savePackage(on db: Database, _ url: URL, processingStage: ProcessingStage? = nil) throws -> Package {
+    let p = Package(id: UUID(), url: url, processingStage: processingStage)
     try p.save(on: db).wait()
     return p
 }
 
 
 @discardableResult
-func savePackages(on db: Database, _ urls: [URL]) throws -> [Package] {
-    try urls.map { try savePackage(on: db, $0) }
+func savePackages(on db: Database, _ urls: [URL], processingStage: ProcessingStage? = nil) throws -> [Package] {
+    try urls.map { try savePackage(on: db, $0, processingStage: processingStage) }
 }
 
 

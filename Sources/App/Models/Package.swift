@@ -118,10 +118,22 @@ extension QueryBuilder where Model == Package {
 
 
 extension Package {
-    static func fetchUpdateCandidates(_ database: Database, limit: Int) -> EventLoopFuture<[Package]> {
-        Package.query(on: database)
+    static func fetchCandidates(_ database: Database, for stage: ProcessingStage, limit: Int) -> EventLoopFuture<[Package]> {
+        let requiredStage: ProcessingStage = {
+            switch stage {
+                case .reconciliation:
+                fatalError("reconciliation stage does not select candidates")
+                case .ingestion:
+                    return .reconciliation
+                case .analysis:
+                    return .ingestion
+            }
+        }()
+
+        return Package.query(on: database)
             .with(\.$repositories)
-            // TODO: filter out updated in last X minutes
+            .filter(\.$processingStage == requiredStage)
+            .sort(.sql(raw: "status!='ok'"))
             .sort(\.$updatedAt)
             .limit(limit)
             .all()

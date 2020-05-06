@@ -9,7 +9,7 @@ class AnalyzerTests: AppTestCase {
     func test_basic_analysis() throws {
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        try savePackages(on: app.db, urls.urls)
+        try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
@@ -101,7 +101,7 @@ class AnalyzerTests: AppTestCase {
         // Ensure packages record success/error status
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        try savePackages(on: app.db, urls.urls)
+        try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
         let lastUpdate = Date()
         Current.shell.run = { cmd, path in
             if cmd.string == "git tag" { return "1.0" }
@@ -129,7 +129,7 @@ class AnalyzerTests: AppTestCase {
         // Test to ensure exceptions don't break processing
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        try savePackages(on: app.db, urls.urls)
+        try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
