@@ -12,6 +12,13 @@ enum Status: String, Codable {
 }
 
 
+enum ProcessingStage: String, Codable {
+    case reconciliation
+    case ingestion
+    case analysis
+}
+
+
 final class Package: Model, Content {
     static let schema = "packages"
 
@@ -32,6 +39,9 @@ final class Package: Model, Content {
     @OptionalEnum(key: "status")
     var status: Status?
 
+    @OptionalEnum(key: "processing_stage")
+    var processingStage: ProcessingStage?
+
     @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository?
     var lastCommitAt: Date?
 
@@ -43,10 +53,16 @@ final class Package: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, url: URL, status: Status? = nil) {
+    init(id: UUID? = nil,
+         url: URL,
+         status: Status? = nil,
+         processingStage: ProcessingStage? = nil,
+         lastCommitAt: Date? = nil) {
         self.id = id
         self.url = url.absoluteString
         self.status = status
+        self.processingStage = processingStage
+        self.lastCommitAt = lastCommitAt
     }
 }
 

@@ -8,6 +8,7 @@ struct CreatePackage: Migration {
             .field("updated_at", .datetime)
             .field("url", .string, .required)
             .field("status", .string)
+            .field("processing_stage", .string)
             .field("last_commit_at", .datetime)
             .unique(on: "url")
             .create()
