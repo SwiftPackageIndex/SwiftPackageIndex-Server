@@ -3,7 +3,6 @@ import Vapor
 
 
 enum Status: String, Codable {
-    case none
     case ok
     case invalidUrl = "invalid_url"
     case notFound = "not_found"
@@ -30,8 +29,8 @@ final class Package: Model, Content {
     @Field(key: "url")
     var url: String
 
-    @Enum(key: "status")
-    var status: Status
+    @OptionalEnum(key: "status")
+    var status: Status?
 
     @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository?
     var lastCommitAt: Date?
@@ -44,7 +43,7 @@ final class Package: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, url: URL, status: Status = .none) {
+    init(id: UUID? = nil, url: URL, status: Status? = nil) {
         self.id = id
         self.url = url.absoluteString
         self.status = status
