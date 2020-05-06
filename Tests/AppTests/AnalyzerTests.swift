@@ -47,11 +47,11 @@ class AnalyzerTests: AppTestCase {
         let path2 = "\(outDir)/github.com-foo-2"
         let expecations: [Command] = [
             // clone of pkg1 and pull of pkg2
-            .init(command: "git clone https://github.com/foo/1 \"\(outDir)/github.com-foo-1\" --quiet",
+            .init(command: "env GIT_TERMINAL_PROMPT=0 git clone https://github.com/foo/1 \"\(outDir)/github.com-foo-1\" --quiet",
                 path: outDir),
             .init(command: "git reset --hard", path: path2),
             .init(command: "git checkout \"master\" --quiet", path: path2),
-            .init(command: "git pull --quiet", path: path2),
+            .init(command: "env GIT_TERMINAL_PROMPT=0 git pull --quiet", path: path2),
             // next, both repos have their tags listed
             .init(command: "git tag", path: path1),
             .init(command: "git tag", path: path2),

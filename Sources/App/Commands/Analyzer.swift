@@ -131,11 +131,11 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
             try Current.shell.run(command: .init(string: "git reset --hard"), at: path)
             let branch = package.repository?.defaultBranch ?? "master"
             try Current.shell.run(command: .gitCheckout(branch: branch), at: path)
-            try Current.shell.run(command: .gitPull(), at: path)
+            try Current.shell.run(command: .gitPull(allowingPrompt: false), at: path)
         } else {
             application.logger.info("cloning \(package.url) to \(path)")
             let wdir = Current.fileManager.checkoutsDirectory
-            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: path), at: wdir)
+            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: path, allowingPrompt: false), at: wdir)
         }
         return package
     }
