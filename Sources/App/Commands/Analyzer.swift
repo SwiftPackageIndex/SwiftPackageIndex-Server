@@ -100,6 +100,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
                             application.logger.error("Analysis error: \(error.localizedDescription)")
                             pkg.status = .analysisFailed
                     }
+                    pkg.processingStage = .analysis
                     return pkg.save(on: application.db)
             }
         }
