@@ -40,6 +40,7 @@ services:
     ports:
       - '8080:80'
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "80"]
+
   migrate:
     image: finestructure/spi-server:latest
     environment:
@@ -49,6 +50,7 @@ services:
     command: ["migrate", "--yes"]
     deploy:
       replicas: 0
+
   revert:
     image: finestructure/spi-server:latest
     environment:
@@ -58,6 +60,7 @@ services:
     command: ["migrate", "--revert", "--yes"]
     deploy:
       replicas: 0
+
   db:
     image: postgres:12.1-alpine
     volumes:
@@ -69,3 +72,34 @@ services:
       POSTGRES_DB: spi_dev
     ports:
       - '5432:5432'
+
+  # commands
+  reconcile:
+    image: finestructure/spi-server:latest
+    environment:
+      <<: *shared_environment
+    depends_on:
+      - db
+    command: ["reconcile"]
+    deploy:
+      replicas: 0
+
+  ingest:
+    image: finestructure/spi-server:latest
+    environment:
+      <<: *shared_environment
+    depends_on:
+      - db
+    command: ["ingest", "-l", "100"]
+    deploy:
+      replicas: 0
+
+  analyze:
+    image: finestructure/spi-server:latest
+    environment:
+      <<: *shared_environment
+    depends_on:
+      - db
+    command: ["analyze", "-l", "10"]
+    deploy:
+      replicas: 0

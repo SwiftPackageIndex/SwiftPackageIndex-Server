@@ -13,9 +13,8 @@ class AnalyzerTests: AppTestCase {
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
-            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" {
-                return true
-            }
+            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
+            if path.hasSuffix("Package.swift") { return true }
             return false
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
@@ -48,9 +47,11 @@ class AnalyzerTests: AppTestCase {
         let path2 = "\(outDir)/github.com-foo-2"
         let expecations: [Command] = [
             // clone of pkg1 and pull of pkg2
-            .init(command: "git clone https://github.com/foo/1 \"\(outDir)/github.com-foo-1\" --quiet",
-                path: "."),  // "outDir" is translated to "." in this context
-            .init(command: "git pull --quiet", path: path2),
+            .init(command: "env GIT_TERMINAL_PROMPT=0 git clone https://github.com/foo/1 \"\(outDir)/github.com-foo-1\" --quiet",
+                path: outDir),
+            .init(command: "git reset --hard", path: path2),
+            .init(command: "git checkout \"master\" --quiet", path: path2),
+            .init(command: "env GIT_TERMINAL_PROMPT=0 git pull --quiet", path: path2),
             // next, both repos have their tags listed
             .init(command: "git tag", path: path1),
             .init(command: "git tag", path: path2),
@@ -84,16 +85,12 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(products.count, 4)
         XCTAssertEqual(products[0].name, "p1")
         XCTAssertEqual(products[0].type, .executable)
-        XCTAssertEqual(products[0].$version.id, pkg1.versions[0].id)
         XCTAssertEqual(products[1].name, "p1")
         XCTAssertEqual(products[1].type, .executable)
-        XCTAssertEqual(products[1].$version.id, pkg1.versions[1].id)
         XCTAssertEqual(products[2].name, "p2")
         XCTAssertEqual(products[2].type, .library)
-        XCTAssertEqual(products[2].$version.id, pkg2.versions[0].id)
         XCTAssertEqual(products[3].name, "p2")
         XCTAssertEqual(products[3].type, .library)
-        XCTAssertEqual(products[3].$version.id, pkg2.versions[1].id)
     }
 
     func test_package_status() throws {
@@ -132,9 +129,8 @@ class AnalyzerTests: AppTestCase {
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
-            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" {
-                return true
-            }
+            if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
+            if path.hasSuffix("Package.swift") { return true }
             return false
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
@@ -156,7 +152,7 @@ class AnalyzerTests: AppTestCase {
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
         // TODO: perhaps find a better way to assert success than counting commands - Version count?
-        XCTAssertEqual(commands.count, 12, "was: \(dump(commands))")
+        XCTAssertEqual(commands.count, 14, "was: \(dump(commands))")
     }
 
     func test_reconcileVersions() throws {

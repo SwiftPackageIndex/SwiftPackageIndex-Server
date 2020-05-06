@@ -9,22 +9,46 @@ struct AnalyzerCommand: Command {
     struct Signature: CommandSignature {
         @Option(name: "limit", short: "l")
         var limit: Int?
+        @Option(name: "id")
+        var id: String?
     }
 
     var help: String { "Run package analysis (fetching git repository and inspecting content)" }
 
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
-        context.console.info("Analyzing (limit: \(limit)) ...")
-
-        try analyze(application: context.application, limit: limit).wait()
+        let id = signature.id.flatMap(UUID.init(uuidString:))
+        if let id = id {
+            context.console.info("Analyzing (id: \(id)) ...")
+            try analyze(application: context.application, id: id).wait()
+        } else {
+            context.console.info("Analyzing (limit: \(limit)) ...")
+            try analyze(application: context.application, limit: limit).wait()
+        }
     }
 }
 
 
+func analyze(application: Application, id: Package.Id) throws -> EventLoopFuture<Void> {
+    let packages = Package.query(on: application.db)
+        .with(\.$repositories)
+        .filter(\.$id == id)
+        .first()
+        .unwrap(or: Abort(.notFound))
+        .map { [$0] }
+    return try analyze(application: application, packages: packages)
+}
+
+
 func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
+    let packages = Package.fetchUpdateCandidates(application.db, limit: limit)
+    return try analyze(application: application, packages: packages)
+}
+
+
+func analyze(application: Application, packages: EventLoopFuture<[Package]>) throws -> EventLoopFuture<Void> {
     // get or create directory
-    let checkoutDir = Current.fileManager.checkouts
+    let checkoutDir = Current.fileManager.checkoutsDirectory
     application.logger.info("Checkout directory: \(checkoutDir)")
     if !Current.fileManager.fileExists(atPath: checkoutDir) {
         application.logger.info("Creating checkout directory at path: \(checkoutDir)")
@@ -33,7 +57,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
                                                   attributes: nil)
     }
 
-    let checkouts = Package.fetchUpdateCandidates(application.db, limit: limit)
+    let checkouts = packages
         .flatMapEach(on: application.eventLoopGroup.next()) { pkg in
             refreshCheckout(application: application, package: pkg)
     }
@@ -57,18 +81,27 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
 
     // FIXME: sas 2020-05-04: Workaround for partial flush described here:
     // https://discordapp.com/channels/431917998102675485/444249946808647699/706796431540748372
+    // FIXME: this breaks exposing this via the API:
+    // Precondition failed: BUG DETECTED: wait() must not be called when on an EventLoop.
     let fulfilledUpdates = try versionUpdates.wait()
     let setStatus = fulfilledUpdates.map { (pkg, updates) -> EventLoopFuture<[Void]> in
-        EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
-            .flatMapEach(on: application.db.eventLoop) { result -> EventLoopFuture<Void> in
-                switch result {
-                    case .success:
-                        pkg.status = .ok
-                    case .failure(let error):
-                        application.logger.error("Analysis error: \(error.localizedDescription)")
-                        pkg.status = .analysisFailed
-                }
-                return pkg.save(on: application.db)
+        if updates.isEmpty {
+            // Make sure we mark pkg as updated even if it has no versions - we don't want to
+            // get stuck reprocessing it all the time
+            // Simply mark it updated, don't touch the status
+            return pkg.update(on: application.db).map { [] }
+        } else {
+            return EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
+                .flatMapEach(on: application.db.eventLoop) { result -> EventLoopFuture<Void> in
+                    switch result {
+                        case .success:
+                            pkg.status = .ok
+                        case .failure(let error):
+                            application.logger.error("Analysis error: \(error.localizedDescription)")
+                            pkg.status = .analysisFailed
+                    }
+                    return pkg.save(on: application.db)
+            }
         }
     }.flatten(on: application.db.eventLoop)
 
@@ -94,10 +127,15 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         if Current.fileManager.fileExists(atPath: path) {
             application.logger.info("pulling \(package.url) in \(path)")
-            try Current.shell.run(command: .gitPull(), at: path)
+            // git reset --hard to deal with stray .DS_Store files on macOS
+            try Current.shell.run(command: .init(string: "git reset --hard"), at: path)
+            let branch = package.repository?.defaultBranch ?? "master"
+            try Current.shell.run(command: .gitCheckout(branch: branch), at: path)
+            try Current.shell.run(command: .gitPull(allowingPrompt: false), at: path)
         } else {
             application.logger.info("cloning \(package.url) to \(path)")
-            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: path))
+            let wdir = Current.fileManager.checkoutsDirectory
+            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: path, allowingPrompt: false), at: wdir)
         }
         return package
     }
@@ -128,7 +166,9 @@ func _reconcileVersions(application: Application, package: Package) throws -> Ev
     let tags: EventLoopFuture<[String]> = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         application.logger.info("listing tags for package \(package.url)")
         let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
-        return tags.split(separator: "\n").map(String.init)
+        return tags.split(separator: "\n")
+            .map(String.init)
+            .filter(SemVer.isValid)
     }
     // FIXME: also save version for default branch (currently only looking at tags)
 
@@ -161,6 +201,11 @@ func getManifest(package: Package, version: Version) -> Result<Manifest, Error> 
             throw AppError.invalidRevision(version.id, version.tagName)
         }
         try Current.shell.run(command: .gitCheckout(branch: revision), at: cacheDir)
+        guard Current.fileManager.fileExists(atPath: cacheDir + "/Package.swift") else {
+            // It's important to check for Package.swift - otherwise `dump-package` will go
+            // up the tree through parent directories to find one
+            throw AppError.invalidRevision(version.id, "no Package.swift")
+        }
         let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
         // TODO: sas-2020-05-03: do we need to run tools-version? There's a toolsVersion key in the JSON
         // Plus it may not be a good substitute for swift versions?

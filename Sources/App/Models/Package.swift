@@ -105,6 +105,7 @@ extension QueryBuilder where Model == Package {
 extension Package {
     static func fetchUpdateCandidates(_ database: Database, limit: Int) -> EventLoopFuture<[Package]> {
         Package.query(on: database)
+            .with(\.$repositories)
             // TODO: filter out updated in last X minutes
             .sort(\.$updatedAt)
             .limit(limit)

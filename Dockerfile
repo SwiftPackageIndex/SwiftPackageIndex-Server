@@ -1,7 +1,7 @@
 # ================================
 # Build image
 # ================================
-FROM vapor/swift:latest as build
+FROM swift:5.2.3-bionic as build
 WORKDIR /build
 
 # First just resolve dependencies.
@@ -23,8 +23,12 @@ RUN swift build \
 # ================================
 # Run image
 # ================================
-FROM vapor/ubuntu:18.04
+# we need a swift base image so that we can run `swift dump-package`
+FROM swift:5.2.3-bionic
 WORKDIR /run
+
+# install git so we can run clone/pull/etc
+RUN apt-get update && apt-get install -y git
 
 # Copy build artifacts
 COPY --from=build /build/.build/release /run
