@@ -36,6 +36,7 @@ class IngestorTests: AppTestCase {
         (try Package.query(on: app.db).all().wait()).forEach {
             XCTAssert($0.updatedAt! > lastUpdate)
             XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.processingStage, .ingestion)
         }
     }
 
@@ -128,7 +129,11 @@ class IngestorTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1".url)
         try recordIngestionError(database: app.db,
                                  error: AppError.invalidPackageUrl(pkg.id, "foo")).wait()
-        XCTAssertEqual(try fetch(id: pkg.id, on: app.db).status, .invalidUrl)
+        do {
+            let pkg = try fetch(id: pkg.id, on: app.db)
+            XCTAssertEqual(pkg.status, .invalidUrl)
+            XCTAssertEqual(pkg.processingStage, .ingestion)
+        }
     }
 
     func test_ingest_badMetadata() throws {
