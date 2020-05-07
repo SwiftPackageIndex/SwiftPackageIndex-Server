@@ -36,6 +36,13 @@ func fixturesDirectory(path: String = #file) -> URL {
 }
 
 
+extension XCTestCase {
+    var isRunningInCI: Bool {
+        ProcessInfo.processInfo.environment.keys.contains("GITHUB_WORKFLOW")
+    }
+}
+
+
 // MARK: - Package db helpers
 
 
