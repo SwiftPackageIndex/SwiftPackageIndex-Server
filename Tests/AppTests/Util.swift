@@ -36,13 +36,6 @@ func fixturesDirectory(path: String = #file) -> URL {
 }
 
 
-extension XCTestCase {
-    var isRunningInCI: Bool {
-        ProcessInfo.processInfo.environment.keys.contains("GITHUB_WORKFLOW")
-    }
-}
-
-
 // MARK: - Package db helpers
 
 
@@ -97,33 +90,3 @@ func makeBody(_ string: String) -> ByteBuffer {
 }
 
 
-// MARK: - Useful extensions
-
-
-extension String {
-    var url: URL {
-        URL(string: self)!
-    }
-}
-
-
-extension Result {
-    var isSuccess: Bool {
-        if case .success = self { return true }
-        return false
-    }
-
-    var isFailure: Bool {
-        if case .failure = self { return true }
-        return false
-    }
-}
-
-
-extension Array where Element: FluentKit.Model {
-    public func save(on database: Database) -> EventLoopFuture<Void> {
-        map {
-            $0.save(on: database)
-        }.flatten(on: database.eventLoop)
-    }
-}
