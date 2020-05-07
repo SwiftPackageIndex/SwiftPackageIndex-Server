@@ -8,8 +8,9 @@ import WebKit
 #endif
 
 
-class WebpageSnapshotTests: XCTestCase {
+let defaultSize = CGSize(width: 800, height: 600)
 
+class WebpageSnapshotTests: XCTestCase {
     func test_home() throws {
         let html = HTML.render(homePage())
         assertSnapshot(matching: html, as: .lines)
@@ -17,14 +18,10 @@ class WebpageSnapshotTests: XCTestCase {
         #if os(iOS) || os(macOS)
         let webView = WKWebView()
         webView.loadHTMLString(html, baseURL: nil)
-        if !ProcessInfo.processInfo.environment.keys.contains("GITHUB_WORKFLOW") {
-          assertSnapshot(
-            matching: webView,
-            as: .image(size: .init(width: 800, height: 600))
-          )
+        if !isRunningInCI {
+          assertSnapshot(matching: webView, as: .image(size: defaultSize))
         }
         #endif
 
     }
-
 }
