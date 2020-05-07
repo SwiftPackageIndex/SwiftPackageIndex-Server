@@ -3,7 +3,7 @@ import Vapor
 
 func routes(_ app: Application) throws {
     app.get { req in
-        render(page: homePage())
+        homePage()
     }
 
     let controller = PackageController()
