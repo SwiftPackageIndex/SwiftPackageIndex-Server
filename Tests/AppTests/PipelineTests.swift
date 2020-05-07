@@ -108,36 +108,30 @@ class PipelineTests: AppTestCase {
         try reconcile(client: app.client, database: app.db).wait()
 
         do {  // validate
-            let packages = try Package.query(on: app.db).all().wait()
-            XCTAssertEqual(packages.map(\.url).sorted(), ["1", "2", "3"].gh)
-            packages.forEach {
-                XCTAssertEqual($0.status, .none)
-                XCTAssertEqual($0.processingStage, .reconciliation)
-            }
+            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].gh)
+            XCTAssertEqual(packages.map(\.status), [.none, .none, .none])
+            XCTAssertEqual(packages.map(\.processingStage), [.reconciliation, .reconciliation, .reconciliation])
         }
 
         // MUT - second stage
         try ingest(client: app.client, database: app.db, limit: 10).wait()
 
         do { // validate
-            let packages = try Package.query(on: app.db).all().wait()
-            XCTAssertEqual(packages.map(\.url).sorted(), ["1", "2", "3"].gh)
-            packages.forEach {
-                XCTAssertEqual($0.status, .ok)
-                XCTAssertEqual($0.processingStage, .ingestion)
-            }
+            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].gh)
+            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+            XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
         }
 
         // MUT - third stage
         try analyze(application: app, limit: 10).wait()
 
         do { // validate
-            let packages = try Package.query(on: app.db).all().wait()
-            XCTAssertEqual(packages.map(\.url).sorted(), ["1", "2", "3"].gh)
-            packages.forEach {
-                XCTAssertEqual($0.status, .ok)
-                XCTAssertEqual($0.processingStage, .analysis)
-            }
+            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].gh)
+            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+            XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
         }
 
         // Now we've got a new package and a deletion
@@ -146,21 +140,62 @@ class PipelineTests: AppTestCase {
         // MUT - reconcile again
         try reconcile(client: app.client, database: app.db).wait()
 
-        do {  // validate
-            let packages = try Package.query(on: app.db).all().wait()
-                .sorted(by: { $0.url < $1.url })
+        do {  // validate - only new package moves to .reconciliation stage
+            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].gh)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .none])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .reconciliation])
         }
 
-//        XCTFail("resume test impl")
-        // - run ingestion on new records
-        // - ensure "4" is processed
-        // - run analysis, ensure "4" is processed
-        // - fast forward clock
-        // - ensure all three are processed
+        // MUT - ingest again
+        try ingest(client: app.client, database: app.db, limit: 10).wait()
+
+        do {  // validate - only new package moves to .ingestion stage
+            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].gh)
+            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+            XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .ingestion])
+        }
+
+        // MUT - analyze again
+        let lastAnalysis = Current.date()
+        try analyze(application: app, limit: 10).wait()
+
+        do {  // validate - only new package moves to .ingestion stage
+            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].gh)
+            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+            XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
+            XCTAssertEqual(packages.map { $0.updatedAt! > lastAnalysis }, [false, false, true])
+        }
+
+        // fast forward our clock by the deadtime interval
+        Current.date = { Date().addingTimeInterval(Constants.reingestionDeadtime) }
+
+        // MUT - ingest yet again
+        try ingest(client: app.client, database: app.db, limit: 10).wait()
+
+        do {  // validate - now all three packages should have been updated
+            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].gh)
+            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+            XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
+        }
+
+        // MUT - re-run analysis to complete the sequence
+        try analyze(application: app, limit: 10).wait()
+
+        do {  // validate - only new package moves to .ingestion stage
+            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].gh)
+            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+            XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
+        }
+
+        // at this point we've ensured that retriggering ingestion after the deadtime will
+        // refresh analysis as expected
     }
+
 }
 
 
