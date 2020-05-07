@@ -18,7 +18,7 @@ class PipelineTests: AppTestCase {
             Package(url: "2".url, status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
         // fast forward our clock by the deadtime interval
-        Current.date = { Date().advanced(by: Constants.reingestionDeadtime) }
+        Current.date = { Date().addingTimeInterval(Constants.reingestionDeadtime) }
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["1", "2"])
     }
@@ -29,7 +29,7 @@ class PipelineTests: AppTestCase {
             Package(url: "2".url, status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
         // fast forward our clock by the deadtime interval
-        Current.date = { Date().advanced(by: Constants.reingestionDeadtime) }
+        Current.date = { Date().addingTimeInterval(Constants.reingestionDeadtime) }
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 1).wait()
         XCTAssertEqual(batch.map(\.url), ["1"])
     }
@@ -56,7 +56,7 @@ class PipelineTests: AppTestCase {
             Package(url: "3".url, status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
         // fast forward our clock by the deadtime interval
-        Current.date = { Date().advanced(by: Constants.reingestionDeadtime) }
+        Current.date = { Date().addingTimeInterval(Constants.reingestionDeadtime) }
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["3", "1", "2"])
     }

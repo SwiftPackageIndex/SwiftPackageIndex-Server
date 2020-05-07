@@ -140,7 +140,7 @@ private extension QueryBuilder where Model == Package {
             case .ingestion:
                 return group(.or) {
                     $0.filter(\.$processingStage == .reconciliation)
-                    .filter(\.$updatedAt < Current.date().advanced(by: -Constants.reingestionDeadtime))
+                    .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reingestionDeadtime))
                 }
             case .analysis:
                 return filter(\.$processingStage == .ingestion)
