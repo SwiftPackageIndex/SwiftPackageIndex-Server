@@ -8,13 +8,6 @@
 import Vapor
 
 
-//func render(page: HTML.Node) -> Response {
-//    let res = Response(status: .ok, body: .init(string: HTML.render(page)))
-//    res.headers.add(name: "Content-Type", value: "text/html")
-//    return res
-//}
-
-
 func myhead(title: String) -> HTML.Node {
     return .head([
         .meta([.charset => "utf-8"]),
