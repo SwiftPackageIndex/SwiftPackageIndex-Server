@@ -85,7 +85,7 @@ class AnalyzerTests: AppTestCase {
                        ["2.0", "2.1"])
 
         // validate products (each version has 2 products)
-        let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
+        let products = try Product.query(on: app.db).sort(\.$name).all().wait()
         XCTAssertEqual(products.count, 4)
         XCTAssertEqual(products[0].name, "p1")
         XCTAssertEqual(products[0].type, .executable)
