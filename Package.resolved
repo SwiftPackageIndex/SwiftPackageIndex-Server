@@ -119,6 +119,15 @@
         }
       },
       {
+        "package": "Html",
+        "repositoryURL": "https://github.com/pointfreeco/swift-html.git",
+        "state": {
+          "branch": null,
+          "revision": "3ffc3fc8feb5fde766f5f44fd06ebc030f0721f3",
+          "version": "0.3.1"
+        }
+      },
+      {
         "package": "swift-log",
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {
