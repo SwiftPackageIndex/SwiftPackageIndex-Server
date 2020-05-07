@@ -3,10 +3,6 @@
 import SnapshotTesting
 import XCTest
 
-#if canImport(WebKit)
-import WebKit
-#endif
-
 
 let defaultSize = CGSize(width: 800, height: 600)
 
@@ -15,13 +11,10 @@ class WebpageSnapshotTests: XCTestCase {
         let html = HTML.render(homePage())
         assertSnapshot(matching: html, as: .lines)
 
-        #if os(iOS) || os(macOS)
-        let webView = WKWebView()
-        webView.loadHTMLString(html, baseURL: nil)
+        #if os(macOS)
         if !isRunningInCI {
-          assertSnapshot(matching: webView, as: .image(size: defaultSize))
+          assertSnapshot(matching: homePage(), as: .image(size: defaultSize))
         }
         #endif
-
     }
 }
