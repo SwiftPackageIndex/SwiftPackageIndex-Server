@@ -6,6 +6,7 @@ import WebKit
 
 @testable import App
 import Fluent
+import Plot
 import SnapshotTesting
 import XCTest
 
@@ -90,10 +91,10 @@ extension Array where Element: FluentKit.Model {
 
 
 #if os(macOS)
-extension Snapshotting where Value == HTML.Node, Format == NSImage {
+extension Snapshotting where Value == HTML, Format == NSImage {
     public static func image(precision: Float = 1, size: CGSize? = nil) -> Snapshotting {
         Snapshotting<NSView, NSImage>.image(precision: precision, size: size).pullback { node in
-            let html = HTML.render(node)
+            let html = node.render()
             let webView = WKWebView()
             webView.loadHTMLString(html, baseURL: nil)
             return webView

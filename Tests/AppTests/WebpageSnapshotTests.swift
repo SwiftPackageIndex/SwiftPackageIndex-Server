@@ -8,8 +8,8 @@ let defaultSize = CGSize(width: 800, height: 600)
 
 class WebpageSnapshotTests: XCTestCase {
     func test_home() throws {
-        let html = HTML.render(homePage())
-        assertSnapshot(matching: html, as: .lines)
+        // record = true
+        assertSnapshot(matching: homePage().render(indentedBy: .spaces(2)), as: .lines)
 
         #if os(macOS)
         if !isRunningInCI {
