@@ -56,6 +56,15 @@
         }
       },
       {
+        "package": "Plot",
+        "repositoryURL": "https://github.com/JohnSundell/Plot.git",
+        "state": {
+          "branch": null,
+          "revision": "e81e059e39603a6c01cd157bc8fb6f1ffbfa7cf5",
+          "version": "0.7.0"
+        }
+      },
+      {
         "package": "postgres-kit",
         "repositoryURL": "https://github.com/vapor/postgres-kit.git",
         "state": {
