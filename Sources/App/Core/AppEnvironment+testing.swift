@@ -5,6 +5,7 @@ import Vapor
 
 extension AppEnvironment {
     static let mock: Self = .init(
+        date: Date.init,
         fetchMasterPackageList: { _ in
             .just(value: ["https://github.com/finestructure/Gala",
                           "https://github.com/finestructure/SwiftPMLibrary-Server"].urls)
@@ -16,6 +17,7 @@ extension AppEnvironment {
     )
 
     static let e2eTestingShort: Self = .init(
+        date: Date.init,
         fetchMasterPackageList: { _ in .just(value: testUrls) },
         fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
         fileManager: .mock,
@@ -24,6 +26,7 @@ extension AppEnvironment {
     )
 
     static let e2eTestingFull: Self = .init(
+        date: Date.init,
         fetchMasterPackageList: liveFetchMasterPackageList,
         fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
         fileManager: .mock,

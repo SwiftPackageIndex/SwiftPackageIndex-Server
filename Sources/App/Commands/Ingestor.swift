@@ -26,7 +26,7 @@ struct IngestorCommand: Command {
 
 
 func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
-    Package.fetchUpdateCandidates(database, limit: limit)
+    Package.fetchCandidates(database, for: .ingestion, limit: limit)
         .flatMapEach(on: database.eventLoop) { fetchMetadata(for: $0, with: client) }
         .flatMapEachThrowing { updateTables(on: database, result: $0) }
         .flatMap { .andAllComplete($0, on: database.eventLoop) }
@@ -53,6 +53,7 @@ func updateTables(on database: Database, result: Result<PackageMetadata, Error>)
         return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
             .flatMap {
                 pkg.status = .ok
+                pkg.processingStage = .ingestion
                 return pkg.save(on: database)
             }
     } catch {
@@ -94,6 +95,7 @@ func recordIngestionError(database: Database, error: Error) -> EventLoopFuture<V
         Package.find(id, on: database).flatMap { pkg in
             guard let pkg = pkg else { return database.eventLoop.makeSucceededFuture(()) }
             pkg.status = status
+            pkg.processingStage = .ingestion
             return pkg.save(on: database)
         }
     }

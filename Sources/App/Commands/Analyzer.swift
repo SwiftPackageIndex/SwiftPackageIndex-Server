@@ -41,7 +41,7 @@ func analyze(application: Application, id: Package.Id) throws -> EventLoopFuture
 
 
 func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
-    let packages = Package.fetchUpdateCandidates(application.db, limit: limit)
+    let packages = Package.fetchCandidates(application.db, for: .analysis, limit: limit)
     return try analyze(application: application, packages: packages)
 }
 
@@ -88,7 +88,8 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
         if updates.isEmpty {
             // Make sure we mark pkg as updated even if it has no versions - we don't want to
             // get stuck reprocessing it all the time
-            // Simply mark it updated, don't touch the status
+            pkg.status = .ok
+            pkg.processingStage = .analysis
             return pkg.update(on: application.db).map { [] }
         } else {
             return EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
@@ -100,6 +101,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
                             application.logger.error("Analysis error: \(error.localizedDescription)")
                             pkg.status = .analysisFailed
                     }
+                    pkg.processingStage = .analysis
                     return pkg.save(on: application.db)
             }
         }

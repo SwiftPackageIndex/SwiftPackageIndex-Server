@@ -3,13 +3,19 @@ import Vapor
 
 
 enum Status: String, Codable {
-    case none
     case ok
     case invalidUrl = "invalid_url"
     case notFound = "not_found"
     case metadataRequestFailed = "metadata_request_failed"
     case ingestionFailed = "ingestion_failed"
     case analysisFailed = "analysis_failed"
+}
+
+
+enum ProcessingStage: String, Codable {
+    case reconciliation
+    case ingestion
+    case analysis
 }
 
 
@@ -30,8 +36,11 @@ final class Package: Model, Content {
     @Field(key: "url")
     var url: String
 
-    @Enum(key: "status")
-    var status: Status
+    @OptionalEnum(key: "status")
+    var status: Status?
+
+    @OptionalEnum(key: "processing_stage")
+    var processingStage: ProcessingStage?
 
     @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository?
     var lastCommitAt: Date?
@@ -44,10 +53,16 @@ final class Package: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, url: URL, status: Status = .none) {
+    init(id: UUID? = nil,
+         url: URL,
+         status: Status? = nil,
+         processingStage: ProcessingStage? = nil,
+         lastCommitAt: Date? = nil) {
         self.id = id
         self.url = url.absoluteString
         self.status = status
+        self.processingStage = processingStage
+        self.lastCommitAt = lastCommitAt
     }
 }
 
@@ -103,12 +118,32 @@ extension QueryBuilder where Model == Package {
 
 
 extension Package {
-    static func fetchUpdateCandidates(_ database: Database, limit: Int) -> EventLoopFuture<[Package]> {
+    static func fetchCandidates(_ database: Database,
+                                for stage: ProcessingStage,
+                                limit: Int) -> EventLoopFuture<[Package]> {
         Package.query(on: database)
             .with(\.$repositories)
-            // TODO: filter out updated in last X minutes
+            .filter(for: stage)
+            .sort(.sql(raw: "status!='ok'"))
             .sort(\.$updatedAt)
             .limit(limit)
             .all()
+    }
+}
+
+
+private extension QueryBuilder where Model == Package {
+    func filter(for stage: ProcessingStage) -> Self {
+        switch stage {
+            case .reconciliation:
+                fatalError("reconciliation stage does not select candidates")
+            case .ingestion:
+                return group(.or) {
+                    $0.filter(\.$processingStage == .reconciliation)
+                    .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reingestionDeadtime))
+                }
+            case .analysis:
+                return filter(\.$processingStage == .ingestion)
+        }
     }
 }
