@@ -39,12 +39,8 @@ final class Version: Model, Content {
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
 
-    // TODO: sas-2020-04-29: If we're handling Swift versions specifically here, maybe we should just
-    // use an enum? The set of versions should be fairly limited and it might be nicer to query.
-    // Although JSON querying with PGSQL is quite good.
-    // Or just keep the String we're getting from dump-package instead of parsing it?
     @Field(key: "swift_versions")
-    var swiftVersions: [SemVer]
+    var swiftVersions: [String]
 
     init() { }
 
@@ -54,7 +50,8 @@ final class Version: Model, Content {
          tagName: String? = nil,
          packageName: String? = nil,
          commit: String? = nil,
-         supportedPlatforms: [Platform] = []) throws {
+         supportedPlatforms: [Platform] = [],
+         swiftVersions: [String] = []) throws {
         self.id = id
         self.$package.id = try package.requireID()
         self.branchName = branchName
@@ -62,6 +59,7 @@ final class Version: Model, Content {
         self.packageName = packageName
         self.commit = commit
         self.supportedPlatforms = supportedPlatforms
+        self.swiftVersions = swiftVersions
     }
 }
 

@@ -220,7 +220,7 @@ func updateVersion(on database: Database, version: Version, manifest: Result<Man
     switch manifest {
         case .success(let manifest):
             version.packageName = manifest.name
-            version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SemVer.parse) ?? []
+            version.swiftVersions = manifest.swiftLanguageVersions ?? []
             version.supportedPlatforms = manifest.platforms?.map { $0.description } ?? []
             return version.save(on: database)
                 .transform(to: (version, manifest))

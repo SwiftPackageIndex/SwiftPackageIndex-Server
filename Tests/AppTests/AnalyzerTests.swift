@@ -206,7 +206,7 @@ class AnalyzerTests: AppTestCase {
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!
         XCTAssertEqual(v.packageName, "foo")
-        XCTAssertEqual(v.swiftVersions, ["1.0.0", "2.0.0"])
+        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0rc"])
         XCTAssertEqual(v.supportedPlatforms, ["ios_11.0", "macos_10.10"])
     }
 

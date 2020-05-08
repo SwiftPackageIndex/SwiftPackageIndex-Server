@@ -12,7 +12,7 @@ struct CreateVersion: Migration {
             .field("package_name", .string)
             .field("commit", .string)
             .field("supported_platforms", .array(of: .string))
-            .field("swift_versions", .array(of: .json), .sql(.default("{}")))
+            .field("swift_versions", .array(of: .string))
             .create()
     }
 
