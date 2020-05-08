@@ -6,7 +6,7 @@ import XCTVapor
 final class RepositoryTests: AppTestCase {
     
     func test_package_relationship() throws {
-        let pkg = Package(url: "p1".url)
+        let pkg = Package(url: "p1")
         try pkg.save(on: app.db).wait()
         let repo = try Repository(package: pkg)
         try repo.save(on: app.db).wait()
@@ -23,9 +23,9 @@ final class RepositoryTests: AppTestCase {
     }
 
     func test_forkedFrom_relationship() throws {
-        let p1 = Package(url: "p1".url)
+        let p1 = Package(url: "p1")
         try p1.save(on: app.db).wait()
-        let p2 = Package(url: "p2".url)
+        let p2 = Package(url: "p2")
         try p2.save(on: app.db).wait()
 
         // test forked from link
@@ -37,7 +37,7 @@ final class RepositoryTests: AppTestCase {
 
     func test_delete_cascade() throws {
         // delete package must delete repository
-        let pkg = Package(id: UUID(), url: "1".url, status: .none)
+        let pkg = Package(id: UUID(), url: "1", status: .none)
         let repo = try Repository(id: UUID(), package: pkg)
         try pkg.save(on: app.db).wait()
         try repo.save(on: app.db).wait()

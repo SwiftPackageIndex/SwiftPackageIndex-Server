@@ -174,7 +174,7 @@ class AnalyzerTests: AppTestCase {
             }
             return ""
         }
-        let pkg = try savePackage(on: app.db, "https://github.com/foo/1".url)
+        let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
         let version = try Version(id: UUID(), package: pkg, tagName: "0.4.2")
         try version.save(on: app.db).wait()
 
@@ -191,7 +191,7 @@ class AnalyzerTests: AppTestCase {
 
     func test_updateVersion() throws {
         // setup
-        let pkg = Package(id: UUID(), url: "1".url)
+        let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
         let version = try Version(package: pkg)
         let manifest = Manifest(name: "foo",
@@ -212,7 +212,7 @@ class AnalyzerTests: AppTestCase {
 
     func test_updateProducts() throws {
         // setup
-        let p = Package(id: UUID(), url: "1".url, status: .none)
+        let p = Package(id: UUID(), url: "1", status: .none)
         let v = try Version(id: UUID(), package: p, tagName: "1.0.0", packageName: "1")
         let m = Manifest(name: "1", products: [.init(name: "p1", type: .library),
                                                .init(name: "p2", type: .executable)])

@@ -93,10 +93,16 @@ func makeBody(_ string: String) -> ByteBuffer {
 // MARK: - Useful extensions
 
 
-extension String {
-    var url: URL {
-        URL(string: self)!
+extension URL: ExpressibleByStringLiteral {
+    public init(stringLiteral value: String) {
+        precondition(!value.isEmpty, "cannot convert empty string to URL")
+        self = URL(string: value)!
     }
+}
+
+
+extension String {
+    var url: URL { URL(string: self)! }
 }
 
 

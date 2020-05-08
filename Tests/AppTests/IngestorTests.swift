@@ -41,7 +41,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_insertOrUpdateRepository() throws {
-        let pkg = try savePackage(on: app.db, "foo".url)
+        let pkg = try savePackage(on: app.db, "foo")
         do {  // test insert
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: .mock(for: pkg)).wait()
             let repos = try Repository.query(on: app.db).all().wait()
@@ -93,7 +93,7 @@ class IngestorTests: AppTestCase {
         Current.fetchMetadata = { _, _ in
             .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
         }
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try savePackage(on: app.db, "1")
 
         // MUT
         let md = try fetchMetadata(for: pkg, with: app.client).wait()
@@ -126,7 +126,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_recordIngestionError() throws {
-        let pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try savePackage(on: app.db, "1")
         try recordIngestionError(database: app.db,
                                  error: AppError.invalidPackageUrl(pkg.id, "foo")).wait()
         do {
