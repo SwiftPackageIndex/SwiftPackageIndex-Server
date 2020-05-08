@@ -160,8 +160,22 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_reconcileVersions() throws {
-        // TODO - test failure scenarios
-        // TODO - test delete isolation
+        //setup
+        Current.shell.run = { cmd, _ in
+            if cmd.string == "git tag" {
+                return "1.2.3"
+            }
+            return ""
+        }
+        let pkg = Package(id: UUID(), url: "1".gh.url)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
+
+        // MUT
+        let (_, versions) = try reconcileVersions(application: app, result: .success(pkg)).wait()
+
+        // validate
+        assertEquals(versions, \.tagName, ["master", "1.2.3"])
     }
 
     func test_getManifests() throws {

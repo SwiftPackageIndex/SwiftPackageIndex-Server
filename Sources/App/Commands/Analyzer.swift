@@ -165,6 +165,9 @@ func _reconcileVersions(application: Application, package: Package) throws -> Ev
     guard let pkgId = package.id else {
         throw AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
     }
+
+    let defaultBranch = Repository.defaultBranch(on: application.db, for: package)
+
     let tags: EventLoopFuture<[String]> = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         application.logger.info("listing tags for package \(package.url)")
         let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
@@ -174,12 +177,19 @@ func _reconcileVersions(application: Application, package: Package) throws -> Ev
     }
     // FIXME: also save version for default branch (currently only looking at tags)
 
+    let revisions = defaultBranch
+        .map { b -> [String] in
+            if let b = b { return [b] } else { return [] }  // drop nil default branch
+        }
+        .and(tags)
+        .map { $0 + $1 }
+
     // Delete ...
     let delete = Version.query(on: application.db)
         .filter(\.$package.$id == pkgId)
         .delete()
     // ... and insert versions
-    let insert: EventLoopFuture<[Version]> = tags
+    let insert: EventLoopFuture<[Version]> = revisions
         .flatMapEachThrowing { try Version(package: package, tagName: $0) }
         .flatMap { versions in
             versions.create(on: application.db)

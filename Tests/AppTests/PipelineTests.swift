@@ -197,12 +197,3 @@ class PipelineTests: AppTestCase {
     }
 
 }
-
-
-private extension String {
-    var gh: String { "https://github.com/foo/\(self)" }
-}
-
-private extension Array where Element == String {
-    var gh: Self { map(\.gh) }
-}
