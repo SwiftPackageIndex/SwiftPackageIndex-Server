@@ -174,8 +174,6 @@ func _reconcileVersions(application: Application, package: Package) throws -> Ev
     }
     // FIXME: also save version for default branch (currently only looking at tags)
 
-    // TODO: sas 2020-05-02: is it necessary to reconcile versions or is delete and recreate ok?
-    // It certainly is simpler.
     // Delete ...
     let delete = Version.query(on: application.db)
         .filter(\.$package.$id == pkgId)
@@ -209,8 +207,6 @@ func getManifest(package: Package, version: Version) -> Result<Manifest, Error> 
             throw AppError.invalidRevision(version.id, "no Package.swift")
         }
         let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
-        // TODO: sas-2020-05-03: do we need to run tools-version? There's a toolsVersion key in the JSON
-        // Plus it may not be a good substitute for swift versions?
         return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
     }
 }
