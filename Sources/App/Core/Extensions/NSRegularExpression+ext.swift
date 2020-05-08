@@ -18,11 +18,6 @@ extension NSRegularExpression {
         return firstMatch(in: string, options: [], range: range) != nil
     }
 
-    func firstMatch(_ string: String, options: NSRegularExpression.Options = []) -> NSTextCheckingResult? {
-        let range = NSRange(string.startIndex..., in: string)
-        return firstMatch(in: string, options: [], range: range)
-    }
-
     func matchGroups(_ string: String, options: NSRegularExpression.Options = []) -> [String] {
         let range = NSRange(string.startIndex..., in: string)
         guard let match = firstMatch(in: string, options: [], range: range) else { return [] }
