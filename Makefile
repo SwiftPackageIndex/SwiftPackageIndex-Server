@@ -57,5 +57,4 @@ db-down-dev:
 db-down-test:
 	docker rm -f spi_test
 
-db-reset: db-down-dev db-up-dev migrate
-	@# reset dev db (test db is automatically reset by tests)
+db-reset: db-down db-up migrate
