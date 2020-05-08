@@ -24,7 +24,7 @@ test-e2e: db-reset reconcile ingest analyze
 	@# run import sequence test
 
 migrate:
-	$(VAPOR) run migrate
+	echo y | $(VAPOR) run migrate
 
 revert:
 	$(VAPOR) run migrate --revert
