@@ -75,23 +75,6 @@ extension Package {
 
 
 extension Package {
-    // FIXME: this was premature - rework as discussed here:
-    // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/21#discussion_r418602062
-    @available(*, deprecated)
-    var defaultVersion: Version? {
-        // TODO: sas 2020-04-30: find a more convenient way to use this. In order to avoid
-        // fatalErrors from lack of lazy loading, the caller needs to use it on a Package that's
-        // been fetched like so:
-        //   Package.query(on: db).with(\.$versions).with(\.$repositories)
-        // That's awkward. Should instead defaultBranch take a parameter (on: db) and do this
-        // itself?
-        guard let defaultBranch = repository?.defaultBranch else { return nil }
-        return versions.first(where: { $0.branchName == defaultBranch })
-    }
-}
-
-
-extension Package {
     /// Cache directory basename, i.e. this is intended to be appended to
     /// the path of a directory where all checkouts are cached.
     var cacheDirectoryName: String? {

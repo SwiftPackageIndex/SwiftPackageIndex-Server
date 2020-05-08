@@ -53,4 +53,18 @@ final class RepositoryTests: AppTestCase {
         XCTAssertEqual(try Repository.query(on: app.db).count().wait(), 0)
     }
 
+    func test_defaultBranch() throws {
+        // setup
+        let pkg = Package(id: UUID(), url: "1", status: .none)
+        let repo = try Repository(id: UUID(), package: pkg, defaultBranch: "default")
+        try pkg.save(on: app.db).wait()
+        try repo.save(on: app.db).wait()
+
+        // MUT
+        let b = try Repository.defaultBranch(on: app.db, for: pkg).wait()
+
+        // validate
+        XCTAssertEqual(b, "default")
+    }
+
 }
