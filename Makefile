@@ -20,7 +20,7 @@ test-docker:
 	@# run tests inside a docker container
 	docker run --rm -v $(PWD):/host -w /host --network="host" vapor/swift:5.2-bionic make test
 
-test-e2e: reset reconcile ingest
+test-e2e: db-reset reconcile ingest
 	@# run import sequence test
 
 migrate:
@@ -57,6 +57,5 @@ db-down-dev:
 db-down-test:
 	docker rm -f spi_test
 
-reset: db-down-dev db-up-dev migrate
+db-reset: db-down-dev db-up-dev migrate
 	@# reset dev db (test db is automatically reset by tests)
-
