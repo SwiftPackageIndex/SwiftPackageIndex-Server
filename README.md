@@ -1,40 +1,69 @@
-## Getting started
+# The Swift Package Index
 
-The `Makefile` defines a set of useful targets to get up and running.
+Find the best Swift libraries and frameworks that support the [Swift Package Manager](https://swift.org/package-manager/).
 
-Make sure you have Docker installed and running, then run
+## Concepts
+
+This project is currently made up of two distinct parts:
+
+* Command processes that run constantly to fetch packages from a [master package list](https://github.com/daveverwer/SwiftPMLibrary/blob/master/packages.json), parse metadata about the packages, and insert it into a database.
+* A web front end that allows that database to be viewed and searched.
+
+### Reconciliation, Ingestion, and Analysis
+
+The command processes that fetch and parse package metadata are broken up into three separate commands.
+
+1. **Reconciliation**: Fetch the master package list and reconciling it with the database, adding or deleting rows in the `packages` table.
+2. **Ingestion**: Fetch GitHub (or in the future, other hosting services) metadata for a set of package candidates returned by `Package.fetchCandidates(app.db, for: .ingestion, limit: 10) ` and create or update rows in the `repositories` table.
+3. **Analysis**: Clone or pull the full git history for a set of package candidates returned by `Package.fetchCandidates(app.db, for: .analysis, limit: 10) ` and create or replace rows in `versions` and `products`.
+
+## Running this project
+
+The `Makefile` defines a set of useful targets to get up and running. Make sure you have [Docker](https://www.docker.com/products/docker-desktop) installed and running, then run:
 
 ```
 make db-up
 ```
 
-to bring up the Postgres databases (one for development, the other for the unit tests).
+This will bring up two Postgres database docker containers (one for development, the other for the tests). Then, run:
 
 ```
 make migrate
 ```
 
-will set up the schema (or migrate it if you've made changes).
+This will set up the schema (or migrate it, if you've made changes) on the development database.
 
 ```
 make run
 ```
 
-to bring up the server locally.
+This will bring up a local development server.
 
-You can reset the database to a clean slate by tearing down the containers with
+## Running the project from Xcode
+
+Alternatively, you can open the `Package.swift` file in Xcode and run the server from there. However, it's important to set a custom working directory before running. To do this, navigate to the **Product** | **Scheme** | **Edit Scheme...** menu or press ⌘+<. Select the **Run** scheme action and select the **Options** tab. Finally, check the **Working Directory** checkbox and enter the directory where you have this source code checked out.
+
+## Resetting the database
+
+You can reset the database to a clean slate by tearing down the containers by running:
 
 ```
 make db-reset
 ```
 
-Running
+This command will *destroy* both the development, and test docker containers. Recreate them, and finally migrate the development database.
+
+## Running an end-to-end test
+
+Once you're all set up, run:
 
 ```
 make test-e2e
 ```
 
-will kick off a local test run of the server update process (reconciliation, ingestion, etc).
+This will kick off a local test run of the server update process (reconciliation, ingestion, and analysis) processing just *one* package. This is a good way to verify everything is working.
+
+## Running ingestion locally
 
 The `ingest-loop.sh` script can serve as a simple way to run a full ingestion cycle:
 
