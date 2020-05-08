@@ -45,3 +45,30 @@ extension SemVer {
 extension SemVer: CustomStringConvertible {
     var description: String { "\(major).\(minor).\(patch)" }
 }
+
+
+// Source: https://regex101.com/r/Ly7O1x/3/
+// Linked from https://semver.org
+let semVerRegex = NSRegularExpression(#"""
+^
+v?                              # SPI extension: allow leading 'v'
+(?<major>0|[1-9]\d*)
+\.
+(?<minor>0|[1-9]\d*)
+\.
+(?<patch>0|[1-9]\d*)
+(?:-
+  (?<prerelease>
+    (?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)
+    (?:\.
+      (?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)
+    )
+  *)
+)?
+(?:\+
+  (?<buildmetadata>[0-9a-zA-Z-]+
+    (?:\.[0-9a-zA-Z-]+)
+  *)
+)?
+$
+"""#, options: [.allowCommentsAndWhitespace])
