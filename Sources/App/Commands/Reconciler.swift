@@ -51,7 +51,7 @@ func diff(source: [URL], target: [URL]) -> (toAdd: Set<URL>, toDelete: Set<URL>)
 
 func reconcileLists(db: Database, source: [URL], target: [URL]) -> EventLoopFuture<Void> {
     let (toAdd, toDelete) = diff(source: source, target: target)
-    let insert = toAdd.map { Package(url: $0) }.create(on: db)
+    let insert = toAdd.map { Package(url: $0, processingStage: .reconciliation) }.create(on: db)
     let delete = toDelete
         .map { url in
             Package.query(on: db)

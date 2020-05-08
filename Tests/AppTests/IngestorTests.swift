@@ -13,7 +13,7 @@ class IngestorTests: AppTestCase {
                     "https://github.com/finestructure/Rester",
                     "https://github.com/finestructure/SwiftPMLibrary-Server"]
         Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
-        let packages = try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
+        let packages = try savePackages(on: app.db, urls.urls, processingStage: .reconciliation)
         let lastUpdate = Date()
 
         // MUT
@@ -36,6 +36,7 @@ class IngestorTests: AppTestCase {
         (try Package.query(on: app.db).all().wait()).forEach {
             XCTAssert($0.updatedAt! > lastUpdate)
             XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.processingStage, .ingestion)
         }
     }
 
@@ -58,7 +59,7 @@ class IngestorTests: AppTestCase {
     func test_partial_save_issue() throws {
         // setup
         Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
-        let packages = try savePackages(on: app.db, testUrls)
+        let packages = try savePackages(on: app.db, testUrls, processingStage: .reconciliation)
 
         // MUT
         try ingest(client: app.client, database: app.db, limit: testUrls.count).wait()
@@ -128,13 +129,17 @@ class IngestorTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1".url)
         try recordIngestionError(database: app.db,
                                  error: AppError.invalidPackageUrl(pkg.id, "foo")).wait()
-        XCTAssertEqual(try fetch(id: pkg.id, on: app.db).status, .invalidUrl)
+        do {
+            let pkg = try fetch(id: pkg.id, on: app.db)
+            XCTAssertEqual(pkg.status, .invalidUrl)
+            XCTAssertEqual(pkg.processingStage, .ingestion)
+        }
     }
 
     func test_ingest_badMetadata() throws {
         // setup
         let urls = ["1", "2", "3"]
-        let packages = try savePackages(on: app.db, urls.compactMap(URL.init(string:)))
+        let packages = try savePackages(on: app.db, urls.urls, processingStage: .reconciliation)
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "2" {
                 return .just(error: AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2")))

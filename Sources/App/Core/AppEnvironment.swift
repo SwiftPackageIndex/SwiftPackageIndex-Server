@@ -3,6 +3,7 @@ import Vapor
 
 
 struct AppEnvironment {
+    var date: () -> Date
     var fetchMasterPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
     var fetchMetadata: (_ client: Client, _ package: Package) throws -> EventLoopFuture<Github.Metadata>
     var fileManager: FileManager
@@ -12,6 +13,7 @@ struct AppEnvironment {
 
 extension AppEnvironment {
     static let live: Self = .init(
+        date: Date.init,
         fetchMasterPackageList: liveFetchMasterPackageList,
         fetchMetadata: Github.fetchMetadata(client:package:),
         fileManager: .live,

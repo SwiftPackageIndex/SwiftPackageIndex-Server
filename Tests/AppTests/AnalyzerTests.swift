@@ -9,7 +9,7 @@ class AnalyzerTests: AppTestCase {
     func test_basic_analysis() throws {
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        try savePackages(on: app.db, urls.urls)
+        try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
@@ -72,16 +72,20 @@ class AnalyzerTests: AppTestCase {
         // validate versions
         // TODO: This is monstrous... create a helper? There has to be a better way?
         let pkg1 = try Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first().wait()!
+        XCTAssertEqual(pkg1.status, .ok)
+        XCTAssertEqual(pkg1.processingStage, .analysis)
         XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1"])
         XCTAssertEqual(pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.tagName),
                        ["1.0", "1.1"])
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
+        XCTAssertEqual(pkg2.status, .ok)
+        XCTAssertEqual(pkg2.processingStage, .analysis)
         XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2"])
         XCTAssertEqual(pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.tagName),
                        ["2.0", "2.1"])
 
         // validate products (each version has 2 products)
-        let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
+        let products = try Product.query(on: app.db).sort(\.$name).all().wait()
         XCTAssertEqual(products.count, 4)
         XCTAssertEqual(products[0].name, "p1")
         XCTAssertEqual(products[0].type, .executable)
@@ -97,7 +101,7 @@ class AnalyzerTests: AppTestCase {
         // Ensure packages record success/error status
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        try savePackages(on: app.db, urls.urls)
+        try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
         let lastUpdate = Date()
         Current.shell.run = { cmd, path in
             if cmd.string == "git tag" { return "1.0" }
@@ -125,7 +129,7 @@ class AnalyzerTests: AppTestCase {
         // Test to ensure exceptions don't break processing
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        try savePackages(on: app.db, urls.urls)
+        try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
