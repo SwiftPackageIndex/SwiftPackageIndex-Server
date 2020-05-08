@@ -75,13 +75,13 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg1.status, .ok)
         XCTAssertEqual(pkg1.processingStage, .analysis)
         XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1"])
-        XCTAssertEqual(pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.tagName),
+        XCTAssertEqual(pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.reference?.description),
                        ["1.0.0", "1.1.1"])
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
         XCTAssertEqual(pkg2.processingStage, .analysis)
         XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2"])
-        XCTAssertEqual(pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.tagName),
+        XCTAssertEqual(pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.reference?.description),
                        ["2.0.0", "2.1.0"])
 
         // validate products (each version has 2 products)
@@ -175,7 +175,7 @@ class AnalyzerTests: AppTestCase {
         let (_, versions) = try reconcileVersions(application: app, result: .success(pkg)).wait()
 
         // validate
-        assertEquals(versions, \.tagName, ["master", "1.2.3"])
+        assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
     }
 
     func test_getManifests() throws {
@@ -189,7 +189,7 @@ class AnalyzerTests: AppTestCase {
             return ""
         }
         let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
-        let version = try Version(id: UUID(), package: pkg, tagName: "0.4.2")
+        let version = try Version(id: UUID(), package: pkg, reference: .tag("0.4.2"))
         try version.save(on: app.db).wait()
 
         // MUT
@@ -227,7 +227,7 @@ class AnalyzerTests: AppTestCase {
     func test_updateProducts() throws {
         // setup
         let p = Package(id: UUID(), url: "1", status: .none)
-        let v = try Version(id: UUID(), package: p, tagName: "1.0.0", packageName: "1")
+        let v = try Version(id: UUID(), package: p, reference: .tag("1.0.0"), packageName: "1")
         let m = Manifest(name: "1", products: [.init(name: "p1", type: .library),
                                                .init(name: "p2", type: .executable)])
         try p.save(on: app.db).wait()

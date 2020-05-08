@@ -101,8 +101,16 @@ class PipelineTests: AppTestCase {
 
     func test_processing_pipeline() throws {
         // Test pipeline pick-up end to end
+
+        // setup
         let urls = ["1", "2", "3"].gh
         Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
+        Current.shell.run = { cmd, path in
+            if cmd.string == "swift package dump-package" {
+                return #"{ "name": "Mock", "products": [] }"#
+            }
+            return ""
+        }
 
         // MUT - first stage
         try reconcile(client: app.client, database: app.db).wait()

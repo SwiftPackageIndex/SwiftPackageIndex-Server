@@ -19,6 +19,7 @@ struct SemVer: Content, Equatable {
 
 
 extension SemVer: ExpressibleByStringLiteral {
+    // FIXME: remove - we're not saving semver anymore
     // This initialiser is required for serialisation to the DB - i.e. it needs to have
     // access to a non-failable conversion from string to SemVer.
     // SemVer(0, 0, 0) is a safe default.

@@ -94,9 +94,9 @@ final class PackageTests: AppTestCase {
     func test_versions() throws {
         let pkg = try savePackage(on: app.db, "1")
         let versions = [
-            try Version(package: pkg, branchName: "branch"),
-            try Version(package: pkg, branchName: "default"),
-            try Version(package: pkg, tagName: "tag"),
+            try Version(package: pkg, reference: .branch("branch")),
+            try Version(package: pkg, reference: .branch("default")),
+            try Version(package: pkg, reference: .tag("tag")),
         ]
         try versions.create(on: app.db).wait()
         do {
