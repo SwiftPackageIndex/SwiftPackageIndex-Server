@@ -4,23 +4,6 @@ import XCTest
 
 class SemVerTests: XCTestCase {
 
-    func test_parse() throws {
-        XCTAssertEqual(SemVer.parse("1.2.3"), SemVer(major: 1, minor: 2, patch: 3))
-        XCTAssertEqual(SemVer.parse("1.2"), SemVer(major: 1, minor: 2, patch: 0))
-        XCTAssertEqual(SemVer.parse("1"), SemVer(major: 1, minor: 0, patch: 0))
-        XCTAssertEqual(SemVer.parse(""), nil)
-        XCTAssertEqual(SemVer.parse("1.2.3rc"), nil)
-    }
-
-    func test_isValid() throws {
-        XCTAssert(SemVer.isValid("1.2.3"))
-        XCTAssert(!SemVer.isValid("swift-2.2-SNAPSHOT-2016-01-11-a"))
-    }
-
-    func test_parts() throws {
-        
-    }
-
     func test_semVerRegex_valid() throws {
        XCTAssert(semVerRegex.matches("0.0.4"))
        XCTAssert(semVerRegex.matches("1.2.3"))
@@ -101,4 +84,29 @@ class SemVerTests: XCTestCase {
         XCTAssertFalse(semVerRegex.matches("9.8.7-whatever+meta+meta"))
     }
 
+    func test_init_stringLiteral() throws {
+        XCTAssertEqual(SemVer("1.2.3"), SemVer(1, 2, 3))
+        XCTAssertEqual(SemVer("1.2"), SemVer(0, 0, 0))
+        XCTAssertEqual(SemVer("1"), SemVer(0, 0, 0))
+        XCTAssertEqual(SemVer(""), SemVer(0, 0, 0))
+        XCTAssertEqual(SemVer("1.2.3rc"), SemVer(0, 0, 0))
+        XCTAssertEqual(SemVer("1.2.3-rc"), SemVer(1, 2, 3, "rc"))
+    }
+
+    func test_isValid() throws {
+        XCTAssert(SemVer.isValid("1.2.3"))
+        XCTAssert(SemVer.isValid("v1.2.3"))
+        XCTAssert(SemVer.isValid("v1.2.3-beta1"))
+        XCTAssert(SemVer.isValid("v1.2.3-beta1+build5"))
+        XCTAssertFalse(SemVer.isValid("1.2"))
+        XCTAssertFalse(SemVer.isValid("1"))
+        XCTAssertFalse(SemVer.isValid("swift-2.2-SNAPSHOT-2016-01-11-a"))
+    }
+
+    func test_description() throws {
+        XCTAssertEqual(SemVer("1.2.3").description, "1.2.3")
+        XCTAssertEqual(SemVer("v1.2.3").description, "1.2.3")
+        XCTAssertEqual(SemVer("1.2.3-beta1").description, "1.2.3-beta1")
+        XCTAssertEqual(SemVer("1.2.3-beta1+build").description, "1.2.3-beta1+build")
+    }
 }
