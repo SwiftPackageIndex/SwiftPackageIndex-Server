@@ -24,11 +24,11 @@ class VersionTests: AppTestCase {
             XCTAssertEqual(v.packageName, "pname")
             XCTAssertEqual(v.tagName, "tag")
             XCTAssertEqual(v.supportedPlatforms, ["ios_13", "macos_10.15"])
-            XCTAssertEqual(v.swiftVersions, ["4.0.0", "5.2.0"])
+            XCTAssertEqual(v.swiftVersions, ["4.0", "5.2"])
         }
     }
 
-    func test_Version_empty_supportedPlatforms_error() throws {
+    func test_Version_empty_array_error() throws {
         // Test for
         // invalid field: swift_versions type: Array<SemVer> error: Unexpected data type: JSONB[]. Expected array.
         // Fix is .sql(.default("{}"))

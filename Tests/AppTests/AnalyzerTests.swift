@@ -22,10 +22,10 @@ class AnalyzerTests: AppTestCase {
         Current.shell.run = { cmd, path in
             commands.append(.init(command: cmd.string, path: path))
             if cmd.string == "git tag" && path.hasSuffix("foo-1") {
-                return ["1.0", "1.1"].joined(separator: "\n")
+                return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
             if cmd.string == "git tag" && path.hasSuffix("foo-2") {
-                return ["2.0", "2.1"].joined(separator: "\n")
+                return ["2.0.0", "2.1.0"].joined(separator: "\n")
             }
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-1") {
                 return #"{ "name": "foo-1", "products": [{"name":"p1","type":{"executable": null}}] }"#
@@ -57,14 +57,14 @@ class AnalyzerTests: AppTestCase {
             .init(command: "git tag", path: path2),
             // then, each repo sees a git checkout and dump-package *per version*, i.e. twice
             //   - first repo
-            .init(command: "git checkout \"1.0\" --quiet", path: path1),
+            .init(command: "git checkout \"1.0.0\" --quiet", path: path1),
             .init(command: "swift package dump-package", path: path1),
-            .init(command: "git checkout \"1.1\" --quiet", path: path1),
+            .init(command: "git checkout \"1.1.1\" --quiet", path: path1),
             .init(command: "swift package dump-package", path: path1),
             //   - second repo
-            .init(command: "git checkout \"2.0\" --quiet", path: path2),
+            .init(command: "git checkout \"2.0.0\" --quiet", path: path2),
             .init(command: "swift package dump-package", path: path2),
-            .init(command: "git checkout \"2.1\" --quiet", path: path2),
+            .init(command: "git checkout \"2.1.0\" --quiet", path: path2),
             .init(command: "swift package dump-package", path: path2),
             ]
         assert(commands: commands, expectations: expecations)
@@ -76,13 +76,13 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg1.processingStage, .analysis)
         XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1"])
         XCTAssertEqual(pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.tagName),
-                       ["1.0", "1.1"])
+                       ["1.0.0", "1.1.1"])
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
         XCTAssertEqual(pkg2.processingStage, .analysis)
         XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2"])
         XCTAssertEqual(pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.tagName),
-                       ["2.0", "2.1"])
+                       ["2.0.0", "2.1.0"])
 
         // validate products (each version has 2 products)
         let products = try Product.query(on: app.db).sort(\.$name).all().wait()
@@ -104,7 +104,7 @@ class AnalyzerTests: AppTestCase {
         try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
         let lastUpdate = Date()
         Current.shell.run = { cmd, path in
-            if cmd.string == "git tag" { return "1.0" }
+            if cmd.string == "git tag" { return "1.0.0" }
             // first package fails
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-1") {
                 return "bad data"
@@ -142,7 +142,7 @@ class AnalyzerTests: AppTestCase {
         Current.shell.run = { cmd, path in
             commands.append(.init(command: cmd.string, path: path))
             if cmd.string == "git tag" {
-                return ["1.0", "1.1"].joined(separator: "\n")
+                return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
             // returning a blank string will cause an exception when trying to
             // decode it as the manifest result - we use this to simulate errors
@@ -206,7 +206,7 @@ class AnalyzerTests: AppTestCase {
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!
         XCTAssertEqual(v.packageName, "foo")
-        XCTAssertEqual(v.swiftVersions, ["1.0.0", "2.0.0"])
+        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0rc"])
         XCTAssertEqual(v.supportedPlatforms, ["ios_11.0", "macos_10.10"])
     }
 
