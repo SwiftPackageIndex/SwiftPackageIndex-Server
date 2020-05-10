@@ -176,7 +176,7 @@ func _reconcileVersions(application: Application, package: Package) throws -> Ev
         let tags = try Current.shell.run(command: .init(string: "git tag"), at: cacheDir)
         return tags.split(separator: "\n")
             .map(String.init)
-            .filter(SemVer.isValid)
+            .map(SemVer.init)
             .map { Reference.tag($0) }
     }
 

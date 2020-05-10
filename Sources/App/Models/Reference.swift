@@ -3,7 +3,7 @@ import Foundation
 
 enum Reference: Equatable {
     case branch(String)
-    case tag(String)
+    case tag(SemVer)
 }
 
 
@@ -14,7 +14,7 @@ extension Reference: Codable {
             self = .branch(value)
             return
         }
-        if let value = try? container.decode(String.self, forKey: .tag) {
+        if let value = try? container.decode(SemVer.self, forKey: .tag) {
             self = .tag(value)
             return
         }
@@ -44,7 +44,7 @@ extension Reference: CustomStringConvertible {
     var description: String {
         switch self {
             case .branch(let value): return value
-            case .tag(let value): return value
+            case .tag(let value): return String(describing: value)
         }
     }
 }
