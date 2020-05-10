@@ -20,7 +20,7 @@ import Foundation
 
 struct Manifest: Decodable, Equatable {
     struct Platform: Decodable, Equatable {
-        enum Name: String, Decodable, Equatable {
+        enum Name: String, Decodable, Equatable, CaseIterable {
             case macos
             case ios
             case tvos

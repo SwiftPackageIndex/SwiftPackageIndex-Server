@@ -2,7 +2,7 @@ import Foundation
 
 
 struct Platform: Codable, Equatable {
-    enum Name: String, Codable, Equatable {
+    enum Name: String, Codable, Equatable, CaseIterable {
         case macos
         case ios
         case tvos
