@@ -86,10 +86,10 @@ class SemVerTests: XCTestCase {
 
     func test_init_stringLiteral() throws {
         XCTAssertEqual(SemVer("1.2.3"), SemVer(1, 2, 3))
-        XCTAssertEqual(SemVer("1.2"), SemVer(0, 0, 0))
-        XCTAssertEqual(SemVer("1"), SemVer(0, 0, 0))
-        XCTAssertEqual(SemVer(""), SemVer(0, 0, 0))
-        XCTAssertEqual(SemVer("1.2.3rc"), SemVer(0, 0, 0))
+        XCTAssertEqual(SemVer("1.2"), nil)
+        XCTAssertEqual(SemVer("1"), nil)
+        XCTAssertEqual(SemVer(""), nil)
+        XCTAssertEqual(SemVer("1.2.3rc"), nil)
         XCTAssertEqual(SemVer("1.2.3-rc"), SemVer(1, 2, 3, "rc"))
     }
 
@@ -104,9 +104,9 @@ class SemVerTests: XCTestCase {
     }
 
     func test_description() throws {
-        XCTAssertEqual(SemVer("1.2.3").description, "1.2.3")
-        XCTAssertEqual(SemVer("v1.2.3").description, "1.2.3")
-        XCTAssertEqual(SemVer("1.2.3-beta1").description, "1.2.3-beta1")
-        XCTAssertEqual(SemVer("1.2.3-beta1+build").description, "1.2.3-beta1+build")
+        XCTAssertEqual(SemVer("1.2.3")?.description, "1.2.3")
+        XCTAssertEqual(SemVer("v1.2.3")?.description, "1.2.3")
+        XCTAssertEqual(SemVer("1.2.3-beta1")?.description, "1.2.3-beta1")
+        XCTAssertEqual(SemVer("1.2.3-beta1+build")?.description, "1.2.3-beta1+build")
     }
 }
