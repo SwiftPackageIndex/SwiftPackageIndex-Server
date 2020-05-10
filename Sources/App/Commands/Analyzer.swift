@@ -111,6 +111,87 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
 }
 
 
+func analyze2(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
+    let packages = Package.fetchCandidates(application.db, for: .analysis, limit: limit)
+    return try analyze2(application: application, packages: packages)
+}
+
+
+func analyze2(application: Application, packages: EventLoopFuture<[Package]>) throws -> EventLoopFuture<Void> {
+    // get or create directory
+    let checkoutDir = Current.fileManager.checkoutsDirectory
+    application.logger.info("Checkout directory: \(checkoutDir)")
+    if !Current.fileManager.fileExists(atPath: checkoutDir) {
+        application.logger.info("Creating checkout directory at path: \(checkoutDir)")
+        try Current.fileManager.createDirectory(atPath: checkoutDir,
+                                                  withIntermediateDirectories: false,
+                                                  attributes: nil)
+    }
+
+    let checkouts = packages
+        .flatMapEach(on: application.eventLoopGroup.next()) { pkg in
+            refreshCheckout(application: application, package: pkg)
+    }
+
+    // reconcile versions
+    let packageAndVersions = checkouts
+        .flatMapEach(on: application.eventLoopGroup.next()) {
+            reconcileVersions(application: application, result: $0)
+    }
+
+    let versionUpdates = packageAndVersions
+        .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Void>]) in
+            let res = versions
+                .map { ($0, getManifest(package: pkg, version: $0)) }
+                .map {
+                    updateVersion(on: application.db, version: $0, manifest: $1)
+                        .flatMap { updateProducts(on: application.db, version: $0, manifest: $1) }
+            }
+            return (pkg, res)
+    }
+
+    let r: EventLoopFuture<[(Package, [EventLoopFuture<Void>])]> = versionUpdates
+
+    let v: EventLoopFuture<Void> = r.flatMap {
+        (pkgAndUpdates: [(Package, [EventLoopFuture<Void>])]) in
+        let b = pkgAndUpdates.map { pkg, updates -> EventLoopFuture<Void> in
+            .andAllComplete(updates, on: application.db.eventLoop)
+        }
+        return .andAllComplete(b, on: application.db.eventLoop)
+    }
+
+    // FIXME: sas 2020-05-04: Workaround for partial flush described here:
+    // https://discordapp.com/channels/431917998102675485/444249946808647699/706796431540748372
+    // FIXME: this breaks exposing this via the API:
+    // Precondition failed: BUG DETECTED: wait() must not be called when on an EventLoop.
+    let fulfilledUpdates = try versionUpdates.wait()
+    let setStatus = fulfilledUpdates.map { (pkg, updates) -> EventLoopFuture<[Void]> in
+        if updates.isEmpty {
+            // Make sure we mark pkg as updated even if it has no versions - we don't want to
+            // get stuck reprocessing it all the time
+            pkg.status = .ok
+            pkg.processingStage = .analysis
+            return pkg.update(on: application.db).map { [] }
+        } else {
+            return EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
+                .flatMapEach(on: application.db.eventLoop) { result -> EventLoopFuture<Void> in
+                    switch result {
+                        case .success:
+                            pkg.status = .ok
+                        case .failure(let error):
+                            application.logger.error("Analysis error: \(error.localizedDescription)")
+                            pkg.status = .analysisFailed
+                    }
+                    pkg.processingStage = .analysis
+                    return pkg.save(on: application.db)
+            }
+        }
+    }.flatten(on: application.db.eventLoop)
+
+    return setStatus.transform(to: ())
+}
+
+
 func refreshCheckout(application: Application, package: Package) -> EventLoopFuture<Result<Package, Error>>  {
     do {
         return try pullOrClone(application: application, package: package)
