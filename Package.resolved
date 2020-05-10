@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/vapor/fluent.git",
         "state": {
           "branch": null,
-          "revision": "a5916ec4ffcc1482096e91f652911fc33ba9a7fb",
-          "version": "4.0.0-rc.2.1"
+          "revision": "dba22d5a6115092482669efe5492d800ace4da38",
+          "version": "4.0.0-rc.2.2"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "c92320b7f2d3b6f291db4c11c5ede27d69da555b",
-          "version": "1.0.0-rc.1.23"
+          "revision": "c73570c85d6661c04b8ea29a9f8eede67f6d4aae",
+          "version": "1.0.0-rc.1.26"
         }
       },
       {
@@ -60,8 +60,8 @@
         "repositoryURL": "https://github.com/JohnSundell/Plot.git",
         "state": {
           "branch": null,
-          "revision": "e81e059e39603a6c01cd157bc8fb6f1ffbfa7cf5",
-          "version": "0.7.0"
+          "revision": "61e828949ca6f84071bde65c8fc046cf74b7d1a2",
+          "version": "0.8.0"
         }
       },
       {
@@ -69,8 +69,8 @@
         "repositoryURL": "https://github.com/vapor/postgres-kit.git",
         "state": {
           "branch": null,
-          "revision": "152f69bfc0d767d29c9be427cd60169f9f62c8bd",
-          "version": "2.0.0"
+          "revision": "e43a32baec80ebbcfed4d0330d0be50eb73434c7",
+          "version": "2.0.1"
         }
       },
       {
@@ -150,8 +150,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio.git",
         "state": {
           "branch": null,
-          "revision": "e876fb37410e0036b98b5361bb18e6854739572b",
-          "version": "2.16.0"
+          "revision": "40bdad80882d307abe2c0bb36cf3bd4d3e03fe04",
+          "version": "2.16.1"
         }
       },
       {
@@ -159,8 +159,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-extras.git",
         "state": {
           "branch": null,
-          "revision": "b4dbfacff47fb8d0f9e0a422d8d37935a9f10570",
-          "version": "1.4.0"
+          "revision": "e0e76733600a2806b3dc4feae8cfebace858c1a2",
+          "version": "1.4.1"
         }
       },
       {
@@ -195,8 +195,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "7f6c8277b8cbe4381d00ddcef3b898c820780324",
-          "version": "4.4.0"
+          "revision": "74bbf36fe0378fafe5413762affe8db6b871a380",
+          "version": "4.5.1"
         }
       },
       {
@@ -204,8 +204,8 @@
         "repositoryURL": "https://github.com/vapor/websocket-kit.git",
         "state": {
           "branch": null,
-          "revision": "f46778e3f1452cc80a0a6c422cdc52a5d0258795",
-          "version": "2.0.0"
+          "revision": "021edd1ca55451ad15b3e84da6b4064e4b877b34",
+          "version": "2.1.0"
         }
       }
     ]
