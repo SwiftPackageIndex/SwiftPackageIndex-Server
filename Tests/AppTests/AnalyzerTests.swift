@@ -223,7 +223,7 @@ class AnalyzerTests: AppTestCase {
         let v = try Version.query(on: app.db).first().wait()!
         XCTAssertEqual(v.packageName, "foo")
         XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0rc"])
-        XCTAssertEqual(v.supportedPlatforms, ["ios_11.0", "macos_10.10"])
+        XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
     }
 
     func test_updateProducts() throws {

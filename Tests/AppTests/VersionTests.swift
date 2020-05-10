@@ -13,7 +13,7 @@ class VersionTests: AppTestCase {
         v.commit = "commit"
         v.reference = .branch("branch")
         v.packageName = "pname"
-        v.supportedPlatforms = ["ios_13", "macos_10.15"]
+        v.supportedPlatforms = [.ios("13"), .macos("10.15")]
         v.swiftVersions = ["4.0", "5.2"]
         try v.save(on: app.db).wait()
         do {
@@ -21,7 +21,7 @@ class VersionTests: AppTestCase {
             XCTAssertEqual(v.commit, "commit")
             XCTAssertEqual(v.reference, .branch("branch"))
             XCTAssertEqual(v.packageName, "pname")
-            XCTAssertEqual(v.supportedPlatforms, ["ios_13", "macos_10.15"])
+            XCTAssertEqual(v.supportedPlatforms, [.ios("13"), .macos("10.15")])
             XCTAssertEqual(v.swiftVersions, ["4.0", "5.2"])
         }
     }

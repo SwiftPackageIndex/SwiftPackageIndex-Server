@@ -44,11 +44,6 @@ struct Manifest: Decodable, Equatable {
 }
 
 
-extension Manifest.Platform: CustomStringConvertible {
-    var description: String { "\(platformName)_\(version)" }
-}
-
-
 extension Manifest.Product.`Type`: Decodable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: Self.self)
