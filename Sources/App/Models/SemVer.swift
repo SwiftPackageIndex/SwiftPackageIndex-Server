@@ -18,11 +18,6 @@ struct SemVer: Content, Equatable {
 }
 
 
-extension SemVer {
-    static func isValid(_ string: String) -> Bool { SemVer(string) != nil }
-}
-
-
 extension SemVer: LosslessStringConvertible {
     init?(_ string: String) {
         let groups = semVerRegex.matchGroups(string)
