@@ -42,7 +42,7 @@ final class Package: Model, Content {
     @OptionalEnum(key: "processing_stage")
     var processingStage: ProcessingStage?
 
-    @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository?
+    @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository? Is it needed at all?
     var lastCommitAt: Date?
 
     @Children(for: \.$package)

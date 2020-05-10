@@ -13,7 +13,7 @@ struct CreateRepository: Migration {
             .unique(on: "package_id")
             .field("description", .string)
             .field("default_branch", .string)
-            .field("license", .string)  // TODO: make enum?
+            .field("license", .string)
             .field("stars", .int)
             .field("forks", .int)
             .field("forked_from_id", .uuid, .references("repositories", "id"))
