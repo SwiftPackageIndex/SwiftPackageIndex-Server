@@ -26,13 +26,10 @@ struct IngestorCommand: Command {
 
 
 func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
-    let r: EventLoopFuture<[EventLoopFuture<Void>]>
-        
-        = Package.fetchCandidates(database, for: .ingestion, limit: limit)
+    Package.fetchCandidates(database, for: .ingestion, limit: limit)
         .flatMapEach(on: database.eventLoop) { fetchMetadata(for: $0, with: client) }
         .flatMapEachThrowing { updateTables(on: database, result: $0) }
-
-    return r.flatMap { .andAllComplete($0, on: database.eventLoop) }
+        .flatMap { .andAllComplete($0, on: database.eventLoop) }
 }
 
 
