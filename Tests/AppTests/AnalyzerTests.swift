@@ -257,7 +257,7 @@ class AnalyzerTests: AppTestCase {
         try savePackages(on: app.db, ["1", "2"].gh.urls, processingStage: .ingestion)
 
         // MUT
-        try analyze2(application: app, limit: 10).wait()
+        try analyze(application: app, limit: 10).wait()
 
         // validation
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 4)
