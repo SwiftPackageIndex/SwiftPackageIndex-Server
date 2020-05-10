@@ -165,24 +165,30 @@ func _reconcileVersions(application: Application, package: Package) throws -> Ev
     guard let pkgId = package.id else {
         throw AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
     }
-    let tags: EventLoopFuture<[String]> = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
+
+    let defaultBranch = Repository.defaultBranch(on: application.db, for: package)
+        .map { b -> [Reference] in
+            if let b = b { return [.branch(b)] } else { return [] }  // drop nil default branch
+        }
+
+    let tags: EventLoopFuture<[Reference]> = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         application.logger.info("listing tags for package \(package.url)")
         let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
         return tags.split(separator: "\n")
             .map(String.init)
             .filter(SemVer.isValid)
+            .map { Reference.tag($0) }
     }
-    // FIXME: also save version for default branch (currently only looking at tags)
 
-    // TODO: sas 2020-05-02: is it necessary to reconcile versions or is delete and recreate ok?
-    // It certainly is simpler.
+    let references = defaultBranch.and(tags).map { $0 + $1 }
+
     // Delete ...
     let delete = Version.query(on: application.db)
         .filter(\.$package.$id == pkgId)
         .delete()
     // ... and insert versions
-    let insert: EventLoopFuture<[Version]> = tags
-        .flatMapEachThrowing { try Version(package: package, tagName: $0) }
+    let insert: EventLoopFuture<[Version]> = references
+        .flatMapEachThrowing { try Version(package: package, reference: $0) }
         .flatMap { versions in
             versions.create(on: application.db)
                 .map { versions }
@@ -198,19 +204,16 @@ func getManifest(package: Package, version: Version) -> Result<Manifest, Error> 
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
             throw AppError.invalidPackageUrl(package.id, package.url)
         }
-        // FIXME: here we'll want to be able to use tag or default branch
-        guard let revision = version.tagName else {
-            throw AppError.invalidRevision(version.id, version.tagName)
+        guard let reference = version.reference else {
+            throw AppError.invalidRevision(version.id, nil)
         }
-        try Current.shell.run(command: .gitCheckout(branch: revision), at: cacheDir)
+        try Current.shell.run(command: .gitCheckout(branch: reference.description), at: cacheDir)
         guard Current.fileManager.fileExists(atPath: cacheDir + "/Package.swift") else {
             // It's important to check for Package.swift - otherwise `dump-package` will go
             // up the tree through parent directories to find one
             throw AppError.invalidRevision(version.id, "no Package.swift")
         }
         let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
-        // TODO: sas-2020-05-03: do we need to run tools-version? There's a toolsVersion key in the JSON
-        // Plus it may not be a good substitute for swift versions?
         return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
     }
 }

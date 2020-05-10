@@ -14,8 +14,8 @@ class PipelineTests: AppTestCase {
     func test_fetchCandidates_ingestion_fifo() throws {
         // oldest first
         try  [
-            Package(url: "1".url, status: .ok, processingStage: .reconciliation),
-            Package(url: "2".url, status: .ok, processingStage: .reconciliation),
+            Package(url: "1", status: .ok, processingStage: .reconciliation),
+            Package(url: "2", status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reingestionDeadtime) }
@@ -25,8 +25,8 @@ class PipelineTests: AppTestCase {
 
     func test_fetchCandidates_ingestion_limit() throws {
         try  [
-            Package(url: "1".url, status: .ok, processingStage: .reconciliation),
-            Package(url: "2".url, status: .ok, processingStage: .reconciliation),
+            Package(url: "1", status: .ok, processingStage: .reconciliation),
+            Package(url: "2", status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reingestionDeadtime) }
@@ -37,9 +37,9 @@ class PipelineTests: AppTestCase {
     func test_fetchCandidates_ingestion_correct_stage() throws {
         // only pick up from reconciliation stage
         try  [
-            Package(url: "1".url, status: .ok, processingStage: nil),
-            Package(url: "2".url, status: .ok, processingStage: .reconciliation),
-            Package(url: "3".url, status: .ok, processingStage: .analysis),
+            Package(url: "1", status: .ok, processingStage: nil),
+            Package(url: "2", status: .ok, processingStage: .reconciliation),
+            Package(url: "3", status: .ok, processingStage: .analysis),
             ].save(on: app.db).wait()
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["2"])
@@ -51,9 +51,9 @@ class PipelineTests: AppTestCase {
         // (reonciliation does not currently actually report back any status != ok but
         // we'll account for it doing so at no harm potentially in the future.)
         try  [
-            Package(url: "1".url, status: .notFound, processingStage: .reconciliation),
-            Package(url: "2".url, status: .none, processingStage: .reconciliation),
-            Package(url: "3".url, status: .ok, processingStage: .reconciliation),
+            Package(url: "1", status: .notFound, processingStage: .reconciliation),
+            Package(url: "2", status: .none, processingStage: .reconciliation),
+            Package(url: "3", status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reingestionDeadtime) }
@@ -65,10 +65,10 @@ class PipelineTests: AppTestCase {
         // Make sure packages in .analysis stage get re-ingested after a while to
         // check for upstream package changes
         try  [
-            Package(url: "1".url, status: .ok, processingStage: .analysis),
-            Package(url: "2".url, status: .ok, processingStage: .analysis),
+            Package(url: "1", status: .ok, processingStage: .analysis),
+            Package(url: "2", status: .ok, processingStage: .analysis),
             ].save(on: app.db).wait()
-        let p2 = try Package.query(on: app.db).filter(by: "2".url).first().wait()!
+        let p2 = try Package.query(on: app.db).filter(by: "2").first().wait()!
         let sql = "update packages set updated_at = updated_at - interval '11 mins' where id = '\(p2.id!.uuidString)'"
         try (app.db as! SQLDatabase).raw(.init(sql)).run().wait()
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
@@ -78,10 +78,10 @@ class PipelineTests: AppTestCase {
     func test_fetchCandidates_analysis_correct_stage() throws {
         // only pick up from ingestion stage
         try  [
-            Package(url: "1".url, status: .ok, processingStage: nil),
-            Package(url: "2".url, status: .ok, processingStage: .reconciliation),
-            Package(url: "3".url, status: .ok, processingStage: .ingestion),
-            Package(url: "4".url, status: .ok, processingStage: .analysis),
+            Package(url: "1", status: .ok, processingStage: nil),
+            Package(url: "2", status: .ok, processingStage: .reconciliation),
+            Package(url: "3", status: .ok, processingStage: .ingestion),
+            Package(url: "4", status: .ok, processingStage: .analysis),
             ].save(on: app.db).wait()
         let batch = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["3"])
@@ -90,10 +90,10 @@ class PipelineTests: AppTestCase {
     func test_fetchCandidates_analysis_prefer_ok() throws {
         // only pick up from ingestion stage
         try  [
-            Package(url: "1".url, status: .notFound, processingStage: .ingestion),
-            Package(url: "2".url, status: .ok, processingStage: .ingestion),
-            Package(url: "3".url, status: .analysisFailed, processingStage: .ingestion),
-            Package(url: "4".url, status: .ok, processingStage: .ingestion),
+            Package(url: "1", status: .notFound, processingStage: .ingestion),
+            Package(url: "2", status: .ok, processingStage: .ingestion),
+            Package(url: "3", status: .analysisFailed, processingStage: .ingestion),
+            Package(url: "4", status: .ok, processingStage: .ingestion),
             ].save(on: app.db).wait()
         let batch = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["2", "4", "1", "3"])
@@ -101,8 +101,16 @@ class PipelineTests: AppTestCase {
 
     func test_processing_pipeline() throws {
         // Test pipeline pick-up end to end
+
+        // setup
         let urls = ["1", "2", "3"].gh
         Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
+        Current.shell.run = { cmd, path in
+            if cmd.string == "swift package dump-package" {
+                return #"{ "name": "Mock", "products": [] }"#
+            }
+            return ""
+        }
 
         // MUT - first stage
         try reconcile(client: app.client, database: app.db).wait()
@@ -196,13 +204,4 @@ class PipelineTests: AppTestCase {
         // refresh analysis as expected
     }
 
-}
-
-
-private extension String {
-    var gh: String { "https://github.com/foo/\(self)" }
-}
-
-private extension Array where Element == String {
-    var gh: Self { map(\.gh) }
 }

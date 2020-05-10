@@ -22,12 +22,8 @@ final class Version: Model, Content {
     @Parent(key: "package_id")
     var package: Package
 
-    // TODO: sas-2020-04-30: Explore folding branch/rag into an enum with associated value String
-    @Field(key: "branch_name")
-    var branchName: String?
-
-    @Field(key: "tag_name")
-    var tagName: String?
+    @Field(key: "reference")
+    var reference: Reference?
 
     @Field(key: "package_name")
     var packageName: String?
@@ -46,16 +42,14 @@ final class Version: Model, Content {
 
     init(id: Id? = nil,
          package: Package,
-         branchName: String? = nil,
-         tagName: String? = nil,
+         reference: Reference? = nil,
          packageName: String? = nil,
          commit: String? = nil,
          supportedPlatforms: [Platform] = [],
          swiftVersions: [String] = []) throws {
         self.id = id
         self.$package.id = try package.requireID()
-        self.branchName = branchName
-        self.tagName = tagName
+        self.reference = reference
         self.packageName = packageName
         self.commit = commit
         self.supportedPlatforms = supportedPlatforms

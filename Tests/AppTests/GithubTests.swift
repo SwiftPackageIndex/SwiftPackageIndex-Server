@@ -21,19 +21,19 @@ class GithubTests: XCTestCase {
 
     func test_Github_apiUri() throws {
         do {
-            let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server.git".url)
+            let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server.git")
             XCTAssertEqual(try Github.apiUri(for: pkg).string,
                            "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server")
         }
         do {
-            let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server".url)
+            let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server")
             XCTAssertEqual(try Github.apiUri(for: pkg).string,
                            "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server")
         }
     }
 
     func test_fetchRepository() throws {
-        let pkg = Package(url: "https://github.com/foo/bar".url)
+        let pkg = Package(url: "https://github.com/foo/bar")
         let client = MockClient { resp in
             resp.status = .ok
             resp.body = makeBody("""
@@ -51,7 +51,7 @@ class GithubTests: XCTestCase {
     }
 
     func test_fetchRepository_badUrl() throws {
-        let pkg = Package(url: "https://foo/bar".url)
+        let pkg = Package(url: "https://foo/bar")
         let client = MockClient { resp in
             resp.status = .ok
         }
@@ -64,7 +64,7 @@ class GithubTests: XCTestCase {
     }
 
     func test_fetchRepository_badData() throws {
-        let pkg = Package(url: "https://github.com/foo/bar".url)
+        let pkg = Package(url: "https://github.com/foo/bar")
         let client = MockClient { resp in
             resp.status = .ok
             resp.body = makeBody("bad data")
@@ -78,7 +78,7 @@ class GithubTests: XCTestCase {
     }
 
     func test_fetchRepository_rateLimiting() throws {
-        let pkg = Package(url: "https://github.com/foo/bar".url)
+        let pkg = Package(url: "https://github.com/foo/bar")
         let client = MockClient { resp in
             resp.status = .tooManyRequests
         }
