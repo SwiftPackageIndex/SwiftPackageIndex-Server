@@ -242,6 +242,27 @@ class AnalyzerTests: AppTestCase {
         let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
         XCTAssertEqual(products.map(\.name), ["p1", "p2"])
     }
+
+    func test_issue_42() throws {
+        // setup
+        Current.shell.run = { cmd, path in
+            if cmd.string == "git tag" {
+                return ["1.0.0", "2.0.0"].joined(separator: "\n")
+            }
+            if cmd.string == "swift package dump-package" {
+                return #"{ "name": "foo", "products": [{"name":"p1","type":{"executable": null}}, {"name":"p2","type":{"executable": null}}] }"#
+            }
+            return ""
+        }
+        try savePackages(on: app.db, ["1", "2"].gh.urls, processingStage: .ingestion)
+
+        // MUT
+        try analyze(application: app, limit: 10).wait()
+
+        // validation
+        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 4)
+        XCTAssertEqual(try Product.query(on: app.db).count().wait(), 8)
+    }
 }
 
 
