@@ -57,6 +57,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
                                                   attributes: nil)
     }
 
+    // refresh checkouts
     let checkouts = packages
         .flatMapEach(on: application.eventLoopGroup.next()) { pkg in
             refreshCheckout(application: application, package: pkg)
@@ -68,6 +69,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
             reconcileVersions(application: application, result: $0)
     }
 
+    // update versions and their products
     let versionUpdates = packageAndVersions
         .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Void>]) in
             let res = versions
@@ -79,6 +81,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
             return (pkg, res)
     }
 
+    // set status and processing stage on packages
     let statusUpdates = versionUpdates.flatMap { pkgAndUpdates -> EventLoopFuture<Void> in
         let updates = pkgAndUpdates.map { pkg, updates -> EventLoopFuture<Void> in
             guard !updates.isEmpty else {
