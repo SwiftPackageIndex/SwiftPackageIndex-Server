@@ -123,21 +123,21 @@ func refreshCheckout(application: Application, package: Package) -> EventLoopFut
 
 
 func pullOrClone(application: Application, package: Package) throws -> EventLoopFuture<Package> {
-    guard let path = Current.fileManager.cacheDirectoryPath(for: package) else {
-        throw AppError.invalidPackageUrl(package.id, package.url)
+    guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
+        throw AppError.invalidPackageCachePath(package.id, package.url)
     }
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
-        if Current.fileManager.fileExists(atPath: path) {
-            application.logger.info("pulling \(package.url) in \(path)")
+        if Current.fileManager.fileExists(atPath: cacheDir) {
+            application.logger.info("pulling \(package.url) in \(cacheDir)")
             // git reset --hard to deal with stray .DS_Store files on macOS
-            try Current.shell.run(command: .init(string: "git reset --hard"), at: path)
+            try Current.shell.run(command: .init(string: "git reset --hard"), at: cacheDir)
             let branch = package.repository?.defaultBranch ?? "master"
-            try Current.shell.run(command: .gitCheckout(branch: branch), at: path)
-            try Current.shell.run(command: .gitPull(allowingPrompt: false), at: path)
+            try Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
+            try Current.shell.run(command: .gitPull(allowingPrompt: false), at: cacheDir)
         } else {
-            application.logger.info("cloning \(package.url) to \(path)")
+            application.logger.info("cloning \(package.url) to \(cacheDir)")
             let wdir = Current.fileManager.checkoutsDirectory
-            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: path, allowingPrompt: false), at: wdir)
+            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: cacheDir, allowingPrompt: false), at: wdir)
         }
         return package
     }
@@ -159,8 +159,8 @@ func reconcileVersions(application: Application, result: Result<Package, Error>)
 
 func _reconcileVersions(application: Application, package: Package) throws -> EventLoopFuture<[Version]> {
     // fetch tags
-    guard let path = Current.fileManager.cacheDirectoryPath(for: package) else {
-        throw AppError.invalidPackageUrl(package.id, package.url)
+    guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
+        throw AppError.invalidPackageCachePath(package.id, package.url)
     }
     guard let pkgId = package.id else {
         throw AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
@@ -173,7 +173,7 @@ func _reconcileVersions(application: Application, package: Package) throws -> Ev
 
     let tags: EventLoopFuture<[Reference]> = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         application.logger.info("listing tags for package \(package.url)")
-        let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
+        let tags = try Current.shell.run(command: .init(string: "git tag"), at: cacheDir)
         return tags.split(separator: "\n")
             .map(String.init)
             .filter(SemVer.isValid)
@@ -202,7 +202,7 @@ func getManifest(package: Package, version: Version) -> Result<Manifest, Error> 
     Result {
         // check out version in cache directory
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-            throw AppError.invalidPackageUrl(package.id, package.url)
+            throw AppError.invalidPackageCachePath(package.id, package.url)
         }
         guard let reference = version.reference else {
             throw AppError.invalidRevision(version.id, nil)
