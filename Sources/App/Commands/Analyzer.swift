@@ -79,36 +79,22 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
             return (pkg, res)
     }
 
-    let r: EventLoopFuture<[(Package, [EventLoopFuture<Void>])]> = versionUpdates
-
-    let v: EventLoopFuture<Void> = r.flatMap {
-        (pkgAndUpdates: [(Package, [EventLoopFuture<Void>])]) in
-        let b = pkgAndUpdates.map { pkg, updates -> EventLoopFuture<Void> in
+    let statusUpdates = versionUpdates.flatMap { pkgAndUpdates -> EventLoopFuture<Void> in
+        let updates = pkgAndUpdates.map { pkg, updates -> EventLoopFuture<Void> in
             guard !updates.isEmpty else {
                 // Make sure we mark pkg as updated even if it has no versions - we don't want to
                 // get stuck reprocessing it all the time
-                pkg.status = .ok
-                pkg.processingStage = .analysis
-                return pkg.update(on: application.db)
+                return updateStatus(application: application, package: pkg, for: .success(()))
             }
-            let c: EventLoopFuture<[Void]>
-                = EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
-                .flatMapEach(on: application.db.eventLoop) { result -> EventLoopFuture<Void> in
-                    switch result {
-                        case .success:
-                            pkg.status = .ok
-                        case .failure(let error):
-                            application.logger.error("Analysis error: \(error.localizedDescription)")
-                            pkg.status = .analysisFailed
-                    }
-                    pkg.processingStage = .analysis
-                    return pkg.save(on: application.db)
-            }
-            return c.transform(to: ())
+            return EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
+                .flatMapEach(on: application.db.eventLoop) {
+                    updateStatus(application: application, package: pkg, for: $0) }
+                .transform(to: ())
         }
-        return .andAllComplete(b, on: application.db.eventLoop)
+        return .andAllComplete(updates, on: application.db.eventLoop)
     }
-    return v
+
+    return statusUpdates
 }
 
 
@@ -246,4 +232,17 @@ func updateProducts(on database: Database, version: Version, manifest: Manifest)
         return try? Product(version: version, type: type, name: p.name)
     }
     return products.create(on: database)
+}
+
+
+func updateStatus(application: Application, package: Package, for result: Result<Void, Error>) -> EventLoopFuture<Void> {
+    switch result {
+        case .success:
+            package.status = .ok
+        case .failure(let error):
+            application.logger.error("Analysis error: \(error.localizedDescription)")
+            package.status = .analysisFailed
+    }
+    package.processingStage = .analysis
+    return package.save(on: application.db)
 }
