@@ -14,7 +14,7 @@
       <div class="row">
         <h2>Swift Package Index</h2>
       </div>
-      <form action="/packages/run/reconcile" method="get">
+      <form action="/api/packages/run/reconcile" method="get">
         <div class="row">
           <input class="btn btn-primary" type="submit" value="Reconcile"/>
         </div>
@@ -22,7 +22,7 @@
           <label>Reconcile the master package list with the Package Index.</label>
         </div>
       </form>
-      <form action="/packages/run/ingest" method="get">
+      <form action="/api/packages/run/ingest" method="get">
         <div class="row">
           <input class="btn btn-primary" type="submit" value="Ingest"/>
         </div>
