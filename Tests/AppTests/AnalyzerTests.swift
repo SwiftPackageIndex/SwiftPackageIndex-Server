@@ -70,7 +70,7 @@ class AnalyzerTests: AppTestCase {
         assert(commands: commands, expectations: expecations)
 
         // validate versions
-        // TODO: This is monstrous... create a helper? There has to be a better way?
+        // A bit awkward... create a helper? There has to be a better way?
         let pkg1 = try Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg1.status, .ok)
         XCTAssertEqual(pkg1.processingStage, .analysis)
@@ -155,8 +155,10 @@ class AnalyzerTests: AppTestCase {
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
-        // TODO: perhaps find a better way to assert success than counting commands - Version count?
         XCTAssertEqual(commands.count, 14, "was: \(dump(commands))")
+        // 2 packages with 2 versions each -> 4 versions
+        // (there is not default branch set for these packages, hence only tags create versions)
+        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 4)
     }
 
     func test_reconcileVersions() throws {

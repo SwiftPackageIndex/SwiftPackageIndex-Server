@@ -2,7 +2,8 @@ import Foundation
 import ShellOut
 
 
-// TODO: upstream this to JohnSundell/ShellOut
+// TODO: remove after upstream merge to JohnSundell/ShellOut
+// https://github.com/JohnSundell/ShellOut/pull/48
 extension ShellOutCommand {
     private static func git(allowingPrompt: Bool) -> String {
         allowingPrompt ? "git" : "env GIT_TERMINAL_PROMPT=0 git"
