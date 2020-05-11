@@ -1,49 +1,45 @@
-//
-//  home.swift
-//  App
-//
-//  Created by Sven A. Schmidt on 17/10/2018.
-//
-
-import Foundation
+import Plot
 
 
-func homePage() -> HTML.Node {
+func homePage() -> HTML {
     let title = "Swift Package Index"
-    return .html([
+
+    return HTML(
         myhead(title: title),
-        .body([
-            container([
-                row([
-                    .h2([.text(title)]),
-                    ]),
+        .body(
+            .container(
+                .row(.h2(.text(title))),
                 reconcileButton(),
-                ingestButton(),
-            ]),
-        ])
-    ])
+                ingestButton()
+            )
+        )
+    )
 }
 
 
-func reconcileButton() -> HTML.Node {
-    return .form([.action => "/packages/run/reconcile", .method => "get"], [
-        row([
-            .input([.class => "btn btn-primary", .type => "submit", .value => "Reconcile"])
-        ]),
-        row([
-            .label(["Reconcile the master package list with the Package Index."]),
-        ]),
-    ])
+func reconcileButton() -> Node<HTML.BodyContext> {
+    .form(
+        .action("/packages/run/reconcile"),
+        .method(.get),
+        .row(
+            .input(.class("btn btn-primary"), .type(.submit), .value("Reconcile"))
+        ),
+        .row(
+            .label(.text("Reconcile the master package list with the Package Index."))
+        )
+    )
 }
 
 
-func ingestButton() -> HTML.Node {
-    return .form([.action => "/packages/run/ingest", .method => "get"], [
-        row([
-            .input([.class => "btn btn-primary", .type => "submit", .value => "Ingest"])
-        ]),
-        row([
-            .label(["Ingest metadata for a batch of packages."]),
-        ]),
-    ])
+func ingestButton() -> Node<HTML.BodyContext> {
+    .form(
+        .action("/packages/run/ingest"),
+        .method(.get),
+        .row(
+            .input(.class("btn btn-primary"), .type(.submit), .value("Ingest"))
+        ),
+        .row(
+            .label(.text("Ingest metadata for a batch of packages."))
+        )
+    )
 }
