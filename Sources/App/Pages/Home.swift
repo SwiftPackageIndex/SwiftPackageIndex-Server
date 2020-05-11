@@ -19,7 +19,7 @@ func homePage() -> HTML {
 
 func reconcileButton() -> Node<HTML.BodyContext> {
     .form(
-        .action("/packages/run/reconcile"),
+        .action("/api/packages/run/reconcile"),
         .method(.get),
         .row(
             .input(.class("btn btn-primary"), .type(.submit), .value("Reconcile"))
@@ -33,7 +33,7 @@ func reconcileButton() -> Node<HTML.BodyContext> {
 
 func ingestButton() -> Node<HTML.BodyContext> {
     .form(
-        .action("/packages/run/ingest"),
+        .action("/api/packages/run/ingest"),
         .method(.get),
         .row(
             .input(.class("btn btn-primary"), .type(.submit), .value("Ingest"))
