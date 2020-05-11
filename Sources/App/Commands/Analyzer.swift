@@ -57,6 +57,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
                                                   attributes: nil)
     }
 
+    // refresh checkouts
     let checkouts = packages
         .flatMapEach(on: application.eventLoopGroup.next()) { pkg in
             refreshCheckout(application: application, package: pkg)
@@ -68,6 +69,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
             reconcileVersions(application: application, result: $0)
     }
 
+    // update versions and their products
     let versionUpdates = packageAndVersions
         .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Void>]) in
             let res = versions
@@ -79,35 +81,23 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
             return (pkg, res)
     }
 
-    // FIXME: sas 2020-05-04: Workaround for partial flush described here:
-    // https://discordapp.com/channels/431917998102675485/444249946808647699/706796431540748372
-    // FIXME: this breaks exposing this via the API:
-    // Precondition failed: BUG DETECTED: wait() must not be called when on an EventLoop.
-    let fulfilledUpdates = try versionUpdates.wait()
-    let setStatus = fulfilledUpdates.map { (pkg, updates) -> EventLoopFuture<[Void]> in
-        if updates.isEmpty {
-            // Make sure we mark pkg as updated even if it has no versions - we don't want to
-            // get stuck reprocessing it all the time
-            pkg.status = .ok
-            pkg.processingStage = .analysis
-            return pkg.update(on: application.db).map { [] }
-        } else {
-            return EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
-                .flatMapEach(on: application.db.eventLoop) { result -> EventLoopFuture<Void> in
-                    switch result {
-                        case .success:
-                            pkg.status = .ok
-                        case .failure(let error):
-                            application.logger.error("Analysis error: \(error.localizedDescription)")
-                            pkg.status = .analysisFailed
-                    }
-                    pkg.processingStage = .analysis
-                    return pkg.save(on: application.db)
+    // set status and processing stage on packages
+    let statusUpdates = versionUpdates.flatMap { pkgAndUpdates -> EventLoopFuture<Void> in
+        let updates = pkgAndUpdates.map { pkg, updates -> EventLoopFuture<Void> in
+            guard !updates.isEmpty else {
+                // Make sure we mark pkg as updated even if it has no versions - we don't want to
+                // get stuck reprocessing it all the time
+                return updateStatus(application: application, package: pkg, for: .success(()))
             }
+            return EventLoopFuture.whenAllComplete(updates, on: application.db.eventLoop)
+                .flatMapEach(on: application.db.eventLoop) {
+                    updateStatus(application: application, package: pkg, for: $0) }
+                .transform(to: ())
         }
-    }.flatten(on: application.db.eventLoop)
+        return .andAllComplete(updates, on: application.db.eventLoop)
+    }
 
-    return setStatus.transform(to: ())
+    return statusUpdates
 }
 
 
@@ -245,4 +235,17 @@ func updateProducts(on database: Database, version: Version, manifest: Manifest)
         return try? Product(version: version, type: type, name: p.name)
     }
     return products.create(on: database)
+}
+
+
+func updateStatus(application: Application, package: Package, for result: Result<Void, Error>) -> EventLoopFuture<Void> {
+    switch result {
+        case .success:
+            package.status = .ok
+        case .failure(let error):
+            application.logger.error("Analysis error: \(error.localizedDescription)")
+            package.status = .analysisFailed
+    }
+    package.processingStage = .analysis
+    return package.save(on: application.db)
 }
