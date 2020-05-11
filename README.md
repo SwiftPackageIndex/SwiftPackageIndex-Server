@@ -73,6 +73,8 @@ make reconcile    # import package list
 ./ingest-loop.sh  # ingest metadata for 100 packages, pause for 10 sec, repeat
 ```
 
+If you want to run ingestion for anything other than a cursory test, you'll need authenticated API calls. To do this, set a `GITHUB_TOKEN` environment variable to a [generated personal token](https://github.com/settings/tokens) which has the `public_repo` and `repo:status` scopes.
+
 ## API poking
 
 You can poke at the API using [Rester](https//github.com/finestructure/Rester) by running the Restfile `test.restfile`:
