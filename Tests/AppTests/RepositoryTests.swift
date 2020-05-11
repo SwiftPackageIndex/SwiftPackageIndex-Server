@@ -4,6 +4,25 @@ import XCTVapor
 
 
 final class RepositoryTests: AppTestCase {
+
+    func test_save() throws {
+        let pkg = Package(id: UUID(), url: "1", status: .none)
+        try pkg.save(on: app.db).wait()
+        let repo = try Repository(id: UUID(), package: pkg, summary: "desc", defaultBranch: "branch", license: .mit, stars: 42, forks: 17, forkedFrom: nil)
+
+        try repo.save(on: app.db).wait()
+
+        do {
+            let r = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
+            XCTAssertEqual(r.$package.id, pkg.id)
+            XCTAssertEqual(r.summary, "desc")
+            XCTAssertEqual(r.defaultBranch, "branch")
+            XCTAssertEqual(r.license, .mit)
+            XCTAssertEqual(r.stars, 42)
+            XCTAssertEqual(r.forks, 17)
+            XCTAssertEqual(r.forkedFrom, nil)
+        }
+    }
     
     func test_package_relationship() throws {
         let pkg = Package(url: "p1")

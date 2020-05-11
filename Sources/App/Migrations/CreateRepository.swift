@@ -11,7 +11,7 @@ struct CreateRepository: Migration {
             // TODO: adapt to "official" way, once it's there
             // https://discordapp.com/channels/431917998102675485/684159753189982218/703351108915036171
             .unique(on: "package_id")
-            .field("description", .string)
+            .field("summary", .string)
             .field("default_branch", .string)
             .field("license", .string)
             .field("stars", .int)
