@@ -2,9 +2,6 @@ import Fluent
 import Vapor
 
 
-typealias Platform = String
-
-
 final class Version: Model, Content {
     static let schema = "versions"
 

@@ -20,7 +20,7 @@ import Foundation
 
 struct Manifest: Decodable, Equatable {
     struct Platform: Decodable, Equatable {
-        enum Name: String, Decodable, Equatable {
+        enum Name: String, Decodable, Equatable, CaseIterable {
             case macos
             case ios
             case tvos
@@ -41,11 +41,6 @@ struct Manifest: Decodable, Equatable {
     var platforms: [Platform]?
     var products: [Product]
     var swiftLanguageVersions: [String]?
-}
-
-
-extension Manifest.Platform: CustomStringConvertible {
-    var description: String { "\(platformName)_\(version)" }
 }
 
 
