@@ -96,7 +96,7 @@ final class PackageTests: AppTestCase {
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
             try Version(package: pkg, reference: .branch("default")),
-            try Version(package: pkg, reference: .tag("tag")),
+            try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
         ]
         try versions.create(on: app.db).wait()
         do {

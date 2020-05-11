@@ -13,10 +13,10 @@ class ReferenceTests: XCTestCase {
             XCTAssertEqual(decoded, .branch("foo"))
         }
         do { // tag
-            let ref = Reference.tag("bar")
+            let ref = Reference.tag(.init(1, 2, 3))
             let json = try JSONEncoder().encode(ref)
             let decoded = try JSONDecoder().decode(Reference.self, from: json)
-            XCTAssertEqual(decoded, .tag("bar"))
+            XCTAssertEqual(decoded, .tag(.init(1, 2, 3)))
         }
     }
 

@@ -84,29 +84,23 @@ class SemVerTests: XCTestCase {
         XCTAssertFalse(semVerRegex.matches("9.8.7-whatever+meta+meta"))
     }
 
-    func test_init_stringLiteral() throws {
+    func test_init() throws {
         XCTAssertEqual(SemVer("1.2.3"), SemVer(1, 2, 3))
-        XCTAssertEqual(SemVer("1.2"), SemVer(0, 0, 0))
-        XCTAssertEqual(SemVer("1"), SemVer(0, 0, 0))
-        XCTAssertEqual(SemVer(""), SemVer(0, 0, 0))
-        XCTAssertEqual(SemVer("1.2.3rc"), SemVer(0, 0, 0))
+        XCTAssertEqual(SemVer("v1.2.3"), SemVer(1, 2, 3))
         XCTAssertEqual(SemVer("1.2.3-rc"), SemVer(1, 2, 3, "rc"))
-    }
-
-    func test_isValid() throws {
-        XCTAssert(SemVer.isValid("1.2.3"))
-        XCTAssert(SemVer.isValid("v1.2.3"))
-        XCTAssert(SemVer.isValid("v1.2.3-beta1"))
-        XCTAssert(SemVer.isValid("v1.2.3-beta1+build5"))
-        XCTAssertFalse(SemVer.isValid("1.2"))
-        XCTAssertFalse(SemVer.isValid("1"))
-        XCTAssertFalse(SemVer.isValid("swift-2.2-SNAPSHOT-2016-01-11-a"))
+        XCTAssertEqual(SemVer("v1.2.3-beta1"), SemVer(1, 2, 3, "beta1"))
+        XCTAssertEqual(SemVer("v1.2.3-beta1+build5"), SemVer(1, 2, 3, "beta1", "build5"))
+        XCTAssertEqual(SemVer(""), nil)
+        XCTAssertEqual(SemVer("1"), nil)
+        XCTAssertEqual(SemVer("1.2"), nil)
+        XCTAssertEqual(SemVer("1.2.3rc"), nil)
+        XCTAssertEqual(SemVer("swift-2.2-SNAPSHOT-2016-01-11-a"), nil)
     }
 
     func test_description() throws {
-        XCTAssertEqual(SemVer("1.2.3").description, "1.2.3")
-        XCTAssertEqual(SemVer("v1.2.3").description, "1.2.3")
-        XCTAssertEqual(SemVer("1.2.3-beta1").description, "1.2.3-beta1")
-        XCTAssertEqual(SemVer("1.2.3-beta1+build").description, "1.2.3-beta1+build")
+        XCTAssertEqual(SemVer("1.2.3")?.description, "1.2.3")
+        XCTAssertEqual(SemVer("v1.2.3")?.description, "1.2.3")
+        XCTAssertEqual(SemVer("1.2.3-beta1")?.description, "1.2.3-beta1")
+        XCTAssertEqual(SemVer("1.2.3-beta1+build")?.description, "1.2.3-beta1+build")
     }
 }
