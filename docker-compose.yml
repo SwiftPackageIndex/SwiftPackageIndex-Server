@@ -12,7 +12,7 @@ x-shared: &shared
   # for db configuration (section db: below) and we also pass them on into
   # the containers via the following directive.
   env_file:
-    - .env
+    - spi_config
 
 services:
   app:
