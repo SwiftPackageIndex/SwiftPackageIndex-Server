@@ -1,0 +1,49 @@
+variables:
+  IMAGE: finestructure/spi-server
+  IMAGE_SHA: $IMAGE:$CI_COMMIT_SHA
+    
+    
+stages:
+    - build
+    - deploy
+
+
+build-sha:
+    stage: build
+    script:
+      - docker build -t $IMAGE_SHA .
+      - docker push $IMAGE_SHA
+    
+build-tag:
+    stage: build
+    only:
+      - tags
+    variables:
+        IMAGE_TAG: $IMAGE:$CI_COMMIT_TAG
+    script:
+      # re-tag image with tag name
+      - docker pull $IMAGE_SHA
+      - docker tag $IMAGE_SHA $IMAGE_TAG
+      - docker push $IMAGE_TAG
+
+.deploy-common: &deploy-common
+    stage: deploy
+    tags:
+        - spi
+    script: |  
+      VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
+      env VERSION=$VERSION docker-compose up -d app
+      # TODO: run worker
+  
+  
+deploy:
+    <<: *deploy-common
+    only:
+      - master
+      - tags
+  
+  
+deploy (ad hoc): &deploy
+    <<: *deploy-common
+    when: manual
+  
