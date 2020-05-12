@@ -2,7 +2,6 @@
 
 import XCTVapor
 
-
 class LicenseTests: XCTestCase {
 
     func test_init_from_dto() throws {
@@ -15,6 +14,13 @@ class LicenseTests: XCTestCase {
     func test_init_from_dto_unknown() throws {
         // ensure unknown licenses are mapped to `.other`
         XCTAssertEqual(License(from: Github.License(key: "non-existing license")), .other)
+    }
+
+    func test_fullName() throws {
+        XCTAssertEqual(License.mit.fullName, "MIT License")
+        XCTAssertEqual(License.agpl_3_0.fullName, "GNU Affero General Public License v3.0")
+        XCTAssertEqual(License.other.fullName, "Unknown License")
+        XCTAssertEqual(License.none.fullName, "No License")
     }
 
 }

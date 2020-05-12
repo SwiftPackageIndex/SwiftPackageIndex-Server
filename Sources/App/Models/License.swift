@@ -36,6 +36,44 @@ enum License: String, Codable {
     case other // An unknown or unidentified license
     case none // Actually unlicensed code!
 
+    var fullName: String {
+        switch self {
+            case .afl_3_0: return "Academic Free License v3.0"
+            case .apache_2_0: return "Apache License 2.0"
+            case .artistic_2_0: return "Artistic License 2.0"
+            case .bsd_2_clause: return "BSD 2-clause \"Simplified\" license"
+            case .bsd_3_clause: return "BSD 3-clause \"New\" or \"Revised\" license"
+            case .bsd_3_clause_clear: return "BSD 3-clause Clear license"
+            case .cc: return "Creative Commons License"
+            case .cc0_1_0: return "Creative Commons Zero v1.0 Universal"
+            case .cc_by_4_0: return "Creative Commons Attribution 4.0"
+            case .cc_by_sa_4_0: return "Creative Commons Attribution Share Alike 4.0"
+            case .wtfpl: return "Do What The F**k You Want To Public License"
+            case .ecl_2_0: return "Educational Community License v2.0"
+            case .epl_1_0: return "Eclipse Public License 1.0"
+            case .eupl_1_1: return "European Union Public License 1.1"
+            case .agpl_3_0: return "GNU Affero General Public License v3.0"
+            case .gpl: return "GNU General Public License family"
+            case .gpl_2_0: return "GNU General Public License v2.0"
+            case .gpl_3_0: return "GNU General Public License v3.0"
+            case .lgpl: return "GNU Lesser General Public License family"
+            case .lgpl_2_1: return "GNU Lesser General Public License v2.1"
+            case .lgpl_3_0: return "GNU Lesser General Public License v3.0"
+            case .isc: return "ISC License"
+            case .ms_pl: return "Microsoft Public License"
+            case .mit: return "MIT License"
+            case .mpl_2_0: return "Mozilla Public License 2.0"
+            case .osl_3_0: return "Open Software License 3.0"
+            case .postgresql: return "PostgreSQL License"
+            case .ncsa: return "University of Illinois/NCSA Open Source License"
+            case .unlicense: return "The Unlicense"
+            case .zlib: return "zLib License"
+
+            case .other: return "Unknown License"
+            case .none: return "No License"
+        }
+    }
+
 extension License {
     init(from dto: Github.License?) {
         if let key = dto?.key {
