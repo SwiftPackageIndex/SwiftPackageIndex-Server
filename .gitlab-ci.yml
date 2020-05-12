@@ -1,10 +1,19 @@
-image: docker:latest
+image: docker:stable
 
 
 variables:
   IMAGE: finestructure/spi-server
   IMAGE_SHA: $IMAGE:$CI_COMMIT_SHA
-    
+  DOCKER_TLS_CERTDIR: "/certs"
+
+
+services:
+  - docker:stable-dind
+
+
+before_script:
+  - docker info
+
     
 stages:
     - build
