@@ -2,8 +2,8 @@ image: docker:stable
 
 
 variables:
-  IMAGE: finestructure/spi-server
-  IMAGE_SHA: $IMAGE:$CI_COMMIT_SHA
+  IMAGE_SHA: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
   DOCKER_TLS_CERTDIR: "/certs"
 
 
@@ -13,6 +13,7 @@ services:
 
 before_script:
   - docker info
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 
     
 stages:
@@ -30,8 +31,6 @@ build-tag:
     stage: build
     only:
       - tags
-    variables:
-        IMAGE_TAG: $IMAGE:$CI_COMMIT_TAG
     script:
       # re-tag image with tag name
       - docker pull $IMAGE_SHA
