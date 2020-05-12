@@ -45,14 +45,14 @@ class IngestorTests: AppTestCase {
         do {  // test insert
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: .mock(for: pkg)).wait()
             let repos = try Repository.query(on: app.db).all().wait()
-            XCTAssertEqual(repos.map(\.description), [.some("This is package foo")])
+            XCTAssertEqual(repos.map(\.summary), [.some("This is package foo")])
         }
         do {  // test update - run the same package again, with different metadata
             var md = Github.Metadata.mock(for: pkg)
             md.description = "New description"
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: md).wait()
             let repos = try Repository.query(on: app.db).all().wait()
-            XCTAssertEqual(repos.map(\.description), [.some("New description")])
+            XCTAssertEqual(repos.map(\.summary), [.some("New description")])
         }
     }
 
@@ -154,7 +154,7 @@ class IngestorTests: AppTestCase {
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.count, 2)
-        XCTAssertEqual(repos.map(\.description),
+        XCTAssertEqual(repos.map(\.summary),
                        [.some("This is package 1"), .some("This is package 3")])
         (try Package.query(on: app.db).all().wait()).forEach {
             if $0.url == "2" {

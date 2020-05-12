@@ -19,14 +19,14 @@ final class Repository: Model, Content {
     @Parent(key: "package_id")
     var package: Package
 
-    @Field(key: "description")
-    var description: String?
+    @Field(key: "summary")
+    var summary: String?
 
     @Field(key: "default_branch")
     var defaultBranch: String?
 
     @Field(key: "license")
-    var license: String?
+    var license: License
 
     @Field(key: "stars")
     var stars: Int?
@@ -41,15 +41,15 @@ final class Repository: Model, Content {
 
     init(id: Id? = nil,
          package: Package,
-         description: String? = nil,
+         summary: String? = nil,
          defaultBranch: String? = nil,
-         license: String? = nil,
+         license: License = .none,
          stars: Int? = nil,
          forks: Int? = nil,
          forkedFrom: Repository? = nil) throws {
         self.id = id
         self.$package.id = try package.requireID()
-        self.description = description
+        self.summary = summary
         self.defaultBranch = defaultBranch
         self.license = license
         self.stars = stars
@@ -62,9 +62,9 @@ final class Repository: Model, Content {
     init(id: Id? = nil, package: Package, metadata: Github.Metadata) throws {
         self.id = id
         self.$package.id = try package.requireID()
-        self.description = metadata.description
+        self.summary = metadata.description
         self.defaultBranch = metadata.defaultBranch
-        self.license = metadata.license?.key
+        self.license = .init(from: metadata.license)
         self.stars = metadata.stargazersCount
         self.forks = metadata.forksCount
         // if let parent = metadata.parent {

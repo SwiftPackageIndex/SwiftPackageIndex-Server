@@ -69,9 +69,9 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
         .flatMap { repo -> EventLoopFuture<Void> in
             if let repo = repo {
                 repo.defaultBranch = metadata.defaultBranch
-                repo.description = metadata.description
+                repo.summary = metadata.description
                 repo.forks = metadata.forksCount
-                repo.license = metadata.license?.key
+                repo.license = .init(from: metadata.license)
                 repo.stars = metadata.stargazersCount
                 // TODO: find and assign parent repo
                 return repo.save(on: database)
