@@ -69,7 +69,7 @@ class PipelineTests: AppTestCase {
             Package(url: "2", status: .ok, processingStage: .analysis),
             ].save(on: app.db).wait()
         let p2 = try Package.query(on: app.db).filter(by: "2").first().wait()!
-        let sql = "update packages set updated_at = updated_at - interval '11 mins' where id = '\(p2.id!.uuidString)'"
+        let sql = "update packages set updated_at = updated_at - interval '61 mins' where id = '\(p2.id!.uuidString)'"
         try (app.db as! SQLDatabase).raw(.init(sql)).run().wait()
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["2"])
