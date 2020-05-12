@@ -13,7 +13,7 @@ enum License: String, Codable {
     case mit
     case mpl_2_0 = "mpl-2.0"
     case other
-    case unlicense  // TODO: is this an actual license name or meant to say "unlicensed"?
+    case unlicense  // NB: this is an actual license and *not* a typo of "unlicensed"
     case zlib
     case none
 }
