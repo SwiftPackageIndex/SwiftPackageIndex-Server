@@ -5,6 +5,8 @@
 
 version: '3.7'
 
+volumes:
+  checkouts:
 
 x-shared: &shared
   env_file:
@@ -29,6 +31,8 @@ services:
   analyze:
     image: finestructure/spi-server:latest
     <<: *shared
+    volumes:
+      - checkouts:/checkouts
     command: ["analyze", "--limit", "${LIMIT:-10}"]
     deploy:
       replicas: 0

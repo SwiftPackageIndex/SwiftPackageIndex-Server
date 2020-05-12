@@ -13,8 +13,6 @@ x-shared: &shared
   # the containers via the following directive.
   env_file:
     - .env
-  volumes:
-    - checkouts:/checkouts
 
 services:
   app:
@@ -22,6 +20,8 @@ services:
     build:
       context: .
     <<: *shared
+    volumes:
+      - checkouts:/checkouts
     depends_on:
       - db
     ports:
