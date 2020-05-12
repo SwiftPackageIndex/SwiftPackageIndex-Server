@@ -38,9 +38,10 @@ build-tag:
 
 .deploy-common: &deploy-common
     stage: deploy
+    image: docker/compose:1.25.5
     tags:
         - spi
-        - shell
+        - docker
     script: |
       VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
       env VERSION=$VERSION docker-compose up -d app
