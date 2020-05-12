@@ -74,6 +74,44 @@ enum License: String, Codable {
         }
     }
 
+    var shortName: String {
+        switch self {
+            case .afl_3_0: return "AFL 3.0"
+            case .apache_2_0: return "Apache 2.0"
+            case .artistic_2_0: return "Artistic 2.0"
+            case .bsd_2_clause: return "BSD 2-Clause"
+            case .bsd_3_clause: return "BSD 3-Clause"
+            case .bsd_3_clause_clear: return "BSD 3-Clause Clear"
+            case .cc: return "CC"
+            case .cc0_1_0: return "CC Zero 1.0"
+            case .cc_by_4_0: return "CC Attribution 4.0"
+            case .cc_by_sa_4_0: return "CC Attribution SA 4.0"
+            case .wtfpl: return "DWTFYWTPL"
+            case .ecl_2_0: return "ECL 2.0"
+            case .epl_1_0: return "EPL 1.0"
+            case .eupl_1_1: return "EUPL 1.1"
+            case .agpl_3_0: return "AGPL 3.0"
+            case .gpl: return "GPL"
+            case .gpl_2_0: return "GPL 2.0"
+            case .gpl_3_0: return "GPL 3.0"
+            case .lgpl: return "LGPL"
+            case .lgpl_2_1: return "LGPL 2.1"
+            case .lgpl_3_0: return "LGPL 3.0"
+            case .isc: return "ISC"
+            case .ms_pl: return "MSPL"
+            case .mit: return "MIT"
+            case .mpl_2_0: return "MPL 2.0"
+            case .osl_3_0: return "OSL 3.0"
+            case .postgresql: return "PostgreSQL"
+            case .ncsa: return "NCSA"
+            case .unlicense: return "The Unlicense"
+            case .zlib: return "zLib"
+
+            case .other: return "Unknown License"
+            case .none: return "No License"
+        }
+    }
+
 extension License {
     init(from dto: Github.License?) {
         if let key = dto?.key {
