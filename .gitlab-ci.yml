@@ -1,3 +1,6 @@
+image: docker:latest
+
+
 variables:
   IMAGE: finestructure/spi-server
   IMAGE_SHA: $IMAGE:$CI_COMMIT_SHA
