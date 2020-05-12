@@ -112,6 +112,22 @@ enum License: String, Codable {
         }
     }
 
+    var isCompatibleWithAppStore: Bool {
+        switch self {
+            case .agpl_3_0,
+                 .gpl,
+                 .gpl_2_0,
+                 .gpl_3_0,
+                 .lgpl,
+                 .lgpl_2_1,
+                 .lgpl_3_0: return false
+            case .other,
+                 .none: return false
+            default: return true
+        }
+    }
+}
+
 extension License {
     init(from dto: Github.License?) {
         if let key = dto?.key {
