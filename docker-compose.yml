@@ -1,65 +1,32 @@
-# Docker Compose file for Vapor
-#
-# Install Docker on your system to run and test
-# your Vapor app in a production-like environment.
-#
-# Note: This file is intended for testing and does not 
-# implement best practices for a production deployment.
-#
-# Learn more: https://docs.docker.com/compose/reference/
-#
 #   Build images: docker-compose build
 #      Start app: docker-compose up app
-# Start database: docker-compose up db
-# Run migrations: docker-compose up migrate
-#       Stop all: docker-compose down (add -v to wipe db)
-#
+
 version: '3.7'
 
 volumes:
   db_data:
+  checkouts:
 
-x-shared_environment: &shared_environment
-  LOG_LEVEL: ${LOG_LEVEL:-debug}
-  DATABASE_HOST: db
-  DATABASE_PORT: 5432
-  DATABASE_NAME: spi_dev
-  DATABASE_USERNAME: spi_dev
-  DATABASE_PASSWORD: xxx
-  GITHUB_TOKEN: ${GITHUB_TOKEN}
+x-shared: &shared
+  # NB: docker-compose reads env variables from `.env`, making them available
+  # for db configuration (section db: below) and we also pass them on into
+  # the containers via the following directive.
+  env_file:
+    - .env
+  volumes:
+    - checkouts:/checkouts
 
 services:
   app:
     image: finestructure/spi-server:latest
     build:
       context: .
-    environment:
-      <<: *shared_environment
+    <<: *shared
     depends_on:
       - db
     ports:
       - '8080:80'
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "80"]
-
-  migrate:
-    image: finestructure/spi-server:latest
-    environment:
-      <<: *shared_environment
-    depends_on:
-      - db
-    command: ["migrate", "--yes"]
-    deploy:
-      replicas: 0
-
-  revert:
-    image: finestructure/spi-server:latest
-    environment:
-      <<: *shared_environment
-    depends_on:
-      - db
-    command: ["migrate", "--revert", "--yes"]
-    deploy:
-      replicas: 0
 
   db:
     image: postgres:12.1-alpine
@@ -67,39 +34,9 @@ services:
       - db_data:/var/lib/postgresql/data/pgdata
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_USER: spi_dev
-      POSTGRES_PASSWORD: xxx
-      POSTGRES_DB: spi_dev
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     ports:
+      # TODO: don't expose port
       - '5432:5432'
-
-  # commands
-  reconcile:
-    image: finestructure/spi-server:latest
-    environment:
-      <<: *shared_environment
-    depends_on:
-      - db
-    command: ["reconcile"]
-    deploy:
-      replicas: 0
-
-  ingest:
-    image: finestructure/spi-server:latest
-    environment:
-      <<: *shared_environment
-    depends_on:
-      - db
-    command: ["ingest", "-l", "100"]
-    deploy:
-      replicas: 0
-
-  analyze:
-    image: finestructure/spi-server:latest
-    environment:
-      <<: *shared_environment
-    depends_on:
-      - db
-    command: ["analyze", "-l", "10"]
-    deploy:
-      replicas: 0

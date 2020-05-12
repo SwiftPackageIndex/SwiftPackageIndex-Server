@@ -1,0 +1,27 @@
+# Operations commands
+#
+# docker-compose -f docker-compose.ops.yml run migrate
+# docker-compose -f docker-compose.ops.yml run revert
+
+version: '3.7'
+
+
+x-shared: &shared
+  env_file:
+    - .env
+
+
+services:
+  migrate:
+    image: finestructure/spi-server:latest
+    <<: *shared
+    command: ["migrate", "--yes"]
+    deploy:
+      replicas: 0
+
+  revert:
+    image: finestructure/spi-server:latest
+    <<: *shared
+    command: ["migrate", "--revert", "--yes"]
+    deploy:
+      replicas: 0

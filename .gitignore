@@ -8,3 +8,4 @@ db.sqlite
 .swiftpm
 
 SPI-checkouts/
+.env

@@ -1,0 +1,34 @@
+# Operations commands
+#
+# docker-compose -f docker-compose.commands.yml run migrate
+# docker-compose -f docker-compose.commands.yml run revert
+
+version: '3.7'
+
+
+x-shared: &shared
+  env_file:
+    - .env
+
+
+services:
+  reconcile:
+    image: finestructure/spi-server:latest
+    <<: *shared
+    command: ["reconcile"]
+    deploy:
+      replicas: 0
+
+  ingest:
+    image: finestructure/spi-server:latest
+    <<: *shared
+    command: ["ingest", "--limit", "${LIMIT:-100}"]
+    deploy:
+      replicas: 0
+
+  analyze:
+    image: finestructure/spi-server:latest
+    <<: *shared
+    command: ["analyze", "--limit", "${LIMIT:-10}"]
+    deploy:
+      replicas: 0
