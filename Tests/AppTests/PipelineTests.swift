@@ -18,7 +18,7 @@ class PipelineTests: AppTestCase {
             Package(url: "2", status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
         // fast forward our clock by the deadtime interval
-        Current.date = { Date().addingTimeInterval(Constants.reingestionDeadtime) }
+        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["1", "2"])
     }
@@ -29,7 +29,7 @@ class PipelineTests: AppTestCase {
             Package(url: "2", status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
         // fast forward our clock by the deadtime interval
-        Current.date = { Date().addingTimeInterval(Constants.reingestionDeadtime) }
+        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 1).wait()
         XCTAssertEqual(batch.map(\.url), ["1"])
     }
@@ -56,7 +56,7 @@ class PipelineTests: AppTestCase {
             Package(url: "3", status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
         // fast forward our clock by the deadtime interval
-        Current.date = { Date().addingTimeInterval(Constants.reingestionDeadtime) }
+        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["3", "1", "2"])
     }
@@ -69,7 +69,7 @@ class PipelineTests: AppTestCase {
             Package(url: "2", status: .ok, processingStage: .analysis),
             ].save(on: app.db).wait()
         let p2 = try Package.query(on: app.db).filter(by: "2").first().wait()!
-        let sql = "update packages set updated_at = updated_at - interval '11 mins' where id = '\(p2.id!.uuidString)'"
+        let sql = "update packages set updated_at = updated_at - interval '61 mins' where id = '\(p2.id!.uuidString)'"
         try (app.db as! SQLDatabase).raw(.init(sql)).run().wait()
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["2"])
@@ -178,7 +178,7 @@ class PipelineTests: AppTestCase {
         }
 
         // fast forward our clock by the deadtime interval
-        Current.date = { Date().addingTimeInterval(Constants.reingestionDeadtime) }
+        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
 
         // MUT - ingest yet again
         try ingest(client: app.client, database: app.db, limit: 10).wait()

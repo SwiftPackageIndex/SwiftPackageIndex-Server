@@ -123,7 +123,7 @@ private extension QueryBuilder where Model == Package {
             case .ingestion:
                 return group(.or) {
                     $0.filter(\.$processingStage == .reconciliation)
-                    .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reingestionDeadtime))
+                    .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reIngestionDeadtime))
                 }
             case .analysis:
                 return filter(\.$processingStage == .ingestion)

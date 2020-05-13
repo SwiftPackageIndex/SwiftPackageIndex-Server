@@ -24,6 +24,7 @@ extension AppEnvironment {
 
 
 struct FileManager {
+    var checkoutsDirectory: () -> String
     var createDirectory: (String, Bool, [FileAttributeKey : Any]?) throws -> Void
     var fileExists: (String) -> Bool
     var workingDirectory: () -> String
@@ -36,6 +37,7 @@ struct FileManager {
     func fileExists(atPath path: String) -> Bool { fileExists(path) }
 
     static let live: Self = .init(
+        checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
         createDirectory: Foundation.FileManager.default.createDirectory(atPath:withIntermediateDirectories:attributes:),
         fileExists: Foundation.FileManager.default.fileExists(atPath:),
         workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
@@ -44,13 +46,9 @@ struct FileManager {
 
 
 extension FileManager {
-    var checkoutsDirectory: String {
-        workingDirectory() + "SPI-checkouts"
-    }
-
     func cacheDirectoryPath(for package: Package) -> String? {
         guard let dirname = package.cacheDirectoryName else { return nil }
-        return checkoutsDirectory + "/" + dirname
+        return checkoutsDirectory() + "/" + dirname
     }
 }
 

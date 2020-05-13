@@ -1,5 +1,17 @@
 VAPOR=vapor-beta
-DOCKER_IMAGE=finestructure/spi-server
+DOCKER_IMAGE=registry.gitlab.com/finestructure/swiftpackageindex
+
+ifndef VERSION
+	export VERSION=$(shell git rev-parse HEAD)
+	WARN_VERSION=true
+endif
+
+version:
+ifeq ($(WARN_VERSION), true)
+	$(info No VERSION provided, defaulting to $(VERSION))
+else
+	$(info VERSION: $(VERSION))
+endif
 
 build:
 	$(VAPOR) build
@@ -10,11 +22,11 @@ run:
 test:
 	swift test --enable-test-discovery --enable-code-coverage
 
-build-docker:
-	docker-compose build
+docker-build: version
+	docker build -t $(DOCKER_IMAGE):$(VERSION) .
 
-push:
-	docker push $(DOCKER_IMAGE)
+docker-push:
+	docker push $(DOCKER_IMAGE):$(VERSION)
 
 test-docker:
 	@# run tests inside a docker container

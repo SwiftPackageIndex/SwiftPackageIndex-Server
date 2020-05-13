@@ -7,6 +7,8 @@ func routes(_ app: Application) throws {
     }
 
     app.group("api") { api in
+        api.get("version") { req in API.Version(version: appVersion) }
+
         let controller = API.PackageController()
         api.get("packages", use: controller.index)
         api.get("packages", ":id", use: controller.get)

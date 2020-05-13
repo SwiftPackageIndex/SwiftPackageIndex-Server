@@ -1,7 +1,7 @@
 import Fluent
 import Vapor
 
-enum API {
+extension API {
     struct PackageController {
         func index(req: Request) throws -> EventLoopFuture<[Package]> {
             return Package.query(on: req.db).all()
