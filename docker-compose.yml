@@ -27,6 +27,9 @@ services:
     ports:
       - '8080:80'
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "80"]
+    deploy:
+      update_config:
+        order: start-first
 
   reconcile:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}

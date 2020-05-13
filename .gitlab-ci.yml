@@ -44,8 +44,7 @@ build-tag:
         - docker
     script: |
       VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
-      env VERSION=$VERSION docker-compose up -d app
-      # TODO: run worker
+      env VERSION=$VERSION docker-compose up -d
   
   
 deploy:
