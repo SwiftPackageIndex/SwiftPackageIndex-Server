@@ -1,5 +1,5 @@
 VAPOR=vapor-beta
-DOCKER_IMAGE=finestructure/spi-server
+DOCKER_IMAGE=registry.gitlab.com/finestructure/swiftpackageindex
 
 ifndef VERSION
 	export VERSION=$(shell git rev-parse HEAD)

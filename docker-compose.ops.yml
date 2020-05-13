@@ -21,15 +21,9 @@ x-shared: &shared
 
 
 services:
-  migrate:
-    image: finestructure/spi-server:${VERSION}
-    <<: *shared
-    command: ["migrate", "--yes"]
-    deploy:
-      replicas: 0
 
   revert:
-    image: finestructure/spi-server:${VERSION}
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     command: ["migrate", "--revert", "--yes"]
     deploy:

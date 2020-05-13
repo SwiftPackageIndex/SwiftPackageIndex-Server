@@ -15,20 +15,57 @@ x-shared: &shared
     DATABASE_PASSWORD: ${DATABASE_PASSWORD}
     GITHUB_TOKEN: ${GITHUB_TOKEN}
     LOG_LEVEL: ${LOG_LEVEL}
+  volumes:
+    - checkouts:/checkouts
 
 services:
   app:
-    image: finestructure/spi-server:${VERSION}
-    build:
-      context: .
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
-    volumes:
-      - checkouts:/checkouts
     depends_on:
-      - db
+      - migrate
     ports:
       - '8080:80'
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "80"]
+
+  reconcile:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    depends_on:
+      - migrate
+    entrypoint: ["/bin/bash"]
+    command: ["-c", "--",
+      "trap : TERM INT; while true; do ./Run reconcile; sleep ${RECONCILE_SLEEP:-120}; done"
+    ]
+
+  ingest:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    depends_on:
+      - migrate
+    entrypoint: ["/bin/bash"]
+    command: ["-c", "--",
+      "trap : TERM INT; while true; do ./Run ingest --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-10}; done"
+    ]
+
+  analyze:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    depends_on:
+      - migrate
+    entrypoint: ["/bin/bash"]
+    command: ["-c", "--",
+      "trap : TERM INT; while true; do ./Run analyze --limit ${ANALYZE_LIMIT:-50}; sleep ${ANALYZE_SLEEP:-10}; done"
+    ]
+
+  migrate:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    depends_on:
+      - db
+    command: ["migrate", "--yes"]
+    deploy:
+      replicas: 0
 
   db:
     image: postgres:12.1-alpine
@@ -40,9 +77,8 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
     ports:
-      # TODO: don't expose port
+      # TODO: don't expose port - add ssh container for tunnelling
       - '5432:5432'
-
 
 volumes:
   db_data:

@@ -22,21 +22,21 @@ x-shared: &shared
 
 services:
   reconcile:
-    image: finestructure/spi-server:${VERSION}
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     command: ["reconcile"]
     deploy:
       replicas: 0
 
   ingest:
-    image: finestructure/spi-server:${VERSION}
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     command: ["ingest", "--limit", "${LIMIT:-100}"]
     deploy:
       replicas: 0
 
   analyze:
-    image: finestructure/spi-server:${VERSION}
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     volumes:
       - checkouts:/checkouts
