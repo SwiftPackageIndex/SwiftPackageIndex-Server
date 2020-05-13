@@ -23,7 +23,7 @@ stages:
 build-sha:
     stage: build
     script:
-      - echo 'let appVersion = "'${IMAGE_SHA}'"' > ./Sources/App/Core/AppVersion.swift
+      - echo 'let appVersion = "'${CI_COMMIT_TAG:-$CI_COMMIT_SHA}'"' > ./Sources/App/Core/AppVersion.swift
       - docker build -t $IMAGE_SHA .
       - docker push $IMAGE_SHA
     
