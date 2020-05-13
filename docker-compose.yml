@@ -3,16 +3,16 @@
 
 version: '3.7'
 
-volumes:
-  db_data:
-  checkouts:
-
 x-shared: &shared
-  # NB: docker-compose reads env variables from `.env`, making them available
-  # for db configuration (section db: below) and we also pass them on into
-  # the containers via the following directive.
-  env_file:
-    - spi_config
+  environment:
+    CHECKOUTS_DIR: ${CHECKOUTS_DIR}
+    DATABASE_HOST: ${DATABASE_HOST}
+    DATABASE_PORT: ${DATABASE_PORT}
+    DATABASE_NAME: ${DATABASE_NAME}
+    DATABASE_USERNAME: ${DATABASE_USERNAME}
+    DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    GITHUB_TOKEN: ${GITHUB_TOKEN}
+    LOG_LEVEL: ${LOG_LEVEL}
 
 services:
   app:
@@ -40,3 +40,8 @@ services:
     ports:
       # TODO: don't expose port
       - '5432:5432'
+
+
+volumes:
+  db_data:
+  checkouts:

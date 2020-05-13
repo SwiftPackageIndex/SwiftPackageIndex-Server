@@ -5,14 +5,23 @@
 
 version: '3.7'
 
+
+x-shared: &shared
+  environment:
+    CHECKOUTS_DIR: ${CHECKOUTS_DIR}
+    DATABASE_HOST: ${DATABASE_HOST}
+    DATABASE_PORT: ${DATABASE_PORT}
+    DATABASE_NAME: ${DATABASE_NAME}
+    DATABASE_USERNAME: ${DATABASE_USERNAME}
+    DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    GITHUB_TOKEN: ${GITHUB_TOKEN}
+    LOG_LEVEL: ${LOG_LEVEL}
+
+
 volumes:
   checkouts:
 
-x-shared: &shared
-  env_file:
-    - .env
-
-
+    
 services:
   reconcile:
     image: finestructure/spi-server:latest
