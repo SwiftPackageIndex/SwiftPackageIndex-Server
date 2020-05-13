@@ -1,7 +1,5 @@
 import Plot
 
-
-/// Namespace for pages/views, holding generic, reusable elements
 class SPIPage {
 
     /// The page's full HTML document.
@@ -33,14 +31,15 @@ class SPIPage {
     /// - Returns: A <header> element.
     func header() -> Node<HTML.BodyContext> {
         .header(.h1("Swift Package Index"),
-                .nav())
+                .nav(.ul(.group(navItems()))))
     }
 
-    /// The menu navigation inside the site header, including all menu links.
-    /// - Returns: A <nav> element.
-    func nav() -> Node<HTML.BodyContext> {
-        .ul(.li("Add a Package"),
-            .li("About"))
+    /// List items to be rendered in the site navigation menu.
+    /// - Returns: An array of <li> elements.
+    func navItems() -> [Node<HTML.ListContext>] {
+        [.li(.a(.href("#"), "Add a Package")),
+         .li(.a(.href("#"), "About")),
+         .li(.a(.href("#"), "Search"))]
     }
 
     /// The page's main content.
