@@ -2,18 +2,18 @@ import Plot
 
 
 /// Namespace for pages/views, holding generic, reusable elements
-enum SPIPage {
+class SPIPage {
 
     /// The page's full HTML document.
     /// - Returns: A fully formed page inside a <html> element.
-    static func document(_ content: Node<HTML.BodyContext>) -> HTML {
+    func document() -> HTML {
         HTML(head(),
-             body(content))
+             body(content()))
     }
 
     /// The page head.
     /// - Returns: A <head> element.
-    static func head() -> Node<HTML.DocumentContext> {
+    func head() -> Node<HTML.DocumentContext> {
         .head(.viewport(.accordingToDevice, initialScale: 1),
               .title("Swift Package Index"),
               .link(.rel(.stylesheet),
@@ -23,7 +23,7 @@ enum SPIPage {
 
     /// The page body.
     /// - Returns: A <body> element.
-    static func body(_ content: Node<HTML.BodyContext>) -> Node<HTML.DocumentContext> {
+    func body(_ content: Node<HTML.BodyContext>) -> Node<HTML.DocumentContext> {
         .body(header(),
               content,
               footer())
@@ -31,21 +31,30 @@ enum SPIPage {
 
     /// The site header, including the site navigation.
     /// - Returns: A <header> element.
-    static func header() -> Node<HTML.BodyContext> {
+    func header() -> Node<HTML.BodyContext> {
         .header(.h1("Swift Package Index"),
                 .nav())
     }
 
     /// The menu navigation inside the site header, including all menu links.
     /// - Returns: A <nav> element.
-    static func nav() -> Node<HTML.BodyContext> {
+    func nav() -> Node<HTML.BodyContext> {
         .ul(.li("Add a Package"),
             .li("About"))
     }
 
+    /// The page's main content.
+    /// - Returns: A <main> element
+    func content() -> Node<HTML.BodyContext> {
+        .main(.p("Override ",
+              .pre(.code("content()")),
+              " to change this page's content."))
+    }
+
     /// The site footer, including all footer links.
     /// - Returns: A <footer> element.
-    static func footer() -> Node<HTML.BodyContext> {
+    func footer() -> Node<HTML.BodyContext> {
         .footer(.ul(.li()))
     }
+
 }

@@ -1,13 +1,17 @@
 import Plot
 
 
-extension SPIPage {
-    static func packageIndex(_ packages: [Package]) -> HTML {
-        SPIPage.document(
-            .main(
-                .group(
-                    packages.map(\.url).map { .pre(.text($0)) }
-                )
+class PackagesIndex: SPIPage {
+    let packages: [Package]
+
+    init(packages: [Package]) {
+        self.packages = packages
+    }
+
+    override func content() -> Node<HTML.BodyContext> {
+        .main(
+            .group(
+                packages.map(\.url).map { .pre(.text($0)) }
             )
         )
     }

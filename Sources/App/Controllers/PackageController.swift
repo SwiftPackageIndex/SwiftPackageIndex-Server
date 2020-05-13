@@ -8,7 +8,7 @@ struct PackageController {
     func index(req: Request) throws -> EventLoopFuture<HTML> {
         return Package.query(on: req.db)
             .all()
-            .map(SPIPage.packageIndex)
+            .map { PackagesIndex(packages: $0).document() }
     }
 
     func get(req: Request) throws -> EventLoopFuture<Package> {
