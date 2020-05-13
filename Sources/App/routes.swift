@@ -2,6 +2,8 @@ import Fluent
 import Vapor
 
 func routes(_ app: Application) throws {
+    app.get { _ in HomeIndex().document() }
+
     let packageController = PackageController()
     app.get("packages", use: packageController.index)
     app.get("packages", ":id", use: packageController.get)
