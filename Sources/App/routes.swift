@@ -6,14 +6,17 @@ func routes(_ app: Application) throws {
         homePage()
     }
 
-    app.group("api") { api in
-        let controller = API.PackageController()
-        api.get("packages", use: controller.index)
-        api.get("packages", ":id", use: controller.get)
-        api.post("packages", use: controller.create)
-        api.put("packages", ":id", use: controller.replace)
-        api.delete("packages", ":id", use: controller.delete)
+    let packageController = PackageController()
+    app.get("packages", use: packageController.index)
+    app.get("packages", ":id", use: packageController.get)
 
-        api.get("packages", "run", ":command", use: controller.run)
+    app.group("api") { api in
+        let apiPackageController = API.PackageController()
+        api.get("packages", use: apiPackageController.index)
+        api.get("packages", ":id", use: apiPackageController.get)
+        api.post("packages", use: apiPackageController.create)
+        api.put("packages", ":id", use: apiPackageController.replace)
+        api.delete("packages", ":id", use: apiPackageController.delete)
+        api.get("packages", "run", ":command", use: apiPackageController.run)
     }
 }
