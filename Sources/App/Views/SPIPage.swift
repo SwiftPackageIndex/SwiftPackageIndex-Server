@@ -8,7 +8,7 @@ class SPIPage {
     /// - Returns: A fully formed page inside a <html> element.
     func document() -> HTML {
         HTML(head(),
-             body(content()))
+             body())
     }
 
     /// The page head.
@@ -23,9 +23,9 @@ class SPIPage {
 
     /// The page body.
     /// - Returns: A <body> element.
-    func body(_ content: Node<HTML.BodyContext>) -> Node<HTML.DocumentContext> {
+    func body() -> Node<HTML.DocumentContext> {
         .body(header(),
-              content,
+              content(),
               footer())
     }
 
