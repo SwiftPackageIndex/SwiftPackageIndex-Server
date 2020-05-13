@@ -18,7 +18,7 @@ x-shared: &shared
 
 services:
   app:
-    image: finestructure/spi-server:latest
+    image: finestructure/spi-server:${VERSION}
     build:
       context: .
     <<: *shared
