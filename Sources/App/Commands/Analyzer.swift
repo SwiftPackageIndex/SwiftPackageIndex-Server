@@ -239,13 +239,15 @@ func updateProducts(on database: Database, version: Version, manifest: Manifest)
 
 
 func updateStatus(application: Application, package: Package, for result: Result<Void, Error>) -> EventLoopFuture<Void> {
+    package.processingStage = .analysis
     switch result {
         case .success:
             package.status = .ok
+            return package.save(on: application.db)
         case .failure(let error):
             application.logger.error("Analysis error: \(error.localizedDescription)")
             package.status = .analysisFailed
+            return package.save(on: application.db)
+                .flatMap { Current.reportError(application.client, .error, error) }
     }
-    package.processingStage = .analysis
-    return package.save(on: application.db)
 }

@@ -57,6 +57,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_partial_save_issue() throws {
+        // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
         Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, testUrls, processingStage: .reconciliation)

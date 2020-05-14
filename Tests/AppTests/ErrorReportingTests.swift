@@ -11,7 +11,11 @@ class ErrorReportingTests: AppTestCase {
         try Rollbar.createItem(client: client, level: .critical, message: "Test critical").wait()
     }
 
-    func test_recordIngestionError() throws {
+    func test_Ingestor_error_reporting() throws {
+        // setup
+        try savePackages(on: app.db, ["1", "2"], processingStage: .reconciliation)
+        Current.fetchMetadata = { _, pkg in .just(error: AppError.invalidPackageUrl(nil, "foo")) }
+
         var reportedLevel: AppError.Level? = nil
         var reportedError: AppError? = nil
         Current.reportError = { _, level, error in
@@ -19,8 +23,40 @@ class ErrorReportingTests: AppTestCase {
             reportedError = error as? AppError
             return .just(value: ())
         }
-        try recordIngestionError(client: app.client, database: app.db, error: AppError.invalidPackageUrl(nil, "foo")).wait()
+
+        // MUT
+        try ingest(client: app.client, database: app.db, limit: 10).wait()
+
+        // validation
         XCTAssertEqual(reportedError, AppError.invalidPackageUrl(nil, "foo"))
+        XCTAssertEqual(reportedLevel, .error)
+    }
+
+    func test_Analyzer_error_reporting() throws {
+        // setup
+        try savePackages(on: app.db, ["1", "2"].gh.urls, processingStage: .ingestion)
+        Current.fileManager.fileExists = { _ in true }
+        Current.shell.run = { cmd, path in
+            if cmd.string == "git tag" { return "1.0.0" }
+            // returning a blank string will cause an exception when trying to
+            // decode it as the manifest result - we use this to simulate errors
+            return "invalid"
+        }
+
+        var reportedLevel: AppError.Level? = nil
+        var reportedError: String? = nil
+        Current.reportError = { _, level, error in
+            reportedLevel = level
+            reportedError = error.localizedDescription
+            return .just(value: ())
+        }
+
+        // MUT
+        try analyze(application: app, limit: 10).wait()
+
+        // validation
+        XCTAssertEqual(reportedError,
+                       "The data couldn’t be read because it isn’t in the correct format.")
         XCTAssertEqual(reportedLevel, .error)
     }
 
