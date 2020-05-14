@@ -154,6 +154,10 @@ header nav ul li a:hover {
   header .inner {
     flex-direction: column;
   }
+
+  header h1 {
+    margin-bottom: 20px;
+  }
 }
 
 /* Main content ------------------------------------------------------------ */
