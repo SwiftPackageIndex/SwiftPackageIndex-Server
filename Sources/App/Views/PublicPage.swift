@@ -1,3 +1,4 @@
+import Foundation
 import Plot
 
 class PublicPage {
@@ -27,9 +28,9 @@ class PublicPage {
             ),
             .link(
                 .rel(.stylesheet),
-                .href("/stylesheets/main.css")
+                // TODO: This is super hacky and will need replacing with a better solution before release.
+                .href("/stylesheets/main.css?\(Int(Date().timeIntervalSince1970))")
             )
-
         )
     }
 
