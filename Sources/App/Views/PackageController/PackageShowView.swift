@@ -14,8 +14,16 @@ class PackageShowView: PublicPage {
     }
 
     override func content() -> Node<HTML.BodyContext> {
-        .p(
-            .text(String(describing: package.id!))
+        .group(
+            .div(
+                .class("split"),
+                .h2("Alamofire"),
+                .div(
+                    .class("license"),
+                    .attribute(named: "title", value: "MIT License"), // TODO: Suggest that Plot is able to add `title` attributes on div elements (and on any other element!)
+                    "MIT"
+                )
+            )
         )
     }
 

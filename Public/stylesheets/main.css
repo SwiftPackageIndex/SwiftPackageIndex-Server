@@ -33,13 +33,15 @@ body {
 h1 {
   margin: 0;
   padding: 0;
-  font-size: 24px;
-  letter-spacing: -0.3px;
+  font-size: 23px;
 }
 
 h2 {
-  font-size: 24px;
+  margin: 0;
+  padding: 0;
+  font-size: 30px;
   line-height: 27px;
+  letter-spacing: -0.5px;
 }
 
 h3 {
@@ -54,7 +56,7 @@ h4 {
 
 a {
   color: var(--mid-blue);
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* Overall layout ---------------------------------------------------------- */
@@ -62,6 +64,13 @@ a {
   margin: 0 auto;
   padding: 20px 10px;
   max-width: 800px;
+}
+
+.split {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 nav ul {
@@ -80,8 +89,7 @@ nav ul li a {
   padding: 3px;
   color: var(--white);
   font-size: 15px;
-  font-weight: bold;
-  text-decoration: none;
+  font-weight: 600;
 }
 
 nav ul li a:hover {
@@ -97,13 +105,12 @@ header {
 header .inner {
   display: flex;
   flex-direction: row;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
 }
 
 header a {
   color: var(--white);
-  text-decoration: none;
 }
 
 header h1 {
@@ -132,6 +139,21 @@ header nav ul li a:hover {
 }
 
 /* Main content ------------------------------------------------------------ */
+.license {
+  padding: 5px 10px 5px 28px;
+  background-color: var(--light-green);
+  background-image: url('/images/osi.svg');
+  background-repeat: no-repeat;
+  background-position: 7px center;
+  background-size: 17px;
+  border-radius: 7px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.license .bad {
+  background-color: var(--mid-blue);
+}
 
 
 /* Footer ------------------------------------------------------------------ */
