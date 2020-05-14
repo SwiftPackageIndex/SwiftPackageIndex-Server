@@ -63,12 +63,16 @@ class PublicPage {
     /// - Returns: A <header> element.
     final func header() -> Node<HTML.BodyContext> {
         .header(
-            .div(.class("inner"),
-                 .h1(
-                    .img(.src("/images/logo.svg")),
-                    "Swift Package Index"
+            .div(
+                .class("inner"),
+                .a(
+                    .href("/"),
+                    .h1(
+                        .img(.src("/images/logo.svg")),
+                        "Swift Package Index"
+                    )
                 ),
-                 .nav(
+                .nav(
                     .ul(
                         .group(navItems())
                     )
