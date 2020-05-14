@@ -84,6 +84,13 @@ hr.short {
   align-items: center;
 }
 
+@media screen and (max-width: 767px) {
+  .split {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 nav ul {
   margin: 0;
   padding: 0;
