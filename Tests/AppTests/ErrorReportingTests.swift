@@ -44,10 +44,10 @@ class ErrorReportingTests: AppTestCase {
         }
 
         var reportedLevel: AppError.Level? = nil
-        var reportedError: String? = nil
+        var reportedError: Error? = nil
         Current.reportError = { _, level, error in
             reportedLevel = level
-            reportedError = error.localizedDescription
+            reportedError = error
             return .just(value: ())
         }
 
@@ -55,8 +55,7 @@ class ErrorReportingTests: AppTestCase {
         try analyze(application: app, limit: 10).wait()
 
         // validation
-        XCTAssertEqual(reportedError,
-                       "The data couldn’t be read because it isn’t in the correct format.")
+        XCTAssertNotNil(reportedError)
         XCTAssertEqual(reportedLevel, .error)
     }
 
