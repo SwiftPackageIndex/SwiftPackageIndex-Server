@@ -13,10 +13,25 @@ class PublicPage {
     /// - Returns: A <head> element.
     func head() -> Node<HTML.DocumentContext> {
         .head(.viewport(.accordingToDevice, initialScale: 1),
-              .title("Swift Package Index"),
               .link(.rel(.stylesheet),
                     .href("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"))
+            .title(title()),
         )
+    }
+
+    /// The full page title, including the site name.
+    /// - Returns: A string with the fully formed page title, ready for use in a <title> element.
+    final func title() -> String {
+        guard let pageTitle = pageTitle()
+            else { return "Swift Package Index" }
+
+        return "\(pageTitle) &ndash; Swift Package Index"
+    }
+
+    /// The title for the current page.
+    /// - Returns: A string with a custom page title, if one is desired.
+    func pageTitle() -> String? {
+        nil
     }
 
     /// The page body.
