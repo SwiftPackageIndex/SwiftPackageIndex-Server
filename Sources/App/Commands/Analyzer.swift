@@ -36,37 +36,44 @@ func analyze(application: Application, id: Package.Id) throws -> EventLoopFuture
         .first()
         .unwrap(or: Abort(.notFound))
         .map { [$0] }
-    return try analyze(application: application, packages: packages)
+    return analyze(application: application, packages: packages)
 }
 
 
 func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
     let packages = Package.fetchCandidates(application.db, for: .analysis, limit: limit)
-    return try analyze(application: application, packages: packages)
+    return analyze(application: application, packages: packages)
 }
 
 
-func analyze(application: Application, packages: EventLoopFuture<[Package]>) throws -> EventLoopFuture<Void> {
+func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> EventLoopFuture<Void> {
     // get or create directory
     let checkoutDir = Current.fileManager.checkoutsDirectory()
     application.logger.info("Checkout directory: \(checkoutDir)")
     if !Current.fileManager.fileExists(atPath: checkoutDir) {
-        application.logger.info("Creating checkout directory at path: \(checkoutDir)")
-        try Current.fileManager.createDirectory(atPath: checkoutDir,
-                                                  withIntermediateDirectories: false,
-                                                  attributes: nil)
+        application.logger.info("Creating checkouts directory at path: \(checkoutDir)")
+        do {
+            try Current.fileManager.createDirectory(atPath: checkoutDir,
+                                                    withIntermediateDirectories: false,
+                                                    attributes: nil)
+        } catch {
+            let msg = "Failed to create checkouts directory: \(error.localizedDescription)"
+            return Current.reportError(application.client,
+                                       .critical,
+                                       AppError.genericError(nil, msg))
+        }
     }
 
     // refresh checkouts
     let checkouts = packages
-        .flatMapEach(on: application.eventLoopGroup.next()) { pkg in
-            refreshCheckout(application: application, package: pkg)
+        .flatMapEach(on: application.eventLoopGroup.next()) {
+            pullOrClone(application: application, package: $0)
     }
 
     // reconcile versions
     let packageAndVersions = checkouts
-        .flatMapEach(on: application.eventLoopGroup.next()) {
-            reconcileVersions(application: application, result: $0)
+        .flatMapEach(on: application.eventLoopGroup.next()) { pkg in
+            _reconcileVersions(application: application, package: pkg).map { (pkg, $0) }
     }
 
     // update versions and their products
@@ -101,20 +108,11 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) thr
 }
 
 
-func refreshCheckout(application: Application, package: Package) -> EventLoopFuture<Result<Package, Error>>  {
-    do {
-        return try pullOrClone(application: application, package: package)
-            .map { .success($0) }
-            .flatMapErrorThrowing { .failure($0) }
-    } catch {
-        return application.eventLoopGroup.next().makeSucceededFuture(.failure(error))
-    }
-}
-
-
-func pullOrClone(application: Application, package: Package) throws -> EventLoopFuture<Package> {
+func pullOrClone(application: Application, package: Package) -> EventLoopFuture<Package> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        throw AppError.invalidPackageCachePath(package.id, package.url)
+        return application.eventLoopGroup.next().makeFailedFuture(
+            AppError.invalidPackageCachePath(package.id, package.url)
+        )
     }
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         if Current.fileManager.fileExists(atPath: cacheDir) {
@@ -134,26 +132,17 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
 }
 
 
-/// Wrapper around _reconcileVersions to create a non-throwing version (mainly to ensure
-/// that failed futures don't slip through and break the pipeline).
-func reconcileVersions(application: Application, result: Result<Package, Error>) -> EventLoopFuture<(Package, [Version])> {
-    do {
-        let pkg = try result.get()
-        return try _reconcileVersions(application: application, package: pkg)
-            .map { (pkg, $0) }
-    } catch {
-        return application.eventLoopGroup.next().makeFailedFuture(error)
-    }
-}
-
-
-func _reconcileVersions(application: Application, package: Package) throws -> EventLoopFuture<[Version]> {
+func _reconcileVersions(application: Application, package: Package) -> EventLoopFuture<[Version]> {
     // fetch tags
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        throw AppError.invalidPackageCachePath(package.id, package.url)
+        return application.eventLoopGroup.next().makeFailedFuture(
+            AppError.invalidPackageCachePath(package.id, package.url)
+        )
     }
     guard let pkgId = package.id else {
-        throw AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
+        return application.eventLoopGroup.next().makeFailedFuture(
+            AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
+        )
     }
 
     let defaultBranch = Repository.defaultBranch(on: application.db, for: package)

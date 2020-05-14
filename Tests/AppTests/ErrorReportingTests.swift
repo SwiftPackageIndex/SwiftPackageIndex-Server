@@ -59,4 +59,17 @@ class ErrorReportingTests: AppTestCase {
         XCTAssertEqual(reportedLevel, .error)
     }
 
+    func test_invalidPackageCachePath() throws {
+        try XCTSkipIf(true, "WIP")
+        // setup
+        try savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
+
+        // MUT
+        try analyze(application: app, limit: 10).wait()
+
+        // validation
+        let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+        XCTAssertEqual(packages.map(\.status), [.invalidUrl, .invalidUrl])
+    }
+
 }

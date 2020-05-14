@@ -174,7 +174,7 @@ class AnalyzerTests: AppTestCase {
         try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
 
         // MUT
-        let (_, versions) = try reconcileVersions(application: app, result: .success(pkg)).wait()
+        let versions = try _reconcileVersions(application: app, package: pkg).wait()
 
         // validate
         assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
@@ -263,6 +263,18 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 4)
         XCTAssertEqual(try Product.query(on: app.db).count().wait(), 8)
     }
+
+}
+
+
+// MARK: - error handling tests
+
+extension AnalyzerTests {
+
+    func test_pullOrClone_error_handling() throws {
+        // FIXME
+    }
+
 }
 
 
