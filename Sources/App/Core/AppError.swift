@@ -9,6 +9,7 @@ import Vapor
 
 
 enum AppError: LocalizedError {
+    case envVariableNotSet(String)
     case invalidPackageUrl(Package.Id?, String)
     case invalidPackageCachePath(Package.Id?, String)
     case invalidRevision(Version.Id?, String?)
@@ -17,6 +18,8 @@ enum AppError: LocalizedError {
 
     var localizedDescription: String {
         switch self {
+            case let .envVariableNotSet(value):
+                return "Environment variable not set: \(value)"
             case let .invalidPackageUrl(id, value):
                 return "Invalid packge URL: \(value) (id: \(String(describing: id)))"
             case let .invalidPackageCachePath(id, value):
@@ -32,5 +35,22 @@ enum AppError: LocalizedError {
 
     var errorDescription: String? {
         localizedDescription
+    }
+
+    enum Level: String, Codable {
+        case critical
+        case error
+        case warning
+        case info
+        case debug
+    }
+}
+
+
+extension AppError {
+    static func report(_ client: Client, _ level: Level, _ error: Error) -> EventLoopFuture<Void> {
+        Rollbar.createItem(client: client,
+                           level: .init(level: level),
+                           message: error.localizedDescription)
     }
 }

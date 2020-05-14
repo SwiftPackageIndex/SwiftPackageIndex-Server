@@ -57,6 +57,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_partial_save_issue() throws {
+        // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
         Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, testUrls, processingStage: .reconciliation)
@@ -127,7 +128,8 @@ class IngestorTests: AppTestCase {
 
     func test_recordIngestionError() throws {
         let pkg = try savePackage(on: app.db, "1")
-        try recordIngestionError(database: app.db,
+        try recordIngestionError(client: app.client,
+                                 database: app.db,
                                  error: AppError.invalidPackageUrl(pkg.id, "foo")).wait()
         do {
             let pkg = try fetch(id: pkg.id, on: app.db)
