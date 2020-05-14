@@ -59,6 +59,17 @@ a {
   text-decoration: none;
 }
 
+hr {
+  border: 0;
+  height: 2px;
+  background-color: var(--light-blue);
+}
+
+hr.short {
+  margin: 0 auto;
+  max-width: 70%;
+}
+
 /* Overall layout ---------------------------------------------------------- */
 .inner {
   margin: 0 auto;
