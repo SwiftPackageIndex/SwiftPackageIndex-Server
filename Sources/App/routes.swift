@@ -9,7 +9,7 @@ func routes(_ app: Application) throws {
     app.get("packages", ":id", use: packageController.show)
 
     app.group("admin") { admin in
-        admin.get { req in SPIPage.admin() }
+        admin.get { req in PublicPage.admin() }
     }
 
     app.group("api") { api in

@@ -1,7 +1,8 @@
 import Plot
 
 
-extension SPIPage {
+extension PublicPage {
+
     static func admin() -> HTML {
         let title = "Swift Package Index"
 
@@ -34,8 +35,8 @@ extension SPIPage {
             .title(title)
         )
     }
-}
 
+}
 
 func reconcileButton() -> Node<HTML.BodyContext> {
     .form(

@@ -1,6 +1,6 @@
 import Plot
 
-class SPIPage {
+class PublicPage {
 
     /// The page's full HTML document.
     /// - Returns: A fully formed page inside a <html> element.

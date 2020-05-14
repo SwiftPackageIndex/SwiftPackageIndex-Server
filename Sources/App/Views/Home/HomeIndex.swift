@@ -1,7 +1,7 @@
 import Plot
 
 
-class HomeIndex: SPIPage {
+class HomeIndex: PublicPage {
 
     override func content() -> Node<HTML.BodyContext> {
         .main(

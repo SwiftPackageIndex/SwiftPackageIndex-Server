@@ -9,11 +9,11 @@ let defaultSize = CGSize(width: 800, height: 600)
 class WebpageSnapshotTests: XCTestCase {
     func test_home() throws {
         // record = true
-        assertSnapshot(matching: SPIPage.admin().render(indentedBy: .spaces(2)), as: .lines)
+        assertSnapshot(matching: PublicPage.admin().render(indentedBy: .spaces(2)), as: .lines)
 
         #if os(macOS)
         if !isRunningInCI {
-            assertSnapshot(matching: SPIPage.admin(), as: .image(size: defaultSize))
+            assertSnapshot(matching: PublicPage.admin(), as: .image(size: defaultSize))
         }
         #endif
     }

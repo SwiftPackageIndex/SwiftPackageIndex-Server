@@ -1,7 +1,8 @@
 import Plot
 
 
-class PackageShowView: SPIPage {
+class PackageShowView: PublicPage {
+
     let package: Package
 
     init(_ package: Package) {
@@ -11,4 +12,5 @@ class PackageShowView: SPIPage {
     override func content() -> Node<HTML.BodyContext> {
         .main(.text(String(describing: package.id!)))
     }
+    
 }
