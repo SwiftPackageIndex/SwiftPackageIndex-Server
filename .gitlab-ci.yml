@@ -51,7 +51,6 @@ build-tag:
 deploy:
     <<: *deploy-common
     only:
-      - master
       - tags
   
   
