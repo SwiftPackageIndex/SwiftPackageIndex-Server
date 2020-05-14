@@ -64,7 +64,30 @@ class PublicPage {
     /// The site footer, including all footer links.
     /// - Returns: A <footer> element.
     func footer() -> Node<HTML.BodyContext> {
-        .footer(.ul(.li()))
+        .footer(
+            .div(.class("inner"),
+                 .ul(
+                    .li(
+                        .a(
+                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
+                            "GitHub"
+                        )
+                    ),
+                    .li(
+                        .a(
+                            .href("/privacy"),
+                            "Privacy and Cookies"
+                        )
+                    ),
+                    .li(
+                        .a(
+                            .href("https://twitter.com/swiftpackages"),
+                            "Twitter"
+                        )
+                    )
+                )
+            )
+        )
     }
 
 }
