@@ -73,23 +73,25 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
     // reconcile versions
     let packageAndVersions = checkouts
         .flatMapEach(on: application.eventLoopGroup.next()) { pkg in
-            _reconcileVersions(application: application, package: pkg).map { (pkg, $0) }
+            reconcileVersions(application: application, package: pkg).map { (pkg, $0) }
     }
 
     // update versions and their products
-    let versionUpdates = packageAndVersions
+    let versionAndProductUpdates = packageAndVersions
         .mapEach { (pkg, versions) -> (Package, [EventLoopFuture<Void>]) in
-            let res = versions
-                .map { ($0, getManifest(package: pkg, version: $0)) }
-                .map {
-                    updateVersion(on: application.db, version: $0, manifest: $1)
-                        .flatMap { updateProducts(on: application.db, version: $0, manifest: $1) }
-            }
-            return (pkg, res)
+            let updates = versions
+                .map { version in (version, getManifest(package: pkg, version: version)) }
+                .map { (version, manifest) in
+                    updateVersion(on: application.db, version: version, manifest: manifest)
+                        .flatMap { (version, manifest) in
+                            updateProducts(on: application.db, version: version, manifest: manifest)
+                    }
+                }
+            return (pkg, updates)
     }
 
     // set status and processing stage on packages
-    let statusUpdates = versionUpdates.flatMap { pkgAndUpdates -> EventLoopFuture<Void> in
+    let statusUpdates = versionAndProductUpdates.flatMap { pkgAndUpdates -> EventLoopFuture<Void> in
         let updates = pkgAndUpdates.map { pkg, updates -> EventLoopFuture<Void> in
             guard !updates.isEmpty else {
                 // Make sure we mark pkg as updated even if it has no versions - we don't want to
@@ -132,7 +134,7 @@ func pullOrClone(application: Application, package: Package) -> EventLoopFuture<
 }
 
 
-func _reconcileVersions(application: Application, package: Package) -> EventLoopFuture<[Version]> {
+func reconcileVersions(application: Application, package: Package) -> EventLoopFuture<[Version]> {
     // fetch tags
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return application.eventLoopGroup.next().makeFailedFuture(

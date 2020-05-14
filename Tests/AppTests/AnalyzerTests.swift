@@ -174,7 +174,7 @@ class AnalyzerTests: AppTestCase {
         try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
 
         // MUT
-        let versions = try _reconcileVersions(application: app, package: pkg).wait()
+        let versions = try reconcileVersions(application: app, package: pkg).wait()
 
         // validate
         assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
