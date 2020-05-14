@@ -127,7 +127,8 @@ class IngestorTests: AppTestCase {
 
     func test_recordIngestionError() throws {
         let pkg = try savePackage(on: app.db, "1")
-        try recordIngestionError(database: app.db,
+        try recordIngestionError(client: app.client,
+                                 database: app.db,
                                  error: AppError.invalidPackageUrl(pkg.id, "foo")).wait()
         do {
             let pkg = try fetch(id: pkg.id, on: app.db)

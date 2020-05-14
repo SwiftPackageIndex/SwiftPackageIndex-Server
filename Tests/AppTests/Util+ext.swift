@@ -102,3 +102,25 @@ extension Snapshotting where Value == HTML, Format == NSImage {
     }
 }
 #endif
+
+
+extension AppError: Equatable {
+    public static func == (lhs: AppError, rhs: AppError) -> Bool {
+        switch (lhs, rhs) {
+            case let (.envVariableNotSet(v1), .envVariableNotSet(v2)):
+                return v1 == v2
+            case let (.genericError(id1, v1), .genericError(id2, v2)):
+                return (id1, v1) == (id2, v2)
+            case let (.invalidPackageCachePath(id1, v1), .invalidPackageCachePath(id2, v2)):
+                return (id1, v1) == (id2, v2)
+            case let (.invalidPackageUrl(id1, v1), .invalidPackageUrl(id2, v2)):
+                return (id1, v1) == (id2, v2)
+            case let (.invalidRevision(id1, v1), .invalidRevision(id2, v2)):
+                return (id1, v1) == (id2, v2)
+            case let (.metadataRequestFailed(id1, s1, u1), .metadataRequestFailed(id2, s2, u2)):
+                return (id1, s1.code, u1.description) == (id2, s2.code, u2.description)
+            default:
+                return false
+        }
+    }
+}

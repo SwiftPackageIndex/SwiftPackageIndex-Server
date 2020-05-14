@@ -36,4 +36,21 @@ enum AppError: LocalizedError {
     var errorDescription: String? {
         localizedDescription
     }
+
+    enum Level: String, Codable {
+        case critical
+        case error
+        case warning
+        case info
+        case debug
+    }
+}
+
+
+extension AppError {
+    static func report(_ client: Client, _ level: Level, _ error: Error) -> EventLoopFuture<Void> {
+        Rollbar.createItem(client: client,
+                           level: .init(level: level),
+                           message: error.localizedDescription)
+    }
 }

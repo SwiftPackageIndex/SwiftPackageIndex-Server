@@ -74,6 +74,16 @@ extension Rollbar {
             case warning
             case info
             case debug
+
+            init(level: AppError.Level) {
+                switch level {
+                    case .critical: self = .critical
+                    case .error:    self = .error
+                    case .warning:  self = .warning
+                    case .info:     self = .info
+                    case .debug:    self = .debug
+                }
+            }
         }
     }
 }
