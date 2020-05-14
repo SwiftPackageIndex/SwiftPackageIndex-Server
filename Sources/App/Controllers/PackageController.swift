@@ -9,9 +9,10 @@ struct PackageController {
         return req.eventLoop.future(req.redirect(to: "/"))
     }
 
-    func show(req: Request) throws -> EventLoopFuture<Package> {
+    func show(req: Request) throws -> EventLoopFuture<HTML> {
         return Package.find(req.parameters.get("id"), on: req.db)
             .unwrap(or: Abort(.notFound))
+            .map { package in PackageShowView(package).document() }
     }
 
 }
