@@ -29,7 +29,7 @@ struct AnalyzerCommand: Command {
 }
 
 
-func analyze(application: Application, id: Package.Id) throws -> EventLoopFuture<Void> {
+func analyze(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
     let packages = Package.query(on: application.db)
         .with(\.$repositories)
         .filter(\.$id == id)
@@ -40,7 +40,7 @@ func analyze(application: Application, id: Package.Id) throws -> EventLoopFuture
 }
 
 
-func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
+func analyze(application: Application, limit: Int) -> EventLoopFuture<Void> {
     let packages = Package.fetchCandidates(application.db, for: .analysis, limit: limit)
     return analyze(application: application, packages: packages)
 }
