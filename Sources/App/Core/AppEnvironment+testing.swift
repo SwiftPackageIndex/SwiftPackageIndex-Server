@@ -12,7 +12,9 @@ extension AppEnvironment {
         },
         fetchMetadata: { _, _ in .just(value: .mock) },
         fileManager: .mock,
-        githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] },
+        githubToken: { nil },
+        reportError: { _, _, _ in .just(value: ()) },
+        rollbarToken: { nil },
         shell: .mock
     )
 
@@ -22,6 +24,8 @@ extension AppEnvironment {
         fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
         fileManager: .mock,
         githubToken: { nil },
+        reportError: { _, _, _ in .just(value: ()) },
+        rollbarToken: { nil },
         shell: .mock
     )
 
@@ -31,6 +35,8 @@ extension AppEnvironment {
         fetchMetadata: { _, pkg in .just(value: .mock(for: pkg)) },
         fileManager: .mock,
         githubToken: { nil },
+        reportError: { _, _, _ in .just(value: ()) },
+        rollbarToken: { nil },
         shell: .mock
     )
 }

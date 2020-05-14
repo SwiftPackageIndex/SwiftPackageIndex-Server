@@ -28,7 +28,7 @@ struct IngestorCommand: Command {
 func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
     Package.fetchCandidates(database, for: .ingestion, limit: limit)
         .flatMapEach(on: database.eventLoop) { fetchMetadata(for: $0, with: client) }
-        .flatMapEachThrowing { updateTables(on: database, result: $0) }
+        .flatMapEachThrowing { updateTables(client: client, database: database, result: $0) }
         .flatMap { .andAllComplete($0, on: database.eventLoop) }
 }
 
@@ -47,7 +47,7 @@ func fetchMetadata(for package: Package, with client: Client) -> EventLoopFuture
 }
 
 
-func updateTables(on database: Database, result: Result<PackageMetadata, Error>) -> EventLoopFuture<Void> {
+func updateTables(client: Client, database: Database, result: Result<PackageMetadata, Error>) -> EventLoopFuture<Void> {
     do {
         let (pkg, md) = try result.get()
         return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
@@ -57,7 +57,7 @@ func updateTables(on database: Database, result: Result<PackageMetadata, Error>)
                 return pkg.save(on: database)
             }
     } catch {
-        return recordIngestionError(database: database, error: error)
+        return recordIngestionError(client: client, database: database, error: error)
     }
 }
 
@@ -90,13 +90,16 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
 }
 
 
-func recordIngestionError(database: Database, error: Error) -> EventLoopFuture<Void> {
+func recordIngestionError(client: Client, database: Database, error: Error) -> EventLoopFuture<Void> {
+    let errorReport = Current.reportError(client, .error, error)
+
     func setStatus(id: Package.Id?, status: Status) -> EventLoopFuture<Void> {
         Package.find(id, on: database).flatMap { pkg in
             guard let pkg = pkg else { return database.eventLoop.makeSucceededFuture(()) }
             pkg.status = status
             pkg.processingStage = .ingestion
             return pkg.save(on: database)
+                .flatMap { errorReport }
         }
     }
 
@@ -110,7 +113,8 @@ func recordIngestionError(database: Database, error: Error) -> EventLoopFuture<V
         case let AppError.genericError(id, _):
             return setStatus(id: id, status: .ingestionFailed)
         default:
-            // TODO: log somewhere more actionable - table or online service
-            return database.eventLoop.makeSucceededFuture(())
+            break
     }
+
+    return errorReport
 }
