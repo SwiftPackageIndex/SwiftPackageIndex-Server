@@ -48,7 +48,7 @@ func analyze(application: Application, limit: Int) throws -> EventLoopFuture<Voi
 
 func analyze(application: Application, packages: EventLoopFuture<[Package]>) throws -> EventLoopFuture<Void> {
     // get or create directory
-    let checkoutDir = Current.fileManager.checkoutsDirectory
+    let checkoutDir = Current.fileManager.checkoutsDirectory()
     application.logger.info("Checkout directory: \(checkoutDir)")
     if !Current.fileManager.fileExists(atPath: checkoutDir) {
         application.logger.info("Creating checkout directory at path: \(checkoutDir)")
@@ -123,11 +123,11 @@ func pullOrClone(application: Application, package: Package) throws -> EventLoop
             try Current.shell.run(command: .init(string: "git reset --hard"), at: cacheDir)
             let branch = package.repository?.defaultBranch ?? "master"
             try Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
-            try Current.shell.run(command: .gitPull(allowingPrompt: false), at: cacheDir)
+            try Current.shell.run(command: .gitPull(), at: cacheDir)
         } else {
             application.logger.info("cloning \(package.url) to \(cacheDir)")
-            let wdir = Current.fileManager.checkoutsDirectory
-            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: cacheDir, allowingPrompt: false), at: wdir)
+            let wdir = Current.fileManager.checkoutsDirectory()
+            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: cacheDir), at: wdir)
         }
         return package
     }

@@ -1,0 +1,49 @@
+# Operations commands
+#
+# docker-compose -f docker-compose.commands.yml run migrate
+# docker-compose -f docker-compose.commands.yml run revert
+
+version: '3.7'
+
+
+x-shared: &shared
+  environment:
+    # set these variables via the environment or a `.env` file, which
+    # docker-compose reads and uses to populate variables
+    CHECKOUTS_DIR: ${CHECKOUTS_DIR}
+    DATABASE_HOST: ${DATABASE_HOST}
+    DATABASE_PORT: ${DATABASE_PORT}
+    DATABASE_NAME: ${DATABASE_NAME}
+    DATABASE_USERNAME: ${DATABASE_USERNAME}
+    DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    GITHUB_TOKEN: ${GITHUB_TOKEN}
+    LOG_LEVEL: ${LOG_LEVEL}
+
+
+services:
+  reconcile:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    command: ["reconcile"]
+    deploy:
+      replicas: 0
+
+  ingest:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    command: ["ingest", "--limit", "${LIMIT:-100}"]
+    deploy:
+      replicas: 0
+
+  analyze:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    volumes:
+      - checkouts:/checkouts
+    command: ["analyze", "--limit", "${LIMIT:-10}"]
+    deploy:
+      replicas: 0
+
+
+volumes:
+  checkouts:

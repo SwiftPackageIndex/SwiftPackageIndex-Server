@@ -1,63 +1,72 @@
-# Docker Compose file for Vapor
-#
-# Install Docker on your system to run and test
-# your Vapor app in a production-like environment.
-#
-# Note: This file is intended for testing and does not 
-# implement best practices for a production deployment.
-#
-# Learn more: https://docs.docker.com/compose/reference/
-#
 #   Build images: docker-compose build
 #      Start app: docker-compose up app
-# Start database: docker-compose up db
-# Run migrations: docker-compose up migrate
-#       Stop all: docker-compose down (add -v to wipe db)
-#
+
 version: '3.7'
 
-volumes:
-  db_data:
-
-x-shared_environment: &shared_environment
-  LOG_LEVEL: ${LOG_LEVEL:-debug}
-  DATABASE_HOST: db
-  DATABASE_PORT: 5432
-  DATABASE_NAME: spi_dev
-  DATABASE_USERNAME: spi_dev
-  DATABASE_PASSWORD: xxx
-  GITHUB_TOKEN: ${GITHUB_TOKEN}
+x-shared: &shared
+  environment:
+    # set these variables via the environment or a `.env` file, which
+    # docker-compose reads and uses to populate variables
+    CHECKOUTS_DIR: ${CHECKOUTS_DIR}
+    DATABASE_HOST: ${DATABASE_HOST}
+    DATABASE_PORT: ${DATABASE_PORT}
+    DATABASE_NAME: ${DATABASE_NAME}
+    DATABASE_USERNAME: ${DATABASE_USERNAME}
+    DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    GITHUB_TOKEN: ${GITHUB_TOKEN}
+    LOG_LEVEL: ${LOG_LEVEL}
+  volumes:
+    - checkouts:/checkouts
 
 services:
   app:
-    image: finestructure/spi-server:latest
-    build:
-      context: .
-    environment:
-      <<: *shared_environment
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
     depends_on:
-      - db
+      - migrate
     ports:
       - '8080:80'
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "80"]
+    deploy:
+      update_config:
+        order: start-first
+
+  reconcile:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    depends_on:
+      - migrate
+    entrypoint: ["/bin/bash"]
+    command: ["-c", "--",
+      "trap : TERM INT; while true; do ./Run reconcile; sleep ${RECONCILE_SLEEP:-120}; done"
+    ]
+
+  ingest:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    depends_on:
+      - migrate
+    entrypoint: ["/bin/bash"]
+    command: ["-c", "--",
+      "trap : TERM INT; while true; do ./Run ingest --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-10}; done"
+    ]
+
+  analyze:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    depends_on:
+      - migrate
+    entrypoint: ["/bin/bash"]
+    command: ["-c", "--",
+      "trap : TERM INT; while true; do ./Run analyze --limit ${ANALYZE_LIMIT:-50}; sleep ${ANALYZE_SLEEP:-10}; done"
+    ]
 
   migrate:
-    image: finestructure/spi-server:latest
-    environment:
-      <<: *shared_environment
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
     depends_on:
       - db
     command: ["migrate", "--yes"]
-    deploy:
-      replicas: 0
-
-  revert:
-    image: finestructure/spi-server:latest
-    environment:
-      <<: *shared_environment
-    depends_on:
-      - db
-    command: ["migrate", "--revert", "--yes"]
     deploy:
       replicas: 0
 
@@ -67,39 +76,13 @@ services:
       - db_data:/var/lib/postgresql/data/pgdata
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_USER: spi_dev
-      POSTGRES_PASSWORD: xxx
-      POSTGRES_DB: spi_dev
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     ports:
+      # TODO: don't expose port - add ssh container for tunnelling
       - '5432:5432'
 
-  # commands
-  reconcile:
-    image: finestructure/spi-server:latest
-    environment:
-      <<: *shared_environment
-    depends_on:
-      - db
-    command: ["reconcile"]
-    deploy:
-      replicas: 0
-
-  ingest:
-    image: finestructure/spi-server:latest
-    environment:
-      <<: *shared_environment
-    depends_on:
-      - db
-    command: ["ingest", "-l", "100"]
-    deploy:
-      replicas: 0
-
-  analyze:
-    image: finestructure/spi-server:latest
-    environment:
-      <<: *shared_environment
-    depends_on:
-      - db
-    command: ["analyze", "-l", "10"]
-    deploy:
-      replicas: 0
+volumes:
+  db_data:
+  checkouts:

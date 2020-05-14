@@ -12,5 +12,5 @@ enum Constants {
     static let masterPackageListUri = URI(string: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json")
     static let githubComPrefix = "https://github.com/"
     static let gitSuffix = ".git"
-    static let reingestionDeadtime: TimeInterval = 10 * 60  // in seconds
+    static let reIngestionDeadtime: TimeInterval = 60 * 60  // in seconds
 }
