@@ -4,14 +4,9 @@ import Vapor
 
 struct PackageController {
 
-    func index(req: Request) throws -> EventLoopFuture<HTML> {
-        return Package.query(on: req.db)
-            .with(\.$repositories)
-            .with(\.$versions)
-            .sort(\.$updatedAt, .descending)
-            .limit(10)
-            .all()
-            .map { packages in PackagesIndex(packages: packages).document() }
+    func index(req: Request) throws -> EventLoopFuture<Response> {
+        // No such thing as a full index of packages.
+        return req.eventLoop.future(req.redirect(to: "/"))
     }
 
     func show(req: Request) throws -> EventLoopFuture<Package> {
