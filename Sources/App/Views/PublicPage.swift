@@ -4,14 +4,16 @@ class PublicPage {
 
     /// The page's full HTML document.
     /// - Returns: A fully formed page inside a <html> element.
-    func document() -> HTML {
-        HTML(head(),
-             body())
+    final func document() -> HTML {
+        HTML(
+            head(),
+            body()
+        )
     }
 
     /// The page head.
     /// - Returns: A <head> element.
-    func head() -> Node<HTML.DocumentContext> {
+    final func head() -> Node<HTML.DocumentContext> {
         .head(
             .viewport(.accordingToDevice, initialScale: 1),
             .title(title()),
@@ -48,17 +50,17 @@ class PublicPage {
 
     /// The page body.
     /// - Returns: A <body> element.
-    func body() -> Node<HTML.DocumentContext> {
+    final func body() -> Node<HTML.DocumentContext> {
         .body(
             header(),
-            content(),
+            main(),
             footer()
         )
     }
 
     /// The site header, including the site navigation.
     /// - Returns: A <header> element.
-    func header() -> Node<HTML.BodyContext> {
+    final func header() -> Node<HTML.BodyContext> {
         .header(
             .div(.class("inner"),
                  .h1(
@@ -120,7 +122,7 @@ class PublicPage {
 
     /// The site footer, including all footer links.
     /// - Returns: A <footer> element.
-    func footer() -> Node<HTML.BodyContext> {
+    final func footer() -> Node<HTML.BodyContext> {
         .footer(
             .div(.class("inner"),
                  .ul(
