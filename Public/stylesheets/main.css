@@ -64,14 +64,15 @@ small {
 }
 
 hr {
+  margin: 5px 0;
   border: 0;
   height: 2px;
   background-color: var(--light-blue);
 }
 
 hr.short {
-  margin: 0 auto;
-  max-width: 70%;
+  max-width: 40%;
+  height: 1px;
 }
 
 /* Overall layout ---------------------------------------------------------- */
