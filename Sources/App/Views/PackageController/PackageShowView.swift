@@ -14,7 +14,7 @@ class PackageShowView: PublicPage {
     }
 
     override func content() -> Node<HTML.BodyContext> {
-        .main(.text(String(describing: package.id!)))
+        .text(String(describing: package.id!))
     }
 
 }
