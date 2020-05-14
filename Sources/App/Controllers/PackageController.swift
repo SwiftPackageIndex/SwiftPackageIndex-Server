@@ -7,6 +7,7 @@ struct PackageController {
 
     func index(req: Request) throws -> EventLoopFuture<HTML> {
         return Package.query(on: req.db)
+            .with(\.$repositories)
             .all()
             .map { PackagesIndex(packages: $0).document() }
     }
