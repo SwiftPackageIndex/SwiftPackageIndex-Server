@@ -99,12 +99,23 @@ class PublicPage {
         ]
     }
 
-    /// The page's main content.
-    /// - Returns: A <main> element
+    final func main() -> Node<HTML.BodyContext> {
+        .main(
+            .div(.class("inner"),
+                 content()
+            )
+        )
+
+    }
+
+    /// The page's content.
+    /// - Returns: A node, or nodes (in a `.group`) with the page's content.
     func content() -> Node<HTML.BodyContext> {
-        .main(.p("Override ",
-                 .pre(.code("content()")),
-                 " to change this page's content."))
+        .p(
+            "Override ",
+           .code("content()"),
+           " to change this page's content."
+        )
     }
 
     /// The site footer, including all footer links.
