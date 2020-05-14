@@ -9,6 +9,7 @@ import Vapor
 
 
 enum AppError: LocalizedError {
+    case envVariableNotSet(String)
     case invalidPackageUrl(Package.Id?, String)
     case invalidPackageCachePath(Package.Id?, String)
     case invalidRevision(Version.Id?, String?)
@@ -17,6 +18,8 @@ enum AppError: LocalizedError {
 
     var localizedDescription: String {
         switch self {
+            case let .envVariableNotSet(value):
+                return "Environment variable not set: \(value)"
             case let .invalidPackageUrl(id, value):
                 return "Invalid packge URL: \(value) (id: \(String(describing: id)))"
             case let .invalidPackageCachePath(id, value):

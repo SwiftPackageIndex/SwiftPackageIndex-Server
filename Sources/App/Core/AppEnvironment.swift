@@ -8,6 +8,7 @@ struct AppEnvironment {
     var fetchMetadata: (_ client: Client, _ package: Package) throws -> EventLoopFuture<Github.Metadata>
     var fileManager: FileManager
     var githubToken: () -> String?
+    var rollbarToken: () -> String?
     var shell: Shell
 }
 
@@ -17,7 +18,8 @@ extension AppEnvironment {
         fetchMasterPackageList: liveFetchMasterPackageList,
         fetchMetadata: Github.fetchMetadata(client:package:),
         fileManager: .live,
-        githubToken: { ProcessInfo.processInfo.environment["GITHUB_TOKEN"] },
+        githubToken: { Environment.get("GITHUB_TOKEN") },
+        rollbarToken: { Environment.get("ROLLBAR_TOKEN") },
         shell: .live
     )
 }
