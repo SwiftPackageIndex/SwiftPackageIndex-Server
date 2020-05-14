@@ -49,9 +49,11 @@ class PublicPage {
     /// The page body.
     /// - Returns: A <body> element.
     func body() -> Node<HTML.DocumentContext> {
-        .body(header(),
-              content(),
-              footer())
+        .body(
+            header(),
+            content(),
+            footer()
+        )
     }
 
     /// The site header, including the site navigation.
@@ -75,9 +77,26 @@ class PublicPage {
     /// List items to be rendered in the site navigation menu.
     /// - Returns: An array of <li> elements.
     func navItems() -> [Node<HTML.ListContext>] {
-        [.li(.a(.href("#"), "Add a Package")),
-         .li(.a(.href("#"), "About")),
-         .li(.a(.href("#"), "Search"))]
+        [
+            .li(
+                .a(
+                    .href("#"),
+                    "Add a Package"
+                )
+            ),
+            .li(
+                .a(
+                    .href("#"),
+                    "About"
+                )
+            ),
+            .li(
+                .a(
+                    .href("#"),
+                    "Search"
+                )
+            )
+        ]
     }
 
     /// The page's main content.
