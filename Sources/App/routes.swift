@@ -6,7 +6,7 @@ func routes(_ app: Application) throws {
 
     let packageController = PackageController()
     app.get("packages", use: packageController.index)
-    app.get("packages", ":id", use: packageController.get)
+    app.get("packages", ":id", use: packageController.show)
 
     app.group("admin") { admin in
         admin.get { req in SPIPage.admin() }

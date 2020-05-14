@@ -14,7 +14,7 @@ struct PackageController {
             .map { packages in PackagesIndex(packages: packages).document() }
     }
 
-    func get(req: Request) throws -> EventLoopFuture<Package> {
+    func show(req: Request) throws -> EventLoopFuture<Package> {
         return Package.find(req.parameters.get("id"), on: req.db)
             .unwrap(or: Abort(.notFound))
     }
