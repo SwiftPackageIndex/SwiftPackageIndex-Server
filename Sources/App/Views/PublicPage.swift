@@ -55,8 +55,8 @@ class PublicPage {
     /// - Returns: A <main> element
     func content() -> Node<HTML.BodyContext> {
         .main(.p("Override ",
-              .pre(.code("content()")),
-              " to change this page's content."))
+                 .pre(.code("content()")),
+                 " to change this page's content."))
     }
 
     /// The site footer, including all footer links.
