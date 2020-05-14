@@ -30,8 +30,17 @@ class PublicPage {
     /// The site header, including the site navigation.
     /// - Returns: A <header> element.
     func header() -> Node<HTML.BodyContext> {
-        .header(.h1("Swift Package Index"),
-                .nav(.ul(.group(navItems()))))
+        .header(
+            .h1(
+                .img(.src("/images/logo.svg")),
+                "Swift Package Index"
+            ),
+            .nav(
+                .ul(
+                    .group(navItems())
+                )
+            )
+        )
     }
 
     /// List items to be rendered in the site navigation menu.
