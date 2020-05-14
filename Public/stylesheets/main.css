@@ -59,6 +59,10 @@ a {
   text-decoration: none;
 }
 
+small {
+  font-size: 11px;
+}
+
 hr {
   border: 0;
   height: 2px;
@@ -178,6 +182,16 @@ header nav ul li a:hover {
   background-color: var(--mid-blue);
 }
 
+p.description {
+  margin: 20px auto;
+  max-width: 90%;
+}
+
+@media screen and (max-width: 767px) {
+  p.description {
+    max-width: 95%;
+  }
+}
 
 /* Footer ------------------------------------------------------------------ */
 footer {
