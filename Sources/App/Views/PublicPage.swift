@@ -1,4 +1,5 @@
 import Foundation
+import Vapor
 import Plot
 
 class PublicPage {
@@ -28,10 +29,21 @@ class PublicPage {
             ),
             .link(
                 .rel(.stylesheet),
-                // TODO: This is super hacky and will need replacing with a better solution before release.
-                .href("/stylesheets/main.css?\(Int(Date().timeIntervalSince1970))")
+                .href("/stylesheets/main.css?\(stylesheetQueryString())")
             )
         )
+    }
+
+    /// A query string that will force the stylesheet to reload after it changes. In development this is the
+    /// current date to force a reload every time. In production this is the last deployed version.
+    /// - Returns: A string containing the query string.
+    final func stylesheetQueryString() -> String {
+        let secondsSince1970String = String(Int(Date().timeIntervalSince1970))
+        do {
+            return (try Environment.detect() == .development) ? secondsSince1970String : appVersion
+        } catch {
+            return secondsSince1970String
+        }
     }
 
     /// The full page title, including the site name.
