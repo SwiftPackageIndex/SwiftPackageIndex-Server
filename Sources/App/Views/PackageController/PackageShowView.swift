@@ -9,8 +9,12 @@ class PackageShowView: PublicPage {
         self.package = package
     }
 
+    override func pageTitle() -> String? {
+        "Alamofire"
+    }
+
     override func content() -> Node<HTML.BodyContext> {
         .main(.text(String(describing: package.id!)))
     }
-    
+
 }
