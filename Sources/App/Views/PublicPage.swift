@@ -31,13 +31,15 @@ class PublicPage {
     /// - Returns: A <header> element.
     func header() -> Node<HTML.BodyContext> {
         .header(
-            .h1(
-                .img(.src("/images/logo.svg")),
-                "Swift Package Index"
-            ),
-            .nav(
-                .ul(
-                    .group(navItems())
+            .div(.class("inner"),
+                 .h1(
+                    .img(.src("/images/logo.svg")),
+                    "Swift Package Index"
+                ),
+                 .nav(
+                    .ul(
+                        .group(navItems())
+                    )
                 )
             )
         )
