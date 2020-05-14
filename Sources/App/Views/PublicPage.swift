@@ -118,8 +118,8 @@ class PublicPage {
     func content() -> Node<HTML.BodyContext> {
         .p(
             "Override ",
-           .code("content()"),
-           " to change this page's content."
+            .code("content()"),
+            " to change this page's content."
         )
     }
 
@@ -128,23 +128,25 @@ class PublicPage {
     final func footer() -> Node<HTML.BodyContext> {
         .footer(
             .div(.class("inner"),
-                 .ul(
-                    .li(
-                        .a(
-                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
-                            "GitHub"
-                        )
-                    ),
-                    .li(
-                        .a(
-                            .href("/privacy"),
-                            "Privacy and Cookies"
-                        )
-                    ),
-                    .li(
-                        .a(
-                            .href("https://twitter.com/swiftpackages"),
-                            "Twitter"
+                 .nav(
+                    .ul(
+                        .li(
+                            .a(
+                                .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
+                                "GitHub"
+                            )
+                        ),
+                        .li(
+                            .a(
+                                .href("/privacy"),
+                                "Privacy and Cookies"
+                            )
+                        ),
+                        .li(
+                            .a(
+                                .href("https://twitter.com/swiftpackages"),
+                                "Twitter"
+                            )
                         )
                     )
                 )
