@@ -12,10 +12,22 @@ class PublicPage {
     /// The page head.
     /// - Returns: A <head> element.
     func head() -> Node<HTML.DocumentContext> {
-        .head(.viewport(.accordingToDevice, initialScale: 1),
-              .link(.rel(.stylesheet),
-                    .href("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"))
+        .head(
+            .viewport(.accordingToDevice, initialScale: 1),
             .title(title()),
+            .link(
+                .rel(.stylesheet),
+                .href("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css")
+            ),
+            .link(
+                .rel(.stylesheet),
+                .href("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap")
+            ),
+            .link(
+                .rel(.stylesheet),
+                .href("/stylesheets/main.css")
+            )
+
         )
     }
 
