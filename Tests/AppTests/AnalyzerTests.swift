@@ -122,7 +122,7 @@ class AnalyzerTests: AppTestCase {
         // assert packages have been updated
         let packages = try Package.query(on: app.db).sort(\.$createdAt).all().wait()
         packages.forEach { XCTAssert($0.updatedAt! > lastUpdate) }
-        XCTAssertEqual(packages.map(\.status), [.analysisFailed, .ok])
+        XCTAssertEqual(packages.map(\.status), [.noValidVersions, .ok])
     }
 
     func test_continue_on_exception() throws {
@@ -220,6 +220,32 @@ class AnalyzerTests: AppTestCase {
         assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
     }
 
+    func test_getManifest() throws {
+        // setup
+        var commands = [String]()
+        Current.shell.run = { cmd, _ in
+            commands.append(cmd.string);
+            if cmd.string == "swift package dump-package" {
+                return #"{ "name": "SPI-Server", "products": [] }"#
+            }
+            return ""
+        }
+        let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
+        let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
+        try version.save(on: app.db).wait()
+
+        // MUT
+        let (v, m) = try getManifest(package: pkg, version: version).get()
+
+        // validation
+        XCTAssertEqual(commands, [
+            "git checkout \"0.4.2\" --quiet",
+            "swift package dump-package"
+        ])
+        XCTAssertEqual(v.id, version.id)
+        XCTAssertEqual(m.name, "SPI-Server")
+    }
+
     func test_getManifests() throws {
         // setup
         var commands = [String]()
@@ -256,29 +282,42 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(m.name, "SPI-Server")
     }
 
-    func test_getManifests_single() throws {
+    func test_updateVersion() throws {
         // setup
-        var commands = [String]()
-        Current.shell.run = { cmd, _ in
-            commands.append(cmd.string);
-            if cmd.string == "swift package dump-package" {
-                return #"{ "name": "SPI-Server", "products": [] }"#
-            }
-            return ""
-        }
-        let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
-        let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
-        try version.save(on: app.db).wait()
+        let pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        let version = try Version(package: pkg)
+        let manifest = Manifest(name: "foo",
+                                platforms: [.init(platformName: .ios, version: "11.0"),
+                                            .init(platformName: .macos, version: "10.10")],
+                                products: [],
+                                swiftLanguageVersions: ["1", "2", "3.0.0rc"])
 
         // MUT
-        let m = try getManifest(package: pkg, version: version).get()
+        _ = try updateVersion(on: app.db, version: version, manifest: manifest).wait()
+
+        // read back and validate
+        let v = try Version.query(on: app.db).first().wait()!
+        XCTAssertEqual(v.packageName, "foo")
+        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0rc"])
+        XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
+    }
+
+    func test_updateProducts() throws {
+        // setup
+        let p = Package(id: UUID(), url: "1", status: .none)
+        let v = try Version(id: UUID(), package: p, reference: .tag(.init(1, 0, 0)), packageName: "1")
+        let m = Manifest(name: "1", products: [.init(name: "p1", type: .library),
+                                               .init(name: "p2", type: .executable)])
+        try p.save(on: app.db).wait()
+        try v.save(on: app.db).wait()
+
+        // MUT
+        try updateProducts(on: app.db, version: v, manifest: m).wait()
 
         // validation
-        XCTAssertEqual(commands, [
-            "git checkout \"0.4.2\" --quiet",
-            "swift package dump-package"
-        ])
-        XCTAssertEqual(m.name, "SPI-Server")
+        let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
+        XCTAssertEqual(products.map(\.name), ["p1", "p2"])
     }
 
     func test_updateVersionsAndProducts() throws {
@@ -316,50 +355,12 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(p.name, "p1")
     }
 
-    func test_updateVersion_old() throws {
-        // setup
-        let pkg = Package(id: UUID(), url: "1")
-        try pkg.save(on: app.db).wait()
-        let version = try Version(package: pkg)
-        let manifest = Manifest(name: "foo",
-                                platforms: [.init(platformName: .ios, version: "11.0"),
-                                            .init(platformName: .macos, version: "10.10")],
-                                products: [],
-                                swiftLanguageVersions: ["1", "2", "3.0.0rc"])
-
-        // MUT
-        _ = try updateVersion(on: app.db, version: version, manifest: .success(manifest)).wait()
-
-        // read back and validate
-        let v = try Version.query(on: app.db).first().wait()!
-        XCTAssertEqual(v.packageName, "foo")
-        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0rc"])
-        XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
-    }
-
-    func test_updateProducts() throws {
-        // setup
-        let p = Package(id: UUID(), url: "1", status: .none)
-        let v = try Version(id: UUID(), package: p, reference: .tag(.init(1, 0, 0)), packageName: "1")
-        let m = Manifest(name: "1", products: [.init(name: "p1", type: .library),
-                                               .init(name: "p2", type: .executable)])
-        try p.save(on: app.db).wait()
-        try v.save(on: app.db).wait()
-
-        // MUT
-        try updateProducts(on: app.db, version: v, manifest: m).wait()
-
-        // validation
-        let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
-        XCTAssertEqual(products.map(\.name), ["p1", "p2"])
-    }
-
     func test_updateStatus() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].urls)
-        let results: [Result<Package, ProcessingError>] = [
+        let results: [Result<Package, Error>] = [
             // feed in one error to see it passed through
-            .failure(.init(packageId: try packages[0].requireID(), type: .noValidVersions("1"))),
+            .failure(AppError.noValidVersions(try packages[0].requireID(), "1")),
             .success(packages[1])
         ]
 

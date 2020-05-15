@@ -7,6 +7,7 @@ enum Status: String, Codable {
     // errors
     case analysisFailed = "analysis_failed"
     case ingestionFailed = "ingestion_failed"
+    case invalidCachePath = "invalid_cache_path"
     case invalidUrl = "invalid_url"
     case metadataRequestFailed = "metadata_request_failed"
     case notFound = "not_found"
