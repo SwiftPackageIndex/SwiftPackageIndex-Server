@@ -272,23 +272,6 @@ class AnalyzerTests: AppTestCase {
 extension AnalyzerTests {
 
     func test_pullOrClone_error_handling() throws {
-        #warning("WIP")
-        try XCTSkipIf(true)
-        try savePackages(on: app.db, ["1", "2".gh].urls, processingStage: .ingestion)
-
-        let res: EventLoopFuture<[Package]> = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
-            .flatMapEach(on: app.eventLoopGroup.next()) { pullOrClone(application: self.app, package: $0) }
-            .flatMapEach(on: app.eventLoopGroup.next()) { pkg in
-                pkg.status = .ok
-                return pkg.save(on: self.app.db).transform(to: pkg)
-        }
-        let packages = try res.wait()
-
-        XCTAssertEqual(packages.count, 2)
-        XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
-    }
-
-    func test_pullOrClone_error_handling_2() throws {
         try savePackages(on: app.db, ["1", "2".gh].urls, processingStage: .ingestion)
 
         let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
