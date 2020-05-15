@@ -161,6 +161,19 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 4)
     }
 
+    func test_pullOrClone() throws {
+        // setup
+        try savePackages(on: app.db, ["1", "2".gh].urls, processingStage: .ingestion)
+        let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
+
+        // MUT
+        let res = try pkgs.flatMap { pullOrClone(application: self.app, packages: $0) }.wait()
+
+        // validation
+        XCTAssertEqual(res.count, 2)
+        XCTAssertEqual(res.map(\.isSuccess), [false, true])
+    }
+
     func test_reconcileVersions() throws {
         //setup
         Current.shell.run = { cmd, _ in
@@ -262,29 +275,6 @@ class AnalyzerTests: AppTestCase {
         // validation
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 4)
         XCTAssertEqual(try Product.query(on: app.db).count().wait(), 8)
-    }
-
-}
-
-
-// MARK: - error handling tests
-
-extension AnalyzerTests {
-
-    func test_pullOrClone_error_handling() throws {
-        try savePackages(on: app.db, ["1", "2".gh].urls, processingStage: .ingestion)
-
-        let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
-
-        func checkouts(packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
-            let ops = packages.map { pullOrClone(application: self.app, package: $0) }
-            return EventLoopFuture.whenAllComplete(ops, on: app.eventLoopGroup.next())
-        }
-
-        let res = try pkgs.flatMap { pullOrClone(application: self.app, packages: $0) }.wait()
-
-        XCTAssertEqual(res.count, 2)
-        XCTAssertEqual(res.map(\.isSuccess), [false, true])
     }
 
 }
