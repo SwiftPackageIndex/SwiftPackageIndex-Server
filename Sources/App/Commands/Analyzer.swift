@@ -141,6 +141,19 @@ func pullOrClone(application: Application, package: Package) -> EventLoopFuture<
 }
 
 
+func reconcileVersions(application: Application, checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<[Version], Error>]> {
+    let ops = checkouts.map { checkout -> EventLoopFuture<[Version]> in
+        switch checkout {
+            case .success(let pkg):
+                return reconcileVersions(application: application, package: pkg)
+            case .failure(let error):
+                return application.eventLoopGroup.future(error: error)
+        }
+    }
+    return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
+}
+
+
 func reconcileVersions(application: Application, package: Package) -> EventLoopFuture<[Version]> {
     // fetch tags
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {

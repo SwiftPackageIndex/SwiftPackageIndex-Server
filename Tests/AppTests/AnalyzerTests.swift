@@ -174,7 +174,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
     }
 
-    func test_reconcileVersions() throws {
+    func test_reconcileVersions_package() throws {
         //setup
         Current.shell.run = { cmd, _ in
             if cmd.string == "git tag" {
@@ -190,6 +190,32 @@ class AnalyzerTests: AppTestCase {
         let versions = try reconcileVersions(application: app, package: pkg).wait()
 
         // validate
+        assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
+    }
+
+    func test_reconcileVersions_checkouts() throws {
+        //setup
+        Current.shell.run = { cmd, _ in
+            if cmd.string == "git tag" {
+                return "1.2.3"
+            }
+            return ""
+        }
+        let pkg = Package(id: UUID(), url: "1".gh.url)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
+        let checkouts: [Result<Package, Error>] = [
+            .failure(AppError.invalidPackageUrl(nil, "some reason")),
+            .success(pkg)
+        ]
+
+        // MUT
+        let results = try reconcileVersions(application: app, checkouts: checkouts).wait()
+
+        // validate
+        XCTAssertEqual(results.count, 2)
+        XCTAssertEqual(results.map(\.isSuccess), [false, true])
+        let versions = try XCTUnwrap(results.last).get()
         assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
     }
 
