@@ -87,14 +87,8 @@ class AnalyzerTests: AppTestCase {
         // validate products (each version has 2 products)
         let products = try Product.query(on: app.db).sort(\.$name).all().wait()
         XCTAssertEqual(products.count, 4)
-        XCTAssertEqual(products[0].name, "p1")
-        XCTAssertEqual(products[0].type, .executable)
-        XCTAssertEqual(products[1].name, "p1")
-        XCTAssertEqual(products[1].type, .executable)
-        XCTAssertEqual(products[2].name, "p2")
-        XCTAssertEqual(products[2].type, .library)
-        XCTAssertEqual(products[3].name, "p2")
-        XCTAssertEqual(products[3].type, .library)
+        assertEquals(products, \.name, ["p1", "p1", "p2", "p2"])
+        assertEquals(products, \.type, [.executable, .executable, .library, .library])
     }
 
     func test_package_status() throws {
