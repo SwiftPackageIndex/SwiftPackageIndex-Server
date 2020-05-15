@@ -91,6 +91,7 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
 
 
 // TODO: sas: 2020-05-15: clean this up
+// https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/69
 func recordError(client: Client, database: Database, error: Error, stage: ProcessingStage) -> EventLoopFuture<Void> {
     let errorReport = Current.reportError(client, .error, error)
 
