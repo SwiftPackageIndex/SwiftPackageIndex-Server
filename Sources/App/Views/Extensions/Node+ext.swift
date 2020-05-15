@@ -1,8 +1,6 @@
 import Plot
 
 
-// TODO: sas: move under Page? Or move some Page extensions here? (matter of style, really
-// but it's probably better not to mix both or it'll get confusing with leading dots).
 extension Node where Context == HTML.BodyContext {
     static func container(_ children: Node...) -> Node {
         .div(
