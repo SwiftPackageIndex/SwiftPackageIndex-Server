@@ -205,6 +205,7 @@ class AnalyzerTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
         let checkouts: [Result<Package, Error>] = [
+            // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success(pkg)
         ]
@@ -220,6 +221,42 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_getManifests() throws {
+        // setup
+        var commands = [String]()
+        Current.shell.run = { cmd, _ in
+            commands.append(cmd.string);
+            if cmd.string == "swift package dump-package" {
+                return #"{ "name": "SPI-Server", "products": [] }"#
+            }
+            return ""
+        }
+        let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
+        let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
+        try version.save(on: app.db).wait()
+
+        let versions: [Result<(Package, [Version]), Error>] = [
+            // feed in one error to see it passed through
+            .failure(AppError.invalidPackageUrl(nil, "some reason")),
+            .success((pkg, [version]))
+        ]
+
+        // MUT
+        let results = getManifests(versions: versions)
+
+        // validation
+        XCTAssertEqual(commands, [
+            "git checkout \"0.4.2\" --quiet",
+            "swift package dump-package"
+        ])
+        XCTAssertEqual(results.map(\.isSuccess), [false, true])
+        let (_, versionsManifests) = try XCTUnwrap(results.last).get()
+        XCTAssertEqual(versionsManifests.count, 1)
+        let (v, m) = try XCTUnwrap(versionsManifests.first)
+        XCTAssertEqual(v, version)
+        XCTAssertEqual(m.name, "SPI-Server")
+    }
+
+    func test_getManifests_single() throws {
         // setup
         var commands = [String]()
         Current.shell.run = { cmd, _ in

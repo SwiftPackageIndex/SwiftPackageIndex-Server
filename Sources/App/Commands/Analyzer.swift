@@ -199,6 +199,7 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
 }
 
 
+@available(*, deprecated)
 func getManifest(package: Package, version: Version) -> Result<Manifest, Error> {
     Result {
         // check out version in cache directory
@@ -216,6 +217,43 @@ func getManifest(package: Package, version: Version) -> Result<Manifest, Error> 
         }
         let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
         return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+    }
+}
+
+
+func getManifests(versions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
+    versions.map { (r: Result<(Package, [Version]), Error>) -> Result<(Package, [(Version, Manifest)]), Error> in
+
+        r.flatMap { (pkg, versions) -> Result<(Package, [(Version, Manifest)]), Error> in
+            let m = versions.map { _getManifest(package: pkg, version: $0) }
+            let successes = m.compactMap { try? $0.get() }
+            let errors = m.compactMap { $0.getError() }
+            // TODO: report errors
+            guard !successes.isEmpty else { return .failure(AppError.noValidVersions(pkg.id, pkg.url)) }
+            return .success((pkg, successes))
+        }
+    }
+}
+
+
+func _getManifest(package: Package, version: Version) -> Result<(Version, Manifest), Error> {
+    Result {
+        // check out version in cache directory
+        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
+            throw AppError.invalidPackageCachePath(package.id, package.url)
+        }
+        guard let reference = version.reference else {
+            throw AppError.invalidRevision(version.id, nil)
+        }
+        try Current.shell.run(command: .gitCheckout(branch: reference.description), at: cacheDir)
+        guard Current.fileManager.fileExists(atPath: cacheDir + "/Package.swift") else {
+            // It's important to check for Package.swift - otherwise `dump-package` will go
+            // up the tree through parent directories to find one
+            throw AppError.invalidRevision(version.id, "no Package.swift")
+        }
+        let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
+        let manifest = try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+        return (version, manifest)
     }
 }
 
@@ -260,5 +298,18 @@ func updateStatus(application: Application, package: Package, for result: Result
             package.status = .analysisFailed
             return package.save(on: application.db)
                 .flatMap { Current.reportError(application.client, .error, error) }
+    }
+}
+
+
+// FIXME: move
+extension Result {
+    func getError() -> Error? {
+        switch self {
+        case .success:
+            return nil
+        case .failure(let error):
+            return error
+        }
     }
 }
