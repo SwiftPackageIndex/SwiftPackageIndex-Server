@@ -259,6 +259,39 @@ func _getManifest(package: Package, version: Version) -> Result<(Version, Manife
 }
 
 
+func updateVersions(on database: Database, results: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = results.map { result in
+        result.map { (pkg, versionsAndManifests) -> EventLoopFuture<Package> in
+            // FIXME: update products as well
+            let updates = versionsAndManifests.map { updateVersion(on: database,
+                                                                   version: $0,
+                                                                   manifest: $1) }
+            return EventLoopFuture
+                .andAllComplete(updates, on: database.eventLoop)
+                .transform(to: pkg)
+        }
+    }
+    let res: [EventLoopFuture<Package>] = ops.map { r -> EventLoopFuture<Package> in
+        switch r {
+            case .success(let f):
+                return f
+            case .failure(let e):
+                return database.eventLoop.future(error: e)
+        }
+    }
+    return EventLoopFuture.whenAllComplete(res, on: database.eventLoop)
+}
+
+
+func updateVersion(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
+    version.packageName = manifest.name
+    version.swiftVersions = manifest.swiftLanguageVersions ?? []
+    version.supportedPlatforms = manifest.platforms?.compactMap { Platform(from: $0) } ?? []
+    return version.save(on: database)
+}
+
+
+@available(*, deprecated)
 func updateVersion(on database: Database, version: Version, manifest: Result<Manifest, Error>) -> EventLoopFuture<(Version, Manifest)> {
     switch manifest {
         case .success(let manifest):

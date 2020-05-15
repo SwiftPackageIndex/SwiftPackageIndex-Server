@@ -292,6 +292,35 @@ class AnalyzerTests: AppTestCase {
                                 products: [],
                                 swiftLanguageVersions: ["1", "2", "3.0.0rc"])
 
+        let results: [Result<(Package, [(Version, Manifest)]), Error>] = [
+            // feed in one error to see it passed through
+            .failure(AppError.noValidVersions(nil, "some url")),
+            .success((pkg, [(version, manifest)]))
+        ]
+
+        // MUT
+        let res = try updateVersions(on: app.db, results: results).wait()
+
+        // validation
+        XCTAssertEqual(res.map(\.isSuccess), [false, true])
+        // read back and validate
+        let v = try Version.query(on: app.db).first().wait()!
+        XCTAssertEqual(v.packageName, "foo")
+        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0rc"])
+        XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
+    }
+
+    func test_updateVersion_old() throws {
+        // setup
+        let pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        let version = try Version(package: pkg)
+        let manifest = Manifest(name: "foo",
+                                platforms: [.init(platformName: .ios, version: "11.0"),
+                                            .init(platformName: .macos, version: "10.10")],
+                                products: [],
+                                swiftLanguageVersions: ["1", "2", "3.0.0rc"])
+
         // MUT
         _ = try updateVersion(on: app.db, version: version, manifest: .success(manifest)).wait()
 
