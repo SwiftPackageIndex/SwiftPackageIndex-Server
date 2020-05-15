@@ -60,8 +60,6 @@ class ErrorReportingTests: AppTestCase {
     }
 
     func test_invalidPackageCachePath() throws {
-        #warning("WIP")
-        try XCTSkipIf(true)
         // setup
         try savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
 
@@ -70,7 +68,7 @@ class ErrorReportingTests: AppTestCase {
 
         // validation
         let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
-        XCTAssertEqual(packages.map(\.status), [.invalidUrl, .invalidUrl])
+        XCTAssertEqual(packages.map(\.status), [.invalidCachePath, .invalidCachePath])
     }
 
 }

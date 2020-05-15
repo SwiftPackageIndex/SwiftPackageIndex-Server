@@ -113,7 +113,7 @@ func recordError(client: Client, database: Database, error: Error, stage: Proces
         case let .genericError(id, _):
             return setStatus(id: id, status: .ingestionFailed)
         case let .invalidPackageCachePath(id, _):
-            return setStatus(id: id, status: .analysisFailed)
+            return setStatus(id: id, status: .invalidCachePath)
         case let .invalidPackageUrl(id, _):
             return setStatus(id: id, status: .invalidUrl)
         case let .invalidRevision(id, _):
