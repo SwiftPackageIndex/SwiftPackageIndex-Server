@@ -174,8 +174,9 @@ func getManifests(versions: [Result<(Package, [Version]), Error>]) -> [Result<(P
         r.flatMap { (pkg, versions) -> Result<(Package, [(Version, Manifest)]), Error> in
             let m = versions.map { getManifest(package: pkg, version: $0) }
             let successes = m.compactMap { try? $0.get() }
-            let errors = m.compactMap { $0.getError() }
-            // TODO: report errors
+            // TODO: report errors (need client and database)
+            //            let errors = m.compactMap { $0.getError() }
+            //            errors.map { Current.reportError(client: client, database: database, error: $0, stage: .analysis) }
             guard !successes.isEmpty else { return .failure(AppError.noValidVersions(pkg.id, pkg.url)) }
             return .success((pkg, successes))
         }
