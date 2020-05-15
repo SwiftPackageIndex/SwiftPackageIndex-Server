@@ -141,11 +141,12 @@ func pullOrClone(application: Application, package: Package) -> EventLoopFuture<
 }
 
 
-func reconcileVersions(application: Application, checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<[Version], Error>]> {
-    let ops = checkouts.map { checkout -> EventLoopFuture<[Version]> in
+func reconcileVersions(application: Application, checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+    let ops = checkouts.map { checkout -> EventLoopFuture<(Package, [Version])> in
         switch checkout {
             case .success(let pkg):
                 return reconcileVersions(application: application, package: pkg)
+                    .map { (pkg, $0) }
             case .failure(let error):
                 return application.eventLoopGroup.future(error: error)
         }

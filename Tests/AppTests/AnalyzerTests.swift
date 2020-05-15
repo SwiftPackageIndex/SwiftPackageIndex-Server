@@ -216,7 +216,7 @@ class AnalyzerTests: AppTestCase {
         // validate
         XCTAssertEqual(results.count, 2)
         XCTAssertEqual(results.map(\.isSuccess), [false, true])
-        let versions = try XCTUnwrap(results.last).get()
+        let (_, versions) = try XCTUnwrap(results.last).get()
         assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
     }
 
