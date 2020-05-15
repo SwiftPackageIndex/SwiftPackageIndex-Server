@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="182px" height="182px" viewBox="0 0 182 182" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Logo Small</title>
+    <defs>
+        <linearGradient x1="100%" y1="0%" x2="0%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#F88A36" offset="0%"></stop>
+            <stop stop-color="#FD2020" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#F88A36" offset="0%"></stop>
+            <stop stop-color="#FD2020" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Logo-Small" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="Box-6" stroke="url(#linearGradient-1)" stroke-width="5" fill="#FDFAFA" transform="translate(90.509668, 90.509668) rotate(-285.000000) translate(-90.509668, -90.509668) " x="29.009668" y="29.009668" width="123" height="123"></rect>
+        <rect id="Box-5" stroke="url(#linearGradient-1)" stroke-width="5" fill="#FDFAFA" transform="translate(90.509668, 90.509668) rotate(-300.000000) translate(-90.509668, -90.509668) " x="29.009668" y="29.009668" width="123" height="123"></rect>
+        <rect id="Box-4" stroke="url(#linearGradient-1)" stroke-width="5" fill="#FDFAFA" transform="translate(90.509668, 90.509668) rotate(-315.000000) translate(-90.509668, -90.509668) " x="29.009668" y="29.009668" width="123" height="123"></rect>
+        <rect id="Box-3" stroke="url(#linearGradient-1)" stroke-width="5" fill="#FDFAFA" transform="translate(90.509668, 90.509668) rotate(-330.000000) translate(-90.509668, -90.509668) " x="29.009668" y="29.009668" width="123" height="123"></rect>
+        <rect id="Box-2" stroke="url(#linearGradient-1)" stroke-width="5" fill="#FDFAFA" transform="translate(90.509668, 90.509668) rotate(-345.000000) translate(-90.509668, -90.509668) " x="29.009668" y="29.009668" width="123" height="123"></rect>
+        <rect id="Box-1-(Frontmost)" stroke="url(#linearGradient-1)" stroke-width="5" fill="#FDFAFA" x="29.009668" y="29.009668" width="123" height="123"></rect>
+        <path d="M113.166079,124.911482 C101.740076,131.593904 86.0296285,132.280489 70.2236989,125.422082 C57.4259394,119.909579 46.8071262,110.26022 40,99.2352143 C43.2674401,101.991466 47.079372,104.197459 51.1635498,106.125843 C67.4865506,113.871604 83.8061239,113.341174 95.2908847,106.145672 C95.2835399,106.138236 95.2786434,106.133279 95.2737469,106.125843 C78.9365462,93.4451033 65.050048,76.9051157 54.7037255,63.3989876 C52.5245343,61.1934907 50.8908143,58.4367434 49.2570942,55.9558692 C61.7821182,67.5336127 81.6597394,82.1427371 88.7376425,86.279593 C73.7641194,70.2898642 60.4211337,50.4433662 60.9646461,50.9936251 C84.6539544,75.2521084 106.710277,89.0358445 106.710277,89.0358445 C107.439857,89.4522566 108.002955,89.7992667 108.455882,90.1090971 C108.933292,88.8796899 109.351943,87.6031886 109.704492,86.279593 C113.516424,72.2207274 109.16098,56.2309986 99.6299257,43 C121.6838,56.5073674 134.75503,81.8676077 129.307664,103.09471 C129.165665,103.667277 129.011425,104.232407 128.844944,104.787624 C128.908598,104.864461 128.972253,104.943778 129.035908,105.025573 C139.925743,118.809309 136.931528,133.418434 135.570298,130.662182 C129.662661,118.958028 118.726309,122.537189 113.166324,124.91173 L113.166079,124.911482 Z" id="Swift-Bird" fill="url(#linearGradient-2)" fill-rule="nonzero"></path>
+    </g>
+</svg>

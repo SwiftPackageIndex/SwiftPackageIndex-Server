@@ -1,0 +1,218 @@
+/* Globals ----------------------------------------------------------------- */
+:root {
+  --dark-blue: #111930;
+  --mid-blue: #356FCE;
+  --light-blue: #BEDEFF;
+
+  --dark-green: #027353;
+  --mid-green: #038C33;
+  --light-green: #5FBF1B;
+
+  --yellow: #F2B94F;
+
+  --black: #2D2D2D;
+  --dark-grey: #5C5C5C;
+  --grey: #9A9A9A;
+  --light-grey: #EFEFEF;
+  --white: #FFFFFF;
+}
+
+/* Base styles ------------------------------------------------------------- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color: var(--black);
+  background-color: var(--white);
+  font-family: "Open Sans", -apple-system, "BlinkMacSystemFont", "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 16px;
+  line-height: 22px;
+}
+
+h1 {
+  margin: 0;
+  padding: 0;
+  font-size: 23px;
+}
+
+h2 {
+  margin: 0;
+  padding: 0;
+  font-size: 30px;
+  line-height: 27px;
+  letter-spacing: -0.5px;
+}
+
+h3 {
+  font-size: 20px;
+  line-height: 22px;
+}
+
+h4 {
+  font-size: 18px;
+  line-height: 20px;
+}
+
+a {
+  color: var(--mid-blue);
+  text-decoration: none;
+}
+
+small {
+  font-size: 11px;
+}
+
+hr {
+  margin: 5px 0;
+  border: 0;
+  height: 2px;
+  background-color: var(--light-blue);
+}
+
+hr.short {
+  max-width: 40%;
+  height: 1px;
+}
+
+/* Overall layout ---------------------------------------------------------- */
+.inner {
+  margin: 0 auto;
+  padding: 20px 10px;
+  max-width: 800px;
+}
+
+.split {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media screen and (max-width: 767px) {
+  .split {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+nav ul {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+nav ul li {
+  margin: 0 5px;
+  list-style: none;
+}
+
+nav ul li a {
+  padding: 3px;
+  color: var(--white);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+nav ul li a:hover {
+  color: var(--yellow);
+}
+
+/* Header ------------------------------------------------------------------ */
+header {
+  color: var(--white);
+  background-color: var(--dark-blue);
+}
+
+header .inner {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header a {
+  color: var(--white);
+}
+
+header h1 {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+header h1 img {
+  margin-right: 10px;
+  max-width: 64px;
+}
+
+header nav ul li a {
+  border-bottom: 2px var(--light-blue) solid;
+}
+
+header nav ul li a:hover {
+  border-color: var(--yellow);
+}
+
+@media screen and (max-width: 767px) {
+  header .inner {
+    flex-direction: column;
+  }
+
+  header h1 {
+    margin-bottom: 20px;
+  }
+}
+
+/* Main content ------------------------------------------------------------ */
+.license {
+  margin: 5px 0;
+  padding: 5px 10px 5px 28px;
+  background-color: var(--light-green);
+  background-image: url('/images/osi.svg');
+  background-repeat: no-repeat;
+  background-position: 7px center;
+  background-size: 17px;
+  border-radius: 7px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.license .bad {
+  background-color: var(--mid-blue);
+}
+
+p.description {
+  margin: 20px auto;
+  max-width: 90%;
+}
+
+@media screen and (max-width: 767px) {
+  p.description {
+    max-width: 95%;
+  }
+}
+
+.metadata {
+  margin: 50px 0;
+}
+
+/* Footer ------------------------------------------------------------------ */
+footer {
+  color: var(--white);
+  background-color: var(--dark-blue);
+}
+
+footer .inner {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+@media screen and (max-width: 767px) {
+  footer .inner nav ul {
+    flex-direction: column;
+    align-items: center;
+  }
+}
