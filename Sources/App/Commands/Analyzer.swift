@@ -262,6 +262,7 @@ func updateStatus(application: Application, results: [Result<Package, Error>]) -
                                    stage: .analysis)
         }
     }
+    application.logger.debug("updateStatus ops: \(updates.count)")
     return EventLoopFuture.andAllComplete(updates, on: application.eventLoopGroup.next())
 }
 
