@@ -354,6 +354,26 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(products.map(\.name), ["p1", "p2"])
     }
 
+    func test_updateStatus() throws {
+        // setup
+        let packages = try savePackages(on: app.db, ["1", "2"].urls)
+        let results: [Result<Package, ProcessingError>] = [
+            // feed in one error to see it passed through
+            .failure(.init(packageId: try packages[0].requireID(), type: .noValidVersions("1"))),
+            .success(packages[1])
+        ]
+
+        // MUT
+        try updateStatus(application: app, results: results).wait()
+
+        // validate
+        do {
+            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            assertEquals(packages, \.status, [.noValidVersions, .ok])
+            assertEquals(packages, \.processingStage, [.analysis, .analysis])
+        }
+    }
+
     func test_issue_42() throws {
         // setup
         Current.shell.run = { cmd, path in

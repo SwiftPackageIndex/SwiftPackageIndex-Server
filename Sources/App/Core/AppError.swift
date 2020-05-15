@@ -8,6 +8,24 @@
 import Vapor
 
 
+struct ProcessingError: LocalizedError {
+    var packageId: Package.Id
+    var type: Type
+
+    enum `Type` {
+        case invalidPackageURL(_ url: String)
+        case noValidVersions(_ url: String)
+    }
+
+    var status: Status {
+        switch type {
+            case .invalidPackageURL: return .invalidUrl
+            case .noValidVersions: return .noValidVersions
+        }
+    }
+}
+
+
 enum AppError: LocalizedError {
     case envVariableNotSet(_ variable: String)
     case invalidPackageUrl(Package.Id?, _ url: String)

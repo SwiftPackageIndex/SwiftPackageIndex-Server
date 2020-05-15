@@ -317,6 +317,7 @@ func updateProducts(on database: Database, version: Version, manifest: Manifest)
 }
 
 
+@available(*, deprecated)
 func updateStatus(application: Application, package: Package, for result: Result<Void, Error>) -> EventLoopFuture<Void> {
     package.processingStage = .analysis
     switch result {
@@ -330,6 +331,29 @@ func updateStatus(application: Application, package: Package, for result: Result
                 .flatMap { Current.reportError(application.client, .error, error) }
     }
 }
+
+
+func updateStatus(application: Application, results: [Result<Package, ProcessingError>]) -> EventLoopFuture<Void> {
+
+    let updates = results.map { result -> EventLoopFuture<Void> in
+        switch result {
+            case .success(let pkg):
+                pkg.status = .ok
+                pkg.processingStage = .analysis
+                return pkg.update(on: application.db)
+            case .failure(let error):
+                return Package.query(on: application.db)
+                    .filter(\.$id == error.packageId)
+                    .set(\.$processingStage, to: .analysis)
+                    .set(\.$status, to: error.status)
+                    .update()
+        }
+    }
+
+    return EventLoopFuture.andAllComplete(updates, on: application.eventLoopGroup.next())
+}
+
+
 
 
 // FIXME: move
