@@ -66,6 +66,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
 
     // refresh checkouts
     let checkouts = packages
+        // FIXME: flatMapEach calls flatten, i.e. andAllSucceed, i.e. it short-circuits
         .flatMapEach(on: application.eventLoopGroup.next()) {
             pullOrClone(application: application, package: $0)
     }
@@ -107,6 +108,12 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
     }
 
     return statusUpdates
+}
+
+
+func pullOrClone(application: Application, packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = packages.map { pullOrClone(application: application, package: $0) }
+    return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
 }
 
 

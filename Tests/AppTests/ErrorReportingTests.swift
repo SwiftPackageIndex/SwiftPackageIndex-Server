@@ -60,7 +60,8 @@ class ErrorReportingTests: AppTestCase {
     }
 
     func test_invalidPackageCachePath() throws {
-        try XCTSkipIf(true, "WIP")
+        #warning("WIP")
+        try XCTSkipIf(true)
         // setup
         try savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
 
