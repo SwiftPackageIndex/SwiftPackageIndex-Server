@@ -266,16 +266,3 @@ func updateStatus(application: Application, results: [Result<Package, Error>]) -
     application.logger.debug("updateStatus ops: \(updates.count)")
     return EventLoopFuture.andAllComplete(updates, on: application.eventLoopGroup.next())
 }
-
-
-// FIXME: move
-extension Result {
-    func getError() -> Error? {
-        switch self {
-        case .success:
-            return nil
-        case .failure(let error):
-            return error
-        }
-    }
-}
