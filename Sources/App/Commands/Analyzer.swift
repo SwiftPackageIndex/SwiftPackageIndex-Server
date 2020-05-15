@@ -259,14 +259,14 @@ func _getManifest(package: Package, version: Version) -> Result<(Version, Manife
 }
 
 
-func updateVersions(on database: Database, results: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+func updateVersionsAndProducts(on database: Database, results: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = results.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success((pkg, versionsAndManifests)):
-                // FIXME: update products as well
-                let updates = versionsAndManifests.map { updateVersion(on: database,
-                                                                       version: $0,
-                                                                       manifest: $1) }
+                let updates = versionsAndManifests.map { version, manifest in
+                    updateVersion(on: database, version: version, manifest: manifest)
+                        .flatMap { updateProducts(on: database, version: version, manifest: manifest)}
+                }
                 return EventLoopFuture
                     .andAllComplete(updates, on: database.eventLoop)
                     .transform(to: pkg)

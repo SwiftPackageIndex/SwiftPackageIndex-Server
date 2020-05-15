@@ -281,7 +281,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(m.name, "SPI-Server")
     }
 
-    func test_updateVersion() throws {
+    func test_updateVersionsAndProducts() throws {
         // setup
         let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
@@ -289,7 +289,7 @@ class AnalyzerTests: AppTestCase {
         let manifest = Manifest(name: "foo",
                                 platforms: [.init(platformName: .ios, version: "11.0"),
                                             .init(platformName: .macos, version: "10.10")],
-                                products: [],
+                                products: [.init(name: "p1", type: .library)],
                                 swiftLanguageVersions: ["1", "2", "3.0.0rc"])
 
         let results: [Result<(Package, [(Version, Manifest)]), Error>] = [
@@ -299,15 +299,21 @@ class AnalyzerTests: AppTestCase {
         ]
 
         // MUT
-        let res = try updateVersions(on: app.db, results: results).wait()
+        let res = try updateVersionsAndProducts(on: app.db, results: results).wait()
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
         // read back and validate
-        let v = try Version.query(on: app.db).first().wait()!
+        let versions = try Version.query(on: app.db).all().wait()
+        XCTAssertEqual(versions.count, 1)
+        let v = try XCTUnwrap(versions.first)
         XCTAssertEqual(v.packageName, "foo")
         XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0rc"])
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
+        let products = try Product.query(on: app.db).all().wait()
+        XCTAssertEqual(products.count, 1)
+        let p = try XCTUnwrap(products.first)
+        XCTAssertEqual(p.name, "p1")
     }
 
     func test_updateVersion_old() throws {
