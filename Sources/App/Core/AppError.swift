@@ -9,12 +9,13 @@ import Vapor
 
 
 enum AppError: LocalizedError {
-    case envVariableNotSet(String)
-    case invalidPackageUrl(Package.Id?, String)
-    case invalidPackageCachePath(Package.Id?, String)
-    case invalidRevision(Version.Id?, String?)
+    case envVariableNotSet(_ variable: String)
+    case invalidPackageUrl(Package.Id?, _ url: String)
+    case invalidPackageCachePath(Package.Id?, _ path: String)
+    case invalidRevision(Version.Id?, _ revision: String?)
     case metadataRequestFailed(Package.Id?, HTTPStatus, URI)
-    case genericError(Package.Id?, String)
+    case noValidVersions(Package.Id?, _ url: String)
+    case genericError(Package.Id?, _ message: String)
 
     var localizedDescription: String {
         switch self {
@@ -28,6 +29,8 @@ enum AppError: LocalizedError {
                 return "Invalid revision: \(value ?? "nil") (id: \(String(describing: id)))"
             case let .metadataRequestFailed(id, status, uri):
                 return "Metadata request for URI '\(uri.description)' failed with status '\(status)'  (id: \(String(describing: id)))"
+            case let .noValidVersions(id, value):
+                return "No valid version found for package '\(value)' (id: \(String(describing: id)))"
             case let .genericError(id, value):
                 return "Generic error: \(value) (id: \(String(describing: id)))"
         }
