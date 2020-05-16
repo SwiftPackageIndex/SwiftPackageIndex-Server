@@ -8,6 +8,7 @@ x-shared: &shared
     # set these variables via the environment or a `.env` file, which
     # docker-compose reads and uses to populate variables
     CHECKOUTS_DIR: ${CHECKOUTS_DIR}
+    ENV: "production"
     DATABASE_HOST: ${DATABASE_HOST}
     DATABASE_PORT: ${DATABASE_PORT}
     DATABASE_NAME: ${DATABASE_NAME}
@@ -27,7 +28,7 @@ services:
       - migrate
     ports:
       - '8080:80'
-    command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "80"]
+    command: ["serve", "--env", "${ENV}", "--hostname", "0.0.0.0", "--port", "80"]
     deploy:
       update_config:
         order: start-first
@@ -39,7 +40,7 @@ services:
       - migrate
     entrypoint: ["/bin/bash"]
     command: ["-c", "--",
-      "trap : TERM INT; while true; do ./Run reconcile; sleep ${RECONCILE_SLEEP:-120}; done"
+      "trap : TERM INT; while true; do ./Run reconcile --env ${ENV}; sleep ${RECONCILE_SLEEP:-120}; done"
     ]
 
   ingest:
@@ -49,7 +50,7 @@ services:
       - migrate
     entrypoint: ["/bin/bash"]
     command: ["-c", "--",
-      "trap : TERM INT; while true; do ./Run ingest --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-10}; done"
+      "trap : TERM INT; while true; do ./Run ingest --env ${ENV} --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-10}; done"
     ]
 
   analyze:
@@ -59,7 +60,7 @@ services:
       - migrate
     entrypoint: ["/bin/bash"]
     command: ["-c", "--",
-      "trap : TERM INT; while true; do ./Run analyze --limit ${ANALYZE_LIMIT:-50}; sleep ${ANALYZE_SLEEP:-10}; done"
+      "trap : TERM INT; while true; do ./Run analyze --env ${ENV} --limit ${ANALYZE_LIMIT:-50}; sleep ${ANALYZE_SLEEP:-10}; done"
     ]
 
   migrate:
