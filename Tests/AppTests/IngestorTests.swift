@@ -140,34 +140,6 @@ class IngestorTests: AppTestCase {
                        packages.map(\.id).compactMap { $0?.uuidString }.sorted())
     }
 
-    func test_fetchMetadata_badMetadata() throws {
-        // setup
-        Current.fetchMetadata = { _, _ in
-            .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
-        }
-        let pkg = try savePackage(on: app.db, "1")
-
-        // MUT
-//        let md = try fetchMetadata(for: pkg, with: app.client).wait()
-//
-//        // validate
-//        XCTAssert(md.isFailure)
-    }
-
-    // TODO: sas-2020-05-15: move
-    func test_recordError() throws {
-        let pkg = try savePackage(on: app.db, "1")
-        try recordError(client: app.client,
-                        database: app.db,
-                        error: AppError.invalidPackageUrl(pkg.id, "foo"),
-                        stage: .ingestion).wait()
-        do {
-            let pkg = try fetch(id: pkg.id, on: app.db)
-            XCTAssertEqual(pkg.status, .invalidUrl)
-            XCTAssertEqual(pkg.processingStage, .ingestion)
-        }
-    }
-
     func test_ingest_badMetadata() throws {
         // setup
         let urls = ["1", "2", "3"]
