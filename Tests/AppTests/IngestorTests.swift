@@ -40,6 +40,23 @@ class IngestorTests: AppTestCase {
         }
     }
 
+    func test_fetchMetadata() throws {
+        // setup
+        let packages = try savePackages(on: app.db, ["1", "2"].urls)
+        Current.fetchMetadata = { _, pkg in
+            if pkg.url == "1" {
+               return .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
+            }
+            return .just(value: .mock(for: pkg))
+        }
+
+        // MUT
+        let res = try fetchMetadata(client: app.client, packages: packages).wait()
+
+        // validate
+        XCTAssertEqual(res.map(\.isSuccess), [false, true])
+    }
+
     func test_insertOrUpdateRepository() throws {
         let pkg = try savePackage(on: app.db, "foo")
         do {  // test insert
@@ -97,33 +114,10 @@ class IngestorTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
 
         // MUT
-        let md = try fetchMetadata(for: pkg, with: app.client).wait()
-
-        // validate
-        XCTAssert(md.isFailure)
-    }
-
-    func test_fetchMetadata_badMetadata_bulk() throws {
-        // Test to ensure fetch failures don't break the pipeline
-        // (which is easy to get wrong by not catching and rewrapping into a future)
-        // setup
-        let urls = ["1", "2", "3"]
-        Current.fetchMetadata = { _, pkg in
-            if pkg.url == "2" {
-               return .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("2")))
-            }
-            return .just(value: .mock(for: pkg))
-        }
-        try urls.urls.map { Package(url: $0) }.save(on: app.db).wait()
-
-        // MUT
-        let md = try Package.query(on: app.db).all()
-            .flatMapEach(on: app.db.eventLoop) { fetchMetadata(for: $0, with: self.app.client) }
-            .wait()
-
-        // validate
-        XCTAssertEqual(md.count, 3)
-        XCTAssertEqual(md.map(\.isSuccess), [true, false, true])
+//        let md = try fetchMetadata(for: pkg, with: app.client).wait()
+//
+//        // validate
+//        XCTAssert(md.isFailure)
     }
 
     // TODO: sas-2020-05-15: move

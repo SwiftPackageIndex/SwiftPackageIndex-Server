@@ -26,24 +26,22 @@ struct IngestorCommand: Command {
 
 
 func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
-    Package.fetchCandidates(database, for: .ingestion, limit: limit)
-        .flatMapEach(on: database.eventLoop) { fetchMetadata(for: $0, with: client) }
-        .flatMapEachThrowing { updateTables(client: client, database: database, result: $0) }
-        .flatMap { .andAllComplete($0, on: database.eventLoop) }
+    let packages = Package.fetchCandidates(database, for: .ingestion, limit: limit)
+    let metadata = packages.flatMap { fetchMetadata(client: client, packages: $0) }
+    return client.eventLoop.future()  // FIXME: remove
+
+//        .flatMapEach(on: database.eventLoop) { fetchMetadata(for: $0, with: client) }
+//        .flatMapEachThrowing { updateTables(client: client, database: database, result: $0) }
+//        .flatMap { .andAllComplete($0, on: database.eventLoop) }
 }
 
 
 typealias PackageMetadata = (Package, Github.Metadata)
 
 
-func fetchMetadata(for package: Package, with client: Client) -> EventLoopFuture<Result<PackageMetadata, Error>> {
-    do {
-        return try Current.fetchMetadata(client, package)
-            .map { .success((package, $0)) }
-            .flatMapErrorThrowing { .failure($0) }
-    } catch {
-        return client.eventLoop.makeSucceededFuture(.failure(error))
-    }
+func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
+    let ops = packages.map { pkg in Current.fetchMetadata(client, pkg).map { (pkg, $0) } }
+    return EventLoopFuture.whenAllComplete(ops, on: client.eventLoop)
 }
 
 
