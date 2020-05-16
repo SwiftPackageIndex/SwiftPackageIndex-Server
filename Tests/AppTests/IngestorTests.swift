@@ -126,11 +126,13 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(md.map(\.isSuccess), [true, false, true])
     }
 
-    func test_recordIngestionError() throws {
+    // TODO: sas-2020-05-15: move
+    func test_recordError() throws {
         let pkg = try savePackage(on: app.db, "1")
-        try recordIngestionError(client: app.client,
-                                 database: app.db,
-                                 error: AppError.invalidPackageUrl(pkg.id, "foo")).wait()
+        try recordError(client: app.client,
+                        database: app.db,
+                        error: AppError.invalidPackageUrl(pkg.id, "foo"),
+                        stage: .ingestion).wait()
         do {
             let pkg = try fetch(id: pkg.id, on: app.db)
             XCTAssertEqual(pkg.status, .invalidUrl)

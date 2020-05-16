@@ -57,7 +57,7 @@ func updateTables(client: Client, database: Database, result: Result<PackageMeta
                 return pkg.save(on: database)
             }
     } catch {
-        return recordIngestionError(client: client, database: database, error: error)
+        return recordError(client: client, database: database, error: error, stage: .ingestion)
     }
 }
 
@@ -90,30 +90,39 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
 }
 
 
-func recordIngestionError(client: Client, database: Database, error: Error) -> EventLoopFuture<Void> {
+// TODO: sas: 2020-05-15: clean this up
+// https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/69
+func recordError(client: Client, database: Database, error: Error, stage: ProcessingStage) -> EventLoopFuture<Void> {
     let errorReport = Current.reportError(client, .error, error)
 
     func setStatus(id: Package.Id?, status: Status) -> EventLoopFuture<Void> {
-        Package.find(id, on: database).flatMap { pkg in
-            guard let pkg = pkg else { return database.eventLoop.makeSucceededFuture(()) }
-            pkg.status = status
-            pkg.processingStage = .ingestion
-            return pkg.save(on: database)
-                .flatMap { errorReport }
-        }
+        guard let id = id else { return database.eventLoop.future() }
+        return Package.query(on: database)
+            .filter(\.$id == id)
+            .set(\.$processingStage, to: stage)
+            .set(\.$status, to: status)
+            .update()
+
     }
 
-    database.logger.error("Ingestion error: \(error.localizedDescription)")
+    database.logger.error("\(stage) error: \(error.localizedDescription)")
 
+    guard let error = error as? AppError else { return errorReport }
     switch error {
-        case let AppError.invalidPackageUrl(id, _):
-            return setStatus(id: id, status: .invalidUrl)
-        case let AppError.metadataRequestFailed(id, _, _):
-            return setStatus(id: id, status: .metadataRequestFailed)
-        case let AppError.genericError(id, _):
-            return setStatus(id: id, status: .ingestionFailed)
-        default:
+        case .envVariableNotSet:
             break
+        case let .genericError(id, _):
+            return setStatus(id: id, status: .ingestionFailed)
+        case let .invalidPackageCachePath(id, _):
+            return setStatus(id: id, status: .invalidCachePath)
+        case let .invalidPackageUrl(id, _):
+            return setStatus(id: id, status: .invalidUrl)
+        case let .invalidRevision(id, _):
+            return setStatus(id: id, status: .analysisFailed)
+        case let .metadataRequestFailed(id, _, _):
+            return setStatus(id: id, status: .metadataRequestFailed)
+        case let .noValidVersions(id, _):
+            return setStatus(id: id, status: .noValidVersions)
     }
 
     return errorReport

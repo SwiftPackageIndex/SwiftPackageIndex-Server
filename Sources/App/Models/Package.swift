@@ -4,11 +4,14 @@ import Vapor
 
 enum Status: String, Codable {
     case ok
-    case invalidUrl = "invalid_url"
-    case notFound = "not_found"
-    case metadataRequestFailed = "metadata_request_failed"
-    case ingestionFailed = "ingestion_failed"
+    // errors
     case analysisFailed = "analysis_failed"
+    case ingestionFailed = "ingestion_failed"
+    case invalidCachePath = "invalid_cache_path"
+    case invalidUrl = "invalid_url"
+    case metadataRequestFailed = "metadata_request_failed"
+    case notFound = "not_found"
+    case noValidVersions = "no_valid_versions"
 }
 
 
