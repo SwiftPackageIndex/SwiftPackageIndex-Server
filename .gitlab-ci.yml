@@ -45,7 +45,12 @@ build-tag:
         - docker
     script: |
       VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
+      apk add --no-cache curl
+      curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "revision": "'"$VERSION"'", "status": "started"}' https://api.rollbar.com/api/1/deploy
       env VERSION=$VERSION docker-compose up -d
+      if [[ $? == 0 ]]; then
+        curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "revision": "'"$VERSION"'", "status": "started"}' https://api.rollbar.com/api/1/deploy
+      fi
   
   
 deploy:
