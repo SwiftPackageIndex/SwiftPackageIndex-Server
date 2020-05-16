@@ -359,7 +359,7 @@ class AnalyzerTests: AppTestCase {
         ]
 
         // MUT
-        try updateStatus(application: app, results: results).wait()
+        try updateStatus(application: app, results: results, stage: .analysis).wait()
 
         // validate
         do {

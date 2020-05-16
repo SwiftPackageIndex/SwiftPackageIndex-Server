@@ -17,7 +17,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
 
         // MUT
-        try ingest(client: app.client, database: app.db, limit: 10).wait()
+        try ingest(application: app, database: app.db, limit: 10).wait()
 
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -88,6 +88,25 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
     }
 
+    func test_updateStatus() throws {
+        // setup
+        let pkgs = try savePackages(on: app.db, ["1", "2"])
+        let results: [Result<Package, Error>] = [
+            .failure(AppError.metadataRequestFailed(try pkgs[0].requireID(), .badRequest, "1")),
+            .success(pkgs[1])
+        ]
+
+        // MUT
+        try updateStatus(application: app, results: results, stage: .ingestion).wait()
+
+        // validate
+        do {
+            let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
+            XCTAssertEqual(pkgs.map(\.status), [.metadataRequestFailed, .ok])
+            XCTAssertEqual(pkgs.map(\.processingStage), [.ingestion, .ingestion])
+        }
+    }
+
     func test_partial_save_issue() throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
@@ -95,7 +114,7 @@ class IngestorTests: AppTestCase {
         let packages = try savePackages(on: app.db, testUrls, processingStage: .reconciliation)
 
         // MUT
-        try ingest(client: app.client, database: app.db, limit: testUrls.count).wait()
+        try ingest(application: app, database: app.db, limit: testUrls.count).wait()
 
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -162,7 +181,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
 
         // MUT
-        try ingest(client: app.client, database: app.db, limit: 10).wait()
+        try ingest(application: app, database: app.db, limit: 10).wait()
 
         // validate
         let repos = try Repository.query(on: app.db).all().wait()

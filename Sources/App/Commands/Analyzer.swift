@@ -73,7 +73,9 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
     let updateOps = versionsAndManifests.flatMap { updateVersionsAndProducts(on: application.db,
                                                                              results: $0) }
 
-    let statusOps = updateOps.flatMap { updateStatus(application: application, results: $0) }
+    let statusOps = updateOps.flatMap { updateStatus(application: application,
+                                                     results: $0,
+                                                     stage: .analysis) }
 
     return statusOps
 }
@@ -246,23 +248,4 @@ func updateProducts(on database: Database, version: Version, manifest: Manifest)
         return try? Product(version: version, type: type, name: p.name)
     }
     return products.create(on: database)
-}
-
-
-func updateStatus(application: Application, results: [Result<Package, Error>]) -> EventLoopFuture<Void> {
-    let updates = results.map { result -> EventLoopFuture<Void> in
-        switch result {
-            case .success(let pkg):
-                pkg.status = .ok
-                pkg.processingStage = .analysis
-                return pkg.update(on: application.db)
-            case .failure(let error):
-                return recordError(client: application.client,
-                                   database: application.db,
-                                   error: error,
-                                   stage: .analysis)
-        }
-    }
-    application.logger.debug("updateStatus ops: \(updates.count)")
-    return EventLoopFuture.andAllComplete(updates, on: application.eventLoopGroup.next())
 }

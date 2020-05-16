@@ -15,7 +15,7 @@ struct IngestorCommand: Command {
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
         context.console.info("Ingesting (limit: \(limit)) ...")
-        let request = ingest(client: context.application.client,
+        let request = ingest(application: context.application,
                              database: context.application.db,
                              limit: limit)
         context.console.info("Processing ...", newLine: true)
@@ -25,15 +25,11 @@ struct IngestorCommand: Command {
 }
 
 
-func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
-    let packages = Package.fetchCandidates(database, for: .ingestion, limit: limit)
-    let metadata = packages.flatMap { fetchMetadata(client: client, packages: $0) }
-    let updates = metadata.flatMap { updateRespositories(on: database, metadata: $0) }
-    return client.eventLoop.future()  // FIXME: remove
-
-//        .flatMapEach(on: database.eventLoop) { fetchMetadata(for: $0, with: client) }
-//        .flatMapEachThrowing { updateTables(client: client, database: database, result: $0) }
-//        .flatMap { .andAllComplete($0, on: database.eventLoop) }
+func ingest(application: Application, database: Database, limit: Int) -> EventLoopFuture<Void> {
+    let packages = Package.fetchCandidates(application.db, for: .ingestion, limit: limit)
+    let metadata = packages.flatMap { fetchMetadata(client: application.client, packages: $0) }
+    let updates = metadata.flatMap { updateRespositories(on: application.db, metadata: $0) }
+    return updates.flatMap { updateStatus(application: application, results: $0, stage: .ingestion) }
 }
 
 
@@ -104,43 +100,4 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
                 }
             }
     }
-}
-
-
-// TODO: sas: 2020-05-15: clean this up
-// https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/69
-func recordError(client: Client, database: Database, error: Error, stage: ProcessingStage) -> EventLoopFuture<Void> {
-    let errorReport = Current.reportError(client, .error, error)
-
-    func setStatus(id: Package.Id?, status: Status) -> EventLoopFuture<Void> {
-        guard let id = id else { return database.eventLoop.future() }
-        return Package.query(on: database)
-            .filter(\.$id == id)
-            .set(\.$processingStage, to: stage)
-            .set(\.$status, to: status)
-            .update()
-
-    }
-
-    database.logger.error("\(stage) error: \(error.localizedDescription)")
-
-    guard let error = error as? AppError else { return errorReport }
-    switch error {
-        case .envVariableNotSet:
-            break
-        case let .genericError(id, _):
-            return setStatus(id: id, status: .ingestionFailed)
-        case let .invalidPackageCachePath(id, _):
-            return setStatus(id: id, status: .invalidCachePath)
-        case let .invalidPackageUrl(id, _):
-            return setStatus(id: id, status: .invalidUrl)
-        case let .invalidRevision(id, _):
-            return setStatus(id: id, status: .analysisFailed)
-        case let .metadataRequestFailed(id, _, _):
-            return setStatus(id: id, status: .metadataRequestFailed)
-        case let .noValidVersions(id, _):
-            return setStatus(id: id, status: .noValidVersions)
-    }
-
-    return errorReport
 }

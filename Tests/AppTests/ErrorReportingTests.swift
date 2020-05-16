@@ -25,7 +25,7 @@ class ErrorReportingTests: AppTestCase {
         }
 
         // MUT
-        try ingest(client: app.client, database: app.db, limit: 10).wait()
+        try ingest(application: app, database: app.db, limit: 10).wait()
 
         // validation
         XCTAssertEqual(reportedError, AppError.invalidPackageUrl(nil, "foo"))
