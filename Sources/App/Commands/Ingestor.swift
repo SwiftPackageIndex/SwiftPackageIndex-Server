@@ -28,6 +28,7 @@ struct IngestorCommand: Command {
 func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
     let packages = Package.fetchCandidates(database, for: .ingestion, limit: limit)
     let metadata = packages.flatMap { fetchMetadata(client: client, packages: $0) }
+    let updates = metadata.flatMap { updateRespositories(on: database, metadata: $0) }
     return client.eventLoop.future()  // FIXME: remove
 
 //        .flatMapEach(on: database.eventLoop) { fetchMetadata(for: $0, with: client) }
@@ -45,10 +46,24 @@ func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Resu
 }
 
 
+func updateRespositories(on database: Database, metadata: [Result<(Package, Github.Metadata), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = metadata.map { result -> EventLoopFuture<Package> in
+        switch result {
+            case let .success((pkg, md)):
+                return insertOrUpdateRepository(on: database, for: pkg, metadata: md)
+                    .map { pkg }
+            case let .failure(error):
+                return database.eventLoop.future(error: error)
+        }
+    }
+    return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
+}
+
+
 func updateTables(client: Client, database: Database, result: Result<PackageMetadata, Error>) -> EventLoopFuture<Void> {
     do {
         let (pkg, md) = try result.get()
-        return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
+        return insertOrUpdateRepository(on: database, for: pkg, metadata: md)
             .flatMap {
                 pkg.status = .ok
                 pkg.processingStage = .ingestion
@@ -60,9 +75,13 @@ func updateTables(client: Client, database: Database, result: Result<PackageMeta
 }
 
 
-func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github.Metadata) throws -> EventLoopFuture<Void> {
-    Repository.query(on: database)
-        .filter(try \.$package.$id == package.requireID())
+func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github.Metadata) -> EventLoopFuture<Void> {
+    guard let pkgId = try? package.requireID() else {
+        return database.eventLoop.makeFailedFuture(AppError.genericError(nil, "package id not found"))
+    }
+
+    return Repository.query(on: database)
+        .filter(\.$package.$id == pkgId)
         .first()
         .flatMap { repo -> EventLoopFuture<Void> in
             if let repo = repo {
@@ -78,13 +97,13 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
                     return try Repository(package: package, metadata: metadata)
                         .save(on: database)
                 } catch {
-                    return database.eventLoop.makeFailedFuture(
+                    return database.eventLoop.future(error:
                         AppError.genericError(package.id,
                                               "Failed to create Repository for \(package.url)")
                     )
                 }
             }
-        }
+    }
 }
 
 

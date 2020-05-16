@@ -73,6 +73,21 @@ class IngestorTests: AppTestCase {
         }
     }
 
+    func test_updateRepositories() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "2")
+        let metadata: [Result<(Package, Github.Metadata), Error>] = [
+            .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
+            .success((pkg, .init(defaultBranch: "master", forksCount: 1, stargazersCount: 2)))
+        ]
+
+        // MUT
+        let res = try updateRespositories(on: app.db, metadata: metadata).wait()
+
+        // validate
+        XCTAssertEqual(res.map(\.isSuccess), [false, true])
+    }
+
     func test_partial_save_issue() throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
@@ -93,9 +108,9 @@ class IngestorTests: AppTestCase {
         // Mainly a debug test for the issue described here:
         // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
         let packages = try savePackages(on: app.db, testUrls100)
-        let req = try packages
+        let req = packages
             .map { ($0, Github.Metadata.mock(for: $0)) }
-            .map { try insertOrUpdateRepository(on: self.app.db, for: $0.0, metadata: $0.1) }
+            .map { insertOrUpdateRepository(on: self.app.db, for: $0.0, metadata: $0.1) }
             .flatten(on: app.db.eventLoop)
 
         try req.wait()
