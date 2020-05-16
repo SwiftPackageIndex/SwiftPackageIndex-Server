@@ -5,6 +5,19 @@ import XCTVapor
 
 class ErrorReportingTests: AppTestCase {
 
+    func test_recordError() throws {
+        let pkg = try savePackage(on: app.db, "1")
+        try recordError(client: app.client,
+                        database: app.db,
+                        error: AppError.invalidPackageUrl(pkg.id, "foo"),
+                        stage: .ingestion).wait()
+        do {
+            let pkg = try fetch(id: pkg.id, on: app.db)
+            XCTAssertEqual(pkg.status, .invalidUrl)
+            XCTAssertEqual(pkg.processingStage, .ingestion)
+        }
+    }
+
     func test_Rollbar_createItem() throws {
         Current.rollbarToken = { "token" }
         let client = MockClient { $0.status = .ok }
@@ -25,7 +38,7 @@ class ErrorReportingTests: AppTestCase {
         }
 
         // MUT
-        try ingest(client: app.client, database: app.db, limit: 10).wait()
+        try ingest(application: app, database: app.db, limit: 10).wait()
 
         // validation
         XCTAssertEqual(reportedError, AppError.invalidPackageUrl(nil, "foo"))

@@ -5,7 +5,7 @@ import Vapor
 struct AppEnvironment {
     var date: () -> Date
     var fetchMasterPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
-    var fetchMetadata: (_ client: Client, _ package: Package) throws -> EventLoopFuture<Github.Metadata>
+    var fetchMetadata: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Metadata>
     var fileManager: FileManager
     var githubToken: () -> String?
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>

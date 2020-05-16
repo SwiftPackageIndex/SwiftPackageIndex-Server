@@ -17,7 +17,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
 
         // MUT
-        try ingest(client: app.client, database: app.db, limit: 10).wait()
+        try ingest(application: app, database: app.db, limit: 10).wait()
 
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -40,6 +40,23 @@ class IngestorTests: AppTestCase {
         }
     }
 
+    func test_fetchMetadata() throws {
+        // setup
+        let packages = try savePackages(on: app.db, ["1", "2"].urls)
+        Current.fetchMetadata = { _, pkg in
+            if pkg.url == "1" {
+               return .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
+            }
+            return .just(value: .mock(for: pkg))
+        }
+
+        // MUT
+        let res = try fetchMetadata(client: app.client, packages: packages).wait()
+
+        // validate
+        XCTAssertEqual(res.map(\.isSuccess), [false, true])
+    }
+
     func test_insertOrUpdateRepository() throws {
         let pkg = try savePackage(on: app.db, "foo")
         do {  // test insert
@@ -56,6 +73,40 @@ class IngestorTests: AppTestCase {
         }
     }
 
+    func test_updateRepositories() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "2")
+        let metadata: [Result<(Package, Github.Metadata), Error>] = [
+            .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
+            .success((pkg, .init(defaultBranch: "master", forksCount: 1, stargazersCount: 2)))
+        ]
+
+        // MUT
+        let res = try updateRespositories(on: app.db, metadata: metadata).wait()
+
+        // validate
+        XCTAssertEqual(res.map(\.isSuccess), [false, true])
+    }
+
+    func test_updateStatus() throws {
+        // setup
+        let pkgs = try savePackages(on: app.db, ["1", "2"])
+        let results: [Result<Package, Error>] = [
+            .failure(AppError.metadataRequestFailed(try pkgs[0].requireID(), .badRequest, "1")),
+            .success(pkgs[1])
+        ]
+
+        // MUT
+        try updateStatus(application: app, results: results, stage: .ingestion).wait()
+
+        // validate
+        do {
+            let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
+            XCTAssertEqual(pkgs.map(\.status), [.metadataRequestFailed, .ok])
+            XCTAssertEqual(pkgs.map(\.processingStage), [.ingestion, .ingestion])
+        }
+    }
+
     func test_partial_save_issue() throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
@@ -63,7 +114,7 @@ class IngestorTests: AppTestCase {
         let packages = try savePackages(on: app.db, testUrls, processingStage: .reconciliation)
 
         // MUT
-        try ingest(client: app.client, database: app.db, limit: testUrls.count).wait()
+        try ingest(application: app, database: app.db, limit: testUrls.count).wait()
 
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -76,9 +127,9 @@ class IngestorTests: AppTestCase {
         // Mainly a debug test for the issue described here:
         // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
         let packages = try savePackages(on: app.db, testUrls100)
-        let req = try packages
+        let req = packages
             .map { ($0, Github.Metadata.mock(for: $0)) }
-            .map { try insertOrUpdateRepository(on: self.app.db, for: $0.0, metadata: $0.1) }
+            .map { insertOrUpdateRepository(on: self.app.db, for: $0.0, metadata: $0.1) }
             .flatten(on: app.db.eventLoop)
 
         try req.wait()
@@ -87,57 +138,6 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repos.count, testUrls100.count)
         XCTAssertEqual(repos.map(\.$package.id.uuidString).sorted(),
                        packages.map(\.id).compactMap { $0?.uuidString }.sorted())
-    }
-
-    func test_fetchMetadata_badMetadata() throws {
-        // setup
-        Current.fetchMetadata = { _, _ in
-            .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
-        }
-        let pkg = try savePackage(on: app.db, "1")
-
-        // MUT
-        let md = try fetchMetadata(for: pkg, with: app.client).wait()
-
-        // validate
-        XCTAssert(md.isFailure)
-    }
-
-    func test_fetchMetadata_badMetadata_bulk() throws {
-        // Test to ensure fetch failures don't break the pipeline
-        // (which is easy to get wrong by not catching and rewrapping into a future)
-        // setup
-        let urls = ["1", "2", "3"]
-        Current.fetchMetadata = { _, pkg in
-            if pkg.url == "2" {
-               return .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("2")))
-            }
-            return .just(value: .mock(for: pkg))
-        }
-        try urls.urls.map { Package(url: $0) }.save(on: app.db).wait()
-
-        // MUT
-        let md = try Package.query(on: app.db).all()
-            .flatMapEach(on: app.db.eventLoop) { fetchMetadata(for: $0, with: self.app.client) }
-            .wait()
-
-        // validate
-        XCTAssertEqual(md.count, 3)
-        XCTAssertEqual(md.map(\.isSuccess), [true, false, true])
-    }
-
-    // TODO: sas-2020-05-15: move
-    func test_recordError() throws {
-        let pkg = try savePackage(on: app.db, "1")
-        try recordError(client: app.client,
-                        database: app.db,
-                        error: AppError.invalidPackageUrl(pkg.id, "foo"),
-                        stage: .ingestion).wait()
-        do {
-            let pkg = try fetch(id: pkg.id, on: app.db)
-            XCTAssertEqual(pkg.status, .invalidUrl)
-            XCTAssertEqual(pkg.processingStage, .ingestion)
-        }
     }
 
     func test_ingest_badMetadata() throws {
@@ -153,7 +153,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
 
         // MUT
-        try ingest(client: app.client, database: app.db, limit: 10).wait()
+        try ingest(application: app, database: app.db, limit: 10).wait()
 
         // validate
         let repos = try Repository.query(on: app.db).all().wait()

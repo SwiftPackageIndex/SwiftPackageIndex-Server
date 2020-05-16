@@ -19,20 +19,32 @@ enum Github {
         var parent: Parent?
     }
 
-    static func fetchMetadata(client: Client, package: Package) throws -> EventLoopFuture<Metadata> {
+    static func fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
-        let url = try apiUri(for: package)
-        let request = client
-            .get(url, headers: getHeaders)
-            .flatMapThrowing { response -> Metadata in
-                guard response.status == .ok else {
-                    throw AppError.metadataRequestFailed(package.id, response.status, url)
+        do {
+            let url = try apiUri(for: package)
+            let request = client
+                .get(url, headers: getHeaders)
+                .flatMap { response -> EventLoopFuture<Metadata> in
+                    guard response.status == .ok else {
+                        return client.eventLoop.future(error:
+                            AppError.metadataRequestFailed(package.id, response.status, url)
+                        )
+                    }
+                    do {
+                        return client.eventLoop.future(
+                            try response.content.decode(Metadata.self, using: decoder)
+                        )
+                    } catch {
+                        return client.eventLoop.future(error: error)
+                    }
                 }
-                return try response.content.decode(Metadata.self, using: decoder)
+            return request
+        } catch {
+            return client.eventLoop.future(error: error)
         }
-        return request
     }
 
     static var getHeaders: HTTPHeaders {

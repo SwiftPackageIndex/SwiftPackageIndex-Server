@@ -44,7 +44,7 @@ extension API {
                                 .map { Command.Response.init(status: "ok", rows: $0) }
                 }
                 case .ingest:
-                    return ingest(client: req.client, database: req.db, limit: limit)
+                    return ingest(application: req.application, database: req.db, limit: limit)
                         .map {
                             Command.Response(status: "ok", rows: limit)
                 }

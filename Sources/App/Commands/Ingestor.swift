@@ -15,7 +15,7 @@ struct IngestorCommand: Command {
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
         context.console.info("Ingesting (limit: \(limit)) ...")
-        let request = ingest(client: context.application.client,
+        let request = ingest(application: context.application,
                              database: context.application.db,
                              limit: limit)
         context.console.info("Processing ...", newLine: true)
@@ -25,46 +25,44 @@ struct IngestorCommand: Command {
 }
 
 
-func ingest(client: Client, database: Database, limit: Int) -> EventLoopFuture<Void> {
-    Package.fetchCandidates(database, for: .ingestion, limit: limit)
-        .flatMapEach(on: database.eventLoop) { fetchMetadata(for: $0, with: client) }
-        .flatMapEachThrowing { updateTables(client: client, database: database, result: $0) }
-        .flatMap { .andAllComplete($0, on: database.eventLoop) }
+func ingest(application: Application, database: Database, limit: Int) -> EventLoopFuture<Void> {
+    let packages = Package.fetchCandidates(application.db, for: .ingestion, limit: limit)
+    let metadata = packages.flatMap { fetchMetadata(client: application.client, packages: $0) }
+    let updates = metadata.flatMap { updateRespositories(on: application.db, metadata: $0) }
+    return updates.flatMap { updateStatus(application: application, results: $0, stage: .ingestion) }
 }
 
 
 typealias PackageMetadata = (Package, Github.Metadata)
 
 
-func fetchMetadata(for package: Package, with client: Client) -> EventLoopFuture<Result<PackageMetadata, Error>> {
-    do {
-        return try Current.fetchMetadata(client, package)
-            .map { .success((package, $0)) }
-            .flatMapErrorThrowing { .failure($0) }
-    } catch {
-        return client.eventLoop.makeSucceededFuture(.failure(error))
-    }
+func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
+    let ops = packages.map { pkg in Current.fetchMetadata(client, pkg).map { (pkg, $0) } }
+    return EventLoopFuture.whenAllComplete(ops, on: client.eventLoop)
 }
 
 
-func updateTables(client: Client, database: Database, result: Result<PackageMetadata, Error>) -> EventLoopFuture<Void> {
-    do {
-        let (pkg, md) = try result.get()
-        return try insertOrUpdateRepository(on: database, for: pkg, metadata: md)
-            .flatMap {
-                pkg.status = .ok
-                pkg.processingStage = .ingestion
-                return pkg.save(on: database)
-            }
-    } catch {
-        return recordError(client: client, database: database, error: error, stage: .ingestion)
+func updateRespositories(on database: Database, metadata: [Result<(Package, Github.Metadata), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = metadata.map { result -> EventLoopFuture<Package> in
+        switch result {
+            case let .success((pkg, md)):
+                return insertOrUpdateRepository(on: database, for: pkg, metadata: md)
+                    .map { pkg }
+            case let .failure(error):
+                return database.eventLoop.future(error: error)
+        }
     }
+    return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
 }
 
 
-func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github.Metadata) throws -> EventLoopFuture<Void> {
-    Repository.query(on: database)
-        .filter(try \.$package.$id == package.requireID())
+func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github.Metadata) -> EventLoopFuture<Void> {
+    guard let pkgId = try? package.requireID() else {
+        return database.eventLoop.makeFailedFuture(AppError.genericError(nil, "package id not found"))
+    }
+
+    return Repository.query(on: database)
+        .filter(\.$package.$id == pkgId)
         .first()
         .flatMap { repo -> EventLoopFuture<Void> in
             if let repo = repo {
@@ -80,50 +78,11 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
                     return try Repository(package: package, metadata: metadata)
                         .save(on: database)
                 } catch {
-                    return database.eventLoop.makeFailedFuture(
+                    return database.eventLoop.future(error:
                         AppError.genericError(package.id,
                                               "Failed to create Repository for \(package.url)")
                     )
                 }
             }
-        }
-}
-
-
-// TODO: sas: 2020-05-15: clean this up
-// https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/69
-func recordError(client: Client, database: Database, error: Error, stage: ProcessingStage) -> EventLoopFuture<Void> {
-    let errorReport = Current.reportError(client, .error, error)
-
-    func setStatus(id: Package.Id?, status: Status) -> EventLoopFuture<Void> {
-        guard let id = id else { return database.eventLoop.future() }
-        return Package.query(on: database)
-            .filter(\.$id == id)
-            .set(\.$processingStage, to: stage)
-            .set(\.$status, to: status)
-            .update()
-
     }
-
-    database.logger.error("\(stage) error: \(error.localizedDescription)")
-
-    guard let error = error as? AppError else { return errorReport }
-    switch error {
-        case .envVariableNotSet:
-            break
-        case let .genericError(id, _):
-            return setStatus(id: id, status: .ingestionFailed)
-        case let .invalidPackageCachePath(id, _):
-            return setStatus(id: id, status: .invalidCachePath)
-        case let .invalidPackageUrl(id, _):
-            return setStatus(id: id, status: .invalidUrl)
-        case let .invalidRevision(id, _):
-            return setStatus(id: id, status: .analysisFailed)
-        case let .metadataRequestFailed(id, _, _):
-            return setStatus(id: id, status: .metadataRequestFailed)
-        case let .noValidVersions(id, _):
-            return setStatus(id: id, status: .noValidVersions)
-    }
-
-    return errorReport
 }
