@@ -56,21 +56,6 @@ func updateRespositories(on database: Database, metadata: [Result<(Package, Gith
 }
 
 
-func updateTables(client: Client, database: Database, result: Result<PackageMetadata, Error>) -> EventLoopFuture<Void> {
-    do {
-        let (pkg, md) = try result.get()
-        return insertOrUpdateRepository(on: database, for: pkg, metadata: md)
-            .flatMap {
-                pkg.status = .ok
-                pkg.processingStage = .ingestion
-                return pkg.save(on: database)
-            }
-    } catch {
-        return recordError(client: client, database: database, error: error, stage: .ingestion)
-    }
-}
-
-
 func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github.Metadata) -> EventLoopFuture<Void> {
     guard let pkgId = try? package.requireID() else {
         return database.eventLoop.makeFailedFuture(AppError.genericError(nil, "package id not found"))
