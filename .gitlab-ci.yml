@@ -48,7 +48,7 @@ build-tag:
       apk add --no-cache curl
       env VERSION=$VERSION docker-compose up -d
       if [[ $? == 0 ]]; then
-        curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "local_username": "CI", "revision": "'"$VERSION"'", "status": "started"}' https://api.rollbar.com/api/1/deploy
+        curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "local_username": "CI", "revision": "'"$VERSION"'", "status": "succeeded"}' https://api.rollbar.com/api/1/deploy
       else
         curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "local_username": "CI", "revision": "'"$VERSION"'", "status": "failed"}' https://api.rollbar.com/api/1/deploy
       fi
