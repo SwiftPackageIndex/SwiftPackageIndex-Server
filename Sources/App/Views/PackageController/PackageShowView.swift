@@ -51,29 +51,11 @@ class PackageShowView: PublicPage {
                 ),
                 .li(
                     .class("activity"),
-                    "There are ",
-                    .a(
-                        .href("https://github.com/Alamofire/Alamofire/issues"),
-                        "27 open issues"
-                    ),
-                    ", and ",
-                    .a(
-                        .href("https://github.com/Alamofire/Alamofire/pulls"),
-                        "5 open pull requests"
-                    ),
-                    ". The last pull request was closed/merged 6 days ago."
+                    .group(model.activityClause())
                 ),
                 .li(
                     .class("products"),
-                    "Alamofire contains ",
-                    .strong(
-                        "3 libraries"
-                    ),
-                    " and ",
-                    .strong(
-                        "1 executable"
-                    ),
-                    "."
+                    .group(model.productsClause())
                 )
             ),
             .element(named: "hr", nodes:[ // TODO: Fix after Plot update
@@ -168,6 +150,8 @@ extension PackageShowView {
         let summary: String
         let authors: [Link]
         let history: History
+        let activity: Activity
+        let products: (libraries: Int, executables: Int)
 
         struct Link {
             let name: String
@@ -178,6 +162,12 @@ extension PackageShowView {
             let since: String  // TODO: use Date and derive on the fly
             let commits: Link
             let releases: Link
+        }
+
+        struct Activity {
+            let openIssues: Link
+            let pullRequests: Link
+            let lastPullRequestClosedMerged: String
         }
     }
 }
@@ -202,7 +192,14 @@ func packateToModel(_ package: Package) -> PackageShowView.Model {
                            url: URL(string: "https://github.com/Alamofire/Alamofire/commits/master")!),
             releases: .init(name: "79 releases",
                             url: URL(string: "https://github.com/Alamofire/Alamofire/releases")!)
-        )
+        ),
+          activity: .init(
+            openIssues: .init(name: "27 open issues",
+                              url: URL(string: "https://github.com/Alamofire/Alamofire/issues")!),
+            pullRequests: .init(name: "5 open pull requests",
+                                url: URL(string: "https://github.com/Alamofire/Alamofire/pulls")!),
+            lastPullRequestClosedMerged: "6 days ago"),
+          products: (libraries: 3, executables: 1)
     )
 }
 
@@ -247,5 +244,47 @@ extension PackageShowView.Model {
             "."
         ]
     }
+
+    func activityClause() -> [Node<HTML.BodyContext>] {
+        [
+            "There are ",
+            .a(
+                .href(activity.openIssues.url),
+                .text(activity.openIssues.name)
+            ),
+            ", and ",
+            .a(
+                .href(activity.pullRequests.url),
+                .text(activity.pullRequests.name)
+            ),
+            ". The last pull request was closed/merged \(activity.lastPullRequestClosedMerged)."
+        ]
+    }
+
+    func productsClause() -> [Node<HTML.BodyContext>] {
+        [
+            "\(title) contains ",
+            .strong(
+                .text(pluralize(count: products.libraries, singular: "library", plural: "libraries"))
+            ),
+            " and ",
+            .strong(
+                .text(pluralize(count: products.executables, singular: "executable"))
+            ),
+            "."
+        ]
+    }
 }
 
+
+func pluralize(count: Int, singular: String, plural: String? = nil) -> String {
+    let plural = plural ?? singular + "s"
+    switch count {
+        case 0:
+            return "no \(plural)"
+        case 1:
+            return "1 \(singular)"
+        default:
+            return "\(count) \(plural)"
+    }
+}
