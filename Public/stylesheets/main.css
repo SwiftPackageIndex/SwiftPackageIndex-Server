@@ -137,6 +137,12 @@ header .inner {
   align-items: center;
 }
 
+@media screen and (max-width: 767px) {
+  header .inner {
+    flex-direction: column;
+  }
+}
+
 header a {
   color: var(--white);
 }
@@ -145,6 +151,12 @@ header h1 {
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+@media screen and (max-width: 767px) {
+  header h1 {
+    margin-bottom: 20px;
+  }
 }
 
 header h1 img {
@@ -158,16 +170,6 @@ header nav ul li a {
 
 header nav ul li a:hover {
   border-color: var(--yellow);
-}
-
-@media screen and (max-width: 767px) {
-  header .inner {
-    flex-direction: column;
-  }
-
-  header h1 {
-    margin-bottom: 20px;
-  }
 }
 
 /* Main content ------------------------------------------------------------ */
