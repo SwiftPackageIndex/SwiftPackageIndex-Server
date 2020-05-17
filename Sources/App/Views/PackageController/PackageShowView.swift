@@ -109,7 +109,7 @@ class PackageShowView: PublicPage {
                     "."
                 )
             ),
-            .element(named: "hr", nodes:[
+            .element(named: "hr", nodes:[ // TODO: Fix after Plot update
                 .attribute(named: "class", value: "short")
             ])
         )
