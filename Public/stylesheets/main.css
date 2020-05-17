@@ -39,19 +39,19 @@ h1 {
 h2 {
   margin: 0;
   padding: 0;
-  font-size: 30px;
-  line-height: 27px;
+  font-size: 35px;
+  line-height: 30px;
   letter-spacing: -0.5px;
 }
 
 h3 {
-  font-size: 20px;
-  line-height: 22px;
+  font-size: 24px;
+  line-height: 27px;
 }
 
 h4 {
-  font-size: 18px;
-  line-height: 20px;
+  font-size: 20px;
+  line-height: 22px;
 }
 
 a {
