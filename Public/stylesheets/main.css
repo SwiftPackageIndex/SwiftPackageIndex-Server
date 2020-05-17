@@ -153,7 +153,7 @@ header h1 img {
 }
 
 header nav ul li a {
-  border-bottom: 2px var(--light-blue) solid;
+  border-bottom: 1px var(--light-blue) solid;
 }
 
 header nav ul li a:hover {
