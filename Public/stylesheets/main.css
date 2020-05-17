@@ -59,6 +59,10 @@ a {
   text-decoration: none;
 }
 
+strong {
+  font-weight: 600;
+}
+
 small {
   font-size: 11px;
 }
@@ -71,7 +75,8 @@ hr {
 }
 
 hr.short {
-  max-width: 40%;
+  margin: 5px auto;
+  max-width: 50%;
   height: 1px;
 }
 
@@ -195,7 +200,7 @@ p.description {
 }
 
 .metadata {
-  margin: 50px 0;
+  margin: 40px 0;
 }
 
 /* Footer ------------------------------------------------------------------ */
