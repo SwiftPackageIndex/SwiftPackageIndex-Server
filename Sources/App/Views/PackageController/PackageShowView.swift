@@ -173,8 +173,8 @@ extension PackageShowView {
 }
 
 
-// FIXME: temporary compile fix
-func packateToModel(_ package: Package) -> PackageShowView.Model {
+// FIXME: fill with query and move somewhere else? Views/ViewModelQueries/PackageShowQuery.swift?
+func mockModel(_ package: Package) -> PackageShowView.Model {
     .init(title: "Alamofire",
           url: URL(string: "https://github.com/Alamofire/Alamofire.git")!,
           license: .mit,
@@ -277,6 +277,7 @@ extension PackageShowView.Model {
 }
 
 
+// TODO: move somewhere common, e.g. Views/Util.swift or something
 func pluralize(count: Int, singular: String, plural: String? = nil) -> String {
     let plural = plural ?? singular + "s"
     switch count {
