@@ -191,6 +191,7 @@ header nav ul li a:hover {
 p.description {
   margin: 20px auto;
   max-width: 90%;
+  font-size: 19px;
 }
 
 @media screen and (max-width: 767px) {
