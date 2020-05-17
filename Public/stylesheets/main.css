@@ -101,6 +101,10 @@ hr.short {
   }
 }
 
+section {
+  margin: 40px 0;
+}
+
 nav ul {
   margin: 0;
   padding: 0;
@@ -203,7 +207,6 @@ p.description {
 }
 
 .metadata {
-  margin: 40px 0;
 }
 
 /* Footer ------------------------------------------------------------------ */
