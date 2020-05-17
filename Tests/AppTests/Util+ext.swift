@@ -92,11 +92,11 @@ extension Array where Element: FluentKit.Model {
 
 #if os(macOS)
 extension Snapshotting where Value == HTML, Format == NSImage {
-    public static func image(precision: Float = 1, size: CGSize? = nil) -> Snapshotting {
+    public static func image(precision: Float = 1, size: CGSize? = nil, baseURL: URL? = nil) -> Snapshotting {
         Snapshotting<NSView, NSImage>.image(precision: precision, size: size).pullback { node in
             let html = node.render()
             let webView = WKWebView()
-            webView.loadHTMLString(html, baseURL: nil)
+            webView.loadHTMLString(html, baseURL: baseURL)
             return webView
         }
     }
