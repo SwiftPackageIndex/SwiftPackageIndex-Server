@@ -23,7 +23,7 @@ class PackageShowView: PublicPage {
                     .element(named: "small", nodes: [ // TODO: Fix after Plot update
                         .a(
                             .href(model.url),
-                            .text(model.url.absoluteString)
+                            .text(model.url)
                         )
                     ])
                 ),
@@ -152,7 +152,7 @@ class PackageShowView: PublicPage {
 extension PackageShowView {
     struct Model {
         let title: String
-        let url: URL
+        let url: String
         let license: License
         let summary: String
         let authors: [Link]
@@ -162,7 +162,7 @@ extension PackageShowView {
 
         struct Link {
             let name: String
-            let url: URL
+            let url: String
         }
 
         struct History {

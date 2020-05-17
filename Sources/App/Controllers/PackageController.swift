@@ -10,9 +10,11 @@ struct PackageController {
     }
 
     func show(req: Request) throws -> EventLoopFuture<HTML> {
-        return Package.find(req.parameters.get("id"), on: req.db)
-            .unwrap(or: Abort(.notFound))
-            .map { package in PackageShowView(mockModel(package)).document() }
+        guard let id = req.parameters.get("id").flatMap(UUID.init(uuidString:)) else {
+            return req.eventLoop.future(error: Abort(.notFound))
+        }
+        return PackageShowView.Model.query(database: req.db, packageId: id)
+            .map { PackageShowView($0).document() }
     }
 
 }
