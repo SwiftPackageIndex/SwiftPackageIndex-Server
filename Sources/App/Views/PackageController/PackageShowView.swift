@@ -111,7 +111,38 @@ class PackageShowView: PublicPage {
             ),
             .element(named: "hr", nodes:[ // TODO: Fix after Plot update
                 .attribute(named: "class", value: "short")
-            ])
+            ]),
+            .ul(
+                .class("releases"),
+                .li(
+                    .class("stable"),
+                    "The ",
+                    .strong("latest stable"),
+                    " release is ",
+                    .a(
+                        .href("https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
+                        "5.2.0"
+                    ),
+                    ", 12 hours ago."
+                ),
+                .li(
+                    .class("beta"),
+                    "The ",
+                    .strong("latest beta"),
+                    " release is ",
+                    .a(
+                        .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1"),
+                        "5.3.0-beta.1"
+                    ),
+                    ", 4 days ago."
+                ),
+                .li(
+                    .class("branch"),
+                    "The last commit to the ",
+                    .strong("master branch"),
+                    " was 12 minutes ago."
+                )
+            ),
         )
     }
 
