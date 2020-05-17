@@ -29,7 +29,8 @@ class PublicPage {
             ),
             .link(
                 .rel(.stylesheet),
-                .href("/stylesheets/main.css?\(stylesheetQueryString())")
+//                .href("/stylesheets/main.css?\(stylesheetQueryString())")
+                .href("http://173.255.229.82:8080/stylesheets/main.css")
             )
         )
     }
