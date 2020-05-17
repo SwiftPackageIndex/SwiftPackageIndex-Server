@@ -67,6 +67,38 @@
           </li>
         </ul>
         <hr class="short"></hr>
+        <ul class="releases">
+          <li class="stable">The 
+            <strong>latest stable</strong> release is 
+            <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">5.2.0</a>, 12 hours ago.
+          </li>
+          <li class="beta">The 
+            <strong>latest beta</strong> release is 
+            <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>, 4 days ago.
+          </li>
+          <li class="branch">The last commit to the 
+            <strong>master branch</strong> was 12 minutes ago.
+          </li>
+        </ul>
+        <h3>Language and Platforms</h3>
+        <ul>
+          <li class="language">Supports 
+            <strong>Swift 5 and 5.2</strong> (changing to 
+            <strong>Swift 5.2</strong> in 
+            <a class="beta" href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>).
+          </li>
+          <li class="platforms">Supports 
+            <strong>iOS 10.0+</strong>, 
+            <strong>macOS 10.12+</strong>, 
+            <strong>watchOS 3.0+</strong>, and 
+            <strong>tvOS 10.0+</strong> (changing to 
+            <strong>iOS 13.0+</strong>, 
+            <strong>macOS 10.15+</strong>, 
+            <strong>watchOS 6.0+</strong>, and 
+            <strong>tvOS 13.0+</strong> in 
+            <a class="beta" href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>).
+          </li>
+        </ul>
       </div>
     </main>
     <footer>
