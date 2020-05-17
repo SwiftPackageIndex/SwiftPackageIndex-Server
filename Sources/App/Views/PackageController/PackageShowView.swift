@@ -109,9 +109,84 @@ class PackageShowView: PublicPage {
                     "."
                 )
             ),
-            .element(named: "hr", nodes:[
+            .element(named: "hr", nodes:[ // TODO: Fix after Plot update
                 .attribute(named: "class", value: "short")
-            ])
+            ]),
+            .ul(
+                .class("releases"),
+                .li(
+                    .class("stable"),
+                    "The ",
+                    .strong("latest stable"),
+                    " release is ",
+                    .a(
+                        .href("https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
+                        "5.2.0"
+                    ),
+                    ", 12 hours ago."
+                ),
+                .li(
+                    .class("beta"),
+                    "The ",
+                    .strong("latest beta"),
+                    " release is ",
+                    .a(
+                        .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1"),
+                        "5.3.0-beta.1"
+                    ),
+                    ", 4 days ago."
+                ),
+                .li(
+                    .class("branch"),
+                    "The last commit to the ",
+                    .strong("master branch"),
+                    " was 12 minutes ago."
+                )
+            ),
+            .h3("Language and Platforms"),
+            .ul(
+                .li(
+                    .class("language"),
+                    "Supports ",
+                    .strong("Swift 5 and 5.2"),
+                    " (changing to ",
+                    .strong("Swift 5.2"),
+                    " in ",
+                    .a(
+                        .class("beta"),
+                        .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1"),
+                        "5.3.0-beta.1"
+                    ),
+                    ")."
+                ),
+                .li(
+                    .class("platforms"),
+                    "Supports ",
+                    .strong("iOS 10.0+"),
+                    ", ",
+                    .strong("macOS 10.12+"),
+                    ", ",
+                    .strong("watchOS 3.0+"),
+                    ", and ",
+                    .strong("tvOS 10.0+"),
+                    " (changing to ",
+                    .strong("iOS 13.0+"),
+                    ", ",
+                    .strong("macOS 10.15+"),
+                    ", ",
+                    .strong("watchOS 6.0+"),
+                    ", and ",
+                    .strong("tvOS 13.0+"),
+                    " in ",
+                    .a(
+                        .class("beta"),
+                        .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1"),
+                        "5.3.0-beta.1"
+                    ),
+                    ")."
+                )
+
+            )
         )
     }
 
