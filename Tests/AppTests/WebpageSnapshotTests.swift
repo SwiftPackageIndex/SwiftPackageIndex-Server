@@ -29,7 +29,7 @@ class WebpageSnapshotTests: XCTestCase {
         // package is currently ignored
         let pkg = Package(url: "foo")
 
-        let page = PackageShowView(pkg).document()
+        let page = PackageShowView(packateToModel(pkg)).document()
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 

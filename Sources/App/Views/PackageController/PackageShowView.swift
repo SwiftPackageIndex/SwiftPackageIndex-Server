@@ -1,16 +1,17 @@
+import Foundation
 import Plot
 
 
 class PackageShowView: PublicPage {
 
-    let package: Package
+    let model: Model
 
-    init(_ package: Package) {
-        self.package = package
+    init(_ model: Model) {
+        self.model = model
     }
 
     override func pageTitle() -> String? {
-        "Alamofire"
+        model.title
     }
 
     override func content() -> Node<HTML.BodyContext> {
@@ -18,24 +19,24 @@ class PackageShowView: PublicPage {
             .div(
                 .class("split"),
                 .div(
-                    .h2("Alamofire"),
+                    .h2(.text(model.title)),
                     .element(named: "small", nodes: [ // TODO: Fix after Plot update
                         .a(
-                            .href("https://github.com/Alamofire/Alamofire.git"),
-                            "https://github.com/Alamofire/Alamofire.git"
+                            .href(model.url),
+                            .text(model.url.absoluteString)
                         )
                     ])
                 ),
                 .div(
                     .class("license"),
-                    .attribute(named: "title", value: "MIT License"), // TODO: Fix after Plot update
-                    "MIT"
+                    .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                    .text(model.license.shortName)
                 )
             ),
             .hr(),
             .p(
                 .class("description"),
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque."
+                .text(model.summary)
             ),
             .ul(
                 .class("metadata"),
@@ -190,4 +191,33 @@ class PackageShowView: PublicPage {
         )
     }
 
+}
+
+
+extension PackageShowView {
+    struct Model {
+        let title: String
+        let url: URL
+        let license: License
+        let summary: String
+//        let authors: [Author]
+
+        struct Author {
+            let name: String
+            let url: URL
+        }
+    }
+}
+
+
+
+
+// FIXME: temporary compile fix
+func packateToModel(_ package: Package) -> PackageShowView.Model {
+    .init(title: "Alamofire",
+          url: URL(string: "https://github.com/Alamofire/Alamofire.git")!,
+          license: .mit,
+          summary: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque."
+
+    )
 }
