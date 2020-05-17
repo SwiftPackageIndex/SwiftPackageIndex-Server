@@ -38,7 +38,7 @@ class PublicPage {
     /// current date to force a reload every time. In production this is the last deployed version.
     /// - Returns: A string containing the query string.
     final func stylesheetQueryString() -> String {
-        let secondsSince1970String = String(Int(Date().timeIntervalSince1970))
+        let secondsSince1970String = String(Int(Current.date().timeIntervalSince1970))
         do {
             return (try Environment.detect() == .development) ? secondsSince1970String : appVersion
         } catch {

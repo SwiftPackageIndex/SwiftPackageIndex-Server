@@ -12,7 +12,7 @@ struct PackageController {
     func show(req: Request) throws -> EventLoopFuture<HTML> {
         return Package.find(req.parameters.get("id"), on: req.db)
             .unwrap(or: Abort(.notFound))
-            .map { package in PackageShowView(package).document() }
+            .map { package in PackageShowView(mockModel(package)).document() }
     }
 
 }

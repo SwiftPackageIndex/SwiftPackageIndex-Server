@@ -29,7 +29,7 @@ extension PublicPage {
                 .init(name: "crossorigin", value: "anonymous")
             ),
             .link(
-                .href("/grid.css"),
+                .href("/stylesheets/grid.css"),
                 .rel(.stylesheet)
             ),
             .title(title)
