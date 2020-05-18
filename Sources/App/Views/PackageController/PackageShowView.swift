@@ -30,6 +30,7 @@ class PackageShowView: PublicPage {
                 .div(
                     .class("license"),
                     .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                    .i(.class("icon osi")),
                     .text(model.license.shortName)
                 )
             ),

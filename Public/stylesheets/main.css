@@ -223,20 +223,20 @@ header nav ul li a:hover {
   border-color: var(--yellow);
 }
 
-/* Main content ------------------------------------------------------------ */
+/* Package page ------------------------------------------------------------ */
 .license {
-  margin: 5px 0;
-  padding: 5px 10px 5px 28px;
-  background-color: var(--light-green);
-  background-image: url('/images/osi.svg');
-  background-repeat: no-repeat;
-  background-position: 7px center;
-  background-size: 17px;
-  border-radius: 7px;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+  padding: 7px 10px;
   color: var(--white);
+  background-color: var(--light-green);
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 18px;
 }
 
+.license i {
+  margin-right: 7px;
 }
 
 p.description {
