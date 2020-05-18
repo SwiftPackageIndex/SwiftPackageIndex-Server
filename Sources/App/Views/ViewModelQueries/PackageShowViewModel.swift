@@ -11,12 +11,10 @@ extension PackageShowView.Model {
             .filter(\.$id == packageId)
             .first()
             .unwrap(or: Abort(.notFound))
-            .map { p in
-                // TODO: consider which missing values take defaults and which ones error out
-                // Or do we make view model fields optional and let display deal with it?
-                // If for instance we have just a package entry with no repository, we should
-                // probably error out (because too many fields would be blank).
-                Self.init(title: p.name ?? "–",
+            .map { p -> Self? in
+                // we consider certain attributes as essential and return nil (raising .notFound)
+                guard let title = p.name else { return nil }
+                return Self.init(title: title,
                           url: p.url,
                           license: p.repository?.license ?? .none,
                           summary: p.repository?.summary ?? "–",
@@ -24,7 +22,8 @@ extension PackageShowView.Model {
                           history: nil,
                           activity: nil,
                           products: p.productCounts)
-        }
+            }
+            .unwrap(or: Abort(.notFound))
     }
 }
 
