@@ -86,11 +86,10 @@ services:
 
   sshd:
     image: registry.gitlab.com/finestructure/spi-sshd:0.0.1
-    volumes:
-      - type: volume
-        source: ./${authorized_keys}
-        target: /root/.ssh/authorized_keys
-        mode: 0400
+    command: |
+      echo ${authorized_keys} > /root/.ssh/authorized_keys
+      chmod 0400 /root/.ssh/authorized_keys
+      ssh-start ssh-server
     ports:
       - "2222:22"
 
