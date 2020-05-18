@@ -44,6 +44,9 @@ extension Product {
         case executable
         case library
     }
+
+    var isLibrary: Bool { return type == .library }
+    var isExecutable: Bool { return type == .executable }
 }
 
 

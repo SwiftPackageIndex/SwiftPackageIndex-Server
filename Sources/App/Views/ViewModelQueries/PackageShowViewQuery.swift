@@ -59,7 +59,7 @@ extension PackageShowView.Model {
                             openIssues: .init(name: "issues", url: "3"),
                             pullRequests: .init(name: "PRs", url: "4"),
                             lastPullRequestClosedMerged: "XX days ago"),
-                          products: (libraries: 17, executables: 42))
+                          products: p.productCounts)
         }
     }
 }
@@ -74,4 +74,12 @@ private extension Package {
     }
 
     var name: String? { defaultVersion?.packageName }
+
+    var productCounts: (libraries: Int, executables: Int)? {
+        guard let version = defaultVersion else { return nil }
+        return (
+            libraries: version.products.filter(\.isLibrary).count,
+            executables: version.products.filter(\.isExecutable).count
+        )
+    }
 }

@@ -158,7 +158,7 @@ extension PackageShowView {
         let authors: [Link]
         let history: History
         let activity: Activity
-        let products: (libraries: Int, executables: Int)
+        let products: (libraries: Int, executables: Int)?
 
         struct Link {
             let name: String
@@ -238,7 +238,8 @@ extension PackageShowView.Model {
     }
 
     func productsClause() -> [Node<HTML.BodyContext>] {
-        [
+        guard let products = products else { return [] }
+        return [
             "\(title) contains ",
             .strong(
                 .text(pluralize(count: products.libraries, singular: "library", plural: "libraries"))
