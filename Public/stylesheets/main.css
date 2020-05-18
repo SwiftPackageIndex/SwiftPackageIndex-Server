@@ -27,31 +27,32 @@ body {
   background-color: var(--white);
   font-family: "Open Sans", -apple-system, "BlinkMacSystemFont", "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 16px;
-  line-height: 22px;
+  line-height: 1.2;
 }
 
 h1 {
   margin: 0;
   padding: 0;
   font-size: 23px;
+  line-height: 1.2;
 }
 
 h2 {
   margin: 0;
   padding: 0;
   font-size: 35px;
-  line-height: 30px;
+  line-height: 1;
   letter-spacing: -0.5px;
 }
 
 h3 {
   font-size: 24px;
-  line-height: 27px;
+  line-height: 1.2;
 }
 
 h4 {
   font-size: 20px;
-  line-height: 22px;
+  line-height: 1.2;
 }
 
 a {
@@ -147,6 +148,10 @@ section {
   margin: 40px 0;
 }
 
+section li {
+  margin: 15px 0;
+}
+
 nav ul {
   margin: 0;
   padding: 0;
@@ -232,8 +237,6 @@ header nav ul li a:hover {
   color: var(--white);
 }
 
-.license .bad {
-  background-color: var(--mid-blue);
 }
 
 p.description {
@@ -248,8 +251,6 @@ p.description {
   }
 }
 
-.metadata {
-}
 i.osi:before { content: "\e900"; color: var(--white); }
 li.authors:before { content: "\e902"; }
 li.author:before { content: "\e901"; }
