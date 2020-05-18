@@ -96,7 +96,7 @@ hr.short {
 
 i.icon,
 li.icon:before {
-  color: var(--black);
+  color: var(--dark-grey);
   font-family: "icomoon" !important;
   font-style: normal;
   font-weight: normal;
@@ -110,7 +110,7 @@ li.icon:before {
 }
 
 i.icon {
-  font-size: 22px;
+  font-size: 20px;
 }
 
 li.icon {
@@ -120,7 +120,7 @@ li.icon {
 li.icon:before {
   margin-left: -35px;
   margin-right: 15px;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 /* Overall layout ---------------------------------------------------------- */
@@ -252,16 +252,15 @@ p.description {
 }
 
 i.osi:before { content: "\e900"; color: var(--white); }
-li.authors:before { content: "\e902"; }
 li.author:before { content: "\e901"; }
-li.history:before { content: "\e903" }
-li.activity:before { content: "\e904"; }
-li.products:before { content: "\e905"; }
-li.stable:before { content: "\e906"; color: var(--light-green); }
-li.beta:before { content: "\e907"; color: var(--mid-green); }
-li.branch:before { content: "\e908"; color: var(--dark-green); }
-li.language:before { content: "\e909"; }
-li.platforms:before { content: "\e90a"; }
+li.history:before { content: "\e902" }
+li.activity:before { content: "\e903"; }
+li.products:before { content: "\e904"; }
+li.stable:before { content: "\e905"; color: var(--light-green); }
+li.beta:before { content: "\e906"; color: var(--mid-green); }
+li.branch:before { content: "\e907"; color: var(--dark-green); }
+li.language:before { content: "\e908"; }
+li.platforms:before { content: "\e909"; }
 
 /* Footer ------------------------------------------------------------------ */
 footer {
