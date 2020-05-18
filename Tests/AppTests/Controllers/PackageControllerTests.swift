@@ -11,7 +11,10 @@ class PackageControllerTests: AppTestCase {
         try super.setUpWithError()
 
         let package = Package(id: testPackageId, url: "https://github.com/user/package.git", status: .none)
-        let version = try Version(id: UUID(), package: package)
+        let version = try Version(id: UUID(),
+                                  package: package,
+                                  reference: .branch("master"),
+                                  packageName: "Test package")
         let product = try Product(id: UUID(), version: version, type: .library, name: "Library")
 
         try package.save(on: app.db).wait()

@@ -23,7 +23,7 @@ class PackageShowView: PublicPage {
                     .element(named: "small", nodes: [ // TODO: Fix after Plot update
                         .a(
                             .href(model.url),
-                            .text(model.url.absoluteString)
+                            .text(model.url)
                         )
                     ])
                 ),
@@ -150,31 +150,36 @@ class PackageShowView: PublicPage {
 
 
 extension PackageShowView {
-    struct Model {
+    struct Model: Equatable {
         let title: String
-        let url: URL
+        let url: String
         let license: License
         let summary: String
         let authors: [Link]
-        let history: History
-        let activity: Activity
-        let products: (libraries: Int, executables: Int)
+        let history: History?
+        let activity: Activity?
+        let products: ProductCounts?
 
-        struct Link {
+        struct Link: Equatable {
             let name: String
-            let url: URL
+            let url: String
         }
 
-        struct History {
+        struct History: Equatable {
             let since: String  // TODO: use Date and derive on the fly
             let commits: Link
             let releases: Link
         }
 
-        struct Activity {
+        struct Activity: Equatable {
             let openIssues: Link
             let pullRequests: Link
             let lastPullRequestClosedMerged: String
+        }
+
+        struct ProductCounts: Equatable {
+            let libraries: Int
+            let executables: Int
         }
     }
 }
@@ -206,7 +211,8 @@ extension PackageShowView.Model {
     }
 
     func historyClause() -> [Node<HTML.BodyContext>] {
-        [
+        guard let history = history else { return [] }
+        return [
             "In development for \(history.since), with ",
             .a(
                 .href(history.commits.url),
@@ -222,7 +228,8 @@ extension PackageShowView.Model {
     }
 
     func activityClause() -> [Node<HTML.BodyContext>] {
-        [
+        guard let activity = activity else { return [] }
+        return [
             "There are ",
             .a(
                 .href(activity.openIssues.url),
@@ -238,7 +245,8 @@ extension PackageShowView.Model {
     }
 
     func productsClause() -> [Node<HTML.BodyContext>] {
-        [
+        guard let products = products else { return [] }
+        return [
             "\(title) contains ",
             .strong(
                 .text(pluralize(count: products.libraries, singular: "library", plural: "libraries"))

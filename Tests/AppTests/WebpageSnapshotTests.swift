@@ -26,10 +26,7 @@ class WebpageSnapshotTests: XCTestCase {
     }
 
     func test_PackageShowView() throws {
-        // package is currently ignored
-        let pkg = Package(url: "foo")
-
-        let page = PackageShowView(mockModel(pkg)).document()
+        let page = PackageShowView(.mock).document()
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
