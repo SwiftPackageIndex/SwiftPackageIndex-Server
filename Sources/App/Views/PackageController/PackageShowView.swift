@@ -43,20 +43,20 @@ class PackageShowView: PublicPage {
                 .class("metadata"),
                 .ul(
                     .li(
-                        .class("authors"),
+                        .class("icon author"),
                         .group(model.authorsClause())
                     )
                     ,
                     .li(
-                        .class("history"),
+                        .class("icon history"),
                         .group(model.historyClause())
                     ),
                     .li(
-                        .class("activity"),
+                        .class("icon activity"),
                         .group(model.activityClause())
                     ),
                     .li(
-                        .class("products"),
+                        .class("icon products"),
                         .group(model.productsClause())
                     )
                 )
@@ -68,7 +68,7 @@ class PackageShowView: PublicPage {
                 .class("releases"),
                 .ul(
                     .li(
-                        .class("stable"),
+                        .class("icon stable"),
                         "The ",
                         .strong("latest stable"),
                         " release is ",
@@ -79,7 +79,7 @@ class PackageShowView: PublicPage {
                         ", 12 hours ago."
                     ),
                     .li(
-                        .class("beta"),
+                        .class("icon beta"),
                         "The ",
                         .strong("latest beta"),
                         " release is ",
@@ -90,7 +90,7 @@ class PackageShowView: PublicPage {
                         ", 4 days ago."
                     ),
                     .li(
-                        .class("branch"),
+                        .class("icon branch"),
                         "The last commit to the ",
                         .strong("master branch"),
                         " was 12 minutes ago."
@@ -102,7 +102,7 @@ class PackageShowView: PublicPage {
                 .h3("Language and Platforms"),
                 .ul(
                     .li(
-                        .class("language"),
+                        .class("icon language"),
                         "Supports ",
                         .strong("Swift 5 and 5.2"),
                         " (changing to ",
@@ -116,7 +116,7 @@ class PackageShowView: PublicPage {
                         ")."
                     ),
                     .li(
-                        .class("platforms"),
+                        .class("icon platforms"),
                         "Supports ",
                         .strong("iOS 10.0+"),
                         ", ",
