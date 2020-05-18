@@ -41,64 +41,72 @@
               <a href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
             </small>
           </div>
-          <div class="license" title="MIT License">MIT</div>
+          <div class="license" title="MIT License">
+            <i class="icon osi"></i>MIT
+          </div>
         </div>
         <hr/>
         <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.</p>
-        <ul class="metadata">
-          <li class="authors">By 
-            <a href="https://github.com/cnoon">Christian Noon</a>, 
-            <a href="https://github.com/mattt">Mattt</a>, 
-            <a href="https://github.com/jshier">Jon Shier</a>, 
-            <a href="https://github.com/kcharwood">Kevin Harwood</a>, and 
-            <a href="https://github.com/Alamofire/Alamofire/graphs/contributors">186 other contributors</a>.
-          </li>
-          <li class="history">In development for over 5 years, with 
-            <a href="https://github.com/Alamofire/Alamofire/commits/master">1,433 commits</a> and 
-            <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
-          </li>
-          <li class="activity">There are 
-            <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a>, and 
-            <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last pull request was closed/merged 6 days ago.
-          </li>
-          <li class="products">Alamofire contains 
-            <strong>3 libraries</strong> and 
-            <strong>1 executable</strong>.
-          </li>
-        </ul>
+        <section class="metadata">
+          <ul>
+            <li class="icon author">By 
+              <a href="https://github.com/cnoon">Christian Noon</a>, 
+              <a href="https://github.com/mattt">Mattt</a>, 
+              <a href="https://github.com/jshier">Jon Shier</a>, 
+              <a href="https://github.com/kcharwood">Kevin Harwood</a>, and 
+              <a href="https://github.com/Alamofire/Alamofire/graphs/contributors">186 other contributors</a>.
+            </li>
+            <li class="icon history">In development for over 5 years, with 
+              <a href="https://github.com/Alamofire/Alamofire/commits/master">1,433 commits</a> and 
+              <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
+            </li>
+            <li class="icon activity">There are 
+              <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a>, and 
+              <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last pull request was closed/merged 6 days ago.
+            </li>
+            <li class="icon products">Alamofire contains 
+              <strong>3 libraries</strong> and 
+              <strong>1 executable</strong>.
+            </li>
+          </ul>
+        </section>
         <hr class="short"></hr>
-        <ul class="releases">
-          <li class="stable">The 
-            <strong>latest stable</strong> release is 
-            <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">5.2.0</a>, 12 hours ago.
-          </li>
-          <li class="beta">The 
-            <strong>latest beta</strong> release is 
-            <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>, 4 days ago.
-          </li>
-          <li class="branch">The last commit to the 
-            <strong>master branch</strong> was 12 minutes ago.
-          </li>
-        </ul>
-        <h3>Language and Platforms</h3>
-        <ul>
-          <li class="language">Supports 
-            <strong>Swift 5 and 5.2</strong> (changing to 
-            <strong>Swift 5.2</strong> in 
-            <a class="beta" href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>).
-          </li>
-          <li class="platforms">Supports 
-            <strong>iOS 10.0+</strong>, 
-            <strong>macOS 10.12+</strong>, 
-            <strong>watchOS 3.0+</strong>, and 
-            <strong>tvOS 10.0+</strong> (changing to 
-            <strong>iOS 13.0+</strong>, 
-            <strong>macOS 10.15+</strong>, 
-            <strong>watchOS 6.0+</strong>, and 
-            <strong>tvOS 13.0+</strong> in 
-            <a class="beta" href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>).
-          </li>
-        </ul>
+        <section class="releases">
+          <ul>
+            <li class="icon stable">The 
+              <strong>latest stable</strong> release is 
+              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">5.2.0</a>, 12 hours ago.
+            </li>
+            <li class="icon beta">The 
+              <strong>latest beta</strong> release is 
+              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>, 4 days ago.
+            </li>
+            <li class="icon branch">The last commit to the 
+              <strong>master branch</strong> was 12 minutes ago.
+            </li>
+          </ul>
+        </section>
+        <section class="language_platforms">
+          <h3>Language and Platforms</h3>
+          <ul>
+            <li class="icon language">Supports 
+              <strong>Swift 5 and 5.2</strong> (changing to 
+              <strong>Swift 5.2</strong> in 
+              <a class="beta" href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>).
+            </li>
+            <li class="icon platforms">Supports 
+              <strong>iOS 10.0+</strong>, 
+              <strong>macOS 10.12+</strong>, 
+              <strong>watchOS 3.0+</strong>, and 
+              <strong>tvOS 10.0+</strong> (changing to 
+              <strong>iOS 13.0+</strong>, 
+              <strong>macOS 10.15+</strong>, 
+              <strong>watchOS 6.0+</strong>, and 
+              <strong>tvOS 13.0+</strong> in 
+              <a class="beta" href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>).
+            </li>
+          </ul>
+        </section>
       </div>
     </main>
     <footer>

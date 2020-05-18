@@ -27,31 +27,32 @@ body {
   background-color: var(--white);
   font-family: "Open Sans", -apple-system, "BlinkMacSystemFont", "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 16px;
-  line-height: 22px;
+  line-height: 1.2;
 }
 
 h1 {
   margin: 0;
   padding: 0;
   font-size: 23px;
+  line-height: 1.2;
 }
 
 h2 {
   margin: 0;
   padding: 0;
   font-size: 35px;
-  line-height: 30px;
+  line-height: 1;
   letter-spacing: -0.5px;
 }
 
 h3 {
   font-size: 24px;
-  line-height: 27px;
+  line-height: 1.2;
 }
 
 h4 {
   font-size: 20px;
-  line-height: 22px;
+  line-height: 1.2;
 }
 
 a {
@@ -80,6 +81,48 @@ hr.short {
   height: 1px;
 }
 
+/* Icon font --------------------------------------------------------------- */
+@font-face {
+  font-family: 'icomoon';
+  src: url('/fonts/icomoon.eot?os9rj2');
+  src: url('/fonts/icomoon.eot?os9rj2#iefix') format('embedded-opentype'),
+    url('/fonts/icomoon.ttf?os9rj2') format('truetype'),
+    url('/fonts/icomoon.woff?os9rj2') format('woff'),
+    url('/fonts/icomoon.svg?os9rj2#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+i.icon,
+li.icon:before {
+  color: var(--black);
+  font-family: "icomoon" !important;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  vertical-align: middle;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  speak: none;
+}
+
+i.icon {
+  font-size: 22px;
+}
+
+li.icon {
+  list-style: none;
+}
+
+li.icon:before {
+  margin-left: -35px;
+  margin-right: 15px;
+  font-size: 20px;
+}
+
 /* Overall layout ---------------------------------------------------------- */
 .inner {
   margin: 0 auto;
@@ -99,6 +142,14 @@ hr.short {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+section {
+  margin: 40px 0;
+}
+
+section li {
+  margin: 15px 0;
 }
 
 nav ul {
@@ -137,6 +188,12 @@ header .inner {
   align-items: center;
 }
 
+@media screen and (max-width: 767px) {
+  header .inner {
+    flex-direction: column;
+  }
+}
+
 header a {
   color: var(--white);
 }
@@ -145,6 +202,12 @@ header h1 {
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+@media screen and (max-width: 767px) {
+  header h1 {
+    margin-bottom: 20px;
+  }
 }
 
 header h1 img {
@@ -160,32 +223,20 @@ header nav ul li a:hover {
   border-color: var(--yellow);
 }
 
-@media screen and (max-width: 767px) {
-  header .inner {
-    flex-direction: column;
-  }
-
-  header h1 {
-    margin-bottom: 20px;
-  }
-}
-
-/* Main content ------------------------------------------------------------ */
+/* Package page ------------------------------------------------------------ */
 .license {
-  margin: 5px 0;
-  padding: 5px 10px 5px 28px;
-  background-color: var(--light-green);
-  background-image: url('/images/osi.svg');
-  background-repeat: no-repeat;
-  background-position: 7px center;
-  background-size: 17px;
-  border-radius: 7px;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+  padding: 7px 10px;
   color: var(--white);
+  background-color: var(--light-green);
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 18px;
 }
 
-.license .bad {
-  background-color: var(--mid-blue);
+.license i {
+  margin-right: 7px;
 }
 
 p.description {
@@ -200,9 +251,17 @@ p.description {
   }
 }
 
-.metadata {
-  margin: 40px 0;
-}
+i.osi:before { content: "\e900"; color: var(--white); }
+li.authors:before { content: "\e902"; }
+li.author:before { content: "\e901"; }
+li.history:before { content: "\e903" }
+li.activity:before { content: "\e904"; }
+li.products:before { content: "\e905"; }
+li.stable:before { content: "\e906"; color: var(--light-green); }
+li.beta:before { content: "\e907"; color: var(--mid-green); }
+li.branch:before { content: "\e908"; color: var(--dark-green); }
+li.language:before { content: "\e909"; }
+li.platforms:before { content: "\e90a"; }
 
 /* Footer ------------------------------------------------------------------ */
 footer {
