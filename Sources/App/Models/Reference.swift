@@ -4,6 +4,15 @@ import Foundation
 enum Reference: Equatable {
     case branch(String)
     case tag(SemVer)
+
+    var isBranch: Bool {
+        switch self {
+            case .branch: return true
+            case .tag:    return false
+        }
+    }
+
+    var isTag: Bool { !isBranch }
 }
 
 

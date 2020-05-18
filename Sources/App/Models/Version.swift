@@ -36,6 +36,9 @@ final class Version: Model, Content {
     @Field(key: "swift_versions")
     var swiftVersions: [String]
 
+    @Children(for: \.$version)
+    var products: [Product]
+
     init() { }
 
     init(id: Id? = nil,
