@@ -259,8 +259,8 @@ li.products:before { content: "\e904"; }
 li.stable:before { content: "\e905"; color: var(--light-green); }
 li.beta:before { content: "\e906"; color: var(--mid-green); }
 li.branch:before { content: "\e907"; color: var(--dark-green); }
-li.language:before { content: "\e908"; }
-li.platforms:before { content: "\e909"; }
+li.language:before { content: "\e908"; font-size: 24px; margin-left: -38px; }
+li.platforms:before { content: "\e909"; font-size: 24px; margin-left: -38px; }
 
 /* Footer ------------------------------------------------------------------ */
 footer {
