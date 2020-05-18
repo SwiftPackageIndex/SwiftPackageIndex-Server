@@ -15,13 +15,13 @@ extension PackageShowView.Model {
                 // we consider certain attributes as essential and return nil (raising .notFound)
                 guard let title = p.name else { return nil }
                 return Self.init(title: title,
-                          url: p.url,
-                          license: p.repository?.license ?? .none,
-                          summary: p.repository?.summary ?? "–",
-                          authors: [],
-                          history: nil,
-                          activity: nil,
-                          products: p.productCounts)
+                                 url: p.url,
+                                 license: p.repository?.license ?? .none,
+                                 summary: p.repository?.summary ?? "–",
+                                 authors: [],
+                                 history: nil,
+                                 activity: nil,
+                                 products: p.productCounts)
             }
             .unwrap(or: Abort(.notFound))
     }
