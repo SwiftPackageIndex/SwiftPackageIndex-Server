@@ -77,6 +77,7 @@ extension String {
 
 
 extension Array where Element == String {
+    var urls: [URL] { compactMap(URL.init(string:)) }
     var gh: Self { map(\.gh) }
 }
 
