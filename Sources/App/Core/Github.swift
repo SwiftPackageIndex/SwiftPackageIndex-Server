@@ -2,7 +2,7 @@ import Vapor
 
 
 enum Github {
-    struct License: Decodable {
+    struct License: Decodable, Equatable {
         var key: String
     }
     struct Parent: Decodable {
@@ -15,8 +15,14 @@ enum Github {
         var description: String?
         var forksCount: Int
         var license: License?
-        var stargazersCount: Int
+        var name: String?
+        var owner: Owner?
         var parent: Parent?
+        var stargazersCount: Int
+
+        struct Owner: Decodable, Equatable {
+            var login: String?
+        }
     }
 
     static func fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {

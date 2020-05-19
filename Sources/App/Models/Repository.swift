@@ -7,6 +7,8 @@ final class Repository: Model, Content {
 
     typealias Id = UUID
 
+    // record metadata
+
     @ID(key: .id)
     var id: Id?
 
@@ -16,26 +18,38 @@ final class Repository: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
-    @Parent(key: "package_id")
-    var package: Package
-
-    @Field(key: "summary")
-    var summary: String?
+    // data fields
 
     @Field(key: "default_branch")
     var defaultBranch: String?
 
+    @Field(key: "forks")
+    var forks: Int?
+    
     @Field(key: "license")
     var license: License
+
+    @Field(key: "name")
+    var name: String?
+
+    @Field(key: "owner")
+    var owner: String?
 
     @Field(key: "stars")
     var stars: Int?
 
-    @Field(key: "forks")
-    var forks: Int?
+    @Field(key: "summary")
+    var summary: String?
+
+    // relationships
+
+    @Parent(key: "package_id")
+    var package: Package
 
     @OptionalParent(key: "forked_from_id")  // TODO: remove or implement
     var forkedFrom: Repository?
+
+    // initializers
 
     init() { }
 
@@ -59,18 +73,8 @@ final class Repository: Model, Content {
         }
     }
 
-    init(id: Id? = nil, package: Package, metadata: Github.Metadata) throws {
-        self.id = id
-        self.$package.id = try package.requireID()
-        self.summary = metadata.description
-        self.defaultBranch = metadata.defaultBranch
-        self.license = .init(from: metadata.license)
-        self.stars = metadata.stargazersCount
-        self.forks = metadata.forksCount
-        // if let parent = metadata.parent {
-        //   TODO: find parent repo and assing it
-        //            self.$forkedFrom.id = forkId
-        // }
+    init(packageId: Package.Id) {
+        self.$package.id = packageId
     }
 }
 

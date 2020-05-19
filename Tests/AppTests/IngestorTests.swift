@@ -78,7 +78,13 @@ class IngestorTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "2")
         let metadata: [Result<(Package, Github.Metadata), Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-            .success((pkg, .init(defaultBranch: "master", forksCount: 1, stargazersCount: 2)))
+            .success((pkg, .init(defaultBranch: "master",
+                                 description: "package desc",
+                                 forksCount: 1,
+                                 license: .init(key: "mit"),
+                                 name: "bar",
+                                 owner: .init(login: "foo"),
+                                 stargazersCount: 2)))
         ]
 
         // MUT
@@ -86,6 +92,18 @@ class IngestorTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
+        let repo = try XCTUnwrap(
+            Repository.query(on: app.db)
+                .filter(\.$package.$id == pkg.requireID())
+                .first().wait()
+        )
+        XCTAssertEqual(repo.defaultBranch, "master")
+        XCTAssertEqual(repo.forks, 1)
+        XCTAssertEqual(repo.license, .mit)
+        XCTAssertEqual(repo.owner, "foo")
+        XCTAssertEqual(repo.name, "bar")
+        XCTAssertEqual(repo.stars, 2)
+        XCTAssertEqual(repo.summary, "package desc")
     }
 
     func test_updateStatus() throws {

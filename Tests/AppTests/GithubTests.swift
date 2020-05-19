@@ -3,7 +3,7 @@
 import XCTest
 
 
-class GithubTests: XCTestCase {
+class GithubTests: AppTestCase {
     
     func test_getHeader() throws {
         do { // without token
@@ -33,21 +33,19 @@ class GithubTests: XCTestCase {
     }
 
     func test_fetchRepository() throws {
-        let pkg = Package(url: "https://github.com/foo/bar")
+        let pkg = Package(url: "https://github.com/finestructure/Gala")
+        let data = try XCTUnwrap(try loadData(for: "github-repository-response.json"))
         let client = MockClient { resp in
             resp.status = .ok
-            resp.body = makeBody("""
-                    {
-                    "default_branch": "master",
-                    "forks_count": 1,
-                    "stargazers_count": 2,
-                    }
-                    """)
+            resp.body = makeBody(data)
         }
         let meta = try Github.fetchMetadata(client: client, package: pkg).wait()
         XCTAssertEqual(meta.defaultBranch, "master")
         XCTAssertEqual(meta.forksCount, 1)
-        XCTAssertEqual(meta.stargazersCount, 2)
+        XCTAssertEqual(meta.license, .init(key: "mit"))
+        XCTAssertEqual(meta.name, "Gala")
+        XCTAssertEqual(meta.owner, .init(login: "finestructure"))
+        XCTAssertEqual(meta.stargazersCount, 44)
     }
 
     func test_fetchRepository_badUrl() throws {

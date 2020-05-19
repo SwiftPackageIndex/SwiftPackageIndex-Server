@@ -7,8 +7,8 @@ extension Github.Metadata {
         description: "desc",
         forksCount: 1,
         license: .init(key: "mit"),
-        stargazersCount: 2,
-        parent: nil
+        parent: nil,
+        stargazersCount: 2
     )
 
     static func mock(for package: Package) -> Self {
@@ -17,7 +17,8 @@ extension Github.Metadata {
               description: "This is package " + package.url,
               forksCount: package.url.count,
               license: .init(key: "mit"),
-              stargazersCount: package.url.count + 1,
-              parent: nil)
+              parent: nil,
+              stargazersCount: package.url.count + 1
+        )
     }
 }
