@@ -73,16 +73,26 @@
         <hr class="short"></hr>
         <section class="releases">
           <ul>
-            <li class="icon stable">The 
-              <strong>latest stable</strong> release is 
-              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">5.2.0</a>, 12 hours ago.
+            <li>The latest stable release is 
+              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">
+                <span class="stable">
+                  <i class="icon stable"></i>5.2.0
+                </span>
+              </a>. Released 12 days ago.
             </li>
-            <li class="icon beta">The 
-              <strong>latest beta</strong> release is 
-              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>, 4 days ago.
+            <li>The latest beta release is 
+              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">
+                <span class="beta">
+                  <i class="icon beta"></i>5.3.0-beta.1
+                </span>
+              </a>. Released 4 days ago.
             </li>
-            <li class="icon branch">The last commit to the 
-              <strong>master branch</strong> was 12 minutes ago.
+            <li>The last commit to 
+              <a href="https://github.com/Alamofire/Alamofire">
+                <span class="branch">
+                  <i class="icon branch"></i>master
+                </span>
+              </a> was 12 minutes ago.
             </li>
           </ul>
         </section>
