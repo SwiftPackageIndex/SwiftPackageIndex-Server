@@ -108,24 +108,28 @@ class PackageShowView: PublicPage {
             .section(
                 .class("language_platforms"),
                 .h3("Language and Platforms"),
+                .p(
+                    "Version ",
+                    .a(
+                        .href("https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
+                        .span(
+                            .class("stable"),
+                            .i(.class("icon stable")),
+                            "5.2.0"
+                        )
+                    ),
+                    " supports:"
+                ),
                 .ul(
                     .li(
                         .class("icon language"),
-                        "Supports ",
-                        .strong("Swift 5 and 5.2"),
-                        " (changing to ",
-                        .strong("Swift 5.2"),
-                        " in ",
-                        .a(
-                            .class("beta"),
-                            .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1"),
-                            "5.3.0-beta.1"
-                        ),
-                        ")."
+                        "Swift ",
+                        .strong("5"),
+                        " and ",
+                        .strong("5.2")
                     ),
                     .li(
                         .class("icon platforms"),
-                        "Supports ",
                         .strong("iOS 10.0+"),
                         ", ",
                         .strong("macOS 10.12+"),
@@ -133,7 +137,38 @@ class PackageShowView: PublicPage {
                         .strong("watchOS 3.0+"),
                         ", and ",
                         .strong("tvOS 10.0+"),
-                        " (changing to ",
+                        "."
+                    )
+                ),
+                .p(
+                    "Version ",
+                    .a(
+                        .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.1-beta1"),
+                        .span(
+                            .class("beta"),
+                            .i(.class("icon beta")),
+                            "5.3.1-beta.1"
+                        )
+                    ),
+                    " and ",
+                    .a(
+                        .href("https://github.com/Alamofire/Alamofire"),
+                        .span(
+                            .class("branch"),
+                            .i(.class("icon branch")),
+                            "master"
+                        )
+                    ),
+                    " support:"
+                ),
+                .ul(
+                    .li(
+                        .class("icon language"),
+                        "Swift ",
+                        .strong("5.2")
+                    ),
+                    .li(
+                        .class("icon platforms"),
                         .strong("iOS 13.0+"),
                         ", ",
                         .strong("macOS 10.15+"),
@@ -141,13 +176,7 @@ class PackageShowView: PublicPage {
                         .strong("watchOS 6.0+"),
                         ", and ",
                         .strong("tvOS 13.0+"),
-                        " in ",
-                        .a(
-                            .class("beta"),
-                            .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1"),
-                            "5.3.0-beta.1"
-                        ),
-                        ")."
+                        "."
                     )
                 )
             )
