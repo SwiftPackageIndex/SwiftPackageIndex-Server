@@ -65,24 +65,15 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
         .filter(\.$package.$id == pkgId)
         .first()
         .flatMap { repo -> EventLoopFuture<Void> in
-            if let repo = repo {
-                repo.defaultBranch = metadata.defaultBranch
-                repo.summary = metadata.description
-                repo.forks = metadata.forksCount
-                repo.license = .init(from: metadata.license)
-                repo.stars = metadata.stargazersCount
-                // TODO: find and assign parent repo
-                return repo.save(on: database)
-            } else {
-                do {
-                    return try Repository(package: package, metadata: metadata)
-                        .save(on: database)
-                } catch {
-                    return database.eventLoop.future(error:
-                        AppError.genericError(package.id,
-                                              "Failed to create Repository for \(package.url)")
-                    )
-                }
-            }
+            let repo = repo ?? Repository(packageId: pkgId)
+            repo.defaultBranch = metadata.defaultBranch
+            repo.forks = metadata.forksCount
+            repo.license = .init(from: metadata.license)
+            repo.name = metadata.name
+            repo.owner = metadata.owner?.login
+            repo.stars = metadata.stargazersCount
+            repo.summary = metadata.description
+            // TODO: find and assign parent repo
+            return repo.save(on: database)
     }
 }

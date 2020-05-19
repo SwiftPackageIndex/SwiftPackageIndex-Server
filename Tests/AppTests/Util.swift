@@ -88,3 +88,10 @@ func makeBody(_ string: String) -> ByteBuffer {
     buffer.writeString(string)
     return buffer
 }
+
+
+func makeBody(_ data: Data) -> ByteBuffer {
+    var buffer: ByteBuffer = ByteBuffer.init(.init())
+    buffer.writeBytes(data)
+    return buffer
+}

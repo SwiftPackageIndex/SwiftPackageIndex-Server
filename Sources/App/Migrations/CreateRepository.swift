@@ -25,3 +25,21 @@ struct CreateRepository: Migration {
         return database.schema("repositories").delete()
     }
 }
+
+
+// FIXME: squash migrations before launch
+struct AddNameOwner: Migration {
+    func prepare(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("repositories")
+            .field("name", .string)
+            .field("owner", .string)
+            .update()
+    }
+
+    func revert(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("repositories")
+            .deleteField("name")
+            .deleteField("owner")
+            .update()
+    }
+}
