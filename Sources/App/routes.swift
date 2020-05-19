@@ -15,13 +15,14 @@ func routes(_ app: Application) throws {
     app.group("api") { api in
         api.get("version") { req in API.Version(version: appVersion) }
 
-        let apiPackageController = API.PackageController()
-        api.get("packages", use: apiPackageController.index)
-        api.get("packages", ":id", use: apiPackageController.get)
-        api.post("packages", use: apiPackageController.create)
-        api.put("packages", ":id", use: apiPackageController.replace)
-        api.delete("packages", ":id", use: apiPackageController.delete)
-
-        api.get("packages", "run", ":command", use: apiPackageController.run)
+        // sas: 2020-05-19: shut down public API until we have an auth mechanism
+        //  let apiPackageController = API.PackageController()
+        //  api.get("packages", use: apiPackageController.index)
+        //  api.get("packages", ":id", use: apiPackageController.get)
+        //  api.post("packages", use: apiPackageController.create)
+        //  api.put("packages", ":id", use: apiPackageController.replace)
+        //  api.delete("packages", ":id", use: apiPackageController.delete)
+        //
+        //  api.get("packages", "run", ":command", use: apiPackageController.run)
     }
 }
