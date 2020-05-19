@@ -96,7 +96,6 @@ hr.short {
 
 i.icon,
 li.icon:before {
-  color: var(--dark-grey);
   font-family: "icomoon" !important;
   font-style: normal;
   font-weight: normal;
@@ -110,7 +109,11 @@ li.icon:before {
 }
 
 i.icon {
-  font-size: 20px;
+  margin-right: 7px;
+}
+
+i.icon:before {
+  color: var(--white);
 }
 
 li.icon {
@@ -120,6 +123,7 @@ li.icon {
 li.icon:before {
   margin-left: -35px;
   margin-right: 15px;
+  color: var(--dark-grey);
   font-size: 18px;
 }
 
@@ -224,21 +228,6 @@ header nav ul li a:hover {
 }
 
 /* Package page ------------------------------------------------------------ */
-.license {
-  display: flex;
-  align-items: center;
-  padding: 7px 10px;
-  color: var(--white);
-  background-color: var(--light-green);
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.license i {
-  margin-right: 7px;
-}
-
 p.description {
   margin: 20px auto;
   max-width: 90%;
@@ -251,14 +240,54 @@ p.description {
   }
 }
 
-i.osi:before { content: "\e900"; color: var(--white); }
+/* Package page lozenges --------------------------------------------------- */
+div.license {
+  display: flex;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: var(--white);
+  font-weight: 600;
+  font-size: 18px;
+}
+
+div.license {
+  background-color: var(--light-green);
+}
+
+span.stable,
+span.beta,
+span.branch {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--white);
+  font-weight: 600;
+}
+
+span.stable {
+  background-color: var(--light-green);
+}
+
+span.beta {
+  background-color: var(--mid-green);
+}
+
+span.branch {
+  background-color: var(--dark-green);
+}
+
+/* Package page icons ------------------------------------------------------ */
+i.osi:before { content: "\e900"; }
+i.stable:before { content: "\e905"; font-size: 13px; }
+i.beta:before { content: "\e906"; font-size: 13px; }
+i.branch:before { content: "\e907"; font-size: 13px; }
+
 li.author:before { content: "\e901"; }
 li.history:before { content: "\e902" }
 li.activity:before { content: "\e903"; }
 li.products:before { content: "\e904"; }
-li.stable:before { content: "\e905"; color: var(--light-green); }
-li.beta:before { content: "\e906"; color: var(--mid-green); }
-li.branch:before { content: "\e907"; color: var(--dark-green); }
 li.language:before { content: "\e908"; font-size: 24px; margin-left: -38px; }
 li.platforms:before { content: "\e909"; font-size: 24px; margin-left: -38px; }
 
