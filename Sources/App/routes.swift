@@ -15,6 +15,8 @@ func routes(_ app: Application) throws {
     app.group("api") { api in
         api.get("version") { req in API.Version(version: appVersion) }
 
+        api.get("search", use: API.SearchController.get)
+
         // sas: 2020-05-19: shut down public API until we have an auth mechanism
         //  let apiPackageController = API.PackageController()
         //  api.get("packages", use: apiPackageController.index)

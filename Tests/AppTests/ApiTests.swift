@@ -14,4 +14,15 @@ class ApiTests: AppTestCase {
         }
     }
 
+    func test_search_basic() throws {
+        try app.test(.GET, "api/search") { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(
+                try res.content.decode([API.SearchResult].self),
+                [
+                    .init(packageName: "FooBar", repositoryID: "someone/FooBar", summary: "A foo bar repo"),
+                    .init(packageName: "BazBaq", repositoryID: "another/barbaq", summary: "Some other repo"),
+            ])
+        }
+    }
 }
