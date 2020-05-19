@@ -14,8 +14,15 @@ class ApiTests: AppTestCase {
         }
     }
 
-    func test_search_basic() throws {
+    func test_search_noQuery() throws {
         try app.test(.GET, "api/search") { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(try res.content.decode([API.SearchResult].self), [])
+        }
+    }
+
+    func test_search_basic_param() throws {
+        try app.test(.GET, "api/search?query=foo%20bar") { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(
                 try res.content.decode([API.SearchResult].self),
