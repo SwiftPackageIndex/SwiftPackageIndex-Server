@@ -68,31 +68,39 @@ class PackageShowView: PublicPage {
                 .class("releases"),
                 .ul(
                     .li(
-                        .class("icon stable"),
-                        "The ",
-                        .strong("latest stable"),
-                        " release is ",
+                        "The latest stable release is ",
                         .a(
                             .href("https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
-                            "5.2.0"
+                            .span(
+                                .class("stable"),
+                                .i(.class("icon stable")),
+                                "5.2.0"
+                            )
                         ),
-                        ", 12 hours ago."
+                        ". Released 12 days ago."
                     ),
                     .li(
-                        .class("icon beta"),
-                        "The ",
-                        .strong("latest beta"),
-                        " release is ",
+                        "The latest beta release is ",
                         .a(
                             .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1"),
-                            "5.3.0-beta.1"
+                            .span(
+                                .class("beta"),
+                                .i(.class("icon beta")),
+                                "5.3.0-beta.1"
+                            )
                         ),
-                        ", 4 days ago."
+                        ". Released 4 days ago."
                     ),
                     .li(
-                        .class("icon branch"),
-                        "The last commit to the ",
-                        .strong("master branch"),
+                        "The last commit to ",
+                        .a(
+                            .href("https://github.com/Alamofire/Alamofire"),
+                            .span(
+                                .class("branch"),
+                                .i(.class("icon branch")),
+                                "master"
+                            )
+                        ),
                         " was 12 minutes ago."
                     )
                 )
