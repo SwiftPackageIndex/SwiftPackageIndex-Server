@@ -7,15 +7,13 @@ class HomeIndex: PublicPage {
             .class("search"),
             .div(
                 .class("inner"),
-                .p(
-                    "The place to find Swift packages."
-                ),
+                .p("The place to find Swift packages."),
                 .form(
                     .input(
-                        .id("query"),
                         .type(.text),
-                        .attribute(named: "spellcheck", value: "false"), // TODO: Fix after Plot update
+                        .id("query"),
                         .placeholder("Search"),
+                        .attribute(named: "spellcheck", value: "false"), // TODO: Fix after Plot update
                         .autofocus(true)
                     ),
                     .div(
@@ -28,9 +26,10 @@ class HomeIndex: PublicPage {
 
     override func content() -> Node<HTML.BodyContext> {
         .div(
-            .class("split"),
+            .class("recent"),
             .section(
                 .class("recent_packages"),
+                .h3("Recent Packages"),
                 .ul(
                     .li(
                         "Package",
@@ -64,6 +63,7 @@ class HomeIndex: PublicPage {
             ),
             .section(
                 .class("recent_releases"),
+                .h3("Recent Releases"),
                 .ul(
                     .li(
                         "Package",
