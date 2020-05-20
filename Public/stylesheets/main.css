@@ -156,11 +156,6 @@ section {
 
 section li {
   margin: 10px 0;
-  list-style: none;
-}
-
-section li li {
-  list-style: disc;
 }
 
 section li p {
@@ -246,6 +241,7 @@ p.description {
 .releases ul,
 .language_platforms ul {
   padding: 0;
+  list-style: none;
 }
 
 .language_platforms li {
@@ -254,6 +250,7 @@ p.description {
 
 .language_platforms ul li ul {
   padding: 0 40px;
+  list-style: disc;
 }
 
 .language_platforms ul li li {
