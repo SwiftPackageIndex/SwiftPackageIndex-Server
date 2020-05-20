@@ -178,7 +178,7 @@ extension PackageShowView {
         }
 
         struct History: Equatable {
-            let since: String  // TODO: use Date and derive on the fly
+            let since: String  // FIXME: use RelativeDateTimeFormatter
             let commits: Link
             let releases: Link
         }
@@ -205,27 +205,10 @@ extension PackageShowView {
 
 extension PackageShowView.Model {
     func authorsClause() -> [Node<HTML.BodyContext>] {
-        switch authors.count {
-            case 0:
-                return ["–"]
-            case 1:
-                let author = authors.first!
-                return ["By ", .a(.href(author.url), .text(author.name)), "."]
-            case 2:
-                let author1 = authors[0]
-                let author2 = authors[1]
-                return ["By ", .a(.href(author1.url), .text(author1.name)),
-                        " and ", .a(.href(author2.url), .text(author2.name)), "."]
-            default:
-                let start: [Node<HTML.BodyContext>]
-                    = ["By ", .a(.href(authors.first!.url), .text(authors.first!.name))]
-                let middle: [[Node<HTML.BodyContext>]] = authors[1..<(authors.count - 1)].map {
-                        [", ", .a(.href($0.url), .text($0.name))]
-                }
-                let end: [Node<HTML.BodyContext>] =
-                    [", and ", .a(.href(authors.last!.url), .text(authors.last!.name)), "."]
-                return middle.reduce(start) { $0 + $1 } + end
-        }
+        let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.name)) }
+        return Self.listPhrase(opening: .text("By "),
+                               nodes: nodes,
+                               ifNoValues: ["-"])
     }
 
     func historyClause() -> [Node<HTML.BodyContext>] {
@@ -327,4 +310,34 @@ extension PackageShowView.Model {
             ]
         } ?? []
     }
+
+}
+
+
+// MARK: - General helpers
+
+extension PackageShowView.Model {
+
+    static func listPhrase(opening: Node<HTML.BodyContext>,
+                           nodes: [Node<HTML.BodyContext>],
+                           ifNoValues: [Node<HTML.BodyContext>] = []) -> [Node<HTML.BodyContext>] {
+        switch nodes.count {
+            case 0:
+                return ifNoValues
+            case 1:
+                return [opening, nodes[0]]
+            case 2:
+                return [opening, nodes[0], " and ", nodes[1]]
+            default:
+                let start: [Node<HTML.BodyContext>]
+                    = [opening, nodes.first!]
+                let middle: [[Node<HTML.BodyContext>]] = nodes[1..<(nodes.count - 1)].map {
+                    [", ", $0]
+                }
+                let end: [Node<HTML.BodyContext>] =
+                    [", and ", nodes.last!, "."]
+                return middle.reduce(start) { $0 + $1 } + end
+        }
+    }
+
 }

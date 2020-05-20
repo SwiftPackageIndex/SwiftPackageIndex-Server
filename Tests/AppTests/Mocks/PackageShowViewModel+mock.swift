@@ -30,9 +30,15 @@ extension PackageShowView.Model {
                                     url: "https://github.com/Alamofire/Alamofire/pulls"),
                 lastPullRequestClosedMerged: "6 days ago"),
               products: .init(libraries: 3, executables: 1),
-              releases: .init(stable: .init(date: Date(), link: .init(name: "1.0.0", url: "1.0.0")),
-                              beta: .init(date: Date(), link: .init(name: "2.0.0-beta1", url: "2.0.0b")),
-                              latest: .init(date: Date(), link: .init(name: "master", url: "mater")))
+              releases: .init(stable: .init(date: "12 days",
+                                            link: .init(name: "5.2.0",
+                                                        url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0")),
+                              beta: .init(date: "4 days",
+                                          link: .init(name: "5.3.0-beta.1",
+                                                      url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1")),
+                              latest: .init(date: "12 minutes",
+                                            link: .init(name: "master",
+                                                        url: "https://github.com/Alamofire/Alamofire")))
         )
     }
 }
