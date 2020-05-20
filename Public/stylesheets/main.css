@@ -107,12 +107,15 @@ li.icon:before {
   -moz-osx-font-smoothing: grayscale;
 }
 
-i.icon {
+div i.icon {
   margin-right: 7px;
 }
 
-i.icon:before {
-  color: var(--white);
+span i.icon {
+  display: inline-block;
+  margin-top: -3px;
+  margin-right: 4px;
+  font-size: 20px;
 }
 
 li.icon {
@@ -154,6 +157,10 @@ section {
 section li {
   margin: 15px 0;
   list-style: none;
+}
+
+section li li {
+  list-style: disc;
 }
 
 section li p {
@@ -246,7 +253,7 @@ p.description {
 }
 
 .language_platforms ul li ul {
-  padding: 0 50px;
+  padding: 0 40px;
 }
 
 .language_platforms ul li li {
@@ -271,38 +278,31 @@ div.license {
 span.stable,
 span.beta,
 span.branch {
-  display: inline-flex;
-  align-items: baseline;
-  padding: 2px 7px;
-  border-radius: 4px;
-  color: var(--white);
   font-weight: 600;
 }
 
 span.stable {
-  background-color: var(--light-green);
+  color: var(--light-green);
 }
 
 span.beta {
-  background-color: var(--mid-green);
+  color: var(--mid-green);
 }
 
 span.branch {
-  background-color: var(--dark-green);
+  color: var(--dark-green);
 }
 
 /* Package page icons ------------------------------------------------------ */
 i.osi:before { content: "\e900"; }
-i.stable:before { content: "\e905"; font-size: 13px; }
-i.beta:before { content: "\e906"; font-size: 13px; }
-i.branch:before { content: "\e907"; font-size: 13px; }
+i.stable:before { content: "\e905"; }
+i.beta:before { content: "\e906"; }
+i.branch:before { content: "\e907"; }
 
 li.author:before { content: "\e901"; }
 li.history:before { content: "\e902" }
 li.activity:before { content: "\e903"; }
 li.products:before { content: "\e904"; }
-li.language:before { content: "\e908"; font-size: 24px; margin-left: -33px; margin-right: 8px; }
-li.platforms:before { content: "\e909"; font-size: 24px; margin-left: -33px; margin-right: 8px; }
 
 /* Footer ------------------------------------------------------------------ */
 footer {

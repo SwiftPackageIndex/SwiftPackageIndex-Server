@@ -124,14 +124,12 @@ class PackageShowView: PublicPage {
                         ),
                         .ul(
                             .li(
-                                .class("icon language"),
                                 "Swift ",
                                 .strong("5"),
                                 " and ",
                                 .strong("5.2")
                             ),
                             .li(
-                                .class("icon platforms"),
                                 .strong("iOS 10.0+"),
                                 ", ",
                                 .strong("macOS 10.12+"),
@@ -167,12 +165,10 @@ class PackageShowView: PublicPage {
                         ),
                         .ul(
                             .li(
-                                .class("icon language"),
                                 "Swift ",
                                 .strong("5.2")
                             ),
                             .li(
-                                .class("icon platforms"),
                                 .strong("iOS 13.0+"),
                                 ", ",
                                 .strong("macOS 10.15+"),
