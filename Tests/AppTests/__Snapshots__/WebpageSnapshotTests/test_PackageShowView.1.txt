@@ -108,11 +108,11 @@
                 </a> supports:
               </p>
               <ul>
-                <li class="icon language">Swift 
+                <li>Swift 
                   <strong>5</strong> and 
                   <strong>5.2</strong>
                 </li>
-                <li class="icon platforms">
+                <li>
                   <strong>iOS 10.0+</strong>, 
                   <strong>macOS 10.12+</strong>, 
                   <strong>watchOS 3.0+</strong>, and 
@@ -134,10 +134,10 @@
                 </a> support:
               </p>
               <ul>
-                <li class="icon language">Swift 
+                <li>Swift 
                   <strong>5.2</strong>
                 </li>
-                <li class="icon platforms">
+                <li>
                   <strong>iOS 13.0+</strong>, 
                   <strong>macOS 10.15+</strong>, 
                   <strong>watchOS 6.0+</strong>, and 
