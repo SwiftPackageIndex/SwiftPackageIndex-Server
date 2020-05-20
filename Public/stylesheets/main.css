@@ -81,6 +81,10 @@ hr.short {
   height: 1px;
 }
 
+::placeholder {
+  color: var(--light-grey);
+}
+
 /* Icon font --------------------------------------------------------------- */
 @font-face {
   font-family: "icomoon";
@@ -231,6 +235,57 @@ header nav ul li a {
 
 header nav ul li a:hover {
   border-color: var(--yellow);
+}
+
+/* Home page --------------------------------------------------------------- */
+.search {
+  margin: 0;
+  background-color: var(--dark-blue);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 75%);
+}
+
+.search .inner {
+  padding: 70px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.search p {
+  margin-bottom: 30px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+}
+
+.search form {
+  position: relative;
+  margin: 0 auto;
+  width: 90%;
+  max-width: 500px;
+
+}
+
+.search input {
+  padding: 12px;
+  width: 100%;
+  font-size: 25px;
+  font-weight: 600;
+  border: none;
+  color: var(--black);
+}
+
+.search input:focus {
+  outline: none;
+}
+
+.search #results {
+  position: absolute;
+  padding: 10px;
+  width: 100%;
+  background-color: var(--white);
+  border-top: 2px var(--light-blue) solid;
+  z-index: 9999;
 }
 
 /* Package page ------------------------------------------------------------ */
