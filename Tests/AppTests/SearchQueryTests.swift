@@ -77,5 +77,4 @@ class SearchQueryTests: AppTestCase {
         ])
     }
 
-
 }
