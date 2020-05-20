@@ -1,29 +1,26 @@
 import Plot
 
-
 class HomeIndex: PublicPage {
 
-    override func main() -> Node<HTML.BodyContext> {
-        .group(
-            .section(
-                .class("search"),
-                .div(
-                    .class("inner"),
-                    .p(
-                        "The place to find Swift packages."
+    override func preMain() -> Node<HTML.BodyContext> {
+        .section(
+            .class("search"),
+            .div(
+                .class("inner"),
+                .p(
+                    "The place to find Swift packages."
+                ),
+                .form(
+                    .input(
+                        .id("query"),
+                        .type(.text),
+                        .attribute(named: "spellcheck", value: "false"), // TODO: Fix after Plot update
+                        .placeholder("Search"),
+                        .autofocus(true)
                     ),
-                    .form(
-                        .input(
-                            .type(.text),
-                            .attribute(named: "spellcheck", value: "false"), // TODO: Fix after Plot update
-                            .placeholder("Search")
-                        )
+                    .div(
+                        .id("results")
                     )
-                )
-            ),
-            .main(
-                .div(.class("inner"),
-                     content()
                 )
             )
         )
