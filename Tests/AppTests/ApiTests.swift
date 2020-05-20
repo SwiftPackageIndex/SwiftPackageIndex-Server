@@ -34,6 +34,20 @@ class ApiTests: AppTestCase {
         }
     }
 
+    func test_regexClause() throws {
+        XCTAssertEqual(
+            API.SearchQuery.regexClause("foo"),
+            "coalesce(v.package_name) || ' ' || coalesce(r.summary, '') || ' ' || coalesce(r.name, '') || ' ' || coalesce(r.owner, '') ~* 'foo'"
+        )
+    }
+
+    func test_buildQuery() throws {
+        XCTAssertEqual(
+            API.SearchQuery.buildQuery(["foo"]),
+            API.SearchQuery.preamble + "\nand " + API.SearchQuery.regexClause("foo")
+        )
+    }
+
     func test_query() throws {
         // setup
         let p1 = try savePackage(on: app.db, "1")
@@ -53,16 +67,7 @@ class ApiTests: AppTestCase {
         }
 
         let query = (app.db as? SQLDatabase)?.raw(
-            """
-            select
-            v.package_name
-            --, r.summary, r.name, r.owner
-            from packages p
-            join repositories r on r.package_id = p.id
-            join versions v on v.package_id = p.id
-            where v.reference ->> 'branch' = r.default_branch
-                and coalesce(v.package_name) || ' ' || coalesce(r.summary, '') || ' ' || coalesce(r.name, '') || ' ' || coalesce(r.owner, '') ~* 'bar'
-            """
+            .init(API.SearchQuery.buildQuery(["bar"]))
         ).all(decoding: Row.self)
         let res = try query?.wait()
 
