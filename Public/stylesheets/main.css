@@ -237,6 +237,9 @@ p.description {
   font-size: 19px;
 }
 
+.releases ul,
+.language_platforms ul {
+  padding: 0;
 }
 
 .language_platforms li {
