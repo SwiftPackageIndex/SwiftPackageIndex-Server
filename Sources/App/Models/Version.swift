@@ -28,8 +28,6 @@ final class Version: Model, Content {
     @Field(key: "commit")
     var commit: String?
 
-    // TODO: sas-2020-05-03: currently concatenating os + version - we could save the structure instead
-    // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/42
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
 
