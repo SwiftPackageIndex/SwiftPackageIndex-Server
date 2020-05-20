@@ -58,6 +58,8 @@ final class Repository: Model, Content {
          summary: String? = nil,
          defaultBranch: String? = nil,
          license: License = .none,
+         name: String? = nil,
+         owner: String? = nil,
          stars: Int? = nil,
          forks: Int? = nil,
          forkedFrom: Repository? = nil) throws {
@@ -66,6 +68,8 @@ final class Repository: Model, Content {
         self.summary = summary
         self.defaultBranch = defaultBranch
         self.license = license
+        self.name = name
+        self.owner = owner
         self.stars = stars
         self.forks = forks
         if let forkId = forkedFrom?.id {

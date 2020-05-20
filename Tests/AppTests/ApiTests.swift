@@ -28,8 +28,16 @@ class ApiTests: AppTestCase {
             XCTAssertEqual(
                 try res.content.decode([API.SearchResult].self),
                 [
-                    .init(packageName: "FooBar", repositoryId: "someone/FooBar", summary: "A foo bar repo"),
-                    .init(packageName: "BazBaq", repositoryId: "another/barbaq", summary: "Some other repo"),
+                    .init(packageId: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
+                          packageName: "FooBar",
+                          repositoryName: "someone",
+                          repositoryOwner: "FooBar",
+                          summary: "A foo bar repo"),
+                    .init(packageId: UUID(uuidString: "4e256250-d1ea-4cdd-9fe9-0fc5dce17a80")!,
+                          packageName: "BazBaq",
+                          repositoryName: "another",
+                          repositoryOwner: "barbaq",
+                          summary: "Some other repo"),
             ])
         }
     }
@@ -53,25 +61,24 @@ class ApiTests: AppTestCase {
         let p1 = try savePackage(on: app.db, "1")
         let p2 = try savePackage(on: app.db, "2")
         try Repository(package: p1, summary: "some package", defaultBranch: "master").save(on: app.db).wait()
-        try Repository(package: p2, summary: "bar", defaultBranch: "master").save(on: app.db).wait()
+        try Repository(package: p2,
+                       summary: "bar package",
+                       defaultBranch: "master",
+                       name: "name 2",
+                       owner: "owner 2").save(on: app.db).wait()
         try Version(package: p1, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
         try Version(package: p2, reference: .branch("master"), packageName: "Bar").save(on: app.db).wait()
 
         // MUT
-        struct Row: Decodable, Equatable {
-            var packageName: String
-
-            enum CodingKeys: String, CodingKey {
-                case packageName = "package_name"
-            }
-        }
-
-        let query = (app.db as? SQLDatabase)?.raw(
-            .init(API.SearchQuery.buildQuery(["bar"]))
-        ).all(decoding: Row.self)
-        let res = try query?.wait()
+        let res = try API.SearchQuery.run(app.db, ["bar"]).wait()
 
         // validation
-        XCTAssertEqual(res, [Row(packageName: "Bar")])
+        XCTAssertEqual(res, [
+            .init(packageId: try p2.requireID(),
+                  packageName: "Bar",
+                  repositoryName: "name 2",
+                  repositoryOwner: "owner 2",
+                  summary: "bar package")
+        ])
     }
 }
