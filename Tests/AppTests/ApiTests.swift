@@ -1,5 +1,6 @@
 @testable import App
 
+import SQLKit
 import Vapor
 import XCTest
 
@@ -27,9 +28,45 @@ class ApiTests: AppTestCase {
             XCTAssertEqual(
                 try res.content.decode([API.SearchResult].self),
                 [
-                    .init(packageName: "FooBar", repositoryID: "someone/FooBar", summary: "A foo bar repo"),
-                    .init(packageName: "BazBaq", repositoryID: "another/barbaq", summary: "Some other repo"),
+                    .init(packageName: "FooBar", repositoryId: "someone/FooBar", summary: "A foo bar repo"),
+                    .init(packageName: "BazBaq", repositoryId: "another/barbaq", summary: "Some other repo"),
             ])
         }
+    }
+
+    func test_query() throws {
+        // setup
+        let p1 = try savePackage(on: app.db, "1")
+        let p2 = try savePackage(on: app.db, "2")
+        try Repository(package: p1, summary: "some package", defaultBranch: "master").save(on: app.db).wait()
+        try Repository(package: p2, summary: "bar", defaultBranch: "master").save(on: app.db).wait()
+        try Version(package: p1, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
+        try Version(package: p2, reference: .branch("master"), packageName: "Bar").save(on: app.db).wait()
+
+        // MUT
+        struct Row: Decodable, Equatable {
+            var packageName: String
+
+            enum CodingKeys: String, CodingKey {
+                case packageName = "package_name"
+            }
+        }
+
+        let query = (app.db as? SQLDatabase)?.raw(
+            """
+            select
+            v.package_name
+            --, r.summary, r.name, r.owner
+            from packages p
+            join repositories r on r.package_id = p.id
+            join versions v on v.package_id = p.id
+            where v.reference ->> 'branch' = r.default_branch
+                and coalesce(v.package_name) || ' ' || coalesce(r.summary, '') || ' ' || coalesce(r.name, '') || ' ' || coalesce(r.owner, '') ~* 'bar'
+            """
+        ).all(decoding: Row.self)
+        let res = try query?.wait()
+
+        // validation
+        XCTAssertEqual(res, [Row(packageName: "Bar")])
     }
 }
