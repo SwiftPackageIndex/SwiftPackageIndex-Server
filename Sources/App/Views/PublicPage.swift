@@ -30,6 +30,9 @@ class PublicPage {
             .link(
                 .rel(.stylesheet),
                 .href("/stylesheets/main.css?\(stylesheetQueryString())")
+            ),
+            .script(
+                .src("/javascripts/main.js")
             )
         )
     }
