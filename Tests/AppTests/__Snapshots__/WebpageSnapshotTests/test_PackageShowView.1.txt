@@ -99,21 +99,51 @@
         <section class="language_platforms">
           <h3>Language and Platforms</h3>
           <ul>
-            <li class="icon language">Supports 
-              <strong>Swift 5 and 5.2</strong> (changing to 
-              <strong>Swift 5.2</strong> in 
-              <a class="beta" href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>).
+            <li>
+              <p>Version 
+                <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">
+                  <span class="stable">
+                    <i class="icon stable"></i>5.2.0
+                  </span>
+                </a> supports:
+              </p>
+              <ul>
+                <li class="icon language">Swift 
+                  <strong>5</strong> and 
+                  <strong>5.2</strong>
+                </li>
+                <li class="icon platforms">
+                  <strong>iOS 10.0+</strong>, 
+                  <strong>macOS 10.12+</strong>, 
+                  <strong>watchOS 3.0+</strong>, and 
+                  <strong>tvOS 10.0+</strong>.
+                </li>
+              </ul>
             </li>
-            <li class="icon platforms">Supports 
-              <strong>iOS 10.0+</strong>, 
-              <strong>macOS 10.12+</strong>, 
-              <strong>watchOS 3.0+</strong>, and 
-              <strong>tvOS 10.0+</strong> (changing to 
-              <strong>iOS 13.0+</strong>, 
-              <strong>macOS 10.15+</strong>, 
-              <strong>watchOS 6.0+</strong>, and 
-              <strong>tvOS 13.0+</strong> in 
-              <a class="beta" href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">5.3.0-beta.1</a>).
+            <li>
+              <p>Version 
+                <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.1-beta1">
+                  <span class="beta">
+                    <i class="icon beta"></i>5.3.1-beta.1
+                  </span>
+                </a> and 
+                <a href="https://github.com/Alamofire/Alamofire">
+                  <span class="branch">
+                    <i class="icon branch"></i>master
+                  </span>
+                </a> support:
+              </p>
+              <ul>
+                <li class="icon language">Swift 
+                  <strong>5.2</strong>
+                </li>
+                <li class="icon platforms">
+                  <strong>iOS 13.0+</strong>, 
+                  <strong>macOS 10.15+</strong>, 
+                  <strong>watchOS 6.0+</strong>, and 
+                  <strong>tvOS 13.0+</strong>.
+                </li>
+              </ul>
             </li>
           </ul>
         </section>

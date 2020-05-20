@@ -156,6 +156,10 @@ section li {
   margin: 15px 0;
 }
 
+section li p {
+  margin: 10px 0;
+}
+
 nav ul {
   margin: 0;
   padding: 0;
@@ -240,6 +244,18 @@ p.description {
   }
 }
 
+.language_platforms li {
+  margin: 30px 0;
+}
+
+.language_platforms ul li ul {
+  padding: 0 60px;
+}
+
+.language_platforms ul li li {
+  margin: 5px 0;
+}
+
 /* Package page lozenges --------------------------------------------------- */
 div.license {
   display: flex;
@@ -288,8 +304,8 @@ li.author:before { content: "\e901"; }
 li.history:before { content: "\e902" }
 li.activity:before { content: "\e903"; }
 li.products:before { content: "\e904"; }
-li.language:before { content: "\e908"; font-size: 24px; margin-left: -38px; }
-li.platforms:before { content: "\e909"; font-size: 24px; margin-left: -38px; }
+li.language:before { content: "\e908"; font-size: 24px; margin-left: -33px; margin-right: 8px; }
+li.platforms:before { content: "\e909"; font-size: 24px; margin-left: -33px; margin-right: 8px; }
 
 /* Footer ------------------------------------------------------------------ */
 footer {
