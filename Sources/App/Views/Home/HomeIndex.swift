@@ -32,32 +32,46 @@ class HomeIndex: PublicPage {
                 .h3("Recent Packages"),
                 .ul(
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Added 2 hours ago.") // TODO: Fix after Plot update
                     ),
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Added 2 hours ago.") // TODO: Fix after Plot update
                     ),
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Added 2 hours ago.") // TODO: Fix after Plot update
                     ),
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Added 2 hours ago.") // TODO: Fix after Plot update
                     ),
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Added 2 hours ago.") // TODO: Fix after Plot update
                     ),
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                    ),
-                    .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Added 2 hours ago.") // TODO: Fix after Plot update
                     )
                 )
             ),
@@ -66,32 +80,46 @@ class HomeIndex: PublicPage {
                 .h3("Recent Releases"),
                 .ul(
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Released 20 minutes ago.") // TODO: Fix after Plot update
                     ),
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Released 20 minutes ago.") // TODO: Fix after Plot update
                     ),
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Released 20 minutes ago.") // TODO: Fix after Plot update
                     ),
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Released 20 minutes ago.") // TODO: Fix after Plot update
                     ),
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Released 20 minutes ago.") // TODO: Fix after Plot update
                     ),
                     .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                    ),
-                    .li(
-                        "Package",
-                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                        .a(
+                            .href("https://example.com/package"),
+                            "Package"
+                        ),
+                        .element(named: "small", text: "Released 20 minutes ago.") // TODO: Fix after Plot update
                     )
                 )
             )

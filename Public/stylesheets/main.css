@@ -46,7 +46,7 @@ h2 {
 }
 
 h3 {
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1.2;
 }
 
@@ -286,6 +286,21 @@ header nav ul li a:hover {
   background-color: var(--white);
   border-top: 2px var(--light-blue) solid;
   z-index: 9999;
+}
+
+.recent {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-evenly;
+}
+
+.recent ul {
+  padding: 0;
+}
+
+.recent li {
+  display: flex;
+  flex-direction: column;
 }
 
 /* Package page ------------------------------------------------------------ */
