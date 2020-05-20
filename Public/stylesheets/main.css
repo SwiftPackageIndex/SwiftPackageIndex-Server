@@ -83,12 +83,11 @@ hr.short {
 
 /* Icon font --------------------------------------------------------------- */
 @font-face {
-  font-family: 'icomoon';
-  src: url('/fonts/icomoon.eot?os9rj2');
-  src: url('/fonts/icomoon.eot?os9rj2#iefix') format('embedded-opentype'),
-    url('/fonts/icomoon.ttf?os9rj2') format('truetype'),
-    url('/fonts/icomoon.woff?os9rj2') format('woff'),
-    url('/fonts/icomoon.svg?os9rj2#icomoon') format('svg');
+  font-family: "icomoon";
+  src:
+    url("/fonts/icomoon.ttf?6e6v40") format("truetype"),
+    url("/fonts/icomoon.woff?6e6v40") format("woff"),
+    url("/fonts/icomoon.svg?6e6v40#icomoon") format("svg");
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -96,6 +95,7 @@ hr.short {
 
 i.icon,
 li.icon:before {
+  speak: none;
   font-family: "icomoon" !important;
   font-style: normal;
   font-weight: normal;
@@ -105,7 +105,6 @@ li.icon:before {
   line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  speak: none;
 }
 
 i.icon {
