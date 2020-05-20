@@ -123,13 +123,12 @@ class PublicPage {
 
     /// The <main> element that will contain the primary content for the page.
     /// - Returns: A <main> element.
-    final func main() -> Node<HTML.BodyContext> {
+   func main() -> Node<HTML.BodyContext> {
         .main(
             .div(.class("inner"),
                  content()
             )
         )
-
     }
 
     /// The page's content.
