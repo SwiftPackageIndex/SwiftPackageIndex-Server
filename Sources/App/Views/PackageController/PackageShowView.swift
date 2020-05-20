@@ -111,6 +111,7 @@ class PackageShowView: PublicPage {
                 .ul(
                     .li(
                         .p(
+                            "Version ",
                             .a(
                                 .href("https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
                                 .span(
@@ -144,6 +145,7 @@ class PackageShowView: PublicPage {
                     ),
                     .li(
                         .p(
+                            "Version ",
                             .a(
                                 .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.1-beta1"),
                                 .span(
