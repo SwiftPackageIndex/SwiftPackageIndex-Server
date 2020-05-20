@@ -17,7 +17,7 @@ class PackageShowView: PublicPage {
     override func content() -> Node<HTML.BodyContext> {
         .group(
             .div(
-                .class("split"),
+                .class("splitter"),
                 .div(
                     .h2(.text(model.title)),
                     .element(named: "small", nodes: [ // TODO: Fix after Plot update
