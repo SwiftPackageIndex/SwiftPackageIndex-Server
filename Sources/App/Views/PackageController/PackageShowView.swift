@@ -323,7 +323,7 @@ extension PackageShowView.Model {
                         .text(datedLink.link.name)
                     )
                 ),
-                ". was \(datedLink.date) ago."  // FIXME: turn into relative date
+                " was \(datedLink.date) ago."  // FIXME: turn into relative date
             ]
         } ?? []
     }
