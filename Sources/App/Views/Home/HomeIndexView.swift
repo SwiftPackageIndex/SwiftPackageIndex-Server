@@ -1,6 +1,6 @@
 import Plot
 
-class HomeIndex: PublicPage {
+class HomeIndexView: PublicPage {
 
     override func preMain() -> Node<HTML.BodyContext> {
         .section(
