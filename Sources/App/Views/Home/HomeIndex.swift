@@ -3,87 +3,98 @@ import Plot
 
 class HomeIndex: PublicPage {
 
-    override func content() -> Node<HTML.BodyContext> {
+    override func main() -> Node<HTML.BodyContext> {
         .group(
-            .div(
+            .section(
                 .class("search"),
-                .p(
-                    "The place to find Swift packages."
-                ),
-                .form(
-                    .input(
-                        .type(.text),
-                        .attribute(named: "spellcheck", value: "false"), // TODO: Fix after Plot update
-                        .placeholder("Search")
+                .div(
+                    .class("inner"),
+                    .p(
+                        "The place to find Swift packages."
+                    ),
+                    .form(
+                        .input(
+                            .type(.text),
+                            .attribute(named: "spellcheck", value: "false"), // TODO: Fix after Plot update
+                            .placeholder("Search")
+                        )
                     )
                 )
             ),
-            .div(
-                .class("split"),
-                .section(
-                    .class("recent_packages"),
-                    .ul(
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        )
+            .main(
+                .div(.class("inner"),
+                     content()
+                )
+            )
+        )
+    }
+
+    override func content() -> Node<HTML.BodyContext> {
+        .div(
+            .class("split"),
+            .section(
+                .class("recent_packages"),
+                .ul(
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
                     )
-                ),
-                .section(
-                    .class("recent_releases"),
-                    .ul(
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        ),
-                        .li(
-                            "Package",
-                            .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
-                        )
+                )
+            ),
+            .section(
+                .class("recent_releases"),
+                .ul(
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
+                    ),
+                    .li(
+                        "Package",
+                        .element(named: "small", text: "2 hours ago.") // TODO: Fix after Plot update
                     )
                 )
             )
