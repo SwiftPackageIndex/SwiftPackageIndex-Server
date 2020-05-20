@@ -1,5 +1,7 @@
 @testable import App
 
+import Foundation
+
 
 extension PackageShowView.Model {
     static var mock: PackageShowView.Model {
@@ -27,7 +29,10 @@ extension PackageShowView.Model {
                 pullRequests: .init(name: "5 open pull requests",
                                     url: "https://github.com/Alamofire/Alamofire/pulls"),
                 lastPullRequestClosedMerged: "6 days ago"),
-              products: .init(libraries: 3, executables: 1)
+              products: .init(libraries: 3, executables: 1),
+              releases: .init(stable: .init(date: Date(), link: .init(name: "1.0.0", url: "1.0.0")),
+                              beta: .init(date: Date(), link: .init(name: "2.0.0-beta1", url: "2.0.0b")),
+                              latest: .init(date: Date(), link: .init(name: "master", url: "mater")))
         )
     }
 }

@@ -67,42 +67,9 @@ class PackageShowView: PublicPage {
             .section(
                 .class("releases"),
                 .ul(
-                    .li(
-                        "The latest stable release is ",
-                        .a(
-                            .href("https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
-                            .span(
-                                .class("stable"),
-                                .i(.class("icon stable")),
-                                "5.2.0"
-                            )
-                        ),
-                        ". Released 12 days ago."
-                    ),
-                    .li(
-                        "The latest beta release is ",
-                        .a(
-                            .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1"),
-                            .span(
-                                .class("beta"),
-                                .i(.class("icon beta")),
-                                "5.3.0-beta.1"
-                            )
-                        ),
-                        ". Released 4 days ago."
-                    ),
-                    .li(
-                        "The last commit to ",
-                        .a(
-                            .href("https://github.com/Alamofire/Alamofire"),
-                            .span(
-                                .class("branch"),
-                                .i(.class("icon branch")),
-                                "master"
-                            )
-                        ),
-                        " was 12 minutes ago."
-                    )
+                    .li(.group(model.stableReleaseClause())),
+                    .li(.group(model.betaReleaseClause())),
+                    .li(.group(model.latestReleaseClause()))
                 )
             ),
             .section(
@@ -198,10 +165,16 @@ extension PackageShowView {
         let history: History?
         let activity: Activity?
         let products: ProductCounts?
+        let releases: ReleaseInfo
 
         struct Link: Equatable {
             let name: String
             let url: String
+        }
+
+        struct DatedLink: Equatable {
+            let date: Date
+            let link: Link
         }
 
         struct History: Equatable {
@@ -219,6 +192,12 @@ extension PackageShowView {
         struct ProductCounts: Equatable {
             let libraries: Int
             let executables: Int
+        }
+
+        struct ReleaseInfo: Equatable {
+            let stable: DatedLink?
+            let beta: DatedLink?
+            let latest: DatedLink?
         }
     }
 }
@@ -296,5 +275,56 @@ extension PackageShowView.Model {
             ),
             "."
         ]
+    }
+
+    func stableReleaseClause() -> [Node<HTML.BodyContext>] {
+        releases.stable.map { datedLink -> [Node<HTML.BodyContext>] in
+            [
+                "The latest stable release is ",
+                .a(
+                    .href(datedLink.link.url),
+                    .span(
+                        .class("stable"),
+                        .i(.class("icon stable")),
+                        .text(datedLink.link.name)
+                    )
+                ),
+                ". Released \(datedLink.date) ago."  // FIXME: turn into relative date
+            ]
+        } ?? []
+    }
+
+    func betaReleaseClause() -> [Node<HTML.BodyContext>] {
+        releases.beta.map { datedLink -> [Node<HTML.BodyContext>] in
+            [
+                "The latest beta release is ",
+                .a(
+                    .href(datedLink.link.url),
+                    .span(
+                        .class("beta"),
+                        .i(.class("icon beta")),
+                        .text(datedLink.link.name)
+                    )
+                ),
+                ". Released \(datedLink.date) ago."  // FIXME: turn into relative date
+            ]
+        } ?? []
+    }
+
+    func latestReleaseClause() -> [Node<HTML.BodyContext>] {
+        releases.latest.map { datedLink -> [Node<HTML.BodyContext>] in
+            [
+                "The last commit to ",
+                .a(
+                    .href(datedLink.link.url),
+                    .span(
+                        .class("branch"),
+                        .i(.class("icon branch")),
+                        .text(datedLink.link.name)
+                    )
+                ),
+                ". was \(datedLink.date) ago."  // FIXME: turn into relative date
+            ]
+        } ?? []
     }
 }

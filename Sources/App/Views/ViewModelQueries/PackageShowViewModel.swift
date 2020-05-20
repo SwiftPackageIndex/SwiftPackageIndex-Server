@@ -21,7 +21,8 @@ extension PackageShowView.Model {
                                  authors: [],
                                  history: nil,
                                  activity: nil,
-                                 products: p.productCounts)
+                                 products: p.productCounts,
+                                 releases: .init(stable: nil, beta: nil, latest: nil))
             }
             .unwrap(or: Abort(.notFound))
     }
