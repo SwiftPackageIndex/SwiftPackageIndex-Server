@@ -1,4 +1,5 @@
 /* Globals ----------------------------------------------------------------- */
+
 :root {
   --dark-blue: #111930;
   --mid-blue: #356FCE;
@@ -18,6 +19,7 @@
 }
 
 /* Base styles ------------------------------------------------------------- */
+
 * {
   box-sizing: border-box;
 }
@@ -86,6 +88,7 @@ hr.short {
 }
 
 /* Icon font --------------------------------------------------------------- */
+
 @font-face {
   font-family: "icomoon";
   src:
@@ -133,7 +136,18 @@ li.icon:before {
   font-size: 18px;
 }
 
+i.osi:before { content: "\e900"; }
+i.stable:before { content: "\e905"; }
+i.beta:before { content: "\e906"; }
+i.branch:before { content: "\e907"; }
+
+li.author:before { content: "\e901"; }
+li.history:before { content: "\e902" }
+li.activity:before { content: "\e903"; }
+li.products:before { content: "\e904"; }
+
 /* Overall layout ---------------------------------------------------------- */
+
 .inner {
   margin: 0 auto;
   padding: 20px 10px;
@@ -190,6 +204,7 @@ nav ul li a:hover {
 }
 
 /* Header ------------------------------------------------------------------ */
+
 header {
   color: var(--white);
   background-color: var(--dark-blue);
@@ -238,6 +253,7 @@ header nav ul li a:hover {
 }
 
 /* Home page --------------------------------------------------------------- */
+
 .search {
   margin: 0;
   background-color: var(--dark-blue);
@@ -279,15 +295,6 @@ header nav ul li a:hover {
   outline: none;
 }
 
-.search #results {
-  position: absolute;
-  padding: 10px;
-  width: 100%;
-  background-color: var(--white);
-  border-top: 2px var(--light-blue) solid;
-  z-index: 9999;
-}
-
 .recent {
   display: flex;
   flex-flow: row wrap;
@@ -303,7 +310,19 @@ header nav ul li a:hover {
   flex-direction: column;
 }
 
+/* Search results ---------------------------------------------------------- */
+
+#results {
+  position: absolute;
+  padding: 10px;
+  width: 100%;
+  background-color: var(--white);
+  border-top: 2px var(--light-blue) solid;
+  z-index: 9999;
+}
+
 /* Package page ------------------------------------------------------------ */
+
 p.description {
   font-size: 19px;
 }
@@ -327,7 +346,6 @@ p.description {
   margin: 5px 0;
 }
 
-/* Package page lozenges --------------------------------------------------- */
 div.license {
   display: flex;
   align-items: center;
@@ -360,18 +378,8 @@ span.branch {
   color: var(--dark-green);
 }
 
-/* Package page icons ------------------------------------------------------ */
-i.osi:before { content: "\e900"; }
-i.stable:before { content: "\e905"; }
-i.beta:before { content: "\e906"; }
-i.branch:before { content: "\e907"; }
-
-li.author:before { content: "\e901"; }
-li.history:before { content: "\e902" }
-li.activity:before { content: "\e903"; }
-li.products:before { content: "\e904"; }
-
 /* Footer ------------------------------------------------------------------ */
+
 footer {
   color: var(--white);
   background-color: var(--dark-blue);
