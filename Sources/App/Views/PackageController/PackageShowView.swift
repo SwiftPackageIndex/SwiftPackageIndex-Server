@@ -76,38 +76,7 @@ class PackageShowView: PublicPage {
                 .class("language_platforms"),
                 .h3("Language and Platforms"),
                 .ul(
-                    .li(
-                        .p(
-                            "Version ",
-                            .a(
-                                .href("https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
-                                .span(
-                                    .class("stable"),
-                                    .i(.class("icon stable")),
-                                    "5.2.0"
-                                )
-                            ),
-                            " supports:"
-                        ),
-                        .ul(
-                            .li(
-                                "Swift ",
-                                .strong("5"),
-                                " and ",
-                                .strong("5.2")
-                            ),
-                            .li(
-                                .strong("iOS 10.0+"),
-                                ", ",
-                                .strong("macOS 10.12+"),
-                                ", ",
-                                .strong("watchOS 3.0+"),
-                                ", and ",
-                                .strong("tvOS 10.0+"),
-                                "."
-                            )
-                        )
-                    ),
+                    .li(.group(model.languagesAndPlatformsClause())),
                     .li(
                         .p(
                             "Version ",
@@ -166,6 +135,7 @@ extension PackageShowView {
         let activity: Activity?
         let products: ProductCounts?
         let releases: ReleaseInfo
+        let languagePlatforms: LanguagePlatformInfo
 
         struct Link: Equatable {
             let name: String
@@ -173,7 +143,7 @@ extension PackageShowView {
         }
 
         struct DatedLink: Equatable {
-            let date: Date
+            let date: String   // FIXME: use RelativeDateTimeFormatter
             let link: Link
         }
 
@@ -198,6 +168,18 @@ extension PackageShowView {
             let stable: DatedLink?
             let beta: DatedLink?
             let latest: DatedLink?
+        }
+
+        struct Version: Equatable {
+            let link: Link
+            let swiftVersions: [String]
+            let platforms: [Platform]
+        }
+
+        struct LanguagePlatformInfo: Equatable {
+            let stable: Version
+            let beta: Version
+            let latest: Version
         }
     }
 }
@@ -311,6 +293,52 @@ extension PackageShowView.Model {
         } ?? []
     }
 
+    func languagesAndPlatformsClause() -> [Node<HTML.BodyContext>] {
+        _section(for: [\.stable], versionInfo: languagePlatforms.stable, type: "stable")
+    }
+
+    typealias LanguagePlatformKeyPath = KeyPath<PackageShowView.Model.LanguagePlatformInfo, PackageShowView.Model.Version>
+
+    func _section(for keypaths: [LanguagePlatformKeyPath],
+                 versionInfo: PackageShowView.Model.Version,
+                 type: String) -> [Node<HTML.BodyContext>] {
+        [
+            .p(
+                "Version ",
+                .a(
+                    .href(versionInfo.link.url),
+                    .span(
+                        .class(type),
+                        .i(.class("icon \(type)")),
+                        .text(versionInfo.link.name)
+                    )
+                ),
+                " supports:"
+            ),
+            .ul(
+                .li(
+                    .group(versionsClause(versionInfo.swiftVersions))
+                ),
+                .li(
+                    .group(platformsClause(versionInfo.platforms))
+                )
+            )
+        ]
+    }
+
+    func versionsClause(_ versions: [String]) -> [Node<HTML.BodyContext>] {
+        let nodes = versions.map { Node<HTML.BodyContext>.strong(.text($0)) }
+        return Self.listPhrase(opening: .text("Swift "), nodes: nodes)
+    }
+
+    func platformsClause(_ platforms: [Platform]) -> [Node<HTML.BodyContext>] {
+        let nodes = platforms
+            .sorted(by: { $0.ordinal < $1.ordinal })
+            .map { "\($0)+" }
+            .map { Node<HTML.BodyContext>.strong(.text($0)) }
+        return Self.listPhrase(opening: .text(""), nodes: nodes)
+    }
+
 }
 
 
@@ -340,4 +368,20 @@ extension PackageShowView.Model {
         }
     }
 
+}
+
+
+extension Platform {
+    var ordinal: Int {
+        switch name {
+            case .ios:
+                return 0
+            case .macos:
+                return 1
+            case .watchos:
+                return 2
+            case .tvos:
+                return 3
+        }
+    }
 }

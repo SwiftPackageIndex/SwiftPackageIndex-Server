@@ -38,7 +38,23 @@ extension PackageShowView.Model {
                                                       url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1")),
                               latest: .init(date: "12 minutes",
                                             link: .init(name: "master",
-                                                        url: "https://github.com/Alamofire/Alamofire")))
+                                                        url: "https://github.com/Alamofire/Alamofire"))),
+              languagePlatforms: .init(
+                stable: .init(
+                    link: .init(name: "5.2.0",
+                                url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
+                    swiftVersions: ["5", "5.2"],
+                    platforms: [.ios("10.0"), .macos("10.12"), .watchos("3.0"), .tvos("10.0")]),
+                beta:.init(
+                    link: .init(name: "5.3.0-beta.1",
+                                url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1"),
+                    swiftVersions: [],
+                    platforms: []),
+                latest: .init(
+                    link: .init(name: "master",
+                                url: "https://github.com/Alamofire/Alamofire"),
+                    swiftVersions: [],
+                    platforms: []))
         )
     }
 }
