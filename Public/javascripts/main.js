@@ -51,7 +51,8 @@ window.displaySearchResults = function(searchResults) {
   // Are there any results?
   if (searchResults.length <= 0) {
     const noResultsElement = document.createElement('p')
-    noResultsElement.textContent = 'No Results.'
+    noResultsElement.textContent = 'No Results. Try another search?'
+    noResultsElement.classList.add('no_results')
     resultsElement.appendChild(noResultsElement)
   } else {
     // Create an unordered list with the results.
@@ -59,20 +60,29 @@ window.displaySearchResults = function(searchResults) {
     searchResults.forEach((result, index) => {
       const resultsItemElement = document.createElement('li')
 
+      // A link surrounds the whole content of the list item.
+      const resultsLinkElement = document.createElement('a')
+      resultsLinkElement.href = '/packages/' + result.id
+      resultsItemElement.appendChild(resultsLinkElement)
+
+      // Name and repository identifier need to be grouped to be split.
+      const resultNameAndRepositoryContainer = document.createElement('div')
+      resultsLinkElement.appendChild(resultNameAndRepositoryContainer)
+
       // Name.
       const resultNameElement = document.createElement('h4')
       resultNameElement.textContent = result.name
-      resultsItemElement.appendChild(resultNameElement)
+      resultNameAndRepositoryContainer.appendChild(resultNameElement)
 
       // Repository identifier.
       const resultRepositoryElement = document.createElement('small')
       resultRepositoryElement.textContent = result.owner + '/' + result.package_name
-      resultsItemElement.appendChild(resultRepositoryElement)
+      resultNameAndRepositoryContainer.appendChild(resultRepositoryElement)
 
       // Summary.
       const resultSummaryElement = document.createElement('p')
       resultSummaryElement.textContent = result.summary
-      resultsItemElement.appendChild(resultSummaryElement)
+      resultsLinkElement.appendChild(resultSummaryElement)
 
       resultsListElement.appendChild(resultsItemElement)
     })
