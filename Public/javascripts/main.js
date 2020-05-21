@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
   const queryFieldElement = document.getElementById('query')
   if (queryFieldElement) {
     document.addEventListener('input', function(event) {
-      const searchQuery = queryFieldElement.value
+      const searchQuery = queryFieldElement.value.trim()
       if (searchQuery.length > 0) {
         performSearch(searchQuery)
       } else {
@@ -64,37 +64,43 @@ window.displaySearchResults = function(searchResults) {
     // Create an unordered list with the results.
     const resultsListElement = document.createElement('ul')
     searchResults.forEach((result, index) => {
-      const resultsItemElement = document.createElement('li')
-
-      // A link surrounds the whole content of the list item.
-      const resultsLinkElement = document.createElement('a')
-      resultsLinkElement.href = '/packages/' + result.id
-      resultsItemElement.appendChild(resultsLinkElement)
-
-      // Name and repository identifier need to be grouped to be split.
-      const resultNameAndRepositoryContainer = document.createElement('div')
-      resultsLinkElement.appendChild(resultNameAndRepositoryContainer)
-
-      // Name.
-      const resultNameElement = document.createElement('h4')
-      resultNameElement.textContent = result.name
-      resultNameAndRepositoryContainer.appendChild(resultNameElement)
-
-      // Repository identifier.
-      const resultRepositoryElement = document.createElement('small')
-      resultRepositoryElement.textContent = result.owner + '/' + result.package_name
-      resultNameAndRepositoryContainer.appendChild(resultRepositoryElement)
-
-      // Summary.
-      const resultSummaryElement = document.createElement('p')
-      resultSummaryElement.textContent = result.summary
-      resultsLinkElement.appendChild(resultSummaryElement)
-
-      resultsListElement.appendChild(resultsItemElement)
+      createSearchResultListItemElement(result, resultsListElement)
     })
     resultsElement.appendChild(resultsListElement)
   }
 
   // At the end of this process, the element should *always* be visible.
   resultsElement.hidden = false
+}
+
+// Helpers
+
+function createSearchResultListItemElement(result, containerElement) {
+  const resultListItemElement = document.createElement('li')
+
+  // A link surrounds the whole content of the list item.
+  const linkElement = document.createElement('a')
+  linkElement.href = '/packages/' + result.id
+  resultListItemElement.appendChild(linkElement)
+
+  // Name and repository identifier need to be grouped to be split.
+  const nameAndRepositoryContainer = document.createElement('div')
+  linkElement.appendChild(nameAndRepositoryContainer)
+
+  // Name.
+  const nameElement = document.createElement('h4')
+  nameElement.textContent = result.name
+  nameAndRepositoryContainer.appendChild(nameElement)
+
+  // Repository identifier.
+  const repositoryElement = document.createElement('small')
+  repositoryElement.textContent = result.owner + '/' + result.package_name
+  nameAndRepositoryContainer.appendChild(repositoryElement)
+
+  // Summary.
+  const summaryElement = document.createElement('p')
+  summaryElement.textContent = result.summary
+  linkElement.appendChild(summaryElement)
+
+  containerElement.appendChild(resultListItemElement)
 }
