@@ -38,6 +38,19 @@ extension SemVer: LosslessStringConvertible {
 }
 
 
+extension SemVer: Comparable {
+    static func < (lhs: SemVer, rhs: SemVer) -> Bool {
+        if lhs.major != rhs.major { return lhs.major < rhs.major }
+        if lhs.minor != rhs.minor { return lhs.minor < rhs.minor }
+        if lhs.patch != rhs.patch { return lhs.patch < rhs.patch }
+        // Not entirely sure how much sense it makes to compare the pre and build values
+        // but it's probably better than just ignoring them
+        if lhs.preRelease != rhs.preRelease { return lhs.preRelease < rhs.preRelease }
+        return lhs.build < rhs.build
+    }
+}
+
+
 // Source: https://regex101.com/r/Ly7O1x/3/
 // Linked from https://semver.org
 let semVerRegex = NSRegularExpression(#"""
