@@ -36,6 +36,19 @@ class GitTests: AppTestCase {
             "63c973f3c2e632a340936c285e94d59f9ffb01d5"
         )
     }
+
+    func test_showDate() throws {
+        Current.shell.run = mock(for: "git show -s --format=%ct 2c6399a1fa6f3b023bcdeac24b6a46ce3bd89ed0",
+             """
+             1536799579
+             """
+        )
+        XCTAssertEqual(
+            try Git.showDate("2c6399a1fa6f3b023bcdeac24b6a46ce3bd89ed0", at: "ignored"),
+            Date(timeIntervalSince1970: 1536799579)
+        )
+    }
+
 }
 
 
