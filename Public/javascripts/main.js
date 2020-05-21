@@ -17,7 +17,13 @@ document.addEventListener('DOMContentLoaded', function(event) {
   const queryFieldElement = document.getElementById('query')
   if (queryFieldElement) {
     document.addEventListener('input', function(event) {
-      performSearch(queryFieldElement.value)
+      const searchQuery = queryFieldElement.value
+      if (searchQuery.length > 0) {
+        performSearch(searchQuery)
+      } else {
+        const resultsElement = document.getElementById('results')
+        if (resultsElement) { resultsElement.hidden = true }
+      }
     })
   }
 })
