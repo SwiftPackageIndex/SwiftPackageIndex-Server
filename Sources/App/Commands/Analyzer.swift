@@ -146,6 +146,11 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
         application.logger.info("listing tags for package \(package.url)")
         return try Git.tag(at: cacheDir)
     }
+    .flatMapError {
+        Current.reportError(application.client, .error,
+                            AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)"))
+            .transform(to: [])
+    }
 
     let references = defaultBranch.and(tags).map { $0 + $1 }
 
