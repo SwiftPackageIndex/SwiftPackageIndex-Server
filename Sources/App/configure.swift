@@ -31,6 +31,7 @@ public func configure(_ app: Application) throws {
     app.migrations.add(CreateVersion())
     app.migrations.add(CreateProduct())
     app.migrations.add(AddNameOwner())
+    app.migrations.add(AddCommitDate())
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")

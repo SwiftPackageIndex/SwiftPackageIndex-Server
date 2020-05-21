@@ -2,6 +2,9 @@ import Fluent
 import Vapor
 
 
+typealias CommitHash = String
+
+
 final class Version: Model, Content {
     static let schema = "versions"
 
@@ -26,7 +29,10 @@ final class Version: Model, Content {
     var packageName: String?
 
     @Field(key: "commit")
-    var commit: String?
+    var commit: CommitHash?
+
+    @Field(key: "commit_date")
+    var commitDate: Date?
 
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
@@ -43,7 +49,8 @@ final class Version: Model, Content {
          package: Package,
          reference: Reference? = nil,
          packageName: String? = nil,
-         commit: String? = nil,
+         commit: CommitHash? = nil,
+         commitDate: Date? = nil,
          supportedPlatforms: [Platform] = [],
          swiftVersions: [String] = []) throws {
         self.id = id
@@ -51,6 +58,7 @@ final class Version: Model, Content {
         self.reference = reference
         self.packageName = packageName
         self.commit = commit
+        self.commitDate = commitDate
         self.supportedPlatforms = supportedPlatforms
         self.swiftVersions = swiftVersions
     }

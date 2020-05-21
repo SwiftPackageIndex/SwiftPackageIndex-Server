@@ -18,9 +18,12 @@ class AnalyzerTests: AppTestCase {
             return false
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
+        let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            commands.append(.init(command: cmd.string, path: path))
+            queue.async {
+                commands.append(.init(command: cmd.string, path: path))
+            }
             if cmd.string == "git tag" && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
@@ -33,6 +36,7 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
                 return #"{ "name": "foo-2", "products": [{"name":"p2","type":{"library": []}}] }"#
             }
+            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             return ""
         }
 
@@ -46,15 +50,20 @@ class AnalyzerTests: AppTestCase {
         let path1 = "\(outDir)/github.com-foo-1"
         let path2 = "\(outDir)/github.com-foo-2"
         let expecations: [Command] = [
-            // clone of pkg1 and pull of pkg2
+            // 0-3: clone of pkg1 and pull of pkg2
             .init(command: "git clone https://github.com/foo/1 \"\(outDir)/github.com-foo-1\" --quiet",
                 path: outDir),
             .init(command: "git reset --hard", path: path2),
             .init(command: "git checkout \"master\" --quiet", path: path2),
             .init(command: "git pull --quiet", path: path2),
-            // next, both repos have their tags listed
+            // 4,5: next, both repos have their tags listed
             .init(command: "git tag", path: path1),
             .init(command: "git tag", path: path2),
+            // 6-9: for each ref we list the revision info (sha + date)
+            .init(command: #"git log -n1 --format=format:"%H-%ct" 1.0.0"#, path: path1),
+            .init(command: #"git log -n1 --format=format:"%H-%ct" 1.1.1"#, path: path1),
+            .init(command: #"git log -n1 --format=format:"%H-%ct" 2.0.0"#, path: path2),
+            .init(command: #"git log -n1 --format=format:"%H-%ct" 2.1.0"#, path: path2),
             // then, each repo sees a git checkout and dump-package *per version*, i.e. twice
             //   - first repo
             .init(command: "git checkout \"1.0.0\" --quiet", path: path1),
@@ -67,7 +76,7 @@ class AnalyzerTests: AppTestCase {
             .init(command: "git checkout \"2.1.0\" --quiet", path: path2),
             .init(command: "swift package dump-package", path: path2),
             ]
-        assert(commands: commands, expectations: expecations)
+        assert(commands: commands, expectations: expecations, ignordingOrder: true)
 
         // validate versions
         // A bit awkward... create a helper? There has to be a better way?
@@ -107,6 +116,7 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
                 return #"{ "name": "SPI-Server", "products": [] }"#
             }
+            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             return ""
         }
 
@@ -132,12 +142,16 @@ class AnalyzerTests: AppTestCase {
             return false
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
+        let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            commands.append(.init(command: cmd.string, path: path))
+            queue.async {
+                commands.append(.init(command: cmd.string, path: path))
+            }
             if cmd.string == "git tag" {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
+            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             // returning a blank string will cause an exception when trying to
             // decode it as the manifest result - we use this to simulate errors
             return ""
@@ -149,7 +163,7 @@ class AnalyzerTests: AppTestCase {
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(commands.count, 14, "was: \(dump(commands))")
+        XCTAssertEqual(commands.count, 18, "was: \(dump(commands))")
         // 2 packages with 2 versions each -> 4 versions
         // (there is not default branch set for these packages, hence only tags create versions)
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 4)
@@ -174,7 +188,9 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "git tag" {
                 return "1.2.3"
             }
-            return ""
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" master"# { return "sha.master-0" }
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" 1.2.3"# { return "sha.1.2.3-1" }
+            throw TestError.unknownCommand
         }
         let pkg = Package(id: UUID(), url: "1".gh.url)
         try pkg.save(on: app.db).wait()
@@ -185,6 +201,9 @@ class AnalyzerTests: AppTestCase {
 
         // validate
         assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
+        assertEquals(versions, \.commit, ["sha.master", "sha.1.2.3"])
+        assertEquals(versions, \.commitDate,
+                     [Date(timeIntervalSince1970: 0), Date(timeIntervalSince1970: 1)])
     }
 
     func test_reconcileVersions_checkouts() throws {
@@ -193,6 +212,7 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "git tag" {
                 return "1.2.3"
             }
+            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             return ""
         }
         let pkg = Package(id: UUID(), url: "1".gh.url)
@@ -216,9 +236,12 @@ class AnalyzerTests: AppTestCase {
 
     func test_getManifest() throws {
         // setup
+        let queue = DispatchQueue(label: "serial")
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            commands.append(cmd.string);
+            queue.async {
+                commands.append(cmd.string)
+            }
             if cmd.string == "swift package dump-package" {
                 return #"{ "name": "SPI-Server", "products": [] }"#
             }
@@ -242,9 +265,12 @@ class AnalyzerTests: AppTestCase {
 
     func test_getManifests() throws {
         // setup
+        let queue = DispatchQueue(label: "serial")
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            commands.append(cmd.string);
+            queue.async {
+                commands.append(cmd.string)
+            }
             if cmd.string == "swift package dump-package" {
                 return #"{ "name": "SPI-Server", "products": [] }"#
             }
@@ -378,6 +404,7 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "swift package dump-package" {
                 return #"{ "name": "foo", "products": [{"name":"p1","type":{"executable": null}}, {"name":"p2","type":{"executable": null}}] }"#
             }
+            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             return ""
         }
         try savePackages(on: app.db, ["1", "2"].gh.urls, processingStage: .ingestion)
@@ -393,7 +420,7 @@ class AnalyzerTests: AppTestCase {
 }
 
 
-struct Command: Equatable, CustomStringConvertible {
+struct Command: Equatable, CustomStringConvertible, Hashable {
     var command: String
     var path: String
 
@@ -401,8 +428,12 @@ struct Command: Equatable, CustomStringConvertible {
 }
 
 
-func assert(commands: [Command], expectations: [Command], file: StaticString = #file, line: UInt = #line) {
-    XCTAssertEqual(commands.count, expectations.count, "was:\n\(dump(commands))", file: file, line: line)
+func assert(commands: [Command],
+            expectations: [Command],
+            ignordingOrder: Bool = false,
+            file: StaticString = #file, line: UInt = #line) {
+    XCTAssertEqual(commands.count, expectations.count, "wrong command count", file: file, line: line)
+    if ignordingOrder && Set(commands) == Set(expectations) { return }
     zip(commands, expectations).enumerated().forEach { idx, pair in
         let (cmd, exp) = pair
         XCTAssertEqual(cmd, exp, "⚠️ command \(idx) failed", file: file, line: line)

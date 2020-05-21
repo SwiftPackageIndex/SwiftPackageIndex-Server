@@ -126,14 +126,13 @@ func reconcileVersions(application: Application, checkouts: [Result<Package, Err
 
 
 func reconcileVersions(application: Application, package: Package) -> EventLoopFuture<[Version]> {
-    // fetch tags
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return application.eventLoopGroup.next().makeFailedFuture(
+        return application.eventLoopGroup.next().future(error:
             AppError.invalidPackageCachePath(package.id, package.url)
         )
     }
     guard let pkgId = package.id else {
-        return application.eventLoopGroup.next().makeFailedFuture(
+        return application.eventLoopGroup.next().future(error:
             AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
         )
     }
@@ -145,11 +144,12 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
 
     let tags: EventLoopFuture<[Reference]> = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         application.logger.info("listing tags for package \(package.url)")
-        let tags = try Current.shell.run(command: .init(string: "git tag"), at: cacheDir)
-        return tags.split(separator: "\n")
-            .map(String.init)
-            .compactMap(SemVer.init)
-            .map { Reference.tag($0) }
+        return try Git.tag(at: cacheDir)
+    }
+    .flatMapError {
+        Current.reportError(application.client, .error,
+                            AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)"))
+            .transform(to: [])
     }
 
     let references = defaultBranch.and(tags).map { $0 + $1 }
@@ -160,7 +160,12 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
         .delete()
     // ... and insert versions
     let insert: EventLoopFuture<[Version]> = references
-        .flatMapEachThrowing { try Version(package: package, reference: $0) }
+        .flatMapEachThrowing { ref in
+            let revInfo = try Git.revisionInfo(ref, at: cacheDir)
+            return try Version(package: package,
+                               reference: ref,
+                               commit: revInfo.commit,
+                               commitDate: revInfo.date) }
         .flatMap { versions in
             versions.create(on: application.db)
                 .map { versions }
