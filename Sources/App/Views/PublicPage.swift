@@ -32,6 +32,12 @@ class PublicPage {
                 .href("/stylesheets/main.css?\(resourceReloadQueryString())")
             ),
             .script(
+                .src("https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js")
+            ),
+            .script(
+                .src("https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js")
+            ),
+            .script(
                 .src("/javascripts/main.js?\(resourceReloadQueryString())")
             )
         )
