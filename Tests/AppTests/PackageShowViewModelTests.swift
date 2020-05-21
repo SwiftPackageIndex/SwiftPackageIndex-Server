@@ -48,4 +48,40 @@ class PackageShowViewModelTests: AppTestCase {
             XCTAssertEqual(error?.identifier, "404")
         }
     }
+
+    func test_lpInfoGroups_by_swiftVersions() throws {
+        let lnk = PackageShowView.Model.Link(name: "1", url: "1")
+        let v1 = PackageShowView.Model.Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
+        let v2 = PackageShowView.Model.Version(link: lnk, swiftVersions: ["2"], platforms: [.macos("10")])
+        let v3 = PackageShowView.Model.Version(link: lnk, swiftVersions: ["3"], platforms: [.macos("10")])
+
+        XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
+                       [[\.stable], [\.beta], [\.latest]])
+        XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v1, beta: v2, latest: v2)),
+                       [[\.stable], [\.beta, \.latest]])
+        XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v1, beta: v1, latest: v2)),
+                       [[\.stable, \.beta], [\.latest]])
+        XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v2, beta: v1, latest: v2)),
+                       [[\.stable, \.latest], [\.beta]])
+        XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v1, beta: v1, latest: v1)),
+                       [[\.stable, \.beta, \.latest]])
+    }
+
+    func test_lpInfoGroups_by_platforms() throws {
+        let lnk = PackageShowView.Model.Link(name: "1", url: "1")
+        let v1 = PackageShowView.Model.Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
+        let v2 = PackageShowView.Model.Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("11")])
+        let v3 = PackageShowView.Model.Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("12")])
+
+        XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
+                       [[\.stable], [\.beta], [\.latest]])
+        XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v1, beta: v2, latest: v2)),
+                       [[\.stable], [\.beta, \.latest]])
+        XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v1, beta: v1, latest: v2)),
+                       [[\.stable, \.beta], [\.latest]])
+        XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v2, beta: v1, latest: v2)),
+                       [[\.stable, \.latest], [\.beta]])
+        XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v1, beta: v1, latest: v1)),
+                       [[\.stable, \.beta, \.latest]])
+    }
 }

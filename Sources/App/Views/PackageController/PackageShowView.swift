@@ -263,6 +263,19 @@ extension PackageShowView.Model {
 
     typealias LanguagePlatformKeyPath = KeyPath<PackageShowView.Model.LanguagePlatformInfo, PackageShowView.Model.Version>
 
+    static func lpInfoGroups(_ lpInfo: LanguagePlatformInfo) -> [[LanguagePlatformKeyPath]] {
+        let allKeyPaths: [LanguagePlatformKeyPath] = [\.stable, \.beta, \.latest]
+        var availableKeyPaths = allKeyPaths
+        let groups = allKeyPaths.map { kp -> [LanguagePlatformKeyPath] in
+            let v = lpInfo[keyPath: kp]
+            let group = availableKeyPaths.filter { lpInfo[keyPath: $0] == v }
+            availableKeyPaths.removeAll(where: { group.contains($0) })
+            return group
+        }
+        .filter { !$0.isEmpty }
+        return groups
+    }
+
     func _section(for keypaths: [LanguagePlatformKeyPath]) -> [Node<HTML.BodyContext>] {
         guard let leadingKeyPath = keypaths.first else { return [] }
         let cssClasses: [LanguagePlatformKeyPath: String] = [\.stable: "stable",
