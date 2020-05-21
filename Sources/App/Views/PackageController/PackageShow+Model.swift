@@ -1,7 +1,7 @@
 import Plot
 
 
-extension PackageShow.View {
+extension PackageShow {
     struct Model: Equatable {
         let title: String
         let url: String
@@ -62,7 +62,7 @@ extension PackageShow.View {
 }
 
 
-extension PackageShow.View.Model {
+extension PackageShow.Model {
     func authorsClause() -> [Node<HTML.BodyContext>] {
         let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.name)) }
         return Self.listPhrase(opening: .text("By "),
@@ -251,7 +251,7 @@ extension PackageShow.View.Model {
 
 // MARK: - General helpers
 
-extension PackageShow.View.Model {
+extension PackageShow.Model {
 
     static func listPhrase(opening: Node<HTML.BodyContext>,
                            nodes: [Node<HTML.BodyContext>],

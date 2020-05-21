@@ -23,7 +23,7 @@ class PackageShowViewModelTests: AppTestCase {
         let pkgId = try XCTUnwrap(pkg.id)
 
         // MUT
-        let m = try PackageShow.View.Model.query(database: app.db, packageId: pkgId).wait()
+        let m = try PackageShow.Model.query(database: app.db, packageId: pkgId).wait()
 
         // validate
         XCTAssertEqual(m.title, "test package")
@@ -43,7 +43,7 @@ class PackageShowViewModelTests: AppTestCase {
         let pkgId = try XCTUnwrap(pkg.id)
 
         // MUT
-        XCTAssertThrowsError(try PackageShow.View.Model.query(database: app.db, packageId: pkgId).wait()) {
+        XCTAssertThrowsError(try PackageShow.Model.query(database: app.db, packageId: pkgId).wait()) {
             let error = try? XCTUnwrap($0 as? Vapor.Abort)
             XCTAssertEqual(error?.identifier, "404")
         }
@@ -103,6 +103,6 @@ class PackageShowViewModelTests: AppTestCase {
 
 
 // local typealiases / references to make tests more readable
-fileprivate typealias Link = PackageShow.View.Model.Link
-fileprivate typealias Version = PackageShow.View.Model.Version
-let lpInfoGroups = PackageShow.View.Model.lpInfoGroups
+fileprivate typealias Link = PackageShow.Model.Link
+fileprivate typealias Version = PackageShow.Model.Version
+let lpInfoGroups = PackageShow.Model.lpInfoGroups
