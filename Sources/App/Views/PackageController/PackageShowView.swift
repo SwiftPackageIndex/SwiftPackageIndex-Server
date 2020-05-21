@@ -255,10 +255,10 @@ extension PackageShowView.Model {
     }
 
     func languagesAndPlatformsClause() -> [Node<HTML.ListContext>] {
-        [
-            .li(.group(_section(for: [\.stable]))),
-            .li(.group(_section(for: [\.beta, \.latest])))
-        ]
+        let groups = Self.lpInfoGroups(languagePlatforms)
+        return groups.map {
+            .li(.group(_section(for: $0)))
+        }
     }
 
     typealias LanguagePlatformKeyPath = KeyPath<PackageShowView.Model.LanguagePlatformInfo, PackageShowView.Model.Version>
@@ -268,7 +268,9 @@ extension PackageShowView.Model {
         var availableKeyPaths = allKeyPaths
         let groups = allKeyPaths.map { kp -> [LanguagePlatformKeyPath] in
             let v = lpInfo[keyPath: kp]
-            let group = availableKeyPaths.filter { lpInfo[keyPath: $0] == v }
+            let group = availableKeyPaths.filter {
+                lpInfo[keyPath: $0].platforms == v.platforms
+                    && lpInfo[keyPath: $0].swiftVersions == v.swiftVersions }
             availableKeyPaths.removeAll(where: { group.contains($0) })
             return group
         }

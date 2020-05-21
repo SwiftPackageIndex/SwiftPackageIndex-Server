@@ -50,6 +50,7 @@ class PackageShowViewModelTests: AppTestCase {
     }
 
     func test_lpInfoGroups_by_swiftVersions() throws {
+        // Test grouping by swift versions
         let lnk = PackageShowView.Model.Link(name: "1", url: "1")
         let v1 = PackageShowView.Model.Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
         let v2 = PackageShowView.Model.Version(link: lnk, swiftVersions: ["2"], platforms: [.macos("10")])
@@ -68,6 +69,7 @@ class PackageShowViewModelTests: AppTestCase {
     }
 
     func test_lpInfoGroups_by_platforms() throws {
+        // Test grouping by platforms
         let lnk = PackageShowView.Model.Link(name: "1", url: "1")
         let v1 = PackageShowView.Model.Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
         let v2 = PackageShowView.Model.Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("11")])
@@ -82,6 +84,19 @@ class PackageShowViewModelTests: AppTestCase {
         XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v2, beta: v1, latest: v2)),
                        [[\.stable, \.latest], [\.beta]])
         XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v1, beta: v1, latest: v1)),
+                       [[\.stable, \.beta, \.latest]])
+    }
+
+    func test_lpInfoGroups_ignores_link() throws {
+        // Test to ensure the link isn't part of the grouping
+        let l1 = PackageShowView.Model.Link(name: "1", url: "1")
+        let l2 = PackageShowView.Model.Link(name: "2", url: "2")
+        let l3 = PackageShowView.Model.Link(name: "3", url: "3")
+        let v1 = PackageShowView.Model.Version(link: l1, swiftVersions: ["1"], platforms: [.macos("10")])
+        let v2 = PackageShowView.Model.Version(link: l2, swiftVersions: ["1"], platforms: [.macos("10")])
+        let v3 = PackageShowView.Model.Version(link: l3, swiftVersions: ["1"], platforms: [.macos("10")])
+
+        XCTAssertEqual(PackageShowView.Model.lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
                        [[\.stable, \.beta, \.latest]])
     }
 }
