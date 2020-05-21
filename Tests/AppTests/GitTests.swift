@@ -49,6 +49,20 @@ class GitTests: AppTestCase {
         )
     }
 
+    func test_revInfo() throws {
+        Current.shell.run = { cmd, _ in
+            if cmd.string == "git rev-list -n 1 2.2.1" {
+                return "63c973f3c2e632a340936c285e94d59f9ffb01d5"
+            }
+            if cmd.string == "git show -s --format=%ct 63c973f3c2e632a340936c285e94d59f9ffb01d5" {
+                return "1536799579"
+            }
+            throw TestError.unknownCommand
+        }
+        XCTAssertEqual(try Git.revInfo(.tag(.init(2, 2, 1)), at: "ignored"),
+                       .init(commit: "63c973f3c2e632a340936c285e94d59f9ffb01d5",
+                             date: Date(timeIntervalSince1970: 1536799579)))
+    }
 }
 
 

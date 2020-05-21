@@ -31,4 +31,15 @@ enum Git {
         }
         return Date(timeIntervalSince1970: timestamp)
     }
+
+    static func revInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
+        let hash = try revList(reference, at: path)
+        let date = try showDate(hash, at: path)
+        return .init(commit: hash, date: date)
+    }
+
+    struct RevisionInfo: Equatable {
+        let commit: CommitHash
+        let date: Date
+    }
 }
