@@ -261,7 +261,8 @@ extension PackageShowView.Model {
         }
     }
 
-    typealias LanguagePlatformKeyPath = KeyPath<PackageShowView.Model.LanguagePlatformInfo, PackageShowView.Model.Version>
+    typealias LanguagePlatformKeyPath = KeyPath<PackageShowView.Model.LanguagePlatformInfo,
+                                                PackageShowView.Model.Version>
 
     static func lpInfoGroups(_ lpInfo: LanguagePlatformInfo) -> [[LanguagePlatformKeyPath]] {
         let allKeyPaths: [LanguagePlatformKeyPath] = [\.stable, \.beta, \.latest]
