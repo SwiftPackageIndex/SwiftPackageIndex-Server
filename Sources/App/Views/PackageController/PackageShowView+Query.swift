@@ -3,7 +3,7 @@ import Foundation
 import Vapor
 
 
-extension PackageShowView.Model {
+extension PackageShow.Model {
     static func query(database: Database, packageId: Package.Id) -> EventLoopFuture<Self> {
         Package.query(on: database)
             .with(\.$repositories)
@@ -21,7 +21,21 @@ extension PackageShowView.Model {
                                  authors: [],
                                  history: nil,
                                  activity: nil,
-                                 products: p.productCounts)
+                                 products: p.productCounts,
+                                 releases: .init(stable: nil, beta: nil, latest: nil),
+                                 languagePlatforms: .init(
+                                    stable: .init(
+                                        link: .init(name: "stable", url: "stable"),
+                                        swiftVersions: [],
+                                        platforms: []),
+                                    beta: .init(
+                                        link: .init(name: "beta", url: "beta"),
+                                        swiftVersions: [],
+                                        platforms: []),
+                                    latest: .init(
+                                        link: .init(name: "latest", url: "latest"),
+                                        swiftVersions: [],
+                                        platforms: [])))
             }
             .unwrap(or: Abort(.notFound))
     }
@@ -38,7 +52,7 @@ private extension Package {
 
     var name: String? { defaultVersion?.packageName }
 
-    var productCounts: PackageShowView.Model.ProductCounts? {
+    var productCounts: PackageShow.Model.ProductCounts? {
         guard let version = defaultVersion else { return nil }
         return .init(
             libraries: version.products.filter(\.isLibrary).count,

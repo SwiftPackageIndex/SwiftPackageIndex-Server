@@ -1,8 +1,10 @@
 @testable import App
 
+import Foundation
 
-extension PackageShowView.Model {
-    static var mock: PackageShowView.Model {
+
+extension PackageShow.Model {
+    static var mock: PackageShow.Model {
         .init(title: "Alamofire",
               url: "https://github.com/Alamofire/Alamofire.git",
               license: .mit,
@@ -27,7 +29,32 @@ extension PackageShowView.Model {
                 pullRequests: .init(name: "5 open pull requests",
                                     url: "https://github.com/Alamofire/Alamofire/pulls"),
                 lastPullRequestClosedMerged: "6 days ago"),
-              products: .init(libraries: 3, executables: 1)
+              products: .init(libraries: 3, executables: 1),
+              releases: .init(stable: .init(date: "12 days",
+                                            link: .init(name: "5.2.0",
+                                                        url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0")),
+                              beta: .init(date: "4 days",
+                                          link: .init(name: "5.3.0-beta.1",
+                                                      url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1")),
+                              latest: .init(date: "12 minutes",
+                                            link: .init(name: "master",
+                                                        url: "https://github.com/Alamofire/Alamofire"))),
+              languagePlatforms: .init(
+                stable: .init(
+                    link: .init(name: "5.2.0",
+                                url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
+                    swiftVersions: ["5", "5.2"],
+                    platforms: [.ios("10.0"), .macos("10.12"), .watchos("3.0"), .tvos("10.0")]),
+                beta:.init(
+                    link: .init(name: "5.3.1-beta.1",
+                                url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.1-beta1"),
+                    swiftVersions: ["5.2"],
+                    platforms: [.ios("13.0"), .macos("10.15"), .watchos("6.0"), .tvos("13.0")]),
+                latest: .init(
+                    link: .init(name: "master",
+                                url: "https://github.com/Alamofire/Alamofire"),
+                    swiftVersions: ["5.2"],
+                    platforms: [.ios("13.0"), .macos("10.15"), .watchos("6.0"), .tvos("13.0")]))
         )
     }
 }
