@@ -257,7 +257,7 @@ extension PackageShowView.Model {
     func languagesAndPlatformsClause() -> [Node<HTML.ListContext>] {
         let groups = Self.lpInfoGroups(languagePlatforms)
         return groups.map {
-            .li(.group(_section(for: $0)))
+            .li(.group(lpInfoSection(for: $0)))
         }
     }
 
@@ -278,7 +278,7 @@ extension PackageShowView.Model {
         return groups
     }
 
-    func _section(for keypaths: [LanguagePlatformKeyPath]) -> [Node<HTML.BodyContext>] {
+    func lpInfoSection(for keypaths: [LanguagePlatformKeyPath]) -> [Node<HTML.BodyContext>] {
         guard let leadingKeyPath = keypaths.first else { return [] }
         let cssClasses: [LanguagePlatformKeyPath: String] = [\.stable: "stable",
                                                              \.beta: "beta",
