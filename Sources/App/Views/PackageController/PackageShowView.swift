@@ -67,119 +67,16 @@ class PackageShowView: PublicPage {
             .section(
                 .class("releases"),
                 .ul(
-                    .li(
-                        "The latest stable release is ",
-                        .a(
-                            .href("https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
-                            .span(
-                                .class("stable"),
-                                .i(.class("icon stable")),
-                                "5.2.0"
-                            )
-                        ),
-                        ". Released 12 days ago."
-                    ),
-                    .li(
-                        "The latest beta release is ",
-                        .a(
-                            .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1"),
-                            .span(
-                                .class("beta"),
-                                .i(.class("icon beta")),
-                                "5.3.0-beta.1"
-                            )
-                        ),
-                        ". Released 4 days ago."
-                    ),
-                    .li(
-                        "The last commit to ",
-                        .a(
-                            .href("https://github.com/Alamofire/Alamofire"),
-                            .span(
-                                .class("branch"),
-                                .i(.class("icon branch")),
-                                "master"
-                            )
-                        ),
-                        " was 12 minutes ago."
-                    )
+                    .li(.group(model.stableReleaseClause())),
+                    .li(.group(model.betaReleaseClause())),
+                    .li(.group(model.latestReleaseClause()))
                 )
             ),
             .section(
                 .class("language_platforms"),
                 .h3("Language and Platforms"),
                 .ul(
-                    .li(
-                        .p(
-                            "Version ",
-                            .a(
-                                .href("https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"),
-                                .span(
-                                    .class("stable"),
-                                    .i(.class("icon stable")),
-                                    "5.2.0"
-                                )
-                            ),
-                            " supports:"
-                        ),
-                        .ul(
-                            .li(
-                                "Swift ",
-                                .strong("5"),
-                                " and ",
-                                .strong("5.2")
-                            ),
-                            .li(
-                                .strong("iOS 10.0+"),
-                                ", ",
-                                .strong("macOS 10.12+"),
-                                ", ",
-                                .strong("watchOS 3.0+"),
-                                ", and ",
-                                .strong("tvOS 10.0+"),
-                                "."
-                            )
-                        )
-                    ),
-                    .li(
-                        .p(
-                            "Version ",
-                            .a(
-                                .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.1-beta1"),
-                                .span(
-                                    .class("beta"),
-                                    .i(.class("icon beta")),
-                                    "5.3.1-beta.1"
-                                )
-                            ),
-                            " and ",
-                            .a(
-                                .href("https://github.com/Alamofire/Alamofire"),
-                                .span(
-                                    .class("branch"),
-                                    .i(.class("icon branch")),
-                                    "master"
-                                )
-                            ),
-                            " support:"
-                        ),
-                        .ul(
-                            .li(
-                                "Swift ",
-                                .strong("5.2")
-                            ),
-                            .li(
-                                .strong("iOS 13.0+"),
-                                ", ",
-                                .strong("macOS 10.15+"),
-                                ", ",
-                                .strong("watchOS 6.0+"),
-                                ", and ",
-                                .strong("tvOS 13.0+"),
-                                "."
-                            )
-                        )
-                    )
+                    .group(model.languagesAndPlatformsClause())
                 )
             )
         )
@@ -198,14 +95,21 @@ extension PackageShowView {
         let history: History?
         let activity: Activity?
         let products: ProductCounts?
+        let releases: ReleaseInfo
+        let languagePlatforms: LanguagePlatformInfo
 
         struct Link: Equatable {
             let name: String
             let url: String
         }
 
+        struct DatedLink: Equatable {
+            let date: String   // FIXME: use RelativeDateTimeFormatter
+            let link: Link
+        }
+
         struct History: Equatable {
-            let since: String  // TODO: use Date and derive on the fly
+            let since: String  // FIXME: use RelativeDateTimeFormatter
             let commits: Link
             let releases: Link
         }
@@ -220,33 +124,34 @@ extension PackageShowView {
             let libraries: Int
             let executables: Int
         }
+
+        struct ReleaseInfo: Equatable {
+            let stable: DatedLink?
+            let beta: DatedLink?
+            let latest: DatedLink?
+        }
+
+        struct Version: Equatable {
+            let link: Link
+            let swiftVersions: [String]
+            let platforms: [Platform]
+        }
+
+        struct LanguagePlatformInfo: Equatable {
+            let stable: Version
+            let beta: Version
+            let latest: Version
+        }
     }
 }
 
 
 extension PackageShowView.Model {
     func authorsClause() -> [Node<HTML.BodyContext>] {
-        switch authors.count {
-            case 0:
-                return ["–"]
-            case 1:
-                let author = authors.first!
-                return ["By ", .a(.href(author.url), .text(author.name)), "."]
-            case 2:
-                let author1 = authors[0]
-                let author2 = authors[1]
-                return ["By ", .a(.href(author1.url), .text(author1.name)),
-                        " and ", .a(.href(author2.url), .text(author2.name)), "."]
-            default:
-                let start: [Node<HTML.BodyContext>]
-                    = ["By ", .a(.href(authors.first!.url), .text(authors.first!.name))]
-                let middle: [[Node<HTML.BodyContext>]] = authors[1..<(authors.count - 1)].map {
-                        [", ", .a(.href($0.url), .text($0.name))]
-                }
-                let end: [Node<HTML.BodyContext>] =
-                    [", and ", .a(.href(authors.last!.url), .text(authors.last!.name)), "."]
-                return middle.reduce(start) { $0 + $1 } + end
-        }
+        let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.name)) }
+        return Self.listPhrase(opening: .text("By "),
+                               nodes: nodes,
+                               ifNoValues: ["-"])
     }
 
     func historyClause() -> [Node<HTML.BodyContext>] {
@@ -288,13 +193,186 @@ extension PackageShowView.Model {
         return [
             "\(title) contains ",
             .strong(
-                .text(pluralize(count: products.libraries, singular: "library", plural: "libraries"))
+                .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries"))
             ),
             " and ",
             .strong(
-                .text(pluralize(count: products.executables, singular: "executable"))
+                .text(pluralizedCount(products.executables, singular: "executable"))
             ),
             "."
         ]
+    }
+
+    func stableReleaseClause() -> [Node<HTML.BodyContext>] {
+        releases.stable.map { datedLink -> [Node<HTML.BodyContext>] in
+            [
+                "The latest stable release is ",
+                .a(
+                    .href(datedLink.link.url),
+                    .span(
+                        .class("stable"),
+                        .i(.class("icon stable")),
+                        .text(datedLink.link.name)
+                    )
+                ),
+                ". Released \(datedLink.date) ago."  // FIXME: turn into relative date
+            ]
+        } ?? []
+    }
+
+    func betaReleaseClause() -> [Node<HTML.BodyContext>] {
+        releases.beta.map { datedLink -> [Node<HTML.BodyContext>] in
+            [
+                "The latest beta release is ",
+                .a(
+                    .href(datedLink.link.url),
+                    .span(
+                        .class("beta"),
+                        .i(.class("icon beta")),
+                        .text(datedLink.link.name)
+                    )
+                ),
+                ". Released \(datedLink.date) ago."  // FIXME: turn into relative date
+            ]
+        } ?? []
+    }
+
+    func latestReleaseClause() -> [Node<HTML.BodyContext>] {
+        releases.latest.map { datedLink -> [Node<HTML.BodyContext>] in
+            [
+                "The last commit to ",
+                .a(
+                    .href(datedLink.link.url),
+                    .span(
+                        .class("branch"),
+                        .i(.class("icon branch")),
+                        .text(datedLink.link.name)
+                    )
+                ),
+                " was \(datedLink.date) ago."  // FIXME: turn into relative date
+            ]
+        } ?? []
+    }
+
+    func languagesAndPlatformsClause() -> [Node<HTML.ListContext>] {
+        let groups = Self.lpInfoGroups(languagePlatforms)
+        return groups.map {
+            .li(.group(lpInfoSection(for: $0)))
+        }
+    }
+
+    typealias LanguagePlatformKeyPath = KeyPath<LanguagePlatformInfo, Version>
+
+    static func lpInfoGroups(_ lpInfo: LanguagePlatformInfo) -> [[LanguagePlatformKeyPath]] {
+        let allKeyPaths: [LanguagePlatformKeyPath] = [\.stable, \.beta, \.latest]
+        var availableKeyPaths = allKeyPaths
+        let groups = allKeyPaths.map { kp -> [LanguagePlatformKeyPath] in
+            let v = lpInfo[keyPath: kp]
+            let group = availableKeyPaths.filter {
+                lpInfo[keyPath: $0].platforms == v.platforms
+                    && lpInfo[keyPath: $0].swiftVersions == v.swiftVersions }
+            availableKeyPaths.removeAll(where: { group.contains($0) })
+            return group
+        }
+        .filter { !$0.isEmpty }
+        return groups
+    }
+
+    func lpInfoSection(for keypaths: [LanguagePlatformKeyPath]) -> [Node<HTML.BodyContext>] {
+        guard let leadingKeyPath = keypaths.first else { return [] }
+        let cssClasses: [LanguagePlatformKeyPath: String] = [\.stable: "stable",
+                                                             \.beta: "beta",
+                                                             \.latest: "branch"]
+        let nodes = keypaths.map { kp -> Node<HTML.BodyContext> in
+            let info = languagePlatforms[keyPath: kp]
+            let cssClass = cssClasses[kp]!
+            return .a(
+                .href(info.link.url),
+                .span(
+                    .class(cssClass),
+                    .i(.class("icon \(cssClass)")),
+                    .text(info.link.name)
+                )
+            )
+        }
+
+        // swift versions and platforms are the same all versions because we grouped them,
+        // so we use the leading keypath to obtain it
+        let versionInfo = languagePlatforms[keyPath: leadingKeyPath]
+
+        return [
+            .p(
+                .group(Self.listPhrase(opening: .text("Version".pluralized(for: keypaths.count) + " "),
+                                       nodes: nodes)),
+                " \("supports".pluralized(for: keypaths.count, plural: "support")):"
+            ),
+            .ul(
+                .li(
+                    .group(versionsClause(versionInfo.swiftVersions))
+                ),
+                .li(
+                    .group(platformsClause(versionInfo.platforms))
+                )
+            )
+        ]
+    }
+
+    func versionsClause(_ versions: [String]) -> [Node<HTML.BodyContext>] {
+        let nodes = versions.map { Node<HTML.BodyContext>.strong(.text($0)) }
+        return Self.listPhrase(opening: .text("Swift "), nodes: nodes)
+    }
+
+    func platformsClause(_ platforms: [Platform]) -> [Node<HTML.BodyContext>] {
+        let nodes = platforms
+            .sorted(by: { $0.ordinal < $1.ordinal })
+            .map { "\($0)+" }
+            .map { Node<HTML.BodyContext>.strong(.text($0)) }
+        return Self.listPhrase(opening: .text(""), nodes: nodes)
+    }
+
+}
+
+
+// MARK: - General helpers
+
+extension PackageShowView.Model {
+
+    static func listPhrase(opening: Node<HTML.BodyContext>,
+                           nodes: [Node<HTML.BodyContext>],
+                           ifNoValues: [Node<HTML.BodyContext>] = []) -> [Node<HTML.BodyContext>] {
+        switch nodes.count {
+            case 0:
+                return ifNoValues
+            case 1:
+                return [opening, nodes[0]]
+            case 2:
+                return [opening, nodes[0], " and ", nodes[1]]
+            default:
+                let start: [Node<HTML.BodyContext>]
+                    = [opening, nodes.first!]
+                let middle: [[Node<HTML.BodyContext>]] = nodes[1..<(nodes.count - 1)].map {
+                    [", ", $0]
+                }
+                let end: [Node<HTML.BodyContext>] =
+                    [", and ", nodes.last!, "."]
+                return middle.reduce(start) { $0 + $1 } + end
+        }
+    }
+
+}
+
+
+extension Platform {
+    var ordinal: Int {
+        switch name {
+            case .ios:
+                return 0
+            case .macos:
+                return 1
+            case .watchos:
+                return 2
+            case .tvos:
+                return 3
+        }
     }
 }

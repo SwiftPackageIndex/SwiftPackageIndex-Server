@@ -14,9 +14,9 @@ class PackageShowViewModelTests: AppTestCase {
                        license: .mit,
                        stars: 17,
                        forks: 42).save(on: app.db).wait()
-        let version = try Version(package: pkg,
-                                  reference: .branch("master"),
-                                  packageName: "test package")
+        let version = try App.Version(package: pkg,
+                                      reference: .branch("master"),
+                                      packageName: "test package")
         try version.save(on: app.db).wait()
         try Product(version: version,
                     type: .library, name: "lib 1").save(on: app.db).wait()
@@ -48,4 +48,61 @@ class PackageShowViewModelTests: AppTestCase {
             XCTAssertEqual(error?.identifier, "404")
         }
     }
+
+    func test_lpInfoGroups_by_swiftVersions() throws {
+        // Test grouping by swift versions
+        let lnk = Link(name: "1", url: "1")
+        let v1 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
+        let v2 = Version(link: lnk, swiftVersions: ["2"], platforms: [.macos("10")])
+        let v3 = Version(link: lnk, swiftVersions: ["3"], platforms: [.macos("10")])
+
+        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
+                       [[\.stable], [\.beta], [\.latest]])
+        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v2)),
+                       [[\.stable], [\.beta, \.latest]])
+        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v2)),
+                       [[\.stable, \.beta], [\.latest]])
+        XCTAssertEqual(lpInfoGroups(.init(stable: v2, beta: v1, latest: v2)),
+                       [[\.stable, \.latest], [\.beta]])
+        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v1)),
+                       [[\.stable, \.beta, \.latest]])
+    }
+
+    func test_lpInfoGroups_by_platforms() throws {
+        // Test grouping by platforms
+        let lnk = Link(name: "1", url: "1")
+        let v1 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
+        let v2 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("11")])
+        let v3 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("12")])
+
+        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
+                       [[\.stable], [\.beta], [\.latest]])
+        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v2)),
+                       [[\.stable], [\.beta, \.latest]])
+        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v2)),
+                       [[\.stable, \.beta], [\.latest]])
+        XCTAssertEqual(lpInfoGroups(.init(stable: v2, beta: v1, latest: v2)),
+                       [[\.stable, \.latest], [\.beta]])
+        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v1)),
+                       [[\.stable, \.beta, \.latest]])
+    }
+
+    func test_lpInfoGroups_ignores_link() throws {
+        // Test to ensure the link isn't part of the grouping
+        let l1 = Link(name: "1", url: "1")
+        let l2 = Link(name: "2", url: "2")
+        let l3 = Link(name: "3", url: "3")
+        let v1 = Version(link: l1, swiftVersions: ["1"], platforms: [.macos("10")])
+        let v2 = Version(link: l2, swiftVersions: ["1"], platforms: [.macos("10")])
+        let v3 = Version(link: l3, swiftVersions: ["1"], platforms: [.macos("10")])
+
+        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
+                       [[\.stable, \.beta, \.latest]])
+    }
 }
+
+
+// local typealiases / references to make tests more readable
+fileprivate typealias Link = PackageShowView.Model.Link
+fileprivate typealias Version = PackageShowView.Model.Version
+let lpInfoGroups = PackageShowView.Model.lpInfoGroups

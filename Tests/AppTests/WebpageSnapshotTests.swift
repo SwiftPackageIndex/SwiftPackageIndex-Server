@@ -53,7 +53,7 @@ class WebpageSnapshotTests: XCTestCase {
             // permission issue? In a macOS app project this required setting
             // com.apple.security.network.client permissions but I don't see how to do
             // that with SPM - nor would I expect to need that for tests?
-            assertSnapshot(matching: page, as: .image(size: .init(width: 800, height: 800),
+            assertSnapshot(matching: page, as: .image(size: .init(width: 800, height: 1000),
                                                       baseURL: baseURL()))
         }
         #endif

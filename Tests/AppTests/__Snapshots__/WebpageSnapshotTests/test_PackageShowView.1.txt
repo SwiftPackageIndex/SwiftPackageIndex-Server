@@ -122,7 +122,7 @@
               </ul>
             </li>
             <li>
-              <p>Version 
+              <p>Versions 
                 <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.1-beta1">
                   <span class="beta">
                     <i class="icon beta"></i>5.3.1-beta.1
