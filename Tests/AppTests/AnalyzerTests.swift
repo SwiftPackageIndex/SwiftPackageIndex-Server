@@ -119,6 +119,8 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
                 return #"{ "name": "SPI-Server", "products": [] }"#
             }
+            if cmd.string.hasPrefix("git rev-list -n 1") { return "sha" }
+            if cmd.string.hasPrefix("git show -s --format=%ct") { return "0" }
             return ""
         }
 
@@ -150,6 +152,8 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "git tag" {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
+            if cmd.string.hasPrefix("git rev-list -n 1") { return "sha" }
+            if cmd.string.hasPrefix("git show -s --format=%ct") { return "0" }
             // returning a blank string will cause an exception when trying to
             // decode it as the manifest result - we use this to simulate errors
             return ""
@@ -161,7 +165,7 @@ class AnalyzerTests: AppTestCase {
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(commands.count, 14, "was: \(dump(commands))")
+        XCTAssertEqual(commands.count, 22, "was: \(dump(commands))")
         // 2 packages with 2 versions each -> 4 versions
         // (there is not default branch set for these packages, hence only tags create versions)
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 4)
@@ -220,6 +224,8 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "git tag" {
                 return "1.2.3"
             }
+            if cmd.string.hasPrefix("git rev-list -n 1") { return "sha" }
+            if cmd.string.hasPrefix("git show -s --format=%ct") { return "0" }
             return ""
         }
         let pkg = Package(id: UUID(), url: "1".gh.url)
@@ -405,6 +411,8 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "swift package dump-package" {
                 return #"{ "name": "foo", "products": [{"name":"p1","type":{"executable": null}}, {"name":"p2","type":{"executable": null}}] }"#
             }
+            if cmd.string.hasPrefix("git rev-list -n 1") { return "sha" }
+            if cmd.string.hasPrefix("git show -s --format=%ct") { return "0" }
             return ""
         }
         try savePackages(on: app.db, ["1", "2"].gh.urls, processingStage: .ingestion)
