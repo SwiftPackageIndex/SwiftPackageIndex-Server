@@ -26,7 +26,7 @@ class WebpageSnapshotTests: XCTestCase {
     }
 
     func test_PackageShowView() throws {
-        let page = PackageShowView(.mock).document()
+        let page = PackageShow.View(.mock).document()
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 

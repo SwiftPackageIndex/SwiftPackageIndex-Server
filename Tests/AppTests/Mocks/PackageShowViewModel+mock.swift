@@ -3,8 +3,8 @@
 import Foundation
 
 
-extension PackageShowView.Model {
-    static var mock: PackageShowView.Model {
+extension PackageShow.View.Model {
+    static var mock: PackageShow.View.Model {
         .init(title: "Alamofire",
               url: "https://github.com/Alamofire/Alamofire.git",
               license: .mit,

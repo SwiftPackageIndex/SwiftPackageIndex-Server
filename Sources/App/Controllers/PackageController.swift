@@ -13,8 +13,8 @@ struct PackageController {
         guard let id = req.parameters.get("id").flatMap(UUID.init(uuidString:)) else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
-        return PackageShowView.Model.query(database: req.db, packageId: id)
-            .map { PackageShowView($0).document() }
+        return PackageShow.View.Model.query(database: req.db, packageId: id)
+            .map { PackageShow.View($0).document() }
     }
 
 }
