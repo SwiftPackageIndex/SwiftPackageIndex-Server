@@ -127,12 +127,12 @@ func reconcileVersions(application: Application, checkouts: [Result<Package, Err
 
 func reconcileVersions(application: Application, package: Package) -> EventLoopFuture<[Version]> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return application.eventLoopGroup.next().makeFailedFuture(
+        return application.eventLoopGroup.next().future(error:
             AppError.invalidPackageCachePath(package.id, package.url)
         )
     }
     guard let pkgId = package.id else {
-        return application.eventLoopGroup.next().makeFailedFuture(
+        return application.eventLoopGroup.next().future(error:
             AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
         )
     }
@@ -142,14 +142,9 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
             if let b = b { return [.branch(b)] } else { return [] }  // drop nil default branch
         }
 
-    // FIXME: this doesn't need to be on an event loop
     let tags: EventLoopFuture<[Reference]> = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         application.logger.info("listing tags for package \(package.url)")
-        let tags = try Current.shell.run(command: .init(string: "git tag"), at: cacheDir)
-        return tags.split(separator: "\n")
-            .map(String.init)
-            .compactMap(SemVer.init)
-            .map { Reference.tag($0) }
+        return try Git.tag(at: cacheDir)
     }
 
     let references = defaultBranch.and(tags).map { $0 + $1 }
