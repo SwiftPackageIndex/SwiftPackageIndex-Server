@@ -7,7 +7,7 @@ class HomeIndexView: PublicPage {
             .class("search"),
             .div(
                 .class("inner"),
-                .p("The place to find Swift packages."),
+                .h3("The place to find Swift packages."),
                 .form(
                     .input(
                         .type(.text),
