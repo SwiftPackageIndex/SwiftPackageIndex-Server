@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
     <link rel="stylesheet" href="/stylesheets/main.css?0"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
     <script src="/javascripts/main.js?0"></script>
   </head>
   <body>
@@ -32,7 +34,7 @@
     </header>
     <section class="search">
       <div class="inner">
-        <p>The place to find Swift packages.</p>
+        <h3>The place to find Swift packages.</h3>
         <form>
           <input type="text" id="query" placeholder="Search" spellcheck="false" autofocus="true"/>
           <div id="results"></div>
