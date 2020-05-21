@@ -174,7 +174,19 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "git tag" {
                 return "1.2.3"
             }
-            return ""
+            if cmd.string == "git rev-list -n 1 master" {
+                return "sha-for-master"
+            }
+            if cmd.string == "git rev-list -n 1 1.2.3" {
+                return "sha-for-1.2.3"
+            }
+            if cmd.string == "git show -s --format=%ct sha-for-master" {
+                return "0"
+            }
+            if cmd.string == "git show -s --format=%ct sha-for-1.2.3" {
+                return "1"
+            }
+            throw TestError.unknownCommand
         }
         let pkg = Package(id: UUID(), url: "1".gh.url)
         try pkg.save(on: app.db).wait()
@@ -185,6 +197,9 @@ class AnalyzerTests: AppTestCase {
 
         // validate
         assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
+        assertEquals(versions, \.commit, ["sha-for-master", "sha-for-1.2.3"])
+        assertEquals(versions, \.commitDate,
+                     [Date(timeIntervalSince1970: 0), Date(timeIntervalSince1970: 1)])
     }
 
     func test_reconcileVersions_checkouts() throws {
