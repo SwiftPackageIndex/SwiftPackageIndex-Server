@@ -251,10 +251,11 @@ header nav ul li a:hover {
   align-items: center;
 }
 
-.search p {
+.search h3 {
   margin-bottom: 30px;
   text-align: center;
   color: white;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -263,7 +264,6 @@ header nav ul li a:hover {
   margin: 0 auto;
   width: 90%;
   max-width: 500px;
-
 }
 
 .search input {
