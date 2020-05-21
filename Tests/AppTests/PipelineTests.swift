@@ -109,8 +109,7 @@ class PipelineTests: AppTestCase {
             if cmd.string == "swift package dump-package" {
                 return #"{ "name": "Mock", "products": [] }"#
             }
-            if cmd.string.hasPrefix("git rev-list -n 1") { return "sha" }
-            if cmd.string.hasPrefix("git show -s --format=%ct") { return "0" }
+            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             return ""
         }
 

@@ -4,6 +4,7 @@ import ShellOut
 
 enum GitError: LocalizedError {
     case invalidTimestamp
+    case invalidRevisionInfo
 }
 
 
@@ -30,9 +31,17 @@ enum Git {
         return Date(timeIntervalSince1970: timestamp)
     }
 
-    static func revInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
-        let hash = try revList(reference, at: path)
-        let date = try showDate(hash, at: path)
+    static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
+        let dash = "-"
+        let res = try Current.shell.run(
+            command: .init(string: #"git log -n1 --format=format:"%H\#(dash)%ct" \#(reference)"#),
+            at: path
+        )
+        let parts = res.components(separatedBy: dash)
+        guard parts.count == 2 else { throw GitError.invalidRevisionInfo }
+        let hash = parts[0]
+        guard let timestamp = TimeInterval(parts[1]) else { throw GitError.invalidTimestamp }
+        let date = Date(timeIntervalSince1970: timestamp)
         return .init(commit: hash, date: date)
     }
 

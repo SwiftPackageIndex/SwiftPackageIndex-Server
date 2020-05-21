@@ -161,7 +161,7 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
     // ... and insert versions
     let insert: EventLoopFuture<[Version]> = references
         .flatMapEachThrowing { ref in
-            let revInfo = try Git.revInfo(ref, at: cacheDir)
+            let revInfo = try Git.revisionInfo(ref, at: cacheDir)
             return try Version(package: package,
                                reference: ref,
                                commit: revInfo.commit,
