@@ -18,11 +18,12 @@ enum Git {
     }
 
     static func revList(_ reference: Reference, at path: String) throws -> CommitHash {
-        try Current.shell.run(command: .init(string: "git rev-list -n 1 \(reference)"))
+        try Current.shell.run(command: .init(string: "git rev-list -n 1 \(reference)"), at: path)
     }
 
     static func showDate(_ commit: CommitHash, at path: String) throws -> Date {
-        let res = try Current.shell.run(command: .init(string: "git show -s --format=%ct \(commit)"))
+        let res = try Current.shell.run(command: .init(string: "git show -s --format=%ct \(commit)"),
+                                        at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }

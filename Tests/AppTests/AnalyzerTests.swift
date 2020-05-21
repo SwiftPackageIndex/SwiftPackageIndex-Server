@@ -33,6 +33,8 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
                 return #"{ "name": "foo-2", "products": [{"name":"p2","type":{"library": []}}] }"#
             }
+            if cmd.string.hasPrefix("git rev-list -n 1") { return "sha" }
+            if cmd.string.hasPrefix("git show -s --format=%ct") { return "0" }
             return ""
         }
 
@@ -46,15 +48,25 @@ class AnalyzerTests: AppTestCase {
         let path1 = "\(outDir)/github.com-foo-1"
         let path2 = "\(outDir)/github.com-foo-2"
         let expecations: [Command] = [
-            // clone of pkg1 and pull of pkg2
+            // 0-3: clone of pkg1 and pull of pkg2
             .init(command: "git clone https://github.com/foo/1 \"\(outDir)/github.com-foo-1\" --quiet",
                 path: outDir),
             .init(command: "git reset --hard", path: path2),
             .init(command: "git checkout \"master\" --quiet", path: path2),
             .init(command: "git pull --quiet", path: path2),
-            // next, both repos have their tags listed
+            // 4,5: next, both repos have their tags listed
             .init(command: "git tag", path: path1),
             .init(command: "git tag", path: path2),
+            // 6-9: for each ref we list the sha and the date for pkg1
+            .init(command: "git rev-list -n 1 1.0.0", path: path1),
+            .init(command: "git show -s --format=%ct sha", path: path1),
+            .init(command: "git rev-list -n 1 1.1.1", path: path1),
+            .init(command: "git show -s --format=%ct sha", path: path1),
+            // 10-13: for each ref we list the sha and the date for pkg2
+            .init(command: "git rev-list -n 1 2.0.0", path: path2),
+            .init(command: "git show -s --format=%ct sha", path: path2),
+            .init(command: "git rev-list -n 1 2.1.0", path: path2),
+            .init(command: "git show -s --format=%ct sha", path: path2),
             // then, each repo sees a git checkout and dump-package *per version*, i.e. twice
             //   - first repo
             .init(command: "git checkout \"1.0.0\" --quiet", path: path1),
