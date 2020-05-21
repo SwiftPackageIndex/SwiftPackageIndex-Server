@@ -76,46 +76,7 @@ class PackageShowView: PublicPage {
                 .class("language_platforms"),
                 .h3("Language and Platforms"),
                 .ul(
-                    .li(.group(model.languagesAndPlatformsClause())),
-                    .li(
-                        .p(
-                            "Version ",
-                            .a(
-                                .href("https://github.com/Alamofire/Alamofire/releases/tag/5.3.1-beta1"),
-                                .span(
-                                    .class("beta"),
-                                    .i(.class("icon beta")),
-                                    "5.3.1-beta.1"
-                                )
-                            ),
-                            " and ",
-                            .a(
-                                .href("https://github.com/Alamofire/Alamofire"),
-                                .span(
-                                    .class("branch"),
-                                    .i(.class("icon branch")),
-                                    "master"
-                                )
-                            ),
-                            " support:"
-                        ),
-                        .ul(
-                            .li(
-                                "Swift ",
-                                .strong("5.2")
-                            ),
-                            .li(
-                                .strong("iOS 13.0+"),
-                                ", ",
-                                .strong("macOS 10.15+"),
-                                ", ",
-                                .strong("watchOS 6.0+"),
-                                ", and ",
-                                .strong("tvOS 13.0+"),
-                                "."
-                            )
-                        )
-                    )
+                    .group(model.languagesAndPlatformsClause())
                 )
             )
         )
@@ -232,11 +193,11 @@ extension PackageShowView.Model {
         return [
             "\(title) contains ",
             .strong(
-                .text(pluralize(count: products.libraries, singular: "library", plural: "libraries"))
+                .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries"))
             ),
             " and ",
             .strong(
-                .text(pluralize(count: products.executables, singular: "executable"))
+                .text(pluralizedCount(products.executables, singular: "executable"))
             ),
             "."
         ]
@@ -293,27 +254,42 @@ extension PackageShowView.Model {
         } ?? []
     }
 
-    func languagesAndPlatformsClause() -> [Node<HTML.BodyContext>] {
-        _section(for: [\.stable], versionInfo: languagePlatforms.stable, type: "stable")
+    func languagesAndPlatformsClause() -> [Node<HTML.ListContext>] {
+        [
+            .li(.group(_section(for: [\.stable]))),
+            .li(.group(_section(for: [\.beta, \.latest])))
+        ]
     }
 
     typealias LanguagePlatformKeyPath = KeyPath<PackageShowView.Model.LanguagePlatformInfo, PackageShowView.Model.Version>
 
-    func _section(for keypaths: [LanguagePlatformKeyPath],
-                 versionInfo: PackageShowView.Model.Version,
-                 type: String) -> [Node<HTML.BodyContext>] {
-        [
+    func _section(for keypaths: [LanguagePlatformKeyPath]) -> [Node<HTML.BodyContext>] {
+        guard let leadingKeyPath = keypaths.first else { return [] }
+        let cssClasses: [LanguagePlatformKeyPath: String] = [\.stable: "stable",
+                                                             \.beta: "beta",
+                                                             \.latest: "branch"]
+        let nodes = keypaths.map { kp -> Node<HTML.BodyContext> in
+            let info = languagePlatforms[keyPath: kp]
+            let cssClass = cssClasses[kp]!
+            return .a(
+                .href(info.link.url),
+                .span(
+                    .class(cssClass),
+                    .i(.class("icon \(cssClass)")),
+                    .text(info.link.name)
+                )
+            )
+        }
+
+        // swift versions and platforms are the same all versions because we grouped them,
+        // so we use the leading keypath to obtain it
+        let versionInfo = languagePlatforms[keyPath: leadingKeyPath]
+
+        return [
             .p(
-                "Version ",
-                .a(
-                    .href(versionInfo.link.url),
-                    .span(
-                        .class(type),
-                        .i(.class("icon \(type)")),
-                        .text(versionInfo.link.name)
-                    )
-                ),
-                " supports:"
+                .group(Self.listPhrase(opening: .text("Version".pluralized(for: keypaths.count) + " "),
+                                       nodes: nodes)),
+                " \("supports".pluralized(for: keypaths.count, plural: "support")):"
             ),
             .ul(
                 .li(

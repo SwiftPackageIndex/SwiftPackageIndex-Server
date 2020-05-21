@@ -46,15 +46,15 @@ extension PackageShowView.Model {
                     swiftVersions: ["5", "5.2"],
                     platforms: [.ios("10.0"), .macos("10.12"), .watchos("3.0"), .tvos("10.0")]),
                 beta:.init(
-                    link: .init(name: "5.3.0-beta.1",
-                                url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1"),
-                    swiftVersions: [],
-                    platforms: []),
+                    link: .init(name: "5.3.1-beta.1",
+                                url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.1-beta1"),
+                    swiftVersions: ["5.2"],
+                    platforms: [.ios("13.0"), .macos("10.15"), .watchos("6.0"), .tvos("13.0")]),
                 latest: .init(
                     link: .init(name: "master",
                                 url: "https://github.com/Alamofire/Alamofire"),
-                    swiftVersions: [],
-                    platforms: []))
+                    swiftVersions: ["5.2"],
+                    platforms: [.ios("13.0"), .macos("10.15"), .watchos("6.0"), .tvos("13.0")]))
         )
     }
 }
