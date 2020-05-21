@@ -25,6 +25,17 @@ class GitTests: AppTestCase {
         ])
     }
 
+    func test_revList() throws {
+        Current.shell.run = mock(for: "git rev-list -n 1 2.2.1",
+             """
+             63c973f3c2e632a340936c285e94d59f9ffb01d5
+             """
+        )
+        XCTAssertEqual(
+            try Git.revList(.tag(.init(2, 2, 1)), at: "ignored"),
+            "63c973f3c2e632a340936c285e94d59f9ffb01d5"
+        )
+    }
 }
 
 

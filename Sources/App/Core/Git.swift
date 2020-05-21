@@ -1,6 +1,9 @@
 import ShellOut
 
 
+typealias CommitHash = String
+
+
 enum Git {
 
     static func tag(at path: String) throws -> [Reference] {
@@ -11,4 +14,7 @@ enum Git {
             .map { Reference.tag($0) }
     }
 
+    static func revList(_ reference: Reference, at path: String) throws -> CommitHash {
+        try Current.shell.run(command: .init(string: "git rev-list -n 1 \(reference)"))
+    }
 }
