@@ -18,9 +18,12 @@ class AnalyzerTests: AppTestCase {
             return false
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
+        let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            commands.append(.init(command: cmd.string, path: path))
+            queue.async {
+                commands.append(.init(command: cmd.string, path: path))
+            }
             if cmd.string == "git tag" && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
@@ -146,9 +149,12 @@ class AnalyzerTests: AppTestCase {
             return false
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
+        let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            commands.append(.init(command: cmd.string, path: path))
+            queue.async {
+                commands.append(.init(command: cmd.string, path: path))
+            }
             if cmd.string == "git tag" {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
@@ -249,9 +255,12 @@ class AnalyzerTests: AppTestCase {
 
     func test_getManifest() throws {
         // setup
+        let queue = DispatchQueue(label: "serial")
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            commands.append(cmd.string);
+            queue.async {
+                commands.append(cmd.string)
+            }
             if cmd.string == "swift package dump-package" {
                 return #"{ "name": "SPI-Server", "products": [] }"#
             }
@@ -275,9 +284,12 @@ class AnalyzerTests: AppTestCase {
 
     func test_getManifests() throws {
         // setup
+        let queue = DispatchQueue(label: "serial")
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            commands.append(cmd.string);
+            queue.async {
+                commands.append(cmd.string)
+            }
             if cmd.string == "swift package dump-package" {
                 return #"{ "name": "SPI-Server", "products": [] }"#
             }
