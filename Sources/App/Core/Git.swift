@@ -2,9 +2,6 @@ import Foundation
 import ShellOut
 
 
-typealias CommitHash = String
-
-
 enum GitError: LocalizedError {
     case invalidTimestamp
 }
