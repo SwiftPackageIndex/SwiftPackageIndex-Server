@@ -82,7 +82,7 @@ class AnalyzerTests: AppTestCase {
             .init(command: "git checkout \"2.1.0\" --quiet", path: path2),
             .init(command: "swift package dump-package", path: path2),
             ]
-        assert(commands: commands, expectations: expecations)
+        assert(commands: commands, expectations: expecations, ignordingOrder: true)
 
         // validate versions
         // A bit awkward... create a helper? There has to be a better way?
@@ -440,7 +440,7 @@ class AnalyzerTests: AppTestCase {
 }
 
 
-struct Command: Equatable, CustomStringConvertible {
+struct Command: Equatable, CustomStringConvertible, Hashable {
     var command: String
     var path: String
 
@@ -448,8 +448,12 @@ struct Command: Equatable, CustomStringConvertible {
 }
 
 
-func assert(commands: [Command], expectations: [Command], file: StaticString = #file, line: UInt = #line) {
-    XCTAssertEqual(commands.count, expectations.count, "was:\n\(dump(commands))", file: file, line: line)
+func assert(commands: [Command],
+            expectations: [Command],
+            ignordingOrder: Bool = false,
+            file: StaticString = #file, line: UInt = #line) {
+    XCTAssertEqual(commands.count, expectations.count, "wrong command count", file: file, line: line)
+    if ignordingOrder && Set(commands) == Set(expectations) { return }
     zip(commands, expectations).enumerated().forEach { idx, pair in
         let (cmd, exp) = pair
         XCTAssertEqual(cmd, exp, "⚠️ command \(idx) failed", file: file, line: line)
