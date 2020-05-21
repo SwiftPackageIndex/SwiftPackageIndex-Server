@@ -29,18 +29,18 @@ class PublicPage {
             ),
             .link(
                 .rel(.stylesheet),
-                .href("/stylesheets/main.css?\(stylesheetQueryString())")
+                .href("/stylesheets/main.css?\(resourceReloadQueryString())")
             ),
             .script(
-                .src("/javascripts/main.js")
+                .src("/javascripts/main.js?\(resourceReloadQueryString())")
             )
         )
     }
 
-    /// A query string that will force the stylesheet to reload after it changes. In development this is the
-    /// current date to force a reload every time. In production this is the last deployed version.
+    /// A query string that will force resources to reload after they change. In development this is the
+    /// current date, to force a reload every time. In production this is the date of the last deploy.
     /// - Returns: A string containing the query string.
-    final func stylesheetQueryString() -> String {
+    final func resourceReloadQueryString() -> String {
         let secondsSince1970String = String(Int(Current.date().timeIntervalSince1970))
         do {
             return (try Environment.detect() == .development) ? secondsSince1970String : appVersion
