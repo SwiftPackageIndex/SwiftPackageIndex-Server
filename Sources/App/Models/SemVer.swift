@@ -51,6 +51,12 @@ extension SemVer: Comparable {
 }
 
 
+extension SemVer {
+    var isStable: Bool { preRelease.isEmpty && build.isEmpty }
+    var isPrerelease: Bool { !isStable }
+}
+
+
 // Source: https://regex101.com/r/Ly7O1x/3/
 // Linked from https://semver.org
 let semVerRegex = NSRegularExpression(#"""

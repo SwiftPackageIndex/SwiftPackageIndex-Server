@@ -111,4 +111,12 @@ class SemVerTests: XCTestCase {
         XCTAssert(SemVer(1, 0, 0, "a") < SemVer(1, 0, 0, "b"))
         XCTAssert(SemVer(1, 0, 0, "a", "a") < SemVer(1, 0, 0, "a", "b"))
     }
+
+    func test_isStable() throws {
+        XCTAssert(SemVer(1, 0, 0).isStable)
+        XCTAssert(SemVer(1, 0, 0, "").isStable)
+        XCTAssert(SemVer(1, 0, 0, "", "").isStable)
+        XCTAssertFalse(SemVer(1, 0, 0, "a").isStable)
+        XCTAssertFalse(SemVer(1, 0, 0, "", "a").isStable)
+    }
 }

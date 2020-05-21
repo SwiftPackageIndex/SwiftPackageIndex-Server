@@ -13,6 +13,15 @@ enum Reference: Equatable {
     }
 
     var isTag: Bool { !isBranch }
+
+    var semVer: SemVer? {
+        switch self {
+            case .branch:
+                return nil
+            case .tag(let v):
+                return v
+        }
+    }
 }
 
 
