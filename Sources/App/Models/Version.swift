@@ -28,6 +28,9 @@ final class Version: Model, Content {
     @Field(key: "commit")
     var commit: String?
 
+    @Field(key: "commit_date")
+    var commitDate: Date?
+
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
 

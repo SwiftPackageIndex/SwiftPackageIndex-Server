@@ -19,3 +19,19 @@ struct CreateVersion: Migration {
         return database.schema("versions").delete()
     }
 }
+
+
+// FIXME: squash migrations before launch
+struct AddCommitDate: Migration {
+    func prepare(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("versions")
+            .field("commit_date", .datetime)
+            .update()
+    }
+
+    func revert(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("versions")
+            .deleteField("commit_date")
+            .update()
+    }
+}
