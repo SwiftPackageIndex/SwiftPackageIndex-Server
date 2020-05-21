@@ -18,24 +18,24 @@ extension PackageShow.Model {
                                  url: p.url,
                                  license: p.repository?.license ?? .none,
                                  summary: p.repository?.summary ?? "–",
-                                 authors: [],
-                                 history: nil,
-                                 activity: nil,
+                                 authors: [],      // TODO: fill in
+                                 history: nil,     // TODO: fill in
+                                 activity: nil,    // TODO: fill in
                                  products: p.productCounts,
-                                 releases: .init(stable: nil, beta: nil, latest: nil),
+                                 releases: .init(stable: nil, beta: nil, latest: nil),  // TODO: fill in
                                  languagePlatforms: .init(
                                     stable: .init(
-                                        link: .init(name: "stable", url: "stable"),
-                                        swiftVersions: [],
-                                        platforms: []),
+                                        link: .init(name: "stable", url: "stable"),  // TODO: fill in
+                                        swiftVersions: [],                           // TODO: fill in
+                                        platforms: []),                              // TODO: fill in
                                     beta: .init(
-                                        link: .init(name: "beta", url: "beta"),
-                                        swiftVersions: [],
-                                        platforms: []),
+                                        link: .init(name: "beta", url: "beta"),      // TODO: fill in
+                                        swiftVersions: [],                           // TODO: fill in
+                                        platforms: []),                              // TODO: fill in
                                     latest: .init(
-                                        link: .init(name: "latest", url: "latest"),
-                                        swiftVersions: [],
-                                        platforms: [])))
+                                        link: .init(name: "latest", url: "latest"),  // TODO: fill in
+                                        swiftVersions: [],                           // TODO: fill in
+                                        platforms: [])))                             // TODO: fill in
             }
             .unwrap(or: Abort(.notFound))
     }
