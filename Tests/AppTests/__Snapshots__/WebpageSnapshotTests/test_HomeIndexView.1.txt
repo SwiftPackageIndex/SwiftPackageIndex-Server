@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Swift Package Index</title>
+    <meta name="twitter:title" content="Swift Package Index"/>
+    <meta name="og:title" content="Swift Package Index"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
+    <link rel="stylesheet" href="/stylesheets/main.css?0"/>
+    <script src="/javascripts/main.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="inner">
+        <a href="/">
+          <h1>
+            <img src="/images/logo.svg"/>Swift Package Index
+          </h1>
+        </a>
+        <nav>
+          <ul>
+            <li>
+              <a href="#">Add a Package</a>
+            </li>
+            <li>
+              <a href="#">About</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <section class="search">
+      <div class="inner">
+        <p>The place to find Swift packages.</p>
+        <form>
+          <input type="text" id="query" placeholder="Search" spellcheck="false" autofocus="true"/>
+          <div id="results"></div>
+        </form>
+      </div>
+    </section>
+    <main>
+      <div class="inner">
+        <div class="recent">
+          <section class="recent_packages">
+            <h3>Recent Packages</h3>
+            <ul>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Added 2 hours ago.</small>
+              </li>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Added 2 hours ago.</small>
+              </li>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Added 2 hours ago.</small>
+              </li>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Added 2 hours ago.</small>
+              </li>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Added 2 hours ago.</small>
+              </li>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Added 2 hours ago.</small>
+              </li>
+            </ul>
+          </section>
+          <section class="recent_releases">
+            <h3>Recent Releases</h3>
+            <ul>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Released 20 minutes ago.</small>
+              </li>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Released 20 minutes ago.</small>
+              </li>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Released 20 minutes ago.</small>
+              </li>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Released 20 minutes ago.</small>
+              </li>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Released 20 minutes ago.</small>
+              </li>
+              <li>
+                <a href="https://example.com/package">Package</a>
+                <small>Released 20 minutes ago.</small>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <div class="inner">
+        <nav>
+          <ul>
+            <li>
+              <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a>
+            </li>
+            <li>
+              <a href="/privacy">Privacy and Cookies</a>
+            </li>
+            <li>
+              <a href="https://twitter.com/swiftpackages">Twitter</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

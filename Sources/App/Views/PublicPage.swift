@@ -69,7 +69,9 @@ class PublicPage {
     final func body() -> Node<HTML.DocumentContext> {
         .body(
             header(),
+            preMain(),
             main(),
+            postMain(),
             footer()
         )
     }
@@ -121,6 +123,13 @@ class PublicPage {
         ]
     }
 
+
+    /// Optional content that will be inserted in between the page header and the main content for the page.
+    /// - Returns: An optional element, or group of elements.
+    func preMain() -> Node<HTML.BodyContext> {
+        .text("")
+    }
+
     /// The <main> element that will contain the primary content for the page.
     /// - Returns: A <main> element.
     final func main() -> Node<HTML.BodyContext> {
@@ -129,7 +138,12 @@ class PublicPage {
                  content()
             )
         )
+    }
 
+    /// Optional content that will be inserted in between the main content for the page and the page footer.
+    /// - Returns: An optional element, or group of elements.
+    func postMain() -> Node<HTML.BodyContext> {
+        .text("")
     }
 
     /// The page's content.

@@ -13,7 +13,7 @@
   --black: #2D2D2D;
   --dark-grey: #3E3E3E;
   --grey: #9A9A9A;
-  --light-grey: #EFEFEF;
+  --light-grey: #DADADA;
   --white: #FFFFFF;
 }
 
@@ -46,7 +46,7 @@ h2 {
 }
 
 h3 {
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1.2;
 }
 
@@ -79,6 +79,10 @@ hr.short {
   margin: 5px auto;
   max-width: 50%;
   height: 1px;
+}
+
+::placeholder {
+  color: var(--light-grey);
 }
 
 /* Icon font --------------------------------------------------------------- */
@@ -156,11 +160,6 @@ section {
 
 section li {
   margin: 10px 0;
-  list-style: none;
-}
-
-section li li {
-  list-style: disc;
 }
 
 section li p {
@@ -238,6 +237,72 @@ header nav ul li a:hover {
   border-color: var(--yellow);
 }
 
+/* Home page --------------------------------------------------------------- */
+.search {
+  margin: 0;
+  background-color: var(--dark-blue);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 75%);
+}
+
+.search .inner {
+  padding: 70px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.search p {
+  margin-bottom: 30px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+}
+
+.search form {
+  position: relative;
+  margin: 0 auto;
+  width: 90%;
+  max-width: 500px;
+
+}
+
+.search input {
+  padding: 12px;
+  width: 100%;
+  font-size: 25px;
+  font-weight: 600;
+  border: none;
+  color: var(--black);
+}
+
+.search input:focus {
+  outline: none;
+}
+
+.search #results {
+  position: absolute;
+  padding: 10px;
+  width: 100%;
+  background-color: var(--white);
+  border-top: 2px var(--light-blue) solid;
+  z-index: 9999;
+}
+
+.recent {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-evenly;
+}
+
+.recent ul {
+  padding: 0;
+}
+
+.recent li {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Package page ------------------------------------------------------------ */
 p.description {
   font-size: 19px;
@@ -246,6 +311,7 @@ p.description {
 .releases ul,
 .language_platforms ul {
   padding: 0;
+  list-style: none;
 }
 
 .language_platforms li {
@@ -254,6 +320,7 @@ p.description {
 
 .language_platforms ul li ul {
   padding: 0 40px;
+  list-style: disc;
 }
 
 .language_platforms ul li li {

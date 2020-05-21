@@ -10,4 +10,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
     } while (target = target.parentElement)
   })
 
+  // If there's a results element, its initial state should be hidden.
+  const resultsElement = document.getElementById('results')
+  if (resultsElement) { resultsElement.hidden = true }
 })
