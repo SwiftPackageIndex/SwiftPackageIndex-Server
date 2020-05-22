@@ -155,7 +155,7 @@ final class PackageTests: AppTestCase {
         }
     }
 
-    func test_releases() throws {
+    func test_releaseInfo() throws {
         var pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
         let versions = [
@@ -181,7 +181,7 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(info.latest?.date, "1 day ago")
     }
 
-    func test_releases_nonEager() throws {
+    func test_releaseInfo_nonEager() throws {
         // ensure non-eager access does not fatalError
         let pkg = try savePackage(on: app.db, "1")
         let versions = [
