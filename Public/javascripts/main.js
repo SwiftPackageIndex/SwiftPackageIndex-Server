@@ -55,7 +55,7 @@ window.displaySearchResults = function(searchResults) {
   clearSearchResults()
 
   // Are there any results?
-  if (searchResults.length <= 0) {
+  if (searchResults.results.length <= 0) {
     const noResultsElement = document.createElement('p')
     noResultsElement.textContent = 'No Results. Try another search?'
     noResultsElement.classList.add('no_results')
@@ -63,7 +63,7 @@ window.displaySearchResults = function(searchResults) {
   } else {
     // Create an unordered list with the results.
     const resultsListElement = document.createElement('ul')
-    searchResults.forEach((result, index) => {
+    searchResults.results.forEach((result, index) => {
       createSearchResultListItemElement(result, resultsListElement)
     })
     resultsElement.appendChild(resultsListElement)
