@@ -223,11 +223,12 @@ extension PackageShow.Model {
                 " \("supports".pluralized(for: keypaths.count, plural: "support")):"
             ),
             .ul(
-                .li(
-                    .group(versionsClause(versionInfo.swiftVersions))
-                ),
-                .li(
-                    .group(platformsClause(versionInfo.platforms))
+                .group([
+                    versionsClause(versionInfo.swiftVersions),
+                    platformsClause(versionInfo.platforms)
+                    ]
+                    .filter { !$0.isEmpty }
+                    .map { .li(.group($0)) }
                 )
             )
         ]
