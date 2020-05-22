@@ -47,7 +47,6 @@ extension Package {
         guard let versions = $versions.value else { return nil }
         return versions.first(where: { $0.reference?.isBranch ?? false })
     }
-}
 
     var name: String? { defaultVersion?.packageName }
 
