@@ -44,8 +44,21 @@ extension PackageShow.Model {
 
 extension Package {
     var defaultVersion: Version? {
-        guard let versions = $versions.value else { return nil }
-        return versions.first(where: { $0.reference?.isBranch ?? false })
+        guard
+            let versions = $versions.value,
+            let repositories = $repositories.value,
+            let repo = repositories.first,
+            let defaultBranch = repo.defaultBranch
+            else { return nil }
+        return versions.first(where: { v in
+            guard let ref = v.reference else { return false }
+            switch ref {
+                case .branch(let b) where b == defaultBranch:
+                    return true
+                default:
+                    return false
+            }
+        })
     }
 
     var name: String? { defaultVersion?.packageName }

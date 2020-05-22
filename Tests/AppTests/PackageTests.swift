@@ -105,6 +105,31 @@ final class PackageTests: AppTestCase {
         }
     }
 
+    func test_defaultVersion() throws {
+        // setup
+        var pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+        let versions = [
+            try Version(package: pkg, reference: .branch("branch")),
+            try Version(package: pkg, reference: .branch("default"), commitDate: daysAgo(1)),
+            try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
+            try Version(package: pkg, reference: .tag(.init(2, 1, 0)), commitDate: daysAgo(3)),
+            try Version(package: pkg, reference: .tag(.init(3, 0, 0, "beta")), commitDate: daysAgo(2)),
+        ]
+        try versions.create(on: app.db).wait()
+        pkg = try XCTUnwrap(Package.query(on: app.db)
+            .with(\.$repositories)
+            .with(\.$versions)
+            .first()
+            .wait())
+
+        // MUT
+        let version = pkg.defaultVersion
+
+        // validation
+        XCTAssertEqual(version?.reference, .branch("default"))
+    }
+
     func test_defaultVersion_eagerLoading() throws {
         // Ensure failure to eager load doesn't trigger a fatalError
         // setup
