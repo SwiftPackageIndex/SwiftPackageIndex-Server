@@ -104,4 +104,25 @@ final class PackageTests: AppTestCase {
             XCTAssertEqual(pkg.versions.count, 3)
         }
     }
+
+    func test_defaultVersion_eagerLoading() throws {
+        // Ensure failure to eager load doesn't trigger a fatalError
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        let version = try Version(package: pkg, reference: .branch("branch"))
+        try version.create(on: app.db).wait()
+
+        // MUT / validation
+
+        do {  // no eager loading
+            XCTAssertNil(pkg.$versions.value)
+            XCTAssertNil(pkg.defaultVersion)
+        }
+
+        do {  // load eagerly
+            let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$versions).first().wait())
+            XCTAssertNotNil(pkg.$versions.value)
+            XCTAssertEqual(pkg.defaultVersion, version)
+        }
+    }
 }

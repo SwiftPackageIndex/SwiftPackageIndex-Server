@@ -42,13 +42,12 @@ extension PackageShow.Model {
 }
 
 
-private extension Package {
-    // keep this private, because it requires relationships to be eagerly loaded
-    // we do this above but in order to ensure this not being called from elsewhere
-    // where this isn't guaranteed, we keep this extension off limits
+extension Package {
     var defaultVersion: Version? {
-        versions.first(where: { $0.reference?.isBranch ?? false })
+        guard let versions = $versions.value else { return nil }
+        return versions.first(where: { $0.reference?.isBranch ?? false })
     }
+}
 
     var name: String? { defaultVersion?.packageName }
 
