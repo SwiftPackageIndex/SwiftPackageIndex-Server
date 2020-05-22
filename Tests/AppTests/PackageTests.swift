@@ -134,6 +134,7 @@ final class PackageTests: AppTestCase {
         // Ensure failure to eager load doesn't trigger a fatalError
         // setup
         let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, defaultBranch: "branch").create(on: app.db).wait()
         let version = try Version(package: pkg, reference: .branch("branch"))
         try version.create(on: app.db).wait()
 
@@ -145,7 +146,10 @@ final class PackageTests: AppTestCase {
         }
 
         do {  // load eagerly
-            let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$versions).first().wait())
+            let pkg = try XCTUnwrap(Package.query(on: app.db)
+                .with(\.$repositories)
+                .with(\.$versions)
+                .first().wait())
             XCTAssertNotNil(pkg.$versions.value)
             XCTAssertEqual(pkg.defaultVersion, version)
         }
