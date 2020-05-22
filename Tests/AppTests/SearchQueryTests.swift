@@ -15,7 +15,9 @@ class SearchQueryTests: AppTestCase {
     func test_build() throws {
         XCTAssertEqual(
             API.SearchQuery.build(["foo"]),
-            API.SearchQuery.preamble + "\nand " + API.SearchQuery.regexClause("foo")
+            API.SearchQuery.preamble + "\nand "
+                + API.SearchQuery.regexClause("foo")
+                + "\nlimit 25"
         )
     }
 
@@ -37,13 +39,16 @@ class SearchQueryTests: AppTestCase {
         let res = try API.SearchQuery.run(app.db, ["bar"]).wait()
 
         // validation
-        XCTAssertEqual(res, [
-            .init(packageId: try p2.requireID(),
-                  packageName: "Bar",
-                  repositoryName: "name 2",
-                  repositoryOwner: "owner 2",
-                  summary: "bar package")
-        ])
+        XCTAssertEqual(res,
+                       .init(hasMoreResults: false,
+                             results: [
+                                .init(packageId: try p2.requireID(),
+                                      packageName: "Bar",
+                                      repositoryName: "name 2",
+                                      repositoryOwner: "owner 2",
+                                      summary: "bar package")
+                       ])
+        )
     }
 
     func test_run_multiple() throws {
@@ -68,13 +73,56 @@ class SearchQueryTests: AppTestCase {
         let res = try API.SearchQuery.run(app.db, ["owner", "bar"]).wait()
 
         // validation
-        XCTAssertEqual(res, [
-            .init(packageId: try p2.requireID(),
-                  packageName: "Bar",
-                  repositoryName: "package 2",
-                  repositoryOwner: "owner",
-                  summary: "package 2 description")
-        ])
+        XCTAssertEqual(res,
+                       .init(hasMoreResults: false,
+                             results: [
+                                .init(packageId: try p2.requireID(),
+                                      packageName: "Bar",
+                                      repositoryName: "package 2",
+                                      repositoryOwner: "owner",
+                                      summary: "package 2 description")
+                       ])
+        )
+    }
+
+
+    func test_search_limit() throws {
+        // setup
+        let packages = (0..<25).map { Package(url: "\($0)".url) }
+        try packages.save(on: app.db).wait()
+        try packages.map { try Repository(package: $0, defaultBranch: "default") }
+            .save(on: app.db)
+            .wait()
+        try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
+            .save(on: app.db)
+            .wait()
+
+        // MUT
+        let res = try API.search(database: app.db, query: "foo").wait()
+
+        // validate
+        XCTAssertTrue(res.hasMoreResults)
+        XCTAssertEqual(res.results.count, 20)
+    }
+
+    func test_search_limit_leeway() throws {
+        // Tests leeway: we only start cutting off if we have 25 or more results
+        // setup
+        let packages = (0..<21).map { Package(url: "\($0)".url) }
+        try packages.save(on: app.db).wait()
+        try packages.map { try Repository(package: $0, defaultBranch: "default") }
+            .save(on: app.db)
+            .wait()
+        try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
+            .save(on: app.db)
+            .wait()
+
+        // MUT
+        let res = try API.search(database: app.db, query: "foo").wait()
+
+        // validate
+        XCTAssertFalse(res.hasMoreResults)
+        XCTAssertEqual(res.results.count, 21)
     }
 
 }
