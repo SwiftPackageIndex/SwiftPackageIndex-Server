@@ -22,7 +22,7 @@ extension PackageShow.Model {
                                  history: nil,     // TODO: fill in
                                  activity: nil,    // TODO: fill in
                                  products: p.productCounts,
-                                 releases: .init(stable: nil, beta: nil, latest: nil),  // TODO: fill in
+                                 releases: p.releaseInfo,
                                  languagePlatforms: .init(
                                     stable: .init(
                                         link: .init(name: "stable", url: "stable"),  // TODO: fill in
@@ -70,4 +70,47 @@ extension Package {
             executables: version.products.filter(\.isExecutable).count
         )
     }
+
+    var releaseInfo: PackageShow.Model.ReleaseInfo {
+        let versions = $versions.value ?? []
+
+        let releases = versions
+            .filter { $0.reference?.semVer != nil }
+            .sorted { $0.reference!.semVer! < $1.reference!.semVer! }
+        let stable = releases.reversed().first { $0.reference?.semVer?.isStable ?? false }
+        let beta = releases.reversed().first { $0.reference?.semVer?.isPrerelease ?? false }
+        let latest = defaultVersion
+
+        return .init(stable: stable.flatMap { makeDatedLink($0, \.commitDate) },
+                     beta: beta.flatMap { makeDatedLink($0, \.commitDate) },
+                     latest: latest.flatMap { makeDatedLink($0, \.commitDate) })
+    }
+
+    func makeDatedLink(_ version: Version,
+                       _ keyPath: KeyPath<Version, Date?>) -> PackageShow.Model.DatedLink? {
+        guard
+            let date = version[keyPath: keyPath],
+            let link = makeLink(version)
+            else { return nil }
+        let formatter = RelativeDateTimeFormatter()
+        return .init(date: formatter.localizedString(for: date, relativeTo: Current.date()),
+                     link: link)
+    }
+
+    func makeLink(_ version: Version) -> PackageShow.Model.Link? {
+        guard
+            // FIXME: test eager loading resolution
+            let fault = version.$reference.value,
+            let ref = fault
+            else { return nil }
+        let linkUrl: String
+        switch ref {
+            case .branch:
+                linkUrl = url
+            case .tag(let v):
+                linkUrl = url.droppingGitExtension + "/releases/tag/\(v)"
+        }
+        return .init(name: "\(ref)", url: linkUrl)
+    }
+
 }

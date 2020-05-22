@@ -20,12 +20,12 @@ extension PackageShow {
         }
 
         struct DatedLink: Equatable {
-            let date: String   // FIXME: use RelativeDateTimeFormatter
+            let date: String
             let link: Link
         }
 
         struct History: Equatable {
-            let since: String  // FIXME: use RelativeDateTimeFormatter
+            let since: String
             let commits: Link
             let releases: Link
         }
@@ -131,7 +131,7 @@ extension PackageShow.Model {
                         .text(datedLink.link.name)
                     )
                 ),
-                ". Released \(datedLink.date) ago."  // FIXME: turn into relative date
+                ". Released \(datedLink.date)."
             ]
         } ?? []
     }
@@ -148,7 +148,7 @@ extension PackageShow.Model {
                         .text(datedLink.link.name)
                     )
                 ),
-                ". Released \(datedLink.date) ago."  // FIXME: turn into relative date
+                ". Released \(datedLink.date)."
             ]
         } ?? []
     }
@@ -165,7 +165,7 @@ extension PackageShow.Model {
                         .text(datedLink.link.name)
                     )
                 ),
-                " was \(datedLink.date) ago."  // FIXME: turn into relative date
+                " was \(datedLink.date)."
             ]
         } ?? []
     }

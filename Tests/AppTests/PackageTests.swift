@@ -154,4 +154,47 @@ final class PackageTests: AppTestCase {
             XCTAssertEqual(pkg.defaultVersion, version)
         }
     }
+
+    func test_releases() throws {
+        var pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+        let versions = [
+            try Version(package: pkg, reference: .branch("branch")),
+            try Version(package: pkg, reference: .branch("default"), commitDate: daysAgo(1)),
+            try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
+            try Version(package: pkg, reference: .tag(.init(2, 1, 0)), commitDate: daysAgo(3)),
+            try Version(package: pkg, reference: .tag(.init(3, 0, 0, "beta")), commitDate: daysAgo(2)),
+        ]
+        try versions.create(on: app.db).wait()
+        // re-load pkg with relationships
+        pkg = try XCTUnwrap(Package.query(on: app.db)
+            .with(\.$repositories)
+            .with(\.$versions)
+            .first().wait())
+
+        // MUT
+        let info = pkg.releaseInfo
+
+        // validate
+        XCTAssertEqual(info.stable?.date, "3 days ago")
+        XCTAssertEqual(info.beta?.date, "2 days ago")
+        XCTAssertEqual(info.latest?.date, "1 day ago")
+    }
+
+    func test_releases_nonEager() throws {
+        // ensure non-eager access does not fatalError
+        let pkg = try savePackage(on: app.db, "1")
+        let versions = [
+            try Version(package: pkg, reference: .branch("default")),
+        ]
+        try versions.create(on: app.db).wait()
+
+        // MUT / validate
+        XCTAssertNoThrow(pkg.releaseInfo)
+    }
+}
+
+
+func daysAgo(_ days: Int) -> Date {
+    Calendar.current.date(byAdding: .init(day: -days), to: Date())!
 }
