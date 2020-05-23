@@ -9,20 +9,19 @@ document.addEventListener('DOMContentLoaded', function(event) {
     } while (target = target.parentElement)
   })
 
-  // If there's a results element, its initial state should be hidden.
-  const resultsElement = document.getElementById('results')
-  if (resultsElement) { resultsElement.hidden = true }
+  // There are never results when the page loads, so hide the element.
+  setElementHiddenById('results', true)
 
   // If there is a search element, configure the search callbacks.
   const queryFieldElement = document.getElementById('query')
-  if (queryFieldElement) {
+  if (!!queryFieldElement) {
     document.addEventListener('input', function(event) {
       const searchQuery = queryFieldElement.value.trim()
       if (searchQuery.length > 0) {
         performSearch(searchQuery)
       } else {
-        const resultsElement = document.getElementById('results')
-        if (resultsElement) { resultsElement.hidden = true }
+        // With no query, there will be no results.
+        setElementHiddenById('results', true)
       }
     })
   }
@@ -31,16 +30,23 @@ document.addEventListener('DOMContentLoaded', function(event) {
 window.performSearch = _.debounce(function(searchQuery) {
   const searchUrl = '/api/search?query=' + searchQuery
 
+  // Clear out any existing content. Errors, the loading indicator, or previous results.
+  clearSearchResults()
+
   axios.get(searchUrl).then(function(response) {
     displaySearchResults(response.data)
   }).catch(function(error) {
-    console.error(error) // TODO: Display the error.
+    console.error(error) // At the very least, always log to the console.
+    displayErrorMessage(error)
   })
+
+  // Doesn't matter if there was an error, or valid results, always show the results area.
+  setElementHiddenById('results', false)
 }, 200)
 
 window.clearSearchResults = function() {
   const resultsElement = document.getElementById('results')
-  if (resultsElement == null) { return }
+  if (!resultsElement) { return }
 
   while (resultsElement.lastElementChild) {
     resultsElement.removeChild(resultsElement.lastElementChild)
@@ -49,10 +55,7 @@ window.clearSearchResults = function() {
 
 window.displaySearchResults = function(searchResults) {
   const resultsElement = document.getElementById('results')
-  if (resultsElement == null) { return }
-
-  // Clear out any existing content. Either the loading indicator, or previous results.
-  clearSearchResults()
+  if (!resultsElement) { return }
 
   // Are there any results?
   const numResults = searchResults.results.length
@@ -77,12 +80,51 @@ window.displaySearchResults = function(searchResults) {
       resultsElement.appendChild(moreResultsElement)
     }
   }
+}
 
-  // At the end of this process, the element should *always* be visible.
-  resultsElement.hidden = false
+window.displayErrorMessage = function(error) {
+  const resultsElement = document.getElementById('results')
+  if (!resultsElement) { return }
+
+  // Container for the error message.
+  const errorContainerElement = document.createElement('div')
+  errorContainerElement.classList.add('error')
+  resultsElement.appendChild(errorContainerElement)
+
+  // Start with an icon.
+  const errorIconElement = document.createElement('i')
+  errorIconElement.classList.add('icon')
+  errorIconElement.classList.add('warning')
+  errorContainerElement.appendChild(errorIconElement)
+
+  // Header, with a quick apology.
+  const errorHeaderElement = document.createElement('h4')
+  errorHeaderElement.textContent = 'Something went wrong. Sorry!'
+  errorContainerElement.appendChild(errorHeaderElement)
+
+  // Then, what actually happened.
+  const errorMessageElement = document.createElement('p')
+  errorContainerElement.appendChild(errorMessageElement)
+
+  // Finally, what was the error?
+  if (!!error.response) {
+    errorMessageElement.textContent = error.response.status + ' – ' + error.response.statusText
+
+    // Is there any extra information in the "reason" that might be useful?
+    if (!!error.response.data && !!error.response.data.reason && error.response.data.reason != error.response.statusText) {
+      errorMessageElement.textContent +=  ' – ' + error.response.data.reason
+    }
+  } else {
+    errorMessageElement.textContent = 'Unexpected Error.'
+  }
 }
 
 // Helpers
+
+function setElementHiddenById(id, hidden) {
+  const element = document.getElementById(id)
+  if (!!element) { element.hidden = hidden }
+}
 
 function createSearchResultListItemElement(result, containerElement) {
   const resultListItemElement = document.createElement('li')
