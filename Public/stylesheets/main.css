@@ -15,6 +15,7 @@
   --dark-grey: #3E3E3E;
   --grey: #9A9A9A;
   --light-grey: #DADADA;
+  --very-light-grey: #F1F1F1;
   --white: #FFFFFF;
 }
 
@@ -368,6 +369,14 @@ header nav ul li a:hover {
 #results .no_results {
   padding: 40px;
   text-align: center;
+  color: var(--dark-grey);
+}
+
+#results .more_results {
+  padding: 20px;
+  text-align: center;
+  font-weight: 600;
+  background-color: var(--very-light-grey);
   color: var(--dark-grey);
 }
 
