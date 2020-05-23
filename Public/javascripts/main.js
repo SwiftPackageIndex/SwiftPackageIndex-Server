@@ -11,18 +11,18 @@ document.addEventListener('DOMContentLoaded', function(event) {
 
   // If there's a results element, its initial state should be hidden.
   const resultsElement = document.getElementById('results')
-  if (resultsElement) { resultsElement.hidden = true }
+  if (!!resultsElement) { resultsElement.hidden = true }
 
   // If there is a search element, configure the search callbacks.
   const queryFieldElement = document.getElementById('query')
-  if (queryFieldElement) {
+  if (!!queryFieldElement) {
     document.addEventListener('input', function(event) {
       const searchQuery = queryFieldElement.value.trim()
       if (searchQuery.length > 0) {
         performSearch(searchQuery)
       } else {
         const resultsElement = document.getElementById('results')
-        if (resultsElement) { resultsElement.hidden = true }
+        if (!!resultsElement) { resultsElement.hidden = true }
       }
     })
   }
@@ -48,7 +48,7 @@ window.performSearch = _.debounce(function(searchQuery) {
 
 window.clearSearchResults = function() {
   const resultsElement = document.getElementById('results')
-  if (resultsElement == null) { return }
+  if (!resultsElement) { return }
 
   while (resultsElement.lastElementChild) {
     resultsElement.removeChild(resultsElement.lastElementChild)
@@ -57,7 +57,7 @@ window.clearSearchResults = function() {
 
 window.displaySearchResults = function(searchResults) {
   const resultsElement = document.getElementById('results')
-  if (resultsElement == null) { return }
+  if (!resultsElement) { return }
 
   // Are there any results?
   const numResults = searchResults.results.length
@@ -86,7 +86,7 @@ window.displaySearchResults = function(searchResults) {
 
 window.displayErrorMessage = function(error) {
   const resultsElement = document.getElementById('results')
-  if (!resultsElement == null) { return }
+  if (!resultsElement) { return }
 
   // Container for the error message.
   const errorContainerElement = document.createElement('div')
