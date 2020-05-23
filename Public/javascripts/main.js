@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
   const queryFieldElement = document.getElementById('query')
   if (!!queryFieldElement) {
     // When user input is entered into the query field, perform the search.
-    document.addEventListener('input', function(event) {
+    document.addEventListener('input', _.debounce(function(event) {
       const searchQuery = queryFieldElement.value.trim()
       if (searchQuery.length > 0) {
         performSearch(searchQuery)
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
         // With no query, there will be no results.
         setElementHiddenById('results', true)
       }
-    })
+    }), 200)
   }
 })
 
@@ -49,7 +49,7 @@ window.addEventListener('pageshow', function(event) {
   }
 })
 
-window.performSearch = _.debounce(function(searchQuery) {
+function performSearch(searchQuery) {
   const searchUrl = '/api/search?query=' + searchQuery
 
   // Clear out any existing content. Errors, the loading indicator, or previous results.
@@ -66,9 +66,9 @@ window.performSearch = _.debounce(function(searchQuery) {
 
   // Doesn't matter if there was an error, or valid results, always show the results area.
   setElementHiddenById('results', false)
-}, 200)
+}
 
-window.clearSearchResults = function() {
+ function clearSearchResults() {
   const resultsElement = document.getElementById('results')
   if (!resultsElement) { return }
 
@@ -77,7 +77,7 @@ window.clearSearchResults = function() {
   }
 }
 
-window.displaySearchResults = function(searchResults) {
+ function displaySearchResults(searchResults) {
   const resultsElement = document.getElementById('results')
   if (!resultsElement) { return }
 
@@ -106,7 +106,7 @@ window.displaySearchResults = function(searchResults) {
   }
 }
 
-window.displayErrorMessage = function(error) {
+function displayErrorMessage(error) {
   const resultsElement = document.getElementById('results')
   if (!resultsElement) { return }
 
