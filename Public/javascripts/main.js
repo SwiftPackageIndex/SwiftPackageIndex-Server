@@ -9,9 +9,8 @@ document.addEventListener('DOMContentLoaded', function(event) {
     } while (target = target.parentElement)
   })
 
-  // If there's a results element, its initial state should be hidden.
-  const resultsElement = document.getElementById('results')
-  if (!!resultsElement) { resultsElement.hidden = true }
+  // There are never results when the page loads, so hide the element.
+  setElementHiddenById('results', true)
 
   // If there is a search element, configure the search callbacks.
   const queryFieldElement = document.getElementById('query')
@@ -21,8 +20,8 @@ document.addEventListener('DOMContentLoaded', function(event) {
       if (searchQuery.length > 0) {
         performSearch(searchQuery)
       } else {
-        const resultsElement = document.getElementById('results')
-        if (!!resultsElement) { resultsElement.hidden = true }
+        // With no query, there will be no results.
+        setElementHiddenById('results', true)
       }
     })
   }
@@ -42,8 +41,7 @@ window.performSearch = _.debounce(function(searchQuery) {
   })
 
   // Doesn't matter if there was an error, or valid results, always show the results area.
-  const resultsElement = document.getElementById('results')
-  if (!!resultsElement) { resultsElement.hidden = false }
+  setElementHiddenById('results', false)
 }, 200)
 
 window.clearSearchResults = function() {
@@ -122,6 +120,11 @@ window.displayErrorMessage = function(error) {
 }
 
 // Helpers
+
+function setElementHiddenById(id, hidden) {
+  const element = document.getElementById(id)
+  if (!!element) { element.hidden = hidden }
+}
 
 function createSearchResultListItemElement(result, containerElement) {
   const resultListItemElement = document.createElement('li')
