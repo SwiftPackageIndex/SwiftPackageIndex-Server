@@ -1,6 +1,6 @@
 // Constants for session key storage.
 const SessionKey = {
-  searchResults: 'searchResults'
+  searchResults: 'com.swiftpackageindex.searchResults',
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
