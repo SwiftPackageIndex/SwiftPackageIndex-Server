@@ -27,7 +27,9 @@ class AnalyzerTests: AppTestCase {
         var commands = [Command]()
         Current.shell.run = { cmd, path in
             queue.async {
-                commands.append(.init(command: cmd.string, path: path.url.pathComponents.last!))
+                let c = cmd.string.replacingOccurrences(of: checkoutDir!, with: "...")
+                let p = path.replacingOccurrences(of: checkoutDir!, with: "...")
+                commands.append(.init(command: c, path: p))
             }
             if cmd.string == "git tag" && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
