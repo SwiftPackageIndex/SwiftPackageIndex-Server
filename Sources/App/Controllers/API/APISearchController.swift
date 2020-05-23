@@ -5,7 +5,7 @@ import Vapor
 
 extension API {
     struct SearchController {
-        static func get(req: Request) throws -> EventLoopFuture<[SearchQuery.Record]> {
+        static func get(req: Request) throws -> EventLoopFuture<SearchResult> {
             let query = req.query[String.self, at: "query"] ?? ""
             return search(database: req.db, query: query)
         }
@@ -14,11 +14,21 @@ extension API {
 
 
 extension API {
+    static let searchLimit = 20
+    static let searchLimitLeeway = 5
+
     static func search(database: Database,
-                       query: String) -> EventLoopFuture<[SearchQuery.Record]> {
+                       query: String) -> EventLoopFuture<SearchResult> {
         let terms = query.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
-        guard !terms.isEmpty else { return database.eventLoop.future([]) }
+        guard !terms.isEmpty else {
+            return database.eventLoop.future(.init(hasMoreResults: false, results: []))
+        }
         return SearchQuery.run(database, terms)
+    }
+
+    struct SearchResult: Content, Equatable {
+        let hasMoreResults: Bool
+        let results: [SearchQuery.Record]
     }
 
     enum SearchQuery {
@@ -58,14 +68,25 @@ extension API {
         }
 
         static func build(_ terms: [String]) -> String {
-            ([preamble] + terms.map(regexClause)).joined(separator: "\nand ")
+            ([preamble]
+                + terms.map(regexClause)
+                ).joined(separator: "\nand ")
+                + "\nlimit \(API.searchLimit + API.searchLimitLeeway)"
         }
 
-        static func run(_ database: Database, _ terms: [String]) -> EventLoopFuture<[API.SearchQuery.Record]> {
+        static func run(_ database: Database, _ terms: [String]) -> EventLoopFuture<SearchResult> {
             guard let db = database as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
             return db.raw(.init(build(terms))).all(decoding: Record.self)
+                .map { results in
+                    // allow for a little leeway so we don't cut off with just a few more records
+                    // available
+                    let hasMoreResults = results.count >= API.searchLimit + API.searchLimitLeeway
+                    let cutOff = hasMoreResults ? API.searchLimit : results.count
+                    return SearchResult(hasMoreResults: hasMoreResults,
+                                        results: Array(results[..<cutOff]))
+            }
         }
     }
 }
