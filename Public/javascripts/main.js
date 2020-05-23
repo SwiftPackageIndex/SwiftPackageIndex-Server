@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
   const queryFieldElement = document.getElementById('query')
   if (!!queryFieldElement) {
     // When user input is entered into the query field, perform the search.
-    document.addEventListener('input', function(event) {
+    document.addEventListener('input', _.debounce(function(event) {
       const searchQuery = queryFieldElement.value.trim()
       if (searchQuery.length > 0) {
         performSearch(searchQuery)
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
         // With no query, there will be no results.
         setElementHiddenById('results', true)
       }
-    })
+    }), 200)
   }
 })
 
@@ -49,7 +49,7 @@ window.addEventListener('pageshow', function(event) {
   }
 })
 
-window.performSearch = _.debounce(function(searchQuery) {
+function performSearch(searchQuery) {
   const searchUrl = '/api/search?query=' + searchQuery
 
   // Clear out any existing content. Errors, the loading indicator, or previous results.
@@ -66,7 +66,7 @@ window.performSearch = _.debounce(function(searchQuery) {
 
   // Doesn't matter if there was an error, or valid results, always show the results area.
   setElementHiddenById('results', false)
-}, 200)
+}
 
 window.clearSearchResults = function() {
   const resultsElement = document.getElementById('results')
