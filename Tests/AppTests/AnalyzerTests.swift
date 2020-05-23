@@ -182,6 +182,29 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
     }
 
+    func test_updateRepository() throws {
+        // setup
+        Current.shell.run = { cmd, _ in
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+            throw TestError.unknownCommand
+        }
+        let pkg = Package(id: UUID(), url: "1".gh.url)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
+        _ = try pkg.$repositories.get(on: app.db).wait()
+
+        // MUT
+        _ = try updateRepository(application: app, package: pkg).wait()
+
+        // validate
+        let repo = try XCTUnwrap(Repository.query(on: app.db).first().wait())
+        XCTAssertEqual(repo.commitCount, 12)
+        XCTAssertEqual(repo.firstCommitDate, Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(repo.lastCommitDate, Date(timeIntervalSince1970: 1))
+    }
+
     func test_reconcileVersions_package() throws {
         //setup
         Current.shell.run = { cmd, _ in

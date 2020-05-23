@@ -68,8 +68,8 @@ final class Package: Model, Content {
 
 extension Package {
     var repository: Repository? {
-        // FIXME: add guard to avoid eager loading fatalError
-        repositories.first
+        guard let repositories = $repositories.value else { return nil }
+        return repositories.first
     }
 }
 
