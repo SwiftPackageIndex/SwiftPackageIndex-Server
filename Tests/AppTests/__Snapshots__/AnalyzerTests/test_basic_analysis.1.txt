@@ -1,0 +1,76 @@
+▿ 25 members
+  ▿ 'git checkout "1.0.0" --quiet' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1'
+    - command: "git checkout \"1.0.0\" --quiet"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1"
+  ▿ 'git checkout "1.1.1" --quiet' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1'
+    - command: "git checkout \"1.1.1\" --quiet"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1"
+  ▿ 'git checkout "2.0.0" --quiet' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git checkout \"2.0.0\" --quiet"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'git checkout "2.1.0" --quiet' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git checkout \"2.1.0\" --quiet"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'git checkout "master" --quiet' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1'
+    - command: "git checkout \"master\" --quiet"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1"
+  ▿ 'git checkout "master" --quiet' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git checkout \"master\" --quiet"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'git clone https://github.com/foo/1 "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1" --quiet' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts'
+    - command: "git clone https://github.com/foo/1 \"/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1\" --quiet"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts"
+  ▿ 'git log --max-parents=0 -n1 --format=format:"%ct"' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1'
+    - command: "git log --max-parents=0 -n1 --format=format:\"%ct\""
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1"
+  ▿ 'git log --max-parents=0 -n1 --format=format:"%ct"' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git log --max-parents=0 -n1 --format=format:\"%ct\""
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'git log -n1 --format=format:"%H-%ct" 1.0.0' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1'
+    - command: "git log -n1 --format=format:\"%H-%ct\" 1.0.0"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1"
+  ▿ 'git log -n1 --format=format:"%H-%ct" 1.1.1' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1'
+    - command: "git log -n1 --format=format:\"%H-%ct\" 1.1.1"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1"
+  ▿ 'git log -n1 --format=format:"%H-%ct" 2.0.0' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git log -n1 --format=format:\"%H-%ct\" 2.0.0"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'git log -n1 --format=format:"%H-%ct" 2.1.0' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git log -n1 --format=format:\"%H-%ct\" 2.1.0"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'git log -n1 --format=format:"%H-%ct" master' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1'
+    - command: "git log -n1 --format=format:\"%H-%ct\" master"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1"
+  ▿ 'git log -n1 --format=format:"%H-%ct" master' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git log -n1 --format=format:\"%H-%ct\" master"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'git log -n1 --format=format:"%ct"' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1'
+    - command: "git log -n1 --format=format:\"%ct\""
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1"
+  ▿ 'git log -n1 --format=format:"%ct"' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git log -n1 --format=format:\"%ct\""
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'git pull --quiet' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git pull --quiet"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'git reset --hard' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git reset --hard"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'git rev-list --count HEAD' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1'
+    - command: "git rev-list --count HEAD"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1"
+  ▿ 'git rev-list --count HEAD' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git rev-list --count HEAD"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'git tag' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1'
+    - command: "git tag"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1"
+  ▿ 'git tag' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "git tag"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"
+  ▿ 'swift package dump-package' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1'
+    - command: "swift package dump-package"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-1"
+  ▿ 'swift package dump-package' at path: '/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2'
+    - command: "swift package dump-package"
+    - path: "/Users/sas/Projects/SPI-Server/SPI-checkouts/github.com-foo-2"

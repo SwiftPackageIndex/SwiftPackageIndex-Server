@@ -64,7 +64,9 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
         }
     }
 
-    let checkouts = packages.flatMap { pullOrClone(application: application, packages: $0) }
+    let checkouts = packages
+        .flatMap { pullOrClone(application: application, packages: $0) }
+        .flatMap { updateRepositories(application: application, checkouts: $0) }
 
     let versions = checkouts.flatMap { reconcileVersions(application: application, checkouts: $0) }
 
