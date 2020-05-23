@@ -111,30 +111,37 @@ func pullOrClone(application: Application, package: Package) -> EventLoopFuture<
 }
 
 
-func updateRepository(application: Application, package: Package) -> EventLoopFuture<Package> {
+func updateRepositories(application: Application,
+                        checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = checkouts.map { checkout -> EventLoopFuture<Package> in
+        let updatedPackage = checkout.flatMap(updateRepository(package:))
+        switch updatedPackage {
+            case .success(let pkg):
+                return pkg.repositories.update(on: application.db).transform(to: pkg)
+            case .failure(let error):
+                return application.eventLoopGroup.future(error: error)
+        }
+    }
+    return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
+}
+
+
+func updateRepository(package: Package) -> Result<Package, Error> {
     guard let repo = package.repository else {
-        return application.eventLoopGroup.next().future(error:
-            AppError.genericError(package.id, "updateRepository: no repository")
-        )
+        return .failure(AppError.genericError(package.id, "updateRepository: no repository"))
     }
     guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return application.eventLoopGroup.next().future(error:
-            AppError.invalidPackageCachePath(package.id, package.url)
-        )
+        return .failure(AppError.invalidPackageCachePath(package.id, package.url))
     }
 
-    do {
+    return Result {
         repo.commitCount = try Git.commitCount(at: gitDirectory)
         repo.firstCommitDate = try Git.firstCommitDate(at: gitDirectory)
         repo.lastCommitDate = try Git.lastCommitDate(at: gitDirectory)
-        return repo.save(on: application.db)
-            .transform(to: package)
-    } catch {
-        return Current.reportError(application.client, .error,
-                                   AppError.genericError(package.id, "updateRepository failed: \(error.localizedDescription)"))
-            .transform(to: package)
+        return package
     }
 }
+
 
 func reconcileVersions(application: Application, checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
     let ops = checkouts.map { checkout -> EventLoopFuture<(Package, [Version])> in

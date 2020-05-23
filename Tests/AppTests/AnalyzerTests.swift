@@ -1,5 +1,6 @@
 @testable import App
 
+import Fluent
 import Vapor
 import XCTest
 
@@ -196,10 +197,45 @@ class AnalyzerTests: AppTestCase {
         _ = try pkg.$repositories.get(on: app.db).wait()
 
         // MUT
-        _ = try updateRepository(application: app, package: pkg).wait()
+        let res = updateRepository(package: pkg)
 
         // validate
-        let repo = try XCTUnwrap(Repository.query(on: app.db).first().wait())
+        let repo = try XCTUnwrap(try res.get().repository)
+        XCTAssertEqual(repo.commitCount, 12)
+        XCTAssertEqual(repo.firstCommitDate, Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(repo.lastCommitDate, Date(timeIntervalSince1970: 1))
+    }
+
+    func test_updateRepositories() throws {
+        // setup
+        Current.shell.run = { cmd, _ in
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+            throw TestError.unknownCommand
+        }
+        let pkg = Package(id: UUID(), url: "1".gh.url)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
+        _ = try pkg.$repositories.get(on: app.db).wait()
+        let checkouts: [Result<Package, Error>] = [
+            // feed in one error to see it passed through
+            .failure(AppError.invalidPackageUrl(nil, "some reason")),
+            .success(pkg)
+        ]
+
+        // MUT
+        let results: [Result<Package, Error>] =
+            try updateRepositories(application: app, checkouts: checkouts).wait()
+
+        // validate
+        XCTAssertEqual(results.count, 2)
+        XCTAssertEqual(results.map(\.isSuccess), [false, true])
+        // ensure results are persisted
+        let repo = try XCTUnwrap(Repository.query(on: app.db)
+            .filter(\.$package.$id == pkg.id!)
+            .first()
+            .wait())
         XCTAssertEqual(repo.commitCount, 12)
         XCTAssertEqual(repo.firstCommitDate, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(repo.lastCommitDate, Date(timeIntervalSince1970: 1))
