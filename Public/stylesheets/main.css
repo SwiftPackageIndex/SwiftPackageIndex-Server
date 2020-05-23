@@ -11,6 +11,10 @@
 
   --yellow: #F2B94F;
 
+  --dark-red: #BB0000;
+  --mid-red: #CC4444;
+  --light-red: #FFEEEE;
+
   --black: #2D2D2D;
   --dark-grey: #3E3E3E;
   --grey: #9A9A9A;
@@ -141,6 +145,8 @@ i.osi:before { content: "\e900"; }
 i.stable:before { content: "\e905"; }
 i.beta:before { content: "\e906"; }
 i.branch:before { content: "\e907"; }
+i.question:before { content: "\e908"; }
+i.warning:before { content: "\e909"; }
 
 li.author:before { content: "\e901"; }
 li.history:before { content: "\e902" }
@@ -378,6 +384,30 @@ header nav ul li a:hover {
   font-weight: 600;
   background-color: var(--very-light-grey);
   color: var(--dark-grey);
+}
+
+#results .error {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--light-red);
+}
+
+#results .error .icon {
+  margin: 20px;
+  font-size: 40px;
+  color: var(--mid-red);
+}
+
+#results .error h4 {
+  margin-bottom: 10px;
+  color: var(--dark-red);
+}
+
+#results .error p {
+  margin: 0 20px;
+  color: var(--dark-red);
 }
 
 /* Package page ------------------------------------------------------------ */
