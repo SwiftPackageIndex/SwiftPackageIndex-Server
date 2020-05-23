@@ -80,6 +80,12 @@ class GitTests: AppTestCase {
                        Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
     }
 
+    func test_lastCommitDate() throws {
+        Current.shell = .live
+        XCTAssertEqual(try Git.lastCommitDate(at: "\(Self.tempDir)/ErrNo"),
+                       Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
+    }
+
 }
 
 

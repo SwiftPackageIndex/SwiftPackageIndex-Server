@@ -20,6 +20,16 @@ enum Git {
         return Date(timeIntervalSince1970: timestamp)
     }
 
+    static func lastCommitDate(at path: String) throws -> Date {
+        let res = try Current.shell.run(
+            command: .init(string: #"git log -n1 --format=format:"%ct""#),
+            at: path)
+        guard let timestamp = TimeInterval(res) else {
+            throw GitError.invalidTimestamp
+        }
+        return Date(timeIntervalSince1970: timestamp)
+    }
+
     static func tag(at path: String) throws -> [Reference] {
         let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
         return tags.split(separator: "\n")
