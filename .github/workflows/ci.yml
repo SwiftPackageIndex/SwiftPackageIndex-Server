@@ -7,7 +7,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: vapor/swift:5.2-bionic
+      image: swift:5.2.3-bionic
     services:
       postgres:
         image: postgres:12
@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Install unzip
+        run: apt-get install unzip
       - name: Run tests
         run: make test
         env:
