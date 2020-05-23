@@ -6,7 +6,7 @@ import XCTVapor
 
 class GitTests: AppTestCase {
 
-    static let tempDir = NSTemporaryDirectory().appending("/spi-test-\(UUID())")
+    static let tempDir = NSTemporaryDirectory().appending("spi-test-\(UUID())")
     static let errNoZip = fixturesDirectory().appendingPathComponent("ErrNo.zip").path
 
 
@@ -74,10 +74,10 @@ class GitTests: AppTestCase {
                              date: Date(timeIntervalSince1970: 1536799579)))
     }
 
-    func test_fixture() throws {
-        let res = try ShellOut.shellOut(to: .init(#"git log --max-parents=0 -n1 --format=format:"%ct""#),
-                                        at: "\(Self.tempDir)/ErrNo")
-        XCTAssertEqual(res, "1426918070")  // Sat, 21 March 2015
+    func test_firstCommitDate() throws {
+        Current.shell = .live
+        XCTAssertEqual(try Git.firstCommitDate(at: "\(Self.tempDir)/ErrNo"),
+                       Date(timeIntervalSince1970: 1426918070))  // Sat, 21 March 2015
     }
 
 }
