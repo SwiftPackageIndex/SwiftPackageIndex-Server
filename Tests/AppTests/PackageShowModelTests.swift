@@ -3,7 +3,7 @@
 import XCTVapor
 
 
-class PackageShowViewModelTests: AppTestCase {
+class PackageShowModelTests: AppTestCase {
 
     func test_query_basic() throws {
         // setup

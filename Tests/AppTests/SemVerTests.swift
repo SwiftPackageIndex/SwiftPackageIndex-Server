@@ -103,4 +103,20 @@ class SemVerTests: XCTestCase {
         XCTAssertEqual(SemVer("1.2.3-beta1")?.description, "1.2.3-beta1")
         XCTAssertEqual(SemVer("1.2.3-beta1+build")?.description, "1.2.3-beta1+build")
     }
+
+    func test_Comparable() throws {
+        XCTAssert(SemVer(1, 0, 0) < SemVer(2, 0, 0))
+        XCTAssert(SemVer(1, 0, 0) < SemVer(1, 1, 0))
+        XCTAssert(SemVer(1, 0, 0) < SemVer(1, 0, 1))
+        XCTAssert(SemVer(1, 0, 0, "a") < SemVer(1, 0, 0, "b"))
+        XCTAssert(SemVer(1, 0, 0, "a", "a") < SemVer(1, 0, 0, "a", "b"))
+    }
+
+    func test_isStable() throws {
+        XCTAssert(SemVer(1, 0, 0).isStable)
+        XCTAssert(SemVer(1, 0, 0, "").isStable)
+        XCTAssert(SemVer(1, 0, 0, "", "").isStable)
+        XCTAssertFalse(SemVer(1, 0, 0, "a").isStable)
+        XCTAssertFalse(SemVer(1, 0, 0, "", "a").isStable)
+    }
 }
