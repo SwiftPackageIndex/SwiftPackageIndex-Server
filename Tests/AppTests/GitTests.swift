@@ -86,6 +86,11 @@ class GitTests: AppTestCase {
                        Date(timeIntervalSince1970: 1554248253))  // Sat, 21 March 2015
     }
 
+    func test_commitCount() throws {
+        Current.shell = .live
+        XCTAssertEqual(try Git.commitCount(at: "\(Self.tempDir)/ErrNo"), 57)
+    }
+
 }
 
 
