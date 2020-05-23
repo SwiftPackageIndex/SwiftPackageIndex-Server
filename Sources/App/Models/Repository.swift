@@ -20,6 +20,15 @@ final class Repository: Model, Content {
 
     // data fields
 
+    @Field(key: "commit_count")
+    var commitCount: Int?
+
+    @Field(key: "first_commit_date")
+    var firstCommitDate: Date?
+
+    @Field(key: "last_commit_date")
+    var lastCommitDate: Date?
+
     @Field(key: "default_branch")
     var defaultBranch: String?
 
@@ -56,6 +65,9 @@ final class Repository: Model, Content {
     init(id: Id? = nil,
          package: Package,
          summary: String? = nil,
+         commitCount: Int? = nil,
+         firstCommitDate: Date? = nil,
+         lastCommitDate: Date? = nil,
          defaultBranch: String? = nil,
          license: License = .none,
          name: String? = nil,
@@ -66,6 +78,9 @@ final class Repository: Model, Content {
         self.id = id
         self.$package.id = try package.requireID()
         self.summary = summary
+        self.commitCount = commitCount
+        self.firstCommitDate = firstCommitDate
+        self.lastCommitDate = lastCommitDate
         self.defaultBranch = defaultBranch
         self.license = license
         self.name = name

@@ -8,7 +8,17 @@ final class RepositoryTests: AppTestCase {
     func test_save() throws {
         let pkg = Package(id: UUID(), url: "1", status: .none)
         try pkg.save(on: app.db).wait()
-        let repo = try Repository(id: UUID(), package: pkg, summary: "desc", defaultBranch: "branch", license: .mit, stars: 42, forks: 17, forkedFrom: nil)
+        let repo = try Repository(id: UUID(),
+                                  package: pkg,
+                                  summary: "desc",
+                                  commitCount: 123,
+                                  firstCommitDate: Date(timeIntervalSince1970: 0),
+                                  lastCommitDate: Date(timeIntervalSince1970: 1),
+                                  defaultBranch: "branch",
+                                  license: .mit,
+                                  stars: 42,
+                                  forks: 17,
+                                  forkedFrom: nil)
 
         try repo.save(on: app.db).wait()
 
@@ -16,6 +26,9 @@ final class RepositoryTests: AppTestCase {
             let r = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
             XCTAssertEqual(r.$package.id, pkg.id)
             XCTAssertEqual(r.summary, "desc")
+            XCTAssertEqual(r.commitCount, 123)
+            XCTAssertEqual(r.firstCommitDate, Date(timeIntervalSince1970: 0))
+            XCTAssertEqual(r.lastCommitDate, Date(timeIntervalSince1970: 1))
             XCTAssertEqual(r.defaultBranch, "branch")
             XCTAssertEqual(r.license, .mit)
             XCTAssertEqual(r.stars, 42)
