@@ -124,7 +124,7 @@ final class PackageTests: AppTestCase {
             .wait())
 
         // MUT
-        let version = pkg.defaultVersion
+        let version = pkg.defaultVersion()
 
         // validation
         XCTAssertEqual(version?.reference, .branch("default"))
@@ -142,7 +142,7 @@ final class PackageTests: AppTestCase {
 
         do {  // no eager loading
             XCTAssertNil(pkg.$versions.value)
-            XCTAssertNil(pkg.defaultVersion)
+            XCTAssertNil(pkg.defaultVersion())
         }
 
         do {  // load eagerly
@@ -151,11 +151,12 @@ final class PackageTests: AppTestCase {
                 .with(\.$versions)
                 .first().wait())
             XCTAssertNotNil(pkg.$versions.value)
-            XCTAssertEqual(pkg.defaultVersion, version)
+            XCTAssertEqual(pkg.defaultVersion(), version)
         }
     }
 
     func test_releaseInfo() throws {
+        // setup
         var pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
         let versions = [
@@ -173,7 +174,7 @@ final class PackageTests: AppTestCase {
             .first().wait())
 
         // MUT
-        let info = pkg.releaseInfo
+        let info = pkg.releaseInfo()
 
         // validate
         XCTAssertEqual(info.stable?.date, "3 days ago")
@@ -191,6 +192,52 @@ final class PackageTests: AppTestCase {
 
         // MUT / validate
         XCTAssertNoThrow(pkg.releaseInfo)
+    }
+
+    func test_languagePlatformInfo() throws {
+        // setup
+        var pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+        let versions = [
+            try Version(package: pkg, reference: .branch("branch")),
+            try Version(package: pkg, reference: .branch("default"),
+                        commitDate: daysAgo(1),
+                        supportedPlatforms: [.macos("10.15"), .ios("13")],
+                        swiftVersions: ["5.2", "5.3"]),
+            try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
+            try Version(package: pkg, reference: .tag(.init(2, 1, 0)),
+                        commitDate: daysAgo(3),
+                        supportedPlatforms: [.macos("10.13"), .ios("10")],
+                        swiftVersions: ["4", "5"]),
+            try Version(package: pkg, reference: .tag(.init(3, 0, 0, "beta")),
+                        commitDate: daysAgo(2),
+                        supportedPlatforms: [.macos("10.14"), .ios("13")],
+                        swiftVersions: ["5", "5.2"]),
+        ]
+        try versions.create(on: app.db).wait()
+        // re-load pkg with relationships
+        pkg = try XCTUnwrap(Package.query(on: app.db)
+            .with(\.$repositories)
+            .with(\.$versions)
+            .first().wait())
+
+        // MUT
+        let lpInfo = pkg.languagePlatformInfo()
+
+        // validate
+        XCTAssertEqual(lpInfo.stable?.link, .init(name: "2.1.0",
+                                                  url: "1/releases/tag/2.1.0"))
+        XCTAssertEqual(lpInfo.stable?.swiftVersions, ["4", "5"])
+        XCTAssertEqual(lpInfo.stable?.platforms, [.macos("10.13"), .ios("10")])
+
+        XCTAssertEqual(lpInfo.beta?.link, .init(name: "3.0.0-beta",
+                                                url: "1/releases/tag/3.0.0-beta"))
+        XCTAssertEqual(lpInfo.beta?.swiftVersions, ["5", "5.2"])
+        XCTAssertEqual(lpInfo.beta?.platforms, [.macos("10.14"), .ios("13")])
+
+        XCTAssertEqual(lpInfo.latest?.link, .init(name: "default", url: "1"))
+        XCTAssertEqual(lpInfo.latest?.swiftVersions, ["5.2", "5.3"])
+        XCTAssertEqual(lpInfo.latest?.platforms, [.macos("10.15"), .ios("13")])
     }
 }
 

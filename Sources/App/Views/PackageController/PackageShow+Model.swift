@@ -54,9 +54,9 @@ extension PackageShow {
         }
 
         struct LanguagePlatformInfo: Equatable {
-            let stable: Version
-            let beta: Version
-            let latest: Version
+            let stable: Version?
+            let beta: Version?
+            let latest: Version?
         }
     }
 }
@@ -177,16 +177,16 @@ extension PackageShow.Model {
         }
     }
 
-    typealias LanguagePlatformKeyPath = KeyPath<LanguagePlatformInfo, Version>
+    typealias LanguagePlatformKeyPath = KeyPath<LanguagePlatformInfo, Version?>
 
     static func lpInfoGroups(_ lpInfo: LanguagePlatformInfo) -> [[LanguagePlatformKeyPath]] {
         let allKeyPaths: [LanguagePlatformKeyPath] = [\.stable, \.beta, \.latest]
         var availableKeyPaths = allKeyPaths
         let groups = allKeyPaths.map { kp -> [LanguagePlatformKeyPath] in
-            let v = lpInfo[keyPath: kp]
+            guard let v = lpInfo[keyPath: kp] else { return [] }
             let group = availableKeyPaths.filter {
-                lpInfo[keyPath: $0].platforms == v.platforms
-                    && lpInfo[keyPath: $0].swiftVersions == v.swiftVersions }
+                lpInfo[keyPath: $0]?.platforms == v.platforms
+                    && lpInfo[keyPath: $0]?.swiftVersions == v.swiftVersions }
             availableKeyPaths.removeAll(where: { group.contains($0) })
             return group
         }
@@ -199,8 +199,8 @@ extension PackageShow.Model {
         let cssClasses: [LanguagePlatformKeyPath: String] = [\.stable: "stable",
                                                              \.beta: "beta",
                                                              \.latest: "branch"]
-        let nodes = keypaths.map { kp -> Node<HTML.BodyContext> in
-            let info = languagePlatforms[keyPath: kp]
+        let nodes = keypaths.compactMap { kp -> Node<HTML.BodyContext>? in
+            guard let info = languagePlatforms[keyPath: kp] else { return nil }
             let cssClass = cssClasses[kp]!
             return .a(
                 .href(info.link.url),
@@ -214,7 +214,7 @@ extension PackageShow.Model {
 
         // swift versions and platforms are the same all versions because we grouped them,
         // so we use the leading keypath to obtain it
-        let versionInfo = languagePlatforms[keyPath: leadingKeyPath]
+        guard let versionInfo = languagePlatforms[keyPath: leadingKeyPath] else { return [] }
 
         return [
             .p(
