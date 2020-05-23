@@ -68,7 +68,7 @@ function performSearch(searchQuery) {
   setElementHiddenById('results', false)
 }
 
-window.clearSearchResults = function() {
+ function clearSearchResults() {
   const resultsElement = document.getElementById('results')
   if (!resultsElement) { return }
 
@@ -77,7 +77,7 @@ window.clearSearchResults = function() {
   }
 }
 
-window.displaySearchResults = function(searchResults) {
+ function displaySearchResults(searchResults) {
   const resultsElement = document.getElementById('results')
   if (!resultsElement) { return }
 
@@ -106,7 +106,7 @@ window.displaySearchResults = function(searchResults) {
   }
 }
 
-window.displayErrorMessage = function(error) {
+function displayErrorMessage(error) {
   const resultsElement = document.getElementById('results')
   if (!resultsElement) { return }
 
