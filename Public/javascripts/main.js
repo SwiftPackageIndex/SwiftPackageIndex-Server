@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', function(event) {
   const queryFieldElement = document.getElementById('query')
   if (!!queryFieldElement) {
     // When user input is entered into the query field, perform the search.
-    document.addEventListener('input', _.debounce(function(event) {
-      const searchQuery = queryFieldElement.value.trim()
+    queryFieldElement.addEventListener('input', _.debounce(function(event) {
+      const searchQuery = event.target.value.trim()
       if (searchQuery.length > 0) {
         performSearch(searchQuery)
       } else {
