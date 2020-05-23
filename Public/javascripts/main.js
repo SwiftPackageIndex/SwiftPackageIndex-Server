@@ -1,3 +1,8 @@
+// Constants for session key storage.
+const SessionKey = {
+  searchResults: 'searchResults'
+}
+
 document.addEventListener('DOMContentLoaded', function(event) {
   // Force external links to open with a _blank target.
   document.addEventListener('click', function(event) {
@@ -9,12 +14,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
     } while (target = target.parentElement)
   })
 
-  // There are never results when the page loads, so hide the element.
-  setElementHiddenById('results', true)
-
   // If there is a search element, configure the search callbacks.
   const queryFieldElement = document.getElementById('query')
   if (!!queryFieldElement) {
+    // When user input is entered into the query field, perform the search.
     document.addEventListener('input', function(event) {
       const searchQuery = queryFieldElement.value.trim()
       if (searchQuery.length > 0) {
@@ -27,6 +30,25 @@ document.addEventListener('DOMContentLoaded', function(event) {
   }
 })
 
+window.addEventListener('pageshow', function(event) {
+  // If there is a search element, configure the search callbacks.
+  const queryFieldElement = document.getElementById('query')
+  if (!!queryFieldElement) {
+    // If there's already a query in the input field, display results from session storage.
+    const searchQuery = queryFieldElement.value.trim()
+    if (searchQuery.length > 0) {
+      const searchResultsJSON = sessionStorage.getItem(SessionKey.searchResults)
+      if (!!searchResultsJSON) {
+        clearSearchResults()
+        displaySearchResults(JSON.parse(searchResultsJSON))
+      }
+    } else {
+      // Otherwise, just force the results element to be hidden.
+      setElementHiddenById('results', true)
+    }
+  }
+})
+
 window.performSearch = _.debounce(function(searchQuery) {
   const searchUrl = '/api/search?query=' + searchQuery
 
@@ -34,6 +56,8 @@ window.performSearch = _.debounce(function(searchQuery) {
   clearSearchResults()
 
   axios.get(searchUrl).then(function(response) {
+    // Cache the search results into session storage, then show them.
+    sessionStorage.setItem(SessionKey.searchResults, JSON.stringify(response.data))
     displaySearchResults(response.data)
   }).catch(function(error) {
     console.error(error) // At the very least, always log to the console.
