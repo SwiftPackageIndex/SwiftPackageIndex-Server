@@ -101,7 +101,7 @@ extension Package {
             case .tag(let v):
                 linkUrl = url.droppingGitExtension + "/releases/tag/\(v)"
         }
-        return .init(name: "\(ref)", url: linkUrl)
+        return .init(label: "\(ref)", url: linkUrl)
     }
 
     func makeModelVersion(_ version: Version) -> PackageShow.Model.Version? {

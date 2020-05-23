@@ -225,17 +225,17 @@ final class PackageTests: AppTestCase {
         let lpInfo = pkg.languagePlatformInfo()
 
         // validate
-        XCTAssertEqual(lpInfo.stable?.link, .init(name: "2.1.0",
+        XCTAssertEqual(lpInfo.stable?.link, .init(label: "2.1.0",
                                                   url: "1/releases/tag/2.1.0"))
         XCTAssertEqual(lpInfo.stable?.swiftVersions, ["4", "5"])
         XCTAssertEqual(lpInfo.stable?.platforms, [.macos("10.13"), .ios("10")])
 
-        XCTAssertEqual(lpInfo.beta?.link, .init(name: "3.0.0-beta",
+        XCTAssertEqual(lpInfo.beta?.link, .init(label: "3.0.0-beta",
                                                 url: "1/releases/tag/3.0.0-beta"))
         XCTAssertEqual(lpInfo.beta?.swiftVersions, ["5", "5.2"])
         XCTAssertEqual(lpInfo.beta?.platforms, [.macos("10.14"), .ios("13")])
 
-        XCTAssertEqual(lpInfo.latest?.link, .init(name: "default", url: "1"))
+        XCTAssertEqual(lpInfo.latest?.link, .init(label: "default", url: "1"))
         XCTAssertEqual(lpInfo.latest?.swiftVersions, ["5.2", "5.3"])
         XCTAssertEqual(lpInfo.latest?.platforms, [.macos("10.15"), .ios("13")])
     }
