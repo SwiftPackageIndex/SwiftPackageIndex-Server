@@ -6,6 +6,19 @@ import XCTVapor
 
 class GitTests: AppTestCase {
 
+    static let tempDir = NSTemporaryDirectory().appending("/spi-test-\(UUID())")
+    static let errNoZip = fixturesDirectory().appendingPathComponent("ErrNo.zip").path
+
+
+    override class func setUp() {
+        try! Foundation.FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: false, attributes: nil)
+        try! ShellOut.shellOut(to: .init("unzip \(errNoZip)"), at: tempDir)
+    }
+
+    override class func tearDown() {
+        try? Foundation.FileManager.default.removeItem(atPath: tempDir)
+    }
+
     func test_tag() throws {
         Current.shell.run = mock(for: "git tag",
              """
@@ -60,6 +73,13 @@ class GitTests: AppTestCase {
                        .init(commit: "63c973f3c2e632a340936c285e94d59f9ffb01d5",
                              date: Date(timeIntervalSince1970: 1536799579)))
     }
+
+    func test_fixture() throws {
+        let res = try ShellOut.shellOut(to: .init(#"git log --max-parents=0 -n1 --format=format:"%ct""#),
+                                        at: "\(Self.tempDir)/ErrNo")
+        XCTAssertEqual(res, "1426918070")  // Sat, 21 March 2015
+    }
+
 }
 
 
