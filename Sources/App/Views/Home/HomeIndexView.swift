@@ -14,6 +14,7 @@ class HomeIndexView: PublicPage {
                         .id("query"),
                         .placeholder("Search"),
                         .attribute(named: "spellcheck", value: "false"), // TODO: Fix after Plot update
+                        .autocomplete(false),
                         .autofocus(true)
                     ),
                     .div(
