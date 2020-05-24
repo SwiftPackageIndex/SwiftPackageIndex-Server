@@ -1,6 +1,5 @@
 // Constants for session key storage.
 const SessionKey = {
-  searchQuery: 'com.swiftpackageindex.searchQuery',
   searchResults: 'com.swiftpackageindex.searchResults',
 }
 
@@ -22,8 +21,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
     queryFieldElement.addEventListener('input', _.debounce(function(event) {
       const queryFieldElement = event.target
       const searchQuery = queryFieldElement.value.trim()
-      sessionStorage.setItem(SessionKey.searchQuery, searchQuery)
-
       if (searchQuery.length > 0) {
         performSearch(searchQuery)
       } else {
@@ -39,10 +36,8 @@ window.addEventListener('pageshow', function(event) {
   const queryFieldElement = document.getElementById('query')
   if (!!queryFieldElement) {
     // If there's already a query in the input field, display results from session storage.
-    const searchQuery = sessionStorage.getItem(SessionKey.searchQuery)
+    const searchQuery = queryFieldElement.value.trim()
     if (searchQuery.length > 0) {
-      sessionStorage.removeItem(SessionKey.searchQuery)
-      queryFieldElement.value = searchQuery
       const searchResults = sessionStorage.getDeserializedItem(SessionKey.searchResults)
       if (!!searchResults) {
         clearSearchResults()
