@@ -260,7 +260,7 @@ final class PackageTests: AppTestCase {
         let history = try XCTUnwrap(pkg.history())
 
         // validate
-        XCTAssertEqual(history.since, "50 years ago")
+        XCTAssertEqual(history.since, "50 years")
         XCTAssertEqual(history.commitCount.label, "1,433 commits")
         XCTAssertEqual(history.commitCount.url, "1/commits/default")
         XCTAssertEqual(history.releaseCount.label, "10 releases")
