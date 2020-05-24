@@ -74,6 +74,20 @@ class GitTests: AppTestCase {
                              date: Date(timeIntervalSince1970: 1536799579)))
     }
 
+    func test_revInfo_tagName() throws {
+        // Ensure we look up by tag name and not semver
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/139
+        Current.shell.run = { cmd, _ in
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" v2.2.1"# {
+                return "63c973f3c2e632a340936c285e94d59f9ffb01d5-1536799579"
+            }
+            throw TestError.unknownCommand
+        }
+        XCTAssertEqual(try Git.revisionInfo(.tag(.init(2, 2, 1), "v2.2.1"), at: "ignored"),
+                       .init(commit: "63c973f3c2e632a340936c285e94d59f9ffb01d5",
+                             date: Date(timeIntervalSince1970: 1536799579)))
+    }
+
     func test_firstCommitDate() throws {
         Current.shell = .live
         XCTAssertEqual(try Git.firstCommitDate(at: "\(Self.tempDir)/ErrNo"),
