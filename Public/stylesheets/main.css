@@ -4,6 +4,7 @@
   --dark-blue: #111930;
   --mid-blue: #356FCE;
   --light-blue: #BEDEFF;
+  --very-light-blue: #E6F2FF;
 
   --dark-green: #027353;
   --mid-green: #038C33;
@@ -339,7 +340,8 @@ header nav ul li a:hover {
 }
 
 #results li {
-  padding: 10px;
+  margin: 0;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   border-bottom: 1px var(--light-grey) solid;
@@ -347,6 +349,10 @@ header nav ul li a:hover {
 
 #results li:last-child {
   border: none;
+}
+
+#results li.selected {
+  background-color: var(--very-light-blue);
 }
 
 #results div {

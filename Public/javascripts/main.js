@@ -28,6 +28,56 @@ document.addEventListener('DOMContentLoaded', function(event) {
         setElementHiddenById('results', true)
       }
     }), 200)
+
+    queryFieldElement.addEventListener('keydown', function(event) {
+      // The query field should *never* respond to the enter key.
+      if (event.keyCode == 13) { event.preventDefault() }
+
+      const resultsElement = document.getElementById('results')
+      if (!resultsElement) { return }
+      const resultsListElement = resultsElement.querySelector('ul')
+      if (!resultsListElement) { return }
+
+      const queryFieldElement = event.target
+      if (queryFieldElement.value.length <= 0) { return }
+
+      const searchResults = sessionStorage.getDeserializedItem(SessionKey.searchResults)
+
+      switch (event.keyCode) {
+        case 13:
+          const selectedItemElement = resultsListElement.children[window.searchResultSelectedIndex]
+          const linkElement = selectedItemElement.querySelector('a')
+          linkElement.click()
+          break
+        case 38: // Up arrow
+        if (typeof(window.searchResultSelectedIndex) !== 'number') {
+            window.searchResultSelectedIndex = searchResults.results.length - 1
+          } else {
+            window.searchResultSelectedIndex = Math.max(window.searchResultSelectedIndex - 1, 0)
+          }
+          break
+        case 40: // Down arrow
+          if (typeof(window.searchResultSelectedIndex) !== 'number') {
+            window.searchResultSelectedIndex = 0
+          } else {
+            window.searchResultSelectedIndex = Math.min(window.searchResultSelectedIndex + 1, searchResults.results.length - 1)
+          }
+          break
+      }
+
+      Array.from(resultsListElement.children).forEach(function(listItemElement, index) {
+        if (index == window.searchResultSelectedIndex) {
+          listItemElement.classList.add('selected')
+          if (window.searchResultSelectedIndex == searchResults.results.length - 1) {
+            // Scroll all the way to the bottom, just in case the "More results are available" text is showing.
+            resultsElement.scrollTop = resultsElement.scrollHeight
+          } else {
+            // Ensure that the element is visible, but don't center it in the div. Just move the minimum amount necessary.
+            listItemElement.scrollIntoViewIfNeeded(false)
+          }
+        } else { listItemElement.classList.remove('selected') }
+      })
+    })
   }
 })
 
@@ -60,6 +110,9 @@ function performSearch(searchQuery) {
     // Cache the search results into session storage, then show them.
     sessionStorage.setSerializedItem(SessionKey.searchResults, response.data)
     displaySearchResults(response.data)
+
+    // Reset the keyboard navigation selected index as these are new results.
+    window.searchResultSelectedIndex = null
   }).catch(function(error) {
     console.error(error) // At the very least, always log to the console.
     displayErrorMessage(error)
@@ -190,4 +243,4 @@ Storage.prototype.getDeserializedItem = function(key) {
 
 Storage.prototype.setSerializedItem = function (key, value) {
   this.setItem(key, JSON.stringify(value))
-};
+}
