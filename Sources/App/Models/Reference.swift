@@ -3,7 +3,11 @@ import Foundation
 
 enum Reference: Equatable {
     case branch(String)
-    case tag(SemVer)
+    case tag(SemVer, _ tagName: String)
+
+    static func tag(_ semVer: SemVer) -> Self {
+        return .tag(semVer, "\(semVer)")
+    }
 
     var isBranch: Bool {
         switch self {
@@ -18,7 +22,7 @@ enum Reference: Equatable {
         switch self {
             case .branch:
                 return nil
-            case .tag(let v):
+            case .tag(let v, _):
                 return v
         }
     }
@@ -26,14 +30,21 @@ enum Reference: Equatable {
 
 
 extension Reference: Codable {
+    private struct Tag: Codable {
+        var semVer: SemVer
+        var tagName: String
+
+        var asReference: Reference { .tag(semVer, tagName) }
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         if let value = try? container.decode(String.self, forKey: .branch) {
             self = .branch(value)
             return
         }
-        if let value = try? container.decode(SemVer.self, forKey: .tag) {
-            self = .tag(value)
+        if let value = try? container.decode(Tag.self, forKey: .tag) {
+            self = value.asReference
             return
         }
         throw DecodingError.dataCorrupted(
@@ -46,8 +57,8 @@ extension Reference: Codable {
         switch self {
             case .branch(let value):
                 try container.encode(value, forKey: .branch)
-            case .tag(let value):
-                try container.encode(value, forKey: .tag)
+            case let .tag(semVer, tagName):
+                try container.encode(Tag(semVer: semVer, tagName: tagName), forKey: .tag)
         }
     }
 
@@ -62,7 +73,7 @@ extension Reference: CustomStringConvertible {
     var description: String {
         switch self {
             case .branch(let value): return value
-            case .tag(let value): return String(describing: value)
+            case .tag(_, let value): return value
         }
     }
 }

@@ -45,12 +45,8 @@ enum Git {
         let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
         return tags.split(separator: "\n")
             .map(String.init)
-            .compactMap(SemVer.init)
-            .map { Reference.tag($0) }
-    }
-
-    static func revList(_ reference: Reference, at path: String) throws -> CommitHash {
-        try Current.shell.run(command: .init(string: "git rev-list -n 1 \(reference)"), at: path)
+            .compactMap { tag in SemVer(tag).map { ($0, tag) } }
+            .map { Reference.tag($0, $1) }
     }
 
     static func showDate(_ commit: CommitHash, at path: String) throws -> Date {

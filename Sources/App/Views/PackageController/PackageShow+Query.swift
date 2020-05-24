@@ -97,7 +97,7 @@ extension Package {
         switch ref {
             case .branch:
                 linkUrl = url
-            case .tag(let v):
+            case .tag(_ , let v):
                 linkUrl = url.droppingGitExtension + "/releases/tag/\(v)"
         }
         return .init(label: "\(ref)", url: linkUrl)
