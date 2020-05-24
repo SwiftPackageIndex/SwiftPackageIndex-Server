@@ -28,6 +28,32 @@ document.addEventListener('DOMContentLoaded', function(event) {
         setElementHiddenById('results', true)
       }
     }), 200)
+
+    queryFieldElement.addEventListener('keydown', function(event) {
+      const queryFieldElement = event.target
+      if (queryFieldElement.value.length <= 0) { return }
+
+      const searchResults = sessionStorage.getDeserializedItem(SessionKey.searchResults)
+
+      switch (event.keyCode) {
+        case 38: // Up arrow
+        if (typeof(window.searchResultSelectedIndex) !== 'number') {
+            window.searchResultSelectedIndex = searchResults.results.length - 1
+          } else {
+            window.searchResultSelectedIndex = Math.max(window.searchResultSelectedIndex - 1, 0)
+          }
+          break
+        case 40: // Down arrow
+          if (typeof(window.searchResultSelectedIndex) !== 'number') {
+            window.searchResultSelectedIndex = 0
+          } else {
+            window.searchResultSelectedIndex = Math.min(window.searchResultSelectedIndex + 1, searchResults.results.length - 1)
+          }
+          break
+      }
+
+      console.log(window.searchResultSelectedIndex);
+    })
   }
 })
 
@@ -60,6 +86,9 @@ function performSearch(searchQuery) {
     // Cache the search results into session storage, then show them.
     sessionStorage.setSerializedItem(SessionKey.searchResults, response.data)
     displaySearchResults(response.data)
+
+    // Reset the keyboard navigation selected index as these are new results.
+    window.searchResultSelectedIndex = null
   }).catch(function(error) {
     console.error(error) // At the very least, always log to the console.
     displayErrorMessage(error)
