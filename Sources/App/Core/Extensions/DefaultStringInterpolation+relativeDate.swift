@@ -1,19 +1,23 @@
 import Foundation
 
 
-#if os(Linux)
-typealias RelativeDateTimeFormatter = _RelativeDateTimeFormatter
-#endif
+extension DefaultStringInterpolation {
+    mutating func appendInterpolation(date: Date, relativeTo referenceDate: Date) {
+        appendInterpolation(Self.localizedString(for: date, relativeTo: referenceDate))
+    }
 
+    mutating func appendInterpolation(inWords timeDifference: TimeInterval) {
+        appendInterpolation(Self.distancePhrase(timeDifference))
+    }
 
-struct _RelativeDateTimeFormatter {
-    func localizedString(for date1: Date, relativeTo date2: Date) -> String {
-        let delta = date1.timeIntervalSince(date2)
-        let phrase = distancePhrase(delta)
+    static func localizedString(for date: Date, relativeTo reference: Date) -> String {
+        let delta = date.timeIntervalSince(reference)
+        let phrase = Self.distancePhrase(delta)
         return delta >= 0 ? "in \(phrase)" : "\(phrase) ago"
     }
 
-    func distancePhrase(_ delta: TimeInterval) -> String {
+    // Based on: https://apidock.com/rails/ActionView/Helpers/DateHelper/distance_of_time_in_words
+    static func distancePhrase(_ delta: TimeInterval) -> String {
         let m = 60
         let H = 60*m
         let d = 24*H
@@ -58,4 +62,5 @@ struct _RelativeDateTimeFormatter {
                 return pluralizedCount(years, singular: "year")
         }
     }
+
 }

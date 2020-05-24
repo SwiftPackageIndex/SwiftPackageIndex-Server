@@ -1,0 +1,42 @@
+@testable import App
+
+import Foundation
+import XCTest
+
+
+class DefaultStringInterpolationTests: XCTestCase {
+
+    func test_inWords_timeDifference() throws {
+        let m = 60
+        let H = 60*m
+        let d = 24*H
+        let M = 30*d   // crude...
+        let Y = 365*d  // ignore leap years
+        let tests: [(Int, String)] = [
+            (0, "0 seconds"),
+            (15, "less than a minute"),
+            (50, "1 minute"),
+            (23*m, "23 minutes"),
+            (50*m, "about 1 hour"),
+            (1*H + 20*m, "about 1 hour"),
+            (3*H, "about 3 hours"),
+            (23*H, "about 23 hours"),
+            (1*d + 3*H, "1 day"),
+            (15*d, "15 days"),
+            (1*M + 10*d, "about 1 month"),
+            (5*M, "5 months"),
+            (11*M, "11 months"),
+            (1*Y + 3*M, "over 1 year"),
+            (5*Y + 3*M, "5 years"),
+        ]
+        for (delta, exp) in tests {
+            XCTAssertEqual("\(inWords: TimeInterval(delta))", exp, "delta was: \(delta)")
+        }
+    }
+
+    func test_relativeDate_interpolation() throws {
+        let now = Date()
+        XCTAssertEqual("\(date: now.addingTimeInterval(5), relativeTo: now)", "in less than a minute")
+        XCTAssertEqual("\(date: now.addingTimeInterval(-5), relativeTo: now)", "less than a minute ago")
+    }
+}
