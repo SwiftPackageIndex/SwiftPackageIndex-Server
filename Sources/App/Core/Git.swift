@@ -3,12 +3,43 @@ import ShellOut
 
 
 enum GitError: LocalizedError {
+    case invalidInteger
     case invalidTimestamp
     case invalidRevisionInfo
 }
 
 
 enum Git {
+
+    static func commitCount(at path: String) throws -> Int {
+        let res = try Current.shell.run(
+            command: .init(string: "git rev-list --count HEAD"),
+            at: path)
+        guard let count = Int(res) else {
+            throw GitError.invalidInteger
+        }
+        return count
+    }
+
+    static func firstCommitDate(at path: String) throws -> Date {
+        let res = try Current.shell.run(
+            command: .init(string: #"git log --max-parents=0 -n1 --format=format:"%ct""#),
+            at: path)
+        guard let timestamp = TimeInterval(res) else {
+            throw GitError.invalidTimestamp
+        }
+        return Date(timeIntervalSince1970: timestamp)
+    }
+
+    static func lastCommitDate(at path: String) throws -> Date {
+        let res = try Current.shell.run(
+            command: .init(string: #"git log -n1 --format=format:"%ct""#),
+            at: path)
+        guard let timestamp = TimeInterval(res) else {
+            throw GitError.invalidTimestamp
+        }
+        return Date(timeIntervalSince1970: timestamp)
+    }
 
     static func tag(at path: String) throws -> [Reference] {
         let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)

@@ -41,12 +41,12 @@ final class PackageTests: AppTestCase {
 
     func test_encode() throws {
         let p = Package(id: UUID(), url: URL(string: "https://github.com/finestructure/Arena")!)
-        p.lastCommitAt = Date()
+        p.status = .ok
         let data = try JSONEncoder().encode(p)
         XCTAssertTrue(!data.isEmpty)
     }
 
-    func test_decode() throws {
+    func test_decode_date() throws {
         let timestamp: TimeInterval = 609426189  // Apr 24, 2020, just before 13:00 UTC
                                                  // Date.timeIntervalSinceReferenceDate
         let json = """
@@ -54,14 +54,14 @@ final class PackageTests: AppTestCase {
             "id": "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE",
             "url": "https://github.com/finestructure/Arena",
             "status": "ok",
-            "lastCommitAt": \(timestamp)
+            "createdAt": \(timestamp)
         }
         """
         let p = try JSONDecoder().decode(Package.self, from: Data(json.utf8))
         XCTAssertEqual(p.id?.uuidString, "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
         XCTAssertEqual(p.url, "https://github.com/finestructure/Arena")
         XCTAssertEqual(p.status, .ok)
-        XCTAssertEqual(p.lastCommitAt?.description, "2020-04-24 13:03:09 +0000")
+        XCTAssertEqual(p.createdAt?.description, "2020-04-24 13:03:09 +0000")
     }
 
     func test_unique_url() throws {

@@ -43,3 +43,23 @@ struct AddNameOwner: Migration {
             .update()
     }
 }
+
+
+struct AddCommitHistoryFields: Migration {
+    func prepare(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("repositories")
+            .field("commit_count", .int)
+            .field("first_commit_date", .datetime)
+            .field("last_commit_date", .datetime)
+            .update()
+    }
+
+
+    func revert(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("repositories")
+            .deleteField("commit_count")
+            .deleteField("first_commit_date")
+            .deleteField("last_commit_date")
+            .update()
+    }
+}

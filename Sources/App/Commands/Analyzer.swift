@@ -64,7 +64,9 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
         }
     }
 
-    let checkouts = packages.flatMap { pullOrClone(application: application, packages: $0) }
+    let checkouts = packages
+        .flatMap { pullOrClone(application: application, packages: $0) }
+        .flatMap { updateRepositories(application: application, checkouts: $0) }
 
     let versions = checkouts.flatMap { reconcileVersions(application: application, checkouts: $0) }
 
@@ -106,6 +108,38 @@ func pullOrClone(application: Application, package: Package) -> EventLoopFuture<
             let wdir = Current.fileManager.checkoutsDirectory()
             try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: cacheDir), at: wdir)
         }
+        return package
+    }
+}
+
+
+func updateRepositories(application: Application,
+                        checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = checkouts.map { checkout -> EventLoopFuture<Package> in
+        let updatedPackage = checkout.flatMap(updateRepository(package:))
+        switch updatedPackage {
+            case .success(let pkg):
+                return pkg.repositories.update(on: application.db).transform(to: pkg)
+            case .failure(let error):
+                return application.eventLoopGroup.future(error: error)
+        }
+    }
+    return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
+}
+
+
+func updateRepository(package: Package) -> Result<Package, Error> {
+    guard let repo = package.repository else {
+        return .failure(AppError.genericError(package.id, "updateRepository: no repository"))
+    }
+    guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package) else {
+        return .failure(AppError.invalidPackageCachePath(package.id, package.url))
+    }
+
+    return Result {
+        repo.commitCount = try Git.commitCount(at: gitDirectory)
+        repo.firstCommitDate = try Git.firstCommitDate(at: gitDirectory)
+        repo.lastCommitDate = try Git.lastCommitDate(at: gitDirectory)
         return package
     }
 }
