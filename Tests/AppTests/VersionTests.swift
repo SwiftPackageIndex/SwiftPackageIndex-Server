@@ -53,4 +53,22 @@ class VersionTests: AppTestCase {
         XCTAssertEqual(try Package.query(on: app.db).count().wait(), 0)
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 0)
     }
+
+    func test_supportsMajorSwiftVersion() throws {
+        XCTAssert(Version.supportsMajorSwiftVersion(5, value: "5"))
+        XCTAssert(Version.supportsMajorSwiftVersion(5, value: "5.0"))
+        XCTAssert(Version.supportsMajorSwiftVersion(5, value: "5.1"))
+        XCTAssert(Version.supportsMajorSwiftVersion(4, value: "5"))
+        XCTAssertFalse(Version.supportsMajorSwiftVersion(5, value: "4"))
+        XCTAssertFalse(Version.supportsMajorSwiftVersion(5, value: "4.0"))
+    }
+
+    func test_supportsMajorSwiftVersion_values() throws {
+        XCTAssert(Version.supportsMajorSwiftVersion(5, values: ["5"]))
+        XCTAssertFalse(Version.supportsMajorSwiftVersion(5, values: ["4"]))
+        XCTAssert(Version.supportsMajorSwiftVersion(5, values: ["5.2", "4", "3.0", "3.1", "2"]))
+        XCTAssertFalse(Version.supportsMajorSwiftVersion(5, values: ["4", "3.0", "3.1", "2"]))
+        XCTAssert(Version.supportsMajorSwiftVersion(4, values: ["4", "3.0", "3.1", "2"]))
+    }
+
 }

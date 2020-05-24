@@ -70,3 +70,22 @@ extension Version: Equatable {
         lhs.id == rhs.id
     }
 }
+
+
+extension Version {
+    func supportsMajorSwiftVersion(_ swiftVersion: Int) -> Bool {
+        Self.supportsMajorSwiftVersion(swiftVersion, values: swiftVersions)
+    }
+
+    static func supportsMajorSwiftVersion(_ swiftVersion: Int, value: String) -> Bool {
+        guard
+            let value = value.split(separator: ".").first,
+            let major = Int(value)
+            else { return false }
+        return major >= swiftVersion
+    }
+
+    static func supportsMajorSwiftVersion(_ swiftVersion: Int, values: [String]) -> Bool {
+        values.first { supportsMajorSwiftVersion(swiftVersion, value: $0) } != nil
+    }
+}
