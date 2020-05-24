@@ -82,15 +82,6 @@ extension Array where Element == String {
 }
 
 
-extension Array where Element: FluentKit.Model {
-    public func save(on database: Database) -> EventLoopFuture<Void> {
-        map {
-            $0.save(on: database)
-        }.flatten(on: database.eventLoop)
-    }
-}
-
-
 #if os(macOS)
 extension Snapshotting where Value == HTML, Format == NSImage {
     public static func image(precision: Float = 1, size: CGSize? = nil, baseURL: URL? = nil) -> Snapshotting {

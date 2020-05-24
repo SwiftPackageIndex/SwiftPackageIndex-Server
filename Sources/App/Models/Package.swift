@@ -45,9 +45,6 @@ final class Package: Model, Content {
     @OptionalEnum(key: "processing_stage")
     var processingStage: ProcessingStage?
 
-    @Field(key: "last_commit_at")  // TODO: shouldn't this rather live in Repository? Is it needed at all?
-    var lastCommitAt: Date?
-
     @Children(for: \.$package)
     var repositories: [Repository]
 
@@ -65,14 +62,14 @@ final class Package: Model, Content {
         self.url = url.absoluteString
         self.status = status
         self.processingStage = processingStage
-        self.lastCommitAt = lastCommitAt
     }
 }
 
 
 extension Package {
     var repository: Repository? {
-        repositories.first
+        guard let repositories = $repositories.value else { return nil }
+        return repositories.first
     }
 }
 

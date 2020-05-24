@@ -1,5 +1,7 @@
 @testable import App
 
+import Fluent
+import SnapshotTesting
 import Vapor
 import XCTest
 
@@ -9,7 +11,10 @@ class AnalyzerTests: AppTestCase {
     func test_basic_analysis() throws {
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
+        let pkgs = try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
+        try pkgs.forEach {
+            try Repository(package: $0, defaultBranch: "master").save(on: app.db).wait()
+        }
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
@@ -22,7 +27,9 @@ class AnalyzerTests: AppTestCase {
         var commands = [Command]()
         Current.shell.run = { cmd, path in
             queue.async {
-                commands.append(.init(command: cmd.string, path: path))
+                let c = cmd.string.replacingOccurrences(of: checkoutDir!, with: "...")
+                let p = path.replacingOccurrences(of: checkoutDir!, with: "...")
+                commands.append(.init(command: c, path: p))
             }
             if cmd.string == "git tag" && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
@@ -37,6 +44,9 @@ class AnalyzerTests: AppTestCase {
                 return #"{ "name": "foo-2", "products": [{"name":"p2","type":{"library": []}}] }"#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
 
@@ -46,65 +56,39 @@ class AnalyzerTests: AppTestCase {
         // validation
         let outDir = try XCTUnwrap(checkoutDir)
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-
-        let path1 = "\(outDir)/github.com-foo-1"
-        let path2 = "\(outDir)/github.com-foo-2"
-        let expecations: [Command] = [
-            // 0-3: clone of pkg1 and pull of pkg2
-            .init(command: "git clone https://github.com/foo/1 \"\(outDir)/github.com-foo-1\" --quiet",
-                path: outDir),
-            .init(command: "git reset --hard", path: path2),
-            .init(command: "git checkout \"master\" --quiet", path: path2),
-            .init(command: "git pull --quiet", path: path2),
-            // 4,5: next, both repos have their tags listed
-            .init(command: "git tag", path: path1),
-            .init(command: "git tag", path: path2),
-            // 6-9: for each ref we list the revision info (sha + date)
-            .init(command: #"git log -n1 --format=format:"%H-%ct" 1.0.0"#, path: path1),
-            .init(command: #"git log -n1 --format=format:"%H-%ct" 1.1.1"#, path: path1),
-            .init(command: #"git log -n1 --format=format:"%H-%ct" 2.0.0"#, path: path2),
-            .init(command: #"git log -n1 --format=format:"%H-%ct" 2.1.0"#, path: path2),
-            // then, each repo sees a git checkout and dump-package *per version*, i.e. twice
-            //   - first repo
-            .init(command: "git checkout \"1.0.0\" --quiet", path: path1),
-            .init(command: "swift package dump-package", path: path1),
-            .init(command: "git checkout \"1.1.1\" --quiet", path: path1),
-            .init(command: "swift package dump-package", path: path1),
-            //   - second repo
-            .init(command: "git checkout \"2.0.0\" --quiet", path: path2),
-            .init(command: "swift package dump-package", path: path2),
-            .init(command: "git checkout \"2.1.0\" --quiet", path: path2),
-            .init(command: "swift package dump-package", path: path2),
-            ]
-        assert(commands: commands, expectations: expecations, ignordingOrder: true)
+        XCTAssertEqual(commands.count, 30)
+        assertSnapshot(matching: Set(commands), as: .dump)
 
         // validate versions
         // A bit awkward... create a helper? There has to be a better way?
         let pkg1 = try Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg1.status, .ok)
         XCTAssertEqual(pkg1.processingStage, .analysis)
-        XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1"])
+        XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1", "foo-1"])
         XCTAssertEqual(pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.reference?.description),
-                       ["1.0.0", "1.1.1"])
+                       ["master", "1.0.0", "1.1.1"])
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
         XCTAssertEqual(pkg2.processingStage, .analysis)
-        XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2"])
+        XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2", "foo-2"])
         XCTAssertEqual(pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.reference?.description),
-                       ["2.0.0", "2.1.0"])
+                       ["master", "2.0.0", "2.1.0"])
 
         // validate products (each version has 2 products)
         let products = try Product.query(on: app.db).sort(\.$name).all().wait()
-        XCTAssertEqual(products.count, 4)
-        assertEquals(products, \.name, ["p1", "p1", "p2", "p2"])
-        assertEquals(products, \.type, [.executable, .executable, .library, .library])
+        XCTAssertEqual(products.count, 6)
+        assertEquals(products, \.name, ["p1", "p1", "p1", "p2", "p2", "p2"])
+        assertEquals(products, \.type, [.executable, .executable, .executable, .library, .library, .library])
     }
 
     func test_package_status() throws {
         // Ensure packages record success/error status
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
+        let pkgs = try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
+        try pkgs.forEach {
+            try Repository(package: $0, defaultBranch: "master").save(on: app.db).wait()
+        }
         let lastUpdate = Date()
         Current.shell.run = { cmd, path in
             if cmd.string == "git tag" { return "1.0.0" }
@@ -117,6 +101,9 @@ class AnalyzerTests: AppTestCase {
                 return #"{ "name": "SPI-Server", "products": [] }"#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
 
@@ -133,7 +120,10 @@ class AnalyzerTests: AppTestCase {
         // Test to ensure exceptions don't break processing
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
+        let pkgs = try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
+        try pkgs.forEach {
+            try Repository(package: $0, defaultBranch: "master").save(on: app.db).wait()
+        }
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
@@ -152,6 +142,9 @@ class AnalyzerTests: AppTestCase {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             // returning a blank string will cause an exception when trying to
             // decode it as the manifest result - we use this to simulate errors
             return ""
@@ -163,10 +156,9 @@ class AnalyzerTests: AppTestCase {
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(commands.count, 18, "was: \(dump(commands))")
-        // 2 packages with 2 versions each -> 4 versions
-        // (there is not default branch set for these packages, hence only tags create versions)
-        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 4)
+        XCTAssertEqual(commands.count, 30, "was: \(dump(commands))")
+        // 2 packages with 2 tags + 1 default branch each -> 6 versions
+        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
     }
 
     func test_pullOrClone() throws {
@@ -180,6 +172,64 @@ class AnalyzerTests: AppTestCase {
         // validation
         XCTAssertEqual(res.count, 2)
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
+    }
+
+    func test_updateRepository() throws {
+        // setup
+        Current.shell.run = { cmd, _ in
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+            throw TestError.unknownCommand
+        }
+        let pkg = Package(id: UUID(), url: "1".gh.url)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
+        _ = try pkg.$repositories.get(on: app.db).wait()
+
+        // MUT
+        let res = updateRepository(package: pkg)
+
+        // validate
+        let repo = try XCTUnwrap(try res.get().repository)
+        XCTAssertEqual(repo.commitCount, 12)
+        XCTAssertEqual(repo.firstCommitDate, Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(repo.lastCommitDate, Date(timeIntervalSince1970: 1))
+    }
+
+    func test_updateRepositories() throws {
+        // setup
+        Current.shell.run = { cmd, _ in
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+            throw TestError.unknownCommand
+        }
+        let pkg = Package(id: UUID(), url: "1".gh.url)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
+        _ = try pkg.$repositories.get(on: app.db).wait()
+        let checkouts: [Result<Package, Error>] = [
+            // feed in one error to see it passed through
+            .failure(AppError.invalidPackageUrl(nil, "some reason")),
+            .success(pkg)
+        ]
+
+        // MUT
+        let results: [Result<Package, Error>] =
+            try updateRepositories(application: app, checkouts: checkouts).wait()
+
+        // validate
+        XCTAssertEqual(results.count, 2)
+        XCTAssertEqual(results.map(\.isSuccess), [false, true])
+        // ensure results are persisted
+        let repo = try XCTUnwrap(Repository.query(on: app.db)
+            .filter(\.$package.$id == pkg.id!)
+            .first()
+            .wait())
+        XCTAssertEqual(repo.commitCount, 12)
+        XCTAssertEqual(repo.firstCommitDate, Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(repo.lastCommitDate, Date(timeIntervalSince1970: 1))
     }
 
     func test_reconcileVersions_package() throws {
@@ -405,16 +455,24 @@ class AnalyzerTests: AppTestCase {
                 return #"{ "name": "foo", "products": [{"name":"p1","type":{"executable": null}}, {"name":"p2","type":{"executable": null}}] }"#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
-        try savePackages(on: app.db, ["1", "2"].gh.urls, processingStage: .ingestion)
+        let pkgs = try savePackages(on: app.db, ["1", "2"].gh.urls, processingStage: .ingestion)
+        try pkgs.forEach {
+            try Repository(package: $0, defaultBranch: "master").save(on: app.db).wait()
+        }
 
         // MUT
         try analyze(application: app, limit: 10).wait()
 
         // validation
-        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 4)
-        XCTAssertEqual(try Product.query(on: app.db).count().wait(), 8)
+        // 1 version for the default branch + 2 for the tags each = 6 versions
+        // 2 products per version = 12 products
+        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
+        XCTAssertEqual(try Product.query(on: app.db).count().wait(), 12)
     }
 
 }
@@ -425,17 +483,4 @@ struct Command: Equatable, CustomStringConvertible, Hashable {
     var path: String
 
     var description: String { "'\(command)' at path: '\(path)'" }
-}
-
-
-func assert(commands: [Command],
-            expectations: [Command],
-            ignordingOrder: Bool = false,
-            file: StaticString = #file, line: UInt = #line) {
-    XCTAssertEqual(commands.count, expectations.count, "wrong command count", file: file, line: line)
-    if ignordingOrder && Set(commands) == Set(expectations) { return }
-    zip(commands, expectations).enumerated().forEach { idx, pair in
-        let (cmd, exp) = pair
-        XCTAssertEqual(cmd, exp, "⚠️ command \(idx) failed", file: file, line: line)
-    }
 }
