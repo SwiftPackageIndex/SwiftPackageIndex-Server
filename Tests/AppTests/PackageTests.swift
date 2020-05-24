@@ -266,6 +266,26 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(history.releaseCount.label, "10 releases")
         XCTAssertEqual(history.releaseCount.url, "1/releases")
     }
+
+    func test_score() throws {
+        // setup
+        var pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db).wait()
+        try Version(package: pkg,
+                    reference: .branch("default"),
+                    swiftVersions: ["5"]).save(on: app.db).wait()
+        try (0..<20).forEach {
+            try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
+        }
+        // re-load pkg with relationships
+        pkg = try XCTUnwrap(Package.query(on: app.db)
+            .with(\.$repositories)
+            .with(\.$versions)
+            .first().wait())
+
+        // MUT
+        XCTAssertEqual(pkg.score(), 80)
+    }
 }
 
 

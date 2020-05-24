@@ -31,3 +31,21 @@ enum Score {
         return score
     }
 }
+
+
+extension Package {
+    func score() -> Int {
+        guard
+        let defaultVersion = defaultVersion(),
+            let versions = $versions.value,
+            let r = repository,
+            let starsCount = r.stars
+            else { return 0 }
+        let releases = versions.filter { $0.reference?.isTag ?? false }
+        return Score.compute(
+            .init(supportsLatestSwiftVersion: defaultVersion.supportsMajorSwiftVersion(Constants.latestMajorSwiftVersion),
+                  releaseCount: releases.count,
+                  likeCount: starsCount)
+        )
+    }
+}

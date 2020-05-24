@@ -9,8 +9,9 @@ import Vapor
 
 
 enum Constants {
-    static let masterPackageListUri = URI(string: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json")
     static let githubComPrefix = "https://github.com/"
     static let gitSuffix = ".git"
+    static let latestMajorSwiftVersion = 5
+    static let masterPackageListUri = URI(string: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json")
     static let reIngestionDeadtime: TimeInterval = 60 * 60  // in seconds
 }

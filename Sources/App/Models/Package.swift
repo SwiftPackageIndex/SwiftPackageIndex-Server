@@ -57,8 +57,7 @@ final class Package: Model, Content {
     init(id: UUID? = nil,
          url: URL,
          status: Status? = nil,
-         processingStage: ProcessingStage? = nil,
-         lastCommitAt: Date? = nil) {
+         processingStage: ProcessingStage? = nil) {
         self.id = id
         self.url = url.absoluteString
         self.status = status
