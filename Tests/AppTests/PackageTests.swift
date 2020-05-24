@@ -239,6 +239,33 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(lpInfo.latest?.swiftVersions, ["5.2", "5.3"])
         XCTAssertEqual(lpInfo.latest?.platforms, [.macos("10.15"), .ios("13")])
     }
+
+    func test_history() throws {
+        // setup
+        var pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg,
+                       commitCount: 1433,
+                       firstCommitDate: Date(timeIntervalSince1970: 0),
+                       defaultBranch: "default").create(on: app.db).wait()
+        try (0..<10).forEach {
+            try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
+        }
+        // re-load pkg with relationships
+        pkg = try XCTUnwrap(Package.query(on: app.db)
+            .with(\.$repositories)
+            .with(\.$versions)
+            .first().wait())
+
+        // MUT
+        let history = try XCTUnwrap(pkg.history())
+
+        // validate
+        XCTAssertEqual(history.since, "50 years ago")
+        XCTAssertEqual(history.commitCount.label, "1,433 commits")
+        XCTAssertEqual(history.commitCount.url, "1/commits/default")
+        XCTAssertEqual(history.releaseCount.label, "10 releases")
+        XCTAssertEqual(history.releaseCount.url, "1/releases")
+    }
 }
 
 

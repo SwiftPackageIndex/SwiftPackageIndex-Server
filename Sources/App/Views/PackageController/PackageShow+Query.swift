@@ -19,7 +19,7 @@ extension PackageShow.Model {
                                  license: p.repository?.license ?? .none,
                                  summary: p.repository?.summary ?? "–",
                                  authors: [],      // TODO: fill in
-                                 history: nil,     // TODO: fill in
+                                 history: p.history(),
                                  activity: nil,    // TODO: fill in
                                  products: p.productCounts(),
                                  releases: p.releaseInfo(),
@@ -118,4 +118,32 @@ extension Package {
                      latest: latest.flatMap(makeModelVersion))
     }
 
+    func history() -> PackageShow.Model.History? {
+        guard
+            let repo = repository,
+            let commitCount = repo.commitCount,
+            let defaultBranch = repo.defaultBranch,
+            let releases = $versions.value,
+            let firstCommitDate = repo.firstCommitDate,
+            let commitCountString = Self.numberFormatter.string(from: NSNumber(value: commitCount)),
+            let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))
+            else { return nil }
+        let cl = PackageShow.Model.Link(
+            label: commitCountString + " commit".pluralized(for: commitCount),
+            url: url.droppingGitExtension + "/commits/\(defaultBranch)")
+        let rl = PackageShow.Model.Link(
+            label: releaseCountString + " release".pluralized(for: releases.count),
+            url: url.droppingGitExtension + "/releases")
+        let formatter = RelativeDateTimeFormatter()
+        return .init(since: formatter.localizedString(for: firstCommitDate, relativeTo: Current.date()),
+                     commitCount: cl,
+                     releaseCount: rl)
+    }
+
+    static let numberFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.thousandSeparator = ","
+        f.numberStyle = .decimal
+        return f
+    }()
 }
