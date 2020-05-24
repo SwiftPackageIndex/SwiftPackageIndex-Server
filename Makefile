@@ -30,7 +30,8 @@ docker-push:
 
 test-docker:
 	@# run tests inside a docker container
-	docker run --rm -v $(PWD):/host -w /host --network="host" swift:5.2.3-bionic make test
+	docker run --rm -v $(PWD):/host -w /host --network="host" swift:5.2.3-bionic \
+	  bash -c "apt-get update && apt-get install -y unzip && make test"
 
 test-e2e: db-reset reconcile ingest analyze
 	@# run import sequence test
