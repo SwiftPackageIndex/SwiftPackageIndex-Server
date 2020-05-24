@@ -83,8 +83,7 @@ extension Package {
             let date = version[keyPath: keyPath],
             let link = makeLink(version)
             else { return nil }
-        let formatter = RelativeDateTimeFormatter()
-        return .init(date: formatter.localizedString(for: date, relativeTo: Current.date()),
+        return .init(date: "\(date: date, relativeTo: Current.date())",
                      link: link)
     }
 
@@ -134,8 +133,7 @@ extension Package {
         let rl = PackageShow.Model.Link(
             label: releaseCountString + " release".pluralized(for: releases.count),
             url: url.droppingGitExtension + "/releases")
-        let formatter = RelativeDateTimeFormatter()
-        return .init(since: formatter.localizedString(for: firstCommitDate, relativeTo: Current.date()),
+        return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
                      commitCount: cl,
                      releaseCount: rl)
     }
