@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
           break
       }
 
-
       Array.from(resultsListElement.children).forEach(function(listItemElement, index) {
         if (index == window.searchResultSelectedIndex) {
           listItemElement.classList.add('selected')
