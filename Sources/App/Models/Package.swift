@@ -12,6 +12,7 @@ enum Status: String, Codable {
     case metadataRequestFailed = "metadata_request_failed"
     case notFound = "not_found"
     case noValidVersions = "no_valid_versions"
+    case shellCommandFailed = "shell_command_failed"
 }
 
 

@@ -67,7 +67,12 @@ struct Shell {
     // also provide pass-through methods to preserve argument labels
     @discardableResult
     func run(command: ShellOutCommand, at path: String = ".") throws -> String {
-        try run(command, path)
+        do {
+            return try run(command, path)
+        } catch {
+            // re-package error to capture more information
+            throw AppError.shellCommandFailed(command.string, path, error.localizedDescription)
+        }
     }
 
     static let live: Self = .init(run: { cmd, path in
