@@ -51,7 +51,7 @@ class PackageShowModelTests: AppTestCase {
 
     func test_lpInfoGroups_by_swiftVersions() throws {
         // Test grouping by swift versions
-        let lnk = Link(name: "1", url: "1")
+        let lnk = Link(label: "1", url: "1")
         let v1 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
         let v2 = Version(link: lnk, swiftVersions: ["2"], platforms: [.macos("10")])
         let v3 = Version(link: lnk, swiftVersions: ["3"], platforms: [.macos("10")])
@@ -70,7 +70,7 @@ class PackageShowModelTests: AppTestCase {
 
     func test_lpInfoGroups_by_platforms() throws {
         // Test grouping by platforms
-        let lnk = Link(name: "1", url: "1")
+        let lnk = Link(label: "1", url: "1")
         let v1 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
         let v2 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("11")])
         let v3 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("12")])
@@ -89,9 +89,9 @@ class PackageShowModelTests: AppTestCase {
 
     func test_lpInfoGroups_ignores_link() throws {
         // Test to ensure the link isn't part of the grouping
-        let l1 = Link(name: "1", url: "1")
-        let l2 = Link(name: "2", url: "2")
-        let l3 = Link(name: "3", url: "3")
+        let l1 = Link(label: "1", url: "1")
+        let l2 = Link(label: "2", url: "2")
+        let l3 = Link(label: "3", url: "3")
         let v1 = Version(link: l1, swiftVersions: ["1"], platforms: [.macos("10")])
         let v2 = Version(link: l2, swiftVersions: ["1"], platforms: [.macos("10")])
         let v3 = Version(link: l3, swiftVersions: ["1"], platforms: [.macos("10")])

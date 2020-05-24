@@ -15,7 +15,7 @@ extension PackageShow {
         let languagePlatforms: LanguagePlatformInfo
 
         struct Link: Equatable {
-            let name: String
+            let label: String
             let url: String
         }
 
@@ -26,8 +26,8 @@ extension PackageShow {
 
         struct History: Equatable {
             let since: String
-            let commits: Link
-            let releases: Link
+            let commitCount: Link
+            let releaseCount: Link
         }
 
         struct Activity: Equatable {
@@ -64,7 +64,7 @@ extension PackageShow {
 
 extension PackageShow.Model {
     func authorsClause() -> [Node<HTML.BodyContext>] {
-        let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.name)) }
+        let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
         return Self.listPhrase(opening: .text("By "),
                                nodes: nodes,
                                ifNoValues: ["-"])
@@ -75,13 +75,13 @@ extension PackageShow.Model {
         return [
             "In development for \(history.since), with ",
             .a(
-                .href(history.commits.url),
-                .text(history.commits.name)
+                .href(history.commitCount.url),
+                .text(history.commitCount.label)
             ),
             " and ",
             .a(
-                .href(history.releases.url),
-                .text(history.releases.name)
+                .href(history.releaseCount.url),
+                .text(history.releaseCount.label)
             ),
             "."
         ]
@@ -93,12 +93,12 @@ extension PackageShow.Model {
             "There are ",
             .a(
                 .href(activity.openIssues.url),
-                .text(activity.openIssues.name)
+                .text(activity.openIssues.label)
             ),
             ", and ",
             .a(
                 .href(activity.pullRequests.url),
-                .text(activity.pullRequests.name)
+                .text(activity.pullRequests.label)
             ),
             ". The last pull request was closed/merged \(activity.lastPullRequestClosedMerged)."
         ]
@@ -128,7 +128,7 @@ extension PackageShow.Model {
                     .span(
                         .class("stable"),
                         .i(.class("icon stable")),
-                        .text(datedLink.link.name)
+                        .text(datedLink.link.label)
                     )
                 ),
                 ". Released \(datedLink.date)."
@@ -145,7 +145,7 @@ extension PackageShow.Model {
                     .span(
                         .class("beta"),
                         .i(.class("icon beta")),
-                        .text(datedLink.link.name)
+                        .text(datedLink.link.label)
                     )
                 ),
                 ". Released \(datedLink.date)."
@@ -162,7 +162,7 @@ extension PackageShow.Model {
                     .span(
                         .class("branch"),
                         .i(.class("icon branch")),
-                        .text(datedLink.link.name)
+                        .text(datedLink.link.label)
                     )
                 ),
                 " was \(datedLink.date)."
@@ -207,7 +207,7 @@ extension PackageShow.Model {
                 .span(
                     .class(cssClass),
                     .i(.class("icon \(cssClass)")),
-                    .text(info.link.name)
+                    .text(info.link.label)
                 )
             )
         }
