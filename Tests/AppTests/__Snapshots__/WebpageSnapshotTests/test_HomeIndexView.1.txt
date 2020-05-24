@@ -36,7 +36,7 @@
       <div class="inner">
         <h3>The place to find Swift packages.</h3>
         <form>
-          <input type="text" id="query" placeholder="Search" spellcheck="false" autocomplete="off" autofocus="true"/>
+          <textarea id="query" placeholder="Search" spellcheck="false" autofocus="true" rows="1"></textarea>
           <div id="results"></div>
         </form>
       </div>
