@@ -9,12 +9,10 @@ class HomeIndexView: PublicPage {
                 .class("inner"),
                 .h3("The place to find Swift packages."),
                 .form(
-                    .input(
-                        .type(.text),
+                    .textarea(
                         .id("query"),
-                        .placeholder("Search"),
+                        .attribute(named: "placeholder", value: "Search"), // TODO: Fix after Plot update
                         .attribute(named: "spellcheck", value: "false"), // TODO: Fix after Plot update
-                        .autocomplete(false),
                         .autofocus(true)
                     ),
                     .div(
