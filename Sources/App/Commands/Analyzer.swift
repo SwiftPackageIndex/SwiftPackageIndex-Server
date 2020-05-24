@@ -181,8 +181,9 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
         return try Git.tag(at: cacheDir)
     }
     .flatMapError {
-        Current.reportError(application.client, .error,
-                            AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)"))
+        let appError = AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)")
+        application.logger.report(error: appError)
+        return Current.reportError(application.client, .error, appError)
             .transform(to: [])
     }
 
