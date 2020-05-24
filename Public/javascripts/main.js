@@ -1,6 +1,6 @@
 // Constants for session key storage.
 const SessionKey = {
-  searchResults: 'searchResults'
+  searchResults: 'com.swiftpackageindex.searchResults',
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
@@ -19,7 +19,8 @@ document.addEventListener('DOMContentLoaded', function(event) {
   if (!!queryFieldElement) {
     // When user input is entered into the query field, perform the search.
     queryFieldElement.addEventListener('input', _.debounce(function(event) {
-      const searchQuery = event.target.value.trim()
+      const queryFieldElement = event.target
+      const searchQuery = queryFieldElement.value.trim()
       if (searchQuery.length > 0) {
         performSearch(searchQuery)
       } else {
@@ -37,10 +38,10 @@ window.addEventListener('pageshow', function(event) {
     // If there's already a query in the input field, display results from session storage.
     const searchQuery = queryFieldElement.value.trim()
     if (searchQuery.length > 0) {
-      const searchResultsJSON = sessionStorage.getItem(SessionKey.searchResults)
-      if (!!searchResultsJSON) {
+      const searchResults = sessionStorage.getDeserializedItem(SessionKey.searchResults)
+      if (!!searchResults) {
         clearSearchResults()
-        displaySearchResults(JSON.parse(searchResultsJSON))
+        displaySearchResults(searchResults)
       }
     } else {
       // Otherwise, just force the results element to be hidden.
@@ -57,7 +58,7 @@ function performSearch(searchQuery) {
 
   axios.get(searchUrl).then(function(response) {
     // Cache the search results into session storage, then show them.
-    sessionStorage.setItem(SessionKey.searchResults, JSON.stringify(response.data))
+    sessionStorage.setSerializedItem(SessionKey.searchResults, response.data)
     displaySearchResults(response.data)
   }).catch(function(error) {
     console.error(error) // At the very least, always log to the console.
@@ -179,3 +180,14 @@ function createSearchResultListItemElement(result, containerElement) {
 
   containerElement.appendChild(resultListItemElement)
 }
+
+// Custom session storage serialisation helpers
+
+Storage.prototype.getDeserializedItem = function(key) {
+  const value = this.getItem(key)
+  return (!!value) ? JSON.parse(value) : null
+}
+
+Storage.prototype.setSerializedItem = function (key, value) {
+  this.setItem(key, JSON.stringify(value))
+};
