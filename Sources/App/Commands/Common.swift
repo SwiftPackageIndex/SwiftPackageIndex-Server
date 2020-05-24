@@ -12,10 +12,8 @@ func updateStatus(application: Application,
                 pkg.processingStage = stage
                 return pkg.update(on: application.db)
             case .failure(let error):
-                return recordError(client: application.client,
-                                   database: application.db,
-                                   error: error,
-                                   stage: stage)
+                return Current.reportError(application.client, .error, error)
+                    .flatMap { recordError(database: application.db, error: error, stage: stage) }
         }
     }
     application.logger.debug("updateStatus ops: \(updates.count)")
@@ -23,14 +21,9 @@ func updateStatus(application: Application,
 }
 
 
-// TODO: sas: 2020-05-15: clean this up
-// https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/69
-func recordError(client: Client,
-                 database: Database,
+func recordError(database: Database,
                  error: Error,
                  stage: ProcessingStage) -> EventLoopFuture<Void> {
-    let errorReport = Current.reportError(client, .error, error)
-
     func setStatus(id: Package.Id?, status: Status) -> EventLoopFuture<Void> {
         guard let id = id else { return database.eventLoop.future() }
         return Package.query(on: database)
@@ -43,10 +36,11 @@ func recordError(client: Client,
 
     database.logger.error("\(stage) error: \(error.localizedDescription)")
 
-    guard let error = error as? AppError else { return errorReport }
+    guard let error = error as? AppError else { return database.eventLoop.future() }
+
     switch error {
-        case .envVariableNotSet:
-            break
+        case .envVariableNotSet, .shellCommandFailed:
+            return database.eventLoop.future()
         case let .genericError(id, _):
             return setStatus(id: id, status: .ingestionFailed)
         case let .invalidPackageCachePath(id, _):
@@ -60,6 +54,4 @@ func recordError(client: Client,
         case let .noValidVersions(id, _):
             return setStatus(id: id, status: .noValidVersions)
     }
-
-    return errorReport
 }

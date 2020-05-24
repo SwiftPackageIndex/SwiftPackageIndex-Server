@@ -7,8 +7,7 @@ class ErrorReportingTests: AppTestCase {
 
     func test_recordError() throws {
         let pkg = try savePackage(on: app.db, "1")
-        try recordError(client: app.client,
-                        database: app.db,
+        try recordError(database: app.db,
                         error: AppError.invalidPackageUrl(pkg.id, "foo"),
                         stage: .ingestion).wait()
         do {
@@ -82,6 +81,12 @@ class ErrorReportingTests: AppTestCase {
         // validation
         let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
         XCTAssertEqual(packages.map(\.status), [.invalidCachePath, .invalidCachePath])
+    }
+
+    func test_AppError_Level_Comparable() throws {
+        XCTAssert(AppError.Level.critical > .error)
+        XCTAssert(AppError.Level.error <= .critical)
+        XCTAssert(AppError.Level.error <= .error)
     }
 
 }

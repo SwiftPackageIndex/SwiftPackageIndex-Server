@@ -15,6 +15,8 @@ enum AppError: LocalizedError {
     case invalidRevision(Version.Id?, _ revision: String?)
     case metadataRequestFailed(Package.Id?, HTTPStatus, URI)
     case noValidVersions(Package.Id?, _ url: String)
+    case shellCommandFailed(_ command: String, _ path: String, _ message: String)
+
     case genericError(Package.Id?, _ message: String)
 
     var localizedDescription: String {
@@ -31,6 +33,13 @@ enum AppError: LocalizedError {
                 return "Metadata request for URI '\(uri.description)' failed with status '\(status)'  (id: \(String(describing: id)))"
             case let .noValidVersions(id, value):
                 return "No valid version found for package '\(value)' (id: \(String(describing: id)))"
+            case let .shellCommandFailed(command, path, message):
+                return """
+                    Shell command failed:
+                    command: "\(command)"
+                    path:    "\(path)"
+                    message: "\(message)"
+                    """
             case let .genericError(id, value):
                 return "Generic error: \(value) (id: \(String(describing: id)))"
         }
@@ -40,7 +49,7 @@ enum AppError: LocalizedError {
         localizedDescription
     }
 
-    enum Level: String, Codable {
+    enum Level: String, Codable, CaseIterable {
         case critical
         case error
         case warning
@@ -50,10 +59,18 @@ enum AppError: LocalizedError {
 }
 
 
+extension AppError.Level: Comparable {
+    static func < (lhs: AppError.Level, rhs: AppError.Level) -> Bool {
+        allCases.firstIndex(of: lhs)! > allCases.firstIndex(of: rhs)!
+    }
+}
+
+
 extension AppError {
     static func report(_ client: Client, _ level: Level, _ error: Error) -> EventLoopFuture<Void> {
-        Rollbar.createItem(client: client,
-                           level: .init(level: level),
-                           message: error.localizedDescription)
+        guard level >= Current.rollbarLogLevel() else { return client.eventLoop.future() }
+        return Rollbar.createItem(client: client,
+                                  level: .init(level: level),
+                                  message: error.localizedDescription)
     }
 }

@@ -70,7 +70,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
 
     let versions = checkouts.flatMap { reconcileVersions(application: application, checkouts: $0) }
 
-    let versionsAndManifests = versions.map(getManifests)
+    let versionsAndManifests = versions.map { getManifests(application: application, versions: $0) }
 
     let updateOps = versionsAndManifests.flatMap { updateVersionsAndProducts(on: application.db,
                                                                              results: $0) }
@@ -181,8 +181,9 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
         return try Git.tag(at: cacheDir)
     }
     .flatMapError {
-        Current.reportError(application.client, .error,
-                            AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)"))
+        let appError = AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)")
+        application.logger.report(error: appError)
+        return Current.reportError(application.client, .error, appError)
             .transform(to: [])
     }
 
@@ -209,15 +210,15 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
 }
 
 
-func getManifests(versions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
-    versions.map { (r: Result<(Package, [Version]), Error>) -> Result<(Package, [(Version, Manifest)]), Error> in
-
-        r.flatMap { (pkg, versions) -> Result<(Package, [(Version, Manifest)]), Error> in
+func getManifests(application: Application,
+                  versions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
+    versions.map { result -> Result<(Package, [(Version, Manifest)]), Error> in
+        result.flatMap { (pkg, versions) -> Result<(Package, [(Version, Manifest)]), Error> in
             let m = versions.map { getManifest(package: pkg, version: $0) }
             let successes = m.compactMap { try? $0.get() }
-            // TODO: report errors (need client and database)
-            //            let errors = m.compactMap { $0.getError() }
-            //            errors.map { Current.reportError(client: client, database: database, error: $0, stage: .analysis) }
+            let errors = m.compactMap { $0.getError() }
+                .map { AppError.genericError(pkg.id, "getManifests failed: \($0.localizedDescription)") }
+            errors.forEach { application.logger.report(error: $0) }
             guard !successes.isEmpty else { return .failure(AppError.noValidVersions(pkg.id, pkg.url)) }
             return .success((pkg, successes))
         }
