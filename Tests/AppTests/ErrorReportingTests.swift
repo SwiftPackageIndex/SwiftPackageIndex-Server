@@ -7,8 +7,7 @@ class ErrorReportingTests: AppTestCase {
 
     func test_recordError() throws {
         let pkg = try savePackage(on: app.db, "1")
-        try recordError(client: app.client,
-                        database: app.db,
+        try recordError(database: app.db,
                         error: AppError.invalidPackageUrl(pkg.id, "foo"),
                         stage: .ingestion).wait()
         do {
