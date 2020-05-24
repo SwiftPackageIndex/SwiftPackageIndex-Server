@@ -34,7 +34,7 @@ enum Score {
 
 
 extension Package {
-    func score() -> Int {
+    func computeScore() -> Int {
         guard
         let defaultVersion = defaultVersion(),
             let versions = $versions.value,

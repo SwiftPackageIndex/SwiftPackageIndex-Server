@@ -267,7 +267,7 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(history.releaseCount.url, "1/releases")
     }
 
-    func test_score() throws {
+    func test_computeScore() throws {
         // setup
         var pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db).wait()
@@ -284,7 +284,7 @@ final class PackageTests: AppTestCase {
             .first().wait())
 
         // MUT
-        XCTAssertEqual(pkg.score(), 80)
+        XCTAssertEqual(pkg.computeScore(), 80)
     }
 }
 
