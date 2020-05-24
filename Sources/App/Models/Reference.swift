@@ -73,7 +73,7 @@ extension Reference: CustomStringConvertible {
     var description: String {
         switch self {
             case .branch(let value): return value
-            case .tag(let value): return String(describing: value)
+            case .tag(_, let value): return value
         }
     }
 }
