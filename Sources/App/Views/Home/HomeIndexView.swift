@@ -13,7 +13,8 @@ class HomeIndexView: PublicPage {
                         .id("query"),
                         .attribute(named: "placeholder", value: "Search"), // TODO: Fix after Plot update
                         .attribute(named: "spellcheck", value: "false"), // TODO: Fix after Plot update
-                        .autofocus(true)
+                        .autofocus(true),
+                        .rows(1)
                     ),
                     .div(
                         .id("results")
