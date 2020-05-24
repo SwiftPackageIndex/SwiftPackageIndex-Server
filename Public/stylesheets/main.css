@@ -297,6 +297,7 @@ header nav ul li a:hover {
   border: none;
   color: var(--black);
   resize: none;
+  overflow: hidden;
 }
 
 .search textarea:focus {
