@@ -40,7 +40,7 @@ enum AppError: LocalizedError {
         localizedDescription
     }
 
-    enum Level: String, Codable {
+    enum Level: String, Codable, CaseIterable {
         case critical
         case error
         case warning
@@ -50,10 +50,18 @@ enum AppError: LocalizedError {
 }
 
 
+extension AppError.Level: Comparable {
+    static func < (lhs: AppError.Level, rhs: AppError.Level) -> Bool {
+        allCases.firstIndex(of: lhs)! > allCases.firstIndex(of: rhs)!
+    }
+}
+
+
 extension AppError {
     static func report(_ client: Client, _ level: Level, _ error: Error) -> EventLoopFuture<Void> {
-        Rollbar.createItem(client: client,
-                           level: .init(level: level),
-                           message: error.localizedDescription)
+        guard level >= Current.rollbarLogLevel() else { return client.eventLoop.future() }
+        return Rollbar.createItem(client: client,
+                                  level: .init(level: level),
+                                  message: error.localizedDescription)
     }
 }

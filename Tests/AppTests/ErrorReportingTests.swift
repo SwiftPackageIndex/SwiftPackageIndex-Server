@@ -84,4 +84,10 @@ class ErrorReportingTests: AppTestCase {
         XCTAssertEqual(packages.map(\.status), [.invalidCachePath, .invalidCachePath])
     }
 
+    func test_AppError_Level_Comparable() throws {
+        XCTAssert(AppError.Level.critical > .error)
+        XCTAssert(AppError.Level.error <= .critical)
+        XCTAssert(AppError.Level.error <= .error)
+    }
+
 }

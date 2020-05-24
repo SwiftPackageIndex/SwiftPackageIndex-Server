@@ -10,6 +10,7 @@ struct AppEnvironment {
     var githubToken: () -> String?
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>
     var rollbarToken: () -> String?
+    var rollbarLogLevel: () -> AppError.Level
     var shell: Shell
 }
 
@@ -22,6 +23,10 @@ extension AppEnvironment {
         githubToken: { Environment.get("GITHUB_TOKEN") },
         reportError: AppError.report,
         rollbarToken: { Environment.get("ROLLBAR_TOKEN") },
+        rollbarLogLevel: {
+            Environment
+                .get("ROLLBAR_LOG_LEVEL")
+                .flatMap(AppError.Level.init(rawValue:)) ?? .critical },
         shell: .live
     )
 }

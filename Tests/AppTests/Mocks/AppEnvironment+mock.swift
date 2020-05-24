@@ -15,6 +15,7 @@ extension AppEnvironment {
         githubToken: { nil },
         reportError: { _, _, _ in .just(value: ()) },
         rollbarToken: { nil },
+        rollbarLogLevel: { .critical },
         shell: .mock
     )
 }
