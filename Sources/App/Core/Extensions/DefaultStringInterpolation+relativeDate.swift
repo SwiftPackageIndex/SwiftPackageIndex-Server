@@ -16,6 +16,7 @@ extension DefaultStringInterpolation {
         return delta >= 0 ? "in \(phrase)" : "\(phrase) ago"
     }
 
+    // Based on: https://apidock.com/rails/ActionView/Helpers/DateHelper/distance_of_time_in_words
     static func distancePhrase(_ delta: TimeInterval) -> String {
         let m = 60
         let H = 60*m
