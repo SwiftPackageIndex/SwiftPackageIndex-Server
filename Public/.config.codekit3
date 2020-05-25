@@ -48,10 +48,10 @@
 	"/javascripts/main.js": {
 		"bF": 0,
 		"ft": 64,
-		"ma": 0,
+		"ma": 1,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "/javascripts/main-min.js",
+		"oAP": "/javascripts/main.min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -1585,7 +1585,7 @@
 		},
 	"esLintSourceType": 0,
 	"externalServerAddress": "http://localhost:8888",
-	"gitIgnoreBuildFolder": 1,
+	"gitIgnoreBuildFolder": 0,
 	"hideConfigFile": 1,
 	"jsCheckerReservedNamesString": "",
 	"jsHintFlags2": {
@@ -1997,13 +1997,13 @@
 		},
 	"languageDefaultsJS": {
 		"autoOutputAction": 0,
-		"autoOutputPathFilenamePattern": "*-min.js",
+		"autoOutputPathFilenamePattern": "*.min.js",
 		"autoOutputPathRelativePath": "/min",
 		"autoOutputPathReplace1": "",
 		"autoOutputPathReplace2": "",
 		"autoOutputPathStyle": 0,
 		"bundleFormat": 0,
-		"createSourceMap": 0,
+		"createSourceMap": 1,
 		"minifyOutput": 1,
 		"syntaxCheckerStyle": 3,
 		"transpilerStyle": 0
