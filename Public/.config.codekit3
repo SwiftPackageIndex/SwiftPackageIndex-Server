@@ -46,7 +46,7 @@
 		"prP": 0
 		},
 	"/javascripts/main.js": {
-		"bF": 0,
+		"bF": 4,
 		"ft": 64,
 		"ma": 1,
 		"mi": 1,
@@ -80,6 +80,28 @@
 		"oA": 2,
 		"oAP": "/build/node_modules",
 		"oF": 0
+		},
+	"/node_modules/axios/index.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 1,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/node_modules/axios/index.min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
+	"/node_modules/lodash/lodash.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 1,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/node_modules/lodash/lodash.min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
 		},
 	"/package-lock.json": {
 		"ft": 524288,
@@ -148,7 +170,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 612122350.65262902
+	"lastBuiltDate": 612136840.61795604
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,

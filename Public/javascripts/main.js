@@ -1,3 +1,6 @@
+import _ from 'lodash'
+import axios from 'axios'
+
 // Constants for session key storage.
 const SessionKey = {
   searchResults: 'com.swiftpackageindex.searchResults'
