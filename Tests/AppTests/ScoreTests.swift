@@ -26,7 +26,7 @@ class ScoreTests: XCTestCase {
         XCTAssertEqual(Score.compute(.init(supportsLatestSwiftVersion: true,
                                            releaseCount: 20,
                                            likeCount: 20_000)),
-                       80)
+                       67)
     }
 
 }

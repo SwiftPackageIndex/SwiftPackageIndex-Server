@@ -278,7 +278,7 @@ final class PackageTests: AppTestCase {
             .wait()
 
         // MUT
-        XCTAssertEqual(pkg.computeScore(), 80)
+        XCTAssertEqual(pkg.computeScore(), 67)
     }
 }
 

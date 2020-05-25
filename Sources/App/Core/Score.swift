@@ -24,8 +24,8 @@ enum Score {
             case    25..<100   :  score += 10
             case   100..<500   :  score += 20
             case   500..<5_000 :  score += 30
-            case 5_000..<10_000:  score += 40
-            default:              score += 50
+            case 5_000..<10_000:  score += 35
+            default:              score += 37
         }
 
         return score
