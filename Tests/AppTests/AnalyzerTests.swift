@@ -428,7 +428,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(p.name, "p1")
     }
 
-    func test_updateStatus() throws {
+    func test_updatePackage() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].urls)
         let results: [Result<Package, Error>] = [
@@ -438,7 +438,7 @@ class AnalyzerTests: AppTestCase {
         ]
 
         // MUT
-        try updateStatus(application: app, results: results, stage: .analysis).wait()
+        try updatePackage(application: app, results: results, stage: .analysis).wait()
 
         // validate
         do {

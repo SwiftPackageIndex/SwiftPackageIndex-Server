@@ -29,7 +29,7 @@ func ingest(application: Application, database: Database, limit: Int) -> EventLo
     let packages = Package.fetchCandidates(application.db, for: .ingestion, limit: limit)
     let metadata = packages.flatMap { fetchMetadata(client: application.client, packages: $0) }
     let updates = metadata.flatMap { updateRespositories(on: application.db, metadata: $0) }
-    return updates.flatMap { updateStatus(application: application, results: $0, stage: .ingestion) }
+    return updates.flatMap { updatePackage(application: application, results: $0, stage: .ingestion) }
 }
 
 

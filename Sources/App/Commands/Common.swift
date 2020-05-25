@@ -2,9 +2,9 @@ import Fluent
 import Vapor
 
 
-func updateStatus(application: Application,
-                  results: [Result<Package, Error>],
-                  stage: ProcessingStage) -> EventLoopFuture<Void> {
+func updatePackage(application: Application,
+                   results: [Result<Package, Error>],
+                   stage: ProcessingStage) -> EventLoopFuture<Void> {
     let updates = results.map { result -> EventLoopFuture<Void> in
         switch result {
             case .success(let pkg):

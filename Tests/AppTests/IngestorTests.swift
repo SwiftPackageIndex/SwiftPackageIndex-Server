@@ -106,7 +106,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.summary, "package desc")
     }
 
-    func test_updateStatus() throws {
+    func test_updatePackage() throws {
         // setup
         let pkgs = try savePackages(on: app.db, ["1", "2"])
         let results: [Result<Package, Error>] = [
@@ -115,7 +115,7 @@ class IngestorTests: AppTestCase {
         ]
 
         // MUT
-        try updateStatus(application: app, results: results, stage: .ingestion).wait()
+        try updatePackage(application: app, results: results, stage: .ingestion).wait()
 
         // validate
         do {
