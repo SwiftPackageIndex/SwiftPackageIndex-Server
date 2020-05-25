@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import debounce from 'lodash/debounce'
 import axios from 'axios'
 
 // Constants for session key storage.
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const queryFieldElement = document.getElementById('query')
   if (queryFieldElement) {
     // When user input is entered into the query field, perform the search.
-    queryFieldElement.addEventListener('input', _.debounce(function(event) {
+    queryFieldElement.addEventListener('input', debounce(function(event) {
       const queryFieldElement = event.target
       const searchQuery = queryFieldElement.value.trim()
       if (searchQuery.length > 0) {
