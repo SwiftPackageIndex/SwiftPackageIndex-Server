@@ -75,16 +75,6 @@
 		"oAP": "/javascripts/main.min.js.map",
 		"oF": 0
 		},
-	"/stylesheets/grid-min.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "/stylesheets/grid-min.min.css",
-		"oF": 0,
-		"oS": 3
-		},
 	"/stylesheets/grid.css": {
 		"aP": 1,
 		"bl": 0,
@@ -92,16 +82,6 @@
 		"ma": 0,
 		"oA": 0,
 		"oAP": "/stylesheets/grid.min.css",
-		"oF": 0,
-		"oS": 3
-		},
-	"/stylesheets/main-min.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "/stylesheets/main-min.min.css",
 		"oF": 0,
 		"oS": 3
 		},
@@ -126,7 +106,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 612121845.051283
+	"lastBuiltDate": 612122308.74820495
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
