@@ -3,76 +3,77 @@ import Plot
 
 extension PackageShow {
     struct Model: Equatable {
-        let title: String
-        let url: String
-        let license: License
-        let summary: String
-        let authors: [Link]
-        let history: History?
-        let activity: Activity?
-        let products: ProductCounts?
-        let releases: ReleaseInfo
-        let languagePlatforms: LanguagePlatformInfo
+        var title: String
+        var url: String
+        var license: License
+        var summary: String
+        var authors: [Link]?
+        var history: History?
+        var activity: Activity?
+        var products: ProductCounts?
+        var releases: ReleaseInfo
+        var languagePlatforms: LanguagePlatformInfo
 
         struct Link: Equatable {
-            let label: String
-            let url: String
+            var label: String
+            var url: String
         }
 
         struct DatedLink: Equatable {
-            let date: String
-            let link: Link
+            var date: String
+            var link: Link
         }
 
         struct History: Equatable {
-            let since: String
-            let commitCount: Link
-            let releaseCount: Link
+            var since: String
+            var commitCount: Link
+            var releaseCount: Link
         }
 
         struct Activity: Equatable {
-            let openIssues: Link
-            let pullRequests: Link
-            let lastPullRequestClosedMerged: String
+            var openIssues: Link
+            var pullRequests: Link
+            var lastPullRequestClosedMerged: String
         }
 
         struct ProductCounts: Equatable {
-            let libraries: Int
-            let executables: Int
+            var libraries: Int
+            var executables: Int
         }
 
         struct ReleaseInfo: Equatable {
-            let stable: DatedLink?
-            let beta: DatedLink?
-            let latest: DatedLink?
+            var stable: DatedLink?
+            var beta: DatedLink?
+            var latest: DatedLink?
         }
 
         struct Version: Equatable {
-            let link: Link
-            let swiftVersions: [String]
-            let platforms: [Platform]
+            var link: Link
+            var swiftVersions: [String]
+            var platforms: [Platform]
         }
 
         struct LanguagePlatformInfo: Equatable {
-            let stable: Version?
-            let beta: Version?
-            let latest: Version?
+            var stable: Version?
+            var beta: Version?
+            var latest: Version?
         }
     }
 }
 
 
 extension PackageShow.Model {
-    func authorsClause() -> [Node<HTML.BodyContext>] {
+    func authorsClause() -> Node<HTML.BodyContext>? {
+        guard let authors = authors else { return nil }
         let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
-        return Self.listPhrase(opening: .text("By "),
-                               nodes: nodes,
-                               ifNoValues: ["-"])
+        return .group(Self.listPhrase(opening: .text("By "),
+                                      nodes: nodes,
+                                      ifNoValues: ["-"]))
     }
 
-    func historyClause() -> [Node<HTML.BodyContext>] {
-        guard let history = history else { return [] }
-        return [
+    func historyClause() -> Node<HTML.BodyContext>? {
+        guard let history = history else { return nil }
+        return .group([
             "In development for \(history.since), with ",
             .a(
                 .href(history.commitCount.url),
@@ -84,12 +85,12 @@ extension PackageShow.Model {
                 .text(history.releaseCount.label)
             ),
             "."
-        ]
+        ])
     }
 
-    func activityClause() -> [Node<HTML.BodyContext>] {
-        guard let activity = activity else { return [] }
-        return [
+    func activityClause() -> Node<HTML.BodyContext>? {
+        guard let activity = activity else { return nil }
+        return .group([
             "There are ",
             .a(
                 .href(activity.openIssues.url),
@@ -101,12 +102,12 @@ extension PackageShow.Model {
                 .text(activity.pullRequests.label)
             ),
             ". The last pull request was closed/merged \(activity.lastPullRequestClosedMerged)."
-        ]
+        ])
     }
 
-    func productsClause() -> [Node<HTML.BodyContext>] {
-        guard let products = products else { return [] }
-        return [
+    func productsClause() -> Node<HTML.BodyContext>? {
+        guard let products = products else { return nil }
+        return .group([
             "\(title) contains ",
             .strong(
                 .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries"))
@@ -116,7 +117,7 @@ extension PackageShow.Model {
                 .text(pluralizedCount(products.executables, singular: "executable"))
             ),
             "."
-        ]
+        ])
     }
 
     func stableReleaseClause() -> [Node<HTML.BodyContext>] {
