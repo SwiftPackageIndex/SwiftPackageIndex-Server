@@ -68,13 +68,13 @@ enum PackageShow {
                         .li(.group(model.latestReleaseClause()))
                     )
                 ),
-                .section(
-                    .class("language_platforms"),
-                    .h3("Language and Platforms"),
-                    .ul(
-                        .group(model.languagesAndPlatformsClause())
+                .unwrap(model.languagesAndPlatformsClause()) {
+                    .section(
+                        .class("language_platforms"),
+                        .h3("Language and Platforms"),
+                        .ul(.group($0))
                     )
-                )
+                }
             )
         }
     }
