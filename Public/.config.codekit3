@@ -12,9 +12,9 @@
 	"/fonts/icomoon.svg": {
 		"ft": 2097152,
 		"miP": 0,
-		"oA": 0,
+		"oA": 2,
 		"oAP": "/fonts/icomoon.svg",
-		"oF": 0,
+		"oF": 1,
 		"opt": 0,
 		"plM": 52780316221407,
 		"prP": 0
@@ -86,7 +86,8 @@
 	"displayValue": "Swift Package Index",
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
-	"iconImageWasSetByUser": 0
+	"iconImageWasSetByUser": 0,
+	"lastBuiltDate": 612121567.08424795
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
