@@ -12,7 +12,7 @@
 	"/fonts/icomoon.svg": {
 		"ft": 2097152,
 		"miP": 0,
-		"oA": 2,
+		"oA": 0,
 		"oAP": "/fonts/icomoon.svg",
 		"oF": 0,
 		"opt": 0,
@@ -38,7 +38,7 @@
 	"/images/logo.svg": {
 		"ft": 2097152,
 		"miP": 0,
-		"oA": 2,
+		"oA": 0,
 		"oAP": "/images/logo.svg",
 		"oF": 0,
 		"opt": 0,
@@ -2145,7 +2145,7 @@
 		"shouldRunBless": 0
 		},
 	"languageDefaultsSVG": {
-		"autoOutputAction": 2,
+		"autoOutputAction": 0,
 		"autoOutputPathFilenamePattern": "*.svg",
 		"autoOutputPathRelativePath": "",
 		"autoOutputPathReplace1": "",
