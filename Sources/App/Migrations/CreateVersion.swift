@@ -35,3 +35,20 @@ struct AddCommitDate: Migration {
             .update()
     }
 }
+
+
+struct ChangeSwiftVersions: Migration {
+    func prepare(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("versions")
+            .deleteField("swift_versions")
+            .field("swift_versions", .array(of: .json))
+            .update()
+    }
+
+    func revert(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("versions")
+            .deleteField("swift_versions")
+            .field("swift_versions", .array(of: .string))
+            .update()
+    }
+}

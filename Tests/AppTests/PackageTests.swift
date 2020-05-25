@@ -200,16 +200,16 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, reference: .branch("default"),
                         commitDate: daysAgo(1),
                         supportedPlatforms: [.macos("10.15"), .ios("13")],
-                        swiftVersions: ["5.2", "5.3"]),
+                        swiftVersions: ["5.2", "5.3"].asSwiftVersions),
             try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
             try Version(package: pkg, reference: .tag(.init(2, 1, 0)),
                         commitDate: daysAgo(3),
                         supportedPlatforms: [.macos("10.13"), .ios("10")],
-                        swiftVersions: ["4", "5"]),
+                        swiftVersions: ["4", "5"].asSwiftVersions),
             try Version(package: pkg, reference: .tag(.init(3, 0, 0, "beta")),
                         commitDate: daysAgo(2),
                         supportedPlatforms: [.macos("10.14"), .ios("13")],
-                        swiftVersions: ["5", "5.2"]),
+                        swiftVersions: ["5", "5.2"].asSwiftVersions),
         ]
         try versions.create(on: app.db).wait()
         // re-load pkg with relationships
@@ -268,7 +268,7 @@ final class PackageTests: AppTestCase {
         try Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db).wait()
         try Version(package: pkg,
                     reference: .branch("default"),
-                    swiftVersions: ["5"]).save(on: app.db).wait()
+                    swiftVersions: ["5"].asSwiftVersions).save(on: app.db).wait()
         try (0..<20).forEach {
             try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
         }

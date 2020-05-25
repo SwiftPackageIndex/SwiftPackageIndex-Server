@@ -8,7 +8,7 @@ class ReconcilerTests: AppTestCase {
     
     func test_basic_reconciliation() throws {
         let urls = ["1", "2", "3"]
-        Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
+        Current.fetchMasterPackageList = { _ in .just(value: urls.asURLs) }
 
         try reconcile(client: app.client, database: app.db).wait()
 
@@ -25,11 +25,11 @@ class ReconcilerTests: AppTestCase {
 
     func test_adds_and_deletes() throws {
         // save intial set of packages 1, 2, 3
-        try savePackages(on: app.db, ["1", "2", "3"].urls)
+        try savePackages(on: app.db, ["1", "2", "3"].asURLs)
 
         // new package list drops 2, 3, adds 4, 5
         let urls = ["1", "4", "5"]
-        Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
+        Current.fetchMasterPackageList = { _ in .just(value: urls.asURLs) }
 
         // MUT
         try reconcile(client: app.client, database: app.db).wait()

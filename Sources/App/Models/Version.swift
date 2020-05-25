@@ -38,7 +38,7 @@ final class Version: Model, Content {
     var supportedPlatforms: [Platform]
 
     @Field(key: "swift_versions")
-    var swiftVersions: [String]
+    var swiftVersions: [SwiftVersion]
 
     @Children(for: \.$version)
     var products: [Product]
@@ -52,7 +52,7 @@ final class Version: Model, Content {
          commit: CommitHash? = nil,
          commitDate: Date? = nil,
          supportedPlatforms: [Platform] = [],
-         swiftVersions: [String] = []) throws {
+         swiftVersions: [SwiftVersion] = []) throws {
         self.id = id
         self.$package.id = try package.requireID()
         self.reference = reference
@@ -77,15 +77,11 @@ extension Version {
         Self.supportsMajorSwiftVersion(swiftVersion, values: swiftVersions)
     }
 
-    static func supportsMajorSwiftVersion(_ swiftVersion: Int, value: String) -> Bool {
-        guard
-            let value = value.split(separator: ".").first,
-            let major = Int(value)
-            else { return false }
-        return major >= swiftVersion
+    static func supportsMajorSwiftVersion(_ swiftVersion: Int, value: SwiftVersion) -> Bool {
+        return value.major >= swiftVersion
     }
 
-    static func supportsMajorSwiftVersion(_ swiftVersion: Int, values: [String]) -> Bool {
+    static func supportsMajorSwiftVersion(_ swiftVersion: Int, values: [SwiftVersion]) -> Bool {
         values.first { supportsMajorSwiftVersion(swiftVersion, value: $0) } != nil
     }
 }

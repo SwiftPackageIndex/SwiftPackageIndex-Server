@@ -13,7 +13,7 @@ class IngestorTests: AppTestCase {
                     "https://github.com/finestructure/Rester",
                     "https://github.com/finestructure/SwiftPMLibrary-Server"]
         Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
-        let packages = try savePackages(on: app.db, urls.urls, processingStage: .reconciliation)
+        let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         let lastUpdate = Date()
 
         // MUT
@@ -42,7 +42,7 @@ class IngestorTests: AppTestCase {
 
     func test_fetchMetadata() throws {
         // setup
-        let packages = try savePackages(on: app.db, ["1", "2"].urls)
+        let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "1" {
                return .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
@@ -161,7 +161,7 @@ class IngestorTests: AppTestCase {
     func test_ingest_badMetadata() throws {
         // setup
         let urls = ["1", "2", "3"]
-        let packages = try savePackages(on: app.db, urls.urls, processingStage: .reconciliation)
+        let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "2" {
                 return .just(error: AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2")))

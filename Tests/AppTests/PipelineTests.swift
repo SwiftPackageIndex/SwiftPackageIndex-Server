@@ -103,8 +103,8 @@ class PipelineTests: AppTestCase {
         // Test pipeline pick-up end to end
 
         // setup
-        let urls = ["1", "2", "3"].gh
-        Current.fetchMasterPackageList = { _ in .just(value: urls.urls) }
+        let urls = ["1", "2", "3"].asGithubUrls
+        Current.fetchMasterPackageList = { _ in .just(value: urls.asURLs) }
         Current.shell.run = { cmd, path in
             if cmd.string == "swift package dump-package" {
                 return #"{ "name": "Mock", "products": [] }"#
@@ -121,7 +121,7 @@ class PipelineTests: AppTestCase {
 
         do {  // validate
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
-            XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].gh)
+            XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.none, .none, .none])
             XCTAssertEqual(packages.map(\.processingStage), [.reconciliation, .reconciliation, .reconciliation])
         }
@@ -131,7 +131,7 @@ class PipelineTests: AppTestCase {
 
         do { // validate
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
-            XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].gh)
+            XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
         }
@@ -141,20 +141,20 @@ class PipelineTests: AppTestCase {
 
         do { // validate
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
-            XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].gh)
+            XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
         }
 
         // Now we've got a new package and a deletion
-        Current.fetchMasterPackageList = { _ in .just(value: ["1", "3", "4"].gh.urls) }
+        Current.fetchMasterPackageList = { _ in .just(value: ["1", "3", "4"].asGithubUrls.asURLs) }
 
         // MUT - reconcile again
         try reconcile(client: app.client, database: app.db).wait()
 
         do {  // validate - only new package moves to .reconciliation stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
-            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].gh)
+            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .none])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .reconciliation])
         }
@@ -164,7 +164,7 @@ class PipelineTests: AppTestCase {
 
         do {  // validate - only new package moves to .ingestion stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
-            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].gh)
+            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .ingestion])
         }
@@ -175,7 +175,7 @@ class PipelineTests: AppTestCase {
 
         do {  // validate - only new package moves to .ingestion stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
-            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].gh)
+            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
             XCTAssertEqual(packages.map { $0.updatedAt! > lastAnalysis }, [false, false, true])
@@ -189,7 +189,7 @@ class PipelineTests: AppTestCase {
 
         do {  // validate - now all three packages should have been updated
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
-            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].gh)
+            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
         }
@@ -199,7 +199,7 @@ class PipelineTests: AppTestCase {
 
         do {  // validate - only new package moves to .ingestion stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
-            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].gh)
+            XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
         }

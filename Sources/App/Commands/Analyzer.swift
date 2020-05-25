@@ -270,8 +270,8 @@ func updateVersionsAndProducts(on database: Database, results: [Result<(Package,
 
 func updateVersion(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
     version.packageName = manifest.name
-    version.swiftVersions = manifest.swiftLanguageVersions ?? []
-    version.supportedPlatforms = manifest.platforms?.compactMap { Platform(from: $0) } ?? []
+    version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
+    version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
     return version.save(on: database)
 }
 
