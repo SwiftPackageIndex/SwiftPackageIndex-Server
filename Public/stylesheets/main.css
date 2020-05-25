@@ -296,6 +296,7 @@ header nav ul li a:hover {
   font-size: 25px;
   font-weight: 600;
   line-height: 1.2;
+  border: none;
   color: var(--black);
   resize: none;
   white-space: nowrap;
