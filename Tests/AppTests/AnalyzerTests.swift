@@ -12,9 +12,8 @@ class AnalyzerTests: AppTestCase {
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
-        try pkgs.forEach {
-            try Repository(package: $0, defaultBranch: "master").save(on: app.db).wait()
-        }
+        try Repository(package: pkgs[0], defaultBranch: "master", stars: 25).save(on: app.db).wait()
+        try Repository(package: pkgs[1], defaultBranch: "master", stars: 100).save(on: app.db).wait()
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
@@ -79,6 +78,10 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(products.count, 6)
         assertEquals(products, \.name, ["p1", "p1", "p1", "p2", "p2", "p2"])
         assertEquals(products, \.type, [.executable, .executable, .executable, .library, .library, .library])
+
+        // validate score
+        XCTAssertEqual(pkg1.score, 10)
+        XCTAssertEqual(pkg2.score, 20)
     }
 
     func test_package_status() throws {
@@ -425,7 +428,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(p.name, "p1")
     }
 
-    func test_updateStatus() throws {
+    func test_updatePackage() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].urls)
         let results: [Result<Package, Error>] = [
@@ -435,7 +438,7 @@ class AnalyzerTests: AppTestCase {
         ]
 
         // MUT
-        try updateStatus(application: app, results: results, stage: .analysis).wait()
+        try updatePackage(application: app, results: results, stage: .analysis).wait()
 
         // validate
         do {

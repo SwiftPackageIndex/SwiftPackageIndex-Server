@@ -28,6 +28,8 @@ final class Package: Model, Content {
 
     typealias Id = UUID
 
+    // managed fields
+
     @ID(key: .id)
     var id: Id?
 
@@ -37,14 +39,21 @@ final class Package: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
-    @Field(key: "url")
-    var url: String
+    // data fields
+
+    @OptionalEnum(key: "processing_stage")
+    var processingStage: ProcessingStage?
+
+    @Field(key: "score")
+    var score: Int?
 
     @OptionalEnum(key: "status")
     var status: Status?
 
-    @OptionalEnum(key: "processing_stage")
-    var processingStage: ProcessingStage?
+    @Field(key: "url")
+    var url: String
+    
+    // relationships
 
     @Children(for: \.$package)
     var repositories: [Repository]
@@ -56,11 +65,12 @@ final class Package: Model, Content {
 
     init(id: UUID? = nil,
          url: URL,
+         score: Int? = nil,
          status: Status? = nil,
-         processingStage: ProcessingStage? = nil,
-         lastCommitAt: Date? = nil) {
+         processingStage: ProcessingStage? = nil) {
         self.id = id
         self.url = url.absoluteString
+        self.score = score
         self.status = status
         self.processingStage = processingStage
     }

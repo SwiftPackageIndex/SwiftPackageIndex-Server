@@ -75,9 +75,9 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
     let updateOps = versionsAndManifests.flatMap { updateVersionsAndProducts(on: application.db,
                                                                              results: $0) }
 
-    let statusOps = updateOps.flatMap { updateStatus(application: application,
-                                                     results: $0,
-                                                     stage: .analysis) }
+    let statusOps = updateOps.flatMap { updatePackage(application: application,
+                                                      results: $0,
+                                                      stage: .analysis) }
 
     return statusOps
 }

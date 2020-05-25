@@ -2,15 +2,21 @@ import Fluent
 import Vapor
 
 
-func updateStatus(application: Application,
-                  results: [Result<Package, Error>],
-                  stage: ProcessingStage) -> EventLoopFuture<Void> {
+func updatePackage(application: Application,
+                   results: [Result<Package, Error>],
+                   stage: ProcessingStage) -> EventLoopFuture<Void> {
     let updates = results.map { result -> EventLoopFuture<Void> in
         switch result {
             case .success(let pkg):
-                pkg.status = .ok
-                pkg.processingStage = stage
-                return pkg.update(on: application.db)
+                return pkg.$repositories
+                    .load(on: application.db)
+                    .flatMap { pkg.$versions.load(on: application.db) }
+                    .flatMap {
+                        pkg.status = .ok
+                        pkg.processingStage = stage
+                        pkg.score = pkg.computeScore()
+                        return pkg.update(on: application.db)
+                }
             case .failure(let error):
                 return Current.reportError(application.client, .error, error)
                     .flatMap { recordError(database: application.db, error: error, stage: stage) }

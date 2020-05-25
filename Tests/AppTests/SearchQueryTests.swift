@@ -15,9 +15,10 @@ class SearchQueryTests: AppTestCase {
     func test_build() throws {
         XCTAssertEqual(
             API.SearchQuery.build(["foo"]),
-            API.SearchQuery.preamble + "\nand "
+            API.SearchQuery.preamble + "\n  and "
                 + API.SearchQuery.regexClause("foo")
-                + "\nlimit 25"
+                + "\n  order by p.score desc"
+                + "\n  limit 25"
         )
     }
 
@@ -123,6 +124,23 @@ class SearchQueryTests: AppTestCase {
         // validate
         XCTAssertFalse(res.hasMoreResults)
         XCTAssertEqual(res.results.count, 21)
+    }
+
+    func test_order_by_score() throws {
+        // setup
+        try (0..<10).shuffled().forEach {
+            let p = Package(id: UUID(), url: "\($0)".url, score: $0)
+            try p.save(on: app.db).wait()
+            try Repository(package: p, summary: "\($0)", defaultBranch: "master").save(on: app.db).wait()
+            try Version(package: p, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
+        }
+
+        // MUT
+        let res = try API.SearchQuery.run(app.db, ["foo"]).wait()
+
+        // validation
+        XCTAssertEqual(res.results.count, 10)
+        XCTAssertEqual(res.results.map(\.summary), ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"])
     }
 
 }

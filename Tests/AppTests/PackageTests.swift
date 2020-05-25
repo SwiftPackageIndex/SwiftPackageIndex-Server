@@ -107,7 +107,7 @@ final class PackageTests: AppTestCase {
 
     func test_defaultVersion() throws {
         // setup
-        var pkg = try savePackage(on: app.db, "1")
+        let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
@@ -117,11 +117,9 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, reference: .tag(.init(3, 0, 0, "beta")), commitDate: daysAgo(2)),
         ]
         try versions.create(on: app.db).wait()
-        pkg = try XCTUnwrap(Package.query(on: app.db)
-            .with(\.$repositories)
-            .with(\.$versions)
-            .first()
-            .wait())
+        try pkg.$repositories.load(on: app.db)
+            .flatMap { pkg.$versions.load(on: self.app.db) }
+            .wait()
 
         // MUT
         let version = pkg.defaultVersion()
@@ -157,7 +155,7 @@ final class PackageTests: AppTestCase {
 
     func test_releaseInfo() throws {
         // setup
-        var pkg = try savePackage(on: app.db, "1")
+        let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
@@ -168,10 +166,9 @@ final class PackageTests: AppTestCase {
         ]
         try versions.create(on: app.db).wait()
         // re-load pkg with relationships
-        pkg = try XCTUnwrap(Package.query(on: app.db)
-            .with(\.$repositories)
-            .with(\.$versions)
-            .first().wait())
+        try pkg.$repositories.load(on: app.db)
+            .flatMap { pkg.$versions.load(on: self.app.db) }
+            .wait()
 
         // MUT
         let info = pkg.releaseInfo()
@@ -196,7 +193,7 @@ final class PackageTests: AppTestCase {
 
     func test_languagePlatformInfo() throws {
         // setup
-        var pkg = try savePackage(on: app.db, "1")
+        let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
@@ -216,10 +213,9 @@ final class PackageTests: AppTestCase {
         ]
         try versions.create(on: app.db).wait()
         // re-load pkg with relationships
-        pkg = try XCTUnwrap(Package.query(on: app.db)
-            .with(\.$repositories)
-            .with(\.$versions)
-            .first().wait())
+        try pkg.$repositories.load(on: app.db)
+            .flatMap { pkg.$versions.load(on: self.app.db) }
+            .wait()
 
         // MUT
         let lpInfo = pkg.languagePlatformInfo()
@@ -242,7 +238,7 @@ final class PackageTests: AppTestCase {
 
     func test_history() throws {
         // setup
-        var pkg = try savePackage(on: app.db, "1")
+        let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg,
                        commitCount: 1433,
                        firstCommitDate: Date(timeIntervalSince1970: 0),
@@ -251,10 +247,9 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
         }
         // re-load pkg with relationships
-        pkg = try XCTUnwrap(Package.query(on: app.db)
-            .with(\.$repositories)
-            .with(\.$versions)
-            .first().wait())
+        try pkg.$repositories.load(on: app.db)
+            .flatMap { pkg.$versions.load(on: self.app.db) }
+            .wait()
 
         // MUT
         let history = try XCTUnwrap(pkg.history())
@@ -265,6 +260,25 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(history.commitCount.url, "1/commits/default")
         XCTAssertEqual(history.releaseCount.label, "10 releases")
         XCTAssertEqual(history.releaseCount.url, "1/releases")
+    }
+
+    func test_computeScore() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db).wait()
+        try Version(package: pkg,
+                    reference: .branch("default"),
+                    swiftVersions: ["5"]).save(on: app.db).wait()
+        try (0..<20).forEach {
+            try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
+        }
+        // re-load pkg with relationships
+        try pkg.$repositories.load(on: app.db)
+            .flatMap { pkg.$versions.load(on: self.app.db) }
+            .wait()
+
+        // MUT
+        XCTAssertEqual(pkg.computeScore(), 67)
     }
 }
 

@@ -51,14 +51,14 @@ extension API {
         static var preamble: String {
             """
             select
-            p.id,
-            v.package_name,
-            r.name,
-            r.owner,
-            r.summary
+              p.id,
+              v.package_name,
+              r.name,
+              r.owner,
+              r.summary
             from packages p
-            join repositories r on r.package_id = p.id
-            join versions v on v.package_id = p.id
+              join repositories r on r.package_id = p.id
+              join versions v on v.package_id = p.id
             where v.reference ->> 'branch' = r.default_branch
             """
         }
@@ -70,8 +70,9 @@ extension API {
         static func build(_ terms: [String]) -> String {
             ([preamble]
                 + terms.map(regexClause)
-                ).joined(separator: "\nand ")
-                + "\nlimit \(API.searchLimit + API.searchLimitLeeway)"
+                ).joined(separator: "\n  and ")
+                + "\n  order by p.score desc"
+                + "\n  limit \(API.searchLimit + API.searchLimitLeeway)"
         }
 
         static func run(_ database: Database, _ terms: [String]) -> EventLoopFuture<SearchResult> {

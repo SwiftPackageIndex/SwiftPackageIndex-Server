@@ -34,6 +34,7 @@ public func configure(_ app: Application) throws {
     app.migrations.add(AddCommitDate())
     app.migrations.add(RemoveLastCommitAt())
     app.migrations.add(AddCommitHistoryFields())
+    app.migrations.add(AddScore())
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")

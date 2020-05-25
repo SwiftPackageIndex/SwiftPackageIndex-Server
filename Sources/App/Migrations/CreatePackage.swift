@@ -34,3 +34,17 @@ struct RemoveLastCommitAt: Migration {
             .update()
     }
 }
+
+struct AddScore: Migration {
+    func prepare(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("packages")
+            .field("score", .int)
+            .update()
+    }
+
+    func revert(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("packages")
+            .deleteField("score")
+            .update()
+    }
+}
