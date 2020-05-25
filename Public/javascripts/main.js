@@ -1,9 +1,9 @@
 // Constants for session key storage.
 const SessionKey = {
-  searchResults: 'com.swiftpackageindex.searchResults',
+  searchResults: 'com.swiftpackageindex.searchResults'
 }
 
-document.addEventListener('DOMContentLoaded', function(event) {
+document.addEventListener('DOMContentLoaded', function() {
   // Force external links to open with a _blank target.
   document.addEventListener('click', function(event) {
     var target = event.target
@@ -11,12 +11,12 @@ document.addEventListener('DOMContentLoaded', function(event) {
       if (target.nodeName.toLowerCase() == 'a' && target.hostname != window.location.hostname) {
         target.setAttribute('target', '_blank')
       }
-    } while (target = target.parentElement)
+    } while ((target = target.parentElement))
   })
 
   // If there is a search element, configure the search callbacks.
   const queryFieldElement = document.getElementById('query')
-  if (!!queryFieldElement) {
+  if (queryFieldElement) {
     // When user input is entered into the query field, perform the search.
     queryFieldElement.addEventListener('input', _.debounce(function(event) {
       const queryFieldElement = event.target
@@ -44,25 +44,28 @@ document.addEventListener('DOMContentLoaded', function(event) {
       const searchResults = sessionStorage.getDeserializedItem(SessionKey.searchResults)
 
       switch (event.keyCode) {
-        case 13:
+        case 13: { // Enter
           const selectedItemElement = resultsListElement.children[window.searchResultSelectedIndex]
           const linkElement = selectedItemElement.querySelector('a')
           linkElement.click()
           break
-        case 38: // Up arrow
-        if (typeof(window.searchResultSelectedIndex) !== 'number') {
+        }
+        case 38: { // Up arrow
+          if (typeof(window.searchResultSelectedIndex) !== 'number') {
             window.searchResultSelectedIndex = searchResults.results.length - 1
           } else {
             window.searchResultSelectedIndex = Math.max(window.searchResultSelectedIndex - 1, 0)
           }
           break
-        case 40: // Down arrow
+        }
+        case 40: { // Down arrow
           if (typeof(window.searchResultSelectedIndex) !== 'number') {
             window.searchResultSelectedIndex = 0
           } else {
             window.searchResultSelectedIndex = Math.min(window.searchResultSelectedIndex + 1, searchResults.results.length - 1)
           }
           break
+        }
       }
 
       Array.from(resultsListElement.children).forEach(function(listItemElement, index) {
@@ -81,15 +84,15 @@ document.addEventListener('DOMContentLoaded', function(event) {
   }
 })
 
-window.addEventListener('pageshow', function(event) {
+window.addEventListener('pageshow', function() {
   // If there is a search element, configure the search callbacks.
   const queryFieldElement = document.getElementById('query')
-  if (!!queryFieldElement) {
+  if (queryFieldElement) {
     // If there's already a query in the input field, display results from session storage.
     const searchQuery = queryFieldElement.value.trim()
     if (searchQuery.length > 0) {
       const searchResults = sessionStorage.getDeserializedItem(SessionKey.searchResults)
-      if (!!searchResults) {
+      if (searchResults) {
         clearSearchResults()
         displaySearchResults(searchResults)
       }
@@ -145,7 +148,7 @@ function performSearch(searchQuery) {
   } else {
     // Create an unordered list with the results.
     const resultsListElement = document.createElement('ul')
-    searchResults.results.forEach((result, index) => {
+    searchResults.results.forEach((result) => {
       createSearchResultListItemElement(result, resultsListElement)
     })
     resultsElement.appendChild(resultsListElement)
@@ -185,7 +188,7 @@ function displayErrorMessage(error) {
   errorContainerElement.appendChild(errorMessageElement)
 
   // Finally, what was the error?
-  if (!!error.response) {
+  if (error.response) {
     errorMessageElement.textContent = error.response.status + ' – ' + error.response.statusText
 
     // Is there any extra information in the "reason" that might be useful?
@@ -201,7 +204,7 @@ function displayErrorMessage(error) {
 
 function setElementHiddenById(id, hidden) {
   const element = document.getElementById(id)
-  if (!!element) { element.hidden = hidden }
+  if (element) { element.hidden = hidden }
 }
 
 function createSearchResultListItemElement(result, containerElement) {
@@ -238,7 +241,7 @@ function createSearchResultListItemElement(result, containerElement) {
 
 Storage.prototype.getDeserializedItem = function(key) {
   const value = this.getItem(key)
-  return (!!value) ? JSON.parse(value) : null
+  return (value) ? JSON.parse(value) : null
 }
 
 Storage.prototype.setSerializedItem = function (key, value) {
