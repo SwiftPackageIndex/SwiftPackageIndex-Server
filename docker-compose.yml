@@ -88,6 +88,25 @@ services:
     ports:
       - "2222:22"
 
+  grafana:
+    image: grafana/grafana:7.0.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+  loki:
+    image: grafana/loki:1.5.0
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:1.5.0
+    command: -config.file=/etc/promtail/docker-config.yaml
+    volumes:
+      - /var/log:/var/log
+
 volumes:
   db_data:
   checkouts:
+  grafana_data:
