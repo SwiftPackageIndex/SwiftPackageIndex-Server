@@ -8,18 +8,10 @@ func updateStatus(application: Application,
     let updates = results.map { result -> EventLoopFuture<Void> in
         switch result {
             case .success(let pkg):
-                guard let pkgId = pkg.id else {
-                    return application.db.eventLoop.future(error:
-                        AppError.genericError(nil, "updateStatus: pkgId nil for package \(pkg.url)")
-                    )
-                }
-                return Package.query(on: application.db)
-                    .with(\.$repositories)
-                    .with(\.$versions)
-                    .filter(\.$id == pkgId)
-                    .first()
-                    .unwrap(or: AppError.genericError(pkg.id, "updateStatus: Package not found"))
-                    .flatMap { pkg -> EventLoopFuture<Void> in
+                return pkg.$repositories
+                    .load(on: application.db)
+                    .flatMap { pkg.$versions.load(on: application.db) }
+                    .flatMap {
                         pkg.status = .ok
                         pkg.processingStage = stage
                         pkg.score = pkg.computeScore()
