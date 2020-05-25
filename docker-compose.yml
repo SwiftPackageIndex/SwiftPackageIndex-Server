@@ -100,11 +100,11 @@ services:
     image: grafana/loki:1.5.0
     command: -config.file=/etc/loki/local-config.yaml
 
-  promtail:
-    image: grafana/promtail:1.5.0
-    command: -config.file=/etc/promtail/docker-config.yaml
-    volumes:
-      - /var/lib/docker/containers:/var/log
+  # promtail:
+  #   image: grafana/promtail:1.5.0
+  #   command: -config.file=/etc/promtail/docker-config.yaml
+  #   volumes:
+  #     - /var/lib/docker/containers:/var/log
 
 volumes:
   db_data:
