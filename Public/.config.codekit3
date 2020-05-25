@@ -56,13 +56,52 @@
 		"sC": 3,
 		"tS": 0
 		},
+	"/javascripts/main.min.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 1,
+		"mi": 1,
+		"oA": 0,
+		"oAP": "/javascripts/main.min.min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
+	"/javascripts/main.min.js.map": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/javascripts/main.min.js.map",
+		"oF": 0
+		},
+	"/stylesheets/grid-min.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/stylesheets/grid-min.min.css",
+		"oF": 0,
+		"oS": 3
+		},
 	"/stylesheets/grid.css": {
 		"aP": 1,
 		"bl": 0,
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "/stylesheets/grid-min.css",
+		"oAP": "/stylesheets/grid.min.css",
+		"oF": 0,
+		"oS": 3
+		},
+	"/stylesheets/main-min.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/stylesheets/main-min.min.css",
 		"oF": 0,
 		"oS": 3
 		},
@@ -72,7 +111,7 @@
 		"ft": 16,
 		"ma": 0,
 		"oA": 0,
-		"oAP": "/stylesheets/main-min.css",
+		"oAP": "/stylesheets/main.min.css",
 		"oF": 0,
 		"oS": 3
 		}
@@ -1952,7 +1991,7 @@
 		},
 	"languageDefaultsCSS": {
 		"autoOutputAction": 0,
-		"autoOutputPathFilenamePattern": "*-min.css",
+		"autoOutputPathFilenamePattern": "*.min.css",
 		"autoOutputPathRelativePath": "",
 		"autoOutputPathReplace1": "",
 		"autoOutputPathReplace2": "",
