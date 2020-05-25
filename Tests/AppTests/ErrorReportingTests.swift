@@ -46,7 +46,7 @@ class ErrorReportingTests: AppTestCase {
 
     func test_Analyzer_error_reporting() throws {
         // setup
-        try savePackages(on: app.db, ["1", "2"].gh.urls, processingStage: .ingestion)
+        try savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
         Current.fileManager.fileExists = { _ in true }
         Current.shell.run = { cmd, path in
             if cmd.string == "git tag" { return "1.0.0" }

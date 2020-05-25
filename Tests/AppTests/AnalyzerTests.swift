@@ -11,7 +11,7 @@ class AnalyzerTests: AppTestCase {
     func test_basic_analysis() throws {
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        let pkgs = try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
+        let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
         try Repository(package: pkgs[0], defaultBranch: "master", stars: 25).save(on: app.db).wait()
         try Repository(package: pkgs[1], defaultBranch: "master", stars: 100).save(on: app.db).wait()
         var checkoutDir: String? = nil
@@ -88,7 +88,7 @@ class AnalyzerTests: AppTestCase {
         // Ensure packages record success/error status
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        let pkgs = try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
+        let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
         try pkgs.forEach {
             try Repository(package: $0, defaultBranch: "master").save(on: app.db).wait()
         }
@@ -123,7 +123,7 @@ class AnalyzerTests: AppTestCase {
         // Test to ensure exceptions don't break processing
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        let pkgs = try savePackages(on: app.db, urls.urls, processingStage: .ingestion)
+        let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
         try pkgs.forEach {
             try Repository(package: $0, defaultBranch: "master").save(on: app.db).wait()
         }
@@ -166,7 +166,7 @@ class AnalyzerTests: AppTestCase {
 
     func test_pullOrClone() throws {
         // setup
-        try savePackages(on: app.db, ["1", "2".gh].urls, processingStage: .ingestion)
+        try savePackages(on: app.db, ["1", "2".asGithubUrl].asURLs, processingStage: .ingestion)
         let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
         // MUT
@@ -185,7 +185,7 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             throw TestError.unknownCommand
         }
-        let pkg = Package(id: UUID(), url: "1".gh.url)
+        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
         _ = try pkg.$repositories.get(on: app.db).wait()
@@ -208,7 +208,7 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             throw TestError.unknownCommand
         }
-        let pkg = Package(id: UUID(), url: "1".gh.url)
+        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
         _ = try pkg.$repositories.get(on: app.db).wait()
@@ -245,7 +245,7 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == #"git log -n1 --format=format:"%H-%ct" 1.2.3"# { return "sha.1.2.3-1" }
             throw TestError.unknownCommand
         }
-        let pkg = Package(id: UUID(), url: "1".gh.url)
+        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
 
@@ -268,7 +268,7 @@ class AnalyzerTests: AppTestCase {
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             return ""
         }
-        let pkg = Package(id: UUID(), url: "1".gh.url)
+        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
         let checkouts: [Result<Package, Error>] = [
@@ -372,7 +372,7 @@ class AnalyzerTests: AppTestCase {
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!
         XCTAssertEqual(v.packageName, "foo")
-        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].sw)
+        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].asSwiftVersions)
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
     }
 
@@ -420,7 +420,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(versions.count, 1)
         let v = try XCTUnwrap(versions.first)
         XCTAssertEqual(v.packageName, "foo")
-        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].sw)
+        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].asSwiftVersions)
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
         let products = try Product.query(on: app.db).all().wait()
         XCTAssertEqual(products.count, 1)
@@ -430,7 +430,7 @@ class AnalyzerTests: AppTestCase {
 
     func test_updatePackage() throws {
         // setup
-        let packages = try savePackages(on: app.db, ["1", "2"].urls)
+        let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
         let results: [Result<Package, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.noValidVersions(try packages[0].requireID(), "1")),
@@ -463,7 +463,7 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
-        let pkgs = try savePackages(on: app.db, ["1", "2"].gh.urls, processingStage: .ingestion)
+        let pkgs = try savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
         try pkgs.forEach {
             try Repository(package: $0, defaultBranch: "master").save(on: app.db).wait()
         }
