@@ -41,7 +41,7 @@
 		"oA": 0,
 		"oAP": "/images/logo.svg",
 		"oF": 0,
-		"opt": 0,
+		"opt": 1,
 		"plM": 52780316221407,
 		"prP": 0
 		},
@@ -87,7 +87,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 612121567.08424795
+	"lastBuiltDate": 612121845.051283
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
