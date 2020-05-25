@@ -92,17 +92,6 @@
 		"sC": 3,
 		"tS": 0
 		},
-	"/node_modules/lodash/lodash.js": {
-		"bF": 0,
-		"ft": 64,
-		"ma": 1,
-		"mi": 1,
-		"oA": 1,
-		"oAP": "/node_modules/lodash/lodash.min.js",
-		"oF": 0,
-		"sC": 3,
-		"tS": 0
-		},
 	"/package-lock.json": {
 		"ft": 524288,
 		"oA": 1,
