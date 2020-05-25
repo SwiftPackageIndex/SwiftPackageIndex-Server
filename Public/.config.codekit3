@@ -75,6 +75,28 @@
 		"oAP": "/javascripts/main.min.js.map",
 		"oF": 0
 		},
+	"/node_modules": {
+		"ft": 65536,
+		"oA": 2,
+		"oAP": "/build/node_modules",
+		"oF": 0
+		},
+	"/package-lock.json": {
+		"ft": 524288,
+		"oA": 1,
+		"oAP": "/package-lock-min.json",
+		"oF": 0,
+		"oO": 0,
+		"oS": 1
+		},
+	"/package.json": {
+		"ft": 524288,
+		"oA": 1,
+		"oAP": "/package-min.json",
+		"oF": 0,
+		"oO": 0,
+		"oS": 1
+		},
 	"/stylesheets/grid.css": {
 		"aP": 1,
 		"bl": 0,
@@ -85,6 +107,16 @@
 		"oF": 0,
 		"oS": 3
 		},
+	"/stylesheets/grid.min.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/stylesheets/grid.min.min.css",
+		"oF": 0,
+		"oS": 3
+		},
 	"/stylesheets/main.css": {
 		"aP": 1,
 		"bl": 0,
@@ -92,6 +124,16 @@
 		"ma": 0,
 		"oA": 0,
 		"oAP": "/stylesheets/main.min.css",
+		"oF": 0,
+		"oS": 3
+		},
+	"/stylesheets/main.min.css": {
+		"aP": 1,
+		"bl": 0,
+		"ft": 16,
+		"ma": 0,
+		"oA": 0,
+		"oAP": "/stylesheets/main.min.min.css",
 		"oF": 0,
 		"oS": 3
 		}
