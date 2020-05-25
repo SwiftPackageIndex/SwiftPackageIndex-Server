@@ -106,7 +106,7 @@ extension Package {
     func makeModelVersion(_ version: Version) -> PackageShow.Model.Version? {
         guard let link = makeLink(version) else { return nil }
         return PackageShow.Model.Version(link: link,
-                                         swiftVersions: version.swiftVersions,
+                                         swiftVersions: version.swiftVersions.map(\.description),
                                          platforms: version.supportedPlatforms)
     }
 

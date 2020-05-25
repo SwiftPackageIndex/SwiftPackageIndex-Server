@@ -73,12 +73,14 @@ extension Result {
 
 extension String {
     var gh: String { "https://github.com/foo/\(self)" }
+    var sw: SwiftVersion { SwiftVersion(self)! }
 }
 
 
 extension Array where Element == String {
     var urls: [URL] { compactMap(URL.init(string:)) }
     var gh: Self { map(\.gh) }
+    var sw: [SwiftVersion] { map(\.sw) }
 }
 
 

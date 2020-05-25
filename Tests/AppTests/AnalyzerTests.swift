@@ -364,7 +364,7 @@ class AnalyzerTests: AppTestCase {
                                 platforms: [.init(platformName: .ios, version: "11.0"),
                                             .init(platformName: .macos, version: "10.10")],
                                 products: [],
-                                swiftLanguageVersions: ["1", "2", "3.0.0rc"])
+                                swiftLanguageVersions: ["1", "2", "3.0.0"])
 
         // MUT
         _ = try updateVersion(on: app.db, version: version, manifest: manifest).wait()
@@ -372,7 +372,7 @@ class AnalyzerTests: AppTestCase {
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!
         XCTAssertEqual(v.packageName, "foo")
-        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0rc"])
+        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].sw)
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
     }
 
@@ -402,7 +402,7 @@ class AnalyzerTests: AppTestCase {
                                 platforms: [.init(platformName: .ios, version: "11.0"),
                                             .init(platformName: .macos, version: "10.10")],
                                 products: [.init(name: "p1", type: .library)],
-                                swiftLanguageVersions: ["1", "2", "3.0.0rc"])
+                                swiftLanguageVersions: ["1", "2", "3.0.0"])
 
         let results: [Result<(Package, [(Version, Manifest)]), Error>] = [
             // feed in one error to see it passed through
@@ -420,7 +420,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(versions.count, 1)
         let v = try XCTUnwrap(versions.first)
         XCTAssertEqual(v.packageName, "foo")
-        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0rc"])
+        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].sw)
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
         let products = try Product.query(on: app.db).all().wait()
         XCTAssertEqual(products.count, 1)
