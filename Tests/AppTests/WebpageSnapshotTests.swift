@@ -66,7 +66,9 @@ class WebpageSnapshotTests: XCTestCase {
         model.authors = nil
         model.activity = nil
         let page = PackageShow.View(model).document()
-        
+
+        assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
+
         #if os(macOS)
         if !isRunningInCI {
             // FIXME: css and image loading broken, despite setting correct base url
