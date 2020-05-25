@@ -43,23 +43,18 @@ enum PackageShow {
                 .section(
                     .class("metadata"),
                     .ul(
-                        .li(
-                            .class("icon author"),
-                            .group(model.authorsClause())
-                        )
-                        ,
-                        .li(
-                            .class("icon history"),
-                            .group(model.historyClause())
-                        ),
-                        .li(
-                            .class("icon activity"),
-                            .group(model.activityClause())
-                        ),
-                        .li(
-                            .class("icon products"),
-                            .group(model.productsClause())
-                        )
+                        .unwrap(model.authorsClause()) {
+                            .li(.class("icon author"), $0)
+                        },
+                        .unwrap(model.historyClause()) {
+                            .li(.class("icon history"), $0)
+                        },
+                        .unwrap(model.activityClause()) {
+                            .li(.class("icon activity"), $0)
+                        },
+                        .unwrap(model.productsClause()) {
+                            .li(.class("icon products"), $0)
+                        }
                     )
                 ),
                 .element(named: "hr", nodes:[ // TODO: Fix after Plot update
