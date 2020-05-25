@@ -99,6 +99,12 @@
             </li>
           </ul>
         </section>
+        <section class="language_platforms">
+          <h3>Language and Platforms</h3>
+          <p>There are no language versions or platforms available for this package.
+            <a href="/faq">Find out more</a>
+          </p>
+        </section>
       </div>
     </main>
     <footer>

@@ -68,13 +68,15 @@ enum PackageShow {
                         .li(.group(model.latestReleaseClause()))
                     )
                 ),
-                .unwrap(model.languagesAndPlatformsClause()) {
-                    .section(
-                        .class("language_platforms"),
-                        .h3("Language and Platforms"),
-                        .ul(.group($0))
+                .section(
+                    .class("language_platforms"),
+                    .h3("Language and Platforms"),
+                    .unwrap(model.languagesAndPlatformsClause(), { .ul(.group($0)) },
+                            else: .p(
+                                .text("There are no language versions or platforms available for this package."),
+                                .a(.href("/faq"), .text("Find out more")))
                     )
-                }
+                )
             )
         }
     }
