@@ -80,6 +80,27 @@ class WebpageSnapshotTests: XCTestCase {
         }
         #endif
     }
+
+    func test_PackageShowView_no_lpInfo() throws {
+        // Test display when there is no L&P info at all
+        // no author or activity info
+        var model = PackageShow.Model.mock
+        model.languagePlatforms = .init(stable: nil, beta: nil, latest: nil)
+        let page = PackageShow.View(model).document()
+
+        assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
+
+        #if os(macOS)
+        if !isRunningInCI {
+            // FIXME: css and image loading broken, despite setting correct base url
+            // permission issue? In a macOS app project this required setting
+            // com.apple.security.network.client permissions but I don't see how to do
+            // that with SPM - nor would I expect to need that for tests?
+            assertSnapshot(matching: page, as: .image(size: .init(width: 800, height: 1000),
+                                                      baseURL: baseURL()))
+        }
+        #endif
+    }
 }
 
 

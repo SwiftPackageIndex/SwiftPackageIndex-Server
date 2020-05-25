@@ -171,11 +171,13 @@ extension PackageShow.Model {
         } ?? []
     }
 
-    func languagesAndPlatformsClause() -> [Node<HTML.ListContext>] {
+    func languagesAndPlatformsClause() -> Node<HTML.ListContext>? {
         let groups = Self.lpInfoGroups(languagePlatforms)
-        return groups.map {
-            .li(.group(lpInfoSection(for: $0)))
-        }
+        let listItems = groups
+            .compactMap(lpInfoSection(for:))
+            .map { Node<HTML.ListContext>.li($0) }
+        guard !listItems.isEmpty else { return nil }
+        return .group(listItems)
     }
 
     typealias LanguagePlatformKeyPath = KeyPath<LanguagePlatformInfo, Version?>
@@ -195,8 +197,8 @@ extension PackageShow.Model {
         return groups
     }
 
-    func lpInfoSection(for keypaths: [LanguagePlatformKeyPath]) -> [Node<HTML.BodyContext>] {
-        guard let leadingKeyPath = keypaths.first else { return [] }
+    func lpInfoSection(for keypaths: [LanguagePlatformKeyPath]) -> Node<HTML.BodyContext>? {
+        guard let leadingKeyPath = keypaths.first else { return nil }
         let cssClasses: [LanguagePlatformKeyPath: String] = [\.stable: "stable",
                                                              \.beta: "beta",
                                                              \.latest: "branch"]
@@ -215,9 +217,9 @@ extension PackageShow.Model {
 
         // swift versions and platforms are the same all versions because we grouped them,
         // so we use the leading keypath to obtain it
-        guard let versionInfo = languagePlatforms[keyPath: leadingKeyPath] else { return [] }
+        guard let versionInfo = languagePlatforms[keyPath: leadingKeyPath] else { return nil }
 
-        return [
+        return .group([
             .p(
                 .group(Self.listPhrase(opening: .text("Version".pluralized(for: keypaths.count) + " "),
                                        nodes: nodes)),
@@ -232,7 +234,7 @@ extension PackageShow.Model {
                     .map { .li(.group($0)) }
                 )
             )
-        ]
+        ])
     }
 
     func versionsClause(_ versions: [String]) -> [Node<HTML.BodyContext>] {
