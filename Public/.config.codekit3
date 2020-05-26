@@ -56,25 +56,6 @@
 		"sC": 3,
 		"tS": 0
 		},
-	"/javascripts/dom_helpers.min.js": {
-		"bF": 0,
-		"ft": 64,
-		"ma": 1,
-		"mi": 1,
-		"oA": 0,
-		"oAP": "/javascripts/dom_helpers.min.min.js",
-		"oF": 0,
-		"sC": 3,
-		"tS": 0
-		},
-	"/javascripts/dom_helpers.min.js.map": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 0,
-		"oAP": "/javascripts/dom_helpers.min.js.map",
-		"oF": 0
-		},
 	"/javascripts/links.js": {
 		"bF": 0,
 		"ft": 64,
@@ -123,6 +104,17 @@
 		"mi": 1,
 		"oA": 1,
 		"oAP": "/javascripts/search_core.min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
+	"/javascripts/search_keyboard_navigation.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 1,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/javascripts/search_keyboard_navigation.min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -222,7 +214,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 612136840.61795604
+	"lastBuiltDate": 612180065.48969901
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
