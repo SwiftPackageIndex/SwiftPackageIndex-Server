@@ -165,7 +165,8 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_pullOrClone() throws {
-        // setup
+        // Test that processing continues on if a url in invalid
+        // setup - first URL is not a valid url
         try savePackages(on: app.db, ["1", "2".asGithubUrl].asURLs, processingStage: .ingestion)
         let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
 
@@ -478,6 +479,35 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try Product.query(on: app.db).count().wait(), 12)
     }
 
+    func test_issue_70() throws {
+        // Certain git commands fail when index.lock exists
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
+        // setup
+        try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
+        let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
+
+        let checkoutDir = Current.fileManager.checkoutsDirectory()
+        // claim every file exists, including our ficticious 'index.lock' for which
+        // we want to trigger the cleanup mechanism
+        Current.fileManager.fileExists = { path in true }
+
+        let queue = DispatchQueue(label: "serial")
+        var commands = [String]()
+        Current.shell.run = { cmd, path in
+            queue.async {
+                let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "...")
+                commands.append(c)
+            }
+            return ""
+        }
+
+        // MUT
+        let res = try pkgs.flatMap { pullOrClone(application: self.app, packages: $0) }.wait()
+
+        // validation
+        XCTAssertEqual(res.map(\.isSuccess), [true])
+        assertSnapshot(matching: commands, as: .dump, record: true)
+    }
 }
 
 
