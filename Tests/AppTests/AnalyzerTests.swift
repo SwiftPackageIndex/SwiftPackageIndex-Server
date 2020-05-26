@@ -506,7 +506,7 @@ class AnalyzerTests: AppTestCase {
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(matching: commands, as: .dump, record: true)
+        assertSnapshot(matching: commands, as: .dump)
     }
 }
 
