@@ -101,11 +101,10 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
 
   promtail:
-    image: grafana/promtail:1.5.0
+    image: finestructure/spi-promtail:1.5.0
     volumes:
       - /var/lib/docker/containers:/var/log
-      - ./promtail.yaml:/foo.yaml
-    command: -config.file=/foo.yaml
+    command: -config.file=/promtail.yaml
 
 volumes:
   db_data:
