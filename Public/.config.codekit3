@@ -50,19 +50,19 @@
 		"ft": 64,
 		"ma": 1,
 		"mi": 1,
-		"oA": 1,
+		"oA": 0,
 		"oAP": "/javascripts/dom_helpers.min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
 		},
-	"/javascripts/links.js": {
+	"/javascripts/external_link_retargeter.js": {
 		"bF": 0,
 		"ft": 64,
 		"ma": 1,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/javascripts/links.min.js",
+		"oAP": "/javascripts/external_link_retargeter.min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0

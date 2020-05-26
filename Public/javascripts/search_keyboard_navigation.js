@@ -20,8 +20,12 @@ export class SPISearchKeyboardNavigation {
     if (!queryFieldElement) { return }
 
     queryFieldElement.addEventListener('keydown', (event) => {
-      // The query field should *never* respond to the enter key.
-      if (event.keyCode == KeyCodes.enter) { event.preventDefault() }
+      // The query field should never respond to the keys we are overriding.
+      if (event.keyCode == KeyCodes.enter ||
+          event.keyCode == KeyCodes.upArrow ||
+          event.keyCode == KeyCodes.downArrow) {
+        event.preventDefault()
+      }
 
       this.processKeyDown(event.keyCode)
     })
@@ -90,7 +94,7 @@ export class SPISearchKeyboardNavigation {
       if (index == this.selectedResultIndex) {
         // Add the selected class to the selected element.
         listItemElement.classList.add('selected')
-        if (window.searchResultSelectedIndex == results.length - 1) {
+        if (this.selectedResultIndex == results.length - 1) {
           // Scroll all the way to the bottom, just in case the "More results are available" text is showing.
           resultsElement.scrollTop = resultsElement.scrollHeight
         } else {

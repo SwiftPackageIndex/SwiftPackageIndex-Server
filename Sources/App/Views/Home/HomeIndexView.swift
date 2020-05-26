@@ -18,7 +18,8 @@ class HomeIndexView: PublicPage {
                         .rows(1)
                     ),
                     .div(
-                        .id("results")
+                        .id("results"),
+                        .attribute(named: "hidden", value: "true") // TODO: Fix after Plot update
                     )
                 )
             )
