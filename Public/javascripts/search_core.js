@@ -64,7 +64,9 @@ export class SPISearchCore {
       this.displaySearchResults(response.data)
 
       // Reset the keyboard navigation selected index as these are new results.
-      window.searchResultSelectedIndex = null
+      if (window.spiSearchKeyboardNavigation) {
+        window.spiSearchKeyboardNavigation.resetSelectedResult()
+      }
     }).catch((error) => {
       console.error(error) // At the very least, always log to the console.
       this.displayErrorMessage(error)
