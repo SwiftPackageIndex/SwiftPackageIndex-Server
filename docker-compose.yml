@@ -95,6 +95,8 @@ services:
       GF_USERS_ALLOW_SIGN_UP: 'false'
     volumes:
       - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
 
   loki:
     image: grafana/loki:1.5.0
