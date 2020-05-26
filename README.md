@@ -111,3 +111,12 @@ where the `VERSION` variable references a tag name or a git sha.
 ## Grafana setup
 
 Add Loki data source: `http://loki:3100`
+
+Promtail is currently using a custom built image with the configuration baked in. Recreate as follows:
+
+```
+docker build -t finestructure/spi-promtail:1.5.0 .
+docker push finestructure/spi-promtail:1.5.0
+```
+
+This will provide the expected image for `docker-compose.yml`.
