@@ -104,8 +104,8 @@ services:
     image: grafana/promtail:1.5.0
     volumes:
       - /var/lib/docker/containers:/var/log
-      - ./promtail-config.yaml:/promtail.yaml
-    command: -config.file=/promtail.yaml
+      - ./promtail-config.yaml:/etc/promtail/promtail.yaml
+    command: -config.file=/etc/promtail/promtail.yaml
 
 volumes:
   db_data:
