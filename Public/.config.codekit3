@@ -45,6 +45,36 @@
 		"plM": 52780316221407,
 		"prP": 0
 		},
+	"/javascripts/dom_helpers.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 1,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/javascripts/dom_helpers.min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
+	"/javascripts/dom_helpers.min.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 1,
+		"mi": 1,
+		"oA": 0,
+		"oAP": "/javascripts/dom_helpers.min.min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
+	"/javascripts/dom_helpers.min.js.map": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/javascripts/dom_helpers.min.js.map",
+		"oF": 0
+		},
 	"/javascripts/links.js": {
 		"bF": 0,
 		"ft": 64,
@@ -85,6 +115,28 @@
 		"oA": 0,
 		"oAP": "/javascripts/main.min.js.map",
 		"oF": 0
+		},
+	"/javascripts/search_core.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 1,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/javascripts/search_core.min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
+	"/javascripts/session_serialization.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 1,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/javascripts/session_serialization.min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
 		},
 	"/node_modules": {
 		"ft": 65536,
