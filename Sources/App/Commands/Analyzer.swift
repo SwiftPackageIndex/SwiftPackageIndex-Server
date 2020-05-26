@@ -79,7 +79,11 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
                                                       results: $0,
                                                       stage: .analysis) }
 
-    return statusOps
+    let materializedViewRefresh = statusOps
+        .flatMap { RecentPackage.refresh(on: application.db) }
+        .flatMap { RecentRelease.refresh(on: application.db) }
+
+    return materializedViewRefresh
 }
 
 
