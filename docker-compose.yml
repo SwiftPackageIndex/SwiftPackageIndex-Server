@@ -18,10 +18,6 @@ x-shared: &shared
     LOG_LEVEL: ${LOG_LEVEL}
   volumes:
     - checkouts:/checkouts
-  logging:
-    driver: "loki"
-    options:
-      loki-url: "http://loki:3100/loki/api/v1/push"
 
 services:
   app:
@@ -103,6 +99,13 @@ services:
   loki:
     image: grafana/loki:1.5.0
     command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:1.5.0
+    command: -config.file=/promtail.yaml
+    volumes:
+      - ./promtail-config.yaml:/promtail.yaml
+      - /var/lib/docker/containers:/var/log
 
 volumes:
   db_data:
