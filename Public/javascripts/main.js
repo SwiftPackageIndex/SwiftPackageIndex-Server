@@ -1,22 +1,16 @@
 import debounce from 'lodash/debounce'
 import axios from 'axios'
 
+import OpenExternalLinksInBlankTarget from './links.js'
+
+new OpenExternalLinksInBlankTarget()
+
 // Constants for session key storage.
 const SessionKey = {
   searchResults: 'com.swiftpackageindex.searchResults'
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Force external links to open with a _blank target.
-  document.addEventListener('click', function(event) {
-    var target = event.target
-    do {
-      if (target.nodeName.toLowerCase() == 'a' && target.hostname != window.location.hostname) {
-        target.setAttribute('target', '_blank')
-      }
-    } while ((target = target.parentElement))
-  })
-
   // If there is a search element, configure the search callbacks.
   const queryFieldElement = document.getElementById('query')
   if (queryFieldElement) {
