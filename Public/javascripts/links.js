@@ -1,4 +1,4 @@
-export default class OpenExternalLinksInBlankTarget {
+export class OpenExternalLinksInBlankTarget {
   constructor() {
     document.addEventListener('DOMContentLoaded', function() {
       document.addEventListener('click', function(event) {
