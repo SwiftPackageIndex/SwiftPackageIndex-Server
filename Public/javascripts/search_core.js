@@ -58,8 +58,15 @@ export class SPISearchCore {
     // Clear out any existing content. Errors, the loading indicator, or previous results.
     this.clearSearchResults()
 
-    axios.get(searchUrl).then((response) => {
-      // Cache the search results into session storage, then show them.
+    // Cancel any already running search requests.
+    if (this.requestCancelFunction) { this.requestCancelFunction() }
+
+    axios.get(searchUrl, {
+      cancelToken: new axios.CancelToken((cancelFunction) => {
+        this.requestCancelFunction = cancelFunction
+      })
+    }).then((response) => {
+      // Cache the search results in session storage, then display them.
       sessionStorage.setSerializedItem(SessionKey.searchResults, response.data)
       this.displaySearchResults(response.data)
 
@@ -68,8 +75,11 @@ export class SPISearchCore {
         window.spiSearchKeyboardNavigation.resetSelectedResult()
       }
     }).catch((error) => {
-      console.error(error) // At the very least, always log to the console.
-      this.displayErrorMessage(error)
+      // Ignore errors as a result of cancellation, but log everything else.
+      if (!axios.isCancel(error)) {
+        console.error(error)
+        this.displayErrorMessage(error)
+      }
     })
 
     // Doesn't matter if there was an error, or valid results, always show the results area.
