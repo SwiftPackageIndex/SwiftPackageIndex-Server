@@ -397,7 +397,7 @@ header nav ul li a:hover {
   color: var(--dark-grey);
 }
 
-#results .error {
+#results.error {
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -405,18 +405,18 @@ header nav ul li a:hover {
   background-color: var(--light-red);
 }
 
-#results .error .icon {
+#results.error .icon {
   margin: 20px;
   font-size: 40px;
   color: var(--mid-red);
 }
 
-#results .error h4 {
+#results.error h4 {
   margin-bottom: 10px;
   color: var(--dark-red);
 }
 
-#results .error p {
+#results.error p {
   margin: 0 20px;
   color: var(--dark-red);
 }

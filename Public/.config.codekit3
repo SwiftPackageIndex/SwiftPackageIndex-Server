@@ -50,7 +50,7 @@
 		"ft": 64,
 		"ma": 1,
 		"mi": 1,
-		"oA": 1,
+		"oA": 0,
 		"oAP": "/javascripts/dom_helpers.min.js",
 		"oF": 0,
 		"sC": 3,
