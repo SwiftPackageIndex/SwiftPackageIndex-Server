@@ -82,6 +82,10 @@ class AnalyzerTests: AppTestCase {
         // validate score
         XCTAssertEqual(pkg1.score, 10)
         XCTAssertEqual(pkg2.score, 20)
+
+        // ensure recent packages and releases are refreshed
+        XCTAssertEqual(try RecentPackage.fetch(on: app.db).wait().count, 2)
+        XCTAssertEqual(try RecentRelease.fetch(on: app.db).wait().count, 2)
     }
 
     func test_package_status() throws {
