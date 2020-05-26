@@ -35,7 +35,7 @@
         <h3>The place to find Swift packages.</h3>
         <form>
           <textarea id="query" placeholder="Search" spellcheck="false" data-gramm="false" autofocus="true" rows="1"></textarea>
-          <div id="results"></div>
+          <div id="results" hidden="true"></div>
         </form>
       </div>
     </section>
