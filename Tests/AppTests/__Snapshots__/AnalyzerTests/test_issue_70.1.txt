@@ -1,0 +1,5 @@
+▿ 4 elements
+  - "rm \"-f\" \".../github.com-foo-1/.git/index.lock\""
+  - "git reset --hard"
+  - "git checkout \"master\" --quiet"
+  - "git pull --quiet"
