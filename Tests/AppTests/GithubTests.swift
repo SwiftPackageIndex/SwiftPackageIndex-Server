@@ -39,14 +39,17 @@ class GithubTests: AppTestCase {
             resp.status = .ok
             resp.body = makeBody(data)
         }
-        let meta = try Github.fetchMetadata(client: client, package: pkg).wait()
-        XCTAssertEqual(meta.defaultBranch, "master")
-        XCTAssertEqual(meta.forksCount, 1)
-        XCTAssertEqual(meta.license, .init(key: "mit"))
-        XCTAssertEqual(meta.name, "Gala")
-        XCTAssertEqual(meta.openIssues, 1)
-        XCTAssertEqual(meta.owner, .init(login: "finestructure"))
-        XCTAssertEqual(meta.stargazersCount, 44)
+        let md = try Github.fetchMetadata(client: client, package: pkg).wait()
+        XCTAssertEqual(md.repo, Github.Metadata.Repo(defaultBranch: "master",
+                                                     description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
+                                                     forksCount: 1,
+                                                     license: .init(key: "mit"),
+                                                     name: "Gala",
+                                                     openIssues: 1,
+                                                     owner: .init(login: "finestructure"),
+                                                     parent: nil,
+                                                     stargazersCount: 44))
+        XCTFail("test remaining fields")
     }
 
     func test_fetchRepository_badUrl() throws {

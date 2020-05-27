@@ -66,7 +66,7 @@ class IngestorTests: AppTestCase {
         }
         do {  // test update - run the same package again, with different metadata
             var md = Github.Metadata.mock(for: pkg)
-            md.description = "New description"
+            md.repo.description = "New description"
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: md).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])
@@ -78,14 +78,14 @@ class IngestorTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "2")
         let metadata: [Result<(Package, Github.Metadata), Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-            .success((pkg, .init(defaultBranch: "master",
-                                 description: "package desc",
-                                 forksCount: 1,
-                                 license: .init(key: "mit"),
-                                 name: "bar",
-                                 openIssues: 3,
-                                 owner: .init(login: "foo"),
-                                 stargazersCount: 2)))
+            .success((pkg, .init(repo: .init(defaultBranch: "master",
+                                             description: "package desc",
+                                             forksCount: 1,
+                                             license: .init(key: "mit"),
+                                             name: "bar",
+                                             openIssues: 3,
+                                             owner: .init(login: "foo"),
+                                             stargazersCount: 2))))
         ]
 
         // MUT
@@ -100,8 +100,11 @@ class IngestorTests: AppTestCase {
         )
         XCTAssertEqual(repo.defaultBranch, "master")
         XCTAssertEqual(repo.forks, 1)
+        XCTAssertEqual(repo.lastIssueClosedAt, Date())
+        XCTAssertEqual(repo.lastPullRequestClosedAt, Date())
         XCTAssertEqual(repo.license, .mit)
         XCTAssertEqual(repo.openIssues, 3)
+        XCTAssertEqual(repo.openPullRequests, 1000)
         XCTAssertEqual(repo.owner, "foo")
         XCTAssertEqual(repo.name, "bar")
         XCTAssertEqual(repo.stars, 2)

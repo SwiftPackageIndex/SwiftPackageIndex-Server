@@ -66,14 +66,14 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
         .first()
         .flatMap { repo -> EventLoopFuture<Void> in
             let repo = repo ?? Repository(packageId: pkgId)
-            repo.defaultBranch = metadata.defaultBranch
-            repo.forks = metadata.forksCount
-            repo.license = .init(from: metadata.license)
-            repo.name = metadata.name
-            repo.openIssues = metadata.openIssues
-            repo.owner = metadata.owner?.login
-            repo.stars = metadata.stargazersCount
-            repo.summary = metadata.description
+            repo.defaultBranch = metadata.repo.defaultBranch
+            repo.forks = metadata.repo.forksCount
+            repo.license = .init(from: metadata.repo.license)
+            repo.name = metadata.repo.name
+            repo.openIssues = metadata.repo.openIssues
+            repo.owner = metadata.repo.owner?.login
+            repo.stars = metadata.repo.stargazersCount
+            repo.summary = metadata.repo.description
             // TODO: find and assign parent repo
             return repo.save(on: database)
     }

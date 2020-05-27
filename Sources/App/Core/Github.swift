@@ -5,24 +5,31 @@ enum Github {
     struct License: Decodable, Equatable {
         var key: String
     }
-    struct Parent: Decodable {
-        var cloneUrl: String
-        var fullName: String
-        var url: String
-    }
-    struct Metadata: Decodable {
-        var defaultBranch: String
-        var description: String?
-        var forksCount: Int
-        var license: License?
-        var name: String?
-        var openIssues: Int
-        var owner: Owner?
-        var parent: Parent?
-        var stargazersCount: Int
 
-        struct Owner: Decodable, Equatable {
-            var login: String?
+    struct Metadata: Decodable, Equatable {
+        var repo: Repo
+
+        // Content from https://api.github.com/repos/${repo}
+        struct Repo: Decodable, Equatable {
+            var defaultBranch: String
+            var description: String?
+            var forksCount: Int
+            var license: License?
+            var name: String?
+            var openIssues: Int
+            var owner: Owner?
+            var parent: Parent?
+            var stargazersCount: Int
+
+            struct Parent: Decodable, Equatable {
+                var cloneUrl: String
+                var fullName: String
+                var url: String
+            }
+
+            struct Owner: Decodable, Equatable {
+                var login: String?
+            }
         }
     }
 
@@ -42,8 +49,9 @@ enum Github {
                     }
                     do {
                         return client.eventLoop.future(
-                            try response.content.decode(Metadata.self, using: decoder)
-                        )
+                            try response.content
+                                .decode(Metadata.Repo.self, using: decoder)
+                        ).map(Github.Metadata.init(repo:))
                     } catch {
                         return client.eventLoop.future(error: error)
                     }

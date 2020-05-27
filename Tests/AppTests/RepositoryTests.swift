@@ -14,9 +14,12 @@ final class RepositoryTests: AppTestCase {
                                   commitCount: 123,
                                   firstCommitDate: Date(timeIntervalSince1970: 0),
                                   lastCommitDate: Date(timeIntervalSince1970: 1),
+                                  lastIssueClosedAt: Date(timeIntervalSince1970: 2),
+                                  lastPullRequestClosedAt: Date(timeIntervalSince1970: 3),
                                   defaultBranch: "branch",
                                   license: .mit,
                                   openIssues: 3,
+                                  openPullRequests: 4,
                                   stars: 42,
                                   forks: 17,
                                   forkedFrom: nil)
@@ -30,9 +33,12 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(r.commitCount, 123)
             XCTAssertEqual(r.firstCommitDate, Date(timeIntervalSince1970: 0))
             XCTAssertEqual(r.lastCommitDate, Date(timeIntervalSince1970: 1))
+            XCTAssertEqual(r.lastIssueClosedAt, Date(timeIntervalSince1970: 2))
+            XCTAssertEqual(r.lastPullRequestClosedAt, Date(timeIntervalSince1970: 3))
             XCTAssertEqual(r.defaultBranch, "branch")
             XCTAssertEqual(r.license, .mit)
             XCTAssertEqual(r.openIssues, 3)
+            XCTAssertEqual(r.openPullRequests, 4)
             XCTAssertEqual(r.stars, 42)
             XCTAssertEqual(r.forks, 17)
             XCTAssertEqual(r.forkedFrom, nil)
