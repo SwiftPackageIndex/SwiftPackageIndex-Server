@@ -31,7 +31,7 @@ extension RecentRelease {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
         let limit = "\(Constants.recentReleasesLimit)"
-        return db.raw("SELECT * FROM \(Self.schema) ORDER BY released_at DESC LIMI \(limit)")
+        return db.raw("SELECT * FROM \(Self.schema) ORDER BY released_at DESC LIMIT \(limit)")
             .all(decoding: RecentRelease.self)
     }
 }
