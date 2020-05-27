@@ -56,7 +56,9 @@ class AnalyzerTests: AppTestCase {
         let outDir = try XCTUnwrap(checkoutDir)
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
         XCTAssertEqual(commands.count, 30)
-        assertSnapshot(matching: commands, as: .dump)
+        // We need to sort the issued commands, because macOS and Linux have stable but different
+        // sort orders o.O
+        assertSnapshot(matching: commands.sorted(), as: .dump)
 
         // validate versions
         // A bit awkward... create a helper? There has to be a better way?
@@ -515,9 +517,14 @@ class AnalyzerTests: AppTestCase {
 }
 
 
-struct Command: Equatable, CustomStringConvertible, Hashable {
+struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
     var command: String
     var path: String
 
     var description: String { "'\(command)' at path: '\(path)'" }
+
+    static func < (lhs: Command, rhs: Command) -> Bool {
+        if lhs.command < rhs.command { return true }
+        return lhs.path < rhs.path
+    }
 }
