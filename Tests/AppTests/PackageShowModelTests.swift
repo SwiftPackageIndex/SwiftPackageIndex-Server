@@ -103,6 +103,5 @@ class PackageShowModelTests: AppTestCase {
 
 
 // local typealiases / references to make tests more readable
-fileprivate typealias Link = PackageShow.Model.Link
 fileprivate typealias Version = PackageShow.Model.Version
 let lpInfoGroups = PackageShow.Model.lpInfoGroups
