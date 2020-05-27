@@ -14,9 +14,6 @@ extension API {
 
 
 extension API {
-    static let searchLimit = 20
-    static let searchLimitLeeway = 5
-
     static func search(database: Database,
                        query: String) -> EventLoopFuture<SearchResult> {
         let terms = query.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
@@ -72,7 +69,7 @@ extension API {
                 + terms.map(regexClause)
                 ).joined(separator: "\n  and ")
                 + "\n  order by p.score desc"
-                + "\n  limit \(API.searchLimit + API.searchLimitLeeway)"
+                + "\n  limit \(Constants.searchLimit + Constants.searchLimitLeeway)"
         }
 
         static func run(_ database: Database, _ terms: [String]) -> EventLoopFuture<SearchResult> {
@@ -83,8 +80,8 @@ extension API {
                 .map { results in
                     // allow for a little leeway so we don't cut off with just a few more records
                     // available
-                    let hasMoreResults = results.count >= API.searchLimit + API.searchLimitLeeway
-                    let cutOff = hasMoreResults ? API.searchLimit : results.count
+                    let hasMoreResults = results.count >= Constants.searchLimit + Constants.searchLimitLeeway
+                    let cutOff = hasMoreResults ? Constants.searchLimit : results.count
                     return SearchResult(hasMoreResults: hasMoreResults,
                                         results: Array(results[..<cutOff]))
             }

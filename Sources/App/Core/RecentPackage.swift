@@ -30,7 +30,8 @@ extension RecentPackage {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("SELECT * FROM \(Self.schema) ORDER BY created_at DESC")
+        let limit = "\(Constants.recentPackagesLimit)"
+        return db.raw("SELECT * FROM \(Self.schema) ORDER BY created_at DESC LIMIT \(limit)")
             .all(decoding: RecentPackage.self)
     }
 }
