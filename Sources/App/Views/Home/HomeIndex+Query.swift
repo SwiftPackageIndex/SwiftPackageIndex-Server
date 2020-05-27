@@ -13,11 +13,11 @@ extension HomeIndex.Model {
 
 extension HomeIndex.Model {
     static func makeLink(_ recent: RecentPackage) -> Link {
-        return .init(label: recent.packageName, url: "/packages\(recent.id.uuidString)")
+        return .init(label: recent.packageName, url: "/packages/\(recent.id.uuidString)")
     }
 
     static func makeLink(_ recent: RecentRelease) -> Link {
-        return .init(label: recent.packageName, url: "/packages\(recent.id.uuidString)")
+        return .init(label: recent.packageName, url: "/packages/\(recent.id.uuidString)")
     }
 
     static func makeDatedLink(_ recent: RecentPackage) -> DatedLink {
