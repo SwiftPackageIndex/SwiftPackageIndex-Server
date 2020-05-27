@@ -26,7 +26,7 @@ class WebpageSnapshotTests: XCTestCase {
     }
 
     func test_HomeIndexView() throws {
-        let page = HomeIndexView().document()
+        let page = HomeIndex.View(.mock).document()
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 

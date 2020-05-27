@@ -30,7 +30,8 @@ extension RecentRelease {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("SELECT * FROM \(Self.schema) ORDER BY released_at DESC")
+        let limit = "\(Constants.recentReleasesLimit)"
+        return db.raw("SELECT * FROM \(Self.schema) ORDER BY released_at DESC LIMIT \(limit)")
             .all(decoding: RecentRelease.self)
     }
 }

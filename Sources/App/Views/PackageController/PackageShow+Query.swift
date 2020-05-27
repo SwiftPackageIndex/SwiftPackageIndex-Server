@@ -78,7 +78,7 @@ extension Package {
     }
 
     func makeDatedLink(_ version: Version,
-                       _ keyPath: KeyPath<Version, Date?>) -> PackageShow.Model.DatedLink? {
+                       _ keyPath: KeyPath<Version, Date?>) -> DatedLink? {
         guard
             let date = version[keyPath: keyPath],
             let link = makeLink(version)
@@ -87,7 +87,7 @@ extension Package {
                      link: link)
     }
 
-    func makeLink(_ version: Version) -> PackageShow.Model.Link? {
+    func makeLink(_ version: Version) -> Link? {
         guard
             // FIXME: test eager loading resolution
             let fault = version.$reference.value,
@@ -127,10 +127,10 @@ extension Package {
             let commitCountString = Self.numberFormatter.string(from: NSNumber(value: commitCount)),
             let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))
             else { return nil }
-        let cl = PackageShow.Model.Link(
+        let cl = Link(
             label: commitCountString + " commit".pluralized(for: commitCount),
             url: url.droppingGitExtension + "/commits/\(defaultBranch)")
-        let rl = PackageShow.Model.Link(
+        let rl = Link(
             label: releaseCountString + " release".pluralized(for: releases.count),
             url: url.droppingGitExtension + "/releases")
         return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",

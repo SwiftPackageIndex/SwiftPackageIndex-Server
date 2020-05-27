@@ -14,16 +14,6 @@ extension PackageShow {
         var releases: ReleaseInfo
         var languagePlatforms: LanguagePlatformInfo
 
-        struct Link: Equatable {
-            var label: String
-            var url: String
-        }
-
-        struct DatedLink: Equatable {
-            var date: String
-            var link: Link
-        }
-
         struct History: Equatable {
             var since: String
             var commitCount: Link

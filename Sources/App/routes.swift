@@ -2,7 +2,9 @@ import Fluent
 import Vapor
 
 func routes(_ app: Application) throws {
-    app.get { _ in HomeIndexView().document() }
+    app.get { req in
+        HomeIndex.Model.query(database: req.db).map { HomeIndex.View($0).document() }
+    }
 
     let packageController = PackageController()
     app.get("packages", use: packageController.index)
