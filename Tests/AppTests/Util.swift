@@ -13,6 +13,7 @@ func setup(_ environment: Environment, resetDb: Bool = true) throws -> Applicati
     Current = .mock
     
     let app = Application(.testing)
+    app.logger.logLevel = Environment.get("LOG_LEVEL").flatMap(Logger.Level.init(rawValue:)) ?? .warning
     try configure(app)
     if resetDb {
         try app.autoRevert().wait()
