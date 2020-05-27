@@ -7,8 +7,20 @@ enum Github {
     }
 
     struct Metadata: Decodable, Equatable {
+        var issues: [Issue]
         var openPullRequests: [Pull]
         var repo: Repo
+
+        // Content from https://api.github.com/repos/${repo}/issues
+        struct Issue: Decodable, Equatable {
+            var closedAt: Date?
+            var pullRequest: Pull?
+        }
+
+        // Content from https://api.github.com/repos/${repo}/pulls
+        struct Pull: Decodable, Equatable {
+            var id: Int
+        }
 
         // Content from https://api.github.com/repos/${repo}
         struct Repo: Decodable, Equatable {
@@ -32,10 +44,6 @@ enum Github {
                 var login: String?
             }
         }
-
-        struct Pull: Decodable, Equatable {
-            var id: Int
-        }
     }
 
     static func fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {
@@ -57,7 +65,9 @@ enum Github {
                             try response.content
                                 .decode(Metadata.Repo.self, using: decoder)
                         ).map {
-                            .init(openPullRequests: [], repo: $0)
+                            .init(issues: [],
+                                  openPullRequests: [],
+                                  repo: $0)
                         }
                     } catch {
                         return client.eventLoop.future(error: error)

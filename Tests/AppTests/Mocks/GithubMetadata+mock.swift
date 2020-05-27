@@ -3,6 +3,7 @@
 
 extension Github.Metadata {
     static let mock: Self = .init(
+        issues: [],
         openPullRequests: [],
         repo: .init(defaultBranch: "master",
                     description: "desc",
@@ -17,6 +18,7 @@ extension Github.Metadata {
     static func mock(for package: Package) -> Self {
         // populate with some mock data derived from the package
         .init(
+            issues: [],
             openPullRequests: [],
             repo: .init(defaultBranch: "master",
                         description: "This is package " + package.url,
