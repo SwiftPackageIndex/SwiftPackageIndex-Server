@@ -35,6 +35,12 @@ final class Repository: Model, Content {
     @Field(key: "forks")
     var forks: Int?
     
+    @Field(key: "last_issue_closed_at")
+    var lastIssueClosedAt: Date?
+
+    @Field(key: "last_pull_request_closed_at")
+    var lastPullRequestClosedAt: Date?
+
     @Field(key: "license")
     var license: License
 
@@ -43,6 +49,9 @@ final class Repository: Model, Content {
 
     @Field(key: "open_issues")
     var openIssues: Int?
+
+    @Field(key: "open_pull_requests")
+    var openPullRequests: Int?
 
     @Field(key: "owner")
     var owner: String?
@@ -71,10 +80,13 @@ final class Repository: Model, Content {
          commitCount: Int? = nil,
          firstCommitDate: Date? = nil,
          lastCommitDate: Date? = nil,
+         lastIssueClosedAt: Date? = nil,
+         lastPullRequestClosedAt: Date? = nil,
          defaultBranch: String? = nil,
          license: License = .none,
          name: String? = nil,
          openIssues: Int? = nil,
+         openPullRequests: Int? = nil,
          owner: String? = nil,
          stars: Int? = nil,
          forks: Int? = nil,
@@ -85,10 +97,13 @@ final class Repository: Model, Content {
         self.commitCount = commitCount
         self.firstCommitDate = firstCommitDate
         self.lastCommitDate = lastCommitDate
+        self.lastIssueClosedAt = lastIssueClosedAt
+        self.lastPullRequestClosedAt = lastPullRequestClosedAt
         self.defaultBranch = defaultBranch
         self.license = license
         self.name = name
         self.openIssues = openIssues
+        self.openPullRequests = openPullRequests
         self.owner = owner
         self.stars = stars
         self.forks = forks

@@ -68,13 +68,19 @@ struct AddCommitHistoryFields: Migration {
 struct AddActivityFields: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("repositories")
+            .field("last_issue_closed_at", .datetime)
+            .field("last_pull_request_closed_at", .datetime)
             .field("open_issues", .int)
+            .field("open_pull_requests", .int)
             .update()
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("repositories")
+            .deleteField("last_issue_closed_at")
+            .deleteField("last_pull_request_closed_at")
             .deleteField("open_issues")
+            .deleteField("open_pull_requests")
             .update()
     }
 }
