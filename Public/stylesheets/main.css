@@ -313,11 +313,19 @@ header nav ul li a:hover {
   justify-content: space-evenly;
 }
 
+@media screen and (max-width: 767px) {
+  .recent {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
 .recent ul {
   padding: 0;
 }
 
 .recent li {
+  margin: 15px;
   display: flex;
   flex-direction: column;
 }
