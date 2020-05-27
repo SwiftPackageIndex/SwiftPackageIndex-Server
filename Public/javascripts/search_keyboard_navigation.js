@@ -99,7 +99,7 @@ export class SPISearchKeyboardNavigation {
           resultsElement.scrollTop = resultsElement.scrollHeight
         } else {
           // Ensure that the element is visible, but don't center it in the div. Just move the minimum amount necessary.
-          listItemElement.scrollIntoViewIfNeeded(false)
+          listItemElement.scrollIntoView({ block: 'nearest' })
         }
       } else {
         // Remove the selected class from *every* other item.
