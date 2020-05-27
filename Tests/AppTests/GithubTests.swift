@@ -44,6 +44,7 @@ class GithubTests: AppTestCase {
         XCTAssertEqual(meta.forksCount, 1)
         XCTAssertEqual(meta.license, .init(key: "mit"))
         XCTAssertEqual(meta.name, "Gala")
+        XCTAssertEqual(meta.openIssues, 1)
         XCTAssertEqual(meta.owner, .init(login: "finestructure"))
         XCTAssertEqual(meta.stargazersCount, 44)
     }
