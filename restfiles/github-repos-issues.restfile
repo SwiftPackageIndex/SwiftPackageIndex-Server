@@ -1,0 +1,14 @@
+variables:
+  api_url: https://api.github.com
+  repo: SwiftPackageIndex/SwiftPackageIndex-Server
+
+requests:
+  repos:
+    url: ${api_url}/repos/${repo}/issues
+    query:
+      state: closed
+      sort: closed
+      direction: desc
+    validation:
+      status: 200
+    log: json
