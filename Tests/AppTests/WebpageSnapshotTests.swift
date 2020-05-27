@@ -27,6 +27,21 @@ class WebpageSnapshotTests: XCTestCase {
 
     func test_HomeIndexView() throws {
         let page = HomeIndexView().document()
+        let page = HomeIndex.View(.init(recentPackages: [
+            .init(date: "2 hours ago", link: .init(label: "Package", url: "https://example.com/package")),
+            .init(date: "2 hours ago", link: .init(label: "Package", url: "https://example.com/package")),
+            .init(date: "2 hours ago", link: .init(label: "Package", url: "https://example.com/package")),
+            .init(date: "2 hours ago", link: .init(label: "Package", url: "https://example.com/package")),
+            .init(date: "2 hours ago", link: .init(label: "Package", url: "https://example.com/package")),
+            .init(date: "2 hours ago", link: .init(label: "Package", url: "https://example.com/package")),
+        ], recentReleases: [
+            .init(date: "20 minutes ago", link: .init(label: "Package", url: "https://example.com/package")),
+            .init(date: "20 minutes ago", link: .init(label: "Package", url: "https://example.com/package")),
+            .init(date: "20 minutes ago", link: .init(label: "Package", url: "https://example.com/package")),
+            .init(date: "20 minutes ago", link: .init(label: "Package", url: "https://example.com/package")),
+            .init(date: "20 minutes ago", link: .init(label: "Package", url: "https://example.com/package")),
+            .init(date: "20 minutes ago", link: .init(label: "Package", url: "https://example.com/package")),
+        ])).document()
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
