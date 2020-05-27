@@ -11,14 +11,6 @@ extension HomeIndex {
 
 
 extension HomeIndex.Model {
-    static func query(database: Database) -> EventLoopFuture<Self> {
-        // FIXME: wire up
-        database.eventLoop.future(Self.init(recentPackages: [], recentReleases: []))
-    }
-}
-
-
-extension HomeIndex.Model {
     func recentPackagesSection() -> Node<HTML.ListContext> {
         .group(
             recentPackages.map { datedLink -> Node<HTML.ListContext> in
