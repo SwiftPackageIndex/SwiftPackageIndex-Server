@@ -25,7 +25,7 @@ class AnalyzerTests: AppTestCase {
         let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            queue.async {
+            queue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir!, with: "...")
                 let p = path.replacingOccurrences(of: checkoutDir!, with: "...")
                 commands.append(.init(command: c, path: p))
@@ -56,7 +56,9 @@ class AnalyzerTests: AppTestCase {
         let outDir = try XCTUnwrap(checkoutDir)
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
         XCTAssertEqual(commands.count, 30)
-        assertSnapshot(matching: Set(commands), as: .dump)
+        // We need to sort the issued commands, because macOS and Linux have stable but different
+        // sort orders o.O
+        assertSnapshot(matching: commands.sorted(), as: .dump)
 
         // validate versions
         // A bit awkward... create a helper? There has to be a better way?
@@ -142,7 +144,7 @@ class AnalyzerTests: AppTestCase {
         let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            queue.async {
+            queue.sync {
                 commands.append(.init(command: cmd.string, path: path))
             }
             if cmd.string == "git tag" {
@@ -297,7 +299,7 @@ class AnalyzerTests: AppTestCase {
         let queue = DispatchQueue(label: "serial")
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            queue.async {
+            queue.sync {
                 commands.append(cmd.string)
             }
             if cmd.string == "swift package dump-package" {
@@ -326,7 +328,7 @@ class AnalyzerTests: AppTestCase {
         let queue = DispatchQueue(label: "serial")
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            queue.async {
+            queue.sync {
                 commands.append(cmd.string)
             }
             if cmd.string == "swift package dump-package" {
@@ -498,7 +500,7 @@ class AnalyzerTests: AppTestCase {
         let queue = DispatchQueue(label: "serial")
         var commands = [String]()
         Current.shell.run = { cmd, path in
-            queue.async {
+            queue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "...")
                 commands.append(c)
             }
@@ -515,9 +517,14 @@ class AnalyzerTests: AppTestCase {
 }
 
 
-struct Command: Equatable, CustomStringConvertible, Hashable {
+struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
     var command: String
     var path: String
 
     var description: String { "'\(command)' at path: '\(path)'" }
+
+    static func < (lhs: Command, rhs: Command) -> Bool {
+        if lhs.command < rhs.command { return true }
+        return lhs.path < rhs.path
+    }
 }
