@@ -83,6 +83,7 @@ class IngestorTests: AppTestCase {
                                  forksCount: 1,
                                  license: .init(key: "mit"),
                                  name: "bar",
+                                 openIssues: 3,
                                  owner: .init(login: "foo"),
                                  stargazersCount: 2)))
         ]
@@ -100,6 +101,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.defaultBranch, "master")
         XCTAssertEqual(repo.forks, 1)
         XCTAssertEqual(repo.license, .mit)
+        XCTAssertEqual(repo.openIssues, 3)
         XCTAssertEqual(repo.owner, "foo")
         XCTAssertEqual(repo.name, "bar")
         XCTAssertEqual(repo.stars, 2)

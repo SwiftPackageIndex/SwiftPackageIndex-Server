@@ -16,6 +16,7 @@ enum Github {
         var forksCount: Int
         var license: License?
         var name: String?
+        var openIssues: Int
         var owner: Owner?
         var parent: Parent?
         var stargazersCount: Int

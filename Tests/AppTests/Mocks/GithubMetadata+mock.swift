@@ -7,6 +7,7 @@ extension Github.Metadata {
         description: "desc",
         forksCount: 1,
         license: .init(key: "mit"),
+        openIssues: 3,
         parent: nil,
         stargazersCount: 2
     )
@@ -17,6 +18,7 @@ extension Github.Metadata {
               description: "This is package " + package.url,
               forksCount: package.url.count,
               license: .init(key: "mit"),
+              openIssues: 3,
               parent: nil,
               stargazersCount: package.url.count + 1
         )

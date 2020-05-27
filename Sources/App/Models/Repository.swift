@@ -41,6 +41,9 @@ final class Repository: Model, Content {
     @Field(key: "name")
     var name: String?
 
+    @Field(key: "open_issues")
+    var openIssues: Int?
+
     @Field(key: "owner")
     var owner: String?
 
@@ -71,6 +74,7 @@ final class Repository: Model, Content {
          defaultBranch: String? = nil,
          license: License = .none,
          name: String? = nil,
+         openIssues: Int? = nil,
          owner: String? = nil,
          stars: Int? = nil,
          forks: Int? = nil,
@@ -84,6 +88,7 @@ final class Repository: Model, Content {
         self.defaultBranch = defaultBranch
         self.license = license
         self.name = name
+        self.openIssues = openIssues
         self.owner = owner
         self.stars = stars
         self.forks = forks

@@ -70,6 +70,7 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
             repo.forks = metadata.forksCount
             repo.license = .init(from: metadata.license)
             repo.name = metadata.name
+            repo.openIssues = metadata.openIssues
             repo.owner = metadata.owner?.login
             repo.stars = metadata.stargazersCount
             repo.summary = metadata.description
