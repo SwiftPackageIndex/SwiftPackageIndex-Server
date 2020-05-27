@@ -78,7 +78,8 @@ class IngestorTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "2")
         let metadata: [Result<(Package, Github.Metadata), Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-            .success((pkg, .init(repo: .init(defaultBranch: "master",
+            .success((pkg, .init(openPullRequests: [],
+                                 repo: .init(defaultBranch: "master",
                                              description: "package desc",
                                              forksCount: 1,
                                              license: .init(key: "mit"),
