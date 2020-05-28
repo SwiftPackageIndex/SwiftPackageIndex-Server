@@ -16,11 +16,10 @@ enum Constants {
 
     static let masterPackageListUri = URI(string: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json")
 
-    // NB: the underlying materialised views also have a limit (currently 10), this is just
-    // an additional limit to ensure we don't display we don't spill too many rows onto
-    // the home page
-    static let recentPackagesLimit = 10
-    static let recentReleasesLimit = 10
+    // NB: the underlying materialised views also have a limit, this is just an additional
+    // limit to ensure we don't display we don't spill too many rows onto the home page
+    static let recentPackagesLimit = 7
+    static let recentReleasesLimit = 7
 
     static let reIngestionDeadtime: TimeInterval = 60 * 60  // in seconds
 
