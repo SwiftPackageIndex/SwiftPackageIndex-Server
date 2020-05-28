@@ -18,7 +18,7 @@ extension PackageShow.Model {
                                  url: p.url,
                                  license: p.repository?.license ?? .none,
                                  summary: p.repository?.summary ?? "–",
-                                 authors: [],      // TODO: fill in
+                                 authors: nil,      // TODO: fill in
                                  history: p.history(),
                                  activity: nil,    // TODO: fill in
                                  products: p.productCounts(),
@@ -50,6 +50,27 @@ extension Package {
     }
 
     func name() -> String? { defaultVersion()?.packageName }
+
+    func history() -> PackageShow.Model.History? {
+        guard
+            let repo = repository,
+            let commitCount = repo.commitCount,
+            let defaultBranch = repo.defaultBranch,
+            let releases = $versions.value,
+            let firstCommitDate = repo.firstCommitDate,
+            let commitCountString = Self.numberFormatter.string(from: NSNumber(value: commitCount)),
+            let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))
+            else { return nil }
+        let cl = Link(
+            label: commitCountString + " commit".pluralized(for: commitCount),
+            url: url.droppingGitExtension + "/commits/\(defaultBranch)")
+        let rl = Link(
+            label: releaseCountString + " release".pluralized(for: releases.count),
+            url: url.droppingGitExtension + "/releases")
+        return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
+                     commitCount: cl,
+                     releaseCount: rl)
+    }
 
     func productCounts() -> PackageShow.Model.ProductCounts? {
         guard let version = defaultVersion() else { return nil }
@@ -115,27 +136,6 @@ extension Package {
         return .init(stable: stable.flatMap(makeModelVersion),
                      beta: beta.flatMap(makeModelVersion),
                      latest: latest.flatMap(makeModelVersion))
-    }
-
-    func history() -> PackageShow.Model.History? {
-        guard
-            let repo = repository,
-            let commitCount = repo.commitCount,
-            let defaultBranch = repo.defaultBranch,
-            let releases = $versions.value,
-            let firstCommitDate = repo.firstCommitDate,
-            let commitCountString = Self.numberFormatter.string(from: NSNumber(value: commitCount)),
-            let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))
-            else { return nil }
-        let cl = Link(
-            label: commitCountString + " commit".pluralized(for: commitCount),
-            url: url.droppingGitExtension + "/commits/\(defaultBranch)")
-        let rl = Link(
-            label: releaseCountString + " release".pluralized(for: releases.count),
-            url: url.droppingGitExtension + "/releases")
-        return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
-                     commitCount: cl,
-                     releaseCount: rl)
     }
 
     static let numberFormatter: NumberFormatter = {
