@@ -78,16 +78,24 @@ class IngestorTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "2")
         let metadata: [Result<(Package, Github.Metadata), Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-            .success((pkg, .init(issues: [],
-                                 openPullRequests: [],
-                                 repo: .init(defaultBranch: "master",
-                                             description: "package desc",
-                                             forksCount: 1,
-                                             license: .init(key: "mit"),
-                                             name: "bar",
-                                             openIssues: 3,
-                                             owner: .init(login: "foo"),
-                                             stargazersCount: 2))))
+            .success((pkg, .init(
+                issues: [
+                    .init(closedAt: Date(timeIntervalSince1970: 0), pullRequest: nil),
+                    .init(closedAt: Date(timeIntervalSince1970: 1), pullRequest: .init(url: "1")),
+                    .init(closedAt: Date(timeIntervalSince1970: 2), pullRequest: nil),
+                ],
+                openPullRequests: [
+                    .init(url: "2"),
+                    .init(url: "3"),
+                ],
+                repo: .init(defaultBranch: "master",
+                            description: "package desc",
+                            forksCount: 1,
+                            license: .init(key: "mit"),
+                            name: "bar",
+                            openIssues: 3,
+                            owner: .init(login: "foo"),
+                            stargazersCount: 2))))
         ]
 
         // MUT
@@ -102,11 +110,11 @@ class IngestorTests: AppTestCase {
         )
         XCTAssertEqual(repo.defaultBranch, "master")
         XCTAssertEqual(repo.forks, 1)
-        XCTAssertEqual(repo.lastIssueClosedAt, Date())
-        XCTAssertEqual(repo.lastPullRequestClosedAt, Date())
+        XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 1))
         XCTAssertEqual(repo.license, .mit)
         XCTAssertEqual(repo.openIssues, 3)
-        XCTAssertEqual(repo.openPullRequests, 1000)
+        XCTAssertEqual(repo.openPullRequests, 2)
         XCTAssertEqual(repo.owner, "foo")
         XCTAssertEqual(repo.name, "bar")
         XCTAssertEqual(repo.stars, 2)

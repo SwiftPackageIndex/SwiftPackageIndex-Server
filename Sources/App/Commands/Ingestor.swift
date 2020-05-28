@@ -68,9 +68,12 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
             let repo = repo ?? Repository(packageId: pkgId)
             repo.defaultBranch = metadata.repo.defaultBranch
             repo.forks = metadata.repo.forksCount
+            repo.lastIssueClosedAt = metadata.issues.first { $0.pullRequest == nil }?.closedAt
+            repo.lastPullRequestClosedAt = metadata.issues.first { $0.pullRequest != nil }?.closedAt
             repo.license = .init(from: metadata.repo.license)
             repo.name = metadata.repo.name
             repo.openIssues = metadata.repo.openIssues
+            repo.openPullRequests = metadata.openPullRequests.count
             repo.owner = metadata.repo.owner?.login
             repo.stars = metadata.repo.stargazersCount
             repo.summary = metadata.repo.description
