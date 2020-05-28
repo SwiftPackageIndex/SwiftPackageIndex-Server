@@ -6,44 +6,44 @@ enum Github {
         var key: String
     }
 
+    // Content from https://api.github.com/repos/${repo}/issues
+    struct Issue: Decodable, Equatable {
+        var closedAt: Date?
+        var pullRequest: Pull?
+    }
+
+    // Content from https://api.github.com/repos/${repo}/pulls
+    struct Pull: Decodable, Equatable {
+        var url: String
+    }
+
+    // Content from https://api.github.com/repos/${repo}
+    struct Repo: Decodable, Equatable {
+        var defaultBranch: String
+        var description: String?
+        var forksCount: Int
+        var license: License?
+        var name: String?
+        var openIssues: Int
+        var owner: Owner?
+        var parent: Parent?
+        var stargazersCount: Int
+
+        struct Parent: Decodable, Equatable {
+            var cloneUrl: String
+            var fullName: String
+            var url: String
+        }
+
+        struct Owner: Decodable, Equatable {
+            var login: String?
+        }
+    }
+
     struct Metadata: Decodable, Equatable {
         var issues: [Issue]
         var openPullRequests: [Pull]
         var repo: Repo
-
-        // Content from https://api.github.com/repos/${repo}/issues
-        struct Issue: Decodable, Equatable {
-            var closedAt: Date?
-            var pullRequest: Pull?
-        }
-
-        // Content from https://api.github.com/repos/${repo}/pulls
-        struct Pull: Decodable, Equatable {
-            var url: String
-        }
-
-        // Content from https://api.github.com/repos/${repo}
-        struct Repo: Decodable, Equatable {
-            var defaultBranch: String
-            var description: String?
-            var forksCount: Int
-            var license: License?
-            var name: String?
-            var openIssues: Int
-            var owner: Owner?
-            var parent: Parent?
-            var stargazersCount: Int
-
-            struct Parent: Decodable, Equatable {
-                var cloneUrl: String
-                var fullName: String
-                var url: String
-            }
-
-            struct Owner: Decodable, Equatable {
-                var login: String?
-            }
-        }
     }
 
     enum Error: LocalizedError {
@@ -93,7 +93,7 @@ enum Github {
                     do {
                         return client.eventLoop.future(
                             try response.content
-                                .decode(Metadata.Repo.self, using: decoder)
+                                .decode(Repo.self, using: decoder)
                         ).map {
                             .init(issues: [],
                                   openPullRequests: [],

@@ -61,18 +61,18 @@ class GithubTests: AppTestCase {
         let uri = try Github.apiUri(for: pkg, resource: .repo)
 
         // MUT
-        let res = try Github.fetchResource(Github.Metadata.Repo.self, client: client, uri: uri).wait()
+        let res = try Github.fetchResource(Github.Repo.self, client: client, uri: uri).wait()
 
         // validate
-        XCTAssertEqual(res, Github.Metadata.Repo(defaultBranch: "master",
-                                                 description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
-                                                 forksCount: 1,
-                                                 license: .init(key: "mit"),
-                                                 name: "Gala",
-                                                 openIssues: 1,
-                                                 owner: .init(login: "finestructure"),
-                                                 parent: nil,
-                                                 stargazersCount: 44))
+        XCTAssertEqual(res, Github.Repo(defaultBranch: "master",
+                                        description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
+                                        forksCount: 1,
+                                        license: .init(key: "mit"),
+                                        name: "Gala",
+                                        openIssues: 1,
+                                        owner: .init(login: "finestructure"),
+                                        parent: nil,
+                                        stargazersCount: 44))
     }
 
     func test_fetchResource_pulls() throws {
@@ -89,7 +89,7 @@ class GithubTests: AppTestCase {
                                                                          "base": "master"])
 
         // MUT
-        let res = try Github.fetchResource([Github.Metadata.Pull].self, client: client, uri: uri).wait()
+        let res = try Github.fetchResource([Github.Pull].self, client: client, uri: uri).wait()
 
         // validate
         XCTAssertEqual(res.count, 1)
@@ -111,7 +111,7 @@ class GithubTests: AppTestCase {
                                                                          "direction": "desc"])
 
         // MUT
-        let res = try Github.fetchResource([Github.Metadata.Issue].self, client: client, uri: uri).wait()
+        let res = try Github.fetchResource([Github.Issue].self, client: client, uri: uri).wait()
 
         // validate
         XCTAssertEqual(res.count, 30)
@@ -133,15 +133,15 @@ class GithubTests: AppTestCase {
             resp.body = makeBody(data)
         }
         let md = try Github.fetchMetadata(client: client, package: pkg).wait()
-        XCTAssertEqual(md.repo, Github.Metadata.Repo(defaultBranch: "master",
-                                                     description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
-                                                     forksCount: 1,
-                                                     license: .init(key: "mit"),
-                                                     name: "Gala",
-                                                     openIssues: 1,
-                                                     owner: .init(login: "finestructure"),
-                                                     parent: nil,
-                                                     stargazersCount: 44))
+        XCTAssertEqual(md.repo, Github.Repo(defaultBranch: "master",
+                                            description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
+                                            forksCount: 1,
+                                            license: .init(key: "mit"),
+                                            name: "Gala",
+                                            openIssues: 1,
+                                            owner: .init(login: "finestructure"),
+                                            parent: nil,
+                                            stargazersCount: 44))
         XCTFail("test remaining fields")
     }
 
