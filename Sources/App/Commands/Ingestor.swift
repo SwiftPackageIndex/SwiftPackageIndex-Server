@@ -66,13 +66,19 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
         .first()
         .flatMap { repo -> EventLoopFuture<Void> in
             let repo = repo ?? Repository(packageId: pkgId)
-            repo.defaultBranch = metadata.defaultBranch
-            repo.forks = metadata.forksCount
-            repo.license = .init(from: metadata.license)
-            repo.name = metadata.name
-            repo.owner = metadata.owner?.login
-            repo.stars = metadata.stargazersCount
-            repo.summary = metadata.description
+            repo.defaultBranch = metadata.repo.defaultBranch
+            repo.forks = metadata.repo.forksCount
+            repo.lastIssueClosedAt = metadata.issues.first { $0.pullRequest == nil }?.closedAt
+            repo.lastPullRequestClosedAt = metadata.issues.first { $0.pullRequest != nil }?.closedAt
+            repo.license = .init(from: metadata.repo.license)
+            repo.name = metadata.repo.name
+            // Github counts PRs as issues, that's why we need to subtract our open PR count
+            // to get open "issues issues", excluding "PR issues"
+            repo.openIssues = metadata.repo.openIssues - metadata.openPullRequests.count
+            repo.openPullRequests = metadata.openPullRequests.count
+            repo.owner = metadata.repo.owner?.login
+            repo.stars = metadata.repo.stargazersCount
+            repo.summary = metadata.repo.description
             // TODO: find and assign parent repo
             return repo.save(on: database)
     }

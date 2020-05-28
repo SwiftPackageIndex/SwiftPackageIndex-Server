@@ -1,0 +1,9 @@
+variables:
+  api_url: https://api.github.com
+
+requests:
+  repos:
+    url: ${api_url}/repos/finestructure/gala
+    validation:
+      status: 200
+    log: json

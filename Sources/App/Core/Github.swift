@@ -5,51 +5,118 @@ enum Github {
     struct License: Decodable, Equatable {
         var key: String
     }
-    struct Parent: Decodable {
-        var cloneUrl: String
-        var fullName: String
+
+    // Content from https://api.github.com/repos/${repo}/issues
+    struct Issue: Decodable, Equatable {
+        var closedAt: Date?
+        var pullRequest: Pull?
+    }
+
+    // Content from https://api.github.com/repos/${repo}/pulls
+    struct Pull: Decodable, Equatable {
         var url: String
     }
-    struct Metadata: Decodable {
+
+    // Content from https://api.github.com/repos/${repo}
+    struct Repo: Decodable, Equatable {
         var defaultBranch: String
         var description: String?
         var forksCount: Int
         var license: License?
         var name: String?
+        var openIssues: Int
         var owner: Owner?
         var parent: Parent?
         var stargazersCount: Int
+
+        struct Parent: Decodable, Equatable {
+            var cloneUrl: String
+            var fullName: String
+            var url: String
+        }
 
         struct Owner: Decodable, Equatable {
             var login: String?
         }
     }
 
-    static func fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {
+    struct Metadata: Decodable, Equatable {
+        var issues: [Issue]
+        var openPullRequests: [Pull]
+        var repo: Repo
+    }
+
+    enum Error: LocalizedError {
+        case requestFailed(HTTPStatus, URI)
+        case invalidURI(Package.Id?, _ url: String)
+    }
+
+    static var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }()
 
-        do {
-            let url = try apiUri(for: package)
-            let request = client
-                .get(url, headers: getHeaders)
-                .flatMap { response -> EventLoopFuture<Metadata> in
-                    guard response.status == .ok else {
-                        return client.eventLoop.future(error:
-                            AppError.metadataRequestFailed(package.id, response.status, url)
-                        )
-                    }
-                    do {
-                        return client.eventLoop.future(
-                            try response.content.decode(Metadata.self, using: decoder)
-                        )
-                    } catch {
-                        return client.eventLoop.future(error: error)
-                    }
+    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) -> EventLoopFuture<T> {
+        let request = client
+            .get(uri, headers: getHeaders)
+            .flatMap { response -> EventLoopFuture<T> in
+                guard response.status == .ok else {
+                    return client.eventLoop.future(error:
+                        Error.requestFailed(response.status, uri)
+                    )
                 }
-            return request
-        } catch {
-            return client.eventLoop.future(error: error)
+                do {
+                    let res = try response.content.decode(T.self, using: decoder)
+                    return client.eventLoop.future(res)
+                } catch {
+                    return client.eventLoop.future(error: error)
+                }
+            }
+        return request
+    }
+
+    static func fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {
+        guard
+            let repoUri = try? apiUri(for: package, resource: .repo),
+            let issuesUri = try? apiUri(for: package, resource: .issues, query: ["state": "closed",
+                                                                                 "sort": "closed",
+                                                                                 "direction": "desc"])
+            else { return client.eventLoop.future(error: Error.invalidURI(package.id, package.url)) }
+
+        // Chain requests together
+        // In particular, we need to run repo first, because pulls needs the default branch parameter
+        // from repo's results
+        let repo = fetchResource(Repo.self, client: client, uri: repoUri)
+
+        let repoAndPulls = repo.flatMap { repo -> EventLoopFuture<(Repo, [Pull])> in
+            guard let pullsUri = try? apiUri(for: package,
+                                             resource: .pulls,
+                                             query: ["state": "open",
+                                                     "sort": "updated",
+                                                     "direction": "desc",
+                                                     "page_size": "100",
+                                                     "base": repo.defaultBranch])
+                else { return client.eventLoop.future(error: Error.invalidURI(package.id, package.url)) }
+            return fetchResource([Pull].self, client: client, uri: pullsUri)
+                .map{ (repo, $0) }
+        }
+
+        let repoPullsAndIssues = repoAndPulls
+            .flatMap { (repo, pulls) in
+                fetchResource([Issue].self, client: client, uri: issuesUri)
+                    .map { ($0, pulls, repo) }
+        }
+
+        return repoPullsAndIssues
+            .map(Metadata.init)
+            .flatMapError { error in
+                // remap request failures to AppError
+                if case let Github.Error.requestFailed(status, uri) = error {
+                    return client.eventLoop.future(error: AppError.metadataRequestFailed(package.id, status, uri))
+                }
+                return client.eventLoop.future(error: error)
         }
     }
 
@@ -63,11 +130,27 @@ enum Github {
         return headers
     }
 
-    static func apiUri(for package: Package) throws -> URI {
+    enum Resource: String {
+        case issues
+        case pulls
+        case repo
+    }
+
+    static func apiUri(for package: Package,
+                       resource: Resource,
+                       query: [String: String] = [:]) throws -> URI {
         guard package.url.hasPrefix(Constants.githubComPrefix) else { throw AppError.invalidPackageUrl(package.id, package.url) }
+        let queryString = query.isEmpty
+            ? ""
+            : "?" + query.keys.sorted().map { key in "\(key)=\(query[key]!)" }.joined(separator: "&")
         let trunk = package.url
             .droppingGithubComPrefix
             .droppingGitExtension
-        return URI(string: "https://api.github.com/repos/\(trunk)")
+        switch resource {
+            case .issues, .pulls:
+                return URI(string: "https://api.github.com/repos/\(trunk)/\(resource.rawValue)\(queryString)")
+            case .repo:
+                return URI(string: "https://api.github.com/repos/\(trunk)\(queryString)")
+        }
     }
 }
