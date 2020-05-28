@@ -17,10 +17,12 @@ extension PackageShow.Model {
                 return Self.init(title: title,
                                  url: p.url,
                                  license: p.repository?.license ?? .none,
+                                 // FIXME: we should probably also display an explainer
+                                 // when summery is nil
                                  summary: p.repository?.summary ?? "–",
-                                 authors: nil,      // TODO: fill in
+                                 authors: p.authors(),
                                  history: p.history(),
-                                 activity: nil,    // TODO: fill in
+                                 activity: p.activity(),
                                  products: p.productCounts(),
                                  releases: p.releaseInfo(),
                                  languagePlatforms: p.languagePlatformInfo())
@@ -51,6 +53,12 @@ extension Package {
 
     func name() -> String? { defaultVersion()?.packageName }
 
+    func authors() -> [Link]? {
+        // TODO: fill in
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/175
+        return nil
+    }
+
     func history() -> PackageShow.Model.History? {
         guard
             let repo = repository,
@@ -70,6 +78,10 @@ extension Package {
         return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
                      commitCount: cl,
                      releaseCount: rl)
+    }
+
+    func activity() -> PackageShow.Model.Activity? {
+        return nil
     }
 
     func productCounts() -> PackageShow.Model.ProductCounts? {
