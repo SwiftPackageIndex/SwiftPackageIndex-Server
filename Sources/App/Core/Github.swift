@@ -96,6 +96,7 @@ enum Github {
                                              query: ["state": "open",
                                                      "sort": "updated",
                                                      "direction": "desc",
+                                                     "page_size": "100",
                                                      "base": repo.defaultBranch])
                 else { return client.eventLoop.future(error: Error.invalidURI(package.id, package.url)) }
             return fetchResource([Pull].self, client: client, uri: pullsUri)
