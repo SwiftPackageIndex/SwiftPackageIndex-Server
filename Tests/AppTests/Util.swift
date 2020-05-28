@@ -63,10 +63,12 @@ func fetch(id: Package.Id?, on db: Database, file: StaticString = #file, line: U
 
 
 class MockClient: Client {
-    var response: ClientResponse
+    var updateResponse: (ClientRequest, inout ClientResponse) -> Void
 
     func send(_ request: ClientRequest) -> EventLoopFuture<ClientResponse> {
-        eventLoop.makeSucceededFuture(response)
+        var response = ClientResponse()
+        updateResponse(request, &response)
+        return eventLoop.makeSucceededFuture(response)
     }
 
     var eventLoop: EventLoop {
@@ -77,9 +79,8 @@ class MockClient: Client {
         self
     }
 
-    init(_ updateResponse: (inout ClientResponse) -> Void) {
-        self.response = ClientResponse()
-        updateResponse(&self.response)
+    init(_ updateResponse: @escaping (ClientRequest, inout ClientResponse) -> Void) {
+        self.updateResponse = updateResponse
     }
 }
 

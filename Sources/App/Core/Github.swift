@@ -48,6 +48,7 @@ enum Github {
 
     enum Error: LocalizedError {
         case requestFailed(HTTPStatus, URI)
+        case invalidURI(Package.Id?, _ url: String)
     }
 
     static var decoder: JSONDecoder = {
@@ -77,35 +78,44 @@ enum Github {
     }
 
     static func fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        guard
+            let repoUri = try? apiUri(for: package, resource: .repo),
+            let issuesUri = try? apiUri(for: package, resource: .issues, query: ["state": "closed",
+                                                                                 "sort": "closed",
+                                                                                 "direction": "desc"])
+            else { return client.eventLoop.future(error: Error.invalidURI(package.id, package.url)) }
 
-        do {
-            let url = try apiUri(for: package, resource: .repo)
-            let request = client
-                .get(url, headers: getHeaders)
-                .flatMap { response -> EventLoopFuture<Metadata> in
-                    guard response.status == .ok else {
-                        return client.eventLoop.future(error:
-                            AppError.metadataRequestFailed(package.id, response.status, url)
-                        )
-                    }
-                    do {
-                        return client.eventLoop.future(
-                            try response.content
-                                .decode(Repo.self, using: decoder)
-                        ).map {
-                            .init(issues: [],
-                                  openPullRequests: [],
-                                  repo: $0)
-                        }
-                    } catch {
-                        return client.eventLoop.future(error: error)
-                    }
+        // Chain requests together
+        // In particular, we need to run repo first, because pulls needs the default branch parameter
+        // from repo's results
+        let repo = fetchResource(Repo.self, client: client, uri: repoUri)
+
+        let repoAndPulls = repo.flatMap { repo -> EventLoopFuture<(Repo, [Pull])> in
+            guard let pullsUri = try? apiUri(for: package,
+                                             resource: .pulls,
+                                             query: ["state": "open",
+                                                     "sort": "updated",
+                                                     "direction": "desc",
+                                                     "base": repo.defaultBranch])
+                else { return client.eventLoop.future(error: Error.invalidURI(package.id, package.url)) }
+            return fetchResource([Pull].self, client: client, uri: pullsUri)
+                .map{ (repo, $0) }
+        }
+
+        let repoPullsAndIssues = repoAndPulls
+            .flatMap { (repo, pulls) in
+                fetchResource([Issue].self, client: client, uri: issuesUri)
+                    .map { ($0, pulls, repo) }
+        }
+
+        return repoPullsAndIssues
+            .map(Metadata.init)
+            .flatMapError { error in
+                // remap request failures to AppError
+                if case let Github.Error.requestFailed(status, uri) = error {
+                    return client.eventLoop.future(error: AppError.metadataRequestFailed(package.id, status, uri))
                 }
-            return request
-        } catch {
-            return client.eventLoop.future(error: error)
+                return client.eventLoop.future(error: error)
         }
     }
 

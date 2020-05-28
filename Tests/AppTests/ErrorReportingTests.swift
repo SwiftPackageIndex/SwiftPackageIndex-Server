@@ -19,7 +19,7 @@ class ErrorReportingTests: AppTestCase {
 
     func test_Rollbar_createItem() throws {
         Current.rollbarToken = { "token" }
-        let client = MockClient { $0.status = .ok }
+        let client = MockClient { _, resp in resp.status = .ok }
         try Rollbar.createItem(client: client, level: .critical, message: "Test critical").wait()
     }
 
