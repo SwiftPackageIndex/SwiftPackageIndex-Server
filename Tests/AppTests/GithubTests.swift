@@ -83,21 +83,23 @@ class GithubTests: AppTestCase {
             resp.status = .ok
             resp.body = makeBody(data)
         }
-        let uri = try Github.apiUri(for: pkg, resource: .issues)
+        let uri = try Github.apiUri(for: pkg, resource: .issues, query: ["state": "closed",
+                                                                         "sort": "updated",
+                                                                         "direction": "desc"])
 
         // MUT
-        let res = try Github.fetchResource(Github.Metadata.Repo.self, client: client, uri: uri).wait()
+        let res = try Github.fetchResource([Github.Metadata.Issue].self, client: client, uri: uri).wait()
 
         // validate
-        XCTAssertEqual(res, Github.Metadata.Repo(defaultBranch: "master",
-                                                 description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
-                                                 forksCount: 1,
-                                                 license: .init(key: "mit"),
-                                                 name: "Gala",
-                                                 openIssues: 1,
-                                                 owner: .init(login: "finestructure"),
-                                                 parent: nil,
-                                                 stargazersCount: 44))
+        XCTAssertEqual(res.count, 30)
+        let first = try XCTUnwrap(res.first)
+        let last = try XCTUnwrap(res.last)
+        XCTAssertEqual(first,
+                       .init(closedAt: Date(rfc1123: "Wed, 27 May 2020 09:29:28 GMT"),
+                             pullRequest: .init(url: "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server/pulls/181")))
+        XCTAssertEqual(last,
+                       .init(closedAt: Date(rfc1123: "Sun, 24 May 2020 09:38:26 GMT"),
+                             pullRequest: .init(url: "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server/pulls/134")))
     }
 
     func test_fetchRepository() throws {

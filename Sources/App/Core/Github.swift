@@ -19,7 +19,7 @@ enum Github {
 
         // Content from https://api.github.com/repos/${repo}/pulls
         struct Pull: Decodable, Equatable {
-            var id: Int
+            var url: String
         }
 
         // Content from https://api.github.com/repos/${repo}
@@ -53,6 +53,7 @@ enum Github {
     static var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .iso8601
         return decoder
     }()
 
