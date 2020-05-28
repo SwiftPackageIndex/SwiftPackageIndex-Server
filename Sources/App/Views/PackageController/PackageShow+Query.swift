@@ -81,7 +81,10 @@ extension Package {
     }
 
     func activity() -> PackageShow.Model.Activity? {
-        guard let repo = repository else { return nil }
+        guard
+            let repo = repository,
+            repo.openIssues != nil || repo.openPullRequests != nil || repo.lastPullRequestClosedAt != nil
+            else { return nil }
         let openIssues = repo.openIssues.map {
             Link(label: "\($0) open issues", url: url.droppingGitExtension + "/issues")
         }
