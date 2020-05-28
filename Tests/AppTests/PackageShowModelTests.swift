@@ -30,7 +30,7 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertEqual(m.url, "1")
         XCTAssertEqual(m.license, .mit)
         XCTAssertEqual(m.summary, "summary")
-        XCTAssertEqual(m.authors, [])
+        XCTAssertEqual(m.authors, nil)
         XCTAssertEqual(m.history, nil)
         XCTAssertEqual(m.activity, nil)
         XCTAssertEqual(m.products, .init(libraries: 1, executables: 0))
