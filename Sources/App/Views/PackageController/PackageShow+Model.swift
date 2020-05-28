@@ -208,8 +208,11 @@ extension PackageShow.Model {
 
         // swift versions and platforms are the same for all versions because we grouped them,
         // so we use the leading keypath to obtain it
-        guard let versionInfo = languagePlatforms[keyPath: leadingKeyPath] else { return nil }
-        // FIXME: check that not both swiftVersions and platforms is empty
+        guard
+            let versionInfo = languagePlatforms[keyPath: leadingKeyPath],
+            // at least one group must be non-empty - or else we return nil and collapse the group
+            !(versionInfo.swiftVersions.isEmpty && versionInfo.platforms.isEmpty)
+            else { return nil }
 
         return .group([
             .p(
