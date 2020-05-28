@@ -72,7 +72,9 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
             repo.lastPullRequestClosedAt = metadata.issues.first { $0.pullRequest != nil }?.closedAt
             repo.license = .init(from: metadata.repo.license)
             repo.name = metadata.repo.name
-            repo.openIssues = metadata.repo.openIssues
+            // Github counts PRs as issues, that's why we need to subtract our open PR count
+            // to get open "issues issues", excluding "PR issues"
+            repo.openIssues = metadata.repo.openIssues - metadata.openPullRequests.count
             repo.openPullRequests = metadata.openPullRequests.count
             repo.owner = metadata.repo.owner?.login
             repo.stars = metadata.repo.stargazersCount
