@@ -164,7 +164,7 @@ extension PackageShow.Model {
     func languagesAndPlatformsClause() -> Node<HTML.ListContext>? {
         let groups = Self.lpInfoGroups(languagePlatforms)
         let listItems = groups
-            .compactMap(lpInfoSection(for:))
+            .compactMap { Self.lpInfoSection(keypaths: $0, languagePlatforms: languagePlatforms) }
             .map { Node<HTML.ListContext>.li($0) }
         guard !listItems.isEmpty else { return nil }
         return .group(listItems)
@@ -187,7 +187,8 @@ extension PackageShow.Model {
         return groups
     }
 
-    func lpInfoSection(for keypaths: [LanguagePlatformKeyPath]) -> Node<HTML.BodyContext>? {
+    static func lpInfoSection(keypaths: [LanguagePlatformKeyPath],
+                              languagePlatforms: LanguagePlatformInfo) -> Node<HTML.BodyContext>? {
         guard let leadingKeyPath = keypaths.first else { return nil }
         let cssClasses: [LanguagePlatformKeyPath: String] = [\.stable: "stable",
                                                              \.beta: "beta",
@@ -205,9 +206,13 @@ extension PackageShow.Model {
             )
         }
 
-        // swift versions and platforms are the same all versions because we grouped them,
+        // swift versions and platforms are the same for all versions because we grouped them,
         // so we use the leading keypath to obtain it
-        guard let versionInfo = languagePlatforms[keyPath: leadingKeyPath] else { return nil }
+        guard
+            let versionInfo = languagePlatforms[keyPath: leadingKeyPath],
+            // at least one group must be non-empty - or else we return nil and collapse the group
+            !(versionInfo.swiftVersions.isEmpty && versionInfo.platforms.isEmpty)
+            else { return nil }
 
         return .group([
             .p(
@@ -227,12 +232,12 @@ extension PackageShow.Model {
         ])
     }
 
-    func versionsClause(_ versions: [String]) -> [Node<HTML.BodyContext>] {
+    static func versionsClause(_ versions: [String]) -> [Node<HTML.BodyContext>] {
         let nodes = versions.map { Node<HTML.BodyContext>.strong(.text($0)) }
         return Self.listPhrase(opening: .text("Swift "), nodes: nodes)
     }
 
-    func platformsClause(_ platforms: [Platform]) -> [Node<HTML.BodyContext>] {
+    static func platformsClause(_ platforms: [Platform]) -> [Node<HTML.BodyContext>] {
         let nodes = platforms
             .sorted(by: { $0.ordinal < $1.ordinal })
             .map { "\($0)+" }
