@@ -3,6 +3,7 @@
 
 version: '3.7'
 
+
 x-shared: &shared
   environment:
     # set these variables via the environment or a `.env` file, which
@@ -18,6 +19,8 @@ x-shared: &shared
     LOG_LEVEL: ${LOG_LEVEL}
   volumes:
     - checkouts:/checkouts
+  restart: always
+
 
 services:
   app:
@@ -28,9 +31,6 @@ services:
     ports:
       - '8080:80'
     command: ["serve", "--env", "${ENV}", "--hostname", "0.0.0.0", "--port", "80"]
-    deploy:
-      update_config:
-        order: start-first
 
   reconcile:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -80,6 +80,7 @@ services:
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
+    restart: always
 
   sshd:
     image: registry.gitlab.com/finestructure/spi-sshd:0.0.1
@@ -87,6 +88,7 @@ services:
     command: ["-c", "--", "echo '${authorized_keys}' > /root/.ssh/authorized_keys && chmod 0400 /root/.ssh/authorized_keys && ssh-start ssh-server"]
     ports:
       - "2222:22"
+    restart: always
 
   grafana:
     image: grafana/grafana:7.0.0
@@ -97,16 +99,19 @@ services:
       - grafana_data:/var/lib/grafana
     ports:
       - "3000:3000"
+    restart: always
 
   loki:
     image: grafana/loki:1.5.0
     command: -config.file=/etc/loki/local-config.yaml
+    restart: always
 
   promtail:
     image: finestructure/spi-promtail:1.5.0
     volumes:
       - /var/lib/docker/containers:/var/log
     command: -config.file=/promtail.yaml
+    restart: always
 
 volumes:
   db_data:
