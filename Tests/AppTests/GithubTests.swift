@@ -75,9 +75,32 @@ class GithubTests: AppTestCase {
                                                  stargazersCount: 44))
     }
 
+    func test_fetchResource_pulls() throws {
+        // setup
+        let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server")
+        let data = try XCTUnwrap(try loadData(for: "github-pulls-open-response.json"))
+        let client = MockClient { resp in
+            resp.status = .ok
+            resp.body = makeBody(data)
+        }
+        let uri = try Github.apiUri(for: pkg, resource: .pulls, query: ["state": "open",
+                                                                         "sort": "updated",
+                                                                         "direction": "desc",
+                                                                         "base": "master"])
+
+        // MUT
+        let res = try Github.fetchResource([Github.Metadata.Pull].self, client: client, uri: uri).wait()
+
+        // validate
+        XCTAssertEqual(res.count, 1)
+        let first = try XCTUnwrap(res.first)
+        XCTAssertEqual(first,
+                       .init(url: "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server/pulls/182"))
+    }
+
     func test_fetchResource_issues() throws {
         // setup
-        let pkg = Package(url: "https://github.com/finestructure/Gala")
+        let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server")
         let data = try XCTUnwrap(try loadData(for: "github-issues-closed-response.json"))
         let client = MockClient { resp in
             resp.status = .ok
