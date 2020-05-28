@@ -80,7 +80,7 @@ enum Github {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
         do {
-            let url = try apiUri(for: package)
+            let url = try apiUri(for: package, resource: .repo)
             let request = client
                 .get(url, headers: getHeaders)
                 .flatMap { response -> EventLoopFuture<Metadata> in
@@ -118,11 +118,27 @@ enum Github {
         return headers
     }
 
-    static func apiUri(for package: Package) throws -> URI {
+    enum Resource: String {
+        case issues
+        case pulls
+        case repo
+    }
+
+    static func apiUri(for package: Package,
+                       resource: Resource,
+                       query: [String: String] = [:]) throws -> URI {
         guard package.url.hasPrefix(Constants.githubComPrefix) else { throw AppError.invalidPackageUrl(package.id, package.url) }
+        let queryString = query.isEmpty
+            ? ""
+            : "?" + query.keys.sorted().map { key in "\(key)=\(query[key]!)" }.joined(separator: "&")
         let trunk = package.url
             .droppingGithubComPrefix
             .droppingGitExtension
-        return URI(string: "https://api.github.com/repos/\(trunk)")
+        switch resource {
+            case .issues, .pulls:
+                return URI(string: "https://api.github.com/repos/\(trunk)/\(resource.rawValue)\(queryString)")
+            case .repo:
+                return URI(string: "https://api.github.com/repos/\(trunk)\(queryString)")
+        }
     }
 }

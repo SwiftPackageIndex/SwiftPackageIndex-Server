@@ -22,13 +22,31 @@ class GithubTests: AppTestCase {
     func test_Github_apiUri() throws {
         do {
             let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server.git")
-            XCTAssertEqual(try Github.apiUri(for: pkg).string,
+            XCTAssertEqual(try Github.apiUri(for: pkg, resource: .repo).string,
                            "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server")
         }
         do {
             let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server")
-            XCTAssertEqual(try Github.apiUri(for: pkg).string,
+            XCTAssertEqual(try Github.apiUri(for: pkg, resource: .repo).string,
                            "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server")
+        }
+        do {
+            let pkg = Package(url: "https://github.com/foo/bar")
+            XCTAssertEqual(try Github.apiUri(for: pkg, resource: .issues).string,
+                           "https://api.github.com/repos/foo/bar/issues")
+        }
+        do {
+            let pkg = Package(url: "https://github.com/foo/bar")
+            XCTAssertEqual(try Github.apiUri(for: pkg, resource: .pulls).string,
+                           "https://api.github.com/repos/foo/bar/pulls")
+        }
+        do {
+            let pkg = Package(url: "https://github.com/foo/bar")
+            XCTAssertEqual(try Github.apiUri(for: pkg,
+                                             resource: .issues,
+                                             query: ["sort": "updated",
+                                                     "direction": "desc"]).string,
+                           "https://api.github.com/repos/foo/bar/issues?direction=desc&sort=updated")
         }
     }
 
@@ -40,7 +58,32 @@ class GithubTests: AppTestCase {
             resp.status = .ok
             resp.body = makeBody(data)
         }
-        let uri = try Github.apiUri(for: pkg)
+        let uri = try Github.apiUri(for: pkg, resource: .repo)
+
+        // MUT
+        let res = try Github.fetchResource(Github.Metadata.Repo.self, client: client, uri: uri).wait()
+
+        // validate
+        XCTAssertEqual(res, Github.Metadata.Repo(defaultBranch: "master",
+                                                 description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
+                                                 forksCount: 1,
+                                                 license: .init(key: "mit"),
+                                                 name: "Gala",
+                                                 openIssues: 1,
+                                                 owner: .init(login: "finestructure"),
+                                                 parent: nil,
+                                                 stargazersCount: 44))
+    }
+
+    func test_fetchResource_issues() throws {
+        // setup
+        let pkg = Package(url: "https://github.com/finestructure/Gala")
+        let data = try XCTUnwrap(try loadData(for: "github-issues-closed-response.json"))
+        let client = MockClient { resp in
+            resp.status = .ok
+            resp.body = makeBody(data)
+        }
+        let uri = try Github.apiUri(for: pkg, resource: .issues)
 
         // MUT
         let res = try Github.fetchResource(Github.Metadata.Repo.self, client: client, uri: uri).wait()
