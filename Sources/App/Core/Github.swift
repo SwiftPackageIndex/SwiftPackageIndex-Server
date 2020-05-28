@@ -46,6 +46,35 @@ enum Github {
         }
     }
 
+    enum Error: LocalizedError {
+        case requestFailed(HTTPStatus, URI)
+    }
+
+    static var decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }()
+
+    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) -> EventLoopFuture<T> {
+        let request = client
+            .get(uri, headers: getHeaders)
+            .flatMap { response -> EventLoopFuture<T> in
+                guard response.status == .ok else {
+                    return client.eventLoop.future(error:
+                        Error.requestFailed(response.status, uri)
+                    )
+                }
+                do {
+                    let res = try response.content.decode(T.self, using: decoder)
+                    return client.eventLoop.future(res)
+                } catch {
+                    return client.eventLoop.future(error: error)
+                }
+            }
+        return request
+    }
+
     static func fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase

@@ -32,6 +32,31 @@ class GithubTests: AppTestCase {
         }
     }
 
+    func test_fetchResource_repo() throws {
+        // setup
+        let pkg = Package(url: "https://github.com/finestructure/Gala")
+        let data = try XCTUnwrap(try loadData(for: "github-repository-response.json"))
+        let client = MockClient { resp in
+            resp.status = .ok
+            resp.body = makeBody(data)
+        }
+        let uri = try Github.apiUri(for: pkg)
+
+        // MUT
+        let res = try Github.fetchResource(Github.Metadata.Repo.self, client: client, uri: uri).wait()
+
+        // validate
+        XCTAssertEqual(res, Github.Metadata.Repo(defaultBranch: "master",
+                                                 description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
+                                                 forksCount: 1,
+                                                 license: .init(key: "mit"),
+                                                 name: "Gala",
+                                                 openIssues: 1,
+                                                 owner: .init(login: "finestructure"),
+                                                 parent: nil,
+                                                 stargazersCount: 44))
+    }
+
     func test_fetchRepository() throws {
         let pkg = Package(url: "https://github.com/finestructure/Gala")
         let data = try XCTUnwrap(try loadData(for: "github-repository-response.json"))
