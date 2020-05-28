@@ -113,7 +113,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 1))
         XCTAssertEqual(repo.license, .mit)
-        XCTAssertEqual(repo.openIssues, 3)
+        XCTAssertEqual(repo.openIssues, 1)
         XCTAssertEqual(repo.openPullRequests, 2)
         XCTAssertEqual(repo.owner, "foo")
         XCTAssertEqual(repo.name, "bar")
