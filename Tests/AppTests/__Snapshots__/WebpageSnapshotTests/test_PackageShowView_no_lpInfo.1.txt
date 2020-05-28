@@ -62,7 +62,7 @@
               <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
             </li>
             <li class="icon activity">There are 
-              <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a>, and 
+              <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and 
               <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last pull request was closed/merged 6 days ago.
             </li>
             <li class="icon products">Alamofire contains 

@@ -81,7 +81,17 @@ extension Package {
     }
 
     func activity() -> PackageShow.Model.Activity? {
-        return nil
+        guard let repo = repository else { return nil }
+        let openIssues = repo.openIssues.map {
+            Link(label: "\($0) open issues", url: url.droppingGitExtension + "/issues")
+        }
+        let openPRs = repo.openPullRequests.map {
+            Link(label: "\($0) open pull requests", url: url.droppingGitExtension + "/pulls")
+        }
+        let lastClosed = repo.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
+        return .init(openIssues: openIssues,
+                     pullRequests: openPRs,
+                     lastPullRequestClosedAt: lastClosed)
     }
 
     func productCounts() -> PackageShow.Model.ProductCounts? {
