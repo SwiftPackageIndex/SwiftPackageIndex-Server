@@ -125,7 +125,7 @@ class GithubTests: AppTestCase {
                              pullRequest: .init(url: "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server/pulls/134")))
     }
 
-    func test_fetchRepository() throws {
+    func test_fetchMetadata() throws {
         let pkg = Package(url: "https://github.com/finestructure/Gala")
         let data = try XCTUnwrap(try loadData(for: "github-repository-response.json"))
         let client = MockClient { resp in
@@ -145,7 +145,7 @@ class GithubTests: AppTestCase {
         XCTFail("test remaining fields")
     }
 
-    func test_fetchRepository_badUrl() throws {
+    func test_fetchMetadata_badUrl() throws {
         let pkg = Package(url: "https://foo/bar")
         let client = MockClient { resp in
             resp.status = .ok
@@ -158,7 +158,7 @@ class GithubTests: AppTestCase {
         }
     }
 
-    func test_fetchRepository_badData() throws {
+    func test_fetchMetadata_badData() throws {
         let pkg = Package(url: "https://github.com/foo/bar")
         let client = MockClient { resp in
             resp.status = .ok
@@ -172,7 +172,7 @@ class GithubTests: AppTestCase {
         }
     }
 
-    func test_fetchRepository_rateLimiting() throws {
+    func test_fetchMetadata_rateLimiting() throws {
         let pkg = Package(url: "https://github.com/foo/bar")
         let client = MockClient { resp in
             resp.status = .tooManyRequests
