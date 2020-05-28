@@ -99,6 +99,23 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
                        [[\.stable, \.beta, \.latest]])
     }
+
+    func test_lpInfoSection_nil() throws {
+        // Test to ensure lpInfoSection returns nil when there are no swift versions or platforms
+        // setup
+        let lpInfo = PackageShow.Model.LanguagePlatformInfo(
+            stable: .init(link: .init(label: "1", url: "1"), swiftVersions: [], platforms: []),
+            beta: nil,
+            latest: .init(link: .init(label: "2", url: "2"), swiftVersions: [], platforms: [])
+        )
+
+        // MUT
+        let res = PackageShow.Model.lpInfoSection(keypaths: [\.stable, \.latest],
+                                                  languagePlatforms: lpInfo)
+
+        // validate
+        XCTAssertNil(res)
+    }
 }
 
 
