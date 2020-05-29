@@ -8,25 +8,51 @@ struct IngestorCommand: Command {
     struct Signature: CommandSignature {
         @Option(name: "limit", short: "l")
         var limit: Int?
+        @Option(name: "id")
+        var id: String?
     }
 
     var help: String { "Run package ingestion (fetching repository metadata)" }
 
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
-        context.console.info("Ingesting (limit: \(limit)) ...")
-        let request = ingest(application: context.application,
-                             database: context.application.db,
-                             limit: limit)
-        context.console.info("Processing ...", newLine: true)
-        try request.wait()
+        let id = signature.id.flatMap(UUID.init(uuidString:))
+        if let id = id {
+            context.console.info("Ingesting (id: \(id)) ...")
+            try ingest(application: context.application,
+                       database: context.application.db,
+                       id: id)
+                .wait()
+        } else {
+            context.console.info("Ingesting (limit: \(limit)) ...")
+            try ingest(application: context.application,
+                       database: context.application.db,
+                       limit: limit)
+                .wait()
+        }
     }
 
 }
 
 
+func ingest(application: Application, database: Database, id: Package.Id) -> EventLoopFuture<Void> {
+    let packages = Package.query(on: application.db)
+        .with(\.$repositories)
+        .filter(\.$id == id)
+        .first()
+        .unwrap(or: Abort(.notFound))
+        .map { [$0] }
+    return ingest(application: application, database: database, packages: packages)
+}
+
+
 func ingest(application: Application, database: Database, limit: Int) -> EventLoopFuture<Void> {
     let packages = Package.fetchCandidates(application.db, for: .ingestion, limit: limit)
+    return ingest(application: application, database: database, packages: packages)
+}
+
+
+func ingest(application: Application, database: Database, packages: EventLoopFuture<[Package]>) -> EventLoopFuture<Void> {
     let metadata = packages.flatMap { fetchMetadata(client: application.client, packages: $0) }
     let updates = metadata.flatMap { updateRespositories(on: application.db, metadata: $0) }
     return updates.flatMap { updatePackage(application: application, results: $0, stage: .ingestion) }
