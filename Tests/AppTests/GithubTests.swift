@@ -85,8 +85,7 @@ class GithubTests: AppTestCase {
         }
         let uri = try Github.apiUri(for: pkg, resource: .pulls, query: ["state": "open",
                                                                          "sort": "updated",
-                                                                         "direction": "desc",
-                                                                         "base": "master"])
+                                                                         "direction": "desc"])
 
         // MUT
         let res = try Github.fetchResource([Github.Pull].self, client: client, uri: uri).wait()

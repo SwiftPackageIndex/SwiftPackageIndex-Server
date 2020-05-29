@@ -82,35 +82,24 @@ enum Github {
             let repoUri = try? apiUri(for: package, resource: .repo),
             let issuesUri = try? apiUri(for: package, resource: .issues, query: ["state": "closed",
                                                                                  "sort": "closed",
-                                                                                 "direction": "desc"])
+                                                                                 "direction": "desc",
+                                                                                 "page_size": "100"]),
+            let pullsUri = try? apiUri(for: package, resource: .pulls, query: ["state": "open",
+                                                                               "sort": "updated",
+                                                                               "direction": "desc",
+                                                                               "page_size": "100"])
             else { return client.eventLoop.future(error: Error.invalidURI(package.id, package.url)) }
 
         // Chain requests together
-        // In particular, we need to run repo first, because pulls needs the default branch parameter
-        // from repo's results
+        let issues = fetchResource([Issue].self, client: client, uri: issuesUri)
+        let pulls = fetchResource([Pull].self, client: client, uri: pullsUri)
         let repo = fetchResource(Repo.self, client: client, uri: repoUri)
 
-        let repoAndPulls = repo.flatMap { repo -> EventLoopFuture<(Repo, [Pull])> in
-            guard let pullsUri = try? apiUri(for: package,
-                                             resource: .pulls,
-                                             query: ["state": "open",
-                                                     "sort": "updated",
-                                                     "direction": "desc",
-                                                     "page_size": "100",
-                                                     "base": repo.defaultBranch])
-                else { return client.eventLoop.future(error: Error.invalidURI(package.id, package.url)) }
-            return fetchResource([Pull].self, client: client, uri: pullsUri)
-                .map{ (repo, $0) }
-        }
-
-        let repoPullsAndIssues = repoAndPulls
-            .flatMap { (repo, pulls) in
-                fetchResource([Issue].self, client: client, uri: issuesUri)
-                    .map { ($0, pulls, repo) }
-        }
-
-        return repoPullsAndIssues
+        let metadata = issues.and(pulls).and(repo)
+            .map { ($0.0, $0.1, $1) }  // unpack into (issues, pulls, repo) tuple
             .map(Metadata.init)
+
+        return metadata
             .flatMapError { error in
                 // remap request failures to AppError
                 if case let Github.Error.requestFailed(status, uri) = error {
