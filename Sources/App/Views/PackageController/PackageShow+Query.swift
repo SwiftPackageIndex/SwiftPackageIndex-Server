@@ -91,10 +91,12 @@ extension Package {
         let openPRs = repo.openPullRequests.map {
             Link(label: "\($0) open pull requests", url: url.droppingGitExtension + "/pulls")
         }
-        let lastClosed = repo.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
+        let lastIssueClosed = repo.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
+        let lastPRClosed = repo.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
         return .init(openIssues: openIssues,
-                     pullRequests: openPRs,
-                     lastPullRequestClosedAt: lastClosed)
+                     openPullRequests: openPRs,
+                     lastIssueClosedAt: lastIssueClosed,
+                     lastPullRequestClosedAt: lastPRClosed)
     }
 
     func productCounts() -> PackageShow.Model.ProductCounts? {

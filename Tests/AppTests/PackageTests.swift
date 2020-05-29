@@ -283,9 +283,13 @@ final class PackageTests: AppTestCase {
 
     func test_activity() throws {
         // setup
+        let m: TimeInterval = 60
+        let H = 60*m
+        let d = 24*H
         let pkg = try savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
         try Repository(package: pkg,
-                       lastPullRequestClosedAt: Date(timeIntervalSince1970: 0),
+                       lastIssueClosedAt: Date(timeIntervalSinceNow: -5*d),
+                       lastPullRequestClosedAt: Date(timeIntervalSinceNow: -6*d),
                        openIssues: 27,
                        openPullRequests: 5).create(on: app.db).wait()
         // re-load pkg with relationships
@@ -298,9 +302,10 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(res,
                        .init(openIssues: .init(label: "27 open issues",
                                                url: "https://github.com/Alamofire/Alamofire/issues"),
-                             pullRequests: .init(label: "5 open pull requests",
-                                                 url: "https://github.com/Alamofire/Alamofire/pulls"),
-                             lastPullRequestClosedAt: "50 years ago"))
+                             openPullRequests: .init(label: "5 open pull requests",
+                                                     url: "https://github.com/Alamofire/Alamofire/pulls"),
+                             lastIssueClosedAt: "5 days ago",
+                             lastPullRequestClosedAt: "6 days ago"))
     }
 }
 
