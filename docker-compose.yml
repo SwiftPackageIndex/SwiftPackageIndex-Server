@@ -49,7 +49,7 @@ services:
       - migrate
     entrypoint: ["/bin/bash"]
     command: ["-c", "--",
-      "trap : TERM INT; while true; do ./Run ingest --env ${ENV} --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-10}; done"
+      "trap : TERM INT; while true; do ./Run ingest --env ${ENV} --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-300}; done"
     ]
 
   analyze:
@@ -59,7 +59,7 @@ services:
       - migrate
     entrypoint: ["/bin/bash"]
     command: ["-c", "--",
-      "trap : TERM INT; while true; do ./Run analyze --env ${ENV} --limit ${ANALYZE_LIMIT:-50}; sleep ${ANALYZE_SLEEP:-10}; done"
+      "trap : TERM INT; while true; do ./Run analyze --env ${ENV} --limit ${ANALYZE_LIMIT:-25}; sleep ${ANALYZE_SLEEP:-20}; done"
     ]
 
   migrate:
