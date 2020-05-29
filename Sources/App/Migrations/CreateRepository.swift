@@ -84,3 +84,18 @@ struct AddActivityFields: Migration {
             .update()
     }
 }
+
+
+struct AddAuthors: Migration {
+    func prepare(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("repositories")
+            .field("authors", .array(of: .json))
+            .update()
+    }
+
+    func revert(on database: Database) -> EventLoopFuture<Void> {
+        return database.schema("repositories")
+            .deleteField("authors")
+            .update()
+    }
+}

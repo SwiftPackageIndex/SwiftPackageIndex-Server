@@ -20,6 +20,9 @@ final class Repository: Model, Content {
 
     // data fields
 
+    @Field(key: "authors")
+    var authors: [Author]
+
     @Field(key: "commit_count")
     var commitCount: Int?
 
@@ -76,6 +79,7 @@ final class Repository: Model, Content {
 
     init(id: Id? = nil,
          package: Package,
+         authors: [Author] = [],
          summary: String? = nil,
          commitCount: Int? = nil,
          firstCommitDate: Date? = nil,
@@ -93,6 +97,7 @@ final class Repository: Model, Content {
          forkedFrom: Repository? = nil) throws {
         self.id = id
         self.$package.id = try package.requireID()
+        self.authors = authors
         self.summary = summary
         self.commitCount = commitCount
         self.firstCommitDate = firstCommitDate
