@@ -21,7 +21,7 @@ enum Constants {
     static let recentPackagesLimit = 7
     static let recentReleasesLimit = 7
 
-    static let reIngestionDeadtime: TimeInterval = 60 * 60  // in seconds
+    static let reIngestionDeadtime: TimeInterval = 90 * 60  // in seconds
 
     static let searchLimit = 20
     static let searchLimitLeeway = 5
