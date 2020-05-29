@@ -89,7 +89,7 @@ struct AddActivityFields: Migration {
 struct AddAuthors: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("repositories")
-            .field("authors", .array(of: .json))
+            .field("authors", .array(of: .json), .sql(.default("{}")))
             .update()
     }
 
