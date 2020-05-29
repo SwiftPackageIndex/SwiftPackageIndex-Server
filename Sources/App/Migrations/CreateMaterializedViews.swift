@@ -75,6 +75,7 @@ struct CreateSearch: Migration {
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id,
+              p.score,
               v.package_name,
               r.name,
               r.owner,
