@@ -21,9 +21,9 @@ extension PackageShow {
         }
 
         struct Activity: Equatable {
-            var openIssues: Link
-            var pullRequests: Link
-            var lastPullRequestClosedMerged: String
+            var openIssues: Link?
+            var pullRequests: Link?
+            var lastPullRequestClosedAt: String?
         }
 
         struct ProductCounts: Equatable {
@@ -56,9 +56,10 @@ extension PackageShow.Model {
     func authorsClause() -> Node<HTML.BodyContext>? {
         guard let authors = authors else { return nil }
         let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
-        return .group(Self.listPhrase(opening: .text("By "),
+        return .group(Self.listPhrase(opening: "By ",
                                       nodes: nodes,
-                                      ifNoValues: ["-"]))
+                                      ifNoValues: "-",
+                                      closing: "."))
     }
 
     func historyClause() -> Node<HTML.BodyContext>? {
@@ -80,19 +81,14 @@ extension PackageShow.Model {
 
     func activityClause() -> Node<HTML.BodyContext>? {
         guard let activity = activity else { return nil }
-        return .group([
-            "There are ",
-            .a(
-                .href(activity.openIssues.url),
-                .text(activity.openIssues.label)
-            ),
-            ", and ",
-            .a(
-                .href(activity.pullRequests.url),
-                .text(activity.pullRequests.label)
-            ),
-            ". The last pull request was closed/merged \(activity.lastPullRequestClosedMerged)."
-        ])
+        let nodes = [activity.openIssues, activity.pullRequests]
+            .compactMap { $0 }
+            .map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
+        let openItems = Self.listPhrase(opening: "There are ", nodes: nodes, closing: ".")
+        let lastClosed: [Node<HTML.BodyContext>] = activity.lastPullRequestClosedAt.map {
+            [.text(" The last pull request was closed/merged \($0).")]
+        } ?? []
+        return .group(openItems + lastClosed)
     }
 
     func productsClause() -> Node<HTML.BodyContext>? {
@@ -234,7 +230,7 @@ extension PackageShow.Model {
 
     static func versionsClause(_ versions: [String]) -> [Node<HTML.BodyContext>] {
         let nodes = versions.map { Node<HTML.BodyContext>.strong(.text($0)) }
-        return Self.listPhrase(opening: .text("Swift "), nodes: nodes)
+        return Self.listPhrase(opening: "Swift ", nodes: nodes)
     }
 
     static func platformsClause(_ platforms: [Platform]) -> [Node<HTML.BodyContext>] {
@@ -242,7 +238,7 @@ extension PackageShow.Model {
             .sorted(by: { $0.ordinal < $1.ordinal })
             .map { "\($0)+" }
             .map { Node<HTML.BodyContext>.strong(.text($0)) }
-        return Self.listPhrase(opening: .text(""), nodes: nodes)
+        return Self.listPhrase(opening: "", nodes: nodes, closing: ".")
     }
 
 }
@@ -254,14 +250,15 @@ extension PackageShow.Model {
 
     static func listPhrase(opening: Node<HTML.BodyContext>,
                            nodes: [Node<HTML.BodyContext>],
-                           ifNoValues: [Node<HTML.BodyContext>] = []) -> [Node<HTML.BodyContext>] {
+                           ifNoValues: Node<HTML.BodyContext>? = nil,
+                           closing: Node<HTML.BodyContext> = "") -> [Node<HTML.BodyContext>] {
         switch nodes.count {
             case 0:
-                return ifNoValues
+                return ifNoValues.map { [$0] } ?? []
             case 1:
-                return [opening, nodes[0]]
+                return [opening, nodes[0], closing]
             case 2:
-                return [opening, nodes[0], " and ", nodes[1]]
+                return [opening, nodes[0], " and ", nodes[1], closing]
             default:
                 let start: [Node<HTML.BodyContext>]
                     = [opening, nodes.first!]
@@ -269,7 +266,7 @@ extension PackageShow.Model {
                     [", ", $0]
                 }
                 let end: [Node<HTML.BodyContext>] =
-                    [", and ", nodes.last!, "."]
+                    [", and ", nodes.last!, closing]
                 return middle.reduce(start) { $0 + $1 } + end
         }
     }

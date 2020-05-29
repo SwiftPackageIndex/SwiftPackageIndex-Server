@@ -113,12 +113,6 @@
                   <strong>5</strong> and 
                   <strong>5.2</strong>
                 </li>
-                <li>
-                  <strong>iOS 10.0+</strong>, 
-                  <strong>macOS 10.12+</strong>, 
-                  <strong>watchOS 3.0+</strong>, and 
-                  <strong>tvOS 10.0+</strong>.
-                </li>
               </ul>
             </li>
             <li>
@@ -137,12 +131,6 @@
               <ul>
                 <li>Swift 
                   <strong>5.2</strong>
-                </li>
-                <li>
-                  <strong>iOS 13.0+</strong>, 
-                  <strong>macOS 10.15+</strong>, 
-                  <strong>watchOS 6.0+</strong>, and 
-                  <strong>tvOS 13.0+</strong>.
                 </li>
               </ul>
             </li>

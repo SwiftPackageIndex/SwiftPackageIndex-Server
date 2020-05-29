@@ -17,10 +17,12 @@ extension PackageShow.Model {
                 return Self.init(title: title,
                                  url: p.url,
                                  license: p.repository?.license ?? .none,
+                                 // FIXME: we should probably also display an explainer
+                                 // when summery is nil
                                  summary: p.repository?.summary ?? "–",
-                                 authors: [],      // TODO: fill in
+                                 authors: p.authors(),
                                  history: p.history(),
-                                 activity: nil,    // TODO: fill in
+                                 activity: p.activity(),
                                  products: p.productCounts(),
                                  releases: p.releaseInfo(),
                                  languagePlatforms: p.languagePlatformInfo())
@@ -50,6 +52,50 @@ extension Package {
     }
 
     func name() -> String? { defaultVersion()?.packageName }
+
+    func authors() -> [Link]? {
+        // TODO: fill in
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/175
+        return nil
+    }
+
+    func history() -> PackageShow.Model.History? {
+        guard
+            let repo = repository,
+            let commitCount = repo.commitCount,
+            let defaultBranch = repo.defaultBranch,
+            let releases = $versions.value,
+            let firstCommitDate = repo.firstCommitDate,
+            let commitCountString = Self.numberFormatter.string(from: NSNumber(value: commitCount)),
+            let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))
+            else { return nil }
+        let cl = Link(
+            label: commitCountString + " commit".pluralized(for: commitCount),
+            url: url.droppingGitExtension + "/commits/\(defaultBranch)")
+        let rl = Link(
+            label: releaseCountString + " release".pluralized(for: releases.count),
+            url: url.droppingGitExtension + "/releases")
+        return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
+                     commitCount: cl,
+                     releaseCount: rl)
+    }
+
+    func activity() -> PackageShow.Model.Activity? {
+        guard
+            let repo = repository,
+            repo.openIssues != nil || repo.openPullRequests != nil || repo.lastPullRequestClosedAt != nil
+            else { return nil }
+        let openIssues = repo.openIssues.map {
+            Link(label: "\($0) open issues", url: url.droppingGitExtension + "/issues")
+        }
+        let openPRs = repo.openPullRequests.map {
+            Link(label: "\($0) open pull requests", url: url.droppingGitExtension + "/pulls")
+        }
+        let lastClosed = repo.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
+        return .init(openIssues: openIssues,
+                     pullRequests: openPRs,
+                     lastPullRequestClosedAt: lastClosed)
+    }
 
     func productCounts() -> PackageShow.Model.ProductCounts? {
         guard let version = defaultVersion() else { return nil }
@@ -115,27 +161,6 @@ extension Package {
         return .init(stable: stable.flatMap(makeModelVersion),
                      beta: beta.flatMap(makeModelVersion),
                      latest: latest.flatMap(makeModelVersion))
-    }
-
-    func history() -> PackageShow.Model.History? {
-        guard
-            let repo = repository,
-            let commitCount = repo.commitCount,
-            let defaultBranch = repo.defaultBranch,
-            let releases = $versions.value,
-            let firstCommitDate = repo.firstCommitDate,
-            let commitCountString = Self.numberFormatter.string(from: NSNumber(value: commitCount)),
-            let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))
-            else { return nil }
-        let cl = Link(
-            label: commitCountString + " commit".pluralized(for: commitCount),
-            url: url.droppingGitExtension + "/commits/\(defaultBranch)")
-        let rl = Link(
-            label: releaseCountString + " release".pluralized(for: releases.count),
-            url: url.droppingGitExtension + "/releases")
-        return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
-                     commitCount: cl,
-                     releaseCount: rl)
     }
 
     static let numberFormatter: NumberFormatter = {

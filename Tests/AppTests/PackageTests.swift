@@ -280,6 +280,28 @@ final class PackageTests: AppTestCase {
         // MUT
         XCTAssertEqual(pkg.computeScore(), 67)
     }
+
+    func test_activity() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
+        try Repository(package: pkg,
+                       lastPullRequestClosedAt: Date(timeIntervalSince1970: 0),
+                       openIssues: 27,
+                       openPullRequests: 5).create(on: app.db).wait()
+        // re-load pkg with relationships
+        try pkg.$repositories.load(on: app.db).wait()
+
+        // MUT
+        let res = pkg.activity()
+
+        // validate
+        XCTAssertEqual(res,
+                       .init(openIssues: .init(label: "27 open issues",
+                                               url: "https://github.com/Alamofire/Alamofire/issues"),
+                             pullRequests: .init(label: "5 open pull requests",
+                                                 url: "https://github.com/Alamofire/Alamofire/pulls"),
+                             lastPullRequestClosedAt: "50 years ago"))
+    }
 }
 
 
