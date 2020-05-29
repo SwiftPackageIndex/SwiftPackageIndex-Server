@@ -9,7 +9,7 @@ struct CreateRecentPackages: Migration {
         }
         return db.raw(
             """
-            CREATE MATERIALIZED VIEW IF NOT EXISTS recent_packages AS
+            CREATE MATERIALIZED VIEW recent_packages AS
             SELECT
               p.id,
               v.package_name,
@@ -19,7 +19,7 @@ struct CreateRecentPackages: Migration {
             WHERE v.package_name IS NOT NULL
             GROUP BY p.id, v.package_name
             ORDER BY MAX(p.created_at) DESC
-            LIMIT 10
+            LIMIT 100
             """
         ).run()
     }
@@ -40,7 +40,7 @@ struct CreateRecentReleases: Migration {
         }
         return db.raw(
             """
-            CREATE MATERIALIZED VIEW IF NOT EXISTS recent_releases AS
+            CREATE MATERIALIZED VIEW recent_releases AS
             SELECT
               package_id AS id,
               package_name,
@@ -51,7 +51,7 @@ struct CreateRecentReleases: Migration {
               AND reference->>'tag' IS NOT NULL
             GROUP BY package_id, package_name
             ORDER BY MAX(commit_date) DESC
-            LIMIT 10
+            LIMIT 100
             """
         ).run()
     }
