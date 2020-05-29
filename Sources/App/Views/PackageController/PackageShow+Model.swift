@@ -22,7 +22,7 @@ extension PackageShow {
 
         struct Activity: Equatable {
             var openIssues: Link?
-            var pullRequests: Link?
+            var openPullRequests: Link?
             var lastIssueClosedAt: String?
             var lastPullRequestClosedAt: String?
         }
@@ -81,14 +81,21 @@ extension PackageShow.Model {
     }
 
     func activityClause() -> Node<HTML.BodyContext>? {
-        guard let activity = activity else { return nil }
+        guard
+            let activity = activity,
+            // bail out if not at least one field is non-nil
+            activity.openIssues != nil
+                || activity.openPullRequests != nil
+                || activity.lastIssueClosedAt != nil
+                || activity.lastPullRequestClosedAt != nil
+            else { return nil }
 
-        let openItems = [activity.openIssues, activity.pullRequests]
+        let openItems = [activity.openIssues, activity.openPullRequests]
             .compactMap { $0 }
             .map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
 
         let lastClosed: [Node<HTML.BodyContext>] = [
-            activity.lastIssueClosedAt.map { .text("last issue was closed at \($0)") },
+            activity.lastIssueClosedAt.map { .text("last issue was closed \($0)") },
             activity.lastPullRequestClosedAt.map { .text("last pull request was merged/closed \($0)") }
             ]
             .compactMap { $0 }

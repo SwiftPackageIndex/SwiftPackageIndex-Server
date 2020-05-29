@@ -94,7 +94,7 @@ extension Package {
         let lastIssueClosed = repo.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
         let lastPRClosed = repo.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
         return .init(openIssues: openIssues,
-                     pullRequests: openPRs,
+                     openPullRequests: openPRs,
                      lastIssueClosedAt: lastIssueClosed,
                      lastPullRequestClosedAt: lastPRClosed)
     }
