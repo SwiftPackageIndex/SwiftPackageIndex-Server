@@ -10,8 +10,8 @@ struct CreateVersion: Migration {
             .field("reference", .json)
             .field("package_name", .string)
             .field("commit", .string)
-            .field("supported_platforms", .array(of: .json))
-            .field("swift_versions", .array(of: .string))
+            .field("supported_platforms", .array(of: .json), .sql(.default("{}")))
+            .field("swift_versions", .array(of: .string), .sql(.default("{}")))
             .create()
     }
 
@@ -41,14 +41,14 @@ struct ChangeSwiftVersions: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("versions")
             .deleteField("swift_versions")
-            .field("swift_versions", .array(of: .json))
+            .field("swift_versions", .array(of: .json), .sql(.default("{}")))
             .update()
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("versions")
             .deleteField("swift_versions")
-            .field("swift_versions", .array(of: .string))
+            .field("swift_versions", .array(of: .string), .sql(.default("{}")))
             .update()
     }
 }
