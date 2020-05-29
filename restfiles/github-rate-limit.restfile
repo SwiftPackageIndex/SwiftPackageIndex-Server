@@ -1,0 +1,12 @@
+variables:
+  api_url: https://api.github.com
+
+requests:
+  repos:
+    url: ${api_url}/rate_limit
+    headers:
+      Authorization: token ${GITHUB_TOKEN}
+    validation:
+      status: 200
+    log:
+      - json.rate
