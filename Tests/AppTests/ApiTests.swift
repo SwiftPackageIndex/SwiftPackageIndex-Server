@@ -16,7 +16,7 @@ class ApiTests: AppTestCase {
     func test_search_noQuery() throws {
         try app.test(.GET, "api/search") { res in
             XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(try res.content.decode(API.SearchResult.self),
+            XCTAssertEqual(try res.content.decode(SearchResult.self),
                            .init(hasMoreResults: false, results: []))
         }
     }
@@ -39,14 +39,14 @@ class ApiTests: AppTestCase {
                        owner: "owner 2").save(on: app.db).wait()
         try Version(package: p1, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
         try Version(package: p2, reference: .branch("master"), packageName: "Bar").save(on: app.db).wait()
-        try API.SearchQuery.refresh(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
 
         // MUT
         try app.test(.GET, "api/search?query=foo%20bar") { res in
             // validation
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(
-                try res.content.decode(API.SearchResult.self),
+                try res.content.decode(SearchResult.self),
                 .init(hasMoreResults: false,
                       results: [
                         .init(packageId: UUID(uuidString: "4e256250-d1ea-4cdd-9fe9-0fc5dce17a80")!,
