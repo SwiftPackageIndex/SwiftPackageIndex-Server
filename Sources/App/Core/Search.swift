@@ -3,13 +3,13 @@ import SQLKit
 import Vapor
 
 
-struct SearchResult: Content, Equatable {
-    let hasMoreResults: Bool
-    let results: [Search.Record]
-}
-
 enum Search {
     static let schema = "search"
+
+    struct Result: Content, Equatable {
+        let hasMoreResults: Bool
+        let results: [Search.Record]
+    }
 
     struct Record: Content, Equatable {
         let packageId: Package.Id
@@ -51,7 +51,7 @@ enum Search {
             + "\n  limit \(Constants.searchLimit + Constants.searchLimitLeeway)"
     }
 
-    static func run(_ database: Database, _ terms: [String]) -> EventLoopFuture<SearchResult> {
+    static func run(_ database: Database, _ terms: [String]) -> EventLoopFuture<Search.Result> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
@@ -61,8 +61,8 @@ enum Search {
                 // available
                 let hasMoreResults = results.count >= Constants.searchLimit + Constants.searchLimitLeeway
                 let cutOff = hasMoreResults ? Constants.searchLimit : results.count
-                return SearchResult(hasMoreResults: hasMoreResults,
-                                    results: Array(results[..<cutOff]))
+                return Search.Result(hasMoreResults: hasMoreResults,
+                                     results: Array(results[..<cutOff]))
         }
     }
 

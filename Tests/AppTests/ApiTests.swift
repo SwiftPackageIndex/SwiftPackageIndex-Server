@@ -16,7 +16,7 @@ class ApiTests: AppTestCase {
     func test_search_noQuery() throws {
         try app.test(.GET, "api/search") { res in
             XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(try res.content.decode(SearchResult.self),
+            XCTAssertEqual(try res.content.decode(Search.Result.self),
                            .init(hasMoreResults: false, results: []))
         }
     }
@@ -46,7 +46,7 @@ class ApiTests: AppTestCase {
             // validation
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(
-                try res.content.decode(SearchResult.self),
+                try res.content.decode(Search.Result.self),
                 .init(hasMoreResults: false,
                       results: [
                         .init(packageId: UUID(uuidString: "4e256250-d1ea-4cdd-9fe9-0fc5dce17a80")!,
