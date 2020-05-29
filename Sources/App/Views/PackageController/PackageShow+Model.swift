@@ -23,6 +23,7 @@ extension PackageShow {
         struct Activity: Equatable {
             var openIssues: Link?
             var pullRequests: Link?
+            var lastIssueClosedAt: String?
             var lastPullRequestClosedAt: String?
         }
 
@@ -81,14 +82,21 @@ extension PackageShow.Model {
 
     func activityClause() -> Node<HTML.BodyContext>? {
         guard let activity = activity else { return nil }
-        let nodes = [activity.openIssues, activity.pullRequests]
+
+        let openItems = [activity.openIssues, activity.pullRequests]
             .compactMap { $0 }
             .map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
-        let openItems = Self.listPhrase(opening: "There are ", nodes: nodes, closing: ".")
-        let lastClosed: [Node<HTML.BodyContext>] = activity.lastPullRequestClosedAt.map {
-            [.text(" The last pull request was closed/merged \($0).")]
-        } ?? []
-        return .group(openItems + lastClosed)
+
+        let lastClosed: [Node<HTML.BodyContext>] = [
+            activity.lastIssueClosedAt.map { .text("last issue was closed at \($0)") },
+            activity.lastPullRequestClosedAt.map { .text("last pull request was merged/closed \($0)") }
+            ]
+            .compactMap { $0 }
+
+        return .group(
+            Self.listPhrase(opening: "There are ", nodes: openItems, closing: ". ") +
+                Self.listPhrase(opening: "The ", nodes: lastClosed, conjunction: " and the ", closing: ".")
+        )
     }
 
     func productsClause() -> Node<HTML.BodyContext>? {
@@ -251,6 +259,7 @@ extension PackageShow.Model {
     static func listPhrase(opening: Node<HTML.BodyContext>,
                            nodes: [Node<HTML.BodyContext>],
                            ifNoValues: Node<HTML.BodyContext>? = nil,
+                           conjunction: Node<HTML.BodyContext> = " and ",
                            closing: Node<HTML.BodyContext> = "") -> [Node<HTML.BodyContext>] {
         switch nodes.count {
             case 0:
@@ -258,7 +267,7 @@ extension PackageShow.Model {
             case 1:
                 return [opening, nodes[0], closing]
             case 2:
-                return [opening, nodes[0], " and ", nodes[1], closing]
+                return [opening, nodes[0], conjunction, nodes[1], closing]
             default:
                 let start: [Node<HTML.BodyContext>]
                     = [opening, nodes.first!]
