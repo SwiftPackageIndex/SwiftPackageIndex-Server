@@ -39,6 +39,7 @@ class ApiTests: AppTestCase {
                        owner: "owner 2").save(on: app.db).wait()
         try Version(package: p1, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
         try Version(package: p2, reference: .branch("master"), packageName: "Bar").save(on: app.db).wait()
+        try API.SearchQuery.refresh(on: app.db).wait()
 
         // MUT
         try app.test(.GET, "api/search?query=foo%20bar") { res in

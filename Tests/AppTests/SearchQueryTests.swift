@@ -8,16 +8,27 @@ class SearchQueryTests: AppTestCase {
     func test_regexClause() throws {
         XCTAssertEqual(
             API.SearchQuery.regexClause("foo"),
-            "coalesce(v.package_name) || ' ' || coalesce(r.summary, '') || ' ' || coalesce(r.name, '') || ' ' || coalesce(r.owner, '') ~* 'foo'"
+            "coalesce(package_name) || ' ' || coalesce(summary, '') || ' ' || coalesce(name, '') || ' ' || coalesce(owner, '') ~* 'foo'"
         )
     }
 
-    func test_build() throws {
+    func test_build_single() throws {
         XCTAssertEqual(
             API.SearchQuery.build(["foo"]),
-            API.SearchQuery.preamble + "\n  and "
+            API.SearchQuery.preamble + "\nwhere "
                 + API.SearchQuery.regexClause("foo")
-                + "\n  order by p.score desc"
+                + "\n  order by score desc"
+                + "\n  limit 25"
+        )
+    }
+
+    func test_build_multiple() throws {
+        XCTAssertEqual(
+            API.SearchQuery.build(["foo", "bar"]),
+            API.SearchQuery.preamble + "\nwhere "
+                + API.SearchQuery.regexClause("foo")
+                + "\nand " + API.SearchQuery.regexClause("bar")
+                + "\n  order by score desc"
                 + "\n  limit 25"
         )
     }
@@ -35,6 +46,7 @@ class SearchQueryTests: AppTestCase {
                        owner: "owner 2").save(on: app.db).wait()
         try Version(package: p1, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
         try Version(package: p2, reference: .branch("master"), packageName: "Bar").save(on: app.db).wait()
+        try API.SearchQuery.refresh(on: app.db).wait()
 
         // MUT
         let res = try API.SearchQuery.run(app.db, ["bar"]).wait()
@@ -69,6 +81,7 @@ class SearchQueryTests: AppTestCase {
                        owner: "owner").save(on: app.db).wait()
         try Version(package: p1, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
         try Version(package: p2, reference: .branch("master"), packageName: "Bar").save(on: app.db).wait()
+        try API.SearchQuery.refresh(on: app.db).wait()
 
         // MUT
         let res = try API.SearchQuery.run(app.db, ["owner", "bar"]).wait()
@@ -97,6 +110,7 @@ class SearchQueryTests: AppTestCase {
         try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
             .save(on: app.db)
             .wait()
+        try API.SearchQuery.refresh(on: app.db).wait()
 
         // MUT
         let res = try API.search(database: app.db, query: "foo").wait()
@@ -117,6 +131,7 @@ class SearchQueryTests: AppTestCase {
         try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
             .save(on: app.db)
             .wait()
+        try API.SearchQuery.refresh(on: app.db).wait()
 
         // MUT
         let res = try API.search(database: app.db, query: "foo").wait()
@@ -134,6 +149,7 @@ class SearchQueryTests: AppTestCase {
             try Repository(package: p, summary: "\($0)", defaultBranch: "master").save(on: app.db).wait()
             try Version(package: p, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
         }
+        try API.SearchQuery.refresh(on: app.db).wait()
 
         // MUT
         let res = try API.SearchQuery.run(app.db, ["foo"]).wait()
