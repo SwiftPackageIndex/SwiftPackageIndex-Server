@@ -9,7 +9,7 @@ struct CreateRecentPackages: Migration {
         }
         return db.raw(
             """
-            CREATE MATERIALIZED VIEW IF NOT EXISTS recent_packages AS
+            CREATE MATERIALIZED VIEW recent_packages AS
             SELECT
               p.id,
               v.package_name,
@@ -19,7 +19,7 @@ struct CreateRecentPackages: Migration {
             WHERE v.package_name IS NOT NULL
             GROUP BY p.id, v.package_name
             ORDER BY MAX(p.created_at) DESC
-            LIMIT 10
+            LIMIT 100
             """
         ).run()
     }
@@ -40,7 +40,7 @@ struct CreateRecentReleases: Migration {
         }
         return db.raw(
             """
-            CREATE MATERIALIZED VIEW IF NOT EXISTS recent_releases AS
+            CREATE MATERIALIZED VIEW recent_releases AS
             SELECT
               package_id AS id,
               package_name,
@@ -51,7 +51,7 @@ struct CreateRecentReleases: Migration {
               AND reference->>'tag' IS NOT NULL
             GROUP BY package_id, package_name
             ORDER BY MAX(commit_date) DESC
-            LIMIT 10
+            LIMIT 100
             """
         ).run()
     }
@@ -61,5 +61,37 @@ struct CreateRecentReleases: Migration {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
         return db.raw("DROP MATERIALIZED VIEW recent_releases").run()
+    }
+}
+
+
+struct CreateSearch: Migration {
+    func prepare(on database: Database) -> EventLoopFuture<Void> {
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+        return db.raw(
+            """
+            CREATE MATERIALIZED VIEW search AS
+            SELECT
+              p.id,
+              p.score,
+              v.package_name,
+              r.name,
+              r.owner,
+              r.summary
+            FROM packages p
+              JOIN repositories r ON r.package_id = p.id
+              JOIN versions v ON v.package_id = p.id
+            WHERE v.reference ->> 'branch' = r.default_branch
+            """
+        ).run()
+    }
+
+    func revert(on database: Database) -> EventLoopFuture<Void> {
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+        return db.raw("DROP MATERIALIZED VIEW search").run()
     }
 }

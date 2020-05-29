@@ -40,6 +40,7 @@ public func configure(_ app: Application) throws {
     app.migrations.add(CreateRecentReleases())
     app.migrations.add(AddActivityFields())
     app.migrations.add(AddAuthors())
+    app.migrations.add(CreateSearch())
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")
