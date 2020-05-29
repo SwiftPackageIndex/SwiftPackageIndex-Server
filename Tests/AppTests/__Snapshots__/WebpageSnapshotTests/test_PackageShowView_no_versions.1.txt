@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Alamofire &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="Alamofire &ndash; Swift Package Index"/>
+    <meta name="og:title" content="Alamofire &ndash; Swift Package Index"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
+    <link rel="stylesheet" href="/stylesheets/main.min.css?0"/>
+    <script src="/javascripts/main.min.js?0"></script>
+  </head>
+  <body>
+    <header>
+      <div class="inner">
+        <a href="/">
+          <h1>
+            <img src="/images/logo.svg"/>Swift Package Index
+          </h1>
+        </a>
+        <nav>
+          <ul>
+            <li>
+              <a href="#">Add a Package</a>
+            </li>
+            <li>
+              <a href="#">About</a>
+            </li>
+            <li>
+              <a href="#">Search</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="inner">
+        <div class="split">
+          <div>
+            <h2>Alamofire</h2>
+            <small>
+              <a href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
+            </small>
+          </div>
+          <div class="license" title="MIT License">
+            <i class="icon osi"></i>MIT
+          </div>
+        </div>
+        <hr/>
+        <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.</p>
+        <section class="metadata">
+          <ul>
+            <li class="icon author">By 
+              <a href="https://github.com/cnoon">Christian Noon</a>, 
+              <a href="https://github.com/mattt">Mattt</a>, 
+              <a href="https://github.com/jshier">Jon Shier</a>, 
+              <a href="https://github.com/kcharwood">Kevin Harwood</a>, and 
+              <a href="https://github.com/Alamofire/Alamofire/graphs/contributors">186 other contributors</a>.
+            </li>
+            <li class="icon history">In development for over 5 years, with 
+              <a href="https://github.com/Alamofire/Alamofire/commits/master">1,433 commits</a> and 
+              <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
+            </li>
+            <li class="icon activity">There are 
+              <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and 
+              <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last pull request was closed/merged 6 days ago.
+            </li>
+            <li class="icon products">Alamofire contains 
+              <strong>3 libraries</strong> and 
+              <strong>1 executable</strong>.
+            </li>
+          </ul>
+        </section>
+        <hr class="short"></hr>
+        <section class="releases">
+          <ul>
+            <li>The latest stable release is 
+              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">
+                <span class="stable">
+                  <i class="icon stable"></i>5.2.0
+                </span>
+              </a>. Released 12 days ago.
+            </li>
+            <li>The latest beta release is 
+              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">
+                <span class="beta">
+                  <i class="icon beta"></i>5.3.0-beta.1
+                </span>
+              </a>. Released 4 days ago.
+            </li>
+            <li>The last commit to 
+              <a href="https://github.com/Alamofire/Alamofire">
+                <span class="branch">
+                  <i class="icon branch"></i>master
+                </span>
+              </a> was 12 minutes ago.
+            </li>
+          </ul>
+        </section>
+        <section class="language_platforms">
+          <h3>Language and Platforms</h3>
+          <ul>
+            <li>
+              <p>Version 
+                <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">
+                  <span class="stable">
+                    <i class="icon stable"></i>5.2.0
+                  </span>
+                </a> supports:
+              </p>
+              <ul>
+                <li>
+                  <strong>iOS 10.0+</strong>, 
+                  <strong>macOS 10.12+</strong>, 
+                  <strong>watchOS 3.0+</strong>, and 
+                  <strong>tvOS 10.0+</strong>.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <p>Versions 
+                <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.1-beta1">
+                  <span class="beta">
+                    <i class="icon beta"></i>5.3.1-beta.1
+                  </span>
+                </a> and 
+                <a href="https://github.com/Alamofire/Alamofire">
+                  <span class="branch">
+                    <i class="icon branch"></i>master
+                  </span>
+                </a> support:
+              </p>
+              <ul>
+                <li>
+                  <strong>iOS 13.0+</strong>, 
+                  <strong>macOS 10.15+</strong>, 
+                  <strong>watchOS 6.0+</strong>, and 
+                  <strong>tvOS 13.0+</strong>.
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </main>
+    <footer>
+      <div class="inner">
+        <nav>
+          <ul>
+            <li>
+              <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a>
+            </li>
+            <li>
+              <a href="/privacy">Privacy and Cookies</a>
+            </li>
+            <li>
+              <a href="https://twitter.com/swiftpackages">Twitter</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

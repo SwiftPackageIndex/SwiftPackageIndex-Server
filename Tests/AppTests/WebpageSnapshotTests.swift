@@ -101,6 +101,53 @@ class WebpageSnapshotTests: XCTestCase {
         }
         #endif
     }
+
+    func test_PackageShowView_no_platforms() throws {
+        // Test display when there is no platform info
+        // see: https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/195#issue-424606548
+        var model = PackageShow.Model.mock
+        model.languagePlatforms.stable?.platforms = []
+        model.languagePlatforms.beta?.platforms = []
+        model.languagePlatforms.latest?.platforms = []
+        let page = PackageShow.View(model).document()
+
+        assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
+
+        #if os(macOS)
+        if !isRunningInCI {
+            // FIXME: css and image loading broken, despite setting correct base url
+            // permission issue? In a macOS app project this required setting
+            // com.apple.security.network.client permissions but I don't see how to do
+            // that with SPM - nor would I expect to need that for tests?
+            assertSnapshot(matching: page, as: .image(size: .init(width: 800, height: 1000),
+                                                      baseURL: baseURL()))
+        }
+        #endif
+    }
+
+    func test_PackageShowView_no_versions() throws {
+        // Test display when there is no version info
+        // see: https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/195#issue-424606548
+        var model = PackageShow.Model.mock
+        model.languagePlatforms.stable?.swiftVersions = []
+        model.languagePlatforms.beta?.swiftVersions = []
+        model.languagePlatforms.latest?.swiftVersions = []
+        let page = PackageShow.View(model).document()
+
+        assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
+
+        #if os(macOS)
+        if !isRunningInCI {
+            // FIXME: css and image loading broken, despite setting correct base url
+            // permission issue? In a macOS app project this required setting
+            // com.apple.security.network.client permissions but I don't see how to do
+            // that with SPM - nor would I expect to need that for tests?
+            assertSnapshot(matching: page, as: .image(size: .init(width: 800, height: 1000),
+                                                      baseURL: baseURL()))
+        }
+        #endif
+    }
+
 }
 
 

@@ -250,11 +250,11 @@ extension PackageShow.Model {
 
     static func listPhrase(opening: Node<HTML.BodyContext>,
                            nodes: [Node<HTML.BodyContext>],
-                           ifNoValues: Node<HTML.BodyContext> = "",
+                           ifNoValues: Node<HTML.BodyContext>? = nil,
                            closing: Node<HTML.BodyContext> = "") -> [Node<HTML.BodyContext>] {
         switch nodes.count {
             case 0:
-                return [ifNoValues]
+                return ifNoValues.map { [$0] } ?? []
             case 1:
                 return [opening, nodes[0], closing]
             case 2:
