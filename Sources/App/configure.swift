@@ -26,7 +26,7 @@ public func configure(_ app: Application) throws {
                                 password: password,
                                 database: database), as: .psql)
 
-    do {  // schema 1.0
+    do {  // Migration 001 - schema 1.0
         app.migrations.add(CreatePackage())
         app.migrations.add(CreateRepository())
         app.migrations.add(CreateVersion())
