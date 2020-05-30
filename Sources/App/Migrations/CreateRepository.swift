@@ -15,90 +15,26 @@ struct CreateRepository: Migration {
                    .references("packages", "id", onDelete: .cascade)).unique(on: "package_id")
 
             // data fields
+            .field("authors", .array(of: .json), .sql(.default("{}")))
+            .field("commit_count", .int)
             .field("default_branch", .string)
+            .field("first_commit_date", .datetime)
             .field("forks", .int)
+            .field("last_commit_date", .datetime)
+            .field("last_issue_closed_at", .datetime)
+            .field("last_pull_request_closed_at", .datetime)
             .field("license", .string)
+            .field("name", .string)
+            .field("open_issues", .int)
+            .field("open_pull_requests", .int)
+            .field("owner", .string)
             .field("stars", .int)
             .field("summary", .string)
-            
+
             .create()
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("repositories").delete()
-    }
-}
-
-
-// FIXME: squash migrations before launch
-struct AddNameOwner: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("repositories")
-            .field("name", .string)
-            .field("owner", .string)
-            .update()
-    }
-
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("repositories")
-            .deleteField("name")
-            .deleteField("owner")
-            .update()
-    }
-}
-
-
-struct AddCommitHistoryFields: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("repositories")
-            .field("commit_count", .int)
-            .field("first_commit_date", .datetime)
-            .field("last_commit_date", .datetime)
-            .update()
-    }
-
-
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("repositories")
-            .deleteField("commit_count")
-            .deleteField("first_commit_date")
-            .deleteField("last_commit_date")
-            .update()
-    }
-}
-
-
-struct AddActivityFields: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("repositories")
-            .field("last_issue_closed_at", .datetime)
-            .field("last_pull_request_closed_at", .datetime)
-            .field("open_issues", .int)
-            .field("open_pull_requests", .int)
-            .update()
-    }
-
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("repositories")
-            .deleteField("last_issue_closed_at")
-            .deleteField("last_pull_request_closed_at")
-            .deleteField("open_issues")
-            .deleteField("open_pull_requests")
-            .update()
-    }
-}
-
-
-struct AddAuthors: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("repositories")
-            .field("authors", .array(of: .json), .sql(.default("{}")))
-            .update()
-    }
-
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("repositories")
-            .deleteField("authors")
-            .update()
     }
 }
