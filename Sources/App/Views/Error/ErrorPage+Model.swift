@@ -3,24 +3,19 @@ import Vapor
 extension ErrorPage {
 
     struct Model {
-        let status: HTTPStatus
-        let error: AbortError?
+        let error: AbortError
 
-        init(status: HTTPStatus, error: AbortError?) {
-            self.status = status
+        init(_ error: AbortError) {
             self.error = error
         }
 
         var errorMessage: String {
             get {
-                var message = "\(status.code) - \(status.reasonPhrase)"
-                if let error = error {
-                    if error.reason != status.reasonPhrase {
-                        message += " - \(error.reason)"
-                    }
+                var message = "\(error.status.code) - \(error.status.reasonPhrase)"
+                if error.reason != error.status.reasonPhrase {
+                    message += " - \(error.reason)"
                 }
                 return message
-
             }
         }
     }

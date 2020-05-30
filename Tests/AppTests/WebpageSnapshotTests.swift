@@ -171,7 +171,7 @@ class WebpageSnapshotTests: XCTestCase {
     }
 
     func test_ErrorPageView() throws {
-        let model = ErrorPage.Model(status: .notFound, error: nil)
+        let model = ErrorPage.Model(Abort(.notFound))
         let page = ErrorPage.View(model).document()
 
         let recordSnapshotForThisTest = false
