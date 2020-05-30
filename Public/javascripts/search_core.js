@@ -141,6 +141,7 @@ export class SPISearchCore {
     resultsElement.appendChild(errorIconElement)
 
     // Header, with a quick apology.
+    // Note: The copy in this header tag intentionally matches the copy in `ErrorPage` in the Swift project.
     const errorHeaderElement = document.createElement('h4')
     errorHeaderElement.textContent = 'Something went wrong. Sorry!'
     resultsElement.appendChild(errorHeaderElement)
