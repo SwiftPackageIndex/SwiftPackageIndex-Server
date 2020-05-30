@@ -16,7 +16,11 @@ func updatePackage(application: Application,
                         pkg.processingStage = stage
                         pkg.score = pkg.computeScore()
                         return pkg.update(on: application.db)
-                }
+                    }
+                    .flatMapError {
+                        application.logger.report(error: $0)
+                        return application.eventLoopGroup.next().future(error: $0)
+                    }
             case .failure(let error):
                 return Current.reportError(application.client, .error, error)
                     .flatMap { recordError(database: application.db, error: error, stage: stage) }
