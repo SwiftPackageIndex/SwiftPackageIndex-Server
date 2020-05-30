@@ -11,9 +11,13 @@ enum ErrorPage {
         }
 
         override func content() -> Node<HTML.BodyContext> {
-            .group(
+            .div(
+                .class("error"),
+                .i(
+                    .class("icon warning")
+                ),
                 // Note: The copy in this header tag intentionally matches the copy in `search_core.js`.
-                .h2("Something went wrong. Sorry!"),
+                .h4("Something went wrong. Sorry!"),
                 .p(.text(model.errorMessage))
             )
         }
