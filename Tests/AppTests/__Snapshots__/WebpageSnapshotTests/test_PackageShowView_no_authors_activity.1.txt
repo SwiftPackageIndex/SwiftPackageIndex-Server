@@ -33,6 +33,10 @@
         </nav>
       </div>
     </header>
+    <noscript>
+      <i class="icon warning"></i>
+      <p>The search function of this site requires JavaScript.</p>
+    </noscript>
     <main>
       <div class="inner">
         <div class="split">
