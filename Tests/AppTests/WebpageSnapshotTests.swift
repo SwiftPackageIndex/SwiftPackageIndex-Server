@@ -6,6 +6,7 @@ import XCTest
 
 
 let defaultSize = CGSize(width: 800, height: 600)
+let recordSnapshotForAllTests = false
 
 class WebpageSnapshotTests: XCTestCase {
 
@@ -15,6 +16,9 @@ class WebpageSnapshotTests: XCTestCase {
 
     func test_home() throws {
         let page = PublicPage.admin()
+
+        let recordSnapshotForThisTest = false
+        record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -27,6 +31,9 @@ class WebpageSnapshotTests: XCTestCase {
 
     func test_HomeIndexView() throws {
         let page = HomeIndex.View(.mock).document()
+
+        let recordSnapshotForThisTest = false
+        record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -44,6 +51,9 @@ class WebpageSnapshotTests: XCTestCase {
 
     func test_PackageShowView() throws {
         let page = PackageShow.View(.mock).document()
+
+        let recordSnapshotForThisTest = false
+        record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -67,6 +77,9 @@ class WebpageSnapshotTests: XCTestCase {
         model.activity = nil
         let page = PackageShow.View(model).document()
 
+        let recordSnapshotForThisTest = false
+        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
         #if os(macOS)
@@ -87,6 +100,9 @@ class WebpageSnapshotTests: XCTestCase {
         var model = PackageShow.Model.mock
         model.languagePlatforms = .init(stable: nil, beta: nil, latest: nil)
         let page = PackageShow.View(model).document()
+
+        let recordSnapshotForThisTest = false
+        record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -111,6 +127,9 @@ class WebpageSnapshotTests: XCTestCase {
         model.languagePlatforms.latest?.platforms = []
         let page = PackageShow.View(model).document()
 
+        let recordSnapshotForThisTest = false
+        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
         #if os(macOS)
@@ -133,6 +152,9 @@ class WebpageSnapshotTests: XCTestCase {
         model.languagePlatforms.beta?.swiftVersions = []
         model.languagePlatforms.latest?.swiftVersions = []
         let page = PackageShow.View(model).document()
+
+        let recordSnapshotForThisTest = false
+        record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
