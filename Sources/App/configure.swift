@@ -5,6 +5,7 @@ import Vapor
 
 public func configure(_ app: Application) throws {
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    app.middleware.use(ErrorMiddleware())
 
     guard
         let host = Environment.get("DATABASE_HOST"),
