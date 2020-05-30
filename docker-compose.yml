@@ -19,7 +19,6 @@ x-shared: &shared
     LOG_LEVEL: ${LOG_LEVEL}
   volumes:
     - checkouts:/checkouts
-  restart: always
 
 
 services:
@@ -31,6 +30,7 @@ services:
     ports:
       - '8080:80'
     command: ["serve", "--env", "${ENV}", "--hostname", "0.0.0.0", "--port", "80"]
+    restart: always
 
   reconcile:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -41,6 +41,7 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run reconcile --env ${ENV}; sleep ${RECONCILE_SLEEP:-120}; done"
     ]
+    restart: always
 
   ingest:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -51,6 +52,7 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run ingest --env ${ENV} --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-300}; done"
     ]
+    restart: always
 
   analyze:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -61,6 +63,7 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run analyze --env ${ENV} --limit ${ANALYZE_LIMIT:-25}; sleep ${ANALYZE_SLEEP:-20}; done"
     ]
+    restart: always
 
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
