@@ -3,7 +3,7 @@ import Foundation
 
 enum Reference: Equatable {
     case branch(String)
-    case tag(SemVer, _ tagName: String?)
+    case tag(SemVer, _ tagName: String)
 
     static func tag(_ semVer: SemVer) -> Self {
         return .tag(semVer, "\(semVer)")
@@ -30,9 +30,9 @@ enum Reference: Equatable {
 
 
 extension Reference: Codable {
-    struct Tag: Codable, Equatable {
+    private struct Tag: Codable {
         var semVer: SemVer
-        var tagName: String?
+        var tagName: String
 
         var asReference: Reference { .tag(semVer, tagName) }
     }
@@ -45,11 +45,6 @@ extension Reference: Codable {
         }
         if let value = try? container.decode(Tag.self, forKey: .tag) {
             self = value.asReference
-            return
-        }
-        // try legacy format last
-        if let value = try? container.decode(SemVer.self, forKey: .tag) {
-            self = .tag(value, nil)
             return
         }
         throw DecodingError.dataCorrupted(
@@ -78,7 +73,7 @@ extension Reference: CustomStringConvertible {
     var description: String {
         switch self {
             case .branch(let value): return value
-            case let .tag(semVer, tagName): return tagName ?? "\(semVer)"
+            case .tag(_, let value): return value
         }
     }
 }
