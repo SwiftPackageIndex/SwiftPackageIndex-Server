@@ -7,7 +7,7 @@ final class Repository: Model, Content {
 
     typealias Id = UUID
 
-    // record metadata
+    // managed fields
 
     @ID(key: .id)
     var id: Id?
@@ -18,6 +18,14 @@ final class Repository: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
+    // reference fields
+
+    @OptionalParent(key: "forked_from_id")  // TODO: remove or implement
+    var forkedFrom: Repository?
+
+    @Parent(key: "package_id")
+    var package: Package
+
     // data fields
 
     @Field(key: "authors")
@@ -26,17 +34,17 @@ final class Repository: Model, Content {
     @Field(key: "commit_count")
     var commitCount: Int?
 
-    @Field(key: "first_commit_date")
-    var firstCommitDate: Date?
-
-    @Field(key: "last_commit_date")
-    var lastCommitDate: Date?
-
     @Field(key: "default_branch")
     var defaultBranch: String?
 
+    @Field(key: "first_commit_date")
+    var firstCommitDate: Date?
+
     @Field(key: "forks")
     var forks: Int?
+
+    @Field(key: "last_commit_date")
+    var lastCommitDate: Date?
     
     @Field(key: "last_issue_closed_at")
     var lastIssueClosedAt: Date?
@@ -64,14 +72,6 @@ final class Repository: Model, Content {
 
     @Field(key: "summary")
     var summary: String?
-
-    // relationships
-
-    @Parent(key: "package_id")
-    var package: Package
-
-    @OptionalParent(key: "forked_from_id")  // TODO: remove or implement
-    var forkedFrom: Repository?
 
     // initializers
 

@@ -7,6 +7,8 @@ final class Product: Model, Content {
 
     typealias Id = UUID
 
+    // managed fields
+
     @ID(key: .id)
     var id: Id?
 
@@ -16,8 +18,12 @@ final class Product: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
+    // reference fields
+
     @Parent(key: "version_id")
     var version: Version
+
+    // data fields
 
     @Field(key: "type")
     var type: `Type`
