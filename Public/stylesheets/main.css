@@ -89,6 +89,18 @@ hr.short {
   height: 1px;
 }
 
+noscript {
+  display: block;
+  padding: 20px 0;
+  background-color: var(--light-red);
+  color: var(--mid-red);
+  text-align: center;
+}
+
+noscript i {
+  font-size: 30px;
+}
+
 ::placeholder {
   color: var(--light-grey);
 }
