@@ -47,21 +47,23 @@ final class PackageTests: AppTestCase {
     }
 
     func test_decode_date() throws {
-        let timestamp: TimeInterval = 609426189  // Apr 24, 2020, just before 13:00 UTC
-                                                 // Date.timeIntervalSinceReferenceDate
         let json = """
         {
             "id": "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE",
             "url": "https://github.com/finestructure/Arena",
             "status": "ok",
-            "createdAt": \(timestamp)
+            "createdAt": 0,
+            "updatedAt": 1
         }
         """
-        let p = try JSONDecoder().decode(Package.self, from: Data(json.utf8))
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        let p = try decoder.decode(Package.self, from: Data(json.utf8))
         XCTAssertEqual(p.id?.uuidString, "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
         XCTAssertEqual(p.url, "https://github.com/finestructure/Arena")
         XCTAssertEqual(p.status, .ok)
-        XCTAssertEqual(p.createdAt?.description, "2020-04-24 13:03:09 +0000")
+        XCTAssertEqual(p.createdAt, Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(p.updatedAt, Date(timeIntervalSince1970: 1))
     }
 
     func test_unique_url() throws {
