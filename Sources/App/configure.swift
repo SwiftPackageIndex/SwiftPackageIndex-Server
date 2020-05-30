@@ -26,13 +26,15 @@ public func configure(_ app: Application) throws {
                                 password: password,
                                 database: database), as: .psql)
 
-    app.migrations.add(CreatePackage())
-    app.migrations.add(CreateRepository())
-    app.migrations.add(CreateVersion())
-    app.migrations.add(CreateProduct())
-    app.migrations.add(CreateRecentPackages())
-    app.migrations.add(CreateRecentReleases())
-    app.migrations.add(CreateSearch())
+    do {  // schema 1.0
+        app.migrations.add(CreatePackage())
+        app.migrations.add(CreateRepository())
+        app.migrations.add(CreateVersion())
+        app.migrations.add(CreateProduct())
+        app.migrations.add(CreateRecentPackages())
+        app.migrations.add(CreateRecentReleases())
+        app.migrations.add(CreateSearch())
+    }
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")
