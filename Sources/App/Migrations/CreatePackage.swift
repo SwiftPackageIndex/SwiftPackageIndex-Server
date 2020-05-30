@@ -3,14 +3,17 @@ import Fluent
 struct CreatePackage: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("packages")
+            // managed fields
             .id()
             .field("created_at", .datetime)
             .field("updated_at", .datetime)
-            .field("url", .string, .required)
-            .field("status", .string)
-            .field("processing_stage", .string)
+
+            // data fields
             .field("last_commit_at", .datetime)
-            .unique(on: "url")
+            .field("processing_stage", .string)
+            .field("status", .string)
+            .field("url", .string, .required).unique(on: "url")
+
             .create()
     }
 
