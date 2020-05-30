@@ -30,8 +30,6 @@ public func configure(_ app: Application) throws {
     app.migrations.add(CreateRepository())
     app.migrations.add(CreateVersion())
     app.migrations.add(CreateProduct())
-    app.migrations.add(AddCommitDate())
-    app.migrations.add(ChangeSwiftVersions())
     app.migrations.add(CreateRecentPackages())
     app.migrations.add(CreateRecentReleases())
     app.migrations.add(CreateSearch())

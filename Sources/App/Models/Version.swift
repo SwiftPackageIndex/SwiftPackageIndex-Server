@@ -10,6 +10,8 @@ final class Version: Model, Content {
 
     typealias Id = UUID
 
+    // managed fields
+
     @ID(key: .id)
     var id: Id?
 
@@ -19,14 +21,12 @@ final class Version: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
+    // reference fields
+
     @Parent(key: "package_id")
     var package: Package
 
-    @Field(key: "reference")
-    var reference: Reference?
-
-    @Field(key: "package_name")
-    var packageName: String?
+    // data fields
 
     @Field(key: "commit")
     var commit: CommitHash?
@@ -34,12 +34,20 @@ final class Version: Model, Content {
     @Field(key: "commit_date")
     var commitDate: Date?
 
+    @Field(key: "package_name")
+    var packageName: String?
+
+    @Field(key: "reference")
+    var reference: Reference?
+
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
 
     @Field(key: "swift_versions")
     var swiftVersions: [SwiftVersion]
 
+    // relationships
+    
     @Children(for: \.$version)
     var products: [Product]
 
