@@ -4,8 +4,12 @@ import Vapor
 
 final class ErrorPage: PublicPage {
     let status: HTTPStatus
+    let error: AbortError?
 
-    init(_ status: HTTPStatus) { self.status = status }
+    init(status: HTTPStatus, error: AbortError?) {
+        self.status = status
+        self.error = error
+    }
 
     override func content() -> Node<HTML.BodyContext> {
         .div(
