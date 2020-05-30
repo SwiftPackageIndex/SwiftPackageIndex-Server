@@ -4,17 +4,6 @@ import XCTVapor
 
 class ErrorPageModelTests: AppTestCase {
 
-    func test_404() throws {
-        // setup
-        let status = HTTPResponseStatus(statusCode: 404)
-
-        // MUT
-        let model = ErrorPage.Model(status: status, error: nil)
-
-        // validate
-        XCTAssertEqual(model.errorMessage, "404 - Not Found")
-    }
-
     func test_500_without_error() throws {
         // setup
         let status = HTTPResponseStatus(statusCode: 500)
