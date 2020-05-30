@@ -15,7 +15,9 @@ extension ErrorPage {
             get {
                 var message = "\(status.code) - \(status.reasonPhrase)"
                 if let error = error {
-                    message += " - \(error.reason)"
+                    if error.reason != status.reasonPhrase {
+                        message += " - \(error.reason)"
+                    }
                 }
                 return message
 
