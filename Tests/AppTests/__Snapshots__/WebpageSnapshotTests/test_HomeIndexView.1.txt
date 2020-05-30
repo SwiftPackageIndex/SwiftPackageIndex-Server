@@ -30,6 +30,10 @@
         </nav>
       </div>
     </header>
+    <noscript>
+      <i class="icon warning"></i>
+      <p>The search function of this site requires JavaScript.</p>
+    </noscript>
     <section class="search">
       <div class="inner">
         <h3>The place to find Swift packages.</h3>
