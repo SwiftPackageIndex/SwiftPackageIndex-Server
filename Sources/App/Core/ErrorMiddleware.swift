@@ -19,7 +19,8 @@ public final class ErrorMiddleware: Middleware {
     }
 
     private func handleError(for req: Request, status: HTTPStatus, error: AbortError? = nil) -> EventLoopFuture<Response> {
-        ErrorPage(status: status, error: error).document().encodeResponse(for: req)
+        let model = ErrorPage.Model(status: status, error: error)
+        return ErrorPage.View(model).document().encodeResponse(for: req)
     }
 }
 
