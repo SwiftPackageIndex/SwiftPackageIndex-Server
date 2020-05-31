@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Swift Package Index</title>
+    <meta name="twitter:title" content="Swift Package Index"/>
+    <meta name="og:title" content="Swift Package Index"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
+    <link rel="stylesheet" href="/stylesheets/main.min.css?0"/>
+    <script src="/javascripts/main.min.js?0"></script>
+  </head>
+  <body>
+    <header>
+      <div class="inner">
+        <a href="/">
+          <h1>
+            <img src="/images/logo.svg"/>Swift Package Index
+          </h1>
+        </a>
+        <nav>
+          <ul>
+            <li>
+              <a href="#">Add a Package</a>
+            </li>
+            <li>
+              <a href="#">About</a>
+            </li>
+            <li>
+              <a href="#">Search</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <noscript>
+      <i class="icon warning"></i>
+      <p>The search function of this site requires JavaScript.</p>
+    </noscript>
+    <main>
+      <div class="inner">
+        <div class="error">
+          <i class="icon warning"></i>
+          <h4>Something went wrong. Sorry!</h4>
+          <p>404 - Not Found</p>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <div class="inner">
+        <nav>
+          <ul>
+            <li>
+              <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a>
+            </li>
+            <li>
+              <a href="/privacy">Privacy and Cookies</a>
+            </li>
+            <li>
+              <a href="https://twitter.com/swiftpackages">Twitter</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

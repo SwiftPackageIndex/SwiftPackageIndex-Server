@@ -11,15 +11,16 @@ public final class ErrorMiddleware: Middleware {
         next.respond(to: req)
             .flatMapError { error in
                 if let abort = error as? AbortError {
-                    return self.handleError(for: req, status: abort.status)
+                    return self.handleError(for: req, error: abort)
                 } else {
-                    return self.handleError(for: req, status: .internalServerError)
+                    return self.handleError(for: req, error: Abort(.internalServerError))
                 }
         }
     }
 
-    private func handleError(for req: Request, status: HTTPStatus) -> EventLoopFuture<Response> {
-        ErrorPage(status).document().encodeResponse(for: req)
+    private func handleError(for req: Request, error: AbortError) -> EventLoopFuture<Response> {
+        let model = ErrorPage.Model(error)
+        return ErrorPage.View(model).document().encodeResponse(for: req)
     }
 }
 
