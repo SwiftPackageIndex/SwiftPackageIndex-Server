@@ -56,6 +56,15 @@
         }
       },
       {
+        "package": "Ink",
+        "repositoryURL": "https://github.com/JohnSundell/Ink.git",
+        "state": {
+          "branch": null,
+          "revision": "bd223a2482449507bd3286cb262c962d32d81e4b",
+          "version": "0.5.0"
+        }
+      },
+      {
         "package": "Plot",
         "repositoryURL": "https://github.com/JohnSundell/Plot.git",
         "state": {
