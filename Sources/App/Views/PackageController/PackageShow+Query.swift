@@ -86,10 +86,10 @@ extension Package {
             repo.openIssues != nil || repo.openPullRequests != nil || repo.lastPullRequestClosedAt != nil
             else { return nil }
         let openIssues = repo.openIssues.map {
-            Link(label: "\($0) open issues", url: url.droppingGitExtension + "/issues")
+            Link(label: pluralizedCount($0, singular: "open issue"), url: url.droppingGitExtension + "/issues")
         }
         let openPRs = repo.openPullRequests.map {
-            Link(label: "\($0) open pull requests", url: url.droppingGitExtension + "/pulls")
+            Link(label: pluralizedCount($0, singular: "open pull request"), url: url.droppingGitExtension + "/pulls")
         }
         let lastIssueClosed = repo.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
         let lastPRClosed = repo.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }

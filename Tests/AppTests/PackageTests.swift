@@ -293,7 +293,7 @@ final class PackageTests: AppTestCase {
                        lastIssueClosedAt: Date(timeIntervalSinceNow: -5*d),
                        lastPullRequestClosedAt: Date(timeIntervalSinceNow: -6*d),
                        openIssues: 27,
-                       openPullRequests: 5).create(on: app.db).wait()
+                       openPullRequests: 1).create(on: app.db).wait()
         // re-load pkg with relationships
         try pkg.$repositories.load(on: app.db).wait()
 
@@ -304,7 +304,7 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(res,
                        .init(openIssues: .init(label: "27 open issues",
                                                url: "https://github.com/Alamofire/Alamofire/issues"),
-                             openPullRequests: .init(label: "5 open pull requests",
+                             openPullRequests: .init(label: "1 open pull request",
                                                      url: "https://github.com/Alamofire/Alamofire/pulls"),
                              lastIssueClosedAt: "5 days ago",
                              lastPullRequestClosedAt: "6 days ago"))
