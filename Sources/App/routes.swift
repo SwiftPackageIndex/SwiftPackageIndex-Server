@@ -6,6 +6,8 @@ func routes(_ app: Application) throws {
         HomeIndex.Model.query(database: req.db).map { HomeIndex.View($0).document() }
     }
 
+    app.get("privacy") { _ in MarkdownPage("privacy.md").document() }
+
     let packageController = PackageController()
     app.get("packages", use: packageController.index)
     app.get("packages", ":id", use: packageController.show)
