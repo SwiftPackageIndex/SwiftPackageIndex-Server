@@ -45,11 +45,8 @@ class PipelineTests: AppTestCase {
         XCTAssertEqual(batch.map(\.url), ["2"])
     }
 
-    func test_fetchCandidates_ingestion_prefer_ok() throws {
-        // make sure records with status != .ok go to the end (to avoid blocking good
-        // records)
-        // (reonciliation does not currently actually report back any status != ok but
-        // we'll account for it doing so at no harm potentially in the future.)
+    func test_fetchCandidates_ingestion_prefer_new() throws {
+        // make sure records with status = NULL come first, then least recent
         try  [
             Package(url: "1", status: .notFound, processingStage: .reconciliation),
             Package(url: "2", status: .none, processingStage: .reconciliation),
@@ -58,7 +55,7 @@ class PipelineTests: AppTestCase {
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
-        XCTAssertEqual(batch.map(\.url), ["3", "1", "2"])
+        XCTAssertEqual(batch.map(\.url), ["2", "1", "3"])
     }
 
     func test_fetchCandidates_ingestion_eventual_refresh() throws {
@@ -87,16 +84,19 @@ class PipelineTests: AppTestCase {
         XCTAssertEqual(batch.map(\.url), ["3"])
     }
 
-    func test_fetchCandidates_analysis_prefer_ok() throws {
-        // only pick up from ingestion stage
+    func test_fetchCandidates_analysis_prefer_new() throws {
+        // Test pick up from ingestion stage with status = NULL: status = NULL first, then FIFO
+        // In practise, this should not happen as reconciliation will set status to
+        // ok or error on completion
+        // This test simply encodes current behaviour.
         try  [
             Package(url: "1", status: .notFound, processingStage: .ingestion),
             Package(url: "2", status: .ok, processingStage: .ingestion),
             Package(url: "3", status: .analysisFailed, processingStage: .ingestion),
-            Package(url: "4", status: .ok, processingStage: .ingestion),
+            Package(url: "4", status: .none, processingStage: .ingestion),
             ].save(on: app.db).wait()
         let batch = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
-        XCTAssertEqual(batch.map(\.url), ["2", "4", "1", "3"])
+        XCTAssertEqual(batch.map(\.url), ["4", "1", "2", "3"])
     }
 
     func test_processing_pipeline() throws {
