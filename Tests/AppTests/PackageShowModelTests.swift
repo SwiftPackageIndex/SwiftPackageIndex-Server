@@ -117,61 +117,58 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertNil(res)
     }
 
-    func test_activity_variants() throws {
-        // Test output of some activity variants without firing up a full snapshot test:
-        // 1 missing open issue
-        // 2 missing open PRs
-        // 3 missing both open issues and PRs
-        // 4 missing last closed issue
-        // 5 missing last closed PR
-        // 6 missing both last closed issue and PR
-        // 7 missing everything
-        do {  // 1
-            var model = PackageShow.Model.mock
-            model.activity?.openIssues = nil
-            XCTAssertEqual(model.activityClause()?.render(),
-                           "There are <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
-        }
-        do {  // 2
-            var model = PackageShow.Model.mock
-            model.activity?.openPullRequests = nil
-            XCTAssertEqual(model.activityClause()?.render(),
-                           "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
-        }
-        do {  // 3
-            var model = PackageShow.Model.mock
-            model.activity?.openIssues = nil
-            model.activity?.openPullRequests = nil
-            XCTAssertEqual(model.activityClause()?.render(),
-                           "The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
-        }
-        do {  // 4
-            var model = PackageShow.Model.mock
-            model.activity?.lastIssueClosedAt = nil
-            XCTAssertEqual(model.activityClause()?.render(),
-                           "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last pull request was merged/closed 6 days ago.")
-        }
-        do {  // 5
-            var model = PackageShow.Model.mock
-            model.activity?.lastPullRequestClosedAt = nil
-            XCTAssertEqual(model.activityClause()?.render(),
-                           "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last issue was closed 5 days ago.")
-        }
-        do {  // 6
-            var model = PackageShow.Model.mock
-            model.activity?.lastIssueClosedAt = nil
-            model.activity?.lastPullRequestClosedAt = nil
-            XCTAssertEqual(model.activityClause()?.render(),
-                           "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. ")
-        }
-        do {  // 7
-            var model = PackageShow.Model.mock
-            model.activity?.openIssues = nil
-            model.activity?.openPullRequests = nil
-            model.activity?.lastIssueClosedAt = nil
-            model.activity?.lastPullRequestClosedAt = nil
-            XCTAssertEqual(model.activityClause()?.render(), nil)
-        }
+    // Test output of some activity variants without firing up a full snapshot test:
+    func test_activity_variants__missing_open_issue() throws {
+        var model = PackageShow.Model.mock
+        model.activity?.openIssues = nil
+        XCTAssertEqual(model.activityClause()?.render(),
+                       "There are <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
+    }
+
+    func test_activity_variants__missing_open_PRs() throws {
+        var model = PackageShow.Model.mock
+        model.activity?.openPullRequests = nil
+        XCTAssertEqual(model.activityClause()?.render(),
+                       "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
+    }
+
+    func test_activity_variants__missing_open_issues_and_PRs() throws {
+        var model = PackageShow.Model.mock
+        model.activity?.openIssues = nil
+        model.activity?.openPullRequests = nil
+        XCTAssertEqual(model.activityClause()?.render(),
+                       "The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
+    }
+
+    func test_activity_variants__missing_last_closed_issue() throws {
+        var model = PackageShow.Model.mock
+        model.activity?.lastIssueClosedAt = nil
+        XCTAssertEqual(model.activityClause()?.render(),
+                       "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last pull request was merged/closed 6 days ago.")
+    }
+
+    func test_activity_variants__missing_last_closed_PR() throws {
+        var model = PackageShow.Model.mock
+        model.activity?.lastPullRequestClosedAt = nil
+        XCTAssertEqual(model.activityClause()?.render(),
+                       "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last issue was closed 5 days ago.")
+    }
+
+    func test_activity_variants__missing_last_closed_issue_and_PR() throws {
+        var model = PackageShow.Model.mock
+        model.activity?.lastIssueClosedAt = nil
+        model.activity?.lastPullRequestClosedAt = nil
+        XCTAssertEqual(model.activityClause()?.render(),
+                       "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. ")
+    }
+
+    func test_activity_variants__missing_everything() throws {
+        var model = PackageShow.Model.mock
+        model.activity?.openIssues = nil
+        model.activity?.openPullRequests = nil
+        model.activity?.lastIssueClosedAt = nil
+        model.activity?.lastPullRequestClosedAt = nil
+        XCTAssertEqual(model.activityClause()?.render(), nil)
     }
 
 }
