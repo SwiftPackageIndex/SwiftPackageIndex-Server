@@ -118,7 +118,7 @@ extension Package {
         Package.query(on: database)
             .with(\.$repositories)
             .filter(for: stage)
-            .sort(.sql(raw: "status!='ok'"))
+            .sort(.sql(raw: "status IS NOT NULL"))
             .sort(\.$updatedAt)
             .limit(limit)
             .all()
