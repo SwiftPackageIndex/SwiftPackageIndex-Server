@@ -9,3 +9,4 @@ db.sqlite
 
 SPI-checkouts/
 .env
+*.dump
