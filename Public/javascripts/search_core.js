@@ -200,7 +200,7 @@ export class SPISearchCore {
 
     // Repository identifier.
     const repositoryElement = document.createElement('small')
-    repositoryElement.textContent = result.owner + '/' + result.package_name
+    repositoryElement.textContent = result.owner + '/' + result.packageName
     nameAndRepositoryContainer.appendChild(repositoryElement)
 
     // Summary.
