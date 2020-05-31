@@ -186,7 +186,7 @@ export class SPISearchCore {
 
     // A link surrounds the whole content of the list item.
     const linkElement = document.createElement('a')
-    linkElement.href = '/packages/' + result.id
+    linkElement.href = '/packages/' + result.packageId
     searchResultElement.appendChild(linkElement)
 
     // Name and repository identifier need to be grouped to be split.
@@ -195,12 +195,12 @@ export class SPISearchCore {
 
     // Name.
     const nameElement = document.createElement('h4')
-    nameElement.textContent = result.name
+    nameElement.textContent = result.packageName
     nameAndRepositoryContainer.appendChild(nameElement)
 
     // Repository identifier.
     const repositoryElement = document.createElement('small')
-    repositoryElement.textContent = result.owner + '/' + result.packageName
+    repositoryElement.textContent = result.repositoryOwner + '/' + result.repositoryName
     nameAndRepositoryContainer.appendChild(repositoryElement)
 
     // Summary.
