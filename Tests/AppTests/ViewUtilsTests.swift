@@ -5,7 +5,7 @@ import XCTest
 
 class ViewUtilsTests: XCTestCase {
 
-    func test_pluralizeCount() throws {
+    func test_pluralizedCount() throws {
         XCTAssertEqual(pluralizedCount(0, singular: "executable"), "no executables")
         XCTAssertEqual(pluralizedCount(1, singular: "executable"), "1 executable")
         XCTAssertEqual(pluralizedCount(2, singular: "executable"), "2 executables")
