@@ -31,5 +31,6 @@ let package = Package(
             "ShellOut",
             "SnapshotTesting"
         ])
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )
