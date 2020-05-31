@@ -7,7 +7,8 @@ enum Rollbar {
                            message: String,
                            environment: Environment = (try? Environment.detect()) ?? .testing) -> EventLoopFuture<Void> {
         guard let token = Current.rollbarToken() else {
-            return client.eventLoop.makeFailedFuture(AppError.envVariableNotSet("ROLLBAR_TOKEN"))
+            // fail silently
+            return client.eventLoop.future()
         }
         return client.post(rollbarURI) { req in
             try req.content.encode(
