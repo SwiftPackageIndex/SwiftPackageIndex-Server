@@ -17,6 +17,14 @@ enum Search {
         let repositoryName: String?
         let repositoryOwner: String?
         let summary: String?
+    }
+
+    private struct DBRecord: Content, Equatable {
+        let packageId: Package.Id
+        let packageName: String?
+        let repositoryName: String?
+        let repositoryOwner: String?
+        let summary: String?
 
         enum CodingKeys: String, CodingKey {
             case packageId = "id"
@@ -24,6 +32,14 @@ enum Search {
             case repositoryName = "name"
             case repositoryOwner = "owner"
             case summary
+        }
+
+        var asRecord: Record {
+            .init(packageId: packageId,
+                  packageName: packageName,
+                  repositoryName: repositoryName,
+                  repositoryOwner: repositoryOwner,
+                  summary: summary)
         }
     }
 
@@ -55,7 +71,8 @@ enum Search {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw(.init(build(terms))).all(decoding: Record.self)
+        return db.raw(.init(build(terms))).all(decoding: DBRecord.self)
+            .mapEach(\.asRecord)
             .map { results in
                 // allow for a little leeway so we don't cut off with just a few more records
                 // available
