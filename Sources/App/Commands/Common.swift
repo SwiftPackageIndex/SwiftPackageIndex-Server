@@ -19,7 +19,7 @@ func updatePackage(application: Application,
                     }
                     .flatMapError { error in
                         application.logger.report(error: error)
-                        return AppError.report(application.client, .critical, error)
+                        return Current.reportError(application.client, .critical, error)
                             .flatMap { application.eventLoopGroup.next().future(error: error) }
                     }
             case .failure(let error):

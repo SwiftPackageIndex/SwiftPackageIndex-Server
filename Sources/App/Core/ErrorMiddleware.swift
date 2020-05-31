@@ -19,8 +19,11 @@ public final class ErrorMiddleware: Middleware {
     }
 
     private func handleError(for req: Request, error: AbortError) -> EventLoopFuture<Response> {
+        let alert = error.status.code >= 500
+            ? Current.reportError(req.client, .critical, error)
+            : req.eventLoop.future()
         let model = ErrorPage.Model(error)
-        return ErrorPage.View(model).document().encodeResponse(for: req)
+        return alert.flatMap { ErrorPage.View(model).document().encodeResponse(for: req) }
     }
 }
 
