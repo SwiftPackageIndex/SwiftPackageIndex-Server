@@ -9,23 +9,27 @@ class ResourceTests: XCTestCase {
     let pkgId: Package.Id = UUID(uuidString: "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")!
 
     func test_path() throws {
-        let p = PathComponent.path(for: .privacy)
+        let p = PathComponent.path(for: Root.privacy)
         XCTAssertEqual(p.map(\.description), ["privacy"])
     }
 
     func test_path_with_parameter() throws {
-        let p = PathComponent.path(for: .package(.name("id")))
+        let p = PathComponent.path(for: Root.package(.name("id")))
         XCTAssertEqual(p.map(\.description), ["packages", ":id"])
     }
 
+    func test_path_nested() throws {
+        let p = PathComponent.path(for: Root.api(.version))
+        XCTAssertEqual(p.map(\.description), ["api", "version"])
+    }
+
     func test_href() throws {
-        let href = Node<HTML.LinkContext>.href(.privacy)
-        XCTAssertEqual(href.render(), #"href="/privacy""#)
+        XCTAssertEqual(Root.privacy.absolutePath, "/privacy")
     }
 
     func test_href_with_parameters() throws {
-        let href = Node<HTML.LinkContext>.href(.package(.value(pkgId)))
-        XCTAssertEqual(href.render(), #"href="/packages/CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE""#)
+        XCTAssertEqual(
+            Root.package(.value(pkgId)).absolutePath, "/packages/CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
     }
 
 }

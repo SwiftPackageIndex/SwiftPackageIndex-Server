@@ -2,12 +2,36 @@ import Plot
 import Vapor
 
 
-enum Resource {
-    enum Parameter<T> {
-        case name(String)
-        case value(T)
-    }
+protocol Resourceable {
+    var absolutePath: String { get }
+    var relativePath: String { get }
+    var pathComponents: [PathComponent] { get }
+}
+
+
+extension Resourceable where Self: RawRepresentable, RawValue == String {
+    var absolutePath: String { "/" + relativePath }
+    var relativePath: String { rawValue }
+    var pathComponents: [PathComponent] { [.init(stringLiteral: relativePath)] }
+}
+
+
+enum Parameter<T> {
+    case name(String)
+    case value(T)
+}
+
+
+enum Api: String, Resourceable {
+    case version
+    case search
+}
+
+
+enum Root: Resourceable {
+
     case admin
+    case api(Api)
     case about
     case home
     case packages
@@ -18,6 +42,8 @@ enum Resource {
         switch self {
             case .admin:
                 return "admin"
+            case .api:
+                return "api"
             case .about:
                 return "about"
             case .home:
@@ -35,11 +61,13 @@ enum Resource {
 
     var pathComponents: [PathComponent] {
         switch self {
+            case let .api(res):
+                return ["api"] + res.pathComponents
             case let .package(.name(name)):
                 return [.init(stringLiteral: relativePath), .init(stringLiteral: ":\(name)")]
             case .package(.value(_)):
                 fatalError("pathComponents must not be called with a value parameter")
-            default:
+            case .admin, .about, .home, .packages, .privacy:
                 return [.init(stringLiteral: relativePath)]
         }
     }
@@ -47,21 +75,26 @@ enum Resource {
 
 
 extension Array where Element == PathComponent {
-    static func path(for resource: Resource) -> [PathComponent] {
+    static func path(for resource: Resourceable) -> [PathComponent] {
         resource.pathComponents
     }
 }
 
 
 extension PathComponent {
-    static func path(for resource: Resource) -> [PathComponent] {
+    static func path(for resource: Resourceable) -> [PathComponent] {
         resource.pathComponents
     }
 }
 
 
-extension Node where Context: HTMLLinkableContext {
-    static func href(_ resource: Resource) -> Node {
-        .attribute(named: "href", value: resource.absolutePath)
+
+extension RoutesBuilder {
+    // compensate for lack of a [PathComponent] intialiser
+    public func group(_ path: [PathComponent], configure: (RoutesBuilder) throws -> ()) rethrows {
+        guard let first = path.first, path.count < 2 else {
+            fatalError("path must be a single value")
+        }
+        try group(first, configure: configure)
     }
 }
