@@ -34,20 +34,23 @@ enum Root: Resourceable {
     case api(Api)
     case about
     case home
+    case images(String)
     case packages
     case package(_ parameter: Parameter<Package.Id>)
     case privacy
 
     var relativePath: String {
         switch self {
+            case .about:
+                return "about"
             case .admin:
                 return "admin"
             case .api:
                 return "api"
-            case .about:
-                return "about"
             case .home:
                 return ""
+            case let .images(name):
+                return "images/\(name)"
             case .packages, .package(.name):
                 return "packages"
             case let .package(.value(value)):
@@ -69,6 +72,8 @@ enum Root: Resourceable {
                 fatalError("pathComponents must not be called with a value parameter")
             case .admin, .about, .home, .packages, .privacy:
                 return [.init(stringLiteral: relativePath)]
+            case .images:
+                fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
     }
 }

@@ -111,9 +111,9 @@ class PublicPage {
             .div(
                 .class("inner"),
                 .a(
-                    .href("/"),
+                    .href(Root.home.absolutePath),
                     .h1(
-                        .img(.src("/images/logo.svg")),
+                        .img(.src(Root.images("logo.svg").absolutePath)),
                         "Swift Package Index"
                     )
                 ),

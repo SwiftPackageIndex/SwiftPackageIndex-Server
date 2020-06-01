@@ -23,7 +23,9 @@ class ResourceTests: XCTestCase {
         XCTAssertEqual(p.map(\.description), ["api", "version"])
     }
 
-    func test_href() throws {
+    func test_absolutePath() throws {
+        XCTAssertEqual(Root.home.absolutePath, "/")
+        XCTAssertEqual(Root.images("foo.png").absolutePath, "/images/foo.png")
         XCTAssertEqual(Root.privacy.absolutePath, "/privacy")
     }
 
