@@ -13,8 +13,8 @@ func routes(_ app: Application) throws {
     app.get(.path(for: Root.packages), use: packageController.index)
     app.get(.path(for: Root.package(.name("id"))), use: packageController.show)
 
-    app.group(.path(for: Root.admin)) { admin in
-        admin.get { req in PublicPage.admin() }
+    do {  // admin
+        app.get(.path(for: Root.admin)) { req in PublicPage.admin() }
     }
 
     do {  // api

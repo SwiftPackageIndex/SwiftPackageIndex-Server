@@ -86,15 +86,3 @@ extension PathComponent {
         resource.pathComponents
     }
 }
-
-
-
-extension RoutesBuilder {
-    // compensate for lack of a [PathComponent] intialiser
-    public func group(_ path: [PathComponent], configure: (RoutesBuilder) throws -> ()) rethrows {
-        guard let first = path.first, path.count < 2 else {
-            fatalError("path must be a single value")
-        }
-        try group(first, configure: configure)
-    }
-}
