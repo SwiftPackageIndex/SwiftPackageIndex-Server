@@ -14,7 +14,8 @@ func routes(_ app: Application) throws {
     app.get(Root.package(.name("id")).pathComponents, use: packageController.show)
 
     do {  // admin
-        app.get(Root.admin.pathComponents) { req in PublicPage.admin() }
+        // sas: 2020-06-01: disable admin page until we have an auth mechanism
+        //  app.get(Root.admin.pathComponents) { req in PublicPage.admin() }
     }
 
     do {  // api
