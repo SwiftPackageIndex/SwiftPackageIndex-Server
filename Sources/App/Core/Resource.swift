@@ -2,24 +2,16 @@ import Plot
 import Vapor
 
 
-protocol Resourceable {
-    var absolutePath: String { get }
-    var relativePath: String { get }
-    var pathComponents: [PathComponent] { get }
-}
+// MARK: - Resource declaration
 
 
-extension Resourceable where Self: RawRepresentable, RawValue == String {
-    var absolutePath: String { "/" + relativePath }
-    var relativePath: String { rawValue }
-    var pathComponents: [PathComponent] { [.init(stringLiteral: relativePath)] }
-}
-
-
-enum Parameter<T> {
-    case name(String)
-    case value(T)
-}
+// The following are all the routes we support and reference from various places, some of them
+// static routes (images), others dynamic ones for use in controller definitions.
+//
+// Introduce nesting by declaring a new type conforming to Resourceable and embed it in the
+// parent resource.
+//
+// Enums based on String are automatically Resourceable via RawRepresentable.
 
 
 enum Api: String, Resourceable {
@@ -76,4 +68,27 @@ enum Root: Resourceable {
                 fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
     }
+}
+
+
+// MARK: - Types for use in resource declaration
+
+
+protocol Resourceable {
+    var absolutePath: String { get }
+    var relativePath: String { get }
+    var pathComponents: [PathComponent] { get }
+}
+
+
+extension Resourceable where Self: RawRepresentable, RawValue == String {
+    var absolutePath: String { "/" + relativePath }
+    var relativePath: String { rawValue }
+    var pathComponents: [PathComponent] { [.init(stringLiteral: relativePath)] }
+}
+
+
+enum Parameter<T> {
+    case name(String)
+    case value(T)
 }
