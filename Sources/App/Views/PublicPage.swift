@@ -209,7 +209,7 @@ class PublicPage {
                         ),
                         .li(
                             .a(
-                                .href("/privacy"),
+                                .href(.privacy),
                                 "Privacy and Cookies"
                             )
                         ),
