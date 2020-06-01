@@ -72,17 +72,3 @@ enum Root: Resourceable {
         }
     }
 }
-
-
-extension Array where Element == PathComponent {
-    static func path(for resource: Resourceable) -> [PathComponent] {
-        resource.pathComponents
-    }
-}
-
-
-extension PathComponent {
-    static func path(for resource: Resourceable) -> [PathComponent] {
-        resource.pathComponents
-    }
-}

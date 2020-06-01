@@ -8,18 +8,18 @@ import XCTest
 class ResourceTests: XCTestCase {
     let pkgId: Package.Id = UUID(uuidString: "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")!
 
-    func test_path() throws {
-        let p = PathComponent.path(for: Root.privacy)
+    func test_pathComponents_simple() throws {
+        let p = Root.privacy.pathComponents
         XCTAssertEqual(p.map(\.description), ["privacy"])
     }
 
-    func test_path_with_parameter() throws {
-        let p = PathComponent.path(for: Root.package(.name("id")))
+    func test_pathComponents_with_parameter() throws {
+        let p = Root.package(.name("id")).pathComponents
         XCTAssertEqual(p.map(\.description), ["packages", ":id"])
     }
 
-    func test_path_nested() throws {
-        let p = PathComponent.path(for: Root.api(.version))
+    func test_pathComponents_nested() throws {
+        let p = Root.api(.version).pathComponents
         XCTAssertEqual(p.map(\.description), ["api", "version"])
     }
 
