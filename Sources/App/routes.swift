@@ -7,11 +7,11 @@ func routes(_ app: Application) throws {
         HomeIndex.Model.query(database: req.db).map { HomeIndex.View($0).document() }
     }
 
-    app.get(.url(for: .privacy)) { _ in MarkdownPage("privacy.md").document() }
+    app.get(.path(for: .privacy)) { _ in MarkdownPage("privacy.md").document() }
 
     let packageController = PackageController()
-    app.get("packages", use: packageController.index)
-    app.get("packages", ":id", use: packageController.show)
+    app.get(.path(for: .packages), use: packageController.index)
+    app.get(.path(for: .package(.name("id"))), use: packageController.show)
 
     app.group("admin") { admin in
         admin.get { req in PublicPage.admin() }

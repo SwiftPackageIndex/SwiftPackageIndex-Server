@@ -8,26 +8,14 @@ import XCTest
 class ResourceTests: XCTestCase {
     let pkgId: Package.Id = UUID(uuidString: "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")!
 
-    func test_url_for() throws {
-        do {  // default - relative
-            let p = PathComponent.url(for: .privacy)
-            XCTAssertEqual(p.description, "privacy")
-        }
-        do {  // absolute
-            let p = PathComponent.url(for: .privacy, relative: false)
-            XCTAssertEqual(p.description, "/privacy")
-        }
+    func test_path() throws {
+        let p = PathComponent.path(for: .privacy)
+        XCTAssertEqual(p.map(\.description), ["privacy"])
     }
 
-    func test_url_for_with_parameters() throws {
-        do {  // default - relative
-            let p = PathComponent.url(for: .packages(pkgId))
-            XCTAssertEqual(p.description, "packages/CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
-        }
-        do {  // absolute
-            let p = PathComponent.url(for: .packages(pkgId), relative: false)
-            XCTAssertEqual(p.description, "/packages/CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
-        }
+    func test_path_with_parameter() throws {
+        let p = PathComponent.path(for: .package(.name("id")))
+        XCTAssertEqual(p.map(\.description), ["packages", ":id"])
     }
 
     func test_href() throws {
@@ -36,7 +24,7 @@ class ResourceTests: XCTestCase {
     }
 
     func test_href_with_parameters() throws {
-        let href = Node<HTML.LinkContext>.href(.packages(pkgId))
+        let href = Node<HTML.LinkContext>.href(.package(.value(pkgId)))
         XCTAssertEqual(href.render(), #"href="/packages/CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE""#)
     }
 

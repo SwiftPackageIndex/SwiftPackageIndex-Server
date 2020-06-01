@@ -3,10 +3,15 @@ import Vapor
 
 
 enum Resource {
+    enum Parameter<T> {
+        case name(String)
+        case value(T)
+    }
     case admin
     case about
     case home
-    case packages(_ id: Package.Id)
+    case packages
+    case package(_ parameter: Parameter<Package.Id>)
     case privacy
 
     var relativePath: String {
@@ -17,20 +22,40 @@ enum Resource {
                 return "about"
             case .home:
                 return ""
-            case let .packages(id):
-                return "packages/\(id)"
+            case .packages, .package(.name):
+                return "packages"
+            case let .package(.value(value)):
+                return "packages/\(value.uuidString)"
             case .privacy:
                 return "privacy"
         }
     }
 
     var absolutePath: String { "/" + relativePath }
+
+    var pathComponents: [PathComponent] {
+        switch self {
+            case let .package(.name(name)):
+                return [.init(stringLiteral: relativePath), .init(stringLiteral: ":\(name)")]
+            case .package(.value(_)):
+                fatalError("pathComponents must not be called with a value parameter")
+            default:
+                return [.init(stringLiteral: relativePath)]
+        }
+    }
+}
+
+
+extension Array where Element == PathComponent {
+    static func path(for resource: Resource) -> [PathComponent] {
+        resource.pathComponents
+    }
 }
 
 
 extension PathComponent {
-    static func url(for resource: Resource, relative: Bool = true) -> PathComponent {
-        .init(stringLiteral: relative ? resource.relativePath : resource.absolutePath)
+    static func path(for resource: Resource) -> [PathComponent] {
+        resource.pathComponents
     }
 }
 
