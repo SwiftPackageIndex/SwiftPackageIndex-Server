@@ -113,4 +113,38 @@ final class RepositoryTests: AppTestCase {
         XCTAssertEqual(b, "default")
     }
 
+    func test_uniqueOwnerRepository() throws {
+        // Ensure owner/repository is unique, testing various combinations with
+        // matching/non-matching case
+        let p1 = try savePackage(on: app.db, "1")
+        try Repository(id: UUID(), package: p1, name: "bar", owner: "foo").save(on: app.db).wait()
+        let p2 = try savePackage(on: app.db, "2")
+
+        XCTAssertThrowsError(
+            // MUT - identical
+            try Repository(id: UUID(), package: p2, name: "bar", owner: "foo").save(on: app.db).wait()
+        ) {
+            XCTAssert($0.localizedDescription.contains(
+                #"duplicate key value violates unique constraint "idx_repositories_owner_name""#))
+            XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
+        }
+
+        XCTAssertThrowsError(
+            // MUT - diffrent case repository
+            try Repository(id: UUID(), package: p2, name: "Bar", owner: "foo").save(on: app.db).wait()
+        ) {
+            XCTAssert($0.localizedDescription.contains(
+            #"duplicate key value violates unique constraint "idx_repositories_owner_name""#))
+            XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
+        }
+
+        XCTAssertThrowsError(
+            // MUT - diffrent case owner
+            try Repository(id: UUID(), package: p2, name: "bar", owner: "Foo").save(on: app.db).wait()
+        ) {
+            XCTAssert($0.localizedDescription.contains(
+            #"duplicate key value violates unique constraint "idx_repositories_owner_name""#))
+            XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
+        }
+    }
 }
