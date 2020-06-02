@@ -35,9 +35,18 @@ extension PackageShow.Model {
             .with(\.$repositories)
             .with(\.$versions) { $0.with(\.$products) }
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
-            // FIXME: make case-insensitive
-            .filter(Repository.self, \.$owner == owner)
-            .filter(Repository.self, \.$name == repository)
+            // TODO: make less verbose once fixed in Fluent:
+            // https://github.com/vapor/fluent-kit/issues/310
+            .filter(
+                DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
+                DatabaseQuery.Filter.Method.custom("ilike"),
+                DatabaseQuery.Value.bind(owner)
+            )
+            .filter(
+                DatabaseQuery.Field.path(Repository.path(for: \.$name), schema: Repository.schema),
+                DatabaseQuery.Filter.Method.custom("ilike"),
+                DatabaseQuery.Value.bind(repository)
+            )
             .first()
 
            return res.unwrap(or: Abort(.notFound))
