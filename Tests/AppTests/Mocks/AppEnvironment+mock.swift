@@ -1,6 +1,6 @@
 @testable import App
 
-import Foundation
+import Vapor
 
 
 extension AppEnvironment {
@@ -16,6 +16,7 @@ extension AppEnvironment {
         reportError: { _, _, _ in .just(value: ()) },
         rollbarToken: { nil },
         rollbarLogLevel: { .critical },
-        shell: .mock
+        shell: .mock,
+        siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" }
     )
 }

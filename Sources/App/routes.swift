@@ -1,25 +1,26 @@
 import Fluent
 import Vapor
 
+
 func routes(_ app: Application) throws {
     app.get { req in
         HomeIndex.Model.query(database: req.db).map { HomeIndex.View($0).document() }
     }
 
-    app.get("privacy") { _ in MarkdownPage("privacy.md").document() }
+    app.get(SiteURL.privacy.pathComponents) { _ in MarkdownPage("privacy.md").document() }
 
     let packageController = PackageController()
-    app.get("packages", use: packageController.index)
-    app.get("packages", ":id", use: packageController.show)
+    app.get(SiteURL.packages.pathComponents, use: packageController.index)
+    app.get(SiteURL.package(.name("id")).pathComponents, use: packageController.show)
 
-    app.group("admin") { admin in
-        admin.get { req in PublicPage.admin() }
+    do {  // admin
+        // sas: 2020-06-01: disable admin page until we have an auth mechanism
+        //  app.get(Root.admin.pathComponents) { req in PublicPage.admin() }
     }
 
-    app.group("api") { api in
-        api.get("version") { req in API.Version(version: appVersion) }
-
-        api.get("search", use: API.SearchController.get)
+    do {  // api
+        app.get(SiteURL.api(.version).pathComponents) { req in API.Version(version: appVersion) }
+        app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
 
         // sas: 2020-05-19: shut down public API until we have an auth mechanism
         //  let apiPackageController = API.PackageController()
