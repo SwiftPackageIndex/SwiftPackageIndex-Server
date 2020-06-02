@@ -6,6 +6,7 @@ import XCTest
 
 
 class SiteURLTests: XCTestCase {
+    
     let pkgId: Package.Id = UUID(uuidString: "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")!
 
     func test_pathComponents_simple() throws {
@@ -23,15 +24,24 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(p.map(\.description), ["api", "version"])
     }
 
-    func test_absolutePath() throws {
-        XCTAssertEqual(SiteURL.home.absolutePath, "/")
-        XCTAssertEqual(SiteURL.images("foo.png").absolutePath, "/images/foo.png")
-        XCTAssertEqual(SiteURL.privacy.absolutePath, "/privacy")
+    func test_relativeURL() throws {
+        XCTAssertEqual(SiteURL.home.relativeURL, "/")
+        XCTAssertEqual(SiteURL.images("foo.png").relativeURL, "/images/foo.png")
+        XCTAssertEqual(SiteURL.privacy.relativeURL, "/privacy")
     }
 
-    func test_href_with_parameters() throws {
+    func test_relativeURL_with_parameters() throws {
+        Current.siteURL = { "" }
         XCTAssertEqual(
-            SiteURL.package(.value(pkgId)).absolutePath, "/packages/CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
+            SiteURL.package(.value(pkgId)).relativeURL,
+            "/packages/CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
+    }
+
+    func test_absoluteURL() throws {
+        Current.siteURL = { "https://indexsite.com" }
+        XCTAssertEqual(SiteURL.home.absoluteURL, "https://indexsite.com/")
+        XCTAssertEqual(SiteURL.images("foo.png").absoluteURL, "https://indexsite.com/images/foo.png")
+        XCTAssertEqual(SiteURL.privacy.absoluteURL, "https://indexsite.com/privacy")
     }
 
 }

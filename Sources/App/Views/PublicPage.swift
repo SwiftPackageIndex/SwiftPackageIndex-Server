@@ -111,9 +111,9 @@ class PublicPage {
             .div(
                 .class("inner"),
                 .a(
-                    .href(SiteURL.home.absolutePath),
+                    .href(SiteURL.home.relativeURL),
                     .h1(
-                        .img(.src(SiteURL.images("logo.svg").absolutePath)),
+                        .img(.src(SiteURL.images("logo.svg").relativeURL)),
                         "Swift Package Index"
                     )
                 ),
@@ -209,7 +209,7 @@ class PublicPage {
                         ),
                         .li(
                             .a(
-                                .href(SiteURL.privacy.absolutePath),
+                                .href(SiteURL.privacy.relativeURL),
                                 "Privacy and Cookies"
                             )
                         ),

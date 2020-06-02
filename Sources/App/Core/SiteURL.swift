@@ -31,7 +31,7 @@ enum SiteURL: Resourceable {
     case package(_ parameter: Parameter<Package.Id>)
     case privacy
 
-    var relativePath: String {
+    var path: String {
         switch self {
             case .about:
                 return "about"
@@ -52,18 +52,16 @@ enum SiteURL: Resourceable {
         }
     }
 
-    var absolutePath: String { "/" + relativePath }
-
     var pathComponents: [PathComponent] {
         switch self {
             case let .api(res):
                 return ["api"] + res.pathComponents
             case let .package(.name(name)):
-                return [.init(stringLiteral: relativePath), .init(stringLiteral: ":\(name)")]
+                return [.init(stringLiteral: path), .init(stringLiteral: ":\(name)")]
             case .package(.value(_)):
                 fatalError("pathComponents must not be called with a value parameter")
             case .admin, .about, .home, .packages, .privacy:
-                return [.init(stringLiteral: relativePath)]
+                return [.init(stringLiteral: path)]
             case .images:
                 fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
@@ -76,16 +74,22 @@ enum SiteURL: Resourceable {
 
 
 protocol Resourceable {
-    var absolutePath: String { get }
-    var relativePath: String { get }
+    var absoluteURL: String { get }
+    var relativeURL: String { get }
+    var path: String { get }
     var pathComponents: [PathComponent] { get }
 }
 
 
+extension Resourceable {
+    var absoluteURL: String { "\(Current.siteURL())/\(path)" }
+    var relativeURL: String { "/" + path }
+}
+
+
 extension Resourceable where Self: RawRepresentable, RawValue == String {
-    var absolutePath: String { "/" + relativePath }
-    var relativePath: String { rawValue }
-    var pathComponents: [PathComponent] { [.init(stringLiteral: relativePath)] }
+    var path: String { rawValue }
+    var pathComponents: [PathComponent] { [.init(stringLiteral: path)] }
 }
 
 
