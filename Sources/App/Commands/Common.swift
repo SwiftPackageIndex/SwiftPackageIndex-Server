@@ -1,4 +1,5 @@
 import Fluent
+import PostgresNIO
 import Vapor
 
 
@@ -22,6 +23,10 @@ func updatePackage(application: Application,
                         return Current.reportError(application.client, .critical, error)
                             .flatMap { application.eventLoopGroup.next().future(error: error) }
                     }
+            case .failure(let error) where error as? PostgresNIO.PostgresError != nil:
+                // Escalate database errors to critical
+                return Current.reportError(application.client, .critical, error)
+                    .flatMap { recordError(database: application.db, error: error, stage: stage) }
             case .failure(let error):
                 return Current.reportError(application.client, .error, error)
                     .flatMap { recordError(database: application.db, error: error, stage: stage) }
