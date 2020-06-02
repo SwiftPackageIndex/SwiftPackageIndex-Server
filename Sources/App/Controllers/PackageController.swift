@@ -17,4 +17,15 @@ struct PackageController {
             .map { PackageShow.View($0).document() }
     }
 
+    func _show(req: Request) throws -> EventLoopFuture<HTML> {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+            else {
+                return req.eventLoop.future(error: Abort(.notFound))
+        }
+        return PackageShow.Model.query(database: req.db, owner: owner, repository: repository)
+            .map { PackageShow.View($0).document() }
+    }
+
 }
