@@ -6,7 +6,7 @@ import XCTest
 
 
 class SiteURLTests: XCTestCase {
-    
+
     let pkgId: Package.Id = UUID(uuidString: "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")!
 
     func test_pathComponents_simple() throws {
@@ -31,7 +31,6 @@ class SiteURLTests: XCTestCase {
     }
 
     func test_relativeURL_with_parameters() throws {
-        Current.siteURL = { "" }
         XCTAssertEqual(
             SiteURL.package(.value(pkgId)).relativeURL,
             "/packages/CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
