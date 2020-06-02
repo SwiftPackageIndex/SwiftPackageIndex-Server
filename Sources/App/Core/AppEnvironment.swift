@@ -12,6 +12,7 @@ struct AppEnvironment {
     var rollbarToken: () -> String?
     var rollbarLogLevel: () -> AppError.Level
     var shell: Shell
+    var siteURL: () -> String
 }
 
 extension AppEnvironment {
@@ -27,7 +28,8 @@ extension AppEnvironment {
             Environment
                 .get("ROLLBAR_LOG_LEVEL")
                 .flatMap(AppError.Level.init(rawValue:)) ?? .critical },
-        shell: .live
+        shell: .live,
+        siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" }
     )
 }
 
