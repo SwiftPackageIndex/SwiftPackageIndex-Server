@@ -20,7 +20,7 @@ enum Api: String, Resourceable {
 }
 
 
-enum Root: Resourceable {
+enum SiteURL: Resourceable {
 
     case admin
     case api(Api)
@@ -68,6 +68,7 @@ enum Root: Resourceable {
                 fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
     }
+
 }
 
 

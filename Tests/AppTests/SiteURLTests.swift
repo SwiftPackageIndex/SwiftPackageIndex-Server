@@ -5,33 +5,33 @@ import Vapor
 import XCTest
 
 
-class ResourceTests: XCTestCase {
+class SiteURLTests: XCTestCase {
     let pkgId: Package.Id = UUID(uuidString: "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")!
 
     func test_pathComponents_simple() throws {
-        let p = Root.privacy.pathComponents
+        let p = SiteURL.privacy.pathComponents
         XCTAssertEqual(p.map(\.description), ["privacy"])
     }
 
     func test_pathComponents_with_parameter() throws {
-        let p = Root.package(.name("id")).pathComponents
+        let p = SiteURL.package(.name("id")).pathComponents
         XCTAssertEqual(p.map(\.description), ["packages", ":id"])
     }
 
     func test_pathComponents_nested() throws {
-        let p = Root.api(.version).pathComponents
+        let p = SiteURL.api(.version).pathComponents
         XCTAssertEqual(p.map(\.description), ["api", "version"])
     }
 
     func test_absolutePath() throws {
-        XCTAssertEqual(Root.home.absolutePath, "/")
-        XCTAssertEqual(Root.images("foo.png").absolutePath, "/images/foo.png")
-        XCTAssertEqual(Root.privacy.absolutePath, "/privacy")
+        XCTAssertEqual(SiteURL.home.absolutePath, "/")
+        XCTAssertEqual(SiteURL.images("foo.png").absolutePath, "/images/foo.png")
+        XCTAssertEqual(SiteURL.privacy.absolutePath, "/privacy")
     }
 
     func test_href_with_parameters() throws {
         XCTAssertEqual(
-            Root.package(.value(pkgId)).absolutePath, "/packages/CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
+            SiteURL.package(.value(pkgId)).absolutePath, "/packages/CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
     }
 
 }

@@ -7,11 +7,11 @@ func routes(_ app: Application) throws {
         HomeIndex.Model.query(database: req.db).map { HomeIndex.View($0).document() }
     }
 
-    app.get(Root.privacy.pathComponents) { _ in MarkdownPage("privacy.md").document() }
+    app.get(SiteURL.privacy.pathComponents) { _ in MarkdownPage("privacy.md").document() }
 
     let packageController = PackageController()
-    app.get(Root.packages.pathComponents, use: packageController.index)
-    app.get(Root.package(.name("id")).pathComponents, use: packageController.show)
+    app.get(SiteURL.packages.pathComponents, use: packageController.index)
+    app.get(SiteURL.package(.name("id")).pathComponents, use: packageController.show)
 
     do {  // admin
         // sas: 2020-06-01: disable admin page until we have an auth mechanism
@@ -19,8 +19,8 @@ func routes(_ app: Application) throws {
     }
 
     do {  // api
-        app.get(Root.api(.version).pathComponents) { req in API.Version(version: appVersion) }
-        app.get(Root.api(.search).pathComponents, use: API.SearchController.get)
+        app.get(SiteURL.api(.version).pathComponents) { req in API.Version(version: appVersion) }
+        app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
 
         // sas: 2020-05-19: shut down public API until we have an auth mechanism
         //  let apiPackageController = API.PackageController()
