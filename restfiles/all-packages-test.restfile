@@ -1,7 +1,4 @@
-# select '/' || owner || '/' || name as url
-# from repositories
-# order by url;
-
+# auto-created via `vapor run create-restfile all`
 requests:
   /0111b/JSONDecoder-Keypath:
     url: ${base_url}/0111b/JSONDecoder-Keypath
