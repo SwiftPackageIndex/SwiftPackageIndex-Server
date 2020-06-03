@@ -40,7 +40,10 @@ class MaterializedViewsTests: AppTestCase {
         do {  // 1st package is eligible
             let pkg = Package(id: UUID(), url: "1")
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+            try Repository(package: pkg,
+                           defaultBranch: "default",
+                           name: "1",
+                           owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
                         reference: .tag(.init(1, 2, 3)),
                         packageName: "1",
@@ -49,7 +52,10 @@ class MaterializedViewsTests: AppTestCase {
         do {  // 2nd package is ineligible, because it has a branch reference
             let pkg = Package(id: UUID(), url: "2")
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+            try Repository(package: pkg,
+                           defaultBranch: "default",
+                           name: "2",
+                           owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
                         reference: .branch("default"),
                         packageName: "2",
@@ -58,7 +64,10 @@ class MaterializedViewsTests: AppTestCase {
         do {  // 3rd package is ineligible, because it has no package name
             let pkg = Package(id: UUID(), url: "3")
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+            try Repository(package: pkg,
+                           defaultBranch: "default",
+                           name: "3",
+                           owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
                         reference: .branch("default"),
                         commitDate: Date(timeIntervalSince1970: 0)).save(on: app.db).wait()
@@ -66,7 +75,10 @@ class MaterializedViewsTests: AppTestCase {
         do {  // 4th package is ineligible, because it has no reference
             let pkg = Package(id: UUID(), url: "4")
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+            try Repository(package: pkg,
+                           defaultBranch: "default",
+                           name: "4",
+                           owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
                         packageName: "4",
                         commitDate: Date(timeIntervalSince1970: 0)).save(on: app.db).wait()
@@ -74,7 +86,10 @@ class MaterializedViewsTests: AppTestCase {
         do {  // 5th package is eligible - should come before 1st because of more recent commit date
             let pkg = Package(id: UUID(), url: "5")
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+            try Repository(package: pkg,
+                           defaultBranch: "default",
+                           name: "5",
+                           owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
                         reference: .tag(.init(1, 2, 3)),
                         packageName: "5",
