@@ -33,10 +33,6 @@
         </nav>
       </div>
     </header>
-    <noscript>
-      <i class="icon warning"></i>
-      <p>The search function of this site requires JavaScript.</p>
-    </noscript>
     <main>
       <div class="inner"><h2>Privacy and Cookies Policy</h2><p>This is a placeholder privacy and cookies policy.</p></div>
     </main>
