@@ -40,6 +40,10 @@ public func configure(_ app: Application) throws {
         app.migrations.add(CreateOwnerRepositoryIndex())
         app.migrations.add(CreateRepositoriesNameIndex())
     }
+    do { // Migration 003 - update recent packages/releases views
+        app.migrations.add(UpdateRecentPackages1())
+        app.migrations.add(UpdateRecentReleases1())
+    }
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")

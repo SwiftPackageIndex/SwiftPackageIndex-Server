@@ -186,7 +186,7 @@ export class SPISearchCore {
 
     // A link surrounds the whole content of the list item.
     const linkElement = document.createElement('a')
-    linkElement.href = '/packages/' + result.packageId
+    linkElement.href = '/' + result.repositoryOwner + '/' + result.repositoryName
     searchResultElement.appendChild(linkElement)
 
     // Name and repository identifier need to be grouped to be split.

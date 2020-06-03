@@ -7,16 +7,14 @@ import XCTest
 
 class SiteURLTests: XCTestCase {
 
-    let pkgId: Package.Id = UUID(uuidString: "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")!
-
     func test_pathComponents_simple() throws {
         let p = SiteURL.privacy.pathComponents
         XCTAssertEqual(p.map(\.description), ["privacy"])
     }
 
     func test_pathComponents_with_parameter() throws {
-        let p = SiteURL.package(.name("id")).pathComponents
-        XCTAssertEqual(p.map(\.description), ["packages", ":id"])
+        let p = SiteURL.package(.name("owner"), .name("repository")).pathComponents
+        XCTAssertEqual(p.map(\.description), [":owner", ":repository"])
     }
 
     func test_pathComponents_nested() throws {
@@ -32,8 +30,8 @@ class SiteURLTests: XCTestCase {
 
     func test_relativeURL_with_parameters() throws {
         XCTAssertEqual(
-            SiteURL.package(.value(pkgId)).relativeURL,
-            "/packages/CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE")
+            SiteURL.package(.value("foo"), .value("bar")).relativeURL,
+            "/foo/bar")
     }
 
     func test_absoluteURL() throws {

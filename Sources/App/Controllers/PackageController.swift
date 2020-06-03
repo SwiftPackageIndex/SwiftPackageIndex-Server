@@ -10,14 +10,6 @@ struct PackageController {
     }
 
     func show(req: Request) throws -> EventLoopFuture<HTML> {
-        guard let id = req.parameters.get("id").flatMap(UUID.init(uuidString:)) else {
-            return req.eventLoop.future(error: Abort(.notFound))
-        }
-        return PackageShow.Model.query(database: req.db, packageId: id)
-            .map { PackageShow.View($0).document() }
-    }
-
-    func _show(req: Request) throws -> EventLoopFuture<HTML> {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
