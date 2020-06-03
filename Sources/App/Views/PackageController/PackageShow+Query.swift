@@ -4,31 +4,6 @@ import Vapor
 
 
 extension PackageShow.Model {
-    static func query(database: Database, packageId: Package.Id) -> EventLoopFuture<Self> {
-        Package.query(on: database)
-            .with(\.$repositories)
-            .with(\.$versions) { $0.with(\.$products) }
-            .filter(\.$id == packageId)
-            .first()
-            .unwrap(or: Abort(.notFound))
-            .map { p -> Self? in
-                // we consider certain attributes as essential and return nil (raising .notFound)
-                guard let title = p.name() else { return nil }
-                return Self.init(title: title,
-                                 url: p.url,
-                                 license: p.repository?.license ?? .none,
-                                 // FIXME: we should probably also display an explainer
-                                 // when summery is nil
-                                 summary: p.repository?.summary ?? "–",
-                                 authors: p.authors(),
-                                 history: p.history(),
-                                 activity: p.activity(),
-                                 products: p.productCounts(),
-                                 releases: p.releaseInfo(),
-                                 languagePlatforms: p.languagePlatformInfo())
-            }
-            .unwrap(or: Abort(.notFound))
-    }
 
     static func query(database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
         let res = Package.query(on: database)
@@ -67,8 +42,8 @@ extension PackageShow.Model {
                     products: p.productCounts(),
                     releases: p.releaseInfo(),
                     languagePlatforms: p.languagePlatformInfo())
-        }
-        .unwrap(or: Abort(.notFound))
+            }
+            .unwrap(or: Abort(.notFound))
     }
 
 }
