@@ -12,8 +12,16 @@ class AnalyzerTests: AppTestCase {
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
-        try Repository(package: pkgs[0], defaultBranch: "master", stars: 25).save(on: app.db).wait()
-        try Repository(package: pkgs[1], defaultBranch: "master", stars: 100).save(on: app.db).wait()
+        try Repository(package: pkgs[0],
+                       defaultBranch: "master",
+                       name: "1",
+                       owner: "foo",
+                       stars: 25).save(on: app.db).wait()
+        try Repository(package: pkgs[1],
+                       defaultBranch: "master",
+                       name: "2",
+                       owner: "foo",
+                       stars: 100).save(on: app.db).wait()
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
