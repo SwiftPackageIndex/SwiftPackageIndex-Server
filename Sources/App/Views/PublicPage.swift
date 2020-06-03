@@ -153,13 +153,8 @@ class PublicPage {
 
     /// A <noscript> element that will only be shown to people with JavaScript disabled.
     /// - Returns: A <noscript> element.
-    final func noScript() -> Node<HTML.BodyContext> {
-        .noscript(
-            .i(
-                .class("icon warning")
-            ),
-            .p("The search function of this site requires JavaScript.")
-        )
+    func noScript() -> Node<HTML.BodyContext> {
+        .text("")
     }
 
     /// Optional content that will be inserted in between the page header and the main content for the page.
