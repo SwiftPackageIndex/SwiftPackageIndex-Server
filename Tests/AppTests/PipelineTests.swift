@@ -86,9 +86,6 @@ class PipelineTests: AppTestCase {
 
     func test_fetchCandidates_analysis_prefer_new() throws {
         // Test pick up from ingestion stage with status = NULL: status = NULL first, then FIFO
-        // In practise, this should not happen as reconciliation will set status to
-        // ok or error on completion
-        // This test simply encodes current behaviour.
         try  [
             Package(url: "1", status: .notFound, processingStage: .ingestion),
             Package(url: "2", status: .ok, processingStage: .ingestion),
@@ -132,7 +129,7 @@ class PipelineTests: AppTestCase {
         do { // validate
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
-            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+            XCTAssertEqual(packages.map(\.status), [.none, .none, .none])
             XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
         }
 
@@ -165,7 +162,7 @@ class PipelineTests: AppTestCase {
         do {  // validate - only new package moves to .ingestion stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
-            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .none])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .ingestion])
         }
 

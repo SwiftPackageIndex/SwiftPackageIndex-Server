@@ -13,7 +13,12 @@ func updatePackage(application: Application,
                     .load(on: application.db)
                     .flatMap { pkg.$versions.load(on: application.db) }
                     .flatMap {
-                        pkg.status = .ok
+                        if stage == .ingestion && pkg.status == .none {
+                            // newly ingested package: leave status == .none for fast-track
+                            // analysis
+                        } else {
+                            pkg.status = .ok
+                        }
                         pkg.processingStage = stage
                         pkg.score = pkg.computeScore()
                         return pkg.update(on: application.db)
