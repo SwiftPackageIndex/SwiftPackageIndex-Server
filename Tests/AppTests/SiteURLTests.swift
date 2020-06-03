@@ -13,7 +13,7 @@ class SiteURLTests: XCTestCase {
     }
 
     func test_pathComponents_with_parameter() throws {
-        let p = SiteURL._package(.name("owner"), .name("repository")).pathComponents
+        let p = SiteURL.package(.name("owner"), .name("repository")).pathComponents
         XCTAssertEqual(p.map(\.description), [":owner", ":repository"])
     }
 
@@ -30,7 +30,7 @@ class SiteURLTests: XCTestCase {
 
     func test_relativeURL_with_parameters() throws {
         XCTAssertEqual(
-            SiteURL._package(.value("foo"), .value("bar")).relativeURL,
+            SiteURL.package(.value("foo"), .value("bar")).relativeURL,
             "/foo/bar")
     }
 

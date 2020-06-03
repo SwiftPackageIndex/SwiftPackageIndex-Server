@@ -28,7 +28,7 @@ enum SiteURL: Resourceable {
     case home
     case images(String)
     case packages
-    case _package(_ owner: Parameter<String>, _ repository: Parameter<String>)
+    case package(_ owner: Parameter<String>, _ repository: Parameter<String>)
     case privacy
 
     var path: String {
@@ -45,9 +45,9 @@ enum SiteURL: Resourceable {
             case let .images(name):
                 return "images/\(name)"
 
-            case let ._package(.value(owner), .value(repository)):
+            case let .package(.value(owner), .value(repository)):
                 return "\(owner)/\(repository)"
-            case ._package:
+            case .package:
                 fatalError("invalid path: \(self)")
 
             case .packages:
@@ -66,9 +66,9 @@ enum SiteURL: Resourceable {
             case let .api(res):
                 return ["api"] + res.pathComponents
 
-            case let ._package(.name(owner), .name(repository)):
+            case let .package(.name(owner), .name(repository)):
                 return [":\(owner)", ":\(repository)"].map(PathComponent.init(stringLiteral:))
-            case ._package:
+            case .package:
                 fatalError("pathComponents must not be called with a value parameter")
 
             case .images:

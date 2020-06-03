@@ -12,7 +12,7 @@ func routes(_ app: Application) throws {
     let packageController = PackageController()
     app.get(SiteURL.packages.pathComponents, use: packageController.index)
 
-    app.get(SiteURL._package(.name("owner"), .name("repository")).pathComponents, use: packageController.show)
+    app.get(SiteURL.package(.name("owner"), .name("repository")).pathComponents, use: packageController.show)
 
     do {  // admin
         // sas: 2020-06-01: disable admin page until we have an auth mechanism
