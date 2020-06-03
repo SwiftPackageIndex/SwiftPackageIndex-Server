@@ -36,6 +36,10 @@ public func configure(_ app: Application) throws {
         app.migrations.add(CreateRecentReleases())
         app.migrations.add(CreateSearch())
     }
+    do { // Migration 002 - unique owner/repository index
+        app.migrations.add(CreateOwnerRepositoryIndex())
+        app.migrations.add(CreateRepositoriesNameIndex())
+    }
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")

@@ -203,6 +203,60 @@ class IngestorTests: AppTestCase {
         }
     }
 
+    func test_ingest_unique_owner_name_violation() throws {
+        // Test error behaviour when two packages resolving to the same owner/name are ingested:
+        //   - don't update package
+        //   - don't create repository records
+        //   - report critical error up to Rollbar
+        // setup
+        let urls = ["1".asGithubUrl, "2".asGithubUrl]
+        let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
+        // Return identical metadata for both packages, same as a for instance a redirected
+        // package would after a rename / ownership change
+        Current.fetchMetadata = { _, _ in .just(value: Github.Metadata(
+                issues: [],
+                openPullRequests: [],
+                repo: .init(defaultBranch: "master",
+                            description: "desc",
+                            forksCount: 0,
+                            name: "package name",
+                            openIssues: 0,
+                            owner: .some(.init(login: "owner")),
+                            stargazersCount: 0)))
+        }
+        var reportedLevel: AppError.Level? = nil
+        var reportedError: String? = nil
+        Current.reportError = { _, level, error in
+            // Errors seen here go to Rollbar
+            reportedLevel = level
+            reportedError = error.localizedDescription
+            return .just(value: ())
+        }
+        let lastUpdate = Date()
+
+        // MUT
+        try ingest(application: app, database: app.db, limit: 10).wait()
+
+        // validate repositories (single element pointing to first package)
+        let repos = try Repository.query(on: app.db).all().wait()
+        XCTAssertEqual(repos.map(\.$package.id), [packages[0].id])
+
+        // validate packages
+        let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
+        // the first package gets the update ...
+        XCTAssertEqual(pkgs[0].status, .ok)
+        XCTAssertEqual(pkgs[0].processingStage, .ingestion)
+        XCTAssert(pkgs[0].updatedAt! > lastUpdate)
+        // ... the second package remains unchanged ...
+        XCTAssertEqual(pkgs[1].status, nil)
+        XCTAssertEqual(pkgs[1].processingStage, .reconciliation)
+        XCTAssert(pkgs[1].updatedAt! < lastUpdate)
+        // ... and an error report has been triggered
+        XCTAssertEqual(reportedLevel, .critical)
+        XCTAssert(reportedError?.contains("duplicate key value violates unique constraint") ?? false)
+    }
+
+
 }
 
 

@@ -1,5 +1,6 @@
 @testable import App
 
+import SQLKit
 import XCTVapor
 
 
@@ -111,6 +112,53 @@ final class RepositoryTests: AppTestCase {
 
         // validate
         XCTAssertEqual(b, "default")
+    }
+
+    func test_uniqueOwnerRepository() throws {
+        // Ensure owner/repository is unique, testing various combinations with
+        // matching/non-matching case
+        let p1 = try savePackage(on: app.db, "1")
+        try Repository(id: UUID(), package: p1, name: "bar", owner: "foo").save(on: app.db).wait()
+        let p2 = try savePackage(on: app.db, "2")
+
+        XCTAssertThrowsError(
+            // MUT - identical
+            try Repository(id: UUID(), package: p2, name: "bar", owner: "foo").save(on: app.db).wait()
+        ) {
+            XCTAssert($0.localizedDescription.contains(
+                #"duplicate key value violates unique constraint "idx_repositories_owner_name""#))
+            XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
+        }
+
+        XCTAssertThrowsError(
+            // MUT - diffrent case repository
+            try Repository(id: UUID(), package: p2, name: "Bar", owner: "foo").save(on: app.db).wait()
+        ) {
+            XCTAssert($0.localizedDescription.contains(
+            #"duplicate key value violates unique constraint "idx_repositories_owner_name""#))
+            XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
+        }
+
+        XCTAssertThrowsError(
+            // MUT - diffrent case owner
+            try Repository(id: UUID(), package: p2, name: "bar", owner: "Foo").save(on: app.db).wait()
+        ) {
+            XCTAssert($0.localizedDescription.contains(
+            #"duplicate key value violates unique constraint "idx_repositories_owner_name""#))
+            XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
+        }
+    }
+
+    func test_name_index() throws {
+        let db = try XCTUnwrap(app.db as? SQLDatabase)
+        // Quick way to check index exists - this will throw
+        //   "server: index "idx_repositories_name" does not exist (DropErrorMsgNonExistent)"
+        // if it doesn't
+        XCTAssertNoThrow(try db.raw("DROP INDEX idx_repositories_name").run().wait())
+        // Recreate index or else the revert in the next tests setUp is going to fail
+        try db.raw(
+            "CREATE INDEX idx_repositories_name ON repositories USING gin (name gin_trgm_ops)"
+        ).run().wait()
     }
 
 }

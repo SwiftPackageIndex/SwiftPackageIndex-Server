@@ -36,6 +36,58 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertEqual(m.products, .init(libraries: 1, executables: 0))
     }
 
+    func test_query_owner_repository() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try Repository(package: pkg,
+                       summary: "summary",
+                       defaultBranch: "master",
+                       license: .mit,
+                       name: "bar",
+                       owner: "foo",
+                       stars: 17,
+                       forks: 42).save(on: app.db).wait()
+        let version = try App.Version(package: pkg,
+                                      reference: .branch("master"),
+                                      packageName: "test package")
+        try version.save(on: app.db).wait()
+        try Product(version: version,
+                    type: .library, name: "lib 1").save(on: app.db).wait()
+
+        // MUT
+        let m = try PackageShow.Model.query(database: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertEqual(m.title, "test package")
+    }
+
+    func test_query_owner_repository_case_insensitivity() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try Repository(package: pkg,
+                       summary: "summary",
+                       defaultBranch: "master",
+                       license: .mit,
+                       name: "bar",
+                       owner: "foo",
+                       stars: 17,
+                       forks: 42).save(on: app.db).wait()
+        let version = try App.Version(package: pkg,
+                                      reference: .branch("master"),
+                                      packageName: "test package")
+        try version.save(on: app.db).wait()
+        try Product(version: version,
+                    type: .library, name: "lib 1").save(on: app.db).wait()
+
+        // MUT
+        let m = try PackageShow.Model.query(database: app.db, owner: "Foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertEqual(m.title, "test package")
+    }
+
+    // TODO: case-insensitive test_query_owner_repository
+
     func test_query_no_title() throws {
         // Tests behaviour when we're lacking data
         // setup package without package name

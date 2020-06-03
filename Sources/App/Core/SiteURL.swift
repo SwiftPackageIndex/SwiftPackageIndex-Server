@@ -29,6 +29,7 @@ enum SiteURL: Resourceable {
     case images(String)
     case packages
     case package(_ parameter: Parameter<Package.Id>)
+    case _package(_ owner: Parameter<String>, _ repository: Parameter<String>)
     case privacy
 
     var path: String {
@@ -41,12 +42,20 @@ enum SiteURL: Resourceable {
                 return "api"
             case .home:
                 return ""
+
             case let .images(name):
                 return "images/\(name)"
+
+            case let ._package(.value(owner), .value(repository)):
+                return "\(owner)/\(repository)"
+            case ._package:
+                fatalError("invalid path: \(self)")
+
             case .packages, .package(.name):
                 return "packages"
             case let .package(.value(value)):
                 return "packages/\(value.uuidString)"
+
             case .privacy:
                 return "privacy"
         }
@@ -54,14 +63,22 @@ enum SiteURL: Resourceable {
 
     var pathComponents: [PathComponent] {
         switch self {
-            case let .api(res):
-                return ["api"] + res.pathComponents
-            case let .package(.name(name)):
-                return [.init(stringLiteral: path), .init(stringLiteral: ":\(name)")]
-            case .package(.value(_)):
-                fatalError("pathComponents must not be called with a value parameter")
             case .admin, .about, .home, .packages, .privacy:
                 return [.init(stringLiteral: path)]
+
+            case let .api(res):
+                return ["api"] + res.pathComponents
+
+            case let ._package(.name(owner), .name(repository)):
+                return [":\(owner)", ":\(repository)"].map(PathComponent.init(stringLiteral:))
+            case ._package:
+                fatalError("pathComponents must not be called with a value parameter")
+
+            case let .package(.name(name)):
+                return [path, ":\(name)"].map(PathComponent.init(stringLiteral:))
+            case .package(.value(_)):
+                fatalError("pathComponents must not be called with a value parameter")
+
             case .images:
                 fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
