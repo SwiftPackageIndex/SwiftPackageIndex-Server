@@ -62,7 +62,7 @@ func createRestfile(application: Application, variant: Variant) -> EventLoopFutu
     struct Record: Decodable {
         var url: String
     }
-    print("# auto-created via `vapor run create-restfile \(variant.rawValue)`")
+    print("# auto-generated via `vapor run create-restfile \(variant.rawValue)`")
     print("requests:")
     return db.raw(query)
         .all(decoding: Record.self)

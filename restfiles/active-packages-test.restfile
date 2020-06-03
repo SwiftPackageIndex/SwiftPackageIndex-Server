@@ -1,4 +1,4 @@
-# auto-created via `vapor run create-restfile active`
+# auto-generated via `vapor run create-restfile active`
 requests:
   /1024jp/GzipSwift:
     url: ${base_url}/1024jp/GzipSwift
