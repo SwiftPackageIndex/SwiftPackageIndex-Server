@@ -10,7 +10,9 @@ class HomeIndexModelTests: AppTestCase {
         let pkgId = UUID()
         let pkg = Package(id: pkgId, url: "1".url)
         try pkg.save(on: app.db).wait()
-        try Repository(package: pkg).save(on: app.db).wait()
+        try Repository(package: pkg,
+                       name: "1",
+                       owner: "foo").save(on: app.db).wait()
         try App.Version(package: pkg,
                         reference: .tag(.init(1, 2, 3)),
                         packageName: "Package",
