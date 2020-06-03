@@ -130,7 +130,13 @@ extension Package {
             .filter { $0.reference?.semVer != nil }
             .sorted { $0.reference!.semVer! < $1.reference!.semVer! }
         let stable = releases.reversed().first { $0.reference?.semVer?.isStable ?? false }
-        let beta = releases.reversed().first { $0.reference?.semVer?.isPrerelease ?? false }
+        let beta = releases.reversed().first {
+            // pick first version that is a prerelease *and* no older (in terms of SemVer)
+            // than stable
+            ($0.reference?.semVer?.isPrerelease ?? false)
+                && ($0.reference?.semVer ?? SemVer(0, 0, 0)
+                    >= stable?.reference?.semVer ?? SemVer(0, 0, 0))
+        }
         let latest = defaultVersion()
         return (stable, beta, latest)
     }

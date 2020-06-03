@@ -181,6 +181,31 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(info.latest?.date, "1 day ago")
     }
 
+    func test_releaseInfo_exclude_old_betas() throws {
+        // Test to ensure that we don't publish a beta that's older than stable
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+        let versions = [
+            try Version(package: pkg, reference: .branch("default"), commitDate: daysAgo(1)),
+            try Version(package: pkg, reference: .tag(.init(2, 1, 0)), commitDate: daysAgo(3)),
+            try Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta")), commitDate: daysAgo(2)),
+        ]
+        try versions.create(on: app.db).wait()
+        // re-load pkg with relationships
+        try pkg.$repositories.load(on: app.db)
+            .flatMap { pkg.$versions.load(on: self.app.db) }
+            .wait()
+
+        // MUT
+        let info = pkg.releaseInfo()
+
+        // validate
+        XCTAssertEqual(info.stable?.date, "3 days ago")
+        XCTAssertEqual(info.beta, nil)
+        XCTAssertEqual(info.latest?.date, "1 day ago")
+    }
+
     func test_releaseInfo_nonEager() throws {
         // ensure non-eager access does not fatalError
         let pkg = try savePackage(on: app.db, "1")
