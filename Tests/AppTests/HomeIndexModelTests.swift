@@ -34,7 +34,7 @@ class HomeIndexModelTests: AppTestCase {
         XCTAssertEqual(m.recentReleases, [
             .init(
                 date: "\(date: Date(timeIntervalSince1970: 0), relativeTo: Current.date())",
-                link: .init(label: "Package", url: "/packages/\(pkgId)")
+                link: .init(label: "Package", url: "/foo/1")
             )
         ])
     }
