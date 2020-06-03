@@ -7,11 +7,15 @@ struct RecentPackage: Decodable, Equatable {
     static let schema = "recent_packages"
 
     var id: UUID
+    var repositoryOwner: String
+    var repositoryName: String
     var packageName: String
     var createdAt: Date
 
     enum CodingKeys: String, CodingKey {
         case id
+        case repositoryOwner = "repository_owner"
+        case repositoryName = "repository_name"
         case packageName = "package_name"
         case createdAt = "created_at"
     }

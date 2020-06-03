@@ -13,7 +13,7 @@ extension HomeIndex.Model {
 
 extension HomeIndex.Model {
     static func makeLink(_ recent: RecentPackage) -> Link {
-        return .init(label: recent.packageName, url: "/packages/\(recent.id.uuidString)")
+        return .init(label: recent.packageName, url: "/\(recent.repositoryOwner)/\(recent.repositoryName)")
     }
 
     static func makeLink(_ recent: RecentRelease) -> Link {
