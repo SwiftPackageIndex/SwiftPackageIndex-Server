@@ -11,6 +11,15 @@ enum HomeIndex {
             self.model = model
         }
 
+        override func noScript() -> Node<HTML.BodyContext> {
+            .noscript(
+                .i(
+                    .class("icon warning")
+                ),
+                .p("The search function of this site requires JavaScript.")
+            )
+        }
+
         override func preMain() -> Node<HTML.BodyContext> {
             .section(
                 .class("search"),
