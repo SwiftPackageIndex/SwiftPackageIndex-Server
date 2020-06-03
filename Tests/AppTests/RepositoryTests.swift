@@ -1,5 +1,6 @@
 @testable import App
 
+import SQLKit
 import XCTVapor
 
 
@@ -147,4 +148,17 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(try! Repository.query(on: app.db).all().wait().count, 1)
         }
     }
+
+    func test_name_index() throws {
+        let db = try XCTUnwrap(app.db as? SQLDatabase)
+        // Quick way to check index exists - this will throw
+        //   "server: index "idx_repositories_name" does not exist (DropErrorMsgNonExistent)"
+        // if it doesn't
+        XCTAssertNoThrow(try db.raw("DROP INDEX idx_repositories_name").run().wait())
+        // Recreate index or else the revert in the next tests setUp is going to fail
+        try db.raw(
+            "CREATE INDEX idx_repositories_name ON repositories USING gin (name gin_trgm_ops)"
+        ).run().wait()
+    }
+
 }
