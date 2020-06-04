@@ -65,15 +65,6 @@ services:
     ]
     restart: always
 
-  migrate:
-    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
-    <<: *shared
-    depends_on:
-      - db
-    command: ["migrate", "--yes"]
-    deploy:
-      replicas: 0
-
   db:
     image: postgres:12.1-alpine
     volumes:
