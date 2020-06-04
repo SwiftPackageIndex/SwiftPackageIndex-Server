@@ -71,6 +71,37 @@ class SearchTests: AppTestCase {
         )
     }
 
+    func test_quoting() throws {
+        // Test searching for a `'`
+        // setup
+        let p1 = try savePackage(on: app.db, "1")
+        let p2 = try savePackage(on: app.db, "2")
+        try Repository(package: p1, summary: "some 'package'", defaultBranch: "master").save(on: app.db).wait()
+        try Repository(package: p2,
+                       summary: "bar package",
+                       defaultBranch: "master",
+                       name: "name 2",
+                       owner: "owner 2").save(on: app.db).wait()
+        try Version(package: p1, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
+        try Version(package: p2, reference: .branch("master"), packageName: "Bar").save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try Search.run(app.db, ["'"]).wait()
+
+        // validation
+        XCTAssertEqual(res,
+                       .init(hasMoreResults: false,
+                             results: [
+                                .init(packageId: try p1.requireID(),
+                                      packageName: "Foo",
+                                      repositoryName: nil,
+                                      repositoryOwner: nil,
+                                      summary: "some 'package'")
+                       ])
+        )
+    }
+
 
     func test_search_limit() throws {
         // setup
