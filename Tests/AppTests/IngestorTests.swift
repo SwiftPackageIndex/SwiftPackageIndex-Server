@@ -141,7 +141,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_updatePackages_new() throws {
-        // Ensure newly ingested packages are passed on with status = nil to fast-track
+        // Ensure newly ingested packages are passed on with status = new to fast-track
         // them into analysis
         let pkgs = [
             Package(id: UUID(), url: "1", status: .ok, processingStage: .reconciliation),
