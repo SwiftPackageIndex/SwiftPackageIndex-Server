@@ -35,7 +35,7 @@ class IngestorTests: AppTestCase {
         // assert packages have been updated
         (try Package.query(on: app.db).all().wait()).forEach {
             XCTAssert($0.updatedAt! > lastUpdate)
-            XCTAssertEqual($0.status, .none)
+            XCTAssertEqual($0.status, .new)
             XCTAssertEqual($0.processingStage, .ingestion)
         }
     }
@@ -135,7 +135,7 @@ class IngestorTests: AppTestCase {
         // validate
         do {
             let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
-            XCTAssertEqual(pkgs.map(\.status), [.metadataRequestFailed, .none])
+            XCTAssertEqual(pkgs.map(\.status), [.metadataRequestFailed, .new])
             XCTAssertEqual(pkgs.map(\.processingStage), [.ingestion, .ingestion])
         }
     }
@@ -145,7 +145,7 @@ class IngestorTests: AppTestCase {
         // them into analysis
         let pkgs = [
             Package(id: UUID(), url: "1", status: .ok, processingStage: .reconciliation),
-            Package(id: UUID(), url: "2", status: .none, processingStage: .reconciliation)
+            Package(id: UUID(), url: "2", status: .new, processingStage: .reconciliation)
             ]
         try pkgs.save(on: app.db).wait()
         let results: [Result<Package, Error>] = [ .success(pkgs[0]), .success(pkgs[1])]
@@ -156,7 +156,7 @@ class IngestorTests: AppTestCase {
         // validate
         do {
             let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
-            XCTAssertEqual(pkgs.map(\.status), [.ok, .none])
+            XCTAssertEqual(pkgs.map(\.status), [.ok, .new])
             XCTAssertEqual(pkgs.map(\.processingStage), [.ingestion, .ingestion])
         }
     }
@@ -218,7 +218,7 @@ class IngestorTests: AppTestCase {
             if $0.url == "2" {
                 XCTAssertEqual($0.status, .metadataRequestFailed)
             } else {
-                XCTAssertEqual($0.status, .none)
+                XCTAssertEqual($0.status, .new)
             }
             XCTAssert($0.updatedAt! > lastUpdate)
         }
@@ -265,11 +265,11 @@ class IngestorTests: AppTestCase {
         // validate packages
         let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
         // the first package gets the update ...
-        XCTAssertEqual(pkgs[0].status, .none)
+        XCTAssertEqual(pkgs[0].status, .new)
         XCTAssertEqual(pkgs[0].processingStage, .ingestion)
         XCTAssert(pkgs[0].updatedAt! > lastUpdate)
         // ... the second package remains unchanged ...
-        XCTAssertEqual(pkgs[1].status, nil)
+        XCTAssertEqual(pkgs[1].status, .new)
         XCTAssertEqual(pkgs[1].processingStage, .reconciliation)
         XCTAssert(pkgs[1].updatedAt! < lastUpdate)
         // ... and an error report has been triggered

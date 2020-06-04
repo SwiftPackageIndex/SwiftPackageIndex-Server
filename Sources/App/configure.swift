@@ -36,13 +36,16 @@ public func configure(_ app: Application) throws {
         app.migrations.add(CreateRecentReleases())
         app.migrations.add(CreateSearch())
     }
-    do { // Migration 002 - unique owner/repository index
+    do {  // Migration 002 - unique owner/repository index
         app.migrations.add(CreateOwnerRepositoryIndex())
         app.migrations.add(CreateRepositoriesNameIndex())
     }
-    do { // Migration 003 - update recent packages/releases views
+    do {  // Migration 003 - update recent packages/releases views
         app.migrations.add(UpdateRecentPackages1())
         app.migrations.add(UpdateRecentReleases1())
+    }
+    do {  // Migration 004 - make status required, defaulting to 'new'
+        app.migrations.add(UpdatePackageStatusNew())
     }
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")

@@ -18,7 +18,7 @@ class ReconcilerTests: AppTestCase {
             XCTAssertNotNil($0.id)
             XCTAssertNotNil($0.createdAt)
             XCTAssertNotNil($0.updatedAt)
-            XCTAssertEqual($0.status, .none)
+            XCTAssertEqual($0.status, .new)
             XCTAssertEqual($0.processingStage, .reconciliation)
         }
     }

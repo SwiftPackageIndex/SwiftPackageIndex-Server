@@ -4,6 +4,7 @@ import Vapor
 
 enum Status: String, Codable {
     case ok
+    case new
     // errors
     case analysisFailed = "analysis_failed"
     case ingestionFailed = "ingestion_failed"
@@ -47,8 +48,8 @@ final class Package: Model, Content {
     @Field(key: "score")
     var score: Int?
 
-    @OptionalEnum(key: "status")
-    var status: Status?
+    @Enum(key: "status")
+    var status: Status
 
     @Field(key: "url")
     var url: String
@@ -66,7 +67,7 @@ final class Package: Model, Content {
     init(id: UUID? = nil,
          url: URL,
          score: Int? = nil,
-         status: Status? = nil,
+         status: Status = .new,
          processingStage: ProcessingStage? = nil) {
         self.id = id
         self.url = url.absoluteString
@@ -118,7 +119,7 @@ extension Package {
         Package.query(on: database)
             .with(\.$repositories)
             .filter(for: stage)
-            .sort(.sql(raw: "status IS NOT NULL"))
+            .sort(.sql(raw: "status != 'new'"))
             .sort(\.$updatedAt)
             .limit(limit)
             .all()
