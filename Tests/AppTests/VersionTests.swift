@@ -38,7 +38,7 @@ class VersionTests: AppTestCase {
 
     func test_delete_cascade() throws {
         // delete package must delete version
-        let pkg = Package(id: UUID(), url: "1", status: .none)
+        let pkg = Package(id: UUID(), url: "1")
         let ver = try Version(id: UUID(), package: pkg)
         try pkg.save(on: app.db).wait()
         try ver.save(on: app.db).wait()

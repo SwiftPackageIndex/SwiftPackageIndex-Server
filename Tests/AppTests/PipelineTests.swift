@@ -46,10 +46,10 @@ class PipelineTests: AppTestCase {
     }
 
     func test_fetchCandidates_ingestion_prefer_new() throws {
-        // make sure records with status = NULL come first, then least recent
+        // make sure records with status = new come first, then least recent
         try  [
             Package(url: "1", status: .notFound, processingStage: .reconciliation),
-            Package(url: "2", status: .none, processingStage: .reconciliation),
+            Package(url: "2", status: .new, processingStage: .reconciliation),
             Package(url: "3", status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
         // fast forward our clock by the deadtime interval
@@ -85,15 +85,12 @@ class PipelineTests: AppTestCase {
     }
 
     func test_fetchCandidates_analysis_prefer_new() throws {
-        // Test pick up from ingestion stage with status = NULL: status = NULL first, then FIFO
-        // In practise, this should not happen as reconciliation will set status to
-        // ok or error on completion
-        // This test simply encodes current behaviour.
+        // Test pick up from ingestion stage with status = new first, then FIFO
         try  [
             Package(url: "1", status: .notFound, processingStage: .ingestion),
             Package(url: "2", status: .ok, processingStage: .ingestion),
             Package(url: "3", status: .analysisFailed, processingStage: .ingestion),
-            Package(url: "4", status: .none, processingStage: .ingestion),
+            Package(url: "4", status: .new, processingStage: .ingestion),
             ].save(on: app.db).wait()
         let batch = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["4", "1", "2", "3"])
@@ -122,7 +119,7 @@ class PipelineTests: AppTestCase {
         do {  // validate
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
-            XCTAssertEqual(packages.map(\.status), [.none, .none, .none])
+            XCTAssertEqual(packages.map(\.status), [.new, .new, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.reconciliation, .reconciliation, .reconciliation])
         }
 
@@ -132,7 +129,7 @@ class PipelineTests: AppTestCase {
         do { // validate
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
-            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+            XCTAssertEqual(packages.map(\.status), [.new, .new, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
         }
 
@@ -155,7 +152,7 @@ class PipelineTests: AppTestCase {
         do {  // validate - only new package moves to .reconciliation stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
-            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .none])
+            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .reconciliation])
         }
 
@@ -165,7 +162,7 @@ class PipelineTests: AppTestCase {
         do {  // validate - only new package moves to .ingestion stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
-            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
+            XCTAssertEqual(packages.map(\.status), [.ok, .ok, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .ingestion])
         }
 

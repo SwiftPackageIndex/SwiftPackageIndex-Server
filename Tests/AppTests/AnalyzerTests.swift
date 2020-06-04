@@ -393,7 +393,7 @@ class AnalyzerTests: AppTestCase {
 
     func test_updateProducts() throws {
         // setup
-        let p = Package(id: UUID(), url: "1", status: .none)
+        let p = Package(id: UUID(), url: "1")
         let v = try Version(id: UUID(), package: p, reference: .tag(.init(1, 0, 0)), packageName: "1")
         let m = Manifest(name: "1", products: [.init(name: "p1", type: .library),
                                                .init(name: "p2", type: .executable)])

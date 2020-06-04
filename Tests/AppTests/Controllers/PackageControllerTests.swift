@@ -10,7 +10,7 @@ class PackageControllerTests: AppTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         
-        let package = Package(id: testPackageId, url: "https://github.com/user/package.git", status: .none)
+        let package = Package(id: testPackageId, url: "https://github.com/user/package.git")
         let repository = try Repository(id: UUID(),
                                         package: package,
                                         summary: "This is a test package",

@@ -7,7 +7,7 @@ import XCTVapor
 final class RepositoryTests: AppTestCase {
 
     func test_save() throws {
-        let pkg = Package(id: UUID(), url: "1", status: .none)
+        let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
         let repo = try Repository(id: UUID(),
                                   package: pkg,
@@ -84,7 +84,7 @@ final class RepositoryTests: AppTestCase {
 
     func test_delete_cascade() throws {
         // delete package must delete repository
-        let pkg = Package(id: UUID(), url: "1", status: .none)
+        let pkg = Package(id: UUID(), url: "1")
         let repo = try Repository(id: UUID(), package: pkg)
         try pkg.save(on: app.db).wait()
         try repo.save(on: app.db).wait()
@@ -102,7 +102,7 @@ final class RepositoryTests: AppTestCase {
 
     func test_defaultBranch() throws {
         // setup
-        let pkg = Package(id: UUID(), url: "1", status: .none)
+        let pkg = Package(id: UUID(), url: "1")
         let repo = try Repository(id: UUID(), package: pkg, defaultBranch: "default")
         try pkg.save(on: app.db).wait()
         try repo.save(on: app.db).wait()
