@@ -51,6 +51,7 @@ public func configure(_ app: Application) throws {
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")
     app.commands.use(AnalyzerCommand(), as: "analyze")
+    app.commands.use(CreateRestfileCommand(), as: "create-restfile")
 
     // register routes
     try routes(app)

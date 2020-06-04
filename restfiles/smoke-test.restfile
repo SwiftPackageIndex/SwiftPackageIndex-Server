@@ -1,0 +1,22 @@
+requests:
+
+    home:
+        url: ${base_url}/
+        validation:
+            status: 200
+
+    privacy:
+        url: ${base_url}/privacy
+        validation:
+            status: 200
+    
+    search:
+        url: ${base_url}/api/search
+        query:
+            query: alamo
+        validation:
+            status: 200
+            json:
+                results:
+                    0:
+                        packageName: Alamofire
