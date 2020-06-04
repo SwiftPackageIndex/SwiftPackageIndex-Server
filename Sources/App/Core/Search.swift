@@ -42,36 +42,41 @@ enum Search {
                   summary: summary)
         }
     }
+    
+    private static func query(_ db: SQLDatabase, _ terms: [String]) -> EventLoopFuture<[DBRecord]> {
+        let maxSearchTerms = 20  // just to impose some sort of limit
+        let binds = terms[..<min(terms.count, maxSearchTerms)].map(SQLBind.init)
+        let empty = SQLLiteral.string("")
+        let space = SQLLiteral.string(" ")
 
-    static var preamble: String {
-        """
-        select
-        id,
-        package_name,
-        name,
-        owner,
-        summary
-        from search
-        """
-    }
+        let packageName = SQLIdentifier("package_name")
+        let repoName = SQLIdentifier("name")
+        let repoOwner = SQLIdentifier("owner")
+        let summary = SQLFunction("coalesce", args: SQLIdentifier("summary"), empty)
+        let contains = SQLRaw("~*")
+        let concat = SQLFunction("concat",
+                                 args: packageName, space, summary, space, repoName, space, repoOwner)
 
-    static func regexClause(_ term: String) -> String {
-        "coalesce(package_name) || ' ' || coalesce(summary, '') || ' ' || coalesce(name, '') || ' ' || coalesce(owner, '') ~* '\(term)'"
-    }
+        let preamble = db
+            .select()
+            .column("id")
+            .column("package_name")
+            .column("name")
+            .column("owner")
+            .column("summary")
+            .from("search")
 
-    static func build(_ terms: [String]) -> String {
-        preamble
-            + "\nwhere "
-            + terms.map(regexClause).joined(separator: "\nand ")
-            + "\n  order by score desc"
-            + "\n  limit \(Constants.searchLimit + Constants.searchLimitLeeway)"
+        return binds.reduce(preamble) { $0.where(concat, contains, $1) }
+            .orderBy(SQLOrderBy(expression: SQLIdentifier("score"), direction: SQLDirection.descending))
+            .limit(Constants.searchLimit + Constants.searchLimitLeeway)
+            .all(decoding: DBRecord.self)
     }
 
     static func run(_ database: Database, _ terms: [String]) -> EventLoopFuture<Search.Result> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw(.init(build(terms))).all(decoding: DBRecord.self)
+        return query(db, terms)
             .mapEach(\.asRecord)
             .map { results in
                 // allow for a little leeway so we don't cut off with just a few more records

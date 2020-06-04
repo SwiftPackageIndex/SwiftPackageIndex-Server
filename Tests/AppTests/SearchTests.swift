@@ -5,34 +5,6 @@ import XCTVapor
 
 class SearchTests: AppTestCase {
 
-    func test_regexClause() throws {
-        XCTAssertEqual(
-            Search.regexClause("foo"),
-            "coalesce(package_name) || ' ' || coalesce(summary, '') || ' ' || coalesce(name, '') || ' ' || coalesce(owner, '') ~* 'foo'"
-        )
-    }
-
-    func test_build_single() throws {
-        XCTAssertEqual(
-            Search.build(["foo"]),
-            Search.preamble + "\nwhere "
-                + Search.regexClause("foo")
-                + "\n  order by score desc"
-                + "\n  limit 25"
-        )
-    }
-
-    func test_build_multiple() throws {
-        XCTAssertEqual(
-            Search.build(["foo", "bar"]),
-            Search.preamble + "\nwhere "
-                + Search.regexClause("foo")
-                + "\nand " + Search.regexClause("bar")
-                + "\n  order by score desc"
-                + "\n  limit 25"
-        )
-    }
-
     func test_run_single() throws {
         // Test search with a single term
         // setup
