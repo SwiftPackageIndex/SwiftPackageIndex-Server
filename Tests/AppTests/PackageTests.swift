@@ -28,9 +28,11 @@ final class PackageTests: AppTestCase {
 
     func test_save_status() throws {
         do {  // default status
-            try Package(url: "1").save(on: app.db).wait()
-            let pkg = try XCTUnwrap(try Package.query(on: app.db).first().wait())
-            XCTAssertEqual(pkg.status, .none)
+            let pkg = Package()  // avoid using init with default argument in order to test db default
+            pkg.url = "1"
+            try pkg.save(on: app.db).wait()
+            let readBack = try XCTUnwrap(try Package.query(on: app.db).first().wait())
+            XCTAssertEqual(readBack.status, .new)
         }
         do {  // with status
             try Package(url: "2", status: .ok).save(on: app.db).wait()
