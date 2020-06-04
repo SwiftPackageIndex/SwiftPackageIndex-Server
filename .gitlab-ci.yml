@@ -54,7 +54,7 @@ build-tag:
     echo Migrating database ...
     docker-compose up -d db
     echo Deploying with SITE_URL: ${SITE_URL} ...
-    env VERSION=$VERSION docker-compose -f docker-compose.yml -f docker-compose.ops.yml run migrate
+    env VERSION=$VERSION docker-compose run migrate
     # deploy
     env VERSION=$VERSION docker-compose up -d
     if [[ $? == 0 ]]; then

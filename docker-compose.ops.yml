@@ -1,9 +1,0 @@
-services:
-  migrate:
-    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
-    <<: *shared
-    depends_on:
-      - db
-    command: ["migrate", "--yes"]
-    deploy:
-      replicas: 0
