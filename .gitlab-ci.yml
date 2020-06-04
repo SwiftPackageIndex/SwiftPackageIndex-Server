@@ -42,7 +42,7 @@ build-tag:
   image: docker/compose:1.25.5
   tags:
     - spi
-    - docker
+    - deploy
   script: |
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
     apk add --no-cache curl
