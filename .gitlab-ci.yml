@@ -48,10 +48,12 @@ build-tag:
     # install curl and set up alias to post deployment to rollbar
     apk add --no-cache curl
     rollbar() {
-      curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "local_username": "CI", "revision": "'"$VERSION"'", "status": "'"$1"''"}' https://api.rollbar.com/api/1/deploy
+      curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "local_username": "CI", "revision": "'"$VERSION"'", "status": "'"$1"'"}' https://api.rollbar.com/api/1/deploy
     }
     # migrate
+    echo Migrating database ...
     docker-compose up -d db
+    echo Deploying with SITE_URL: ${SITE_URL} ...
     env VERSION=$VERSION docker-compose -f docker-compose.yml -f docker-compose.ops.yml run migrate
     # deploy
     env VERSION=$VERSION docker-compose up -d
@@ -78,5 +80,6 @@ smoke-test:
     rester() {
       docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.7.2 "$1"
     }
+    echo Testing with SITE_URL: ${SITE_URL}
     rester restfiles/smoke-test.restfile
     rester restfiles/active-packages-test.restfile
