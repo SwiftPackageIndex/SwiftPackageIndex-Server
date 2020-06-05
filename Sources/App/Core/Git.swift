@@ -83,7 +83,10 @@ enum Git {
     /// - Parameter input: user input string
     /// - Returns: sanitized string
     static func sanitizeInput(_ input: String) -> String {
-        let bannedCharacters = CharacterSet.init(charactersIn: "\"\\").union(CharacterSet.newlines)
+        let bannedCharacters = CharacterSet.init(charactersIn: "\"\\")
+            .union(CharacterSet.newlines)
+            .union(CharacterSet.decomposables)
+            .union(CharacterSet.illegalCharacters)
         return String(input.unicodeScalars.filter { !bannedCharacters.contains($0) })
     }
 

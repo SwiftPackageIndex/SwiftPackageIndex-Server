@@ -256,8 +256,8 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "git tag" {
                 return "1.2.3"
             }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" master"# { return "sha.master-0" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" 1.2.3"# { return "sha.1.2.3-1" }
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "master""# { return "sha.master-0" }
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.2.3""# { return "sha.1.2.3-1" }
             throw TestError.unknownCommand
         }
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
