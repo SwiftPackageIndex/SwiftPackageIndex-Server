@@ -94,6 +94,14 @@ class GitTests: AppTestCase {
         XCTAssertEqual(try Git.commitCount(at: "\(Self.tempDir)/ErrNo"), 57)
     }
 
+    func test_sanitizeInput() throws {
+        XCTAssertEqual(Git.sanitizeInput("a\"bc"), "abc")
+        XCTAssertEqual(Git.sanitizeInput("a\\bc"), "abc")
+        XCTAssertEqual(Git.sanitizeInput("a\nbc"), "abc")
+        XCTAssertEqual(Git.sanitizeInput("a\rbc"), "abc")
+        XCTAssertEqual(Git.sanitizeInput("abc"), "abc")
+    }
+
 }
 
 
