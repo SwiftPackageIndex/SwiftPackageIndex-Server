@@ -14,9 +14,9 @@ enum Search {
     struct Record: Content, Equatable {
         var packageId: Package.Id
         var packageName: String?
+        var packageURL: String?
         var repositoryName: String?
         var repositoryOwner: String?
-        var repositoryOwnerName: String?
         var summary: String?
     }
 
@@ -35,20 +35,20 @@ enum Search {
             case summary
         }
 
-        var repositoryOwnerName: String? {
+        var packageURL: String? {
             guard
                 let owner = repositoryOwner?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
                 let name = repositoryName?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
                 else { return nil }
-            return "\(owner)/\(name)"
+            return "/\(owner)/\(name)"
         }
 
         var asRecord: Record {
             .init(packageId: packageId,
                   packageName: packageName,
+                  packageURL: packageURL,
                   repositoryName: repositoryName,
                   repositoryOwner: repositoryOwner,
-                  repositoryOwnerName: repositoryOwnerName,
                   summary: summary)
         }
     }

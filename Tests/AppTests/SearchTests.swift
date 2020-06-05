@@ -5,15 +5,15 @@ import XCTVapor
 
 class SearchTests: AppTestCase {
 
-    func test_DBRecord_repositoryOwnerName() throws {
+    func test_DBRecord_packageURL() throws {
         XCTAssertEqual(Search.DBRecord(packageId: UUID(),
                                        repositoryName: "bar",
-                                       repositoryOwner: "foo").repositoryOwnerName,
-                       "foo/bar")
+                                       repositoryOwner: "foo").packageURL,
+                       "/foo/bar")
         XCTAssertEqual(Search.DBRecord(packageId: UUID(),
                                        repositoryName: "foo bar",
-                                       repositoryOwner: "baz").repositoryOwnerName,
-                       "baz/foo%20bar")
+                                       repositoryOwner: "baz").packageURL,
+                       "/baz/foo%20bar")
     }
 
     func test_run_single() throws {
@@ -40,9 +40,9 @@ class SearchTests: AppTestCase {
                              results: [
                                 .init(packageId: try p2.requireID(),
                                       packageName: "Bar",
+                                      packageURL: "/owner%202/name%202",
                                       repositoryName: "name 2",
                                       repositoryOwner: "owner 2",
-                                      repositoryOwnerName: "owner%202/name%202",
                                       summary: "bar package")
                        ])
         )
@@ -76,6 +76,7 @@ class SearchTests: AppTestCase {
                              results: [
                                 .init(packageId: try p2.requireID(),
                                       packageName: "Bar",
+                                      packageURL: "/owner/package%202",
                                       repositoryName: "package 2",
                                       repositoryOwner: "owner",
                                       summary: "package 2 description")
@@ -110,6 +111,7 @@ class SearchTests: AppTestCase {
                              results: [
                                 .init(packageId: try p1.requireID(),
                                       packageName: "Foo",
+                                      packageURL: "/owner%201/name%201",
                                       repositoryName: "name 1",
                                       repositoryOwner: "owner 1",
                                       summary: "some 'package'")
