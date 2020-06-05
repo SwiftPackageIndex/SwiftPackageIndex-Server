@@ -50,7 +50,7 @@ enum Git {
     }
 
     static func showDate(_ commit: CommitHash, at path: String) throws -> Date {
-        let res = try Current.shell.run(command: .init(string: "git show -s --format=%ct \(commit)"),
+        let res = try Current.shell.run(command: .init(string: #"git show -s --format=%ct "\#(commit)""#),
                                         at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
@@ -61,7 +61,7 @@ enum Git {
     static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
         let dash = "-"
         let res = try Current.shell.run(
-            command: .init(string: #"git log -n1 --format=format:"%H\#(dash)%ct" \#(reference)"#),
+            command: .init(string: #"git log -n1 --format=format:"%H\#(dash)%ct" "\#(reference)""#),
             at: path
         )
         let parts = res.components(separatedBy: dash)
