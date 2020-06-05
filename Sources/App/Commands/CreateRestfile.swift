@@ -63,6 +63,7 @@ func createRestfile(application: Application, variant: Variant) -> EventLoopFutu
         var url: String
     }
     print("# auto-generated via `vapor run create-restfile \(variant.rawValue)`")
+    print("mode: random")
     print("requests:")
     return db.raw(query)
         .all(decoding: Record.self)
