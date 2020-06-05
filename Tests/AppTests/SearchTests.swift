@@ -197,9 +197,9 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
 
         // MUT
-        let res = try Search.run(app.db, ["foo"]).wait()
+        let res = try Search.run(app.db, ["ink"]).wait()
 
-//        XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
+        XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
     }
 
 }

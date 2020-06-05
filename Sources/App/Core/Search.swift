@@ -45,30 +45,41 @@ enum Search {
     
     private static func query(_ db: SQLDatabase, _ terms: [String]) -> EventLoopFuture<[DBRecord]> {
         let maxSearchTerms = 20  // just to impose some sort of limit
+
+        // binds
+        let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
         let binds = terms[..<min(terms.count, maxSearchTerms)].map(SQLBind.init)
+
+        // constants
         let empty = SQLLiteral.string("")
         let space = SQLLiteral.string(" ")
+        let contains = SQLRaw("~*")
 
+        // identifiers
+        let id = SQLIdentifier("id")
         let packageName = SQLIdentifier("package_name")
         let repoName = SQLIdentifier("name")
         let repoOwner = SQLIdentifier("owner")
         let summary = SQLIdentifier("summary")
-        let contains = SQLRaw("~*")
+        let score = SQLIdentifier("score")
+        let search = SQLIdentifier("search")
+
         let haystack = concat(
             packageName, space, coalesce(summary, empty), space, repoName, space, repoOwner
         )
 
         let preamble = db
             .select()
-            .column("id")
-            .column("package_name")
-            .column("name")
-            .column("owner")
-            .column("summary")
-            .from("search")
+            .column(id)
+            .column(packageName)
+            .column(repoName)
+            .column(repoOwner)
+            .column(summary)
+            .from(search)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
-            .orderBy(SQLOrderBy(expression: SQLIdentifier("score"), direction: SQLDirection.descending))
+            .orderBy(eq(lower(packageName), mergedTerms), .descending)
+            .orderBy(score, SQLDirection.descending)
             .limit(Constants.searchLimit + Constants.searchLimitLeeway)
             .all(decoding: DBRecord.self)
     }
@@ -105,4 +116,21 @@ private func concat(_ args: SQLExpression...) -> SQLFunction {
 
 private func coalesce(_ args: SQLExpression...) -> SQLFunction {
     SQLFunction("coalesce", args: args)
+}
+
+
+private func lower(_ arg: SQLExpression) -> SQLFunction {
+    SQLFunction("lower", args: arg)
+}
+
+
+private func eq(_ lhs: SQLExpression, _ rhs: SQLExpression) -> SQLBinaryExpression {
+    SQLBinaryExpression(left: lhs, op: SQLBinaryOperator.equal, right: rhs)
+}
+
+
+private extension SQLSelectBuilder {
+    func orderBy(_ expression: SQLExpression, _ direction: SQLDirection = .ascending) -> Self {
+        return self.orderBy(SQLOrderBy(expression: expression, direction: direction))
+    }
 }
