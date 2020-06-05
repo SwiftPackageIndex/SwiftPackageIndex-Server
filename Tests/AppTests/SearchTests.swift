@@ -5,6 +5,17 @@ import XCTVapor
 
 class SearchTests: AppTestCase {
 
+    func test_DBRecord_repositoryOwnerName() throws {
+        XCTAssertEqual(Search.DBRecord(packageId: UUID(),
+                                       repositoryName: "bar",
+                                       repositoryOwner: "foo").repositoryOwnerName,
+                       "foo/bar")
+        XCTAssertEqual(Search.DBRecord(packageId: UUID(),
+                                       repositoryName: "foo bar",
+                                       repositoryOwner: "baz").repositoryOwnerName,
+                       "baz/foo%20bar")
+    }
+
     func test_run_single() throws {
         // Test search with a single term
         // setup
@@ -31,6 +42,7 @@ class SearchTests: AppTestCase {
                                       packageName: "Bar",
                                       repositoryName: "name 2",
                                       repositoryOwner: "owner 2",
+                                      repositoryOwnerName: "owner%202/name%202",
                                       summary: "bar package")
                        ])
         )

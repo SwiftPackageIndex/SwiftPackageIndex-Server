@@ -7,24 +7,25 @@ enum Search {
     static let schema = "search"
 
     struct Result: Content, Equatable {
-        let hasMoreResults: Bool
-        let results: [Search.Record]
+        var hasMoreResults: Bool
+        var results: [Search.Record]
     }
 
     struct Record: Content, Equatable {
-        let packageId: Package.Id
-        let packageName: String?
-        let repositoryName: String?
-        let repositoryOwner: String?
-        let summary: String?
+        var packageId: Package.Id
+        var packageName: String?
+        var repositoryName: String?
+        var repositoryOwner: String?
+        var repositoryOwnerName: String?
+        var summary: String?
     }
 
-    private struct DBRecord: Content, Equatable {
-        let packageId: Package.Id
-        let packageName: String?
-        let repositoryName: String?
-        let repositoryOwner: String?
-        let summary: String?
+    struct DBRecord: Content, Equatable {
+        var packageId: Package.Id
+        var packageName: String?
+        var repositoryName: String?
+        var repositoryOwner: String?
+        var summary: String?
 
         enum CodingKeys: String, CodingKey {
             case packageId = "id"
@@ -34,11 +35,20 @@ enum Search {
             case summary
         }
 
+        var repositoryOwnerName: String? {
+            guard
+                let owner = repositoryOwner?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+                let name = repositoryName?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
+                else { return nil }
+            return "\(owner)/\(name)"
+        }
+
         var asRecord: Record {
             .init(packageId: packageId,
                   packageName: packageName,
                   repositoryName: repositoryName,
                   repositoryOwner: repositoryOwner,
+                  repositoryOwnerName: repositoryOwnerName,
                   summary: summary)
         }
     }
