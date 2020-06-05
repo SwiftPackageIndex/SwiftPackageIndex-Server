@@ -7,7 +7,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: swift:5.2.3-bionic
+      image: swift:5.2.4-bionic
     services:
       postgres:
         image: postgres:12
