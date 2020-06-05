@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/vapor/async-kit.git",
         "state": {
           "branch": null,
-          "revision": "635a259c57ba682b60bebf005c52a92cfafc73f5",
-          "version": "1.1.0"
+          "revision": "8e2cad80dd9f62f0349a2a78ab8c81fb456f4d4a",
+          "version": "1.1.1"
         }
       },
       {
@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/vapor/fluent.git",
         "state": {
           "branch": null,
-          "revision": "f97d9ed3c8172585421112f1eb37b1b0e2246f51",
-          "version": "4.0.0-rc.3"
+          "revision": "55f47ca0afe37a247d1a77d1db3c309de1d3af80",
+          "version": "4.0.0-rc.3.1"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "9e2f7825c4512846380a22cfdcaf66a3b70205cd",
-          "version": "1.0.0-rc.2"
+          "revision": "2494ff3ad831caae6635edecdd690f4fd8404bb2",
+          "version": "1.0.0-rc.2.5"
         }
       },
       {
@@ -177,8 +177,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-http2.git",
         "state": {
           "branch": null,
-          "revision": "b66a08e4bc53ab7c39fb03ab3678132e6ba5d12d",
-          "version": "1.12.0"
+          "revision": "c8f952dbc37fe60def17eb15e2c90787ce6ee78a",
+          "version": "1.12.1"
         }
       },
       {
@@ -204,8 +204,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "6dfdb3445308c40280bf1c071fe14c1c92f98a0d",
-          "version": "4.7.1"
+          "revision": "4fa7ed40ccb1dc4e1f8739f31e1d3df15681bbdc",
+          "version": "4.8.0"
         }
       },
       {
