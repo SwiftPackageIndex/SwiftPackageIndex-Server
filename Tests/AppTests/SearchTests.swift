@@ -251,10 +251,8 @@ class SearchTests: AppTestCase {
     func test_exclude_null_fields() throws {
         // Ensure excluding results with NULL fields
         // setup
-        // We have three packages that all match in some way:
-        // 1: exact package name match - we want this one to be at the top
-        // 2: package name contains search term
-        // 3: summary contains search term
+        // Three packages that all match but each has a different required field with
+        // a NULL value
         let p1 = Package(id: UUID(), url: "1", score: 10)
         let p2 = Package(id: UUID(), url: "2", score: 20)
         let p3 = Package(id: UUID(), url: "3", score: 30)
