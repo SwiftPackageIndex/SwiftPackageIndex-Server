@@ -52,10 +52,11 @@ enum Search {
         let packageName = SQLIdentifier("package_name")
         let repoName = SQLIdentifier("name")
         let repoOwner = SQLIdentifier("owner")
-        let summary = SQLFunction("coalesce", args: SQLIdentifier("summary"), empty)
+        let summary = SQLIdentifier("summary")
         let contains = SQLRaw("~*")
-        let concat = SQLFunction("concat",
-                                 args: packageName, space, summary, space, repoName, space, repoOwner)
+        let haystack = concat(
+            packageName, space, coalesce(summary, empty), space, repoName, space, repoOwner
+        )
 
         let preamble = db
             .select()
@@ -66,7 +67,7 @@ enum Search {
             .column("summary")
             .from("search")
 
-        return binds.reduce(preamble) { $0.where(concat, contains, $1) }
+        return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .orderBy(SQLOrderBy(expression: SQLIdentifier("score"), direction: SQLDirection.descending))
             .limit(Constants.searchLimit + Constants.searchLimitLeeway)
             .all(decoding: DBRecord.self)
@@ -94,4 +95,14 @@ enum Search {
         }
         return db.raw("REFRESH MATERIALIZED VIEW \(Self.schema)").run()
     }
+}
+
+
+private func concat(_ args: SQLExpression...) -> SQLFunction {
+    SQLFunction("concat", args: args)
+}
+
+
+private func coalesce(_ args: SQLExpression...) -> SQLFunction {
+    SQLFunction("coalesce", args: args)
 }
