@@ -78,6 +78,9 @@ enum Search {
             .from(search)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
+            .where(isNotNull(packageName))
+            .where(isNotNull(repoOwner))
+            .where(isNotNull(repoName))
             .orderBy(eq(lower(packageName), mergedTerms), .descending)
             .orderBy(score, SQLDirection.descending)
             .limit(Constants.searchLimit + Constants.searchLimitLeeway)
@@ -121,6 +124,11 @@ private func coalesce(_ args: SQLExpression...) -> SQLFunction {
 
 private func lower(_ arg: SQLExpression) -> SQLFunction {
     SQLFunction("lower", args: arg)
+}
+
+
+private func isNotNull(_ column: SQLIdentifier) -> SQLBinaryExpression {
+    SQLBinaryExpression(left: column, op: SQLBinaryOperator.isNot, right: SQLRaw("NULL"))
 }
 
 

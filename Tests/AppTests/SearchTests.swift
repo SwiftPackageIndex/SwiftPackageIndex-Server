@@ -76,7 +76,10 @@ class SearchTests: AppTestCase {
         // setup
         let p1 = try savePackage(on: app.db, "1")
         let p2 = try savePackage(on: app.db, "2")
-        try Repository(package: p1, summary: "some 'package'", defaultBranch: "master").save(on: app.db).wait()
+        try Repository(package: p1, summary: "some 'package'",
+                       defaultBranch: "master",
+                       name: "name 1",
+                       owner: "owner 1").save(on: app.db).wait()
         try Repository(package: p2,
                        summary: "bar package",
                        defaultBranch: "master",
@@ -95,8 +98,8 @@ class SearchTests: AppTestCase {
                              results: [
                                 .init(packageId: try p1.requireID(),
                                       packageName: "Foo",
-                                      repositoryName: nil,
-                                      repositoryOwner: nil,
+                                      repositoryName: "name 1",
+                                      repositoryOwner: "owner 1",
                                       summary: "some 'package'")
                        ])
         )
@@ -107,7 +110,8 @@ class SearchTests: AppTestCase {
         // setup
         let packages = (0..<25).map { Package(url: "\($0)".url) }
         try packages.save(on: app.db).wait()
-        try packages.map { try Repository(package: $0, defaultBranch: "default") }
+        try packages.map { try Repository(package: $0, defaultBranch: "default",
+                                          name: $0.url, owner: "foo") }
             .save(on: app.db)
             .wait()
         try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
@@ -128,7 +132,8 @@ class SearchTests: AppTestCase {
         // setup
         let packages = (0..<21).map { Package(url: "\($0)".url) }
         try packages.save(on: app.db).wait()
-        try packages.map { try Repository(package: $0, defaultBranch: "default") }
+        try packages.map { try Repository(package: $0, defaultBranch: "default",
+                                          name: $0.url, owner: "foo") }
             .save(on: app.db)
             .wait()
         try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
@@ -149,7 +154,8 @@ class SearchTests: AppTestCase {
         try (0..<10).shuffled().forEach {
             let p = Package(id: UUID(), url: "\($0)".url, score: $0)
             try p.save(on: app.db).wait()
-            try Repository(package: p, summary: "\($0)", defaultBranch: "master").save(on: app.db).wait()
+            try Repository(package: p, summary: "\($0)", defaultBranch: "master",
+                           name: "\($0)", owner: "foo").save(on: app.db).wait()
             try Version(package: p, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
         }
         try Search.refresh(on: app.db).wait()
@@ -240,6 +246,46 @@ class SearchTests: AppTestCase {
         let res = try Search.run(app.db, ["foo", "bar"]).wait()
 
         XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
+    }
+
+    func test_exclude_null_fields() throws {
+        // Ensure excluding results with NULL fields
+        // setup
+        // We have three packages that all match in some way:
+        // 1: exact package name match - we want this one to be at the top
+        // 2: package name contains search term
+        // 3: summary contains search term
+        let p1 = Package(id: UUID(), url: "1", score: 10)
+        let p2 = Package(id: UUID(), url: "2", score: 20)
+        let p3 = Package(id: UUID(), url: "3", score: 30)
+        try [p1, p2, p3].save(on: app.db).wait()
+        try Repository(package: p1,
+                       summary: "",
+                       defaultBranch: "master",
+                       name: "1",
+                       owner: "foo").save(on: app.db).wait()
+        try Repository(package: p2,
+                       summary: "",
+                       defaultBranch: "master",
+                       name: nil,
+                       owner: "foo").save(on: app.db).wait()
+        try Repository(package: p3,
+                       summary: "foo bar",
+                       defaultBranch: "master",
+                       name: "3",
+                       owner: nil).save(on: app.db).wait()
+        try Version(package: p1, reference: .branch("master"), packageName: nil)
+            .save(on: app.db).wait()
+        try Version(package: p2, reference: .branch("master"), packageName: "foo2")
+            .save(on: app.db).wait()
+        try Version(package: p3, reference: .branch("master"), packageName: "foo3")
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try Search.run(app.db, ["foo"]).wait()
+
+        XCTAssertEqual(res.results, [])
     }
 
 }
