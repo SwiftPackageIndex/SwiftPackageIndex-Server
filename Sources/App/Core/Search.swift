@@ -40,7 +40,7 @@ enum Search {
                 let owner = repositoryOwner,
                 let name = repositoryName
                 else { return nil }
-            return SiteURL.package(.value(owner), .value(name)).relativeURL
+            return SiteURL.package(.value(owner), .value(name)).relativeURL()
         }
 
         var asRecord: Record {

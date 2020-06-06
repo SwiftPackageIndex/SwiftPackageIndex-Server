@@ -24,7 +24,7 @@ enum SiteURL: Resourceable {
 
     case admin
     case api(Api)
-    case about
+    case faq
     case home
     case images(String)
     case packages
@@ -33,12 +33,15 @@ enum SiteURL: Resourceable {
 
     var path: String {
         switch self {
-            case .about:
-                return "about"
             case .admin:
                 return "admin"
+
             case .api:
                 return "api"
+
+            case .faq:
+                return "faq"
+
             case .home:
                 return ""
 
@@ -63,7 +66,7 @@ enum SiteURL: Resourceable {
 
     var pathComponents: [PathComponent] {
         switch self {
-            case .admin, .about, .home, .packages, .privacy:
+            case .admin, .faq, .home, .packages, .privacy:
                 return [.init(stringLiteral: path)]
 
             case let .api(res):
@@ -71,6 +74,7 @@ enum SiteURL: Resourceable {
 
             case let .package(.name(owner), .name(repository)):
                 return [":\(owner)", ":\(repository)"].map(PathComponent.init(stringLiteral:))
+
             case .package:
                 fatalError("pathComponents must not be called with a value parameter")
 
@@ -86,16 +90,21 @@ enum SiteURL: Resourceable {
 
 
 protocol Resourceable {
-    var absoluteURL: String { get }
-    var relativeURL: String { get }
+    func absoluteURL(anchor: String?) -> String
+    func relativeURL(anchor: String?) -> String
     var path: String { get }
     var pathComponents: [PathComponent] { get }
 }
 
 
 extension Resourceable {
-    var absoluteURL: String { "\(Current.siteURL())/\(path)" }
-    var relativeURL: String { "/" + path }
+    func absoluteURL(anchor: String? = nil) -> String {
+        "\(Current.siteURL())/\(path)" + (anchor.map { "#\($0)" } ?? "")
+    }
+
+    func relativeURL(anchor: String? = nil) -> String {
+        "/" + path + (anchor.map { "#\($0)" } ?? "")
+    }
 }
 
 

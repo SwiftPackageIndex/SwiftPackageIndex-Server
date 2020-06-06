@@ -34,7 +34,7 @@
       </div>
     </header>
     <main>
-      <div class="inner"><h2>Privacy and Cookies Policy</h2><p>This is a placeholder privacy and cookies policy.</p></div>
+      <div class="inner"><p>This page probably doesn’t contain enough jargon to be legally compliant, but this is an honest reflection of what the site does in terms of your data.</p><h2>Your Personal Information</h2><p>This site has no user accounts, and you will not be asked to identify yourself.</p><h2>Data Sources and Storage</h2><p>The data indexed by this site is generated from the JSON file in <a href="https://github.com/daveverwer/SwiftPMLibrary/">this repository</a>. If you are the owner of a Swift package listed there and would like it to be removed, please <a href="https://github.com/daveverwer/SwiftPMLibrary/issues/new">let us know by creating a new GitHub issue</a>.</p><h2>Cookies and Analytics</h2><p>This site uses <a href="https://analytics.google.com">Google Analytics</a> loaded via <a href="https://tagmanager.google.com">Google Tag Manager</a> to gather basic usage stats. The site uses no other analytics, trackers, or other cookies.</p></div>
     </main>
     <footer>
       <div class="inner">

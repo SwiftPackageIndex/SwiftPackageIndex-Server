@@ -8,6 +8,7 @@ func routes(_ app: Application) throws {
     }
 
     app.get(SiteURL.privacy.pathComponents) { _ in MarkdownPage("privacy.md").document() }
+    app.get(SiteURL.faq.pathComponents) { _ in MarkdownPage("faq.md").document() }
 
     let packageController = PackageController()
     app.get(SiteURL.packages.pathComponents, use: packageController.index)

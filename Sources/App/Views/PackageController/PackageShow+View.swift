@@ -74,8 +74,10 @@ enum PackageShow {
                     .unwrap(model.languagesAndPlatformsClause(), { .ul(.group($0)) },
                             else: .p(
                                 .text("The manifest for this package doesn't include metadata on which versions of Swift, and which platforms it supports – Are you the package author? "),
-                                .a(.href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/wiki/FAQ#how-do-i-define-language-and-platform-information"),
-                                   .text("Learn how to fix this")),
+                                .a(
+                                    .href(SiteURL.faq.relativeURL(anchor: "language-and-platforms")),
+                                    .text("Learn how to fix this")
+                                ),
                                 .text(".")
                         )
                     )

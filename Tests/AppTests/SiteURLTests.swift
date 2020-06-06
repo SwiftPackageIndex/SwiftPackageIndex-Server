@@ -23,27 +23,36 @@ class SiteURLTests: XCTestCase {
     }
 
     func test_relativeURL() throws {
-        XCTAssertEqual(SiteURL.home.relativeURL, "/")
-        XCTAssertEqual(SiteURL.images("foo.png").relativeURL, "/images/foo.png")
-        XCTAssertEqual(SiteURL.privacy.relativeURL, "/privacy")
+        XCTAssertEqual(SiteURL.home.relativeURL(), "/")
+        XCTAssertEqual(SiteURL.images("foo.png").relativeURL(), "/images/foo.png")
+        XCTAssertEqual(SiteURL.privacy.relativeURL(), "/privacy")
     }
 
     func test_relativeURL_with_parameters() throws {
         XCTAssertEqual(
-            SiteURL.package(.value("foo"), .value("bar")).relativeURL,
+            SiteURL.package(.value("foo"), .value("bar")).relativeURL(),
             "/foo/bar")
+    }
+
+    func test_relativeURL_with_anchor() throws {
+        XCTAssertEqual(SiteURL.faq.relativeURL(anchor: "hello"), "/faq#hello")
     }
 
     func test_absoluteURL() throws {
         Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.home.absoluteURL, "https://indexsite.com/")
-        XCTAssertEqual(SiteURL.images("foo.png").absoluteURL, "https://indexsite.com/images/foo.png")
-        XCTAssertEqual(SiteURL.privacy.absoluteURL, "https://indexsite.com/privacy")
+        XCTAssertEqual(SiteURL.home.absoluteURL(), "https://indexsite.com/")
+        XCTAssertEqual(SiteURL.images("foo.png").absoluteURL(), "https://indexsite.com/images/foo.png")
+        XCTAssertEqual(SiteURL.privacy.absoluteURL(), "https://indexsite.com/privacy")
+    }
+
+    func test_absoluteURL_with_anchor() throws {
+        Current.siteURL = { "https://indexsite.com" }
+        XCTAssertEqual(SiteURL.faq.absoluteURL(anchor: "hello"), "https://indexsite.com/faq#hello")
     }
 
     func test_url_escaping() throws {
         Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.package(.value("foo bar"), .value("some repo")).absoluteURL,
+        XCTAssertEqual(SiteURL.package(.value("foo bar"), .value("some repo")).absoluteURL(),
                        "https://indexsite.com/foo%20bar/some%20repo")
     }
 
