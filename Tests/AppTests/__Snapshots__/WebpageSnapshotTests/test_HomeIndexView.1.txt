@@ -21,10 +21,10 @@
         <nav>
           <ul>
             <li>
-              <a href="#">Add a Package</a>
+              <a href="https://github.com/daveverwer/SwiftPMLibrary">Add a Package</a>
             </li>
             <li>
-              <a href="#">About</a>
+              <a href="/faq">FAQ</a>
             </li>
           </ul>
         </nav>
