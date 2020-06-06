@@ -1,4 +1,5 @@
 # auto-generated via `vapor run create-restfile all`
+mode: random
 requests:
   /0111b/JSONDecoder-Keypath:
     url: ${base_url}/0111b/JSONDecoder-Keypath
@@ -5926,6 +5927,10 @@ requests:
       status: 200
   /jhoogstraat/StandardRouting:
     url: ${base_url}/jhoogstraat/StandardRouting
+    validation:
+      status: 200
+  /jjjkkkjjj/Matft:
+    url: ${base_url}/jjjkkkjjj/Matft
     validation:
       status: 200
   /jjochen/JJFloatingActionButton:
