@@ -2,7 +2,7 @@
 
 The Swift Package Index is a search engine for packages that support the Swift Package Manager.
 
-But it’s about more than just indexing packages because choosing the right package is about more than just finding code that does what you need. Is it well maintained? What versions of Swift does it support? Is it well tested? How long has it been in development? **Picking high-quality packages is hard**, and *that’s* where the Swift Package Index aims to be most useful.
+But it's about more than just indexing packages because choosing the right package is about more than just finding code that does what you need. Is it well maintained? What versions of Swift does it support? Is it well tested? How long has it been in development? **Picking high-quality packages is hard**, and *that's* where the Swift Package Index aims to be most useful.
 
 ---
 
@@ -14,7 +14,7 @@ The [Swift Package Manager](https://swift.org/package-manager/) is a fantastic t
 
 <h3 id="swiftpm-library">What happened to the SwiftPM Library?</h3>
 
-The Swift Package Index is a spiritual successor and replacement for [the SwiftPM Library](https://i.imgur.com/Gal6NCA.png). It has been re-implemented from scratch in Swift using Vapor and has had a name change at the same time. We learned many valuable lessons from the original implementation, but the Swift Package Index is the future of Swift package search.
+The Swift Package Index is a spiritual successor and replacement for [the SwiftPM Library](/images/swiftpm-library.png). It has been re-implemented from scratch in Swift using Vapor and has had a name change at the same time. We learned many valuable lessons from the original implementation, but the Swift Package Index is the future of Swift package search.
 
 ---
 
@@ -44,7 +44,7 @@ The more metadata the Swift Package Index knows about your package, the better w
 
 Does your package listing currently show this?
 
-![Missing language and platform metadata](https://i.imgur.com/03STheq.png)
+![Missing language and platform metadata](/images/language-and-platforms-no-metadata.png)
 
 Two critical pieces of metadata are the **supported Swift language versions** and the **supported platforms** for your package.
 
@@ -64,7 +64,7 @@ swiftLanguageVersions: [.v5]
 
 Once you add this key and push an updated `Package.swift`. The Swift Package Index will pick up your new metadata within a few hours. After the update, your listing will look something like this:
 
-![Swift language metadata](https://i.imgur.com/vyo3o9i.png)
+![Swift language metadata](/images/language-and-platforms-language-only.png)
 
 **Note:** Be careful not to mix up `swiftLanguageVersions` with the `swift-tools-version` comment at the top of your `Package.swift` file. `swiftLanguageVersions` defines the version(s) of Swift your package supports, and `swift-tools-version` determines what version of Swift is required to parse your `Package.swift` file. The Swift Package Index *only* parses the `swiftLanguageVersions` metadata.
 
@@ -81,7 +81,7 @@ platforms: [.macOS(.v10_12),
 
 Add or update this property and push an updated `Package.swift`.  The index will update within a few hours, and your listing will look something like this:
 
-![Swift language and platform metadata](https://i.imgur.com/RMe0fcK.png)
+![Swift language and platform metadata](/images/language-and-platforms-full-metadata.png)
 
 **Note:** Unfortunately, `Package.swift` does not currently support platform metadata that includes Linux compatibility. If this ever changes, the Swift Package Index will support it.
 
