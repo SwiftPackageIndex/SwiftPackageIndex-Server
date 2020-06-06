@@ -2,7 +2,7 @@
 
 The Swift Package Index is a search engine for packages that support the Swift Package Manager.
 
-But it's about more than just indexing packages because choosing the right package is about more than just finding code that does what you need. Is it well maintained? What versions of Swift does it support? Is it well tested? How long has it been in development? **Picking high-quality packages is hard**, and *that's* where the Swift Package Index aims to be most useful.
+But it’s about more than just indexing packages because choosing the right package is about more than just finding code that does what you need. Is it well maintained? What versions of Swift does it support? Is it well tested? How long has it been in development? **Picking high-quality packages is hard**, and *that’s* where the Swift Package Index aims to be most useful.
 
 ---
 

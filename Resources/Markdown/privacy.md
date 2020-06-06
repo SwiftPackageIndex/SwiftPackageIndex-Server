@@ -1,4 +1,4 @@
-This page probably doesn't contain enough jargon to be legally compliant, but this is an honest reflection of what the site does in terms of your data.
+This page probably doesn’t contain enough jargon to be legally compliant, but this is an honest reflection of what the site does in terms of your data.
 
 ### Your Personal Information
 
