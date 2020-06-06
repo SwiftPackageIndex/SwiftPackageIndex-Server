@@ -56,7 +56,7 @@ extension RSSFeed.Item {
     init(_ recentPackage: RecentPackage) {
         title = recentPackage.packageName
         link = SiteURL.package(.value(recentPackage.repositoryOwner),
-                               .value(recentPackage.repositoryName)).absoluteURL
+                               .value(recentPackage.repositoryName)).absoluteURL()
         packageName = recentPackage.packageName
         packageSummary = ""
     }
