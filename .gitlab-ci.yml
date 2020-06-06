@@ -76,6 +76,8 @@ deploy (ad hoc): &deploy
 
 smoke-test:
   stage: smoke-test
+  only:
+    - tags
   script: |
     rester() {
       docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.7.2 "$1"
