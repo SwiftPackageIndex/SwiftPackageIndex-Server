@@ -65,14 +65,14 @@ enum HomeIndex {
             [
                 .li(
                     .a(
-                        .href("#"),
+                        .href("https://github.com/daveverwer/SwiftPMLibrary"),
                         "Add a Package"
                     )
                 ),
                 .li(
                     .a(
-                        .href("#"),
-                        "About"
+                        .href(SiteURL.faq.relativeURL()),
+                        "FAQ"
                     )
                 )
             ]
