@@ -214,7 +214,13 @@ class PublicPage {
                                 "Twitter"
                             )
                         )
-                    )
+                    ),
+                    .element(named: "small", nodes: [ // TODO: Fix after Plot update
+                        .a(
+                            .href("https://macstadium.com/"),
+                             "Kindly hosted by MacStadium"
+                        )
+                    ])
                 )
             )
         )
