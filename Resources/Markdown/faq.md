@@ -4,17 +4,25 @@ The Swift Package Index is a search engine for packages that support the Swift P
 
 But it's about more than just indexing packages because choosing the right package is about more than just finding code that does what you need. Is it well maintained? What versions of Swift does it support? Is it well tested? How long has it been in development? **Picking high-quality packages is hard**, and *that's* where the Swift Package Index aims to be most useful.
 
+---
+
 <h3 id=“what-is-the-spm”>What is the Swift Package Manager?</h3>
 
 The [Swift Package Manager](https://swift.org/package-manager/) is a fantastic tool built by Apple as part of [the Swift project](https://swift.org) for integrating libraries into your Swift apps. It launched in 2015 and gained integration with Xcode 11 in 2019.
+
+---
 
 <h3 id="swiftpm-library">What happened to the SwiftPM Library?</h3>
 
 The Swift Package Index is a spiritual successor and replacement for [the SwiftPM Library](https://i.imgur.com/Gal6NCA.png). It has been re-implemented from scratch in Swift using Vapor and has had a name change at the same time. We learned many valuable lessons from the original implementation, but the Swift Package Index is the future of Swift package search.
 
+---
+
 <h3 id="how-does-it-work">How does the Swift Package Index work?</h3>
 
 The index originates from a [master list of SPM compatible repositories](https://github.com/daveverwer/SwiftPMLibrary/blob/master/packages.json). When someone adds a repository to the master list, the Swift Package Index immediately makes a full clone of the package source. Metadata is extracted both from source code and local git history, but also from GitHub. Packages are also polled for changes every couple of hours, so the information you see in the index always knows about the latest package versions, without the package author needing to tell the index about every new release.
+
+---
 
 <h3 id=“github-package-registry>What about the GitHub Package Registry?</h3>
 
@@ -22,13 +30,17 @@ We’re excited to see the GitHub Package Registry get support for Swift package
 
 The Swift Package Index will support and index any GitHub’s, or any other implementation of a package registry as soon as they are available.
 
+---
+
 <h3 id=“creators>Who built the Swift Package Index?</h3>
 
 Thanks for asking! [Dave Verwer](https://daveverwer.com) and [Sven A. Schmidt](https://finestructure.co/) built it.
 
-<h3 id=“language-and-platforms”>How do I define Language and Platform information for a package?</h3>
+---
 
-The more metadata the Swift Package Index knows about your package, the better we can present it to people looking for packages. 
+<h3 id=“language-and-platforms”>How do I define Language and Platform information?</h3>
+
+The more metadata the Swift Package Index knows about your package, the better we can present it to people looking for packages.
 
 Does your package listing currently show this?
 
@@ -72,6 +84,8 @@ Add or update this property and push an updated `Package.swift`.  The index will
 ![Swift language and platform metadata](https://i.imgur.com/RMe0fcK.png)
 
 **Note:** Unfortunately, `Package.swift` does not currently support platform metadata that includes Linux compatibility. If this ever changes, the Swift Package Index will support it.
+
+---
 
 <h3 id=“contributing”>Can I contribute?</h3>
 
