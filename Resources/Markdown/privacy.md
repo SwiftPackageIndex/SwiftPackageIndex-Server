@@ -10,4 +10,4 @@ The data indexed by this site is generated from the JSON file in [this repositor
 
 ### Cookies and Analytics
 
-This site uses [Google Analytics](https://analytics.google.com) loaded via [Google Tag Manager](https://tagmanager.google.com) to gather basic usage stats. The site uses no other analytics, trackers, or other cookies.
+This site uses [Google Analytics](https://analytics.google.com) loaded via [Google Tag Manager](https://tagmanager.google.com) to gather usage statistics. The site uses no other analytics frameworks, trackers, or other cookies.
