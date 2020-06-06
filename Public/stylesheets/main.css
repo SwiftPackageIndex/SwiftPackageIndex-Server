@@ -531,14 +531,24 @@ div.error i {
 /* Footer ------------------------------------------------------------------ */
 
 footer {
+  padding: 10px 0;
   color: var(--white);
   background-color: var(--dark-blue);
+  text-align: center;
 }
 
 footer .inner {
   display: flex;
   flex-direction: row;
   justify-content: center;
+}
+
+footer ul {
+  margin: 10px;
+}
+
+footer a {
+  color: var(--white);
 }
 
 @media screen and (max-width: 767px) {
