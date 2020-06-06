@@ -6,7 +6,7 @@ But it's about more than just indexing packages because choosing the right packa
 
 ---
 
-<h3 id=“what-is-the-spm”>What is the Swift Package Manager?</h3>
+<h3 id="what-is-the-spm">What is the Swift Package Manager?</h3>
 
 The [Swift Package Manager](https://swift.org/package-manager/) is a fantastic tool built by Apple as part of [the Swift project](https://swift.org) for integrating libraries into your Swift apps. It launched in 2015 and gained integration with Xcode 11 in 2019.
 
@@ -24,7 +24,7 @@ The index originates from a [master list of SPM compatible repositories](https:/
 
 ---
 
-<h3 id=“github-package-registry>What about the GitHub Package Registry?</h3>
+<h3 id="github-package-registry">What about the GitHub Package Registry?</h3>
 
 We’re excited to see the GitHub Package Registry get support for Swift packages. There’s [a proposal](https://forums.swift.org/t/swift-package-registry-service/37219)for Swift Package Manager support to support package registries formally, but that pitch is not for a package index or search engine. That’s a different thing.
 
@@ -32,13 +32,13 @@ The Swift Package Index will support and index any GitHub’s, or any other impl
 
 ---
 
-<h3 id=“creators>Who built the Swift Package Index?</h3>
+<h3 id="creators">Who built the Swift Package Index?</h3>
 
 Thanks for asking! [Dave Verwer](https://daveverwer.com) and [Sven A. Schmidt](https://finestructure.co/) built it.
 
 ---
 
-<h3 id=“language-and-platforms”>How do I define Language and Platform information?</h3>
+<h3 id="language-and-platforms">How do I define Language and Platform information?</h3>
 
 The more metadata the Swift Package Index knows about your package, the better we can present it to people looking for packages.
 
@@ -87,7 +87,7 @@ Add or update this property and push an updated `Package.swift`.  The index will
 
 ---
 
-<h3 id=“contributing”>Can I contribute?</h3>
+<h3 id="contributing">Can I contribute?</h3>
 
 Absolutely. The Swift Package Index is open source, and we’d love it if you wanted to help make it better.
 
