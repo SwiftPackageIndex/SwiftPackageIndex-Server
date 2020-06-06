@@ -1,14 +1,18 @@
 @testable import App
 
 import SnapshotTesting
-import XCTest
+import XCTVapor
 
 
-class RSSTests: XCTestCase {
+class RSSTests: AppTestCase {
 
     func test_render_item() throws {
-        let item = RSSFeed.Item(title: "title", link: "link", content: "content")
-        assertSnapshot(matching: item.node.render(indentedBy: .spaces(2)), as: .lines)
+        let item = RSSFeed.Item(title: "title",
+                                link: "link",
+                                packageName: "bar",
+                                packageSummary: "This is package bar")
+        assertSnapshot(matching: item.node.render(indentedBy: .spaces(2)),
+                       as: .init(pathExtension: "xml", diffing: .lines))
     }
 
     func test_render_feed() throws {
@@ -20,13 +24,29 @@ class RSSTests: XCTestCase {
                            items: [
                             RSSFeed.Item(title: "title",
                                          link: "https://SwiftPackageIndex.com/foo/bar",
-                                         content: "content"),
+                                         packageName: "bar",
+                                         packageSummary: "This is package bar"),
                             RSSFeed.Item(title: "title",
                                          link: "https://SwiftPackageIndex.com/bar/baz",
-                                         content: "content")]
+                                         packageName: "baz",
+                                         packageSummary: "This is package baz")]
         )
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
+    }
+
+    func test_feed_RecentPackages() throws {
+        // setup
+        try (1...10).forEach {
+            let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
+            try pkg.save(on: app.db).wait()
+            try Repository(package: pkg, name: "pkg-\($0)", owner: "owner-\($0)").create(on: app.db).wait()
+            try Version(package: pkg, packageName: "pkg-\($0)").save(on: app.db).wait()
+        }
+        // make sure to refresh the materialized view
+        try RecentPackage.refresh(on: app.db).wait()
+
+
     }
 
 }

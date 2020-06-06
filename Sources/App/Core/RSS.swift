@@ -6,13 +6,20 @@ struct RSSFeed {
     struct Item {
         var title: String
         var link: String
-        var content: String
+        var packageName: String
+        var packageSummary: String
 
         var node: Node<RSS.ChannelContext> {
             .item(
                 .guid(.text(link), .isPermaLink(true)),
                 .title(title),
-                .link(link)
+                .link(link),
+                .content(
+                    .h2(.a(.href(link), .text(packageName))),
+                    .p(.text(packageSummary)),
+                    // FIXME: should be `small` but I need to figure out how to do that
+                    .p(.a(.href(link), .text(packageName)))
+                )
             )
         }
     }
@@ -35,6 +42,22 @@ struct RSSFeed {
             //  .atomLink(context.site.url(for: config.targetPath)),
             .forEach(items.prefix(maxItemCount), \.node)
         )
+    }
+}
 
+extension RSSFeed {
+//    static var recentPackages: Self {
+//
+//    }
+}
+
+
+extension RSSFeed.Item {
+    init(_ recentPackage: RecentPackage) {
+        title = recentPackage.packageName
+        link = SiteURL.package(.value(recentPackage.repositoryOwner),
+                               .value(recentPackage.repositoryName)).absoluteURL
+        packageName = recentPackage.packageName
+        packageSummary = ""
     }
 }
