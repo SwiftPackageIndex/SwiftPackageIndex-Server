@@ -33,12 +33,15 @@ enum SiteURL: Resourceable {
 
     var path: String {
         switch self {
-            case .faq:
-                return "faq"
             case .admin:
                 return "admin"
+
             case .api:
                 return "api"
+
+            case .faq:
+                return "faq"
+
             case .home:
                 return ""
 
@@ -47,6 +50,7 @@ enum SiteURL: Resourceable {
 
             case let .package(.value(owner), .value(repository)):
                 return "\(owner)/\(repository)"
+
             case .package:
                 fatalError("invalid path: \(self)")
 
@@ -84,16 +88,21 @@ enum SiteURL: Resourceable {
 
 
 protocol Resourceable {
-    var absoluteURL: String { get }
-    var relativeURL: String { get }
+    func absoluteURL(anchor: String?) -> String
+    func relativeURL(anchor: String?) -> String
     var path: String { get }
     var pathComponents: [PathComponent] { get }
 }
 
 
 extension Resourceable {
-    var absoluteURL: String { "\(Current.siteURL())/\(path)" }
-    var relativeURL: String { "/" + path }
+    func absoluteURL(anchor: String? = nil) -> String {
+        "\(Current.siteURL())/\(path)" + (anchor.map { "#\($0)" } ?? "")
+    }
+
+    func relativeURL(anchor: String? = nil) -> String {
+        "/" + path + (anchor.map { "#\($0)" } ?? "")
+    }
 }
 
 
