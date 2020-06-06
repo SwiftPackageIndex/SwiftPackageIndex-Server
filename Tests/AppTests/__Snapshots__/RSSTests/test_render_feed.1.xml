@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content">
+  <channel>
+    <title>feed title</title>
+    <description>feed description</description>
+    <link>https://SwiftPackageIndex.com</link>
+    <item>
+      <guid isPermaLink="true">https://SwiftPackageIndex.com/foo/bar</guid>
+      <title>title</title>
+      <link>https://SwiftPackageIndex.com/foo/bar</link>
+    </item>
+    <item>
+      <guid isPermaLink="true">https://SwiftPackageIndex.com/bar/baz</guid>
+      <title>title</title>
+      <link>https://SwiftPackageIndex.com/bar/baz</link>
+    </item>
+  </channel>
+</rss>
