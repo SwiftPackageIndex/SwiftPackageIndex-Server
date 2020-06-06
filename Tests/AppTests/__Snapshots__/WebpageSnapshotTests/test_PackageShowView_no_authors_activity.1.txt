@@ -153,6 +153,9 @@
               <a href="https://twitter.com/swiftpackages">Twitter</a>
             </li>
           </ul>
+          <small>
+            <a href="https://macstadium.com/">Kindly hosted by MacStadium</a>
+          </small>
         </nav>
       </div>
     </footer>
