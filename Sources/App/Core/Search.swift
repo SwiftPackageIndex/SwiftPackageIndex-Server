@@ -37,10 +37,10 @@ enum Search {
 
         var packageURL: String? {
             guard
-                let owner = repositoryOwner?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
-                let name = repositoryName?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
+                let owner = repositoryOwner,
+                let name = repositoryName
                 else { return nil }
-            return "/\(owner)/\(name)"
+            return SiteURL.package(.value(owner), .value(name)).relativeURL()
         }
 
         var asRecord: Record {
