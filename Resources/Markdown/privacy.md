@@ -6,7 +6,7 @@ This site has no user accounts, and you will not be asked to identify yourself.
 
 ### Data Sources and Storage
 
-The data indexed by this site is generated from the JSON file in [this repository](https://github.com/daveverwer/SwiftPMLibrary/). If you are the owner of a Swift package listed there and would like it to be removed, please [let us know by creating a new GitHub issue](https://github.com/daveverwer/SwiftPMLibrary/issues/new).
+The data indexed by this site is generated from the JSON file in [this repository](https://github.com/daveverwer/SwiftPMLibrary/). If you are the owner of a Swift package listed there and would like it to be removed, please [let us know by creating a new GitHub issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose).
 
 ### Cookies and Analytics
 
