@@ -35,6 +35,39 @@
 		"oAP": "/fonts/icomoon.woff",
 		"oF": 0
 		},
+	"/images/language-and-platforms-full-metadata.png": {
+		"ft": 32768,
+		"iS": 41155,
+		"oA": 0,
+		"oAP": "/images/language-and-platforms-full-metadata.png",
+		"oF": 0,
+		"oIPL": 0,
+		"opt": 0,
+		"oT": 1,
+		"q": 100
+		},
+	"/images/language-and-platforms-language-only.png": {
+		"ft": 32768,
+		"iS": 29934,
+		"oA": 0,
+		"oAP": "/images/language-and-platforms-language-only.png",
+		"oF": 0,
+		"oIPL": 0,
+		"opt": 0,
+		"oT": 1,
+		"q": 100
+		},
+	"/images/language-and-platforms-no-metadata.png": {
+		"ft": 32768,
+		"iS": 39176,
+		"oA": 0,
+		"oAP": "/images/language-and-platforms-no-metadata.png",
+		"oF": 0,
+		"oIPL": 0,
+		"opt": 0,
+		"oT": 1,
+		"q": 100
+		},
 	"/images/logo.svg": {
 		"ft": 2097152,
 		"miP": 0,
@@ -44,6 +77,17 @@
 		"opt": 1,
 		"plM": 52780316221407,
 		"prP": 0
+		},
+	"/images/swiftpm-library.png": {
+		"ft": 32768,
+		"iS": 499622,
+		"oA": 0,
+		"oAP": "/images/swiftpm-library.png",
+		"oF": 0,
+		"oIPL": 0,
+		"opt": 0,
+		"oT": 1,
+		"q": 100
 		},
 	"/javascripts/dom_helpers.js": {
 		"bF": 0,
