@@ -39,7 +39,8 @@ class GitTests: AppTestCase {
     }
 
     func test_showDate() throws {
-        Current.shell.run = mock(for: "git show -s --format=%ct 2c6399a1fa6f3b023bcdeac24b6a46ce3bd89ed0",
+        Current.shell.run = mock(
+            for: #"git show -s --format=%ct "2c6399a1fa6f3b023bcdeac24b6a46ce3bd89ed0""#,
              """
              1536799579
              """
@@ -52,7 +53,7 @@ class GitTests: AppTestCase {
 
     func test_revInfo() throws {
         Current.shell.run = { cmd, _ in
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" 2.2.1"# {
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "2.2.1""# {
                 return "63c973f3c2e632a340936c285e94d59f9ffb01d5-1536799579"
             }
             throw TestError.unknownCommand
@@ -66,7 +67,7 @@ class GitTests: AppTestCase {
         // Ensure we look up by tag name and not semver
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/139
         Current.shell.run = { cmd, _ in
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" v2.2.1"# {
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "v2.2.1""# {
                 return "63c973f3c2e632a340936c285e94d59f9ffb01d5-1536799579"
             }
             throw TestError.unknownCommand
@@ -91,6 +92,14 @@ class GitTests: AppTestCase {
     func test_commitCount() throws {
         Current.shell = .live
         XCTAssertEqual(try Git.commitCount(at: "\(Self.tempDir)/ErrNo"), 57)
+    }
+
+    func test_sanitizeInput() throws {
+        XCTAssertEqual(Git.sanitizeInput("a\"bc"), "abc")
+        XCTAssertEqual(Git.sanitizeInput("a\\bc"), "abc")
+        XCTAssertEqual(Git.sanitizeInput("a\nbc"), "abc")
+        XCTAssertEqual(Git.sanitizeInput("a\rbc"), "abc")
+        XCTAssertEqual(Git.sanitizeInput("abc"), "abc")
     }
 
 }

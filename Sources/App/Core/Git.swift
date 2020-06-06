@@ -50,7 +50,8 @@ enum Git {
     }
 
     static func showDate(_ commit: CommitHash, at path: String) throws -> Date {
-        let res = try Current.shell.run(command: .init(string: "git show -s --format=%ct \(commit)"),
+        let safe = sanitizeInput("\(commit)")
+        let res = try Current.shell.run(command: .init(string: #"git show -s --format=%ct "\#(safe)""#),
                                         at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
@@ -59,9 +60,10 @@ enum Git {
     }
 
     static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
+        let safe = sanitizeInput("\(reference)")
         let dash = "-"
         let res = try Current.shell.run(
-            command: .init(string: #"git log -n1 --format=format:"%H\#(dash)%ct" \#(reference)"#),
+            command: .init(string: #"git log -n1 --format=format:"%H\#(dash)%ct" "\#(safe)""#),
             at: path
         )
         let parts = res.components(separatedBy: dash)
@@ -70,6 +72,22 @@ enum Git {
         guard let timestamp = TimeInterval(parts[1]) else { throw GitError.invalidTimestamp }
         let date = Date(timeIntervalSince1970: timestamp)
         return .init(commit: hash, date: date)
+    }
+
+
+    /// Sanitize input strings not controlled by us. Ensure commands that use input strings
+    /// properly quote the commands:
+    ///   let safe = sanitizeInput(input)
+    /// and then use the result in quoted commands only:
+    ///   Current.shell.run(#"ls -l "\(safe)""#)
+    /// - Parameter input: user input string
+    /// - Returns: sanitized string
+    static func sanitizeInput(_ input: String) -> String {
+        let bannedCharacters = CharacterSet.init(charactersIn: "\"\\")
+            .union(CharacterSet.newlines)
+            .union(CharacterSet.decomposables)
+            .union(CharacterSet.illegalCharacters)
+        return String(input.unicodeScalars.filter { !bannedCharacters.contains($0) })
     }
 
     struct RevisionInfo: Equatable {

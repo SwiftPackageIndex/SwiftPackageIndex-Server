@@ -26,26 +26,26 @@
   ▿ 'git log --max-parents=0 -n1 --format=format:"%ct"' at path: '.../github.com-foo-1'
     - command: "git log --max-parents=0 -n1 --format=format:\"%ct\""
     - path: ".../github.com-foo-1"
-  ▿ 'git log -n1 --format=format:"%H-%ct" 1.0.0' at path: '.../github.com-foo-1'
-    - command: "git log -n1 --format=format:\"%H-%ct\" 1.0.0"
+  ▿ 'git log -n1 --format=format:"%H-%ct" "1.0.0"' at path: '.../github.com-foo-1'
+    - command: "git log -n1 --format=format:\"%H-%ct\" \"1.0.0\""
     - path: ".../github.com-foo-1"
-  ▿ 'git log -n1 --format=format:"%H-%ct" 1.1.1' at path: '.../github.com-foo-1'
-    - command: "git log -n1 --format=format:\"%H-%ct\" 1.1.1"
+  ▿ 'git log -n1 --format=format:"%H-%ct" "1.1.1"' at path: '.../github.com-foo-1'
+    - command: "git log -n1 --format=format:\"%H-%ct\" \"1.1.1\""
     - path: ".../github.com-foo-1"
-  ▿ 'git log -n1 --format=format:"%H-%ct" master' at path: '.../github.com-foo-1'
-    - command: "git log -n1 --format=format:\"%H-%ct\" master"
+  ▿ 'git log -n1 --format=format:"%H-%ct" "master"' at path: '.../github.com-foo-1'
+    - command: "git log -n1 --format=format:\"%H-%ct\" \"master\""
     - path: ".../github.com-foo-1"
   ▿ 'git log --max-parents=0 -n1 --format=format:"%ct"' at path: '.../github.com-foo-2'
     - command: "git log --max-parents=0 -n1 --format=format:\"%ct\""
     - path: ".../github.com-foo-2"
-  ▿ 'git log -n1 --format=format:"%H-%ct" 2.0.0' at path: '.../github.com-foo-2'
-    - command: "git log -n1 --format=format:\"%H-%ct\" 2.0.0"
+  ▿ 'git log -n1 --format=format:"%H-%ct" "2.0.0"' at path: '.../github.com-foo-2'
+    - command: "git log -n1 --format=format:\"%H-%ct\" \"2.0.0\""
     - path: ".../github.com-foo-2"
-  ▿ 'git log -n1 --format=format:"%H-%ct" 2.1.0' at path: '.../github.com-foo-2'
-    - command: "git log -n1 --format=format:\"%H-%ct\" 2.1.0"
+  ▿ 'git log -n1 --format=format:"%H-%ct" "2.1.0"' at path: '.../github.com-foo-2'
+    - command: "git log -n1 --format=format:\"%H-%ct\" \"2.1.0\""
     - path: ".../github.com-foo-2"
-  ▿ 'git log -n1 --format=format:"%H-%ct" master' at path: '.../github.com-foo-2'
-    - command: "git log -n1 --format=format:\"%H-%ct\" master"
+  ▿ 'git log -n1 --format=format:"%H-%ct" "master"' at path: '.../github.com-foo-2'
+    - command: "git log -n1 --format=format:\"%H-%ct\" \"master\""
     - path: ".../github.com-foo-2"
   ▿ 'git log -n1 --format=format:"%ct"' at path: '.../github.com-foo-1'
     - command: "git log -n1 --format=format:\"%ct\""
