@@ -41,4 +41,10 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.privacy.absoluteURL, "https://indexsite.com/privacy")
     }
 
+    func test_url_escaping() throws {
+        Current.siteURL = { "https://indexsite.com" }
+        XCTAssertEqual(SiteURL.package(.value("foo bar"), .value("some repo")).absoluteURL,
+                       "https://indexsite.com/foo%20bar/some%20repo")
+    }
+
 }

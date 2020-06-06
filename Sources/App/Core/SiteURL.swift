@@ -45,8 +45,11 @@ enum SiteURL: Resourceable {
             case let .images(name):
                 return "images/\(name)"
 
-            case let .package(.value(owner), .value(repository)):
-                return "\(owner)/\(repository)"
+            case let .package(.value(owner), .value(repo)):
+                let owner = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? owner
+                let repo = repo.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? repo
+                return "\(owner)/\(repo)"
+
             case .package:
                 fatalError("invalid path: \(self)")
 
