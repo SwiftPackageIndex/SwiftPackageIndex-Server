@@ -19,7 +19,7 @@ extension HomeIndex.Model {
     }
 
     static func makeLink(_ recent: RecentRelease) -> Link {
-        return .init(label: recent.packageName,
+        return .init(label: "\(recent.packageName) – \(recent.version)",
                      url: SiteURL.package(.value(recent.repositoryOwner),
                                           .value(recent.repositoryName)).relativeURL())
     }
