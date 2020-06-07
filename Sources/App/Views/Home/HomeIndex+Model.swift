@@ -19,7 +19,7 @@ extension HomeIndex.Model {
                         .href(datedLink.link.url),
                         .text(datedLink.link.label)
                     ),
-                    .element(named: "small", text: "Added \(datedLink.date).") // TODO: Fix after Plot update
+                    .element(named: "small", text: "Added \(datedLink.date)") // TODO: Fix after Plot update
                 )
             }
         )
@@ -33,7 +33,7 @@ extension HomeIndex.Model {
                         .href(datedLink.link.url),
                         .text(datedLink.link.label)
                     ),
-                    .element(named: "small", text: "Released \(datedLink.date).") // TODO: Fix after Plot update
+                    .element(named: "small", text: "Released \(datedLink.date)") // TODO: Fix after Plot update
                 )
             }
         )
