@@ -1,3 +1,4 @@
+import Fluent
 import Foundation
 import Plot
 
@@ -27,7 +28,6 @@ struct RSSFeed {
     var title: String
     var description: String
     var link: URL
-    var maxItemCount: Int
     var items: [Item]
 
     var rss: RSS {
@@ -40,15 +40,23 @@ struct RSSFeed {
             //  .pubDate(date, timeZone: context.dateFormatter.timeZone),
             //  .ttl(Int(config.ttlInterval)),
             //  .atomLink(context.site.url(for: config.targetPath)),
-            .forEach(items.prefix(maxItemCount), \.node)
+            .forEach(items, \.node)
         )
     }
 }
 
+
 extension RSSFeed {
-//    static var recentPackages: Self {
-//
-//    }
+    static func recentPackages(on database: Database, maxItemCount: Int = 100) -> EventLoopFuture<Self> {
+        RecentPackage.fetch(on: database, limit: maxItemCount)
+            .mapEach(RSSFeed.Item.init)
+            .map {
+                RSSFeed(title: "Swift Package Index – Recently Added",
+                        description: "List of recently added Swift packages",
+                        link: URL(string: "feed")!,  // FIXME
+                    items: $0)
+        }
+    }
 }
 
 
@@ -58,6 +66,6 @@ extension RSSFeed.Item {
         link = SiteURL.package(.value(recentPackage.repositoryOwner),
                                .value(recentPackage.repositoryName)).absoluteURL()
         packageName = recentPackage.packageName
-        packageSummary = ""
+        packageSummary = recentPackage.packageSummary ?? ""
     }
 }

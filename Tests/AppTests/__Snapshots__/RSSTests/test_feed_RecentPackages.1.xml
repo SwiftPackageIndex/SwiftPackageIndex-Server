@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content">
+  <channel>
+    <title>Swift Package Index – Recently Added</title>
+    <description>List of recently added Swift packages</description>
+    <link>feed</link>
+    <item>
+      <guid isPermaLink="true">http://localhost:8080/owner-10/pkg-10</guid>
+      <title>pkg-10</title>
+      <link>http://localhost:8080/owner-10/pkg-10</link>
+      <content:encoded><![CDATA[<h2><a href="http://localhost:8080/owner-10/pkg-10">pkg-10</a></h2><p></p><p><a href="http://localhost:8080/owner-10/pkg-10">pkg-10</a></p>]]></content:encoded>
+    </item>
+    <item>
+      <guid isPermaLink="true">http://localhost:8080/owner-9/pkg-9</guid>
+      <title>pkg-9</title>
+      <link>http://localhost:8080/owner-9/pkg-9</link>
+      <content:encoded><![CDATA[<h2><a href="http://localhost:8080/owner-9/pkg-9">pkg-9</a></h2><p></p><p><a href="http://localhost:8080/owner-9/pkg-9">pkg-9</a></p>]]></content:encoded>
+    </item>
+    <item>
+      <guid isPermaLink="true">http://localhost:8080/owner-8/pkg-8</guid>
+      <title>pkg-8</title>
+      <link>http://localhost:8080/owner-8/pkg-8</link>
+      <content:encoded><![CDATA[<h2><a href="http://localhost:8080/owner-8/pkg-8">pkg-8</a></h2><p></p><p><a href="http://localhost:8080/owner-8/pkg-8">pkg-8</a></p>]]></content:encoded>
+    </item>
+    <item>
+      <guid isPermaLink="true">http://localhost:8080/owner-7/pkg-7</guid>
+      <title>pkg-7</title>
+      <link>http://localhost:8080/owner-7/pkg-7</link>
+      <content:encoded><![CDATA[<h2><a href="http://localhost:8080/owner-7/pkg-7">pkg-7</a></h2><p></p><p><a href="http://localhost:8080/owner-7/pkg-7">pkg-7</a></p>]]></content:encoded>
+    </item>
+    <item>
+      <guid isPermaLink="true">http://localhost:8080/owner-6/pkg-6</guid>
+      <title>pkg-6</title>
+      <link>http://localhost:8080/owner-6/pkg-6</link>
+      <content:encoded><![CDATA[<h2><a href="http://localhost:8080/owner-6/pkg-6">pkg-6</a></h2><p></p><p><a href="http://localhost:8080/owner-6/pkg-6">pkg-6</a></p>]]></content:encoded>
+    </item>
+    <item>
+      <guid isPermaLink="true">http://localhost:8080/owner-5/pkg-5</guid>
+      <title>pkg-5</title>
+      <link>http://localhost:8080/owner-5/pkg-5</link>
+      <content:encoded><![CDATA[<h2><a href="http://localhost:8080/owner-5/pkg-5">pkg-5</a></h2><p></p><p><a href="http://localhost:8080/owner-5/pkg-5">pkg-5</a></p>]]></content:encoded>
+    </item>
+    <item>
+      <guid isPermaLink="true">http://localhost:8080/owner-4/pkg-4</guid>
+      <title>pkg-4</title>
+      <link>http://localhost:8080/owner-4/pkg-4</link>
+      <content:encoded><![CDATA[<h2><a href="http://localhost:8080/owner-4/pkg-4">pkg-4</a></h2><p></p><p><a href="http://localhost:8080/owner-4/pkg-4">pkg-4</a></p>]]></content:encoded>
+    </item>
+    <item>
+      <guid isPermaLink="true">http://localhost:8080/owner-3/pkg-3</guid>
+      <title>pkg-3</title>
+      <link>http://localhost:8080/owner-3/pkg-3</link>
+      <content:encoded><![CDATA[<h2><a href="http://localhost:8080/owner-3/pkg-3">pkg-3</a></h2><p></p><p><a href="http://localhost:8080/owner-3/pkg-3">pkg-3</a></p>]]></content:encoded>
+    </item>
+  </channel>
+</rss>

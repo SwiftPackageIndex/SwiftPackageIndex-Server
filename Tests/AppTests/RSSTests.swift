@@ -20,7 +20,6 @@ class RSSTests: AppTestCase {
         // on https://validator.w3.org/feed/check.cgi
         let feed = RSSFeed(title: "feed title", description: "feed description",
                            link: "https://SwiftPackageIndex.com",
-                           maxItemCount: 100,
                            items: [
                             RSSFeed.Item(title: "title",
                                          link: "https://SwiftPackageIndex.com/foo/bar",
@@ -46,7 +45,10 @@ class RSSTests: AppTestCase {
         // make sure to refresh the materialized view
         try RecentPackage.refresh(on: app.db).wait()
 
+        let feed = try RSSFeed.recentPackages(on: app.db, maxItemCount: 8).wait()
 
+        assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
+                       as: .init(pathExtension: "xml", diffing: .lines))
     }
 
 }
