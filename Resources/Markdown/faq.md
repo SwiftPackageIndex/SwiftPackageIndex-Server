@@ -1,3 +1,7 @@
+## Frequently Asked Questions
+
+---
+
 <h3 id="what-is-the-spi">What is the Swift Package Index?</h3>
 
 The Swift Package Index is a search engine for packages that support the Swift Package Manager.
