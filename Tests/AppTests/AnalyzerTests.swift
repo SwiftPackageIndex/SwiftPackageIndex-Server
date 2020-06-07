@@ -50,10 +50,28 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
                 return #"{ "name": "foo-2", "products": [{"name":"p2","type":{"library": []}}] }"#
             }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
+
+            // Git.revisionInfo (per ref - default branch & tags)
+            // These return a string in the format `commit sha`-`timestamp (sec since 1970)`
+            // We simply use `fakesha` for the sha (it bears no meaning) and a range from seconds
+            // since 1970.
+            // It is important the tags aren't created at identical times for tags on the same
+            // package, or else we will collect multiple recent releases (as there is no "latest")
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.0.0""# { return "fakesha-0" }
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.1.1""# { return "fakesha-1" }
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "2.0.0""# { return "fakesha-0" }
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "2.1.0""# { return "fakesha-1" }
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "master""# { return "fakesha-2" }
+
+            // Git.commitCount
             if cmd.string == "git rev-list --count HEAD" { return "12" }
+
+            // Git.firstCommitDate
             if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+
+            // Git.lastCommitDate
             if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+
             return ""
         }
 
