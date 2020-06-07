@@ -82,7 +82,7 @@ extension RSSFeed.Item {
                                    .value(recentRelease.repositoryName)).absoluteURL()
         let packageName = recentRelease.packageName
         let version = recentRelease.version
-        let packageSummary = ""  // FIXME
+        let packageSummary = recentRelease.packageSummary ?? ""
         node = .item(
             .guid(.text(link), .isPermaLink(true)),
             .title(title),
