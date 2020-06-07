@@ -10,6 +10,7 @@ struct RecentRelease: Decodable, Equatable {
     var repositoryOwner: String
     var repositoryName: String
     var packageName: String
+    var packageSummary: String?
     var version: String
     var releasedAt: Date
 
@@ -18,6 +19,7 @@ struct RecentRelease: Decodable, Equatable {
         case repositoryOwner = "repository_owner"
         case repositoryName = "repository_name"
         case packageName = "package_name"
+        case packageSummary = "package_summary"
         case version
         case releasedAt = "released_at"
     }

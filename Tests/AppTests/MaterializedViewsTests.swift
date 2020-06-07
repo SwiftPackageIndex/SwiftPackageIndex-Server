@@ -51,6 +51,7 @@ class MaterializedViewsTests: AppTestCase {
             let pkg = Package(id: UUID(), url: "1")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
+                           summary: "pkg 1",
                            defaultBranch: "default",
                            name: "1",
                            owner: "foo").create(on: app.db).wait()
@@ -63,6 +64,7 @@ class MaterializedViewsTests: AppTestCase {
             let pkg = Package(id: UUID(), url: "2")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
+                           summary: "pkg 2",
                            defaultBranch: "default",
                            name: "2",
                            owner: "foo").create(on: app.db).wait()
@@ -75,6 +77,7 @@ class MaterializedViewsTests: AppTestCase {
             let pkg = Package(id: UUID(), url: "3")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
+                           summary: "pkg 3",
                            defaultBranch: "default",
                            name: "3",
                            owner: "foo").create(on: app.db).wait()
@@ -86,6 +89,7 @@ class MaterializedViewsTests: AppTestCase {
             let pkg = Package(id: UUID(), url: "4")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
+                           summary: "pkg 4",
                            defaultBranch: "default",
                            name: "4",
                            owner: "foo").create(on: app.db).wait()
@@ -97,6 +101,7 @@ class MaterializedViewsTests: AppTestCase {
             let pkg = Package(id: UUID(), url: "5")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
+                           summary: "pkg 5",
                            defaultBranch: "default",
                            name: "5",
                            owner: "foo").create(on: app.db).wait()
@@ -115,5 +120,6 @@ class MaterializedViewsTests: AppTestCase {
         // validate
         XCTAssertEqual(res.map(\.packageName), ["5", "1"])
         XCTAssertEqual(res.map(\.version), ["2.0.0", "1.2.3"])
+        XCTAssertEqual(res.map(\.packageSummary), ["pkg 5", "pkg 1"])
     }
 }
