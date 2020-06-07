@@ -53,7 +53,7 @@ class AnalyzerTests: AppTestCase {
 
             // Git.revisionInfo (per ref - default branch & tags)
             // These return a string in the format `commit sha`-`timestamp (sec since 1970)`
-            // We simply use `fakesha` for the sha (it bears no meaning) and a range from seconds
+            // We simply use `fakesha` for the sha (it bears no meaning) and a range of seconds
             // since 1970.
             // It is important the tags aren't created at identical times for tags on the same
             // package, or else we will collect multiple recent releases (as there is no "latest")
