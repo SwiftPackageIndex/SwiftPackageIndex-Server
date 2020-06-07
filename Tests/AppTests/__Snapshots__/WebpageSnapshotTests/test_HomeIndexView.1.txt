@@ -51,27 +51,27 @@
             <ul>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago.</small>
+                <small>Added 2 hours ago</small>
               </li>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago.</small>
+                <small>Added 2 hours ago</small>
               </li>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago.</small>
+                <small>Added 2 hours ago</small>
               </li>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago.</small>
+                <small>Added 2 hours ago</small>
               </li>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago.</small>
+                <small>Added 2 hours ago</small>
               </li>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago.</small>
+                <small>Added 2 hours ago</small>
               </li>
             </ul>
           </section>
@@ -80,27 +80,27 @@
             <ul>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Released 20 minutes ago.</small>
+                <small>Released 20 minutes ago</small>
               </li>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Released 20 minutes ago.</small>
+                <small>Released 20 minutes ago</small>
               </li>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Released 20 minutes ago.</small>
+                <small>Released 20 minutes ago</small>
               </li>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Released 20 minutes ago.</small>
+                <small>Released 20 minutes ago</small>
               </li>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Released 20 minutes ago.</small>
+                <small>Released 20 minutes ago</small>
               </li>
               <li>
                 <a href="https://example.com/package">Package</a>
-                <small>Released 20 minutes ago.</small>
+                <small>Released 20 minutes ago</small>
               </li>
             </ul>
           </section>
