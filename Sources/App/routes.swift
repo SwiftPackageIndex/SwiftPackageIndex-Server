@@ -36,7 +36,7 @@ func routes(_ app: Application) throws {
     }
 
     do {  // RSS
-        app.get(SiteURL.rss.pathComponents) { req in
+        app.get(SiteURL.rssPackages.pathComponents) { req in
             RSSFeed.recentPackages(on: req.db, maxItemCount: Constants.rssFeedMaxItemCount)
                 .map { $0.rss }
         }

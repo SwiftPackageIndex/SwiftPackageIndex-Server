@@ -58,7 +58,7 @@ class RSSTests: AppTestCase {
     }
 
     func test_recentPackages_route() throws {
-        try app.test(.GET, "feed.rss") { res in
+        try app.test(.GET, "packages.rss") { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))

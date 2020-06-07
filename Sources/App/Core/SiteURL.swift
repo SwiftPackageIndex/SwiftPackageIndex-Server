@@ -30,7 +30,7 @@ enum SiteURL: Resourceable {
     case packages
     case package(_ owner: Parameter<String>, _ repository: Parameter<String>)
     case privacy
-    case rss
+    case rssPackages
 
     var path: String {
         switch self {
@@ -63,14 +63,14 @@ enum SiteURL: Resourceable {
             case .privacy:
                 return "privacy"
 
-            case .rss:
-                return "feed.rss"
+            case .rssPackages:
+                return "packages.rss"
         }
     }
 
     var pathComponents: [PathComponent] {
         switch self {
-            case .admin, .faq, .home, .packages, .privacy, .rss:
+            case .admin, .faq, .home, .packages, .privacy, .rssPackages:
                 return [.init(stringLiteral: path)]
 
             case let .api(res):

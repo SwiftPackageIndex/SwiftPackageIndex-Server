@@ -31,6 +31,13 @@ class PublicPage {
                 .rel(.stylesheet),
                 .href("/stylesheets/main.min.css?\(resourceReloadQueryString())")
             ),
+            .link(
+                .rel(.alternate),
+                .type("application/rss+xml"),
+                // TODO: Upstream to Plot: .title("...") not allowed here
+                .attribute(named: "title", value: "Swift Package Index – Packages"),
+                .href(SiteURL.rssPackages.absoluteURL())
+            ),
             .script(
                 .src("/javascripts/main.min.js?\(resourceReloadQueryString())")
             ),
