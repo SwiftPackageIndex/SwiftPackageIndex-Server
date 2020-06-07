@@ -42,6 +42,7 @@ struct RSSFeed {
             .forEach(items, \.node)
         )
     }
+
 }
 
 

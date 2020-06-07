@@ -11,6 +11,8 @@ class RSSTests: AppTestCase {
                                 link: "link",
                                 packageName: "bar",
                                 packageSummary: "This is package bar")
+
+        // MUT + validation
         assertSnapshot(matching: item.node.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
@@ -30,11 +32,13 @@ class RSSTests: AppTestCase {
                                          packageName: "baz",
                                          packageSummary: "This is package baz")]
         )
+
+        // MUT + validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
-    func test_feed_RecentPackages() throws {
+    func test_recentPackages() throws {
         // setup
         try (1...10).forEach {
             let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
@@ -45,10 +49,19 @@ class RSSTests: AppTestCase {
         // make sure to refresh the materialized view
         try RecentPackage.refresh(on: app.db).wait()
 
+        // MUT
         let feed = try RSSFeed.recentPackages(on: app.db, maxItemCount: 8).wait()
 
+        // validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
+    func test_recentPackages_route() throws {
+        try app.test(.GET, "feed.rss") { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType,
+                           .some(.init(type: "application", subType: "rss+xml")))
+        }
+    }
 }
