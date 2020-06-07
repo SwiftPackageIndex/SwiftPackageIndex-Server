@@ -13,7 +13,7 @@ This project is currently made up of two distinct parts:
 
 The command processes that fetch and parse package metadata are broken up into three separate commands.
 
-1. **Reconciliation**: Fetch the master package list and reconciling it with the database, adding or deleting rows in the `packages` table.
+1. **Reconciliation**: Fetch the master package list and reconcile it with the database, adding or deleting rows in the `packages` table.
 2. **Ingestion**: Fetch GitHub (or in the future, other hosting services) metadata for a set of package candidates returned by `Package.fetchCandidates(app.db, for: .ingestion, limit: 10) ` and create or update rows in the `repositories` table.
 3. **Analysis**: Clone or pull the full git history for a set of package candidates returned by `Package.fetchCandidates(app.db, for: .analysis, limit: 10) ` and create or replace rows in `versions` and `products`.
 
