@@ -94,4 +94,12 @@ class RSSTests: AppTestCase {
                            .some(.init(type: "application", subType: "rss+xml")))
         }
     }
+
+    func test_recentReleases_route() throws {
+        try app.test(.GET, "releases.rss") { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType,
+                           .some(.init(type: "application", subType: "rss+xml")))
+        }
+    }
 }
