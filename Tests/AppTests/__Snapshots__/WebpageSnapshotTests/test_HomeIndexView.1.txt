@@ -47,7 +47,7 @@
       <div class="inner">
         <div class="recent">
           <section class="recent_packages">
-            <h3>Recent Packages</h3>
+            <h3>Recently Added</h3>
             <ul>
               <li>
                 <a href="https://example.com/package">Package</a>
