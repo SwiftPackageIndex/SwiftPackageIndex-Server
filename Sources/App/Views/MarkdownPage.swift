@@ -14,6 +14,10 @@ class MarkdownPage: PublicPage {
             .appending(markdownFilename)
     }
 
+    override func bodyClass() -> String? {
+        "markdown"
+    }
+
     override func content() -> Node<HTML.BodyContext> {
         do {
             let markdown = try String(contentsOfFile: pathToMarkdownFile)
