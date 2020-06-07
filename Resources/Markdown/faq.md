@@ -8,6 +8,7 @@
 * [What about the GitHub Package Registry?](#package-registry)
 * [Who built the Swift Package Index?](#creators)
 * [How do I define Language and Platform information?](#language-and-platforms)
+* [Why are some licenses orange?](#incompatible-license)
 * [Can I contribute?](#contributing)
 
 ---
@@ -102,6 +103,27 @@ Add or update this property and push an updated `Package.swift`.  The index will
 ![Swift language and platform metadata](/images/language-and-platforms-full-metadata.png)
 
 **Note:** Unfortunately, `Package.swift` does not currently support platform metadata that includes Linux compatibility. If this ever changes, the Swift Package Index will support it.
+
+---
+
+<h3 id="incompatible-license">Why are some licenses orange?</h3>
+
+If a package is showing in an orange lozenge rather than a green one, it is for one of two reasons:
+
+1. We are unable to detect the license of the package.
+2. The license chosen by the package authors is incompatible with the terms and conditions of the App Store.
+
+#### Unknown License
+
+If the package license is showing as "Unknown License", it means the code is unlicensed, or we have been unable to detect a license. We get this information directly from GitHub, so if you are the package author and would like to fix this, please [see their documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses about an hour after GitHub recognises a valid license.
+
+Be extremely cautious about including unlicensed code in any of your projects.
+
+#### Incompatible license
+
+If the package license shows in an orange lozenge but does *not* say "Unknown License", then the package is using a license which is incompatible with the App Store like any version of the GPL or LGPL.
+
+Be extremely cautious about including GPL licensed code if you are planning to submit the app containing the library to the App Store. These licenses are not compatible with App Store terms and conditions.
 
 ---
 
