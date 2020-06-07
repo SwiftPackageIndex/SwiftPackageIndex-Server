@@ -51,6 +51,9 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateRecentPackages2())
         app.migrations.add(UpdateRecentReleases2())
     }
+    do {  // Migration 006 - update recent releases view
+        app.migrations.add(UpdateRecentReleases3())
+    }
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")

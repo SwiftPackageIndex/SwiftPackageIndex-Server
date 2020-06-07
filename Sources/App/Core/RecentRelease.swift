@@ -10,6 +10,7 @@ struct RecentRelease: Decodable, Equatable {
     var repositoryOwner: String
     var repositoryName: String
     var packageName: String
+    var packageSummary: String?
     var version: String
     var releasedAt: Date
 
@@ -18,6 +19,7 @@ struct RecentRelease: Decodable, Equatable {
         case repositoryOwner = "repository_owner"
         case repositoryName = "repository_name"
         case packageName = "package_name"
+        case packageSummary = "package_summary"
         case version
         case releasedAt = "released_at"
     }
@@ -32,12 +34,12 @@ extension RecentRelease {
     }
 
 
-    static func fetch(on database: Database) -> EventLoopFuture<[RecentRelease]> {
+    static func fetch(on database: Database,
+                      limit: Int = Constants.recentPackagesLimit) -> EventLoopFuture<[RecentRelease]> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        let limit = "\(Constants.recentReleasesLimit)"
-        return db.raw("SELECT * FROM \(Self.schema) ORDER BY released_at DESC LIMIT \(limit)")
+        return db.raw("SELECT * FROM \(Self.schema) ORDER BY released_at DESC LIMIT \(bind: limit)")
             .all(decoding: RecentRelease.self)
     }
 }

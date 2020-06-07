@@ -4,30 +4,10 @@ import Plot
 
 
 struct RSSFeed {
-    struct Item {
-        var title: String
-        var link: String
-        var packageName: String
-        var packageSummary: String
-
-        var node: Node<RSS.ChannelContext> {
-            .item(
-                .guid(.text(link), .isPermaLink(true)),
-                .title(title),
-                .link(link),
-                .content(
-                    .h2(.a(.href(link), .text(packageName))),
-                    .p(.text(packageSummary)),
-                    .element(named: "small", nodes: [.a(.href(link), .text(packageName))])
-                )
-            )
-        }
-    }
-
     var title: String
     var description: String
-    var link: URL
-    var items: [Item]
+    var link: String
+    var items: [Node<RSS.ChannelContext>]
 
     var rss: RSS {
         RSS(
@@ -39,7 +19,7 @@ struct RSSFeed {
             //  .pubDate(date, timeZone: context.dateFormatter.timeZone),
             //  .ttl(Int(config.ttlInterval)),
             //  .atomLink(context.site.url(for: config.targetPath)),
-            .forEach(items, \.node)
+            .group(items)
         )
     }
 
@@ -47,25 +27,63 @@ struct RSSFeed {
 
 
 extension RSSFeed {
-    static func recentPackages(on database: Database, maxItemCount: Int = 100) -> EventLoopFuture<Self> {
+    static func recentPackages(on database: Database,
+                               maxItemCount: Int = Constants.rssFeedMaxItemCount) -> EventLoopFuture<Self> {
         RecentPackage.fetch(on: database, limit: maxItemCount)
-            .mapEach(RSSFeed.Item.init)
+            .mapEach(\.rssItem)
             .map {
                 RSSFeed(title: "Swift Package Index – Recently Added",
                         description: "List of recently added Swift packages",
-                        link: URL(string: "feed")!,  // FIXME
+                        link: SiteURL.rssPackages.absoluteURL(),
+                    items: $0)
+        }
+    }
+
+    static func recentReleases(on database: Database,
+                               maxItemCount: Int = Constants.rssFeedMaxItemCount) -> EventLoopFuture<Self> {
+        RecentRelease.fetch(on: database, limit: maxItemCount)
+            .mapEach(\.rssItem)
+            .map {
+                RSSFeed(title: "Swift Package Index – Recent Releases",
+                        description: "List of recently Swift packages releases",
+                        link: SiteURL.rssPackages.absoluteURL(),
                     items: $0)
         }
     }
 }
 
 
-extension RSSFeed.Item {
-    init(_ recentPackage: RecentPackage) {
-        title = recentPackage.packageName
-        link = SiteURL.package(.value(recentPackage.repositoryOwner),
-                               .value(recentPackage.repositoryName)).absoluteURL()
-        packageName = recentPackage.packageName
-        packageSummary = recentPackage.packageSummary ?? ""
+extension RecentPackage {
+    var rssItem: Node<RSS.ChannelContext> {
+        let link = SiteURL.package(.value(repositoryOwner),
+                                   .value(repositoryName)).absoluteURL()
+        return .item(
+            .guid(.text(link), .isPermaLink(true)),
+            .title(packageName),
+            .link(link),
+            .content(
+                .h2(.a(.href(link), .text(packageName))),
+                .p(.text(packageSummary ?? "")),
+                .element(named: "small", nodes: [.a(.href(link), .text(packageName))])
+            )
+        )
+    }
+}
+
+
+extension RecentRelease {
+    var rssItem: Node<RSS.ChannelContext> {
+        let link = SiteURL.package(.value(repositoryOwner),
+                                   .value(repositoryName)).absoluteURL()
+        return .item(
+            .guid(.text(link), .isPermaLink(true)),
+            .title(packageName),
+            .link(link),
+            .content(
+                .h2(.a(.href(link), .text("\(packageName) – \(version)"))),
+                .p(.text(packageSummary ?? "")),
+                .element(named: "small", nodes: [.a(.href(link), .text(packageName))])
+            )
+        )
     }
 }
