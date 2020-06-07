@@ -11,6 +11,7 @@
   --light-green: #5FBF1B;
 
   --yellow: #F2B94F;
+  --orange: #E69740;
 
   --dark-red: #BB0000;
   --mid-red: #CC4444;
@@ -495,10 +496,11 @@ div.license {
   color: var(--white);
   font-weight: 600;
   font-size: 18px;
+  background-color: var(--light-green);
 }
 
-div.license {
-  background-color: var(--light-green);
+div.license.incompatible {
+  background-color: var(--orange);
 }
 
 span.stable,

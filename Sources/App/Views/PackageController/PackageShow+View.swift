@@ -33,9 +33,13 @@ enum PackageShow {
                         ])
                     ),
                     .div(
-                        .class("license"),
+                        .if(model.license.isCompatibleWithAppStore,
+                            .class("license"),
+                            else: .class("license incompatible")),
                         .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                        .i(.class("icon osi")),
+                        .if(model.license.isCompatibleWithAppStore,
+                            .i(.class("icon osi")),
+                            else: .i(.class("icon warning"))),
                         .text(model.license.shortName)
                     )
                 ),
