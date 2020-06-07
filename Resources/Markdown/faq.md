@@ -20,7 +20,7 @@ The Swift Package Index is a spiritual successor and replacement for [the SwiftP
 
 <h3 id="how-does-it-work">How does the Swift Package Index work?</h3>
 
-The index originates from a [master list of SPM compatible repositories](https://github.com/daveverwer/SwiftPMLibrary/blob/master/packages.json). When someone adds a repository to the master list, the Swift Package Index immediately makes a full clone of the package source. Metadata is extracted both from source code and local git history, but also from GitHub. Packages are also polled for changes every couple of hours, so the information you see in the index always knows about the latest package versions, without the package author needing to tell the index about every new release.
+The index originates from a [master list of SPM compatible repositories](https://github.com/daveverwer/SwiftPMLibrary/blob/master/packages.json). When someone adds a repository to the master list, the Swift Package Index immediately makes a full clone of the package source. Metadata is extracted both from source code and local git history, but also from GitHub. Packages are then polled for changes every few hours, so the information you see in the index always reflects the latest package releases, without any action from the package author.
 
 ---
 
