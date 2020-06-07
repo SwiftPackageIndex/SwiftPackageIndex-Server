@@ -12,6 +12,12 @@ The [Swift Package Manager](https://swift.org/package-manager/) is a fantastic t
 
 ---
 
+<h3 id="how-do-i-use-the-spm">How do I use the Swift Package Manager?</h3>
+
+Great question! The best explanation is on the [Apple developer documentation site](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app).
+
+---
+
 <h3 id="swiftpm-library">What happened to the SwiftPM Library?</h3>
 
 The Swift Package Index is a spiritual successor and replacement for [the SwiftPM Library](/images/swiftpm-library.png). It has been re-implemented from scratch in Swift using Vapor and has had a name change at the same time. We learned many valuable lessons from the original implementation, but the Swift Package Index is the future of Swift package search.
@@ -20,21 +26,19 @@ The Swift Package Index is a spiritual successor and replacement for [the SwiftP
 
 <h3 id="how-does-it-work">How does the Swift Package Index work?</h3>
 
-The index originates from a [master list of SPM compatible repositories](https://github.com/daveverwer/SwiftPMLibrary/blob/master/packages.json). When someone adds a repository to the master list, the Swift Package Index immediately makes a full clone of the package source. Metadata is extracted both from source code and local git history, but also from GitHub. Packages are also polled for changes every couple of hours, so the information you see in the index always knows about the latest package versions, without the package author needing to tell the index about every new release.
+The index originates from a [master list of SPM compatible repositories](https://github.com/daveverwer/SwiftPMLibrary/blob/master/packages.json). When someone adds a repository to the master list, the Swift Package Index immediately makes a full clone of the package source. Metadata is extracted both from source code and local git history, but also from GitHub. Packages are then polled for changes every few hours, so the information you see in the index always reflects the latest package releases, without any action from the package author.
 
 ---
 
 <h3 id="package-registry">What about the GitHub Package Registry?</h3>
 
-We’re excited to see the GitHub Package Registry get support for Swift packages. There’s [a proposal](https://forums.swift.org/t/swift-package-registry-service/37219) for Swift Package Manager support to support package registries formally, but that pitch is not for a package index or search engine. That’s a different thing.
-
-The Swift Package Index will support and index any GitHub’s, or any other implementation of a package registry as soon as they are available.
+We’re excited to see the GitHub Package Registry get support for Swift packages. There’s [a proposal](https://forums.swift.org/t/swift-package-registry-service/37219) for Swift Package Manager support to support package registries formally, but that pitch is not for a package index or search engine. The Swift Package Index will support and index the GitHub Package Registry, and any other significant implementation of a package registry when they become available.
 
 ---
 
 <h3 id="creators">Who built the Swift Package Index?</h3>
 
-Thanks for asking! [Dave Verwer](https://daveverwer.com) and [Sven A. Schmidt](https://finestructure.co/) built it.
+Thanks for asking! [Dave Verwer](https://daveverwer.com) and [Sven A. Schmidt](https://finestructure.co/) built it. You can also see a [full list of contributors](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/graphs/contributors).
 
 ---
 
