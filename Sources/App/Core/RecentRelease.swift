@@ -32,12 +32,12 @@ extension RecentRelease {
     }
 
 
-    static func fetch(on database: Database) -> EventLoopFuture<[RecentRelease]> {
+    static func fetch(on database: Database,
+                      limit: Int = Constants.recentPackagesLimit) -> EventLoopFuture<[RecentRelease]> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        let limit = "\(Constants.recentReleasesLimit)"
-        return db.raw("SELECT * FROM \(Self.schema) ORDER BY released_at DESC LIMIT \(limit)")
+        return db.raw("SELECT * FROM \(Self.schema) ORDER BY released_at DESC LIMIT \(bind: limit)")
             .all(decoding: RecentRelease.self)
     }
 }
