@@ -32,7 +32,7 @@ We’re excited to see the GitHub Package Registry get support for Swift package
 
 <h3 id="creators">Who built the Swift Package Index?</h3>
 
-Thanks for asking! [Dave Verwer](https://daveverwer.com) and [Sven A. Schmidt](https://finestructure.co/) built it.
+Thanks for asking! [Dave Verwer](https://daveverwer.com) and [Sven A. Schmidt](https://finestructure.co/) built it. You can also see a [full list of contributors](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/graphs/contributors).
 
 ---
 
