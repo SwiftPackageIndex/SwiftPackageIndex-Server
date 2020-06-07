@@ -5,16 +5,16 @@
     <description>feed description</description>
     <link>https://SwiftPackageIndex.com</link>
     <item>
-      <guid isPermaLink="true">https://SwiftPackageIndex.com/foo/bar</guid>
-      <title>title</title>
-      <link>https://SwiftPackageIndex.com/foo/bar</link>
-      <content:encoded><![CDATA[<h2><a href="https://SwiftPackageIndex.com/foo/bar">bar</a></h2><p>This is package bar</p><small><a href="https://SwiftPackageIndex.com/foo/bar">bar</a></small>]]></content:encoded>
+      <guid isPermaLink="true">http://localhost:8080/owner0/repo0</guid>
+      <title>package0</title>
+      <link>http://localhost:8080/owner0/repo0</link>
+      <content:encoded><![CDATA[<h2><a href="http://localhost:8080/owner0/repo0">package0</a></h2><p>summary0</p><small><a href="http://localhost:8080/owner0/repo0">package0</a></small>]]></content:encoded>
     </item>
     <item>
-      <guid isPermaLink="true">https://SwiftPackageIndex.com/bar/baz</guid>
-      <title>title</title>
-      <link>https://SwiftPackageIndex.com/bar/baz</link>
-      <content:encoded><![CDATA[<h2><a href="https://SwiftPackageIndex.com/bar/baz">baz</a></h2><p>This is package baz</p><small><a href="https://SwiftPackageIndex.com/bar/baz">baz</a></small>]]></content:encoded>
+      <guid isPermaLink="true">http://localhost:8080/owner1/repo1</guid>
+      <title>package1</title>
+      <link>http://localhost:8080/owner1/repo1</link>
+      <content:encoded><![CDATA[<h2><a href="http://localhost:8080/owner1/repo1">package1</a></h2><p>summary1</p><small><a href="http://localhost:8080/owner1/repo1">package1</a></small>]]></content:encoded>
     </item>
   </channel>
 </rss>

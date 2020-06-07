@@ -34,8 +34,7 @@ class PublicPage {
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                // TODO: Upstream to Plot: .title("...") not allowed here
-                .attribute(named: "title", value: "Swift Package Index – Packages"),
+                .attribute(named: "title", value: "Swift Package Index – Recently Added"),
                 .href(SiteURL.rssPackages.absoluteURL())
             ),
             .script(
