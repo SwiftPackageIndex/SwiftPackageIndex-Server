@@ -10,19 +10,28 @@ class MaterializedViewsTests: AppTestCase {
         do {  // 1st package is eligible
             let pkg = Package(id: UUID(), url: "1")
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, name: "1", owner: "foo").create(on: app.db).wait()
+            try Repository(package: pkg,
+                           summary: "pkg 1",
+                           name: "1",
+                           owner: "foo").create(on: app.db).wait()
             try Version(package: pkg, packageName: "1").save(on: app.db).wait()
         }
         do {  // 2nd package should not be selected, because it has no package name
             let pkg = Package(id: UUID(), url: "2")
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, name: "2", owner: "foo").create(on: app.db).wait()
+            try Repository(package: pkg,
+                           summary: "pkg 2",
+                           name: "2",
+                           owner: "foo").create(on: app.db).wait()
             try Version(package: pkg).save(on: app.db).wait()
         }
         do {  // 3rd package is eligible
             let pkg = Package(id: UUID(), url: "3")
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, name: "3", owner: "foo").create(on: app.db).wait()
+            try Repository(package: pkg,
+                           summary: "pkg 3",
+                           name: "3",
+                           owner: "foo").create(on: app.db).wait()
             try Version(package: pkg, packageName: "3").save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
@@ -33,6 +42,7 @@ class MaterializedViewsTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res.map(\.packageName), ["3", "1"])
+        XCTAssertEqual(res.map(\.packageSummary), ["pkg 3", "pkg 1"])
     }
 
     func test_recentReleases() throws {

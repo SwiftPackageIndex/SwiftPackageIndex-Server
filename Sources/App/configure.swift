@@ -48,7 +48,7 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdatePackageStatusNew())
     }
     do {  // Migration 005 - update recent packages/releases views
-//        app.migrations.add(UpdateRecentPackages2())
+        app.migrations.add(UpdateRecentPackages2())
         app.migrations.add(UpdateRecentReleases2())
     }
 
