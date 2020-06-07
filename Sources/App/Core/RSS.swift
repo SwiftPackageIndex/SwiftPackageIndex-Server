@@ -18,7 +18,7 @@ struct RSSFeed {
                 .content(
                     .h2(.a(.href(link), .text(packageName))),
                     .p(.text(packageSummary)),
-                    .p(.a(.href(link), .element(named: "small", text: packageName)))
+                    .element(named: "small", nodes: [.a(.href(link), .text(packageName))])
                 )
             )
         }
