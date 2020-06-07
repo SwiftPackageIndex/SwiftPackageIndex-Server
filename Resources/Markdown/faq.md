@@ -26,9 +26,7 @@ The index originates from a [master list of SPM compatible repositories](https:/
 
 <h3 id="package-registry">What about the GitHub Package Registry?</h3>
 
-We’re excited to see the GitHub Package Registry get support for Swift packages. There’s [a proposal](https://forums.swift.org/t/swift-package-registry-service/37219) for Swift Package Manager support to support package registries formally, but that pitch is not for a package index or search engine. That’s a different thing.
-
-The Swift Package Index will support and index any GitHub’s, or any other implementation of a package registry as soon as they are available.
+We’re excited to see the GitHub Package Registry get support for Swift packages. There’s [a proposal](https://forums.swift.org/t/swift-package-registry-service/37219) for Swift Package Manager support to support package registries formally, but that pitch is not for a package index or search engine. The Swift Package Index will support and index the GitHub Package Registry, and any other significant implementation of a package registry when they become available.
 
 ---
 
