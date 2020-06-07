@@ -49,7 +49,7 @@ enum HomeIndex {
                 .class("recent"),
                 .section(
                     .class("recent_packages"),
-                    .h3("Recent Packages"),
+                    .h3("Recently Added"),
                     .ul(model.recentPackagesSection())
                 ),
                 .section(
