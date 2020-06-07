@@ -12,6 +12,12 @@ The [Swift Package Manager](https://swift.org/package-manager/) is a fantastic t
 
 ---
 
+<h3 id="how-do-i-use-the-spm">How do I use the Swift Package Manager?</h3>
+
+Great question! The best explanation is on the [Apple developer documentation site](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app).
+
+---
+
 <h3 id="swiftpm-library">What happened to the SwiftPM Library?</h3>
 
 The Swift Package Index is a spiritual successor and replacement for [the SwiftPM Library](/images/swiftpm-library.png). It has been re-implemented from scratch in Swift using Vapor and has had a name change at the same time. We learned many valuable lessons from the original implementation, but the Swift Package Index is the future of Swift package search.
