@@ -102,10 +102,17 @@ class PublicPage {
         nil
     }
 
+    /// A CSS class name to add to the <body> element.
+    /// - Returns: A string with one or more CSS class names.
+    func bodyClass() -> String? {
+        nil
+    }
+
     /// The page body.
     /// - Returns: A <body> element.
     final func body() -> Node<HTML.DocumentContext> {
         .body(
+            .class(bodyClass() ?? ""),
             analyticsBody(),
             header(),
             noScript(),
