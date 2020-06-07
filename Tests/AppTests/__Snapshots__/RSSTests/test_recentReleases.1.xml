@@ -2,8 +2,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content">
   <channel>
     <title>Swift Package Index – Recent Releases</title>
-    <description>List of recently Swift packages releases</description>
-    <link>http://localhost:8080/packages.rss</link>
+    <description>List of recent Swift packages releases</description>
+    <link>http://localhost:8080/releases.rss</link>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner-10/pkg-10</guid>
       <title>pkg-10</title>

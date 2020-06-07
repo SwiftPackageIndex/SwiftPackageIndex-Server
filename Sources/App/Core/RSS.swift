@@ -45,8 +45,8 @@ extension RSSFeed {
             .mapEach(\.rssItem)
             .map {
                 RSSFeed(title: "Swift Package Index – Recent Releases",
-                        description: "List of recently Swift packages releases",
-                        link: SiteURL.rssPackages.absoluteURL(),
+                        description: "List of recent Swift packages releases",
+                        link: SiteURL.rssReleases.absoluteURL(),
                     items: $0)
         }
     }
