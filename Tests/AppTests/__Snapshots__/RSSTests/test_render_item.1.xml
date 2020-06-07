@@ -1,0 +1,6 @@
+<item>
+  <guid isPermaLink="true">link</guid>
+  <title>title</title>
+  <link>link</link>
+  <content:encoded><![CDATA[<h2><a href="link">bar</a></h2><p>This is package bar</p><small><a href="link">bar</a></small>]]></content:encoded>
+</item>

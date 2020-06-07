@@ -34,4 +34,11 @@ func routes(_ app: Application) throws {
         //
         //  api.get("packages", "run", ":command", use: apiPackageController.run)
     }
+
+    do {  // RSS
+        app.get(SiteURL.rssPackages.pathComponents) { req in
+            RSSFeed.recentPackages(on: req.db, maxItemCount: Constants.rssFeedMaxItemCount)
+                .map { $0.rss }
+        }
+    }
 }

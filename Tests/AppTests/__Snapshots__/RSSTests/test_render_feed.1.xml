@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content">
+  <channel>
+    <title>feed title</title>
+    <description>feed description</description>
+    <link>https://SwiftPackageIndex.com</link>
+    <item>
+      <guid isPermaLink="true">https://SwiftPackageIndex.com/foo/bar</guid>
+      <title>title</title>
+      <link>https://SwiftPackageIndex.com/foo/bar</link>
+      <content:encoded><![CDATA[<h2><a href="https://SwiftPackageIndex.com/foo/bar">bar</a></h2><p>This is package bar</p><small><a href="https://SwiftPackageIndex.com/foo/bar">bar</a></small>]]></content:encoded>
+    </item>
+    <item>
+      <guid isPermaLink="true">https://SwiftPackageIndex.com/bar/baz</guid>
+      <title>title</title>
+      <link>https://SwiftPackageIndex.com/bar/baz</link>
+      <content:encoded><![CDATA[<h2><a href="https://SwiftPackageIndex.com/bar/baz">baz</a></h2><p>This is package baz</p><small><a href="https://SwiftPackageIndex.com/bar/baz">baz</a></small>]]></content:encoded>
+    </item>
+  </channel>
+</rss>
