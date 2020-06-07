@@ -7,15 +7,16 @@ import XCTVapor
 class RSSTests: AppTestCase {
 
     func test_render_item() throws {
-        let item = RSSFeed.Item(.init(id: UUID(),
-                                      repositoryOwner: "owner",
-                                      repositoryName: "repo",
-                                      packageName: "package",
-                                      packageSummary: "summary",
-                                      createdAt: Date(timeIntervalSince1970: 0)))
+        let item = RecentPackage(id: UUID(),
+                                 repositoryOwner: "owner",
+                                 repositoryName: "repo",
+                                 packageName: "package",
+                                 packageSummary: "summary",
+                                 createdAt: Date(timeIntervalSince1970: 0))
+            .rssItem
 
         // MUT + validation
-        assertSnapshot(matching: item.node.render(indentedBy: .spaces(2)),
+        assertSnapshot(matching: item.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
 
@@ -25,18 +26,18 @@ class RSSTests: AppTestCase {
         let feed = RSSFeed(title: "feed title", description: "feed description",
                            link: "https://SwiftPackageIndex.com",
                            items: [
-                            RSSFeed.Item(.init(id: UUID(),
-                                               repositoryOwner: "owner0",
-                                               repositoryName: "repo0",
-                                               packageName: "package0",
-                                               packageSummary: "summary0",
-                                               createdAt: Date(timeIntervalSince1970: 0))),
-                            RSSFeed.Item(.init(id: UUID(),
-                                               repositoryOwner: "owner1",
-                                               repositoryName: "repo1",
-                                               packageName: "package1",
-                                               packageSummary: "summary1",
-                                               createdAt: Date(timeIntervalSince1970: 1)))]
+                            RecentPackage(id: UUID(),
+                                          repositoryOwner: "owner0",
+                                          repositoryName: "repo0",
+                                          packageName: "package0",
+                                          packageSummary: "summary0",
+                                createdAt: Date(timeIntervalSince1970: 0)).rssItem,
+                            RecentPackage(id: UUID(),
+                                          repositoryOwner: "owner1",
+                                          repositoryName: "repo1",
+                                          packageName: "package1",
+                                          packageSummary: "summary1",
+                                          createdAt: Date(timeIntervalSince1970: 1)).rssItem]
         )
 
         // MUT + validation

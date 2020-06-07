@@ -4,14 +4,10 @@ import Plot
 
 
 struct RSSFeed {
-    struct Item {
-        var node: Node<RSS.ChannelContext>
-    }
-
     var title: String
     var description: String
     var link: String
-    var items: [Item]
+    var items: [Node<RSS.ChannelContext>]
 
     var rss: RSS {
         RSS(
@@ -23,7 +19,7 @@ struct RSSFeed {
             //  .pubDate(date, timeZone: context.dateFormatter.timeZone),
             //  .ttl(Int(config.ttlInterval)),
             //  .atomLink(context.site.url(for: config.targetPath)),
-            .forEach(items, \.node)
+            .group(items)
         )
     }
 
@@ -34,7 +30,7 @@ extension RSSFeed {
     static func recentPackages(on database: Database,
                                maxItemCount: Int = Constants.rssFeedMaxItemCount) -> EventLoopFuture<Self> {
         RecentPackage.fetch(on: database, limit: maxItemCount)
-            .mapEach(RSSFeed.Item.init)
+            .mapEach(\.rssItem)
             .map {
                 RSSFeed(title: "Swift Package Index – Recently Added",
                         description: "List of recently added Swift packages",
@@ -46,7 +42,7 @@ extension RSSFeed {
     static func recentReleases(on database: Database,
                                maxItemCount: Int = Constants.rssFeedMaxItemCount) -> EventLoopFuture<Self> {
         RecentRelease.fetch(on: database, limit: maxItemCount)
-            .mapEach(RSSFeed.Item.init)
+            .mapEach(\.rssItem)
             .map {
                 RSSFeed(title: "Swift Package Index – Recent Releases",
                         description: "List of recently Swift packages releases",
@@ -57,39 +53,35 @@ extension RSSFeed {
 }
 
 
-extension RSSFeed.Item {
-    init(_ recentPackage: RecentPackage) {
-        let title = recentPackage.packageName
-        let link = SiteURL.package(.value(recentPackage.repositoryOwner),
-                                   .value(recentPackage.repositoryName)).absoluteURL()
-        let packageName = recentPackage.packageName
-        let packageSummary = recentPackage.packageSummary ?? ""
-        node = .item(
+extension RecentPackage {
+    var rssItem: Node<RSS.ChannelContext> {
+        let link = SiteURL.package(.value(repositoryOwner),
+                                   .value(repositoryName)).absoluteURL()
+        return .item(
             .guid(.text(link), .isPermaLink(true)),
-            .title(title),
+            .title(packageName),
             .link(link),
             .content(
                 .h2(.a(.href(link), .text(packageName))),
-                .p(.text(packageSummary)),
+                .p(.text(packageSummary ?? "")),
                 .element(named: "small", nodes: [.a(.href(link), .text(packageName))])
             )
         )
     }
+}
 
-    init(_ recentRelease: RecentRelease) {
-        let title = recentRelease.packageName
-        let link = SiteURL.package(.value(recentRelease.repositoryOwner),
-                                   .value(recentRelease.repositoryName)).absoluteURL()
-        let packageName = recentRelease.packageName
-        let version = recentRelease.version
-        let packageSummary = recentRelease.packageSummary ?? ""
-        node = .item(
+
+extension RecentRelease {
+    var rssItem: Node<RSS.ChannelContext> {
+        let link = SiteURL.package(.value(repositoryOwner),
+                                   .value(repositoryName)).absoluteURL()
+        return .item(
             .guid(.text(link), .isPermaLink(true)),
-            .title(title),
+            .title(packageName),
             .link(link),
             .content(
                 .h2(.a(.href(link), .text("\(packageName) – \(version)"))),
-                .p(.text(packageSummary)),
+                .p(.text(packageSummary ?? "")),
                 .element(named: "small", nodes: [.a(.href(link), .text(packageName))])
             )
         )
