@@ -76,10 +76,6 @@ small {
   font-size: 11px;
 }
 
-img {
-  max-width: 100%;
-}
-
 pre {
   border: 1px var(--grey) solid;
   background-color: var(--very-light-grey);
@@ -88,15 +84,16 @@ pre {
 }
 
 hr {
-  margin: 5px 0;
+  margin: 40px 0;
   border: 0;
   height: 2px;
   background-color: var(--light-blue);
 }
 
 hr.short {
-  margin: 5px auto;
-  max-width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 70%;
   height: 1px;
 }
 
@@ -452,7 +449,20 @@ header nav ul li a:hover {
   color: var(--dark-red);
 }
 
+/* Markdown pages ---------------------------------------------------------- */
+
+.markdown img {
+  display: block;
+  box-shadow: 0px 3px 8px 2px rgba(100, 100, 100, 0.2);
+  margin: 0 auto;
+  max-width: 90%;
+}
+
 /* Package page ------------------------------------------------------------ */
+
+.package hr {
+  margin: 5px 0;
+}
 
 p.description {
   font-size: 19px;
