@@ -18,8 +18,7 @@ struct RSSFeed {
                 .content(
                     .h2(.a(.href(link), .text(packageName))),
                     .p(.text(packageSummary)),
-                    // FIXME: should be `small` but I need to figure out how to do that
-                    .p(.a(.href(link), .text(packageName)))
+                    .p(.a(.href(link), .element(named: "small", text: packageName)))
                 )
             )
         }

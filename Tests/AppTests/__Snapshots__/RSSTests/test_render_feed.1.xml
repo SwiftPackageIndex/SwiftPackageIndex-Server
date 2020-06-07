@@ -8,13 +8,13 @@
       <guid isPermaLink="true">https://SwiftPackageIndex.com/foo/bar</guid>
       <title>title</title>
       <link>https://SwiftPackageIndex.com/foo/bar</link>
-      <content:encoded><![CDATA[<h2><a href="https://SwiftPackageIndex.com/foo/bar">bar</a></h2><p>This is package bar</p><p><a href="https://SwiftPackageIndex.com/foo/bar">bar</a></p>]]></content:encoded>
+      <content:encoded><![CDATA[<h2><a href="https://SwiftPackageIndex.com/foo/bar">bar</a></h2><p>This is package bar</p><p><a href="https://SwiftPackageIndex.com/foo/bar"><small>bar</small></a></p>]]></content:encoded>
     </item>
     <item>
       <guid isPermaLink="true">https://SwiftPackageIndex.com/bar/baz</guid>
       <title>title</title>
       <link>https://SwiftPackageIndex.com/bar/baz</link>
-      <content:encoded><![CDATA[<h2><a href="https://SwiftPackageIndex.com/bar/baz">baz</a></h2><p>This is package baz</p><p><a href="https://SwiftPackageIndex.com/bar/baz">baz</a></p>]]></content:encoded>
+      <content:encoded><![CDATA[<h2><a href="https://SwiftPackageIndex.com/bar/baz">baz</a></h2><p>This is package baz</p><p><a href="https://SwiftPackageIndex.com/bar/baz"><small>baz</small></a></p>]]></content:encoded>
     </item>
   </channel>
 </rss>
