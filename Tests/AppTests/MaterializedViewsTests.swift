@@ -91,7 +91,7 @@ class MaterializedViewsTests: AppTestCase {
                            name: "5",
                            owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
-                        reference: .tag(.init(1, 2, 3)),
+                        reference: .tag(.init(2, 0, 0)),
                         packageName: "5",
                         commitDate: Date(timeIntervalSince1970: 1)).save(on: app.db).wait()
         }
@@ -104,5 +104,6 @@ class MaterializedViewsTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res.map(\.packageName), ["5", "1"])
+        XCTAssertEqual(res.map(\.version), ["2.0.0", "1.2.3"])
     }
 }

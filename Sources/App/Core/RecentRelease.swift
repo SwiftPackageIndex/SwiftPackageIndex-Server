@@ -10,6 +10,7 @@ struct RecentRelease: Decodable, Equatable {
     var repositoryOwner: String
     var repositoryName: String
     var packageName: String
+    var version: String
     var releasedAt: Date
 
     enum CodingKeys: String, CodingKey {
@@ -17,6 +18,7 @@ struct RecentRelease: Decodable, Equatable {
         case repositoryOwner = "repository_owner"
         case repositoryName = "repository_name"
         case packageName = "package_name"
+        case version
         case releasedAt = "released_at"
     }
 }

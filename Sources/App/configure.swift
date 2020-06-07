@@ -47,6 +47,10 @@ public func configure(_ app: Application) throws {
     do {  // Migration 004 - make status required, defaulting to 'new'
         app.migrations.add(UpdatePackageStatusNew())
     }
+    do {  // Migration 005 - update recent packages/releases views
+//        app.migrations.add(UpdateRecentPackages2())
+        app.migrations.add(UpdateRecentReleases2())
+    }
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")
