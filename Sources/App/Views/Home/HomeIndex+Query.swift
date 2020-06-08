@@ -18,20 +18,9 @@ extension HomeIndex.Model {
                                           .value(recent.repositoryName)).relativeURL())
     }
 
-    static func makeLink(_ recent: RecentRelease) -> Link {
-        return .init(label: "\(recent.packageName) – \(recent.version)",
-                     url: SiteURL.package(.value(recent.repositoryOwner),
-                                          .value(recent.repositoryName)).relativeURL())
-    }
-
     static func makeDatedLink(_ recent: RecentPackage) -> DatedLink {
         let link = makeLink(recent)
         return .init(date: "\(date: recent.createdAt, relativeTo: Current.date())", link: link)
-    }
-
-    static func makeDatedLink(_ recent: RecentRelease) -> DatedLink {
-        let link = makeLink(recent)
-        return .init(date: "\(date: recent.releasedAt, relativeTo: Current.date())", link: link)
     }
 }
 
