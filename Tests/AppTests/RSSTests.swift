@@ -6,6 +6,11 @@ import XCTVapor
 
 class RSSTests: AppTestCase {
 
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        record = false
+    }
+
     func test_render_item() throws {
         let item = RecentPackage(id: UUID(),
                                  repositoryOwner: "owner",
@@ -50,6 +55,9 @@ class RSSTests: AppTestCase {
         try (1...10).forEach {
             let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
             try pkg.save(on: app.db).wait()
+            // re-write creation date to something stable for snapshotting
+            pkg.createdAt = Date(timeIntervalSince1970: TimeInterval(100*$0))
+            try pkg.save(on: app.db).wait()
             try Repository(package: pkg, name: "pkg-\($0)", owner: "owner-\($0)").create(on: app.db).wait()
             try Version(package: pkg, packageName: "pkg-\($0)").save(on: app.db).wait()
         }
@@ -89,6 +97,14 @@ class RSSTests: AppTestCase {
 
     func test_recentPackages_route() throws {
         try app.test(.GET, "packages.rss") { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType,
+                           .some(.init(type: "application", subType: "rss+xml")))
+        }
+    }
+
+    func test_recentReleases_route() throws {
+        try app.test(.GET, "releases.rss") { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))

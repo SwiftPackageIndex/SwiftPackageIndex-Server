@@ -17,8 +17,8 @@ struct RSSFeed {
             //  .language(language),
             //  .lastBuildDate(date, timeZone: context.dateFormatter.timeZone),
             //  .pubDate(date, timeZone: context.dateFormatter.timeZone),
-            //  .ttl(Int(config.ttlInterval)),
-            //  .atomLink(context.site.url(for: config.targetPath)),
+            .ttl(Constants.rssTTL),
+            .atomLink(link),
             .group(items)
         )
     }
@@ -45,8 +45,8 @@ extension RSSFeed {
             .mapEach(\.rssItem)
             .map {
                 RSSFeed(title: "Swift Package Index – Recent Releases",
-                        description: "List of recently Swift packages releases",
-                        link: SiteURL.rssPackages.absoluteURL(),
+                        description: "List of recent Swift packages releases",
+                        link: SiteURL.rssReleases.absoluteURL(),
                     items: $0)
         }
     }
@@ -61,6 +61,7 @@ extension RecentPackage {
             .guid(.text(link), .isPermaLink(true)),
             .title(packageName),
             .link(link),
+            .pubDate(createdAt, timeZone: .utc),
             .content(
                 .h2(.a(.href(link), .text(packageName))),
                 .p(.text(packageSummary ?? "")),
@@ -79,6 +80,7 @@ extension RecentRelease {
             .guid(.text(link), .isPermaLink(true)),
             .title(packageName),
             .link(link),
+            .pubDate(releasedAt, timeZone: .utc),
             .content(
                 .h2(.a(.href(link), .text("\(packageName) – \(version)"))),
                 .p(.text(packageSummary ?? "")),
