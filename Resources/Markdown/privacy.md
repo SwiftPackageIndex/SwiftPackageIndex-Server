@@ -1,3 +1,6 @@
+---
+page-title: Privacy & Cookies
+---
 ### Your Personal Information
 
 This site has no user accounts and will not ask you to identify yourself.
