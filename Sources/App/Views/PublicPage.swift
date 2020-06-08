@@ -8,6 +8,7 @@ class PublicPage {
     /// - Returns: A fully formed page inside a <html> element.
     final func document() -> HTML {
         HTML(
+            .comment("Version: \(appVersion)"),
             head(),
             body()
         )
