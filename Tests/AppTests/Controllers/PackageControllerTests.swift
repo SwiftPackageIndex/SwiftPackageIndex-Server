@@ -38,14 +38,6 @@ class PackageControllerTests: AppTestCase {
         }
     }
 
-    func test_show() throws {
-        let _ = try Package.find(testPackageId, on: app.db).wait()!
-
-        try app.test(.GET, "/packages/\(testPackageId)") { response in
-            XCTAssertEqual(response.status, .ok)
-        }
-    }
-
     func test_show_owner_repository() throws {
         try app.test(.GET, "/owner/package") { response in
             XCTAssertEqual(response.status, .ok)
