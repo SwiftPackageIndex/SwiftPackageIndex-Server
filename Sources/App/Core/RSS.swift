@@ -61,6 +61,7 @@ extension RecentPackage {
             .guid(.text(link), .isPermaLink(true)),
             .title(packageName),
             .link(link),
+            .pubDate(createdAt, timeZone: .utc),
             .content(
                 .h2(.a(.href(link), .text(packageName))),
                 .p(.text(packageSummary ?? "")),
@@ -79,6 +80,7 @@ extension RecentRelease {
             .guid(.text(link), .isPermaLink(true)),
             .title(packageName),
             .link(link),
+            .pubDate(releasedAt, timeZone: .utc),
             .content(
                 .h2(.a(.href(link), .text("\(packageName) – \(version)"))),
                 .p(.text(packageSummary ?? "")),
