@@ -55,8 +55,10 @@ export class SPISearchKeyboardNavigation {
       case KeyCodes.enter: {
         // Grab the selected list item, find the link inside it, and navigate to it.
         const selectedItemElement = resultsListElement.children[this.selectedResultIndex]
+        if (!selectedItemElement) { break }
         const linkElement = selectedItemElement.querySelector('a')
-        if (linkElement) { linkElement.click() }
+        if (!linkElement) { break }
+        linkElement.click()
         break
       }
     }
