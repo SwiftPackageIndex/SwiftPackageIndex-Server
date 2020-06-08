@@ -5,6 +5,7 @@
     <description>feed description</description>
     <link>https://SwiftPackageIndex.com</link>
     <ttl>60</ttl>
+    <atom:link href="https://SwiftPackageIndex.com" rel="self" type="application/rss+xml"/>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner0/repo0</guid>
       <title>package0</title>

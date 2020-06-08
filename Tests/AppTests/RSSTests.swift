@@ -6,6 +6,11 @@ import XCTVapor
 
 class RSSTests: AppTestCase {
 
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        record = false
+    }
+
     func test_render_item() throws {
         let item = RecentPackage(id: UUID(),
                                  repositoryOwner: "owner",
