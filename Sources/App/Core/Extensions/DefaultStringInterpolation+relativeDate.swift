@@ -39,9 +39,9 @@ extension DefaultStringInterpolation {
             case m + 30 ..< 44*m + 30:
                 return pluralizedCount(minutes, singular: "minute")
             case 44*m + 30 ..< 89*m + 30:
-                return "about 1 hour"
+                return "1 hour"
             case 89*m + 30 ..< 24*H - 30:
-                return "about " + pluralizedCount(hours, singular: "hour")
+                return pluralizedCount(hours, singular: "hour")
             case 24*H - 30 ..< 42*H - 30:
                 return "1 day"
             case 42*H - 30 ..< 30*d - 30:
