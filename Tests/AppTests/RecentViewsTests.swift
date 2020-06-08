@@ -149,4 +149,31 @@ class RecentViewsTests: AppTestCase {
         XCTAssertEqual(res.map(\.packageName), ["pkg-bar-updated"])
     }
 
+    func test_recentReleases_dedupe_issue() throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/315
+        // setup
+        let pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg,
+                       summary: "pkg summary",
+                       name: "bar",
+                       owner: "foo").create(on: app.db).wait()
+        try Version(package: pkg,
+                    reference: .tag(.init(1, 0, 0)),
+                    packageName: "pkg-bar",
+                    commitDate: Date(timeIntervalSince1970: 0)).save(on: app.db).wait()
+        try Version(package: pkg,
+                    reference: .tag(.init(1, 0, 1)),
+                    packageName: "pkg-bar-updated",
+                    commitDate: Date(timeIntervalSince1970: 1)).save(on: app.db).wait()
+        // make sure to refresh the materialized view
+        try RecentRelease.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try RecentRelease.fetch(on: app.db).wait()
+
+        // validate
+        XCTAssertEqual(res.map(\.packageName), ["pkg-bar-updated"])
+    }
+
 }
