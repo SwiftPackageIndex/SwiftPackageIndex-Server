@@ -60,7 +60,7 @@ h3 {
 }
 
 h4 {
-  font-size: 20px;
+  font-size: 17px;
   line-height: 1.2;
 }
 
@@ -92,9 +92,7 @@ hr {
 }
 
 hr.short {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 70%;
+  max-width: 40%;
   height: 1px;
 }
 
@@ -198,7 +196,7 @@ li.products:before { content: "\e904"; }
 }
 
 section {
-  margin: 40px 0;
+  margin: 35px 0;
 }
 
 section li {
@@ -397,7 +395,6 @@ header nav ul li a:hover {
   display: inline;
   margin: 0;
   padding: 0;
-  font-size: 17px;
   color: var(--black);
 }
 
