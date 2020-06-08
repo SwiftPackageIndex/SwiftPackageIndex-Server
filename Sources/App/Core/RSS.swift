@@ -17,7 +17,7 @@ struct RSSFeed {
             //  .language(language),
             //  .lastBuildDate(date, timeZone: context.dateFormatter.timeZone),
             //  .pubDate(date, timeZone: context.dateFormatter.timeZone),
-            //  .ttl(Int(config.ttlInterval)),
+            .ttl(Constants.rssTTL),
             //  .atomLink(context.site.url(for: config.targetPath)),
             .group(items)
         )

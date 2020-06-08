@@ -4,6 +4,7 @@
     <title>feed title</title>
     <description>feed description</description>
     <link>https://SwiftPackageIndex.com</link>
+    <ttl>60</ttl>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner0/repo0</guid>
       <title>package0</title>

@@ -4,6 +4,7 @@
     <title>Swift Package Index – Recent Releases</title>
     <description>List of recent Swift packages releases</description>
     <link>http://localhost:8080/releases.rss</link>
+    <ttl>60</ttl>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner-10/pkg-10</guid>
       <title>pkg-10</title>

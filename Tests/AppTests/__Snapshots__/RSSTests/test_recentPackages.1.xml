@@ -4,6 +4,7 @@
     <title>Swift Package Index – Recently Added</title>
     <description>List of recently added Swift packages</description>
     <link>http://localhost:8080/packages.rss</link>
+    <ttl>60</ttl>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner-10/pkg-10</guid>
       <title>pkg-10</title>
