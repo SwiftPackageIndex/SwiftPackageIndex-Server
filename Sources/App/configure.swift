@@ -56,6 +56,7 @@ public func configure(_ app: Application) throws {
     }
     do {  // Migration 007 - dedupe package name changes
         app.migrations.add(UpdateRecentPackages3())
+        app.migrations.add(UpdateRecentReleases4())
     }
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
