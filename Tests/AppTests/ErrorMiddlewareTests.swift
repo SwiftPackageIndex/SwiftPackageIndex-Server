@@ -26,10 +26,22 @@ class ErrorMiddlewareTests: AppTestCase {
     func test_html_error() throws {
         // Test to ensure errors are converted to html error pages via the ErrorMiddleware
         try app.test(.GET, "404") { response in
-            // Ensure we're getting html content and status ok back
-            XCTAssertEqual(response.status, .ok)
             XCTAssertEqual(response.content.contentType, .html)
             XCTAssert(response.body.asString()!.contains("404 - Not Found"))
+        }
+    }
+
+    func test_status_code() throws {
+        // Ensure we're still reporting the actual status code even when serving html pages
+        // (Status is important for Google ranking, see
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/323)
+        try app.test(.GET, "404") { response in
+            XCTAssertEqual(response.status, .notFound)
+            XCTAssertEqual(response.content.contentType, .html)
+        }
+        try app.test(.GET, "500") { response in
+            XCTAssertEqual(response.status, .internalServerError)
+            XCTAssertEqual(response.content.contentType, .html)
         }
     }
 
