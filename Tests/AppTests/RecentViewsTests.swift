@@ -3,7 +3,7 @@
 import XCTVapor
 
 
-class MaterializedViewsTests: AppTestCase {
+class RecentViewsTests: AppTestCase {
 
     func test_recentPackages() throws {
         // setup
