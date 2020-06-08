@@ -1,3 +1,17 @@
+## Frequently Asked Questions
+
+* [What is the Swift Package Index?](#what-is-the-spi)
+* [What is the Swift Package Manager?](#what-is-the-spm)
+* [How do I use the Swift Package Manager?](#how-do-i-use-the-spm)
+* [What happened to the SwiftPM Library?](#swiftpm-library)
+* [How does the Swift Package Index work?](#how-does-it-work)
+* [What about the GitHub Package Registry?](#package-registry)
+* [Who built the Swift Package Index?](#creators)
+* [How do I define Language and Platform information?](#language-and-platforms)
+* [Can I contribute?](#contributing)
+
+---
+
 <h3 id="what-is-the-spi">What is the Swift Package Index?</h3>
 
 The Swift Package Index is a search engine for packages that support the Swift Package Manager.

@@ -12,7 +12,7 @@
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Releases" href="http://localhost:8080/releases.rss"/>
     <script src="/javascripts/main.min.js?0"></script>
   </head>
-  <body>
+  <body class="package">
     <header>
       <div class="inner">
         <a href="/">

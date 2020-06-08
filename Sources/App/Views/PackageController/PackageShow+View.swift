@@ -15,6 +15,10 @@ enum PackageShow {
             model.title
         }
 
+        override func bodyClass() -> String? {
+            "package"
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .div(
