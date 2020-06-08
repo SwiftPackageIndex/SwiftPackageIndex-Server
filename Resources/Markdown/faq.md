@@ -8,7 +8,7 @@
 * [What about the GitHub Package Registry?](#package-registry)
 * [Who built the Swift Package Index?](#creators)
 * [How do I define Language and Platform information?](#language-and-platforms)
-* [Why are some licenses orange?](#incompatible-license)
+* [Why do some packages show a warning symbol next to their license?](#incompatible-license)
 * [Can I contribute?](#contributing)
 
 ---
@@ -106,7 +106,7 @@ Add or update this property and push an updated `Package.swift`.  The index will
 
 ---
 
-<h3 id="incompatible-license">Why are some licenses orange?</h3>
+<h3 id="incompatible-license">Why do some packages show a warning symbol next to their license?</h3>
 
 If a package is showing in an orange lozenge rather than a green one, it is for one of two reasons:
 
