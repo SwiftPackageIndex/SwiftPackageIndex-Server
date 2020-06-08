@@ -54,6 +54,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 006 - update recent releases view
         app.migrations.add(UpdateRecentReleases3())
     }
+    do {  // Migration 007 - dedupe package name changes
+        app.migrations.add(UpdateRecentPackages3())
+    }
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")
