@@ -19,18 +19,12 @@ extension HomeIndex.Model {
                       link: .init(label: "Package", url: "https://example.com/package")),
             ],
             recentReleases: [
-                .init(date: "20 minutes ago",
-                      link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: "20 minutes ago",
-                      link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: "20 minutes ago",
-                      link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: "20 minutes ago",
-                      link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: "20 minutes ago",
-                      link: .init(label: "Package", url: "https://example.com/package")),
-                .init(date: "20 minutes ago",
-                      link: .init(label: "Package", url: "https://example.com/package")),
+                .init(packageName: "Package", version: "1.0.0", date: "20 minutes ago", url: "https://example.com/package"),
+                .init(packageName: "Package", version: "1.0.0", date: "20 minutes ago", url: "https://example.com/package"),
+                .init(packageName: "Package", version: "1.0.0", date: "20 minutes ago", url: "https://example.com/package"),
+                .init(packageName: "Package", version: "1.0.0", date: "20 minutes ago", url: "https://example.com/package"),
+                .init(packageName: "Package", version: "1.0.0", date: "20 minutes ago", url: "https://example.com/package"),
+                .init(packageName: "Package", version: "1.0.0", date: "20 minutes ago", url: "https://example.com/package"),
         ])
     }
 }

@@ -81,27 +81,39 @@
             <h3>Recent Releases</h3>
             <ul>
               <li>
-                <a href="https://example.com/package">Package</a>
+                <a href="https://example.com/package">Package 
+                  <small>1.0.0</small>
+                </a>
                 <small>Released 20 minutes ago</small>
               </li>
               <li>
-                <a href="https://example.com/package">Package</a>
+                <a href="https://example.com/package">Package 
+                  <small>1.0.0</small>
+                </a>
                 <small>Released 20 minutes ago</small>
               </li>
               <li>
-                <a href="https://example.com/package">Package</a>
+                <a href="https://example.com/package">Package 
+                  <small>1.0.0</small>
+                </a>
                 <small>Released 20 minutes ago</small>
               </li>
               <li>
-                <a href="https://example.com/package">Package</a>
+                <a href="https://example.com/package">Package 
+                  <small>1.0.0</small>
+                </a>
                 <small>Released 20 minutes ago</small>
               </li>
               <li>
-                <a href="https://example.com/package">Package</a>
+                <a href="https://example.com/package">Package 
+                  <small>1.0.0</small>
+                </a>
                 <small>Released 20 minutes ago</small>
               </li>
               <li>
-                <a href="https://example.com/package">Package</a>
+                <a href="https://example.com/package">Package 
+                  <small>1.0.0</small>
+                </a>
                 <small>Released 20 minutes ago</small>
               </li>
             </ul>

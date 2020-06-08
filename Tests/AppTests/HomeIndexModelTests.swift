@@ -32,10 +32,10 @@ class HomeIndexModelTests: AppTestCase {
             )
         ])
         XCTAssertEqual(m.recentReleases, [
-            .init(
-                date: "\(date: Date(timeIntervalSince1970: 0), relativeTo: Current.date())",
-                link: .init(label: "Package – 1.2.3", url: "/foo/1")
-            )
+            .init(packageName: "Package",
+                  version: "1.2.3",
+                  date: "\(date: Date(timeIntervalSince1970: 0), relativeTo: Current.date())",
+                  url: "/foo/1"),
         ])
     }
 
