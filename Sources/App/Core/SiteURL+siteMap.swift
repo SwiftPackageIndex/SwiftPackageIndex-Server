@@ -41,6 +41,8 @@ extension SiteURL {
                 return .hourly
             case .rssReleases:
                 return .hourly
+            case .siteMap:
+                return.weekly
         }
     }
 }
