@@ -35,7 +35,7 @@ func routes(_ app: Application) throws {
         //  api.get("packages", "run", ":command", use: apiPackageController.run)
     }
 
-    do {  // RSS
+    do {  // RSS + Sitemap
         app.get(SiteURL.rssPackages.pathComponents) { req in
             RSSFeed.recentPackages(on: req.db, maxItemCount: Constants.rssFeedMaxItemCount)
                 .map { $0.rss }
@@ -44,6 +44,10 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.rssReleases.pathComponents) { req in
             RSSFeed.recentReleases(on: req.db, maxItemCount: Constants.rssFeedMaxItemCount)
                 .map { $0.rss }
+        }
+
+        app.get(SiteURL.siteMap.pathComponents) { req in
+            SiteURL.siteMap()
         }
     }
 }
