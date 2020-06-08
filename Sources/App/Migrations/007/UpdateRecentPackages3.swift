@@ -2,7 +2,7 @@ import Fluent
 import SQLKit
 
 
-struct UpdateRecentPackages1: Migration {
+struct UpdateRecentPackages3: Migration {
     let dropSQL: SQLQueryString = "DROP MATERIALIZED VIEW recent_packages"
 
     func prepare(on database: Database) -> EventLoopFuture<Void> {
@@ -11,23 +11,26 @@ struct UpdateRecentPackages1: Migration {
         }
         let updatedViewSQL: SQLQueryString =
             """
-            -- v1
+            -- v3
             CREATE MATERIALIZED VIEW recent_packages AS
-            SELECT
-                p.id,
-                r.owner AS repository_owner,
-                r.name AS repository_name,
-                v.package_name,
-                MAX(p.created_at) AS created_at
-            FROM packages p
-            JOIN versions v ON v.package_id = p.id
-            JOIN repositories r ON r.package_id = p.id
-            WHERE v.package_name IS NOT NULL
-              AND r.owner IS NOT NULL
-              AND r.name IS NOT NULL
-            GROUP BY p.id, r.owner, r.name, v.package_name
-            ORDER BY MAX(p.created_at) DESC
-            LIMIT 100
+            SELECT * FROM (
+              SELECT DISTINCT ON (p.id)
+                  p.id,
+                  r.owner AS repository_owner,
+                  r.name AS repository_name,
+                  r.summary AS package_summary,
+                  v.package_name,
+                  p.created_at
+              FROM packages p
+              JOIN versions v ON v.package_id = p.id
+              JOIN repositories r ON r.package_id = p.id
+              WHERE v.package_name IS NOT NULL
+                AND r.owner IS NOT NULL
+                AND r.name IS NOT NULL
+              order by p.id, v.commit_date desc
+            ) t
+            order by created_at desc
+            limit 100
             """
         return db.raw(dropSQL).run()
             .flatMap { db.raw(updatedViewSQL).run() }
@@ -39,16 +42,22 @@ struct UpdateRecentPackages1: Migration {
         }
         let oldViewSQL: SQLQueryString =
             """
-            -- v0
+            -- v2
             CREATE MATERIALIZED VIEW recent_packages AS
             SELECT
-              p.id,
-              v.package_name,
-              MAX(p.created_at) AS created_at
+                p.id,
+                r.owner AS repository_owner,
+                r.name AS repository_name,
+                r.summary AS package_summary,
+                v.package_name,
+                MAX(p.created_at) AS created_at
             FROM packages p
             JOIN versions v ON v.package_id = p.id
+            JOIN repositories r ON r.package_id = p.id
             WHERE v.package_name IS NOT NULL
-            GROUP BY p.id, v.package_name
+              AND r.owner IS NOT NULL
+              AND r.name IS NOT NULL
+            GROUP BY p.id, r.owner, r.name, r.summary, v.package_name
             ORDER BY MAX(p.created_at) DESC
             LIMIT 100
             """

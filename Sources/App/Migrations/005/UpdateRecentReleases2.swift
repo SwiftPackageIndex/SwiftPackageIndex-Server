@@ -11,6 +11,7 @@ struct UpdateRecentReleases2: Migration {
         }
         let updatedViewSQL: SQLQueryString =
             """
+            -- v2
             CREATE MATERIALIZED VIEW recent_releases AS
             SELECT
               v.package_id AS id,
@@ -48,6 +49,7 @@ struct UpdateRecentReleases2: Migration {
         }
         let oldViewSQL: SQLQueryString =
             """
+            -- v1
             CREATE MATERIALIZED VIEW recent_releases AS
             SELECT
               v.package_id AS id,
