@@ -69,6 +69,28 @@ class WebpageSnapshotTests: XCTestCase {
         #endif
     }
 
+    func test_PackageShowView_incompatible_license() throws {
+        var model = PackageShow.Model.mock
+        model.license = License.gpl_3_0
+        let page = PackageShow.View(model).document()
+
+        let recordSnapshotForThisTest = false
+        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+
+        assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
+
+        #if os(macOS)
+        if !isRunningInCI {
+            // FIXME: css and image loading broken, despite setting correct base url
+            // permission issue? In a macOS app project this required setting
+            // com.apple.security.network.client permissions but I don't see how to do
+            // that with SPM - nor would I expect to need that for tests?
+            assertSnapshot(matching: page, as: .image(size: .init(width: 800, height: 1000),
+                                                      baseURL: baseURL()))
+        }
+        #endif
+    }
+
     func test_PackageShowView_no_authors_activity() throws {
         // Test to ensure we don't display empty bullet points when there is
         // no author or activity info
