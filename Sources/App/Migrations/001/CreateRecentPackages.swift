@@ -9,6 +9,7 @@ struct CreateRecentPackages: Migration {
         }
         return db.raw(
             """
+            -- v0
             CREATE MATERIALIZED VIEW recent_packages AS
             SELECT
               p.id,

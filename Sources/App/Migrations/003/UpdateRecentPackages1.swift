@@ -11,6 +11,7 @@ struct UpdateRecentPackages1: Migration {
         }
         let updatedViewSQL: SQLQueryString =
             """
+            -- v1
             CREATE MATERIALIZED VIEW recent_packages AS
             SELECT
                 p.id,
@@ -38,18 +39,16 @@ struct UpdateRecentPackages1: Migration {
         }
         let oldViewSQL: SQLQueryString =
             """
+            -- v0
             CREATE MATERIALIZED VIEW recent_packages AS
             SELECT
-                p.id,
-                r.owner AS repository_owner,
-                r.name AS repository_name,
-                v.package_name,
-                MAX(p.created_at) AS created_at
+              p.id,
+              v.package_name,
+              MAX(p.created_at) AS created_at
             FROM packages p
             JOIN versions v ON v.package_id = p.id
-            JOIN repositories r ON r.package_id = p.id
             WHERE v.package_name IS NOT NULL
-            GROUP BY p.id, r.owner, r.name, v.package_name
+            GROUP BY p.id, v.package_name
             ORDER BY MAX(p.created_at) DESC
             LIMIT 100
             """
