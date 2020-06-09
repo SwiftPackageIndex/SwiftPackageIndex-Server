@@ -70,7 +70,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
 
     let versions = checkouts.flatMap { reconcileVersions(application: application, checkouts: $0) }
 
-    let versionsAndManifests = versions.map { getManifests(application: application, versions: $0) }
+    let versionsAndManifests = versions.map { getManifests(logger: application.logger, versions: $0) }
 
     let updateOps = versionsAndManifests.flatMap { updateVersionsAndProducts(on: application.db,
                                                                              results: $0) }
@@ -219,7 +219,7 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
 }
 
 
-func getManifests(application: Application,
+func getManifests(logger: Logger,
                   versions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
     versions.map { result -> Result<(Package, [(Version, Manifest)]), Error> in
         result.flatMap { (pkg, versions) -> Result<(Package, [(Version, Manifest)]), Error> in
@@ -227,7 +227,7 @@ func getManifests(application: Application,
             let successes = m.compactMap { try? $0.get() }
             let errors = m.compactMap { $0.getError() }
                 .map { AppError.genericError(pkg.id, "getManifests failed: \($0.localizedDescription)") }
-            errors.forEach { application.logger.report(error: $0) }
+            errors.forEach { logger.report(error: $0) }
             guard !successes.isEmpty else { return .failure(AppError.noValidVersions(pkg.id, pkg.url)) }
             return .success((pkg, successes))
         }
