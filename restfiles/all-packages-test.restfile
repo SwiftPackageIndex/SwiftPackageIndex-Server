@@ -3749,6 +3749,10 @@ requests:
     url: ${base_url}/behrang/YamlSwift
     validation:
       status: 200
+  /belozierov/SwiftCoroutine:
+    url: ${base_url}/belozierov/SwiftCoroutine
+    validation:
+      status: 200
   /bengottlieb/Plug:
     url: ${base_url}/bengottlieb/Plug
     validation:
@@ -6367,6 +6371,10 @@ requests:
       status: 200
   /krad/morsel:
     url: ${base_url}/krad/morsel
+    validation:
+      status: 200
+  /krisk/fuse-swift:
+    url: ${base_url}/krisk/fuse-swift
     validation:
       status: 200
   /krugazor/CRToastSwift:
@@ -9107,6 +9115,10 @@ requests:
       status: 200
   /toastersocks/DelayedJob:
     url: ${base_url}/toastersocks/DelayedJob
+    validation:
+      status: 200
+  /tobberacing/ButtonKit:
+    url: ${base_url}/tobberacing/ButtonKit
     validation:
       status: 200
   /toineheuvelmans/Metron:
