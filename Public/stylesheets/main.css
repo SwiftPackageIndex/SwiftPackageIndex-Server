@@ -486,6 +486,7 @@ p.description {
 }
 
 div.license {
+  margin: 5px 0;
   display: flex;
   align-items: center;
   padding: 7px 10px;
