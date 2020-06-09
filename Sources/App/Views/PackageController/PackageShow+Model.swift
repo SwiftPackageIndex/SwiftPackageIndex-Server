@@ -21,6 +21,7 @@ extension PackageShow {
         }
 
         struct Activity: Equatable {
+            var openIssuesCount: Int
             var openIssues: Link?
             var openPullRequests: Link?
             var lastIssueClosedAt: String?
@@ -101,7 +102,9 @@ extension PackageShow.Model {
             .compactMap { $0 }
 
         return .group(
-            Self.listPhrase(opening: "There are ", nodes: openItems, closing: ". ") +
+            Self.listPhrase(opening: .text("There is ".pluralized(for: activity.openIssuesCount,
+                                                                  plural: "There are ")),
+                            nodes: openItems, closing: ". ") +
                 Self.listPhrase(opening: "The ", nodes: lastClosed, conjunction: " and the ", closing: ".")
         )
     }
