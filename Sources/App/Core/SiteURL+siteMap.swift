@@ -72,6 +72,9 @@ extension SiteMap {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
+        // Drive sitemap from the search view for two reasons:
+        // 1) access is fast
+        // 2) packages listed are valid for presentation
         let query = db.select()
             .column(Search.repoName)
             .column(Search.repoOwner)
