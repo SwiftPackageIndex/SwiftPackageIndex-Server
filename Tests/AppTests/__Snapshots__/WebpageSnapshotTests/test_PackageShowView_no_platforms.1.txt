@@ -41,7 +41,7 @@
           <div>
             <h2>Alamofire</h2>
             <small>
-              <a href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
+              <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
             </small>
           </div>
           <div class="license" title="MIT License">

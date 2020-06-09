@@ -27,6 +27,7 @@ enum PackageShow {
                         .h2(.text(model.title)),
                         .element(named: "small", nodes: [ // TODO: Fix after Plot update
                             .a(
+                                .id("package_url"),
                                 .href(model.url),
                                 .text(model.url)
                             )
