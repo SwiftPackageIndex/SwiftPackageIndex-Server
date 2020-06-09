@@ -20,8 +20,6 @@ class PackageShowModelTests: AppTestCase {
                                       reference: .branch("master"),
                                       packageName: "test package")
         try version.save(on: app.db).wait()
-        try Product(version: version,
-                    type: .library, name: "lib 1").save(on: app.db).wait()
 
         // MUT
         let m = try PackageShow.Model.query(database: app.db, owner: "foo", repository: "bar").wait()
@@ -45,8 +43,6 @@ class PackageShowModelTests: AppTestCase {
                                       reference: .branch("master"),
                                       packageName: "test package")
         try version.save(on: app.db).wait()
-        try Product(version: version,
-                    type: .library, name: "lib 1").save(on: app.db).wait()
 
         // MUT
         let m = try PackageShow.Model.query(database: app.db, owner: "Foo", repository: "bar").wait()
