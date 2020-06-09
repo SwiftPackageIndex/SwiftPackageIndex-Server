@@ -35,6 +35,9 @@ func createRestfile(application: Application, variant: Variant) -> EventLoopFutu
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
     let query: SQLQueryString
+    // FIXME: sas 2020-06-09: both query variants are prone to selecting packages without
+    // verions, leading to unexpected 404s when requesting their package pages - drive 
+    // from sitemap url instead
     switch variant {
         case .active:
             query = """
