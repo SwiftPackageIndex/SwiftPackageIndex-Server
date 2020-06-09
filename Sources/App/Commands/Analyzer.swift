@@ -207,11 +207,11 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
                                commit: revInfo.commit,
                                commitDate: revInfo.date) }
 
-    let transaction = application.db.transaction { db -> EventLoopFuture<[Version]> in
-        let delete = Version.query(on: application.db)
+    let transaction = application.db.transaction { tx -> EventLoopFuture<[Version]> in
+        let delete = Version.query(on: tx)
             .filter(\.$package.$id == pkgId)
             .delete()
-        let insert = versions.flatMap { versions in versions.create(on: db).map { versions }  }
+        let insert = versions.flatMap { versions in versions.create(on: tx).map { versions }  }
         return delete.flatMap { insert }
     }
 
