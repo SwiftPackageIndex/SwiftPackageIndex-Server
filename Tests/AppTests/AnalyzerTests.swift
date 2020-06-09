@@ -283,7 +283,9 @@ class AnalyzerTests: AppTestCase {
         try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
 
         // MUT
-        let versions = try reconcileVersions(application: app,
+        let versions = try reconcileVersions(client: app.client,
+                                             logger: app.logger,
+                                             threadPool: app.threadPool,
                                              transaction: app.db,
                                              package: pkg).wait()
 
@@ -313,7 +315,9 @@ class AnalyzerTests: AppTestCase {
         ]
 
         // MUT
-        let results = try reconcileVersions(application: app,
+        let results = try reconcileVersions(client: app.client,
+                                            logger: app.logger,
+                                            threadPool: app.threadPool,
                                             transaction: app.db,
                                             checkouts: checkouts).wait()
 
