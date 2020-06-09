@@ -199,25 +199,23 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
     }
 
     let references = defaultBranch.and(tags).map { $0 + $1 }
-
-    // Delete ...
-    let delete = Version.query(on: application.db)
-        .filter(\.$package.$id == pkgId)
-        .delete()
-    // ... and insert versions
-    let insert: EventLoopFuture<[Version]> = references
+    let versions: EventLoopFuture<[Version]> = references
         .flatMapEachThrowing { ref in
             let revInfo = try Git.revisionInfo(ref, at: cacheDir)
             return try Version(package: package,
                                reference: ref,
                                commit: revInfo.commit,
                                commitDate: revInfo.date) }
-        .flatMap { versions in
-            versions.create(on: application.db)
-                .map { versions }
-        }
 
-    return delete.flatMap { insert }
+    let transaction = application.db.transaction { db -> EventLoopFuture<[Version]> in
+        let delete = Version.query(on: application.db)
+            .filter(\.$package.$id == pkgId)
+            .delete()
+        let insert = versions.flatMap { versions in versions.create(on: db).map { versions }  }
+        return delete.flatMap { insert }
+    }
+
+    return transaction
 }
 
 
