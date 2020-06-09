@@ -10,7 +10,7 @@ jobs:
       image: swift:5.2.4-bionic
     services:
       postgres:
-        image: postgres:12
+        image: postgres:12.1-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test

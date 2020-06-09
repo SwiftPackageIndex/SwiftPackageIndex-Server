@@ -26,8 +26,6 @@ extension PackageShow.Model {
         
         return res.unwrap(or: Abort(.notFound))
             .map { p -> Self? in
-                // FIXME: factor out into Model.init?(_ package: Packae)
-                
                 // we consider certain attributes as essential and return nil (raising .notFound)
                 guard let title = p.name() else { return nil }
                 return Self.init(title: title,
