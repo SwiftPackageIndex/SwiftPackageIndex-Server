@@ -283,7 +283,9 @@ class AnalyzerTests: AppTestCase {
         try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
 
         // MUT
-        let versions = try reconcileVersions(application: app, package: pkg).wait()
+        let versions = try reconcileVersions(application: app,
+                                             transaction: app.db,
+                                             package: pkg).wait()
 
         // validate
         assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
@@ -311,7 +313,9 @@ class AnalyzerTests: AppTestCase {
         ]
 
         // MUT
-        let results = try reconcileVersions(application: app, checkouts: checkouts).wait()
+        let results = try reconcileVersions(application: app,
+                                            transaction: app.db,
+                                            checkouts: checkouts).wait()
 
         // validate
         XCTAssertEqual(results.count, 2)

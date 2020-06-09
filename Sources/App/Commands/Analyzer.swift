@@ -68,11 +68,15 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
         .flatMap { pullOrClone(application: application, packages: $0) }
         .flatMap { updateRepositories(application: application, checkouts: $0) }
 
-    let versionUpdates = checkouts.flatMap { checkouts -> EventLoopFuture<[Result<Package, Error>]> in
-        let versions = reconcileVersions(application: application, checkouts: checkouts)
-        let versionsAndManifests = versions.map { getManifests(logger: application.logger, versions: $0) }
-        return versionsAndManifests.flatMap { updateVersionsAndProducts(on: application.db,
-                                                                        results: $0) }
+    let versionUpdates = checkouts.flatMap { checkouts in
+        application.db.transaction { tx -> EventLoopFuture<[Result<Package, Error>]> in
+            let versions = reconcileVersions(application: application,
+                                             transaction: tx,
+                                             checkouts: checkouts)
+            let versionsAndManifests = versions.map { getManifests(logger: application.logger,
+                                                                   versions: $0) }
+            return versionsAndManifests.flatMap { updateVersionsAndProducts(on: tx, results: $0) }
+        }
     }
 
     let statusOps = versionUpdates.flatMap { updatePackage(application: application,
@@ -156,11 +160,15 @@ func updateRepository(package: Package) -> Result<Package, Error> {
 }
 
 
-func reconcileVersions(application: Application, checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+func reconcileVersions(application: Application,
+                       transaction: Database,
+                       checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
     let ops = checkouts.map { checkout -> EventLoopFuture<(Package, [Version])> in
         switch checkout {
             case .success(let pkg):
-                return reconcileVersions(application: application, package: pkg)
+                return reconcileVersions(application: application,
+                                         transaction: transaction,
+                                         package: pkg)
                     .map { (pkg, $0) }
             case .failure(let error):
                 return application.eventLoopGroup.future(error: error)
@@ -170,7 +178,9 @@ func reconcileVersions(application: Application, checkouts: [Result<Package, Err
 }
 
 
-func reconcileVersions(application: Application, package: Package) -> EventLoopFuture<[Version]> {
+func reconcileVersions(application: Application,
+                       transaction: Database,
+                       package: Package) -> EventLoopFuture<[Version]> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return application.eventLoopGroup.next().future(error:
             AppError.invalidPackageCachePath(package.id, package.url)
@@ -182,7 +192,7 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
         )
     }
 
-    let defaultBranch = Repository.defaultBranch(on: application.db, for: package)
+    let defaultBranch = Repository.defaultBranch(on: transaction, for: package)
         .map { b -> [Reference] in
             if let b = b { return [.branch(b)] } else { return [] }  // drop nil default branch
         }
@@ -207,15 +217,11 @@ func reconcileVersions(application: Application, package: Package) -> EventLoopF
                                commit: revInfo.commit,
                                commitDate: revInfo.date) }
 
-    let transaction = application.db.transaction { tx -> EventLoopFuture<[Version]> in
-        let delete = Version.query(on: tx)
-            .filter(\.$package.$id == pkgId)
-            .delete()
-        let insert = versions.flatMap { versions in versions.create(on: tx).map { versions }  }
-        return delete.flatMap { insert }
-    }
-
-    return transaction
+    let delete = Version.query(on: transaction)
+        .filter(\.$package.$id == pkgId)
+        .delete()
+    let insert = versions.flatMap { versions in versions.create(on: transaction).map { versions }  }
+    return delete.flatMap { insert }
 }
 
 
