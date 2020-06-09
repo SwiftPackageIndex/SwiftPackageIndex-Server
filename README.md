@@ -70,7 +70,7 @@ The `ingest-loop.sh` script can serve as a simple way to run a full ingestion cy
 ```
 make reset        # clear dev db
 make reconcile    # import package list
-./ingest-loop.sh  # ingest metadata for 100 packages, pause for 10 sec, repeat
+./scripts/ingest-loop.sh  # ingest metadata for 100 packages, pause for 10 sec, repeat
 ```
 
 If you want to run ingestion for anything other than a cursory test, you'll need authenticated API calls. To do this, set a `GITHUB_TOKEN` environment variable to a [generated personal token](https://github.com/settings/tokens) which has the `public_repo` and `repo:status` scopes.
@@ -89,6 +89,8 @@ NB: The analysis step will check out repositories to your local file system, by 
 
 ## API poking
 
+NB: The API is currently disabled. Uncomment the api routes in `Sources/routes.swift` to re-enable them.
+
 You can poke at the API using [Rester](https//github.com/finestructure/Rester) by running the Restfile `test.restfile`:
 
 ```
@@ -102,21 +104,7 @@ This does not replace testing but helps with API exploration and integration tes
 Set up the required environment variables in an `.env` file and run
 
 ```
-env VERSION=0.0.20 docker-compose up -d
+env VERSION=0.4.5 docker-compose up -d
 ```
 
 where the `VERSION` variable references a tag name or a git sha.
-
-
-## Grafana setup
-
-Add Loki data source: `http://loki:3100`
-
-Promtail is currently using a custom built image with the configuration baked in. Recreate as follows:
-
-```
-docker build -t finestructure/spi-promtail:1.5.0 .
-docker push finestructure/spi-promtail:1.5.0
-```
-
-This will provide the expected image for `docker-compose.yml`.
