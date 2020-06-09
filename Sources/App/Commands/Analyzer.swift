@@ -68,16 +68,16 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
         .flatMap { pullOrClone(application: application, packages: $0) }
         .flatMap { updateRepositories(application: application, checkouts: $0) }
 
-    let versions = checkouts.flatMap { reconcileVersions(application: application, checkouts: $0) }
+    let versionUpdates = checkouts.flatMap { checkouts -> EventLoopFuture<[Result<Package, Error>]> in
+        let versions = reconcileVersions(application: application, checkouts: checkouts)
+        let versionsAndManifests = versions.map { getManifests(logger: application.logger, versions: $0) }
+        return versionsAndManifests.flatMap { updateVersionsAndProducts(on: application.db,
+                                                                        results: $0) }
+    }
 
-    let versionsAndManifests = versions.map { getManifests(logger: application.logger, versions: $0) }
-
-    let updateOps = versionsAndManifests.flatMap { updateVersionsAndProducts(on: application.db,
-                                                                             results: $0) }
-
-    let statusOps = updateOps.flatMap { updatePackage(application: application,
-                                                      results: $0,
-                                                      stage: .analysis) }
+    let statusOps = versionUpdates.flatMap { updatePackage(application: application,
+                                                           results: $0,
+                                                           stage: .analysis) }
 
     let materializedViewRefresh = statusOps
         .flatMap { RecentPackage.refresh(on: application.db) }
