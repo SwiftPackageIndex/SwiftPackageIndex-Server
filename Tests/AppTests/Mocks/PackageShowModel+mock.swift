@@ -24,6 +24,7 @@ extension PackageShow.Model {
                                     url: "https://github.com/Alamofire/Alamofire/releases")
             ),
               activity: .init(
+                openIssuesCount: 27,
                 openIssues: .init(label: "27 open issues",
                                   url: "https://github.com/Alamofire/Alamofire/issues"),
                 openPullRequests: .init(label: "5 open pull requests",

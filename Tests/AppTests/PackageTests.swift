@@ -329,7 +329,8 @@ final class PackageTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res,
-                       .init(openIssues: .init(label: "27 open issues",
+                       .init(openIssuesCount: 27,
+                             openIssues: .init(label: "27 open issues",
                                                url: "https://github.com/Alamofire/Alamofire/issues"),
                              openPullRequests: .init(label: "1 open pull request",
                                                      url: "https://github.com/Alamofire/Alamofire/pulls"),
