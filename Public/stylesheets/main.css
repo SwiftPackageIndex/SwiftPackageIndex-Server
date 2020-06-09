@@ -112,6 +112,21 @@ noscript i {
   color: var(--light-grey);
 }
 
+button {
+  padding: 2px 4px;
+  margin: 0 5px;
+  border: 1px var(--light-blue) solid;
+  background-color: var(--very-light-blue);
+  border-radius: 3px;
+  color: var(--mid-blue);
+  font-weight: 600;
+  font-size: 9px;
+}
+
+button:focus {
+  outline: none;
+}
+
 /* Icon font --------------------------------------------------------------- */
 
 @font-face {
