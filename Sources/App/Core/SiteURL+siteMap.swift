@@ -1,19 +1,25 @@
+import Fluent
 import Plot
 
 
 extension SiteURL {
 
-    /// Routes that are exposed in the sitemap
-    static var siteMapRoutes: [SiteURL] = [
+    static var staticRoutes: [SiteURL] = [
         .faq, .home, .privacy
     ]
 
-    static func siteMap() -> SiteMap {
+    static func siteMap(with packages: [(owner: String, repository: String)]) -> SiteMap {
         .init(
-            .forEach(siteMapRoutes) {
+            .forEach(staticRoutes) {
                 .url(
                     .loc($0.absoluteURL()),
                     .changefreq($0.changefreq)
+                )
+            },
+            .forEach(packages) { owner, repo in
+                .url(
+                    .loc(SiteURL.package(.value(owner), .value(repo)).absoluteURL()),
+                    .changefreq(SiteURL.package(.value(owner), .value(repo)).changefreq)
                 )
             }
         )

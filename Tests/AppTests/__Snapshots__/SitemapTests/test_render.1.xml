@@ -12,4 +12,16 @@
     <loc>https://indexsite.com/privacy</loc>
     <changefreq>monthly</changefreq>
   </url>
+  <url>
+    <loc>https://indexsite.com/foo1/bar1</loc>
+    <changefreq>daily</changefreq>
+  </url>
+  <url>
+    <loc>https://indexsite.com/foo2/bar2</loc>
+    <changefreq>daily</changefreq>
+  </url>
+  <url>
+    <loc>https://indexsite.com/foo3/bar3</loc>
+    <changefreq>daily</changefreq>
+  </url>
 </urlset>

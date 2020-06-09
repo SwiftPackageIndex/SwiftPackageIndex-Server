@@ -12,13 +12,15 @@ class SitemapTests: AppTestCase {
     }
 
     func test_render() throws {
+        // setup
         Current.siteURL = { "https://indexsite.com" }
-        let s = SiteURL.siteMap()
+        let packages = [("foo1", "bar1"), ("foo2", "bar2"), ("foo3", "bar3")]
+
+        // MUT
+        let xml = SiteURL.siteMap(with: packages).render(indentedBy: .spaces(2))
 
         // MUT + validation
-        assertSnapshot(matching: s.render(indentedBy: .spaces(2)),
-                       as: .init(pathExtension: "xml", diffing: .lines))
-
+        assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
     }
 
     func test_sitemap_route() throws {
@@ -26,6 +28,8 @@ class SitemapTests: AppTestCase {
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "text", subType: "xml")))
+            let xml = try XCTUnwrap(res.body.asString())
+            assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
         }
     }
 
