@@ -69,13 +69,8 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
         .flatMap { updateRepositories(application: application, checkouts: $0) }
 
     let versionUpdates = checkouts.flatMap { checkouts in
-        // Wrap version deletion, re-creation, and update in a single transaction to
-        // avoid race conditions leading to 404s
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/343
         application.db.transaction { tx -> EventLoopFuture<[Result<Package, Error>]> in
-            let versions = reconcileVersions(client: application.client,
-                                             logger: application.logger,
-                                             threadPool: application.threadPool,
+            let versions = reconcileVersions(application: application,
                                              transaction: tx,
                                              checkouts: checkouts)
             let versionsAndManifests = versions.map { getManifests(logger: application.logger,
@@ -165,40 +160,34 @@ func updateRepository(package: Package) -> Result<Package, Error> {
 }
 
 
-func reconcileVersions(client: Client,
-                       logger: Logger,
-                       threadPool: NIOThreadPool,
+func reconcileVersions(application: Application,
                        transaction: Database,
                        checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
     let ops = checkouts.map { checkout -> EventLoopFuture<(Package, [Version])> in
         switch checkout {
             case .success(let pkg):
-                return reconcileVersions(client: client,
-                                         logger: logger,
-                                         threadPool: threadPool,
+                return reconcileVersions(application: application,
                                          transaction: transaction,
                                          package: pkg)
                     .map { (pkg, $0) }
             case .failure(let error):
-                return transaction.eventLoop.future(error: error)
+                return application.eventLoopGroup.future(error: error)
         }
     }
-    return EventLoopFuture.whenAllComplete(ops, on: transaction.eventLoop)
+    return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
 }
 
 
-func reconcileVersions(client: Client,
-                       logger: Logger,
-                       threadPool: NIOThreadPool,
+func reconcileVersions(application: Application,
                        transaction: Database,
                        package: Package) -> EventLoopFuture<[Version]> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return transaction.eventLoop.future(error:
+        return application.eventLoopGroup.next().future(error:
             AppError.invalidPackageCachePath(package.id, package.url)
         )
     }
     guard let pkgId = package.id else {
-        return transaction.eventLoop.future(error:
+        return application.eventLoopGroup.next().future(error:
             AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
         )
     }
@@ -208,14 +197,14 @@ func reconcileVersions(client: Client,
             if let b = b { return [.branch(b)] } else { return [] }  // drop nil default branch
         }
 
-    let tags: EventLoopFuture<[Reference]> = threadPool.runIfActive(eventLoop: transaction.eventLoop) {
-        logger.info("listing tags for package \(package.url)")
+    let tags: EventLoopFuture<[Reference]> = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
+        application.logger.info("listing tags for package \(package.url)")
         return try Git.tag(at: cacheDir)
     }
     .flatMapError {
         let appError = AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)")
-        logger.report(error: appError)
-        return Current.reportError(client, .error, appError)
+        application.logger.report(error: appError)
+        return Current.reportError(application.client, .error, appError)
             .transform(to: [])
     }
 
