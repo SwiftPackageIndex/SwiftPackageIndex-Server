@@ -1,4 +1,5 @@
 import Fluent
+import Plot
 import Vapor
 
 
@@ -47,7 +48,8 @@ func routes(_ app: Application) throws {
         }
 
         app.get(SiteURL.siteMap.pathComponents) { req in
-            SiteURL.siteMap()
+            SiteMap.fetchPackages(req.db)
+                .map(SiteURL.siteMap)
         }
     }
 }
