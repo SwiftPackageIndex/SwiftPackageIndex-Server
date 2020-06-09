@@ -41,7 +41,11 @@ class SitemapTests: AppTestCase {
     func test_render() throws {
         // setup
         Current.siteURL = { "https://indexsite.com" }
-        let packages = [("foo1", "bar1"), ("foo2", "bar2"), ("foo3", "bar3")]
+        let packages: [SiteMap.Package] = [
+            .init(owner: "foo1", repository: "bar1"),
+            .init(owner: "foo2", repository: "bar2"),
+            .init(owner: "foo3", repository: "bar3"),
+        ]
 
         // MUT
         let xml = SiteURL.siteMap(with: packages).render(indentedBy: .spaces(2))
@@ -51,6 +55,20 @@ class SitemapTests: AppTestCase {
     }
 
     func test_sitemap_route() throws {
+        // setup
+        Current.siteURL = { "https://indexsite.com" }
+        let packages = (0..<3).map { Package(url: "\($0)".url) }
+        try packages.save(on: app.db).wait()
+        try packages.map { try Repository(package: $0, defaultBranch: "default",
+                                          name: $0.url, owner: "foo") }
+            .save(on: app.db)
+            .wait()
+        try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
+            .save(on: app.db)
+            .wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
         try app.test(.GET, "sitemap.xml") { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,

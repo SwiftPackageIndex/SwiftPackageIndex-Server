@@ -9,7 +9,7 @@ extension SiteURL {
         .faq, .home, .privacy
     ]
 
-    static func siteMap(with packages: [(owner: String, repository: String)]) -> SiteMap {
+    static func siteMap(with packages: [SiteMap.Package]) -> SiteMap {
         .init(
             .forEach(staticRoutes) {
                 .url(
@@ -17,10 +17,10 @@ extension SiteURL {
                     .changefreq($0.changefreq)
                 )
             },
-            .forEach(packages) { owner, repo in
+            .forEach(packages) { p in
                 .url(
-                    .loc(SiteURL.package(.value(owner), .value(repo)).absoluteURL()),
-                    .changefreq(SiteURL.package(.value(owner), .value(repo)).changefreq)
+                    .loc(SiteURL.package(.value(p.owner), .value(p.repository)).absoluteURL()),
+                    .changefreq(SiteURL.package(.value(p.owner), .value(p.repository)).changefreq)
                 )
             }
         )
