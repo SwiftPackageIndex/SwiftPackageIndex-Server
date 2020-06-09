@@ -1,3 +1,7 @@
 .build/
 .swiftpm/
 SPI-checkouts/
+Public/build
+Public/node_modules
+Public/.config.codekit3
+Public/package*.json
