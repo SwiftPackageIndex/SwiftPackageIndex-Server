@@ -1,5 +1,6 @@
 import Fluent
 import Plot
+import SQLKit
 
 
 extension SiteURL {
@@ -50,5 +51,34 @@ extension SiteURL {
             case .siteMap:
                 return.weekly
         }
+    }
+
+}
+
+
+extension SiteMap {
+    struct Package: Equatable, Decodable {
+        var owner: String
+        var repository: String
+
+        enum CodingKeys: String, CodingKey {
+            case owner = "owner"
+            case repository = "name"
+        }
+    }
+
+    static func fetchPackages(_ database: Database) -> EventLoopFuture<[Package]> {
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+
+        let query = db.select()
+            .column(Search.repoName)
+            .column(Search.repoOwner)
+            .from(Search.searchView)
+            .orderBy(Search.repoName)
+            .orderBy(Search.repoOwner)
+
+        return query.all(decoding: Package.self)
     }
 }

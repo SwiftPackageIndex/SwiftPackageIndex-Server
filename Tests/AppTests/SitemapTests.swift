@@ -1,5 +1,6 @@
 @testable import App
 
+import Plot
 import SnapshotTesting
 import XCTVapor
 
@@ -10,6 +11,32 @@ class SitemapTests: AppTestCase {
         try super.setUpWithError()
         record = false
     }
+
+    func test_fetchPackages() throws {
+        // Test fetching all record in the search view
+        // setup
+        let packages = (0..<3).map { Package(url: "\($0)".url) }
+        try packages.save(on: app.db).wait()
+        try packages.map { try Repository(package: $0, defaultBranch: "default",
+                                          name: $0.url, owner: "foo") }
+            .save(on: app.db)
+            .wait()
+        try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
+            .save(on: app.db)
+            .wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try SiteMap.fetchPackages(app.db).wait()
+
+        // validation
+        XCTAssertEqual(res, [
+            .init(owner: "foo", repository: "0"),
+            .init(owner: "foo", repository: "1"),
+            .init(owner: "foo", repository: "2"),
+        ])
+    }
+
 
     func test_render() throws {
         // setup

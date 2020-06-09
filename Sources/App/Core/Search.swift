@@ -6,6 +6,15 @@ import Vapor
 enum Search {
     static let schema = "search"
 
+    // identifiers
+    static let id = SQLIdentifier("id")
+    static let packageName = SQLIdentifier("package_name")
+    static let repoName = SQLIdentifier("name")
+    static let repoOwner = SQLIdentifier("owner")
+    static let summary = SQLIdentifier("summary")
+    static let score = SQLIdentifier("score")
+    static let searchView = SQLIdentifier("search")
+
     struct Result: Content, Equatable {
         var hasMoreResults: Bool
         var results: [Search.Record]
@@ -52,7 +61,7 @@ enum Search {
                   summary: summary)
         }
     }
-    
+
     private static func query(_ db: SQLDatabase, _ terms: [String]) -> EventLoopFuture<[DBRecord]> {
         let maxSearchTerms = 20  // just to impose some sort of limit
 
@@ -65,15 +74,6 @@ enum Search {
         let space = SQLLiteral.string(" ")
         let contains = SQLRaw("~*")
 
-        // identifiers
-        let id = SQLIdentifier("id")
-        let packageName = SQLIdentifier("package_name")
-        let repoName = SQLIdentifier("name")
-        let repoOwner = SQLIdentifier("owner")
-        let summary = SQLIdentifier("summary")
-        let score = SQLIdentifier("score")
-        let search = SQLIdentifier("search")
-
         let haystack = concat(
             packageName, space, coalesce(summary, empty), space, repoName, space, repoOwner
         )
@@ -85,7 +85,7 @@ enum Search {
             .column(repoName)
             .column(repoOwner)
             .column(summary)
-            .from(search)
+            .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(packageName))
