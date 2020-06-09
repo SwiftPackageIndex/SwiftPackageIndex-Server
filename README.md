@@ -70,7 +70,7 @@ The `ingest-loop.sh` script can serve as a simple way to run a full ingestion cy
 ```
 make reset        # clear dev db
 make reconcile    # import package list
-./ingest-loop.sh  # ingest metadata for 100 packages, pause for 10 sec, repeat
+./scripts/ingest-loop.sh  # ingest metadata for 100 packages, pause for 10 sec, repeat
 ```
 
 If you want to run ingestion for anything other than a cursory test, you'll need authenticated API calls. To do this, set a `GITHUB_TOKEN` environment variable to a [generated personal token](https://github.com/settings/tokens) which has the `public_repo` and `repo:status` scopes.
@@ -88,6 +88,8 @@ This will run the analysis stage for one package (`--limit 1`).
 NB: The analysis step will check out repositories to your local file system, by default into a directory `SPI-checkouts` in your project folder. You can change this location by setting the environment variable `CHECKOUTS_DIR` to another path.
 
 ## API poking
+
+NB: The API is currently disabled. Uncomment the api routes in `Sources/routes.swift` to re-enable them.
 
 You can poke at the API using [Rester](https//github.com/finestructure/Rester) by running the Restfile `test.restfile`:
 
