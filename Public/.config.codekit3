@@ -89,13 +89,13 @@
 		"oT": 1,
 		"q": 100
 		},
-	"/javascripts/dom_helpers.js": {
+	"/javascripts/copy_package_url.js": {
 		"bF": 0,
 		"ft": 64,
 		"ma": 1,
 		"mi": 1,
-		"oA": 0,
-		"oAP": "/javascripts/dom_helpers.min.js",
+		"oA": 1,
+		"oAP": "/javascripts/copy_package_url.min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
