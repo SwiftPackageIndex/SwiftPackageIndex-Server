@@ -62,10 +62,20 @@ extension RecentPackage {
             .title(packageName),
             .link(link),
             .pubDate(createdAt, timeZone: .utc),
-            .content(
-                .h2(.a(.href(link), .text(packageName))),
+            .description(
+                .p(
+                    .a(
+                        .href(link),
+                        .text(packageName)
+                    )
+                ),
                 .p(.text(packageSummary ?? "")),
-                .element(named: "small", nodes: [.a(.href(link), .text(packageName))])
+                .element(named: "small", nodes: [
+                    .a(
+                        .href(link),
+                        .text(packageName)
+                    )
+                ])
             )
         )
     }
@@ -78,13 +88,24 @@ extension RecentRelease {
                                    .value(repositoryName)).absoluteURL()
         return .item(
             .guid(.text(link), .isPermaLink(true)),
-            .title(packageName),
+            .title("\(packageName) - \(version)"),
             .link(link),
             .pubDate(releasedAt, timeZone: .utc),
-            .content(
-                .h2(.a(.href(link), .text("\(packageName) – \(version)"))),
+            .description(
+                .p(
+                    .a(
+                        .href(link),
+                        .text(packageName)
+                    ),
+                    .element(named: "small", text: " – \(version)")
+                ),
                 .p(.text(packageSummary ?? "")),
-                .element(named: "small", nodes: [.a(.href(link), .text(packageName))])
+                .element(named: "small", nodes: [
+                    .a(
+                        .href(link),
+                        .text(packageName)
+                    )
+                ])
             )
         )
     }
