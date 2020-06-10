@@ -60,7 +60,7 @@
               <strong>3 libraries</strong> and 
               <strong>1 executable</strong>.
             </li>
-            <li class="icon products">17 stars.</li>
+            <li class="icon stars">17 stars.</li>
           </ul>
         </section>
         <hr class="short"></hr>

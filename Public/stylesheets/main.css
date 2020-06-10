@@ -187,6 +187,7 @@ li.author:before { content: "\e901"; }
 li.history:before { content: "\e902" }
 li.activity:before { content: "\e903"; }
 li.products:before { content: "\e904"; }
+li.stars:before { content: "\e904"; }
 
 /* Overall layout ---------------------------------------------------------- */
 
