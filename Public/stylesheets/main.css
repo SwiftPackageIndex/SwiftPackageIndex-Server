@@ -288,33 +288,49 @@ nav ul li a {
   font-weight: 600;
 }
 
-/* Header ------------------------------------------------------------------ */
+/* Header and footer common ------------------------------------------------ */
 
-header {
+header,
+footer {
   color: var(--header-text);
   background-color: var(--header-background);
 }
 
-header .inner {
+header .inner,
+footer .inner {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
 }
 
 @media screen and (max-width: 767px) {
-  header .inner {
+  header .inner,
+  footer .inner {
     flex-direction: column;
   }
 }
 
-header a {
+header a,
+footer a {
   color: var(--header-link-text);
+}
+
+header a:hover,
+footer a:hover {
+  color: var(--header-link-highlight);
+}
+
+/* Header ------------------------------------------------------------------ */
+
+header .inner {
+  justify-content: space-between;
+  align-items: center;
+}
+
+header a {
   border-bottom: 1px var(--header-link-text) solid;
 }
 
 header a:hover {
-  color: var(--header-link-highlight);
   border-color: var(--header-link-highlight);
 }
 
@@ -593,28 +609,15 @@ div.error i {
 /* Footer ------------------------------------------------------------------ */
 
 footer {
-  padding: 10px 0;
-  color: var(--header-text);
-  background-color: var(--header-background);
   text-align: center;
 }
 
 footer .inner {
-  display: flex;
-  flex-direction: row;
   justify-content: center;
 }
 
 footer ul {
   margin: 10px;
-}
-
-footer a {
-  color: var(--header-link-text);
-}
-
-footer a:hover {
-  color: var(--header-link-highlight);
 }
 
 @media screen and (max-width: 767px) {
