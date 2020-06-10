@@ -62,7 +62,7 @@
   --error-background: var(--light-red);
   --error-text: var(--mid-red);
 
-  --code-snippet-background: var(--light-grey);
+  --code-snippet-background: var(--very-light-grey);
   --code-snippet-text: var(--black);
   --code-snippet-border: var(--grey);
 }
@@ -127,6 +127,7 @@ pre {
   border: 1px var(--code-snippet-border) solid;
   background-color: var(--code-snippet-background);
   color: var(--code-snippet-text);
+  font-size: 14px;
   border-radius: 4px;
   padding: 15px;
 }
