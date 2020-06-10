@@ -1,4 +1,4 @@
-/* Globals ----------------------------------------------------------------- */
+/* Base colours ------------------------------------------------------------ */
 
 :root {
   --dark-blue: #111930;
@@ -11,18 +11,60 @@
   --light-green: #5FBF1B;
 
   --yellow: #F2B94F;
-  --orange: #E69740;
-
-  --dark-red: #BB0000;
   --mid-red: #CC4444;
   --light-red: #FFEEEE;
 
-  --black: #2D2D2D;
+  --black: #1D1D1D;
+  --very-dark-grey: #2F2F2F;
   --dark-grey: #3E3E3E;
   --grey: #9A9A9A;
   --light-grey: #DADADA;
   --very-light-grey: #F1F1F1;
   --white: #FFFFFF;
+}
+
+/* Light mode colours ------------------------------------------------------ */
+
+:root {
+  --page-background: var(--white);
+  --page-text: var(--black);
+  --link-text: var(--mid-blue);
+  --link-highlight: var(--mid-red);
+
+  --header-background: var(--dark-blue);
+  --header-text: var(--white);
+  --header-link-text: var(--white);
+  --header-link-highlight: var(--yellow);
+
+  --input-background: var(--white);
+  --input-text: var(--black);
+  --input-placeholder: var(--light-grey);
+
+  --results-selected-background: var(--very-light-blue);
+  --results-separator: var(--light-grey);
+
+  --button-background: var(--very-light-blue);
+  --button-text: var(--mid-blue);
+  --button-border: var(--light-blue);
+
+  --rule-background: var(--light-blue);
+
+  --license-text: var(--white);
+  --license-compatible-background: var(--mid-green);
+  --license-incompatible-background: var(--mid-red);
+
+  --stable-text: var(--light-green);
+  --beta-text: var(--mid-green);
+  --branch-text: var(--dark-green);
+
+  --icon-text: var(--dark-grey);
+
+  --error-background: var(--light-red);
+  --error-text: var(--mid-red);
+
+  --code-snippet-background: var(--light-grey);
+  --code-snippet-text: var(--black);
+  --code-snippet-border: var(--grey);
 }
 
 /* Base styles ------------------------------------------------------------- */
@@ -32,8 +74,8 @@
 }
 
 body {
-  color: var(--black);
-  background-color: var(--white);
+  color: var(--page-text);
+  background-color: var(--page-background);
   font-family: "Open Sans", -apple-system, "BlinkMacSystemFont", "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 16px;
   line-height: 1.4;
@@ -65,8 +107,12 @@ h4 {
 }
 
 a {
-  color: var(--mid-blue);
+  color: var(--link-text);
   text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-highlight);
 }
 
 strong {
@@ -78,8 +124,9 @@ small {
 }
 
 pre {
-  border: 1px var(--grey) solid;
-  background-color: var(--very-light-grey);
+  border: 1px var(--code-snippet-border) solid;
+  background-color: var(--code-snippet-background);
+  color: var(--code-snippet-text);
   border-radius: 4px;
   padding: 15px;
 }
@@ -88,7 +135,7 @@ hr {
   margin: 40px 0;
   border: 0;
   height: 2px;
-  background-color: var(--light-blue);
+  background-color: var(--rule-background);
 }
 
 hr.short {
@@ -99,8 +146,8 @@ hr.short {
 noscript {
   display: block;
   padding: 20px 0;
-  background-color: var(--light-red);
-  color: var(--mid-red);
+  background-color: var(--error-background);
+  color: var(--error-text);
   text-align: center;
 }
 
@@ -109,16 +156,16 @@ noscript i {
 }
 
 ::placeholder {
-  color: var(--light-grey);
+  color: var(--input-placeholder);
 }
 
 button {
   padding: 2px 4px;
   margin: 0 5px;
-  border: 1px var(--light-blue) solid;
-  background-color: var(--very-light-blue);
+  border: 1px var(--button-border) solid;
+  background-color: var(--button-background);
+  color: var(--button-text);
   border-radius: 3px;
-  color: var(--mid-blue);
   font-weight: 600;
   font-size: 9px;
 }
@@ -172,7 +219,7 @@ li.icon {
 li.icon:before {
   margin-left: -35px;
   margin-right: 15px;
-  color: var(--dark-grey);
+  color: var(--icon-text);
   font-size: 18px;
 }
 
@@ -237,20 +284,15 @@ nav ul li {
 
 nav ul li a {
   padding: 3px;
-  color: var(--white);
   font-size: 15px;
   font-weight: 600;
-}
-
-nav ul li a:hover {
-  color: var(--yellow);
 }
 
 /* Header ------------------------------------------------------------------ */
 
 header {
-  color: var(--white);
-  background-color: var(--dark-blue);
+  color: var(--header-text);
+  background-color: var(--header-background);
 }
 
 header .inner {
@@ -267,7 +309,13 @@ header .inner {
 }
 
 header a {
-  color: var(--white);
+  color: var(--header-link-text);
+  border-bottom: 1px var(--header-link-text) solid;
+}
+
+header a:hover {
+  color: var(--header-link-highlight);
+  border-color: var(--header-link-highlight);
 }
 
 header h1 {
@@ -287,19 +335,11 @@ header h1 img {
   max-width: 64px;
 }
 
-header nav ul li a {
-  border-bottom: 1px var(--light-blue) solid;
-}
-
-header nav ul li a:hover {
-  border-color: var(--yellow);
-}
-
 /* Home page --------------------------------------------------------------- */
 
 .search {
   margin: 0;
-  background-color: var(--dark-blue);
+  background-color: var(--header-background);
   background-image: radial-gradient(rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 75%);
 }
 
@@ -332,7 +372,8 @@ header nav ul li a:hover {
   font-weight: 600;
   line-height: 1.2;
   border: none;
-  color: var(--black);
+  color: var(--input-text);
+  background-color: var(--input-background);
   resize: none;
   white-space: nowrap;
   overflow: hidden;
@@ -368,13 +409,13 @@ header nav ul li a:hover {
 /* Search results ---------------------------------------------------------- */
 
 #results {
-  margin-top: -4px;
+  margin-top: -5px;
   position: absolute;
   width: 100%;
   max-height: 500px;
   overflow: scroll;
-  background-color: var(--white);
-  border-top: 2px var(--light-blue) solid;
+  background-color: var(--page-background);
+  border-top: 1px var(--results-separator) solid;
   box-shadow: 0px 3px 8px 2px rgba(100, 100, 100, 0.2);
   z-index: 9999;
 }
@@ -389,7 +430,7 @@ header nav ul li a:hover {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  border-bottom: 1px var(--light-grey) solid;
+  border-bottom: 1px var(--results-separator) solid;
 }
 
 #results li:last-child {
@@ -397,7 +438,7 @@ header nav ul li a:hover {
 }
 
 #results li.selected {
-  background-color: var(--very-light-blue);
+  background-color: var(--results-selected-background);
 }
 
 #results div {
@@ -411,32 +452,29 @@ header nav ul li a:hover {
   display: inline;
   margin: 0;
   padding: 0;
-  color: var(--black);
 }
 
 #results small {
   font-size: 10px;
-  color: var(--mid-blue);
 }
 
 #results p {
   margin: 5px 0 0 0;
   font-size: 14px;
-  color: var(--black);
+  color: var(--page-text);
 }
 
 #results .no_results {
   padding: 40px;
   text-align: center;
-  color: var(--dark-grey);
 }
 
 #results .more_results {
   padding: 20px;
   text-align: center;
   font-weight: 600;
-  background-color: var(--very-light-grey);
-  color: var(--dark-grey);
+  background-color: var(--results-separator);
+  color: var(--page-text);
 }
 
 #results.error {
@@ -444,23 +482,21 @@ header nav ul li a:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: var(--light-red);
+  color: var(--error-text);
+  background-color: var(--error-background);
 }
 
 #results.error .icon {
   margin: 20px;
   font-size: 40px;
-  color: var(--mid-red);
 }
 
 #results.error h4 {
   margin-bottom: 10px;
-  color: var(--dark-red);
 }
 
 #results.error p {
   margin: 0 20px;
-  color: var(--dark-red);
 }
 
 /* Markdown pages ---------------------------------------------------------- */
@@ -507,14 +543,14 @@ div.license {
   align-items: center;
   padding: 7px 10px;
   border-radius: 8px;
-  color: var(--white);
+  color: var(--license-text);
   font-weight: 600;
   font-size: 18px;
-  background-color: var(--light-green);
+  background-color: var(--license-compatible-background);
 }
 
 div.license.incompatible {
-  background-color: var(--orange);
+  background-color: var(--license-incompatible-background);
 }
 
 span.stable,
@@ -524,15 +560,15 @@ span.branch {
 }
 
 span.stable {
-  color: var(--light-green);
+  color: var(--stable-text);
 }
 
 span.beta {
-  color: var(--mid-green);
+  color: var(--beta-text);
 }
 
 span.branch {
-  color: var(--dark-green);
+  color: var(--branch-text);
 }
 
 /* Error page -------------------------------------------------------------- */
@@ -551,15 +587,15 @@ div.error p {
 
 div.error i {
   font-size: 35px;
-  color: var(--mid-red);
+  color: var(--error-text);
 }
 
 /* Footer ------------------------------------------------------------------ */
 
 footer {
   padding: 10px 0;
-  color: var(--white);
-  background-color: var(--dark-blue);
+  color: var(--header-text);
+  background-color: var(--header-background);
   text-align: center;
 }
 
@@ -574,7 +610,11 @@ footer ul {
 }
 
 footer a {
-  color: var(--white);
+  color: var(--header-link-text);
+}
+
+footer a:hover {
+  color: var(--header-link-highlight);
 }
 
 @media screen and (max-width: 767px) {
