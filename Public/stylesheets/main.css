@@ -24,6 +24,20 @@
   --white: #FFFFFF;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --black: #070710;
+    --mid-blue: #55B7FF;
+    --mid-red: #FF4343;
+    --dark-red: #250201;
+    --yellow: #FFB834;
+
+    --mid-green: #0EBF4C;
+    --light-green: #96FF4C;
+    --dark-green: #0C946E;
+  }
+}
+
 /* Light mode colours ------------------------------------------------------ */
 
 :root {
@@ -36,6 +50,8 @@
   --header-text: var(--white);
   --header-link-text: var(--white);
   --header-link-highlight: var(--yellow);
+  --header-gradient-start: rgba(255, 255, 255, 0.2);
+  --header-gradient-end: rgba(255, 255, 255, 0.05);
 
   --input-background: var(--white);
   --input-text: var(--black);
@@ -73,6 +89,9 @@
     --page-background: var(--black);
     --page-text: var(--white);
 
+    --header-gradient-start: rgba(255, 255, 255, 0.08);
+    --header-gradient-end: rgba(255, 255, 255, 0.03);
+
     --input-background: var(--black);
     --input-text: var(--white);
     --input-placeholder: var(--dark-grey);
@@ -82,26 +101,18 @@
 
     --button-background: var(--dark-blue);
     --button-text: var(--mid-blue);
-    --button-border: var(--dark-blue);
+    --button-border: var(--mid-blue);
 
-    /* --rule-background: var(--light-blue); */
+    --rule-background: var(--dark-blue);
 
-    /* --license-text: var(--white);
-    --license-compatible-background: var(--mid-green);
-    --license-incompatible-background: var(--mid-red); */
+    --icon-text: var(--light-grey);
 
-    /* --stable-text: var(--light-green);
-    --beta-text: var(--mid-green);
-    --branch-text: var(--dark-green); */
+    --error-background: var(--dark-red);
+    --error-text: var(--mid-red);
 
-    /* --icon-text: var(--dark-grey); */
-
-    /* --error-background: var(--light-red);
-    --error-text: var(--mid-red); */
-
-    /* --code-snippet-background: var(--very-light-grey);
-    --code-snippet-text: var(--black);
-    --code-snippet-border: var(--grey); */
+    --code-snippet-background: var(--very-dark-grey);
+    --code-snippet-text: var(--white);
+    --code-snippet-border: var(--grey);
   }
 }
 
@@ -395,7 +406,7 @@ header h1 img {
 .search {
   margin: 0;
   background-color: var(--header-background);
-  background-image: radial-gradient(rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 75%);
+  background-image: radial-gradient(var(--header-gradient-start) 0%, var(--header-gradient-end) 75%);
 }
 
 .search .inner {
