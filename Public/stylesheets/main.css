@@ -326,11 +326,11 @@ header .inner {
   align-items: center;
 }
 
-header a {
+header nav a {
   border-bottom: 1px var(--header-link-text) solid;
 }
 
-header a:hover {
+header nav a:hover {
   border-color: var(--header-link-highlight);
 }
 
