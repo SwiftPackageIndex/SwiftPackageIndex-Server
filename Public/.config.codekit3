@@ -35,11 +35,33 @@
 		"oAP": "/fonts/icomoon.woff",
 		"oF": 0
 		},
+	"/images/language-and-platforms-full-metadata~dark.png": {
+		"ft": 32768,
+		"iS": 41605,
+		"oA": 0,
+		"oAP": "/images/language-and-platforms-full-metadata~dark.png",
+		"oF": 0,
+		"oIPL": 0,
+		"opt": 0,
+		"oT": 1,
+		"q": 100
+		},
 	"/images/language-and-platforms-full-metadata~light.png": {
 		"ft": 32768,
 		"iS": 41155,
 		"oA": 0,
 		"oAP": "/images/language-and-platforms-full-metadata~light.png",
+		"oF": 0,
+		"oIPL": 1,
+		"opt": 1,
+		"oT": 1,
+		"q": 100
+		},
+	"/images/language-and-platforms-language-only~dark.png": {
+		"ft": 32768,
+		"iS": 28843,
+		"oA": 0,
+		"oAP": "/images/language-and-platforms-language-only~dark.png",
 		"oF": 0,
 		"oIPL": 0,
 		"opt": 0,
@@ -52,6 +74,17 @@
 		"oA": 0,
 		"oAP": "/images/language-and-platforms-language-only~light.png",
 		"oF": 0,
+		"oIPL": 1,
+		"opt": 1,
+		"oT": 1,
+		"q": 100
+		},
+	"/images/language-and-platforms-no-metadata~dark.png": {
+		"ft": 32768,
+		"iS": 47434,
+		"oA": 0,
+		"oAP": "/images/language-and-platforms-no-metadata~dark.png",
+		"oF": 0,
 		"oIPL": 0,
 		"opt": 0,
 		"oT": 1,
@@ -63,8 +96,8 @@
 		"oA": 0,
 		"oAP": "/images/language-and-platforms-no-metadata~light.png",
 		"oF": 0,
-		"oIPL": 0,
-		"opt": 0,
+		"oIPL": 1,
+		"opt": 1,
 		"oT": 1,
 		"q": 100
 		},
