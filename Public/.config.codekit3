@@ -35,33 +35,33 @@
 		"oAP": "/fonts/icomoon.woff",
 		"oF": 0
 		},
-	"/images/language-and-platforms-full-metadata.png": {
+	"/images/language-and-platforms-full-metadata~light.png": {
 		"ft": 32768,
 		"iS": 41155,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-full-metadata.png",
+		"oAP": "/images/language-and-platforms-full-metadata~light.png",
 		"oF": 0,
 		"oIPL": 0,
 		"opt": 0,
 		"oT": 1,
 		"q": 100
 		},
-	"/images/language-and-platforms-language-only.png": {
+	"/images/language-and-platforms-language-only~light.png": {
 		"ft": 32768,
 		"iS": 29934,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-language-only.png",
+		"oAP": "/images/language-and-platforms-language-only~light.png",
 		"oF": 0,
 		"oIPL": 0,
 		"opt": 0,
 		"oT": 1,
 		"q": 100
 		},
-	"/images/language-and-platforms-no-metadata.png": {
+	"/images/language-and-platforms-no-metadata~light.png": {
 		"ft": 32768,
 		"iS": 39176,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-no-metadata.png",
+		"oAP": "/images/language-and-platforms-no-metadata~light.png",
 		"oF": 0,
 		"oIPL": 0,
 		"opt": 0,
