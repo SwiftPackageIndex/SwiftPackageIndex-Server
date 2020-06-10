@@ -26,8 +26,8 @@ export class ColorSchemeImageReplacer {
       if (filename.endsWith('~light') || filename.endsWith('~dark')) {
         const filenameWithoutSuffix = filename.split('~').shift()
         const colorScheme = this.currentColorScheme()
-        const newFilename = filenameWithoutSuffix + '~' + colorScheme + '.' + extension
-        imageSourceUrl.pathname = pathElements.join('/') + '/' + newFilename
+        pathElements.push(filenameWithoutSuffix + '~' + colorScheme + '.' + extension)
+        imageSourceUrl.pathname = pathElements.join('/')
         imageElement.src = imageSourceUrl.toString()
       }
     })
