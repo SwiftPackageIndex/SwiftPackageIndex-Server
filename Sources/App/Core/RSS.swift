@@ -73,7 +73,7 @@ extension RecentPackage {
                 .element(named: "small", nodes: [
                     .a(
                         .href(link),
-                        .text(packageName)
+                        .text("\(repositoryOwner)/\(repositoryName)")
                     )
                 ])
             )
@@ -103,7 +103,7 @@ extension RecentRelease {
                 .element(named: "small", nodes: [
                     .a(
                         .href(link),
-                        .text(packageName)
+                        .text("\(repositoryOwner)/\(repositoryName)")
                     )
                 ])
             )
