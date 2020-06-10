@@ -56,6 +56,9 @@ enum PackageShow {
                         },
                         .unwrap(model.productsClause()) {
                             .li(.class("icon products"), $0)
+                        },
+                        .unwrap(model.starsClause()) {
+                            .li(.class("icon products"), $0)
                         }
                     )
                 ),

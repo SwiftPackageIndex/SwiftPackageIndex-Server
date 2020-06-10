@@ -199,6 +199,16 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertEqual(model.activityClause()?.render(), nil)
     }
 
+    func test_stars_formatting() throws {
+        var model = PackageShow.Model.mock
+        model.stars = 999
+        XCTAssertEqual(model.starsClause()?.render(), "999 stars.")
+        model.stars = 1_000
+        XCTAssertEqual(model.starsClause()?.render(), "1,000 stars.")
+        model.stars = 1_000_000
+        XCTAssertEqual(model.starsClause()?.render(), "1,000,000 stars.")
+    }
+
 }
 
 

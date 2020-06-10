@@ -1,18 +1,20 @@
+import Foundation
 import Plot
 
 
 extension PackageShow {
     struct Model: Equatable {
-        var title: String
-        var url: String
-        var license: License
-        var summary: String
+        var activity: Activity?
         var authors: [Link]?
         var history: History?
-        var activity: Activity?
+        var languagePlatforms: LanguagePlatformInfo
+        var license: License
         var products: ProductCounts?
         var releases: ReleaseInfo
-        var languagePlatforms: LanguagePlatformInfo
+        var stars: Int?
+        var summary: String
+        var title: String
+        var url: String
 
         struct History: Equatable {
             var since: String
@@ -122,6 +124,23 @@ extension PackageShow.Model {
             ),
             "."
         ])
+    }
+
+    static var starsNumberFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.thousandSeparator = ","
+        f.numberStyle = .decimal
+        return f
+    }()
+
+    func starsClause() -> Node<HTML.BodyContext>? {
+        guard
+            let stars = stars,
+            let str = Self.starsNumberFormatter.string(from: NSNumber(value: stars))
+            else { return nil }
+        return .group(
+            "\(str) stars."
+        )
     }
 
     func stableReleaseClause() -> [Node<HTML.BodyContext>] {
