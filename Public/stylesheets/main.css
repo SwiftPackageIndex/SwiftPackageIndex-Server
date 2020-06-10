@@ -1,6 +1,7 @@
 /* Base colours ------------------------------------------------------------ */
 
 :root {
+  --very-dark-blue: #111117;
   --dark-blue: #111930;
   --mid-blue: #356FCE;
   --light-blue: #BEDEFF;
@@ -65,6 +66,43 @@
   --code-snippet-background: var(--very-light-grey);
   --code-snippet-text: var(--black);
   --code-snippet-border: var(--grey);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-background: var(--black);
+    --page-text: var(--white);
+
+    --input-background: var(--black);
+    --input-text: var(--white);
+    --input-placeholder: var(--dark-grey);
+
+    --results-selected-background: var(--very-dark-blue);
+    --results-separator: var(--very-dark-grey);
+
+    --button-background: var(--dark-blue);
+    --button-text: var(--mid-blue);
+    --button-border: var(--dark-blue);
+
+    /* --rule-background: var(--light-blue); */
+
+    /* --license-text: var(--white);
+    --license-compatible-background: var(--mid-green);
+    --license-incompatible-background: var(--mid-red); */
+
+    /* --stable-text: var(--light-green);
+    --beta-text: var(--mid-green);
+    --branch-text: var(--dark-green); */
+
+    /* --icon-text: var(--dark-grey); */
+
+    /* --error-background: var(--light-red);
+    --error-text: var(--mid-red); */
+
+    /* --code-snippet-background: var(--very-light-grey);
+    --code-snippet-text: var(--black);
+    --code-snippet-border: var(--grey); */
+  }
 }
 
 /* Base styles ------------------------------------------------------------- */
