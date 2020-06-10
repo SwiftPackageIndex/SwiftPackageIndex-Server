@@ -189,24 +189,20 @@ export class SPISearchCore {
     linkElement.href = result.packageURL
     searchResultElement.appendChild(linkElement)
 
-    // Name and repository identifier need to be grouped to be split.
-    const nameAndRepositoryContainer = document.createElement('div')
-    linkElement.appendChild(nameAndRepositoryContainer)
-
     // Name.
     const nameElement = document.createElement('h4')
     nameElement.textContent = result.packageName
-    nameAndRepositoryContainer.appendChild(nameElement)
-
-    // Repository identifier.
-    const repositoryElement = document.createElement('small')
-    repositoryElement.textContent = result.repositoryOwner + '/' + result.repositoryName
-    nameAndRepositoryContainer.appendChild(repositoryElement)
+    linkElement.appendChild(nameElement)
 
     // Summary.
     const summaryElement = document.createElement('p')
     summaryElement.textContent = result.summary
     linkElement.appendChild(summaryElement)
+
+    // Repository identifier.
+    const repositoryElement = document.createElement('small')
+    repositoryElement.textContent = result.repositoryOwner + '/' + result.repositoryName
+    linkElement.appendChild(repositoryElement)
 
     return searchResultElement
   }
