@@ -73,9 +73,11 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
             let versions = reconcileVersions(application: application,
                                              transaction: tx,
                                              checkouts: checkouts)
-            let versionsAndManifests = versions.map { getManifests(logger: application.logger,
-                                                                   versions: $0) }
-            return versionsAndManifests.flatMap { updateVersionsAndProducts(on: tx, results: $0) }
+            return versions
+                .map { getManifests(logger: application.logger, versions: $0) }
+                .flatMap { updateVersionsAndProducts(on: tx,
+                                                     client: application.client,
+                                                     results: $0) }
         }
     }
 
@@ -267,12 +269,17 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 }
 
 
-func updateVersionsAndProducts(on database: Database, results: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+func updateVersionsAndProducts(on database: Database,
+                               client: Client,
+                               results: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = results.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success((pkg, versionsAndManifests)):
                 let updates = versionsAndManifests.map { version, manifest in
-                    updateVersion(on: database, version: version, manifest: manifest)
+                    updateVersion(on: database,
+                                  client: client,
+                                  version: version,
+                                  manifest: manifest)
                         .flatMap { updateProducts(on: database, version: version, manifest: manifest)}
                 }
                 return EventLoopFuture
@@ -287,10 +294,39 @@ func updateVersionsAndProducts(on database: Database, results: [Result<(Package,
 }
 
 
-func updateVersion(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
+func updateVersion(on database: Database, client: Client, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
+    var ops = database.eventLoop.future()
+
     version.packageName = manifest.name
-    version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
-    version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
+
+    if let versions = manifest.swiftLanguageVersions {
+        let parsed = versions.compactMap(SwiftVersion.init)
+        version.swiftVersions = parsed
+        if versions.count != parsed.count {
+            ops = ops.flatMap {
+                Current.reportError(client, .critical,
+                                    AppError.genericError(version.$package.id,
+                                                          "unknown version in: \(versions)"))
+            }
+        }
+    } else {
+        version.swiftVersions = []
+    }
+
+    if let platforms = manifest.platforms {
+        let parsed = platforms.compactMap(Platform.init(from:))
+        version.supportedPlatforms = parsed
+        if platforms.count != parsed.count {
+            ops = ops.flatMap {
+                Current.reportError(client, .critical,
+                                    AppError.genericError(version.$package.id,
+                                                          "unknown platform in: \(platforms)"))
+            }
+        }
+    } else {
+        version.supportedPlatforms =  []
+    }
+
     return version.save(on: database)
 }
 
