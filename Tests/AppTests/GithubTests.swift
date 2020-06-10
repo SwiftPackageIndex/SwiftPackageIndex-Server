@@ -249,10 +249,19 @@ class GithubTests: AppTestCase {
             resp.status = .forbidden
             resp.headers.add(name: "X-RateLimit-Remaining", value: "0")
         }
+        var reportedLevel: AppError.Level? = nil
+        var reportedError: Error? = nil
+        Current.reportError = { _, level, error in
+            reportedLevel = level
+            reportedError = error
+            return .just(value: ())
+        }
 
         // MUT
         XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
-            // TODO: check for Rollbar item
+            // validation
+            XCTAssertNotNil(reportedError)
+            XCTAssertEqual(reportedLevel, .critical)
             guard case AppError.metadataRequestFailed(nil, .tooManyRequests, _) = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
                 return

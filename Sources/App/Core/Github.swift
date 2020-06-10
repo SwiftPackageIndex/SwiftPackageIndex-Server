@@ -73,9 +73,13 @@ enum Github {
             .get(uri, headers: getHeaders)
             .flatMap { response -> EventLoopFuture<T> in
                 guard !isRateLimited(response) else {
-                    return client.eventLoop.future(error:
-                        Error.requestFailed(.tooManyRequests, uri)
-                    )
+                    return Current
+                        .reportError(client,
+                                     .critical,
+                                     AppError.metadataRequestFailed(nil, .tooManyRequests, uri))
+                        .flatMap {
+                            client.eventLoop.future(error: Error.requestFailed(.tooManyRequests, uri))
+                    }
                 }
                 guard response.status == .ok else {
                     return client.eventLoop.future(error:
