@@ -9,32 +9,6 @@
 	],
 "creatorBuild": "32186",
 "files": {
-	"/fonts/icomoon.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 2,
-		"oAP": "/fonts/icomoon.svg",
-		"oF": 1,
-		"opt": 0,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/fonts/icomoon.ttf": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 0,
-		"oAP": "/fonts/icomoon.ttf",
-		"oF": 0
-		},
-	"/fonts/icomoon.woff": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 0,
-		"oAP": "/fonts/icomoon.woff",
-		"oF": 0
-		},
 	"/images/language-and-platforms-full-metadata.png": {
 		"ft": 32768,
 		"iS": 41155,
@@ -206,6 +180,14 @@
 		"oF": 0,
 		"oO": 0,
 		"oS": 1
+		},
+	"/robots.txt": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/robots.txt",
+		"oF": 0
 		},
 	"/stylesheets/grid.css": {
 		"aP": 1,

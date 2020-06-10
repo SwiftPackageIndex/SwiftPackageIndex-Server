@@ -177,16 +177,17 @@ li.icon:before {
 }
 
 i.osi:before { content: "\e900"; }
-i.stable:before { content: "\e905"; }
-i.beta:before { content: "\e906"; }
-i.branch:before { content: "\e907"; }
-i.question:before { content: "\e908"; }
-i.warning:before { content: "\e909"; }
+i.stable:before { content: "\e906"; }
+i.beta:before { content: "\e907"; }
+i.branch:before { content: "\e908"; }
+i.question:before { content: "\e909"; }
+i.warning:before { content: "\e90a"; }
 
 li.author:before { content: "\e901"; }
 li.history:before { content: "\e902" }
 li.activity:before { content: "\e903"; }
 li.products:before { content: "\e904"; }
+li.stars:before { content: "\e905"; }
 
 /* Overall layout ---------------------------------------------------------- */
 

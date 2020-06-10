@@ -28,18 +28,21 @@ extension PackageShow.Model {
             .map { p -> Self? in
                 // we consider certain attributes as essential and return nil (raising .notFound)
                 guard let title = p.name() else { return nil }
-                return Self.init(title: title,
-                                 url: p.url,
-                                 license: p.repository?.license ?? .none,
-                                 // FIXME: we should probably also display an explainer
-                    // when summery is nil
-                    summary: p.repository?.summary ?? "–",
+                return Self.init(
+                    activity: p.activity(),
                     authors: p.authors(),
                     history: p.history(),
-                    activity: p.activity(),
+                    languagePlatforms: p.languagePlatformInfo(),
+                    license: p.repository?.license ?? .none,
                     products: p.productCounts(),
                     releases: p.releaseInfo(),
-                    languagePlatforms: p.languagePlatformInfo())
+                    stars: p.repository?.stars,
+                    // FIXME: we should probably also display an explainer
+                    // when summary is nil
+                    summary: p.repository?.summary ?? "–",
+                    title: title,
+                    url: p.url
+                )
             }
             .unwrap(or: Abort(.notFound))
     }
