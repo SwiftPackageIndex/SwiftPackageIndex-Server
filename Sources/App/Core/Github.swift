@@ -58,10 +58,29 @@ enum Github {
         return decoder
     }()
 
+    static func isRateLimited(_ response: ClientResponse) -> Bool {
+        if
+            response.status == .forbidden,
+            let header = response.headers.first(name: "X-RateLimit-Remaining"),
+            let limit = Int(header) {
+            return limit == 0
+        }
+        return false
+    }
+
     static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) -> EventLoopFuture<T> {
         let request = client
             .get(uri, headers: getHeaders)
             .flatMap { response -> EventLoopFuture<T> in
+                guard !isRateLimited(response) else {
+                    return Current
+                        .reportError(client,
+                                     .critical,
+                                     AppError.metadataRequestFailed(nil, .tooManyRequests, uri))
+                        .flatMap {
+                            client.eventLoop.future(error: Error.requestFailed(.tooManyRequests, uri))
+                    }
+                }
                 guard response.status == .ok else {
                     return client.eventLoop.future(error:
                         Error.requestFailed(response.status, uri)
