@@ -89,3 +89,11 @@ extension RecentRelease {
         )
     }
 }
+
+// TODO: Upstream to Plot
+extension Node where Context: RSSItemContext {
+    static func description(_ nodes: Node<HTML.BodyContext>...) -> Node {
+        .element(named: "description",
+                 nodes: [Node.raw("<![CDATA[\(nodes.render())]]>")])
+    }
+}
