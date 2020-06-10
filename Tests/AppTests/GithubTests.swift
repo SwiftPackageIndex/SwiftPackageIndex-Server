@@ -1,5 +1,6 @@
 @testable import App
 
+import Vapor
 import XCTest
 
 
@@ -195,12 +196,63 @@ class GithubTests: AppTestCase {
         }
     }
 
-    func test_fetchMetadata_rateLimiting() throws {
+    func test_fetchMetadata_rateLimiting_429() throws {
+        // Github doesn't actually send a 429 when you hit the rate limit
         let pkg = Package(url: "https://github.com/foo/bar")
         let client = MockClient { _, resp in
             resp.status = .tooManyRequests
         }
         XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
+            guard case AppError.metadataRequestFailed(nil, .tooManyRequests, _) = $0 else {
+                XCTFail("unexpected error: \($0.localizedDescription)")
+                return
+            }
+        }
+    }
+
+    func test_isRateLimited() throws {
+        do {
+            let res = ClientResponse(status: .forbidden,
+                                     headers: .init([("X-RateLimit-Remaining", "0")]))
+            XCTAssertTrue(Github.isRateLimited(res))
+        }
+        do {
+            let res = ClientResponse(status: .forbidden,
+                                     headers: .init([("x-ratelimit-remaining", "0")]))
+            XCTAssertTrue(Github.isRateLimited(res))
+        }
+        do {
+            let res = ClientResponse(status: .forbidden,
+                                     headers: .init([("X-RateLimit-Remaining", "1")]))
+            XCTAssertFalse(Github.isRateLimited(res))
+        }
+        do {
+            let res = ClientResponse(status: .forbidden,
+                                     headers: .init([("unrelated", "0")]))
+            XCTAssertFalse(Github.isRateLimited(res))
+        }
+        do {
+            let res = ClientResponse(status: .ok,
+                                     headers: .init([("X-RateLimit-Remaining", "0")]))
+            XCTAssertFalse(Github.isRateLimited(res))
+        }
+    }
+
+    func test_fetchMetadata_rateLimiting_403() throws {
+        // Github sends a 403 and a rate limit remaining header
+        //   X-RateLimit-Limit: 60
+        //   X-RateLimit-Remaining: 56
+        // Ensure we record it as a rate limit error and raise a Rollbar item
+        // setup
+        let pkg = Package(url: "https://github.com/foo/bar")
+        let client = MockClient { _, resp in
+            resp.status = .forbidden
+            resp.headers.add(name: "X-RateLimit-Remaining", value: "0")
+        }
+
+        // MUT
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
+            // TODO: check for Rollbar item
             guard case AppError.metadataRequestFailed(nil, .tooManyRequests, _) = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
                 return
