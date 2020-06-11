@@ -107,11 +107,13 @@ func pullOrClone(application: Application, package: Package) -> EventLoopFuture<
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         if Current.fileManager.fileExists(atPath: cacheDir) {
             application.logger.info("pulling \(package.url) in \(cacheDir)")
-            // clean up stray index.lock files that might remain from aborted commands
-            let indexLock = cacheDir + "/.git/index.lock"
-            if Current.fileManager.fileExists(atPath: indexLock) {
-                application.logger.info("Removing stale index.lock at path: \(indexLock)")
-                try Current.shell.run(command: .removeFile(from: indexLock))
+            // clean up stray lock files that might have remained from aborted commands
+            try ["HEAD.lock", "index.lock"].forEach { fileName in
+                let filePath = cacheDir + "/.git/\(fileName)"
+                if Current.fileManager.fileExists(atPath: filePath) {
+                    application.logger.info("Removing stale \(fileName) at path: \(filePath)")
+                    try Current.shell.run(command: .removeFile(from: filePath))
+                }
             }
             // git reset --hard to deal with stray .DS_Store files on macOS
             try Current.shell.run(command: .init(string: "git reset --hard"), at: cacheDir)
