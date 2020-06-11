@@ -275,6 +275,9 @@ final class PackageTests: AppTestCase {
         try (0..<10).forEach {
             try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
         }
+        // add pre-release and default branch - these should *not* be counted as releases
+        try Version(package: pkg, reference: .branch("main")).create(on: app.db).wait()
+        try Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db).wait()
         // re-load pkg with relationships
         try pkg.$repositories.load(on: app.db)
             .flatMap { pkg.$versions.load(on: self.app.db) }

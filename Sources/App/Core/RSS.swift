@@ -85,7 +85,7 @@ extension RecentPackage {
 extension RecentRelease {
     var rssItem: Node<RSS.ChannelContext> {
         let link = SiteURL.package(.value(repositoryOwner),
-                                   .value(repositoryName)).absoluteURL()
+                                   .value(repositoryName)).absoluteURL(anchor: version)
         return .item(
             .guid(.text(link), .isPermaLink(true)),
             .title("\(packageName) - \(version)"),
