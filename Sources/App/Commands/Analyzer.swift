@@ -116,6 +116,7 @@ func pullOrClone(application: Application, package: Package) -> EventLoopFuture<
             // git reset --hard to deal with stray .DS_Store files on macOS
             try Current.shell.run(command: .init(string: "git reset --hard"), at: cacheDir)
             let branch = package.repository?.defaultBranch ?? "master"
+            try Current.shell.run(command: .init(string: "git fetch"), at: cacheDir)
             try Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
             try Current.shell.run(command: .gitPull(), at: cacheDir)
         } else {

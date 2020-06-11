@@ -196,7 +196,35 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
     }
 
-    func test_pullOrClone() throws {
+    func test_pullOrClonse() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
+        let queue = DispatchQueue(label: "serial")
+        Current.fileManager.fileExists = { _ in true }
+        var commands = [String]()
+        Current.shell.run = { cmd, path in
+            queue.sync {
+                // mask variable checkout
+                let checkoutDir = Current.fileManager.checkoutsDirectory()
+                commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+            }
+            return ""
+        }
+
+        // MUT
+        _ = try pullOrClone(application: app, package: pkg).wait()
+
+        // validate
+        XCTAssertEqual(commands, [
+            #"rm "-f" ".../github.com-foo-1/.git/index.lock""#,
+            #"git reset --hard"#,
+            #"git fetch"#,
+            #"git checkout "master" --quiet"#,
+            #"git pull --quiet"#,
+        ])
+    }
+
+    func test_pullOrClone_continueOnError() throws {
         // Test that processing continues on if a url in invalid
         // setup - first URL is not a valid url
         try savePackages(on: app.db, ["1", "2".asGithubUrl].asURLs, processingStage: .ingestion)
