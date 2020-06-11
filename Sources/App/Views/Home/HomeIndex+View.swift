@@ -39,7 +39,8 @@ enum HomeIndex {
                             .id("results"),
                             .attribute(named: "hidden", value: "true") // TODO: Fix after Plot update
                         )
-                    )
+                    ),
+                    .element(named: "small", text: "Indexing 2,482 packages and 36,483 versions.")
                 )
             )
         }

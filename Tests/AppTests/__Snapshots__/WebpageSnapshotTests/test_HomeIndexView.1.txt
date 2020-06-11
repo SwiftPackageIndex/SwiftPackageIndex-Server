@@ -43,6 +43,7 @@
           <textarea id="query" placeholder="Search" spellcheck="false" data-gramm="false" autofocus="true" rows="1"></textarea>
           <div id="results" hidden="true"></div>
         </form>
+        <small>Indexing 2,482 packages and 36,483 versions.</small>
       </div>
     </section>
     <main>
