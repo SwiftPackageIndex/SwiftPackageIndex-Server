@@ -82,7 +82,7 @@ extension Package {
             let repo = repository,
             let commitCount = repo.commitCount,
             let defaultBranch = repo.defaultBranch,
-            let releases = $versions.value,
+            let releases = $versions.value?.filter({ $0.reference?.isRelease ?? false }),
             let firstCommitDate = repo.firstCommitDate,
             let commitCountString = Self.numberFormatter.string(from: NSNumber(value: commitCount)),
             let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))

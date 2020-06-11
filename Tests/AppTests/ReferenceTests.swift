@@ -20,4 +20,10 @@ class ReferenceTests: XCTestCase {
         }
     }
 
+    func test_isRelease() throws {
+        XCTAssertTrue(Reference.tag(.init(1, 0, 0)).isRelease)
+        XCTAssertFalse(Reference.tag(.init(1, 0, 0, "beta1")).isRelease)
+        XCTAssertFalse(Reference.branch("main").isRelease)
+    }
+
 }

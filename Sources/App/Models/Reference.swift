@@ -26,6 +26,8 @@ enum Reference: Equatable {
                 return v
         }
     }
+
+    var isRelease: Bool { semVer?.isStable ?? false }
 }
 
 
