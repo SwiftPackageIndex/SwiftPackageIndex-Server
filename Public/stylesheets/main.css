@@ -444,10 +444,16 @@ header h1 img {
   resize: none;
   white-space: nowrap;
   overflow: hidden;
+  margin-bottom: 10px;
 }
 
 .search textarea:focus {
   outline: none;
+}
+
+.search small {
+  color: var(--button-text);
+  font-style: italic;
 }
 
 .recent {
