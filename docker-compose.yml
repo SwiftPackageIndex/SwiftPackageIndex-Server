@@ -51,7 +51,7 @@ services:
       - migrate
     entrypoint: ["/bin/bash"]
     command: ["-c", "--",
-      "trap : TERM INT; while true; do ./Run ingest --env ${ENV} --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-300}; done"
+      "trap : TERM INT; while true; do ./Run ingest --env ${ENV} --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-600}; done"
     ]
     restart: always
 
