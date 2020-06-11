@@ -9,36 +9,95 @@
 	],
 "creatorBuild": "32186",
 "files": {
-	"/images/language-and-platforms-full-metadata.png": {
+	"/fonts/icomoon.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/fonts/icomoon.svg",
+		"oF": 0,
+		"opt": 0,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/fonts/icomoon.ttf": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/fonts/icomoon.ttf",
+		"oF": 0
+		},
+	"/fonts/icomoon.woff": {
+		"cB": 0,
+		"ft": 8192,
+		"hM": 0,
+		"oA": 0,
+		"oAP": "/fonts/icomoon.woff",
+		"oF": 0
+		},
+	"/images/language-and-platforms-full-metadata~dark.png": {
+		"ft": 32768,
+		"iS": 41605,
+		"oA": 0,
+		"oAP": "/images/language-and-platforms-full-metadata~dark.png",
+		"oF": 0,
+		"oIPL": 0,
+		"opt": 0,
+		"oT": 1,
+		"q": 100
+		},
+	"/images/language-and-platforms-full-metadata~light.png": {
 		"ft": 32768,
 		"iS": 41155,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-full-metadata.png",
+		"oAP": "/images/language-and-platforms-full-metadata~light.png",
+		"oF": 0,
+		"oIPL": 1,
+		"opt": 1,
+		"oT": 1,
+		"q": 100
+		},
+	"/images/language-and-platforms-language-only~dark.png": {
+		"ft": 32768,
+		"iS": 28843,
+		"oA": 0,
+		"oAP": "/images/language-and-platforms-language-only~dark.png",
 		"oF": 0,
 		"oIPL": 0,
 		"opt": 0,
 		"oT": 1,
 		"q": 100
 		},
-	"/images/language-and-platforms-language-only.png": {
+	"/images/language-and-platforms-language-only~light.png": {
 		"ft": 32768,
 		"iS": 29934,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-language-only.png",
+		"oAP": "/images/language-and-platforms-language-only~light.png",
+		"oF": 0,
+		"oIPL": 1,
+		"opt": 1,
+		"oT": 1,
+		"q": 100
+		},
+	"/images/language-and-platforms-no-metadata~dark.png": {
+		"ft": 32768,
+		"iS": 47434,
+		"oA": 0,
+		"oAP": "/images/language-and-platforms-no-metadata~dark.png",
 		"oF": 0,
 		"oIPL": 0,
 		"opt": 0,
 		"oT": 1,
 		"q": 100
 		},
-	"/images/language-and-platforms-no-metadata.png": {
+	"/images/language-and-platforms-no-metadata~light.png": {
 		"ft": 32768,
 		"iS": 39176,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-no-metadata.png",
+		"oAP": "/images/language-and-platforms-no-metadata~light.png",
 		"oF": 0,
-		"oIPL": 0,
-		"opt": 0,
+		"oIPL": 1,
+		"opt": 1,
 		"oT": 1,
 		"q": 100
 		},
@@ -62,6 +121,17 @@
 		"opt": 0,
 		"oT": 1,
 		"q": 100
+		},
+	"/javascripts/color_scheme_image_replacer.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 1,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/javascripts/color_scheme_image_replacer.min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
 		},
 	"/javascripts/copy_package_url.js": {
 		"bF": 0,
