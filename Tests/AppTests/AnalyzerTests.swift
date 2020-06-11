@@ -196,7 +196,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
     }
 
-    func test_pullOrClonse() throws {
+    func test_pullOrClone() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         let queue = DispatchQueue(label: "serial")
