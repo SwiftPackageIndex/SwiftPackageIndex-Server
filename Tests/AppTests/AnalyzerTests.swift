@@ -81,7 +81,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         let outDir = try XCTUnwrap(checkoutDir)
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-        XCTAssertEqual(commands.count, 30)
+        XCTAssertEqual(commands.count, 31)
         // We need to sort the issued commands, because macOS and Linux have stable but different
         // sort orders o.O
         assertSnapshot(matching: commands.sorted(), as: .dump)
@@ -191,7 +191,7 @@ class AnalyzerTests: AppTestCase {
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(commands.count, 30, "was: \(dump(commands))")
+        XCTAssertEqual(commands.count, 31, "was: \(dump(commands))")
         // 2 packages with 2 tags + 1 default branch each -> 6 versions
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
     }
