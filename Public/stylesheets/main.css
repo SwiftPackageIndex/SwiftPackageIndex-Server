@@ -444,7 +444,6 @@ header h1 img {
   resize: none;
   white-space: nowrap;
   overflow: hidden;
-  margin-bottom: 10px;
 }
 
 .search textarea:focus {
@@ -454,6 +453,7 @@ header h1 img {
 .search small {
   color: var(--button-border);
   font-style: italic;
+  margin-top: 10px;
 }
 
 .recent {
