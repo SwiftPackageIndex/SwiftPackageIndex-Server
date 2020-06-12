@@ -101,6 +101,28 @@
 		"oT": 1,
 		"q": 100
 		},
+	"/images/logo-simple.png": {
+		"ft": 32768,
+		"iS": 10086,
+		"oA": 0,
+		"oAP": "/images/logo-simple.png",
+		"oF": 0,
+		"oIPL": 1,
+		"opt": 1,
+		"oT": 1,
+		"q": 100
+		},
+	"/images/logo.png": {
+		"ft": 32768,
+		"iS": 348426,
+		"oA": 0,
+		"oAP": "/images/logo.png",
+		"oF": 0,
+		"oIPL": 1,
+		"opt": 1,
+		"oT": 1,
+		"q": 100
+		},
 	"/images/logo.svg": {
 		"ft": 2097152,
 		"miP": 0,

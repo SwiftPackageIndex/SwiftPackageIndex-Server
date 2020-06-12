@@ -1,6 +1,8 @@
 ---
 page-title: Privacy & Cookies
+description: The Swift Package Index and your privacy
 ---
+
 ### Your Personal Information
 
 This site has no user accounts and will not ask you to identify yourself.
