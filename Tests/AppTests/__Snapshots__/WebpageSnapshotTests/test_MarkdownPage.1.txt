@@ -2,9 +2,17 @@
 <html><!--Version: dev - will be overriden in release builds-->
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="og:site_name" content="Swift Package Index"/>
     <title>Privacy &amp; Cookies &ndash; Swift Package Index</title>
     <meta name="twitter:title" content="Privacy & Cookies &ndash; Swift Package Index"/>
     <meta name="og:title" content="Privacy & Cookies &ndash; Swift Package Index"/>
+    <meta name="description" content="The Swift Package Index is the place to find the best Swift packages. Indexing 2,482 packages and 36,483 versions."/>
+    <meta name="twitter:description" content="The Swift Package Index is the place to find the best Swift packages. Indexing 2,482 packages and 36,483 versions."/>
+    <meta name="og:description" content="The Swift Package Index is the place to find the best Swift packages. Indexing 2,482 packages and 36,483 versions."/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image" content="/images/logo.png"/>
+    <meta name="og:image" content="/images/logo.png"/>
+    <link rel="shortcut icon" href="/images/logo-simple.png" type="image/png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
     <link rel="stylesheet" href="/stylesheets/main.min.css?0"/>

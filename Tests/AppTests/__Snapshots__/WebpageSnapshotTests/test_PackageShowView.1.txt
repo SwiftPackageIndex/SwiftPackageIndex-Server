@@ -2,9 +2,17 @@
 <html><!--Version: dev - will be overriden in release builds-->
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="og:site_name" content="Swift Package Index"/>
     <title>Alamofire &ndash; Swift Package Index</title>
     <meta name="twitter:title" content="Alamofire &ndash; Swift Package Index"/>
     <meta name="og:title" content="Alamofire &ndash; Swift Package Index"/>
+    <meta name="description" content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttit…"/>
+    <meta name="twitter:description" content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttit…"/>
+    <meta name="og:description" content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttit…"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:image" content="/images/logo.png"/>
+    <meta name="og:image" content="/images/logo.png"/>
+    <link rel="shortcut icon" href="/images/logo-simple.png" type="image/png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
     <link rel="stylesheet" href="/stylesheets/main.min.css?0"/>
