@@ -5,12 +5,22 @@ import Vapor
 
 func routes(_ app: Application) throws {
     app.get { req in
-        HomeIndex.Model.query(database: req.db).map { HomeIndex.View($0).document() }
+        HomeIndex.Model.query(database: req.db).map {
+            HomeIndex.View(path: req.url.path, model: $0).document()
+        }
     }
 
-    app.get(SiteURL.privacy.pathComponents) { _ in MarkdownPage("privacy.md").document() }
-    app.get(SiteURL.faq.pathComponents) { _ in MarkdownPage("faq.md").document() }
-    app.get(SiteURL.addAPackage.pathComponents) { _ in MarkdownPage("add-a-package.md").document() }
+    app.get(SiteURL.privacy.pathComponents) { req in
+        MarkdownPage(path: req.url.path, "privacy.md").document()
+    }
+
+    app.get(SiteURL.faq.pathComponents) { req in
+        MarkdownPage(path: req.url.path, "faq.md").document()
+    }
+
+    app.get(SiteURL.addAPackage.pathComponents) { req in
+        MarkdownPage(path: req.url.path, "add-a-package.md").document()
+    }
 
     let packageController = PackageController()
     app.get(SiteURL.packages.pathComponents, use: packageController.index)

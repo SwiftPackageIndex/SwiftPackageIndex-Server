@@ -30,7 +30,7 @@ class WebpageSnapshotTests: XCTestCase {
     }
 
     func test_HomeIndexView() throws {
-        let page = HomeIndex.View(.mock).document()
+        let page = HomeIndex.View(path: "/", model: .mock).document()
 
         let recordSnapshotForThisTest = false
         record = recordSnapshotForThisTest || recordSnapshotForAllTests
@@ -50,7 +50,7 @@ class WebpageSnapshotTests: XCTestCase {
     }
 
     func test_PackageShowView() throws {
-        let page = PackageShow.View(.mock).document()
+        let page = PackageShow.View(path: "", model: .mock).document()
 
         let recordSnapshotForThisTest = false
         record = recordSnapshotForThisTest || recordSnapshotForAllTests
@@ -72,7 +72,7 @@ class WebpageSnapshotTests: XCTestCase {
     func test_PackageShowView_incompatible_license() throws {
         var model = PackageShow.Model.mock
         model.license = License.gpl_3_0
-        let page = PackageShow.View(model).document()
+        let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
         record = recordSnapshotForThisTest || recordSnapshotForAllTests
@@ -97,7 +97,7 @@ class WebpageSnapshotTests: XCTestCase {
         var model = PackageShow.Model.mock
         model.authors = nil
         model.activity = nil
-        let page = PackageShow.View(model).document()
+        let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
         record = recordSnapshotForThisTest || recordSnapshotForAllTests
@@ -121,7 +121,7 @@ class WebpageSnapshotTests: XCTestCase {
         // no author or activity info
         var model = PackageShow.Model.mock
         model.languagePlatforms = .init(stable: nil, beta: nil, latest: nil)
-        let page = PackageShow.View(model).document()
+        let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
         record = recordSnapshotForThisTest || recordSnapshotForAllTests
@@ -147,7 +147,7 @@ class WebpageSnapshotTests: XCTestCase {
         model.languagePlatforms.stable?.platforms = []
         model.languagePlatforms.beta?.platforms = []
         model.languagePlatforms.latest?.platforms = []
-        let page = PackageShow.View(model).document()
+        let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
         record = recordSnapshotForThisTest || recordSnapshotForAllTests
@@ -173,7 +173,7 @@ class WebpageSnapshotTests: XCTestCase {
         model.languagePlatforms.stable?.swiftVersions = []
         model.languagePlatforms.beta?.swiftVersions = []
         model.languagePlatforms.latest?.swiftVersions = []
-        let page = PackageShow.View(model).document()
+        let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
         record = recordSnapshotForThisTest || recordSnapshotForAllTests
@@ -194,7 +194,7 @@ class WebpageSnapshotTests: XCTestCase {
 
     func test_ErrorPageView() throws {
         let model = ErrorPage.Model(Abort(.notFound))
-        let page = ErrorPage.View(model).document()
+        let page = ErrorPage.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
         record = recordSnapshotForThisTest || recordSnapshotForAllTests
@@ -214,7 +214,7 @@ class WebpageSnapshotTests: XCTestCase {
     }
 
     func test_MarkdownPage() throws {
-        let page = MarkdownPage("privacy.md").document()
+        let page = MarkdownPage(path: "", "privacy.md").document()
 
         let recordSnapshotForThisTest = false
         record = recordSnapshotForThisTest || recordSnapshotForAllTests
