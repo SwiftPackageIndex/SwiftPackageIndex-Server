@@ -8,7 +8,7 @@ extension AppEnvironment {
         date: Date.init,
         fetchMasterPackageList: { _ in
             .just(value: ["https://github.com/finestructure/Gala",
-                          "https://github.com/finestructure/SwiftPMLibrary-Server"].asURLs)
+                          "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"].asURLs)
         },
         fetchMetadata: { _, _ in .just(value: .mock) },
         fileManager: .mock,

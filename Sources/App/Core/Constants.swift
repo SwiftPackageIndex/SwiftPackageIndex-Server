@@ -14,7 +14,7 @@ enum Constants {
 
     static let latestMajorSwiftVersion = 5
 
-    static let masterPackageListUri = URI(string: "https://raw.githubusercontent.com/daveverwer/SwiftPMLibrary/master/packages.json")
+    static let masterPackageListUri = URI(string: "https://raw.githubusercontent.com/SwiftPackageIndex/MasterPackageList/master/packages.json")
 
     // NB: the underlying materialised views also have a limit, this is just an additional
     // limit to ensure we don't display we don't spill too many rows onto the home page

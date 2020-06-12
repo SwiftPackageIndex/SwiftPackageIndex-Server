@@ -11,7 +11,7 @@ class IngestorTests: AppTestCase {
         // setup
         let urls = ["https://github.com/finestructure/Gala",
                     "https://github.com/finestructure/Rester",
-                    "https://github.com/finestructure/SwiftPMLibrary-Server"]
+                    "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"]
         Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         let lastUpdate = Date()
