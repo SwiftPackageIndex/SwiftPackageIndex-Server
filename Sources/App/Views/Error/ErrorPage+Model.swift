@@ -18,6 +18,20 @@ extension ErrorPage {
                 return message
             }
         }
+
+        var errorInstructions: String {
+            get {
+                switch error.status.code {
+                    case 404:
+                        return """
+                        If you were expecting to see a page here, the site might be in the process of re-indexing this package.
+                        Please try again in an hour or two.
+                        """
+                    default:
+                        return ""
+                }
+            }
+        }
     }
     
 }

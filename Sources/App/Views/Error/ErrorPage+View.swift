@@ -18,7 +18,10 @@ enum ErrorPage {
                 ),
                 // Note: The copy in this header tag intentionally matches the copy in `search_core.js`.
                 .h4("Something went wrong. Sorry!"),
-                .p(.text(model.errorMessage))
+                .p(.text(model.errorMessage)),
+                .if(model.errorInstructions.count > 0,
+                    .p(.text(model.errorInstructions))
+                )
             )
         }
 
