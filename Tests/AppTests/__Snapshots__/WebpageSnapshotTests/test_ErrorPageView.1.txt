@@ -41,6 +41,8 @@
           <i class="icon warning"></i>
           <h4>Something went wrong. Sorry!</h4>
           <p>404 - Not Found</p>
+          <p>If you were expecting to see a page here, the site might be in the process of re-indexing this package.
+Please try again in an hour or two.</p>
         </div>
       </div>
     </main>
