@@ -66,7 +66,10 @@ The more metadata the Swift Package Index knows about your package, the better w
 
 Does your package listing currently show this?
 
-![Missing language and platform metadata](/images/language-and-platforms-no-metadata~light.png)
+<picture>
+  <source srcset="/images/language-and-platforms-no-metadata~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/language-and-platforms-no-metadata~light.png" alt="Missing language and platform metadata">
+</picture>
 
 Two critical pieces of metadata are the **supported Swift language versions** and the **supported platforms** for your package.
 
@@ -86,7 +89,10 @@ swiftLanguageVersions: [.v5]
 
 Once you add this key and push an updated `Package.swift`. The Swift Package Index will pick up your new metadata within a few hours. After the update, your listing will look something like this:
 
-![Swift language metadata](/images/language-and-platforms-language-only~light.png)
+<picture>
+  <source srcset="/images/language-and-platforms-language-only~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/language-and-platforms-language-only~light.png" alt="Swift language metadata">
+</picture>
 
 **Note:** Be careful not to mix up `swiftLanguageVersions` with the `swift-tools-version` comment at the top of your `Package.swift` file. `swiftLanguageVersions` defines the version(s) of Swift your package supports, and `swift-tools-version` determines what version of Swift is required to parse your `Package.swift` file. The Swift Package Index *only* parses the `swiftLanguageVersions` metadata.
 
@@ -103,7 +109,10 @@ platforms: [.macOS(.v10_12),
 
 Add or update this property and push an updated `Package.swift`.  The index will update within a few hours, and your listing will look something like this:
 
-![Swift language and platform metadata](/images/language-and-platforms-full-metadata~light.png)
+<picture>
+  <source srcset="/images/language-and-platforms-full-metadata~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/language-and-platforms-full-metadata~light.png" alt="Swift language and platform metadata">
+</picture>
 
 **Note:** Unfortunately, `Package.swift` does not currently support platform metadata that includes Linux compatibility. If this ever changes, the Swift Package Index will support it.
 
