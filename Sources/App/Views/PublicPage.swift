@@ -103,6 +103,29 @@ class PublicPage {
         nil
     }
 
+    /// The page description, or a default page description if none is specified.
+    /// - Returns: A string with the fully formed page description, ready for use in a meta tag.
+    final func description(maxLength: Int = 200) -> String {
+        guard let pageDescription = pageDescription() else {
+            return """
+            The Swift Package Index is the place to find the best Swift packages.\
+            Indexing 2,482 packages and 36,483 versions.
+            """
+        }
+
+        if pageDescription.count >= maxLength - 1 {
+            return pageDescription.prefix(maxLength - 1) + "…"
+        } else {
+            return pageDescription
+        }
+    }
+
+    /// The description for the current page.
+    /// - Returns: A string with a custom page description, if one is desired.
+    func pageDescription() -> String? {
+        nil
+    }
+
     /// A CSS class name to add to the <body> element.
     /// - Returns: A string with one or more CSS class names.
     func bodyClass() -> String? {
