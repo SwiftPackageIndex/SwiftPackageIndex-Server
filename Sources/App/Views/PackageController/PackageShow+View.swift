@@ -15,6 +15,10 @@ enum PackageShow {
             model.title
         }
 
+        override func pageDescription() -> String? {
+            model.summary
+        }
+
         override func bodyClass() -> String? {
             "package"
         }
