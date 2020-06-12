@@ -6,10 +6,10 @@
     <title>Alamofire &ndash; Swift Package Index</title>
     <meta name="twitter:title" content="Alamofire &ndash; Swift Package Index"/>
     <meta name="og:title" content="Alamofire &ndash; Swift Package Index"/>
-    <meta name="description" content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttit…"/>
-    <meta name="twitter:description" content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttit…"/>
-    <meta name="og:description" content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttit…"/>
-    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="description" content="Alamofire on the Swift Package Index :: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehic…"/>
+    <meta name="twitter:description" content="Alamofire on the Swift Package Index :: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehic…"/>
+    <meta name="og:description" content="Alamofire on the Swift Package Index :: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehic…"/>
+    <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="/images/logo.png"/>
     <meta name="og:image" content="/images/logo.png"/>
     <link rel="shortcut icon" href="/images/logo-simple.png" type="image/png"/>
