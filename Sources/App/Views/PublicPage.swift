@@ -26,6 +26,7 @@ class PublicPage {
         .head(
             .viewport(.accordingToDevice, initialScale: 1),
             .siteName("Swift Package Index"),
+            .url(SiteURL.absoluteURL(for: path)),
             .title(title()),
             .description(description()),
             .twitterCardType(.summary),
