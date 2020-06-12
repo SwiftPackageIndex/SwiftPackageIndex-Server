@@ -25,7 +25,7 @@ class PublicPage {
     final func head() -> Node<HTML.DocumentContext> {
         .head(
             .viewport(.accordingToDevice, initialScale: 1),
-            .siteName("Swift Package Index"),
+            .siteName("The Swift Package Index"),
             .url(SiteURL.absoluteURL(for: path)),
             .title(title()),
             .description(description()),
