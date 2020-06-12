@@ -19,7 +19,7 @@ extension ErrorPage {
             }
         }
 
-        var errorInstructions: String {
+        var errorInstructions: String? {
             get {
                 switch error.status.code {
                     case 404:
@@ -28,7 +28,7 @@ extension ErrorPage {
                         Please try again in an hour or two.
                         """
                     default:
-                        return ""
+                        return nil
                 }
             }
         }
