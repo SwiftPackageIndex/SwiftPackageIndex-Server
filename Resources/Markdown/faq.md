@@ -1,6 +1,8 @@
 ---
 page-title: FAQ
+description: Frequently Asked Questions about the Swift Package Index
 ---
+
 ## Frequently Asked Questions
 
 * [What is the Swift Package Index?](#what-is-the-spi)

@@ -7,6 +7,7 @@ class MarkdownPage: PublicPage {
 
     enum Metadata: String {
         case pageTitle = "page-title"
+        case description
     }
 
     let metadata: [String: String]
@@ -29,6 +30,10 @@ class MarkdownPage: PublicPage {
 
     override func pageTitle() -> String? {
         metadata[Metadata.pageTitle]
+    }
+
+    override func pageDescription() -> String? {
+        metadata[Metadata.description]
     }
 
     override func bodyClass() -> String? {
