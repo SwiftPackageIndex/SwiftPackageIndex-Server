@@ -2,13 +2,13 @@
 page-title: Add a Package
 ---
 
-## Adding a package to the Swift Package Index
+### Adding a package to the Swift Package Index
 
 Adding a new package to the Swift Package Index is easy. This whole site is powered by a master list of repositories, stored in a JSON file (see [how does this site work](/faq#how-does-it-work) for more information).
 
 To add a package to the site, just add a the URL of a publicly available git repository to [this JSON file](https://github.com/daveverwer/SwiftPMLibrary/blob/master/packages.json).
 
-## Package requirements
+### Package requirements
 
 Please feel free to submit your own, or other people's repositories to this list. There are a few requirements, but they are simple:
 
@@ -23,7 +23,7 @@ Please feel free to submit your own, or other people's repositories to this list
 
 **Note:** There's no gatekeeping or quality threshold to be included in this list. As long as the package is valid, and meets the above requirements
 
-## How do you add a package?
+### How do you add a package?
 
 It's simple. Fork this repository, edit `packages.json`, and submit a pull request. If you plan to submit a set of packages, there is no need to submit each package in a separate pull request. Feel free to bundle multiple updates at once as long as all packages match the criteria above.
 
