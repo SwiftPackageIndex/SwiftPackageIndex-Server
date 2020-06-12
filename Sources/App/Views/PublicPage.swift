@@ -108,7 +108,7 @@ class PublicPage {
     final func description(maxLength: Int = 200) -> String {
         guard let pageDescription = pageDescription() else {
             return """
-            The Swift Package Index is the place to find the best Swift packages.\
+            The Swift Package Index is the place to find the best Swift packages. \
             Indexing 2,482 packages and 36,483 versions.
             """
         }
