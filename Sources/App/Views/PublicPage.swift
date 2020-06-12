@@ -22,7 +22,7 @@ class PublicPage {
             .siteName("Swift Package Index"),
             .title(title()),
             .description(description()),
-            .twitterCardType(.summaryLargeImage),
+            .twitterCardType(.summary),
             .socialImageLink("/images/logo.png"),
             .favicon("/images/logo-simple.png"),
             .link(
