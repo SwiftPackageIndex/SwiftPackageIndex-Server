@@ -10,8 +10,8 @@
     <meta name="twitter:description" content="Alamofire on the Swift Package Index :: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehic…"/>
     <meta name="og:description" content="Alamofire on the Swift Package Index :: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehic…"/>
     <meta name="twitter:card" content="summary"/>
-    <meta name="twitter:image" content="/images/logo.png"/>
-    <meta name="og:image" content="/images/logo.png"/>
+    <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
+    <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
     <link rel="shortcut icon" href="/images/logo-simple.png" type="image/png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
