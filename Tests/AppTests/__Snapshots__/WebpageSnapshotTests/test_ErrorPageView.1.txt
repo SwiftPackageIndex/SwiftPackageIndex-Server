@@ -34,7 +34,7 @@
         <nav>
           <ul>
             <li>
-              <a href="https://github.com/daveverwer/SwiftPMLibrary">Add a Package</a>
+              <a href="/add-a-package">Add a Package</a>
             </li>
             <li>
               <a href="/faq">FAQ</a>

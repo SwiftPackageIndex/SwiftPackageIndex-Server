@@ -34,6 +34,8 @@ extension SiteURL {
                 return .weekly
             case .faq:
                 return .weekly
+            case .addAPackage:
+                return .weekly
             case .home:
                 return .hourly
             case .images(_):
