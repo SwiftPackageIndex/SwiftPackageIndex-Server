@@ -19,7 +19,12 @@ class PublicPage {
     final func head() -> Node<HTML.DocumentContext> {
         .head(
             .viewport(.accordingToDevice, initialScale: 1),
+            .siteName("Swift Package Index"),
             .title(title()),
+            .description(description()),
+            .twitterCardType(.summaryLargeImage),
+            .socialImageLink("/images/logo.png"),
+            .favicon("/images/logo-simple.png"),
             .link(
                 .rel(.stylesheet),
                 .href("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css")
