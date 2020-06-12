@@ -17,7 +17,7 @@ enum PackageShow {
         }
 
         override func pageDescription() -> String? {
-            "\(model.title) on the Swift Package Index :: \(model.summary)"
+            "\(model.title) on the Swift Package Index – \(model.summary)"
         }
 
         override func bodyClass() -> String? {
