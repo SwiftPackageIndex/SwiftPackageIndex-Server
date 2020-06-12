@@ -2,14 +2,7 @@
 
 Find the best Swift libraries and frameworks that support the [Swift Package Manager](https://swift.org/package-manager/).
 
-## Concepts
-
-This project is currently made up of two distinct parts:
-
-* Command processes that run constantly to fetch packages from a [master package list](https://github.com/daveverwer/SwiftPMLibrary/blob/master/packages.json), parse metadata about the packages, and insert it into a database.
-* A web front end that allows that database to be viewed and searched.
-
-### Reconciliation, Ingestion, and Analysis
+## Reconciliation, Ingestion, and Analysis
 
 The command processes that fetch and parse package metadata are broken up into three separate commands.
 
