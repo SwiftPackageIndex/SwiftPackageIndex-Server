@@ -6,9 +6,12 @@ enum ErrorPage {
     final class View: PublicPage {
         let model: Model
 
-        init(_ model: Model) {
+        
+        init(path: String, model: Model) {
             self.model = model
+            super.init(path: path)
         }
+
 
         override func content() -> Node<HTML.BodyContext> {
             .div(

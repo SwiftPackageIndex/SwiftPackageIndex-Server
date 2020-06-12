@@ -12,7 +12,7 @@ class MarkdownPage: PublicPage {
     let metadata: [String: String]
     let html: String?
 
-    init(_ markdownFilename: String) {
+    init(path: String, _ markdownFilename: String) {
         assert(markdownFilename.split(separator: "/").count < 2, "Filename should not include path separators.")
 
         let pathToMarkdownFile = Current.fileManager.workingDirectory()
@@ -23,6 +23,8 @@ class MarkdownPage: PublicPage {
         let result = markdown.map(MarkdownParser().parse)
         metadata = result?.metadata ?? [:]
         html = result?.html
+        
+        super.init(path: path)
     }
 
     override func pageTitle() -> String? {

@@ -4,6 +4,12 @@ import Plot
 
 class PublicPage {
 
+    let path: String
+
+    init(path: String) {
+        self.path = path
+    }
+
     /// The page's full HTML document.
     /// - Returns: A fully formed page inside a <html> element.
     final func document() -> HTML {
