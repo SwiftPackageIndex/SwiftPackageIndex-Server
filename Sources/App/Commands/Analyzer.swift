@@ -295,37 +295,9 @@ func updateVersionsAndProducts(on database: Database,
 
 
 func updateVersion(on database: Database, client: Client, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
-    var ops = database.eventLoop.future()
-
     version.packageName = manifest.name
-
-    if let versions = manifest.swiftLanguageVersions {
-        let parsed = versions.compactMap(SwiftVersion.init)
-        version.swiftVersions = parsed
-        if versions.count != parsed.count {
-            ops = ops.flatMap {
-                Current.reportError(client, .critical,
-                                    AppError.genericError(version.$package.id,
-                                                          "unknown version in: \(versions)"))
-            }
-        }
-    } else {
-        version.swiftVersions = []
-    }
-
-    if let platforms = manifest.platforms {
-        let parsed = platforms.compactMap(Platform.init(from:))
-        version.supportedPlatforms = parsed
-        if platforms.count != parsed.count {
-            ops = ops.flatMap {
-                Current.reportError(client, .critical,
-                                    AppError.genericError(version.$package.id,
-                                                          "unknown platform in: \(platforms)"))
-            }
-        }
-    } else {
-        version.supportedPlatforms =  []
-    }
+    version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
+    version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
 
     return version.save(on: database)
 }
