@@ -23,8 +23,8 @@ class PublicPage {
             .title(title()),
             .description(description()),
             .twitterCardType(.summary),
-            .socialImageLink("/images/logo.png"),
-            .favicon("/images/logo-simple.png"),
+            .socialImageLink(SiteURL.images("logo.png").absoluteURL()),
+            .favicon(SiteURL.images("logo-simple.png").relativeURL()),
             .link(
                 .rel(.stylesheet),
                 .href("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css")
