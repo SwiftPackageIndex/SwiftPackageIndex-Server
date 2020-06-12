@@ -95,6 +95,14 @@ enum SiteURL: Resourceable {
         }
     }
 
+    static func relativeURL(for path: String) -> String {
+        guard path.hasPrefix("/") else { return "/" + path }
+        return path
+    }
+
+    static func absoluteURL(for path: String) -> String {
+        Current.siteURL() + relativeURL(for: path)
+    }
 }
 
 

@@ -23,8 +23,9 @@ public final class ErrorMiddleware: Middleware {
             ? Current.reportError(req.client, .critical, error)
             : req.eventLoop.future()
         let model = ErrorPage.Model(error)
-        return alert.flatMap { ErrorPage.View(model).document().encodeResponse(for: req,
-                                                                               status: error.status) }
+        return alert.flatMap { ErrorPage.View(path: req.url.path,
+                                              model: model).document().encodeResponse(for: req,
+                                                                                      status: error.status) }
     }
 }
 
