@@ -1,5 +1,4 @@
 import debounce from 'lodash/debounce'
-import delay from 'lodash/delay'
 import axios from 'axios'
 
 import { SessionKey } from './session_serialization.js'
@@ -38,24 +37,15 @@ export class SPISearchCore {
     if (!queryFieldElement) { return }
 
     // When any input is received by the query field, perform the search.
-    queryFieldElement.addEventListener('input', debounce((event) => {
-      this.performSearch(event.target)
+    queryFieldElement.addEventListener('input', debounce(() => {
+      this.performSearch()
     }), 300)
-
-    // When focus is given to the query field, show the results if there is a query.
-    queryFieldElement.addEventListener('focus', (event) => {
-      this.performSearch(event.target)
-    })
-
-    // When focus is lost, always hide the results div.
-    queryFieldElement.addEventListener('blur', () => {
-      delay(() => {
-        this.replaceResultsDivWith(this.hiddenSearchResultsElement())
-      }, 150)
-    })
   }
 
-  performSearch(queryFieldElement) {
+  performSearch() {
+    const queryFieldElement = document.getElementById('query')
+    if (!queryFieldElement) { return }
+
     const searchQuery = queryFieldElement.value.trim()
     if (searchQuery.length > 0) {
       this.makeSearchRequest(searchQuery)
