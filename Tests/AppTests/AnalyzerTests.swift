@@ -8,7 +8,7 @@ import XCTest
 
 class AnalyzerTests: AppTestCase {
     
-    func test_basic_analysis() throws {
+    func test_analyze() throws {
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
@@ -111,7 +111,8 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg1.score, 10)
         XCTAssertEqual(pkg2.score, 20)
 
-        // ensure recent packages and releases are refreshed
+        // ensure stats, recent packages, and releases are refreshed
+        XCTAssertEqual(try Stats.fetch(on: app.db).wait(), .init(packageCount: 2, versionCount: 6))
         XCTAssertEqual(try RecentPackage.fetch(on: app.db).wait().count, 2)
         XCTAssertEqual(try RecentRelease.fetch(on: app.db).wait().count, 2)
     }

@@ -87,6 +87,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
         .flatMap { RecentPackage.refresh(on: application.db) }
         .flatMap { RecentRelease.refresh(on: application.db) }
         .flatMap { Search.refresh(on: application.db) }
+        .flatMap { Stats.refresh(on: application.db) }
 
     return materializedViewRefresh
 }
