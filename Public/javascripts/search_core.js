@@ -38,23 +38,37 @@ export class SPISearchCore {
 
     // When any input is received by the query field, perform the search.
     queryFieldElement.addEventListener('input', debounce((event) => {
-      const queryFieldElement = event.target
-      const searchQuery = queryFieldElement.value.trim()
-      if (searchQuery.length > 0) {
-        this.performSearch(searchQuery)
-      } else {
-        this.replaceResultsDivWith(this.hiddenSearchResultsElement())
-      }
+      this.performSearch(event.target)
     }), 300)
+
+    // When focus is given to the query field, show the results if there is a query.
+    queryFieldElement.addEventListener('focus', (event) => {
+      this.performSearch(event.target)
+    })
+
+    // When focus is lost, always hide the results div.
+    queryFieldElement.addEventListener('blur', () => {
+      this.replaceResultsDivWith(this.hiddenSearchResultsElement())
+    })
   }
 
-  performSearch(searchQuery) {
+  performSearch(queryFieldElement) {
+    const searchQuery = queryFieldElement.value.trim()
+    if (searchQuery.length > 0) {
+      this.makeSearchRequest(searchQuery)
+    } else {
+      this.replaceResultsDivWith(this.hiddenSearchResultsElement())
+    }
+  }
+
+  makeSearchRequest(searchQuery) {
     const searchUrl = '/api/search?query=' + searchQuery
 
     // Cancel any already running search requests.
     if (this.requestCancelFunction) { this.requestCancelFunction() }
 
     axios.get(searchUrl, {
+      // Create and store a cancellation token for this specific request.
       cancelToken: new axios.CancelToken((cancelFunction) => {
         this.requestCancelFunction = cancelFunction
       })
@@ -80,7 +94,6 @@ export class SPISearchCore {
       }
     })
   }
-
 
   // -- Search result replacement ---------------------------------------------
 
