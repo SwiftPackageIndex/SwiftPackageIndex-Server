@@ -12,7 +12,7 @@ struct CreateStats: Migration {
             -- v0
             CREATE MATERIALIZED VIEW stats AS
             SELECT
-            NOW() AS DATE,
+            NOW() AS date,
             (SELECT COUNT(*) FROM packages) AS package_count,
             (SELECT COUNT(*) FROM versions) AS version_count
             """
