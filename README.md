@@ -84,7 +84,7 @@ NB: The analysis step will check out repositories to your local file system, by 
 
 NB: The API is currently disabled. Uncomment the api routes in `Sources/routes.swift` to re-enable them.
 
-You can poke at the API using [Rester](https//github.com/finestructure/Rester) by running the Restfile `test.restfile`:
+You can poke at the API using [Rester](https://github.com/finestructure/Rester) by running the Restfile `test.restfile`:
 
 ```
 rester restfiles/test.testfile
