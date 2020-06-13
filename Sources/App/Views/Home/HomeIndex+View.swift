@@ -41,7 +41,7 @@ enum HomeIndex {
                             .attribute(named: "hidden", value: "true") // TODO: Fix after Plot update
                         )
                     ),
-                    .element(named: "small", text: "Indexing 2,482 packages and 36,483 versions.")
+                    .element(named: "small", text: "Indexing 2,544 packages and 38,410 versions.")
                 )
             )
         }
