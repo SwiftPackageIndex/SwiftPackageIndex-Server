@@ -1,4 +1,5 @@
 import debounce from 'lodash/debounce'
+import delay from 'lodash/delay'
 import axios from 'axios'
 
 import { SessionKey } from './session_serialization.js'
@@ -48,7 +49,9 @@ export class SPISearchCore {
 
     // When focus is lost, always hide the results div.
     queryFieldElement.addEventListener('blur', () => {
-      this.replaceResultsDivWith(this.hiddenSearchResultsElement())
+      delay(() => {
+        this.replaceResultsDivWith(this.hiddenSearchResultsElement())
+      }, 150)
     })
   }
 
