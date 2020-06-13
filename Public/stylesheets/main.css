@@ -246,7 +246,7 @@ li.icon:before {
   font-weight: normal;
   font-variant: normal;
   text-transform: none;
-  vertical-align: middle;
+  vertical-align: baseline;
   line-height: 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
