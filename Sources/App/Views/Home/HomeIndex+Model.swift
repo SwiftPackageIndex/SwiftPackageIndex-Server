@@ -1,9 +1,12 @@
+import Foundation
+
 import Fluent
 import Plot
 
 
 extension HomeIndex {
     struct Model {
+        var stats: Stats?
         var recentPackages: [DatedLink]
         var recentReleases: [Release]
 
@@ -18,6 +21,23 @@ extension HomeIndex {
 
 
 extension HomeIndex.Model {
+    static var numberFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.thousandSeparator = ","
+        f.numberStyle = .decimal
+        return f
+    }()
+
+    func statsClause() -> Node<HTML.BodyContext>? {
+        guard
+            let stats = stats,
+            let packageCount = Self.numberFormatter.string(from: NSNumber(value: stats.packageCount)),
+            let versionCount = Self.numberFormatter.string(from: NSNumber(value: stats.versionCount))
+            else { return nil }
+        return .element(named: "small",
+                        text: "Indexing \(packageCount) packages and \(versionCount) versions.")
+    }
+
     func recentPackagesSection() -> Node<HTML.ListContext> {
         .group(
             recentPackages.map { datedLink -> Node<HTML.ListContext> in
