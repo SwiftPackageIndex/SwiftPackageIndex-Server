@@ -4,9 +4,12 @@ import Plot
 
 extension HomeIndex.Model {
     static func query(database: Database) -> EventLoopFuture<Self> {
+        let stats = Stats.fetch(on: database)
         let packages = RecentPackage.fetch(on: database).mapEach(makeDatedLink)
         let releases = RecentRelease.fetch(on: database).mapEach(Release.init(recent:))
-        return packages.and(releases).map(Self.init)
+        return stats.and(packages).and(releases)
+            .map { ($0.0, $0.1, $1) }
+            .map(Self.init)
     }
 }
 
