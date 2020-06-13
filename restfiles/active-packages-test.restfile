@@ -4,12 +4,12 @@ requests:
     url: ${base_url}/1024jp/GzipSwift
     validation:
       status: 200
-  /1Fr3dG/ResourcePackage:
-    url: ${base_url}/1Fr3dG/ResourcePackage
-    validation:
-      status: 200
   /3lvis/Networking:
     url: ${base_url}/3lvis/Networking
+    validation:
+      status: 200
+  /AaronBratcher/AgileDB:
+    url: ${base_url}/AaronBratcher/AgileDB
     validation:
       status: 200
   /Alamofire/Alamofire:
@@ -20,12 +20,28 @@ requests:
     url: ${base_url}/Alamofire/AlamofireImage
     validation:
       status: 200
+  /AlaskaAirlines/atom:
+    url: ${base_url}/AlaskaAirlines/atom
+    validation:
+      status: 200
+  /AlaskaAirlines/keychain:
+    url: ${base_url}/AlaskaAirlines/keychain
+    validation:
+      status: 200
   /AliSoftware/Dip:
     url: ${base_url}/AliSoftware/Dip
     validation:
       status: 200
   /AppPear/ChartView:
     url: ${base_url}/AppPear/ChartView
+    validation:
+      status: 200
+  /ArtSabintsev/FontBlaster:
+    url: ${base_url}/ArtSabintsev/FontBlaster
+    validation:
+      status: 200
+  /ArtSabintsev/Freedom:
+    url: ${base_url}/ArtSabintsev/Freedom
     validation:
       status: 200
   /ArtSabintsev/Guitar:
@@ -36,28 +52,16 @@ requests:
     url: ${base_url}/ArtSabintsev/Siren
     validation:
       status: 200
+  /ArtSabintsev/Zephyr:
+    url: ${base_url}/ArtSabintsev/Zephyr
+    validation:
+      status: 200
   /AsyncNinja/AsyncNinja:
     url: ${base_url}/AsyncNinja/AsyncNinja
     validation:
       status: 200
-  /AutomatonTec/JSONConfig:
-    url: ${base_url}/AutomatonTec/JSONConfig
-    validation:
-      status: 200
-  /Balancingrock/VJson:
-    url: ${base_url}/Balancingrock/VJson
-    validation:
-      status: 200
-  /BarredEwe/MoyaNetworkClient:
-    url: ${base_url}/BarredEwe/MoyaNetworkClient
-    validation:
-      status: 200
   /BenEmdon/CenteredCollectionView:
     url: ${base_url}/BenEmdon/CenteredCollectionView
-    validation:
-      status: 200
-  /BryanNorden/elo-rating-swift:
-    url: ${base_url}/BryanNorden/elo-rating-swift
     validation:
       status: 200
   /Carthage/Carthage:
@@ -76,20 +80,12 @@ requests:
     url: ${base_url}/CoreOffice/CryptoOffice
     validation:
       status: 200
-  /CoreOffice/OLEKit:
-    url: ${base_url}/CoreOffice/OLEKit
-    validation:
-      status: 200
-  /Couriere/UIExtensions:
-    url: ${base_url}/Couriere/UIExtensions
+  /DataDog/dd-sdk-ios:
+    url: ${base_url}/DataDog/dd-sdk-ios
     validation:
       status: 200
   /DaveWoodCom/XCGLogger:
     url: ${base_url}/DaveWoodCom/XCGLogger
-    validation:
-      status: 200
-  /DavidSkrundz/Hash:
-    url: ${base_url}/DavidSkrundz/Hash
     validation:
       status: 200
   /DeclarativeHub/Bond:
@@ -108,16 +104,8 @@ requests:
     url: ${base_url}/DenTelezhkin/DTTableViewManager
     validation:
       status: 200
-  /DiUS/pact-consumer-swift:
-    url: ${base_url}/DiUS/pact-consumer-swift
-    validation:
-      status: 200
   /Digipolitan/session-kit:
     url: ${base_url}/Digipolitan/session-kit
-    validation:
-      status: 200
-  /DingSoung/Extension:
-    url: ${base_url}/DingSoung/Extension
     validation:
       status: 200
   /FabrizioBrancati/BFKit-Swift:
@@ -128,10 +116,6 @@ requests:
     url: ${base_url}/FabrizioBrancati/Queuer
     validation:
       status: 200
-  /FitnessKit/DataDecoder:
-    url: ${base_url}/FitnessKit/DataDecoder
-    validation:
-      status: 200
   /Flinesoft/AnyLint:
     url: ${base_url}/Flinesoft/AnyLint
     validation:
@@ -140,16 +124,32 @@ requests:
     url: ${base_url}/Flinesoft/BartyCrouch
     validation:
       status: 200
+  /FluxorOrg/Fluxor:
+    url: ${base_url}/FluxorOrg/Fluxor
+    validation:
+      status: 200
+  /FluxorOrg/FluxorExplorerInterceptor:
+    url: ${base_url}/FluxorOrg/FluxorExplorerInterceptor
+    validation:
+      status: 200
+  /FluxorOrg/FluxorExplorerSnapshot:
+    url: ${base_url}/FluxorOrg/FluxorExplorerSnapshot
+    validation:
+      status: 200
   /GEOSwift/GEOSwift:
     url: ${base_url}/GEOSwift/GEOSwift
+    validation:
+      status: 200
+  /GetStream/stream-chat-swift:
+    url: ${base_url}/GetStream/stream-chat-swift
     validation:
       status: 200
   /GraphQLSwift/GraphQL:
     url: ${base_url}/GraphQLSwift/GraphQL
     validation:
       status: 200
-  /GroupeMINASTE/Keychain.swift:
-    url: ${base_url}/GroupeMINASTE/Keychain.swift
+  /GroupeMINASTE/APIRequest.swift:
+    url: ${base_url}/GroupeMINASTE/APIRequest.swift
     validation:
       status: 200
   /HeroTransitions/Hero:
@@ -172,14 +172,6 @@ requests:
     url: ${base_url}/IBM-Swift/Kitura
     validation:
       status: 200
-  /IBM-Swift/Kitura-WebSocket-NIO:
-    url: ${base_url}/IBM-Swift/Kitura-WebSocket-NIO
-    validation:
-      status: 200
-  /IBM-Swift/Kitura-redis:
-    url: ${base_url}/IBM-Swift/Kitura-redis
-    validation:
-      status: 200
   /JohnEstropia/CoreStore:
     url: ${base_url}/JohnEstropia/CoreStore
     validation:
@@ -192,40 +184,64 @@ requests:
     url: ${base_url}/JohnSundell/Splash
     validation:
       status: 200
-  /JohnSundell/Sweep:
-    url: ${base_url}/JohnSundell/Sweep
-    validation:
-      status: 200
-  /JohnSundell/Xgen:
-    url: ${base_url}/JohnSundell/Xgen
-    validation:
-      status: 200
-  /JuanjoArreola/Apic:
-    url: ${base_url}/JuanjoArreola/Apic
+  /JoshHrach/ActivityIndicatorView:
+    url: ${base_url}/JoshHrach/ActivityIndicatorView
     validation:
       status: 200
   /Juanpe/SkeletonView:
     url: ${base_url}/Juanpe/SkeletonView
     validation:
       status: 200
-  /LimeThaw/emu:
-    url: ${base_url}/LimeThaw/emu
-    validation:
-      status: 200
   /MLSDev/TRON:
     url: ${base_url}/MLSDev/TRON
-    validation:
-      status: 200
-  /Macro-swift/MacroExpress:
-    url: ${base_url}/Macro-swift/MacroExpress
     validation:
       status: 200
   /MakeAWishFoundation/SwiftyMocky:
     url: ${base_url}/MakeAWishFoundation/SwiftyMocky
     validation:
       status: 200
-  /Mikroservices/Smtp:
-    url: ${base_url}/Mikroservices/Smtp
+  /MihaelIsaev/AwesomeWS:
+    url: ${base_url}/MihaelIsaev/AwesomeWS
+    validation:
+      status: 200
+  /MihaelIsaev/Branch:
+    url: ${base_url}/MihaelIsaev/Branch
+    validation:
+      status: 200
+  /MihaelIsaev/CodyFire:
+    url: ${base_url}/MihaelIsaev/CodyFire
+    validation:
+      status: 200
+  /MihaelIsaev/FCM:
+    url: ${base_url}/MihaelIsaev/FCM
+    validation:
+      status: 200
+  /MihaelIsaev/Localizer:
+    url: ${base_url}/MihaelIsaev/Localizer
+    validation:
+      status: 200
+  /MihaelIsaev/State:
+    url: ${base_url}/MihaelIsaev/State
+    validation:
+      status: 200
+  /MihaelIsaev/SwifCron:
+    url: ${base_url}/MihaelIsaev/SwifCron
+    validation:
+      status: 200
+  /MihaelIsaev/SwifQLVapor:
+    url: ${base_url}/MihaelIsaev/SwifQLVapor
+    validation:
+      status: 200
+  /MihaelIsaev/UIKitPlus:
+    url: ${base_url}/MihaelIsaev/UIKitPlus
+    validation:
+      status: 200
+  /MihaelIsaev/VaporCron:
+    url: ${base_url}/MihaelIsaev/VaporCron
+    validation:
+      status: 200
+  /MihaelIsaev/branch.io.spm:
+    url: ${base_url}/MihaelIsaev/branch.io.spm
     validation:
       status: 200
   /Mordil/RediStack:
@@ -248,10 +264,6 @@ requests:
     url: ${base_url}/Nike-Inc/Willow
     validation:
       status: 200
-  /NobodyNada/Serializer:
-    url: ${base_url}/NobodyNada/Serializer
-    validation:
-      status: 200
   /NordicSemiconductor/IOS-Pods-DFU-Library:
     url: ${base_url}/NordicSemiconductor/IOS-Pods-DFU-Library
     validation:
@@ -260,12 +272,12 @@ requests:
     url: ${base_url}/OAuthSwift/OAuthSwift
     validation:
       status: 200
-  /OpenKitten/MongoKitten:
-    url: ${base_url}/OpenKitten/MongoKitten
+  /OpenKitten/BSON:
+    url: ${base_url}/OpenKitten/BSON
     validation:
       status: 200
-  /OpenKitten/Ocelot:
-    url: ${base_url}/OpenKitten/Ocelot
+  /OpenKitten/MongoKitten:
+    url: ${base_url}/OpenKitten/MongoKitten
     validation:
       status: 200
   /Otbivnoe/CodableAlamofire:
@@ -274,14 +286,6 @@ requests:
       status: 200
   /PerfectlySoft/Perfect:
     url: ${base_url}/PerfectlySoft/Perfect
-    validation:
-      status: 200
-  /PerfectlySoft/Perfect-LocalAuthentication-MySQL:
-    url: ${base_url}/PerfectlySoft/Perfect-LocalAuthentication-MySQL
-    validation:
-      status: 200
-  /PoissonBallon/google-analytics-provider:
-    url: ${base_url}/PoissonBallon/google-analytics-provider
     validation:
       status: 200
   /Polidea/RxBluetoothKit:
@@ -296,14 +300,6 @@ requests:
     url: ${base_url}/PureLayout/PureLayout
     validation:
       status: 200
-  /PureMVC/puremvc-swift-multicore-framework:
-    url: ${base_url}/PureMVC/puremvc-swift-multicore-framework
-    validation:
-      status: 200
-  /PureSwift/TLVCoding:
-    url: ${base_url}/PureSwift/TLVCoding
-    validation:
-      status: 200
   /Qminder/swift-api:
     url: ${base_url}/Qminder/swift-api
     validation:
@@ -314,10 +310,6 @@ requests:
       status: 200
   /Quick/Quick:
     url: ${base_url}/Quick/Quick
-    validation:
-      status: 200
-  /ReCombine/ReCombine:
-    url: ${base_url}/ReCombine/ReCombine
     validation:
       status: 200
   /ReSwift/ReSwift:
@@ -372,64 +364,48 @@ requests:
     url: ${base_url}/RxSwiftCommunity/RxSwiftExt
     validation:
       status: 200
-  /S2Ler/SMosquitto:
-    url: ${base_url}/S2Ler/SMosquitto
-    validation:
-      status: 200
   /SCENEE/FloatingPanel:
     url: ${base_url}/SCENEE/FloatingPanel
-    validation:
-      status: 200
-  /SDGGiesbrecht/SDGCommandLine:
-    url: ${base_url}/SDGGiesbrecht/SDGCommandLine
     validation:
       status: 200
   /SDGGiesbrecht/SDGCornerstone:
     url: ${base_url}/SDGGiesbrecht/SDGCornerstone
     validation:
       status: 200
-  /SDGGiesbrecht/SDGSwift:
-    url: ${base_url}/SDGGiesbrecht/SDGSwift
-    validation:
-      status: 200
   /SDWebImage/SDWebImage:
     url: ${base_url}/SDWebImage/SDWebImage
     validation:
       status: 200
-  /SDWebImage/SDWebImageSwiftUI:
-    url: ${base_url}/SDWebImage/SDWebImageSwiftUI
+  /SalehAlbuga/azure-functions-swift:
+    url: ${base_url}/SalehAlbuga/azure-functions-swift
     validation:
       status: 200
   /SimonFairbairn/SwiftyMarkdown:
     url: ${base_url}/SimonFairbairn/SwiftyMarkdown
     validation:
       status: 200
-  /StatusQuo/InjectKit:
-    url: ${base_url}/StatusQuo/InjectKit
+  /SwifQL/Bridges:
+    url: ${base_url}/SwifQL/Bridges
     validation:
       status: 200
-  /SusanDoggie/Doggie:
-    url: ${base_url}/SusanDoggie/Doggie
+  /SwifQL/MySQLBridge:
+    url: ${base_url}/SwifQL/MySQLBridge
+    validation:
+      status: 200
+  /SwifQL/PostgresBridge:
+    url: ${base_url}/SwifQL/PostgresBridge
     validation:
       status: 200
   /SwifQL/SwifQL:
     url: ${base_url}/SwifQL/SwifQL
     validation:
       status: 200
-  /Swift-Squirrel/NutView:
-    url: ${base_url}/Swift-Squirrel/NutView
-    validation:
-      status: 200
-  /SwiftGL/OpenGL:
-    url: ${base_url}/SwiftGL/OpenGL
+  /SwifQL/VaporBridges:
+    url: ${base_url}/SwifQL/VaporBridges
     validation:
       status: 200
   /SwiftGen/SwiftGen:
     url: ${base_url}/SwiftGen/SwiftGen
-    validation:
-      status: 200
-  /SwiftWebUI/SwiftWebUI:
-    url: ${base_url}/SwiftWebUI/SwiftWebUI
     validation:
       status: 200
   /SwifterSwift/SwifterSwift:
@@ -464,6 +440,10 @@ requests:
     url: ${base_url}/Zewo/Zewo
     validation:
       status: 200
+  /a2/MessagePack.swift:
+    url: ${base_url}/a2/MessagePack.swift
+    validation:
+      status: 200
   /adamwaite/Validator:
     url: ${base_url}/adamwaite/Validator
     validation:
@@ -492,28 +472,32 @@ requests:
     url: ${base_url}/amosavian/FileProvider
     validation:
       status: 200
-  /amzn/smoke-aws:
-    url: ${base_url}/amzn/smoke-aws
-    validation:
-      status: 200
   /amzn/smoke-framework:
     url: ${base_url}/amzn/smoke-framework
+    validation:
+      status: 200
+  /andreamazz/AMPopTip:
+    url: ${base_url}/andreamazz/AMPopTip
+    validation:
+      status: 200
+  /andreamazz/AMScrollingNavbar:
+    url: ${base_url}/andreamazz/AMScrollingNavbar
+    validation:
+      status: 200
+  /andreamazz/BubbleTransition:
+    url: ${base_url}/andreamazz/BubbleTransition
+    validation:
+      status: 200
+  /andreamazz/SubtleVolume:
+    url: ${base_url}/andreamazz/SubtleVolume
     validation:
       status: 200
   /antitypical/Result:
     url: ${base_url}/antitypical/Result
     validation:
       status: 200
-  /antoniocasero/Panels:
-    url: ${base_url}/antoniocasero/Panels
-    validation:
-      status: 200
   /apollographql/apollo-ios:
     url: ${base_url}/apollographql/apollo-ios
-    validation:
-      status: 200
-  /apple/swift-crypto:
-    url: ${base_url}/apple/swift-crypto
     validation:
       status: 200
   /apple/swift-nio:
@@ -564,36 +548,16 @@ requests:
     url: ${base_url}/attaswift/BigInt
     validation:
       status: 200
-  /autozimu/StringMetric.swift:
-    url: ${base_url}/autozimu/StringMetric.swift
-    validation:
-      status: 200
-  /b3ll/Decomposed:
-    url: ${base_url}/b3ll/Decomposed
-    validation:
-      status: 200
   /badrinathvm/StepperView:
     url: ${base_url}/badrinathvm/StepperView
-    validation:
-      status: 200
-  /banjun/ReactiveSSE:
-    url: ${base_url}/banjun/ReactiveSSE
-    validation:
-      status: 200
-  /barrault01/FirebaseHelpers:
-    url: ${base_url}/barrault01/FirebaseHelpers
-    validation:
-      status: 200
-  /beatsbears/Incrementer:
-    url: ${base_url}/beatsbears/Incrementer
     validation:
       status: 200
   /belozierov/SwiftCoroutine:
     url: ${base_url}/belozierov/SwiftCoroutine
     validation:
       status: 200
-  /bitwit/swift-package-directory:
-    url: ${base_url}/bitwit/swift-package-directory
+  /bigMOTOR/DataDrivenRxDatasources:
+    url: ${base_url}/bigMOTOR/DataDrivenRxDatasources
     validation:
       status: 200
   /bizz84/SwiftyStoreKit:
@@ -612,8 +576,20 @@ requests:
     url: ${base_url}/cats-oss/Sica
     validation:
       status: 200
+  /catverse/balam:
+    url: ${base_url}/catverse/balam
+    validation:
+      status: 200
   /chrs1885/Capable:
     url: ${base_url}/chrs1885/Capable
+    validation:
+      status: 200
+  /contentful/contentful-persistence.swift:
+    url: ${base_url}/contentful/contentful-persistence.swift
+    validation:
+      status: 200
+  /contentful/contentful.swift:
+    url: ${base_url}/contentful/contentful.swift
     validation:
       status: 200
   /daltoniam/Starscream:
@@ -626,10 +602,6 @@ requests:
       status: 200
   /danielgindi/Charts:
     url: ${base_url}/danielgindi/Charts
-    validation:
-      status: 200
-  /dankogai/swift-sion:
-    url: ${base_url}/dankogai/swift-sion
     validation:
       status: 200
   /davecom/SwiftPriorityQueue:
@@ -648,16 +620,8 @@ requests:
     url: ${base_url}/davidask/StateViewController
     validation:
       status: 200
-  /dduan/BitArray:
-    url: ${base_url}/dduan/BitArray
-    validation:
-      status: 200
   /dduan/Just:
     url: ${base_url}/dduan/Just
-    validation:
-      status: 200
-  /dehesa/CodableCSV:
-    url: ${base_url}/dehesa/CodableCSV
     validation:
       status: 200
   /demianturner/DTOnboarding:
@@ -676,18 +640,6 @@ requests:
     url: ${base_url}/devxoul/URLNavigator
     validation:
       status: 200
-  /dmcyk/EasyAPNS:
-    url: ${base_url}/dmcyk/EasyAPNS
-    validation:
-      status: 200
-  /dparnell/swift-parser-generator:
-    url: ${base_url}/dparnell/swift-parser-generator
-    validation:
-      status: 200
-  /drewag/SwiftlierUIKit:
-    url: ${base_url}/drewag/SwiftlierUIKit
-    validation:
-      status: 200
   /dreymonde/Shallows:
     url: ${base_url}/dreymonde/Shallows
     validation:
@@ -700,24 +652,40 @@ requests:
     url: ${base_url}/duemunk/Async
     validation:
       status: 200
-  /elegantchaos/DictionaryCoding:
-    url: ${base_url}/elegantchaos/DictionaryCoding
+  /elegantchaos/CommandShell:
+    url: ${base_url}/elegantchaos/CommandShell
+    validation:
+      status: 200
+  /elegantchaos/Expressions:
+    url: ${base_url}/elegantchaos/Expressions
     validation:
       status: 200
   /emaloney/CleanroomLogger:
     url: ${base_url}/emaloney/CleanroomLogger
     validation:
       status: 200
-  /eneko/GitHub:
-    url: ${base_url}/eneko/GitHub
+  /erica/AnsiStyle:
+    url: ${base_url}/erica/AnsiStyle
     validation:
       status: 200
-  /eneko/SourceDocs:
-    url: ${base_url}/eneko/SourceDocs
+  /erica/lns:
+    url: ${base_url}/erica/lns
     validation:
       status: 200
-  /ethanhuang13/NSAttributedStringBuilder:
-    url: ${base_url}/ethanhuang13/NSAttributedStringBuilder
+  /erica/now:
+    url: ${base_url}/erica/now
+    validation:
+      status: 200
+  /erica/remind:
+    url: ${base_url}/erica/remind
+    validation:
+      status: 200
+  /erica/show:
+    url: ${base_url}/erica/show
+    validation:
+      status: 200
+  /erica/xcopen:
+    url: ${base_url}/erica/xcopen
     validation:
       status: 200
   /evgenyneu/SigmaSwiftStatistics:
@@ -732,36 +700,28 @@ requests:
     url: ${base_url}/exyte/Macaw
     validation:
       status: 200
+  /fabianfett/pure-swift-json:
+    url: ${base_url}/fabianfett/pure-swift-json
+    validation:
+      status: 200
   /facebook/facebook-ios-sdk:
     url: ${base_url}/facebook/facebook-ios-sdk
     validation:
       status: 200
-  /fassko/MeteoLVProvider:
-    url: ${base_url}/fassko/MeteoLVProvider
-    validation:
-      status: 200
-  /flintprocessor/Flint:
-    url: ${base_url}/flintprocessor/Flint
+  /finestructure/Arena:
+    url: ${base_url}/finestructure/Arena
     validation:
       status: 200
   /freshOS/Then:
     url: ${base_url}/freshOS/Then
     validation:
       status: 200
-  /frogcjn/ImageIOPlus:
-    url: ${base_url}/frogcjn/ImageIOPlus
-    validation:
-      status: 200
-  /fschwehn/vapor-rest-client:
-    url: ${base_url}/fschwehn/vapor-rest-client
-    validation:
-      status: 200
   /futuredapp/FuntastyKit:
     url: ${base_url}/futuredapp/FuntastyKit
     validation:
       status: 200
-  /gcharita/CodableProperty:
-    url: ${base_url}/gcharita/CodableProperty
+  /garynewby/PianoKeyboard:
+    url: ${base_url}/garynewby/PianoKeyboard
     validation:
       status: 200
   /glessard/deferred:
@@ -770,10 +730,6 @@ requests:
       status: 200
   /glessard/swift-atomics:
     url: ${base_url}/glessard/swift-atomics
-    validation:
-      status: 200
-  /glessard/swift-reactive-streams:
-    url: ${base_url}/glessard/swift-reactive-streams
     validation:
       status: 200
   /google/promises:
@@ -812,16 +768,12 @@ requests:
     url: ${base_url}/ikesyo/Himotoki
     validation:
       status: 200
-  /ikhvorost/PromiseQ:
-    url: ${base_url}/ikhvorost/PromiseQ
-    validation:
-      status: 200
   /ishkawa/APIKit:
     url: ${base_url}/ishkawa/APIKit
     validation:
       status: 200
-  /ivanlisovyi/Dep:
-    url: ${base_url}/ivanlisovyi/Dep
+  /jakeheis/Shout:
+    url: ${base_url}/jakeheis/Shout
     validation:
       status: 200
   /jakeheis/SwiftCLI:
@@ -860,10 +812,6 @@ requests:
     url: ${base_url}/kasei/swift-sparql-syntax
     validation:
       status: 200
-  /kawoou/AnyDate:
-    url: ${base_url}/kawoou/AnyDate
-    validation:
-      status: 200
   /kciter/Floaty:
     url: ${base_url}/kciter/Floaty
     validation:
@@ -872,12 +820,8 @@ requests:
     url: ${base_url}/kean/Nuke
     validation:
       status: 200
-  /kelvin13/noise:
-    url: ${base_url}/kelvin13/noise
-    validation:
-      status: 200
-  /kelvin13/png:
-    url: ${base_url}/kelvin13/png
+  /kiliankoe/EmealKit:
+    url: ${base_url}/kiliankoe/EmealKit
     validation:
       status: 200
   /kishikawakatsumi/IBPCollectionViewCompositionalLayout:
@@ -886,6 +830,10 @@ requests:
       status: 200
   /kishikawakatsumi/KeychainAccess:
     url: ${base_url}/kishikawakatsumi/KeychainAccess
+    validation:
+      status: 200
+  /kkla320/ISO8601DurationFormatter:
+    url: ${base_url}/kkla320/ISO8601DurationFormatter
     validation:
       status: 200
   /kongzii/SwiftXGBoost:
@@ -920,10 +868,6 @@ requests:
     url: ${base_url}/luoxiu/Schedule
     validation:
       status: 200
-  /lupuandrei/GFGoogleDirection:
-    url: ${base_url}/lupuandrei/GFGoogleDirection
-    validation:
-      status: 200
   /lvnkmn/Zoomy:
     url: ${base_url}/lvnkmn/Zoomy
     validation:
@@ -952,16 +896,20 @@ requests:
     url: ${base_url}/marmelroy/PhoneNumberKit
     validation:
       status: 200
-  /mattpolzin/JSONAPI:
-    url: ${base_url}/mattpolzin/JSONAPI
+  /matis-schotte/PublishedKVO:
+    url: ${base_url}/matis-schotte/PublishedKVO
     validation:
       status: 200
-  /maxxfrazer/ARKit-SmartHitTest:
-    url: ${base_url}/maxxfrazer/ARKit-SmartHitTest
+  /matis-schotte/TracingActivity:
+    url: ${base_url}/matis-schotte/TracingActivity
     validation:
       status: 200
-  /michaelnisi/skull:
-    url: ${base_url}/michaelnisi/skull
+  /maxwelldesign/lux:
+    url: ${base_url}/maxwelldesign/lux
+    validation:
+      status: 200
+  /maxxfrazer/RealityUI:
+    url: ${base_url}/maxxfrazer/RealityUI
     validation:
       status: 200
   /mongodb/mongo-swift-driver:
@@ -984,10 +932,6 @@ requests:
     url: ${base_url}/mxcl/swift-sh
     validation:
       status: 200
-  /namolnad/Finch:
-    url: ${base_url}/namolnad/Finch
-    validation:
-      status: 200
   /naoty/Timepiece:
     url: ${base_url}/naoty/Timepiece
     validation:
@@ -1004,14 +948,6 @@ requests:
     url: ${base_url}/nmdias/FeedKit
     validation:
       status: 200
-  /nodes-vapor/keychain:
-    url: ${base_url}/nodes-vapor/keychain
-    validation:
-      status: 200
-  /nodes-vapor/slugify:
-    url: ${base_url}/nodes-vapor/slugify
-    validation:
-      status: 200
   /noreasonprojects/ModernAVPlayer:
     url: ${base_url}/noreasonprojects/ModernAVPlayer
     validation:
@@ -1020,24 +956,8 @@ requests:
     url: ${base_url}/nsomar/Guaka
     validation:
       status: 200
-  /objcio/keychain-item:
-    url: ${base_url}/objcio/keychain-item
-    validation:
-      status: 200
-  /objcio/libpq:
-    url: ${base_url}/objcio/libpq
-    validation:
-      status: 200
-  /objective-audio/SwiftFlowGraph:
-    url: ${base_url}/objective-audio/SwiftFlowGraph
-    validation:
-      status: 200
   /ollieatkinson/Predicate.swift:
     url: ${base_url}/ollieatkinson/Predicate.swift
-    validation:
-      status: 200
-  /omochi/BitcodeFormat:
-    url: ${base_url}/omochi/BitcodeFormat
     validation:
       status: 200
   /onekiloparsec/SwiftAA:
@@ -1072,32 +992,24 @@ requests:
     url: ${base_url}/phimage/Prephirences
     validation:
       status: 200
+  /piknotech/SFSafeSymbols:
+    url: ${base_url}/piknotech/SFSafeSymbols
+    validation:
+      status: 200
   /pmusolino/Wormholy:
     url: ${base_url}/pmusolino/Wormholy
     validation:
       status: 200
-  /pointfreeco/swift-overture:
-    url: ${base_url}/pointfreeco/swift-overture
+  /pointfreeco/swift-snapshot-testing:
+    url: ${base_url}/pointfreeco/swift-snapshot-testing
     validation:
       status: 200
   /pointfreeco/swift-tagged:
     url: ${base_url}/pointfreeco/swift-tagged
     validation:
       status: 200
-  /profburke/swiftreplmadness:
-    url: ${base_url}/profburke/swiftreplmadness
-    validation:
-      status: 200
-  /pryomoax/SwiftRootCAChallengeResolver:
-    url: ${base_url}/pryomoax/SwiftRootCAChallengeResolver
-    validation:
-      status: 200
   /psharanda/Atributika:
     url: ${base_url}/psharanda/Atributika
-    validation:
-      status: 200
-  /pvzig/SKClient:
-    url: ${base_url}/pvzig/SKClient
     validation:
       status: 200
   /pvzig/SlackKit:
@@ -1160,20 +1072,16 @@ requests:
     url: ${base_url}/scinfu/SwiftSoup
     validation:
       status: 200
+  /sgade/swiftui-mapview:
+    url: ${base_url}/sgade/swiftui-mapview
+    validation:
+      status: 200
   /sharplet/Regex:
     url: ${base_url}/sharplet/Regex
     validation:
       status: 200
-  /shirokova/bottomsheet-swiftui:
-    url: ${base_url}/shirokova/bottomsheet-swiftui
-    validation:
-      status: 200
   /sindresorhus/KeyboardShortcuts:
     url: ${base_url}/sindresorhus/KeyboardShortcuts
-    validation:
-      status: 200
-  /sindresorhus/Preferences:
-    url: ${base_url}/sindresorhus/Preferences
     validation:
       status: 200
   /sloik/FunctionalAPI:
@@ -1196,8 +1104,8 @@ requests:
     url: ${base_url}/square/Valet
     validation:
       status: 200
-  /stefanrenne/SwiftErrorHandler:
-    url: ${base_url}/stefanrenne/SwiftErrorHandler
+  /steipete/InterposeKit:
+    url: ${base_url}/steipete/InterposeKit
     validation:
       status: 200
   /stencilproject/Stencil:
@@ -1212,60 +1120,28 @@ requests:
     url: ${base_url}/sunshinejr/SwiftyUserDefaults
     validation:
       status: 200
-  /swift-aws/apigateway:
-    url: ${base_url}/swift-aws/apigateway
-    validation:
-      status: 200
-  /swift-aws/aws-sdk-swift:
-    url: ${base_url}/swift-aws/aws-sdk-swift
-    validation:
-      status: 200
-  /swift-aws/cloudfront:
-    url: ${base_url}/swift-aws/cloudfront
-    validation:
-      status: 200
   /swift-aws/cloudwatch:
     url: ${base_url}/swift-aws/cloudwatch
     validation:
       status: 200
-  /swift-aws/dynamodb:
-    url: ${base_url}/swift-aws/dynamodb
+  /swift-aws/ecr:
+    url: ${base_url}/swift-aws/ecr
     validation:
       status: 200
-  /swift-aws/ec2:
-    url: ${base_url}/swift-aws/ec2
+  /swift-aws/ecs:
+    url: ${base_url}/swift-aws/ecs
     validation:
       status: 200
-  /swift-aws/iam:
-    url: ${base_url}/swift-aws/iam
+  /swift-aws/ses:
+    url: ${base_url}/swift-aws/ses
     validation:
       status: 200
-  /swift-aws/kinesis:
-    url: ${base_url}/swift-aws/kinesis
-    validation:
-      status: 200
-  /swift-aws/lambda:
-    url: ${base_url}/swift-aws/lambda
-    validation:
-      status: 200
-  /swift-aws/s3:
-    url: ${base_url}/swift-aws/s3
-    validation:
-      status: 200
-  /swiftbrew/Swiftbrew:
-    url: ${base_url}/swiftbrew/Swiftbrew
-    validation:
-      status: 200
-  /t-ae/xorswift:
-    url: ${base_url}/t-ae/xorswift
+  /swift-server/swift-aws-lambda-runtime:
+    url: ${base_url}/swift-server/swift-aws-lambda-runtime
     validation:
       status: 200
   /tadija/AEXML:
     url: ${base_url}/tadija/AEXML
-    validation:
-      status: 200
-  /tattn/MoreCodable:
-    url: ${base_url}/tattn/MoreCodable
     validation:
       status: 200
   /thii/FontAwesome.swift:
@@ -1296,20 +1172,8 @@ requests:
     url: ${base_url}/tonyarnold/Differ
     validation:
       status: 200
-  /toshi0383/xcconfig-extractor:
-    url: ${base_url}/toshi0383/xcconfig-extractor
-    validation:
-      status: 200
   /totocaster/Typist:
     url: ${base_url}/totocaster/Typist
-    validation:
-      status: 200
-  /tribalworldwidelondon/CassowarySwift:
-    url: ${base_url}/tribalworldwidelondon/CassowarySwift
-    validation:
-      status: 200
-  /tribalworldwidelondon/PDFAuthor:
-    url: ${base_url}/tribalworldwidelondon/PDFAuthor
     validation:
       status: 200
   /tuist/XcodeProj:
@@ -1318,10 +1182,6 @@ requests:
       status: 200
   /tuist/tuist:
     url: ${base_url}/tuist/tuist
-    validation:
-      status: 200
-  /twostraws/Markdown:
-    url: ${base_url}/twostraws/Markdown
     validation:
       status: 200
   /typelift/SwiftCheck:
@@ -1340,12 +1200,12 @@ requests:
     url: ${base_url}/uias/Tabman
     validation:
       status: 200
-  /uraimo/Bitter:
-    url: ${base_url}/uraimo/Bitter
+  /username0x0a/MapNavigationKit:
+    url: ${base_url}/username0x0a/MapNavigationKit
     validation:
       status: 200
-  /uraimo/MCP3008.swift:
-    url: ${base_url}/uraimo/MCP3008.swift
+  /username0x0a/SwiftyDijkstra:
+    url: ${base_url}/username0x0a/SwiftyDijkstra
     validation:
       status: 200
   /vapor-community/HTMLKit:
@@ -1356,40 +1216,124 @@ requests:
     url: ${base_url}/vapor-community/sockets
     validation:
       status: 200
-  /vapor-community/swiftybeaver-provider:
-    url: ${base_url}/vapor-community/swiftybeaver-provider
+  /vapor/apns:
+    url: ${base_url}/vapor/apns
     validation:
       status: 200
-  /vapor/fluent-mongo-driver:
-    url: ${base_url}/vapor/fluent-mongo-driver
+  /vapor/async-kit:
+    url: ${base_url}/vapor/async-kit
     validation:
       status: 200
-  /vapor/validation:
-    url: ${base_url}/vapor/validation
+  /vapor/console-kit:
+    url: ${base_url}/vapor/console-kit
+    validation:
+      status: 200
+  /vapor/fluent:
+    url: ${base_url}/vapor/fluent
+    validation:
+      status: 200
+  /vapor/fluent-kit:
+    url: ${base_url}/vapor/fluent-kit
+    validation:
+      status: 200
+  /vapor/fluent-mysql-driver:
+    url: ${base_url}/vapor/fluent-mysql-driver
+    validation:
+      status: 200
+  /vapor/fluent-postgres-driver:
+    url: ${base_url}/vapor/fluent-postgres-driver
+    validation:
+      status: 200
+  /vapor/fluent-sqlite-driver:
+    url: ${base_url}/vapor/fluent-sqlite-driver
+    validation:
+      status: 200
+  /vapor/jwt:
+    url: ${base_url}/vapor/jwt
+    validation:
+      status: 200
+  /vapor/jwt-kit:
+    url: ${base_url}/vapor/jwt-kit
+    validation:
+      status: 200
+  /vapor/leaf:
+    url: ${base_url}/vapor/leaf
+    validation:
+      status: 200
+  /vapor/leaf-kit:
+    url: ${base_url}/vapor/leaf-kit
+    validation:
+      status: 200
+  /vapor/mysql-kit:
+    url: ${base_url}/vapor/mysql-kit
+    validation:
+      status: 200
+  /vapor/mysql-nio:
+    url: ${base_url}/vapor/mysql-nio
+    validation:
+      status: 200
+  /vapor/postgres-kit:
+    url: ${base_url}/vapor/postgres-kit
+    validation:
+      status: 200
+  /vapor/postgres-nio:
+    url: ${base_url}/vapor/postgres-nio
+    validation:
+      status: 200
+  /vapor/queues:
+    url: ${base_url}/vapor/queues
+    validation:
+      status: 200
+  /vapor/queues-redis-driver:
+    url: ${base_url}/vapor/queues-redis-driver
+    validation:
+      status: 200
+  /vapor/redis:
+    url: ${base_url}/vapor/redis
+    validation:
+      status: 200
+  /vapor/redis-kit:
+    url: ${base_url}/vapor/redis-kit
+    validation:
+      status: 200
+  /vapor/routing-kit:
+    url: ${base_url}/vapor/routing-kit
+    validation:
+      status: 200
+  /vapor/sql-kit:
+    url: ${base_url}/vapor/sql-kit
+    validation:
+      status: 200
+  /vapor/sqlite-kit:
+    url: ${base_url}/vapor/sqlite-kit
+    validation:
+      status: 200
+  /vapor/sqlite-nio:
+    url: ${base_url}/vapor/sqlite-nio
+    validation:
+      status: 200
+  /vapor/vapor:
+    url: ${base_url}/vapor/vapor
+    validation:
+      status: 200
+  /vapor/websocket-kit:
+    url: ${base_url}/vapor/websocket-kit
     validation:
       status: 200
   /venmo/DVR:
     url: ${base_url}/venmo/DVR
     validation:
       status: 200
-  /watson-developer-cloud/restkit:
-    url: ${base_url}/watson-developer-cloud/restkit
+  /vyshane/grpc-swift-combine:
+    url: ${base_url}/vyshane/grpc-swift-combine
     validation:
       status: 200
   /watson-developer-cloud/swift-sdk:
     url: ${base_url}/watson-developer-cloud/swift-sdk
     validation:
       status: 200
-  /way-to-code/git-macOS:
-    url: ${base_url}/way-to-code/git-macOS
-    validation:
-      status: 200
   /weichsel/ZIPFoundation:
     url: ${base_url}/weichsel/ZIPFoundation
-    validation:
-      status: 200
-  /weiss19ja/LocalizableUI:
-    url: ${base_url}/weiss19ja/LocalizableUI
     validation:
       status: 200
   /wickwirew/Runtime:
@@ -1422,5 +1366,9 @@ requests:
       status: 200
   /yonat/MultiSlider:
     url: ${base_url}/yonat/MultiSlider
+    validation:
+      status: 200
+  /zummenix/KeyboardNotificationsObserver:
+    url: ${base_url}/zummenix/KeyboardNotificationsObserver
     validation:
       status: 200
