@@ -1,3 +1,5 @@
+import './find_parent_matching.js'
+
 import { ExternalLinkRetargeter } from './external_link_retargeter.js'
 import { SPISearchCore } from './search_core.js'
 import { SPISearchFocusHandler } from './search_focus_handler.js'

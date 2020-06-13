@@ -15,12 +15,15 @@ export class SPISearchFocusHandler {
       if (!resultsElement) { return }
 
       // Navigate through the DOM to determine if the mouse down is in a child of the `#results` element.
-      var target = event.target
-      do {
-        if (target === resultsElement) {
-          queryFieldElement.setAttribute('data-prevent-blur', true)
-        }
-      } while ((target = target.parentElement))
+      const clickedElement = event.target
+      const matchingElement = clickedElement.findParentMatching((element) => {
+        return element == resultsElement
+      })
+
+      // If the clicked element *was* a child of results, prevent the blur event.
+      if (matchingElement) {
+        queryFieldElement.setAttribute('data-prevent-blur', true)
+      }
     })
   }
 
