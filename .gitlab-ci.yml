@@ -19,6 +19,8 @@ stages:
   - build
   - deploy
   - smoke-test
+  - scheduled
+
 
 build-sha:
   stage: build
@@ -27,6 +29,7 @@ build-sha:
     - docker build -t $IMAGE_SHA .
     - docker push $IMAGE_SHA
     
+
 build-tag:
   stage: build
   only:
@@ -37,12 +40,12 @@ build-tag:
     - docker tag $IMAGE_SHA $IMAGE_TAG
     - docker push $IMAGE_TAG
 
+
 .deploy-common: &deploy-common
   stage: deploy
   image: docker/compose:1.25.5
   tags:
-    - spi
-    - deploy
+    - mini-spi
   script: |
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
     if [ -z "$VERSION" ]; then echo VERSION not set; exit 1 ; fi
@@ -71,14 +74,16 @@ deploy:
     - tags
   
   
-deploy (ad hoc): &deploy
-  <<: *deploy-common
-  when: manual
+# deploy (ad hoc): &deploy
+#   <<: *deploy-common
+#   when: manual
+
 
 smoke-test:
   stage: smoke-test
   only:
     - tags
+    - schedules
   script: |
     rester() {
       docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.7.2 "$1"
@@ -86,3 +91,32 @@ smoke-test:
     echo Testing with SITE_URL: ${SITE_URL}
     rester restfiles/smoke-test.restfile
     rester restfiles/active-packages-test.restfile
+
+
+db-backup (scheduled):
+  stage: scheduled
+  only:
+    - schedules
+  tags:
+    - ceres
+  script: |
+    FILENAME=spi_prod_$(date "+%Y-%m-%dT%H:%M:%S").dump
+    echo Backing up database to file ${FILENAME}
+    echo Note: This requires the appropriate SSH tunnel to be active on the runner
+    env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -Fc -h localhost -p 7432 -U spi_prod spi_prod > ${FILENAME}
+    echo "Moving backup file to ${DB_BACKUP_DIR}"
+    mv ${FILENAME} ${DB_BACKUP_DIR}
+
+
+db-backup (manual):
+  stage: scheduled
+  when: manual
+  tags:
+    - ceres
+  script: |
+    FILENAME=spi_prod_$(date "+%Y-%m-%dT%H:%M:%S").dump
+    echo Backing up database to file ${FILENAME}
+    echo Note: This requires the appropriate SSH tunnel to be active on the runner
+    env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -Fc -h localhost -p 7432 -U spi_prod spi_prod > ${FILENAME}
+    echo "Moving backup file to ${DB_BACKUP_DIR}"
+    mv ${FILENAME} ${DB_BACKUP_DIR}
