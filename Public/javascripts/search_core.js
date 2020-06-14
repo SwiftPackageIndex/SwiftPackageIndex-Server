@@ -37,24 +37,31 @@ export class SPISearchCore {
     if (!queryFieldElement) { return }
 
     // When any input is received by the query field, perform the search.
-    queryFieldElement.addEventListener('input', debounce((event) => {
-      const queryFieldElement = event.target
-      const searchQuery = queryFieldElement.value.trim()
-      if (searchQuery.length > 0) {
-        this.performSearch(searchQuery)
-      } else {
-        this.replaceResultsDivWith(this.hiddenSearchResultsElement())
-      }
+    queryFieldElement.addEventListener('input', debounce(() => {
+      this.performSearch()
     }), 300)
   }
 
-  performSearch(searchQuery) {
+  performSearch() {
+    const queryFieldElement = document.getElementById('query')
+    if (!queryFieldElement) { return }
+
+    const searchQuery = queryFieldElement.value.trim()
+    if (searchQuery.length > 0) {
+      this.makeSearchRequest(searchQuery)
+    } else {
+      this.replaceResultsDivWith(this.hiddenSearchResultsElement())
+    }
+  }
+
+  makeSearchRequest(searchQuery) {
     const searchUrl = '/api/search?query=' + searchQuery
 
     // Cancel any already running search requests.
     if (this.requestCancelFunction) { this.requestCancelFunction() }
 
     axios.get(searchUrl, {
+      // Create and store a cancellation token for this specific request.
       cancelToken: new axios.CancelToken((cancelFunction) => {
         this.requestCancelFunction = cancelFunction
       })
@@ -80,7 +87,6 @@ export class SPISearchCore {
       }
     })
   }
-
 
   // -- Search result replacement ---------------------------------------------
 

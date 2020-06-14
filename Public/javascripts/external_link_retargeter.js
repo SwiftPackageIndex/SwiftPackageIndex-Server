@@ -7,15 +7,14 @@ export class ExternalLinkRetargeter {
 
   installDocumentEventHandlers() {
     document.addEventListener('click', (event) => {
-      var target = event.target
-      do {
-        // Force a blank target for anything that's a link, with a destination that's on a different host.
-        if (target.nodeName.toLowerCase() == 'a' && target.hostname != window.location.hostname) {
-          target.setAttribute('target', '_blank')
-        }
-      // Move up the DOM, in case the click was on a nested element but the link is further up in the hierarchy.
-      // If there's no links in the hierarchy from here up, this will eventually hit the document root and finish.
-      } while ((target = target.parentElement))
+      const clickedElement = event.target
+      const matchingElement = clickedElement.findParentMatching((element) => {
+        return element.nodeName.toLowerCase() == 'a' && element.hostname != window.location.hostname
+      })
+
+      if (matchingElement) {
+        matchingElement.setAttribute('target', '_blank')
+      }
     })
   }
 }
