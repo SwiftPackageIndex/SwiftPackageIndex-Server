@@ -48,7 +48,7 @@
   --link-text: var(--mid-blue);
   --link-highlight: var(--mid-red);
 
-  --header-background: var(--dark-blue);
+  --header-background: var(--very-dark-blue);
   --header-text: var(--white);
   --header-link-text: var(--white);
   --header-link-highlight: var(--yellow);
