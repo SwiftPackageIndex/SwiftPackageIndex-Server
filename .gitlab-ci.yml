@@ -22,12 +22,12 @@ stages:
   - scheduled
 
 
-build-sha:
-  stage: build
-  script:
-    - echo 'let appVersion = "'${CI_COMMIT_TAG:-$CI_COMMIT_SHA}'"' > ./Sources/App/Core/AppVersion.swift
-    - docker build -t $IMAGE_SHA .
-    - docker push $IMAGE_SHA
+# build-sha:
+#   stage: build
+#   script:
+#     - echo 'let appVersion = "'${CI_COMMIT_TAG:-$CI_COMMIT_SHA}'"' > ./Sources/App/Core/AppVersion.swift
+#     - docker build -t $IMAGE_SHA .
+#     - docker push $IMAGE_SHA
     
 
 build-tag:
