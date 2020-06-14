@@ -72,8 +72,6 @@ deploy:
   <<: *deploy-common
   only:
     - tags
-  except:
-    - schedules
   
   
 # deploy (ad hoc): &deploy
@@ -106,6 +104,8 @@ db-backup (scheduled):
     echo Backing database up to file ${FILENAME}
     echo Note: This requires the appropriate SSH tunnel to be active on the runner
     env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -Fc -h localhost -p 7432 -U spi_prod spi_prod > ${FILENAME}
+    echo "Moving backup file to ${DB_BACKUP_DIR}"
+    mv ${FILENAME} ${DB_BACKUP_DIR}
 
 
 db-backup (manual):
@@ -118,3 +118,5 @@ db-backup (manual):
     echo Backing database up to file ${FILENAME}
     echo Note: This requires the appropriate SSH tunnel to be active on the runner
     env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -Fc -h localhost -p 7432 -U spi_prod spi_prod > ${FILENAME}
+    echo "Moving backup file to ${DB_BACKUP_DIR}"
+    mv ${FILENAME} ${DB_BACKUP_DIR}

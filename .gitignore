@@ -10,5 +10,4 @@ db.sqlite
 SPI-checkouts/
 .env
 *.dump
-*.dump.gz
 misc/
