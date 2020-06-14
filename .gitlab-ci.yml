@@ -97,13 +97,13 @@ smoke-test:
 
 db-backup:
   stage: scheduled
-  only:
-    - schedules
+  # only:
+  #   - schedules
   when: manual
   tags:
     - ceres
   script: |
-    FILENAME=spi_prod_$(date +%Y-%m-%d).dump
+    FILENAME=spi_prod_$(date "+%Y-%m-%dT%H:%M:%S").dump
     echo Backing database up to file ${FILENAME}
     echo Note: This requires the appropriate SSH tunnel to be active on the runner
     env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -Fc -h localhost -p 7432 -U spi_prod spi_prod > ${FILENAME}
