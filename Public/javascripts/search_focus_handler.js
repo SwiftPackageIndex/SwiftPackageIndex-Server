@@ -1,3 +1,5 @@
+import { KeyCodes } from './keycodes.js'
+
 export class SPISearchFocusHandler {
   constructor() {
     document.addEventListener('DOMContentLoaded', () => {
@@ -47,6 +49,15 @@ export class SPISearchFocusHandler {
       } else {
         const resultsElement = window.spiSearchCore.hiddenSearchResultsElement()
         window.spiSearchCore.replaceResultsDivWith(resultsElement)
+      }
+    })
+
+    queryFieldElement.addEventListener('keydown', (event) => {
+      if (event.keyCode == KeyCodes.escape) {
+        // No matter what state anything is in, just hide the results div.
+        const resultsElement = window.spiSearchCore.hiddenSearchResultsElement()
+        window.spiSearchCore.replaceResultsDivWith(resultsElement)
+        event.preventDefault()
       }
     })
   }

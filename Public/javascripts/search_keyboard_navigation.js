@@ -1,10 +1,5 @@
 import { SessionKey } from './session_serialization.js'
-
-const KeyCodes = {
-  enter: 13,
-  upArrow: 38,
-  downArrow: 40
-}
+import { KeyCodes } from './keycodes.js'
 
 export class SPISearchKeyboardNavigation {
   constructor() {
