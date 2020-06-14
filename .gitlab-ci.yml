@@ -22,12 +22,12 @@ stages:
   - scheduled
 
 
-# build-sha:
-#   stage: build
-#   script:
-#     - echo 'let appVersion = "'${CI_COMMIT_TAG:-$CI_COMMIT_SHA}'"' > ./Sources/App/Core/AppVersion.swift
-#     - docker build -t $IMAGE_SHA .
-#     - docker push $IMAGE_SHA
+build-sha:
+  stage: build
+  script:
+    - echo 'let appVersion = "'${CI_COMMIT_TAG:-$CI_COMMIT_SHA}'"' > ./Sources/App/Core/AppVersion.swift
+    - docker build -t $IMAGE_SHA .
+    - docker push $IMAGE_SHA
     
 
 build-tag:
@@ -95,10 +95,21 @@ smoke-test:
     rester restfiles/active-packages-test.restfile
 
 
-db-backup:
+db-backup (scheduled):
   stage: scheduled
-  # only:
-  #   - schedules
+  only:
+    - schedules
+  tags:
+    - ceres
+  script: |
+    FILENAME=spi_prod_$(date "+%Y-%m-%dT%H:%M:%S").dump
+    echo Backing database up to file ${FILENAME}
+    echo Note: This requires the appropriate SSH tunnel to be active on the runner
+    env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -Fc -h localhost -p 7432 -U spi_prod spi_prod > ${FILENAME}
+
+
+db-backup (manual):
+  stage: scheduled
   when: manual
   tags:
     - ceres
