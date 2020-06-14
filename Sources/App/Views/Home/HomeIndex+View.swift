@@ -12,6 +12,13 @@ enum HomeIndex {
             super.init(path: path)
         }
 
+        override func pageDescription() -> String? {
+            """
+            The Swift Package Index is the place to find the best Swift packages. \
+            \(model.statsDescription() ?? "")
+            """
+        }
+
         override func noScript() -> Node<HTML.BodyContext> {
             .noscript(
                 .i(

@@ -28,14 +28,18 @@ extension HomeIndex.Model {
         return f
     }()
 
-    func statsClause() -> Node<HTML.BodyContext>? {
+    func statsDescription() -> String? {
         guard
             let stats = stats,
             let packageCount = Self.numberFormatter.string(from: NSNumber(value: stats.packageCount)),
             let versionCount = Self.numberFormatter.string(from: NSNumber(value: stats.versionCount))
             else { return nil }
-        return .element(named: "small",
-                        text: "Indexing \(packageCount) packages and \(versionCount) versions.")
+        return "Indexing \(packageCount) packages and \(versionCount) versions."
+    }
+
+    func statsClause() -> Node<HTML.BodyContext>? {
+        guard let description = statsDescription() else { return nil }
+        return .element(named: "small", text: description)
     }
 
     func recentPackagesSection() -> Node<HTML.ListContext> {
