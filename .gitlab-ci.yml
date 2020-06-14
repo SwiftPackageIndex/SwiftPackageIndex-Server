@@ -72,11 +72,13 @@ deploy:
   <<: *deploy-common
   only:
     - tags
+  except:
+    - schedules
   
   
-deploy (ad hoc): &deploy
-  <<: *deploy-common
-  when: manual
+# deploy (ad hoc): &deploy
+#   <<: *deploy-common
+#   when: manual
 
 
 smoke-test:
