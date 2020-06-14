@@ -106,4 +106,4 @@ db-backup:
     FILENAME=spi_prod_$(date +%Y-%m-%d).dump
     echo Backing database up to file ${FILENAME}
     echo Note: This requires the appropriate SSH tunnel to be active on the runner
-    env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -h localhost -p 7432 -U spi_prod spi_prod > ${FILENAME}
+    env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -Fc -h localhost -p 7432 -U spi_prod spi_prod > ${FILENAME}
