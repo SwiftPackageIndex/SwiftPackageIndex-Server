@@ -39,7 +39,7 @@ export class SPISearchCore {
     // When any input is received by the query field, perform the search.
     queryFieldElement.addEventListener('input', debounce(() => {
       this.performSearch()
-    }), 300)
+    }, 200), 300)
   }
 
   performSearch() {
