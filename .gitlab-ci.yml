@@ -19,7 +19,6 @@ stages:
   - build
   - deploy
   - smoke-test
-  - scheduled
 
 
 build-sha:
@@ -94,7 +93,7 @@ smoke-test:
 
 
 db-backup (scheduled):
-  stage: scheduled
+  stage: build
   only:
     - schedules
   tags:
@@ -109,7 +108,7 @@ db-backup (scheduled):
 
 
 db-backup (manual):
-  stage: scheduled
+  stage: build
   when: manual
   tags:
     - ceres

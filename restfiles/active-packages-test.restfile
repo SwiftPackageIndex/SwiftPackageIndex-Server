@@ -1036,8 +1036,8 @@ requests:
     url: ${base_url}/realm/realm-cocoa
     validation:
       status: 200
-  /rhysforyou/Porygon:
-    url: ${base_url}/rhysforyou/Porygon
+  /rhysforyou/Superhighway:
+    url: ${base_url}/rhysforyou/Superhighway
     validation:
       status: 200
   /richardpiazza/CodeQuickKit:
