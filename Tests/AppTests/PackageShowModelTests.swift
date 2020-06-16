@@ -10,14 +10,14 @@ class PackageShowModelTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
                        summary: "summary",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        license: .mit,
                        name: "bar",
                        owner: "foo",
                        stars: 17,
                        forks: 42).save(on: app.db).wait()
         let version = try App.Version(package: pkg,
-                                      reference: .branch("master"),
+                                      reference: .branch("main"),
                                       packageName: "test package")
         try version.save(on: app.db).wait()
 
@@ -33,14 +33,14 @@ class PackageShowModelTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
                        summary: "summary",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        license: .mit,
                        name: "bar",
                        owner: "foo",
                        stars: 17,
                        forks: 42).save(on: app.db).wait()
         let version = try App.Version(package: pkg,
-                                      reference: .branch("master"),
+                                      reference: .branch("main"),
                                       packageName: "test package")
         try version.save(on: app.db).wait()
 
@@ -57,14 +57,14 @@ class PackageShowModelTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
                        summary: "summary",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        license: .mit,
                        name: "bar",
                        owner: "foo",
                        stars: 17,
                        forks: 42).save(on: app.db).wait()
         let version = try App.Version(package: pkg,
-                                      reference: .branch("master"),
+                                      reference: .branch("main"),
                                       packageName: nil)
         try version.save(on: app.db).wait()
         try Product(version: version,

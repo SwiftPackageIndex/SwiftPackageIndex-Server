@@ -5,7 +5,7 @@ extension Github.Metadata {
     static let mock: Self = .init(
         issues: [],
         openPullRequests: [],
-        repo: .init(defaultBranch: "master",
+        repo: .init(defaultBranch: "main",
                     description: "desc",
                     forksCount: 1,
                     license: .init(key: "mit"),
@@ -20,7 +20,7 @@ extension Github.Metadata {
         .init(
             issues: [],
             openPullRequests: [],
-            repo: .init(defaultBranch: "master",
+            repo: .init(defaultBranch: "main",
                         description: "This is package " + package.url,
                         forksCount: package.url.count,
                         license: .init(key: "mit"),

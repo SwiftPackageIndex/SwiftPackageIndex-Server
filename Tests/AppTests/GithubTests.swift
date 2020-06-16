@@ -65,7 +65,7 @@ class GithubTests: AppTestCase {
         let res = try Github.fetchResource(Github.Repo.self, client: client, uri: uri).wait()
 
         // validate
-        XCTAssertEqual(res, Github.Repo(defaultBranch: "master",
+        XCTAssertEqual(res, Github.Repo(defaultBranch: "main",
                                         description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
                                         forksCount: 1,
                                         license: .init(key: "mit"),
@@ -149,7 +149,7 @@ class GithubTests: AppTestCase {
         let md = try Github.fetchMetadata(client: client, package: pkg).wait()
 
         // validate repo
-        XCTAssertEqual(md.repo, Github.Repo(defaultBranch: "master",
+        XCTAssertEqual(md.repo, Github.Repo(defaultBranch: "main",
                                             description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
                                             forksCount: 1,
                                             license: .init(key: "mit"),
