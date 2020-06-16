@@ -17,7 +17,7 @@ struct ReconcilerCommand: Command {
 
 
 func reconcile(client: Client, database: Database) throws -> EventLoopFuture<Void> {
-    let masterList = try Current.fetchMasterPackageList(client)
+    let masterList = try Current.fetchPackageList(client)
     let currentList = try fetchCurrentPackageList(database)
 
     return masterList.and(currentList)
@@ -25,9 +25,9 @@ func reconcile(client: Client, database: Database) throws -> EventLoopFuture<Voi
 }
 
 
-func liveFetchMasterPackageList(_ client: Client) throws -> EventLoopFuture<[URL]> {
+func liveFetchPackageList(_ client: Client) throws -> EventLoopFuture<[URL]> {
     client
-        .get(Constants.masterPackageListUri)
+        .get(Constants.packageListUri)
         .flatMapThrowing { try $0.content.decode([String].self, using: JSONDecoder()) }
         // TODO: send error notification for failing URLs
         .flatMapEachCompactThrowing(URL.init(string:))
