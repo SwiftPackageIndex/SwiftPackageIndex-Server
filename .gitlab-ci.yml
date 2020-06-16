@@ -43,9 +43,14 @@ build-tag:
 .deploy-common: &deploy-common
   stage: deploy
   image: docker/compose:1.25.5
-  tags:
-    - mini-spi
   script: |
+    set -eu
+    echo $ENV
+    echo $FOO  # test set -eu
+    exit 0
+
+    # TODO: unpack env vars
+
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
     if [ -z "$VERSION" ]; then echo VERSION not set; exit 1 ; fi
     # install curl and set up alias to post deployment to rollbar
@@ -67,15 +72,22 @@ build-tag:
     fi
   
   
-deploy:
+deploy prod:
+  variables:
+    ENV: prod
+  tags:
+    - prod
   <<: *deploy-common
   only:
     - tags
   
   
-# deploy (ad hoc): &deploy
-#   <<: *deploy-common
-#   when: manual
+deploy dev:
+  variables:
+    ENV: dev
+  tags:
+    - dev
+  <<: *deploy-common
 
 
 smoke-test:
