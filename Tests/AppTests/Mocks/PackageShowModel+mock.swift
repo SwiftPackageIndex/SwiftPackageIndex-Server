@@ -24,7 +24,7 @@ extension PackageShow.Model {
             history: .init(
                 since: "over 5 years",
                 commitCount: .init(label: "1,433 commits",
-                                   url: "https://github.com/Alamofire/Alamofire/commits/master"),
+                                   url: "https://github.com/Alamofire/Alamofire/commits/main"),
                 releaseCount: .init(label: "79 releases",
                                     url: "https://github.com/Alamofire/Alamofire/releases")
             ),
@@ -40,7 +40,7 @@ extension PackageShow.Model {
                     swiftVersions: ["5.2"],
                     platforms: [.ios("13.0"), .macos("10.15"), .watchos("6.0"), .tvos("13.0")]),
                 latest: .init(
-                    link: .init(label: "master",
+                    link: .init(label: "main",
                                 url: "https://github.com/Alamofire/Alamofire"),
                     swiftVersions: ["5.2"],
                     platforms: [.ios("13.0"), .macos("10.15"), .watchos("6.0"), .tvos("13.0")])),
@@ -53,7 +53,7 @@ extension PackageShow.Model {
                                         link: .init(label: "5.3.0-beta.1",
                                                     url: "https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1")),
                             latest: .init(date: "12 minutes ago",
-                                          link: .init(label: "master",
+                                          link: .init(label: "main",
                                                       url: "https://github.com/Alamofire/Alamofire"))),
             stars: 17,
             summary: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.",

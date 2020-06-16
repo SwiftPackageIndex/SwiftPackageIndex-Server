@@ -28,7 +28,7 @@ class IngestorTests: AppTestCase {
             XCTAssertNotNil($0.createdAt)
             XCTAssertNotNil($0.updatedAt)
             XCTAssertNotNil($0.description)
-            XCTAssertEqual($0.defaultBranch, "master")
+            XCTAssertEqual($0.defaultBranch, "main")
             XCTAssert($0.forks! > 0)
             XCTAssert($0.stars! > 0)
         }
@@ -88,7 +88,7 @@ class IngestorTests: AppTestCase {
                     .init(url: "2"),
                     .init(url: "3"),
                 ],
-                repo: .init(defaultBranch: "master",
+                repo: .init(defaultBranch: "main",
                             description: "package desc",
                             forksCount: 1,
                             license: .init(key: "mit"),
@@ -108,7 +108,7 @@ class IngestorTests: AppTestCase {
                 .filter(\.$package.$id == pkg.requireID())
                 .first().wait()
         )
-        XCTAssertEqual(repo.defaultBranch, "master")
+        XCTAssertEqual(repo.defaultBranch, "main")
         XCTAssertEqual(repo.forks, 1)
         XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 1))
@@ -237,7 +237,7 @@ class IngestorTests: AppTestCase {
         Current.fetchMetadata = { _, _ in .just(value: Github.Metadata(
                 issues: [],
                 openPullRequests: [],
-                repo: .init(defaultBranch: "master",
+                repo: .init(defaultBranch: "main",
                             description: "desc",
                             forksCount: 0,
                             name: "package name",

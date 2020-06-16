@@ -46,7 +46,7 @@ func reconcileButton() -> Node<HTML.BodyContext> {
             .input(.class("btn btn-primary"), .type(.submit), .value("Reconcile"))
         ),
         .row(
-            .label(.text("Reconcile the master package list with the Package Index."))
+            .label(.text("Reconcile the package list with the Package Index."))
         )
     )
 }

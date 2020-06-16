@@ -6,7 +6,7 @@ import Vapor
 extension AppEnvironment {
     static let mock: Self = .init(
         date: Date.init,
-        fetchMasterPackageList: { _ in
+        fetchPackageList: { _ in
             .just(value: ["https://github.com/finestructure/Gala",
                           "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"].asURLs)
         },

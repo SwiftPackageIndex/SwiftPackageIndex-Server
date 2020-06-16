@@ -21,14 +21,14 @@ class SearchTests: AppTestCase {
         // setup
         let p1 = try savePackage(on: app.db, "1")
         let p2 = try savePackage(on: app.db, "2")
-        try Repository(package: p1, summary: "some package", defaultBranch: "master").save(on: app.db).wait()
+        try Repository(package: p1, summary: "some package", defaultBranch: "main").save(on: app.db).wait()
         try Repository(package: p2,
                        summary: "bar package",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "name 2",
                        owner: "owner 2").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("master"), packageName: "Bar").save(on: app.db).wait()
+        try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
+        try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
 
         // MUT
@@ -55,16 +55,16 @@ class SearchTests: AppTestCase {
         let p2 = try savePackage(on: app.db, "2")
         try Repository(package: p1,
                        summary: "package 1 description",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "package 1",
                        owner: "owner").save(on: app.db).wait()
         try Repository(package: p2,
                        summary: "package 2 description",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "package 2",
                        owner: "owner").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("master"), packageName: "Bar").save(on: app.db).wait()
+        try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
+        try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
 
         // MUT
@@ -90,16 +90,16 @@ class SearchTests: AppTestCase {
         let p1 = try savePackage(on: app.db, "1")
         let p2 = try savePackage(on: app.db, "2")
         try Repository(package: p1, summary: "some 'package'",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "name 1",
                        owner: "owner 1").save(on: app.db).wait()
         try Repository(package: p2,
                        summary: "bar package",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "name 2",
                        owner: "owner 2").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("master"), packageName: "Bar").save(on: app.db).wait()
+        try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
+        try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
 
         // MUT
@@ -168,9 +168,9 @@ class SearchTests: AppTestCase {
         try (0..<10).shuffled().forEach {
             let p = Package(id: UUID(), url: "\($0)".url, score: $0)
             try p.save(on: app.db).wait()
-            try Repository(package: p, summary: "\($0)", defaultBranch: "master",
+            try Repository(package: p, summary: "\($0)", defaultBranch: "main",
                            name: "\($0)", owner: "foo").save(on: app.db).wait()
-            try Version(package: p, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
+            try Version(package: p, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
         }
         try Search.refresh(on: app.db).wait()
 
@@ -195,24 +195,24 @@ class SearchTests: AppTestCase {
         try [p1, p2, p3].save(on: app.db).wait()
         try Repository(package: p1,
                        summary: "",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "1",
                        owner: "foo").save(on: app.db).wait()
         try Repository(package: p2,
                        summary: "",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "2",
                        owner: "foo").save(on: app.db).wait()
         try Repository(package: p3,
                        summary: "link",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "3",
                        owner: "foo").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("master"), packageName: "Ink")
+        try Version(package: p1, reference: .branch("main"), packageName: "Ink")
             .save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("master"), packageName: "inkInName")
+        try Version(package: p2, reference: .branch("main"), packageName: "inkInName")
             .save(on: app.db).wait()
-        try Version(package: p3, reference: .branch("master"), packageName: "some name")
+        try Version(package: p3, reference: .branch("main"), packageName: "some name")
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
 
@@ -235,24 +235,24 @@ class SearchTests: AppTestCase {
         try [p1, p2, p3].save(on: app.db).wait()
         try Repository(package: p1,
                        summary: "",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "1",
                        owner: "foo").save(on: app.db).wait()
         try Repository(package: p2,
                        summary: "",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "2",
                        owner: "foo").save(on: app.db).wait()
         try Repository(package: p3,
                        summary: "foo bar",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "3",
                        owner: "foo").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("master"), packageName: "Foo bar")
+        try Version(package: p1, reference: .branch("main"), packageName: "Foo bar")
             .save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("master"), packageName: "foobar")
+        try Version(package: p2, reference: .branch("main"), packageName: "foobar")
             .save(on: app.db).wait()
-        try Version(package: p3, reference: .branch("master"), packageName: "some name")
+        try Version(package: p3, reference: .branch("main"), packageName: "some name")
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
 
@@ -273,24 +273,24 @@ class SearchTests: AppTestCase {
         try [p1, p2, p3].save(on: app.db).wait()
         try Repository(package: p1,
                        summary: "",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "1",
                        owner: "foo").save(on: app.db).wait()
         try Repository(package: p2,
                        summary: "",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: nil,
                        owner: "foo").save(on: app.db).wait()
         try Repository(package: p3,
                        summary: "foo bar",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "3",
                        owner: nil).save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("master"), packageName: nil)
+        try Version(package: p1, reference: .branch("main"), packageName: nil)
             .save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("master"), packageName: "foo2")
+        try Version(package: p2, reference: .branch("main"), packageName: "foo2")
             .save(on: app.db).wait()
-        try Version(package: p3, reference: .branch("master"), packageName: "foo3")
+        try Version(package: p3, reference: .branch("main"), packageName: "foo3")
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
 

@@ -31,14 +31,14 @@ class ApiTests: AppTestCase {
         try p2.save(on: app.db).wait()
         try Repository(package: p1,
                        summary: "some package",
-                       defaultBranch: "master").save(on: app.db).wait()
+                       defaultBranch: "main").save(on: app.db).wait()
         try Repository(package: p2,
                        summary: "foo bar package",
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "name 2",
                        owner: "owner 2").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("master"), packageName: "Foo").save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("master"), packageName: "Bar").save(on: app.db).wait()
+        try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
+        try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
 
         // MUT

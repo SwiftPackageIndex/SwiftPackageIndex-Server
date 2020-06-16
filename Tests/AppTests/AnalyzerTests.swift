@@ -13,12 +13,12 @@ class AnalyzerTests: AppTestCase {
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
         try Repository(package: pkgs[0],
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "1",
                        owner: "foo",
                        stars: 25).save(on: app.db).wait()
         try Repository(package: pkgs[1],
-                       defaultBranch: "master",
+                       defaultBranch: "main",
                        name: "2",
                        owner: "foo",
                        stars: 100).save(on: app.db).wait()
@@ -61,7 +61,7 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.1.1""# { return "fakesha-1" }
             if cmd.string == #"git log -n1 --format=format:"%H-%ct" "2.0.0""# { return "fakesha-0" }
             if cmd.string == #"git log -n1 --format=format:"%H-%ct" "2.1.0""# { return "fakesha-1" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "master""# { return "fakesha-2" }
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "main""# { return "fakesha-2" }
 
             // Git.commitCount
             if cmd.string == "git rev-list --count HEAD" { return "12" }
@@ -93,13 +93,13 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg1.processingStage, .analysis)
         XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1", "foo-1"])
         XCTAssertEqual(pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.reference?.description),
-                       ["master", "1.0.0", "1.1.1"])
+                       ["main", "1.0.0", "1.1.1"])
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
         XCTAssertEqual(pkg2.processingStage, .analysis)
         XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2", "foo-2"])
         XCTAssertEqual(pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.reference?.description),
-                       ["master", "2.0.0", "2.1.0"])
+                       ["main", "2.0.0", "2.1.0"])
 
         // validate products (each version has 2 products)
         let products = try Product.query(on: app.db).sort(\.$name).all().wait()
@@ -123,7 +123,7 @@ class AnalyzerTests: AppTestCase {
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
         try pkgs.forEach {
-            try Repository(package: $0, defaultBranch: "master").save(on: app.db).wait()
+            try Repository(package: $0, defaultBranch: "main").save(on: app.db).wait()
         }
         let lastUpdate = Date()
         Current.shell.run = { cmd, path in
@@ -158,7 +158,7 @@ class AnalyzerTests: AppTestCase {
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
         try pkgs.forEach {
-            try Repository(package: $0, defaultBranch: "master").save(on: app.db).wait()
+            try Repository(package: $0, defaultBranch: "main").save(on: app.db).wait()
         }
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
@@ -200,6 +200,8 @@ class AnalyzerTests: AppTestCase {
     func test_pullOrClone() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try pkg.$repositories.load(on: app.db).wait()
         let queue = DispatchQueue(label: "serial")
         Current.fileManager.fileExists = { _ in true }
         var commands = [String]()
@@ -221,7 +223,7 @@ class AnalyzerTests: AppTestCase {
             #"rm "-f" ".../github.com-foo-1/.git/index.lock""#,
             #"git reset --hard"#,
             #"git fetch"#,
-            #"git checkout "master" --quiet"#,
+            #"git checkout "main" --quiet"#,
             #"git pull --quiet"#,
         ])
     }
@@ -250,7 +252,7 @@ class AnalyzerTests: AppTestCase {
         }
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         _ = try pkg.$repositories.get(on: app.db).wait()
 
         // MUT
@@ -273,7 +275,7 @@ class AnalyzerTests: AppTestCase {
         }
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         _ = try pkg.$repositories.get(on: app.db).wait()
         let checkouts: [Result<Package, Error>] = [
             // feed in one error to see it passed through
@@ -304,13 +306,13 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "git tag" {
                 return "1.2.3"
             }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "master""# { return "sha.master-0" }
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "main""# { return "sha.main-0" }
             if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.2.3""# { return "sha.1.2.3-1" }
             throw TestError.unknownCommand
         }
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
 
         // MUT
         let versions = try reconcileVersions(application: app,
@@ -318,8 +320,8 @@ class AnalyzerTests: AppTestCase {
                                              package: pkg).wait()
 
         // validate
-        assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
-        assertEquals(versions, \.commit, ["sha.master", "sha.1.2.3"])
+        assertEquals(versions, \.reference?.description, ["main", "1.2.3"])
+        assertEquals(versions, \.commit, ["sha.main", "sha.1.2.3"])
         assertEquals(versions, \.commitDate,
                      [Date(timeIntervalSince1970: 0), Date(timeIntervalSince1970: 1)])
     }
@@ -335,7 +337,7 @@ class AnalyzerTests: AppTestCase {
         }
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "master").save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         let checkouts: [Result<Package, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
@@ -351,7 +353,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(results.count, 2)
         XCTAssertEqual(results.map(\.isSuccess), [false, true])
         let (_, versions) = try XCTUnwrap(results.last).get()
-        assertEquals(versions, \.reference?.description, ["master", "1.2.3"])
+        assertEquals(versions, \.reference?.description, ["main", "1.2.3"])
     }
 
     func test_getManifest() throws {
@@ -532,7 +534,7 @@ class AnalyzerTests: AppTestCase {
         }
         let pkgs = try savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
         try pkgs.forEach {
-            try Repository(package: $0, defaultBranch: "master").save(on: app.db).wait()
+            try Repository(package: $0, defaultBranch: "main").save(on: app.db).wait()
         }
 
         // MUT

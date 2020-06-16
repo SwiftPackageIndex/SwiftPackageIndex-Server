@@ -101,7 +101,7 @@ class PipelineTests: AppTestCase {
 
         // setup
         let urls = ["1", "2", "3"].asGithubUrls
-        Current.fetchMasterPackageList = { _ in .just(value: urls.asURLs) }
+        Current.fetchPackageList = { _ in .just(value: urls.asURLs) }
         Current.shell.run = { cmd, path in
             if cmd.string == "swift package dump-package" {
                 return #"{ "name": "Mock", "products": [] }"#
@@ -144,7 +144,7 @@ class PipelineTests: AppTestCase {
         }
 
         // Now we've got a new package and a deletion
-        Current.fetchMasterPackageList = { _ in .just(value: ["1", "3", "4"].asGithubUrls.asURLs) }
+        Current.fetchPackageList = { _ in .just(value: ["1", "3", "4"].asGithubUrls.asURLs) }
 
         // MUT - reconcile again
         try reconcile(client: app.client, database: app.db).wait()

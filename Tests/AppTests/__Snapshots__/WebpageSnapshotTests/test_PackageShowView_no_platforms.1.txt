@@ -71,7 +71,7 @@
               <a href="https://github.com/Alamofire/Alamofire/graphs/contributors">186 other contributors</a>.
             </li>
             <li class="icon history">In development for over 5 years, with 
-              <a href="https://github.com/Alamofire/Alamofire/commits/master">1,433 commits</a> and 
+              <a href="https://github.com/Alamofire/Alamofire/commits/main">1,433 commits</a> and 
               <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
             </li>
             <li class="icon activity">There are 
@@ -105,7 +105,7 @@
             <li>The last commit to 
               <a href="https://github.com/Alamofire/Alamofire">
                 <span class="branch">
-                  <i class="icon branch"></i>master
+                  <i class="icon branch"></i>main
                 </span>
               </a> was 12 minutes ago.
             </li>
@@ -138,7 +138,7 @@
                 </a> and 
                 <a href="https://github.com/Alamofire/Alamofire">
                   <span class="branch">
-                    <i class="icon branch"></i>master
+                    <i class="icon branch"></i>main
                   </span>
                 </a> support:
               </p>

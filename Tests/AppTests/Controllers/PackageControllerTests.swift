@@ -14,7 +14,7 @@ class PackageControllerTests: AppTestCase {
         let repository = try Repository(id: UUID(),
                                         package: package,
                                         summary: "This is a test package",
-                                        defaultBranch: "master",
+                                        defaultBranch: "main",
                                         license: .mit,
                                         name: "package",
                                         owner: "owner",
@@ -22,7 +22,7 @@ class PackageControllerTests: AppTestCase {
                                         forks: 2)
         let version = try Version(id: UUID(),
                                   package: package,
-                                  reference: .branch("master"),
+                                  reference: .branch("main"),
                                   packageName: "Test package")
         let product = try Product(id: UUID(), version: version, type: .library, name: "Library")
 
