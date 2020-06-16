@@ -13,4 +13,4 @@ The source of the data indexed by this site is from [this packages.json](https:/
 
 ### Cookies and Analytics
 
-This site uses [Google Analytics](https://analytics.google.com) loaded via [Google Tag Manager](https://tagmanager.google.com) to gather usage statistics. We use no other analytics frameworks, trackers, or other cookies.
+This site uses [Google Analytics](https://analytics.google.com) loaded via [Google Tag Manager](https://tagmanager.google.com) to gather usage statistics. We use no other analytics frameworks, trackers, or other cookies. All IP address information is anonymised using [IP anonymisation in Google Analytics](https://support.google.com/analytics/answer/2763052).
