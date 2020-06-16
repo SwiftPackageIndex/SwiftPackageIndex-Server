@@ -5,7 +5,7 @@ import Vapor
 struct ReconcilerCommand: Command {
     struct Signature: CommandSignature { }
 
-    var help: String { "Reconcile master package list with server" }
+    var help: String { "Reconcile the package list with server" }
 
     func run(using context: CommandContext, signature: Signature) throws {
         context.console.info("Reconciling ...")
@@ -17,10 +17,10 @@ struct ReconcilerCommand: Command {
 
 
 func reconcile(client: Client, database: Database) throws -> EventLoopFuture<Void> {
-    let masterList = try Current.fetchPackageList(client)
+    let packageList = try Current.fetchPackageList(client)
     let currentList = try fetchCurrentPackageList(database)
 
-    return masterList.and(currentList)
+    return packageList.and(currentList)
         .flatMap { reconcileLists(db: database, source: $0, target: $1) }
 }
 
