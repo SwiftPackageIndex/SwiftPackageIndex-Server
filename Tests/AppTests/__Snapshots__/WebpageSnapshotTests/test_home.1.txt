@@ -19,7 +19,7 @@
           <input class="btn btn-primary" type="submit" value="Reconcile"/>
         </div>
         <div class="row">
-          <label>Reconcile the master package list with the Package Index.</label>
+          <label>Reconcile the package list with the Package Index.</label>
         </div>
       </form>
       <form action="/api/packages/run/ingest" method="get">

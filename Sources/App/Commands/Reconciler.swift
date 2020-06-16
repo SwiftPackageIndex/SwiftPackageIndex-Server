@@ -5,7 +5,7 @@ import Vapor
 struct ReconcilerCommand: Command {
     struct Signature: CommandSignature { }
 
-    var help: String { "Reconcile the package list with server" }
+    var help: String { "Reconcile package list with server" }
 
     func run(using context: CommandContext, signature: Signature) throws {
         context.console.info("Reconciling ...")
