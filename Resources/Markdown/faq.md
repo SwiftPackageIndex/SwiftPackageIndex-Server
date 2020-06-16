@@ -47,7 +47,7 @@ This site is a spiritual successor and replacement for [the SwiftPM Library](/im
 
 <h3 id="how-does-it-work">How does the Swift Package Index work?</h3>
 
-The data in this index originates from [this primary list of repositories](https://github.com/SwiftPackageIndex/PackageList/blob/main/packages.json). When someone adds a repository to the master list, this site immediately makes a full clone of the package source. Metadata is extracted from the source code and local git history, as well as from the hosted repository on GitHub.
+The data in this index originates from [this list of repositories](https://github.com/SwiftPackageIndex/PackageList/blob/main/packages.json). When someone adds a repository to the master list, this site immediately makes a full clone of the package source. Metadata is extracted from the source code and local git history, as well as from the hosted repository on GitHub.
 
 Packages are also polled for changes every few hours, so the information you see in the index always reflects the latest package releases, without any action required from the package author.
 
