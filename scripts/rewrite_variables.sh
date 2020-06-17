@@ -22,12 +22,16 @@ echo Rewriting variables for environmen: $ENV_UPPER
 function join_by { local IFS="$1"; shift; echo "$*"; }
 
 for line in $(printenv | grep "^$ENV_UPPER"); do
+    # split line by "="
     IFS="=" read -ra var <<< "$line"
+    # pick out variable and its value
     var=${var[0]}
     value=$(eval echo \"\$$var\")
+    # split variable (e.g. PROD_FOO_BAR) by "_"
     IFS="_" read -ra parts <<< "$var"
-    unset parts[0]
-    new=$(join_by _ "${parts[@]}")
-    export $new=$value
+    unset parts[0]                  # drop env part
+    new=$(join_by _ "${parts[@]}")  # rejoin others
+    # export the new variable with the existing value
+    export $new=$value              
     echo Rewritten: $new = $value
 done
