@@ -21,7 +21,7 @@ echo Rewriting variables for environmen: $ENV_UPPER
 
 function join_by { local IFS="$1"; shift; echo "$*"; }
 
-for line in $(printenv | grep $ENV_UPPER); do
+for line in $(printenv | grep "^$ENV_UPPER"); do
     IFS="=" read -ra var <<< "$line"
     var=${var[0]}
     value=$(eval echo \"\$$var\")
