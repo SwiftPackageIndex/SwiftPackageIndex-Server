@@ -60,6 +60,7 @@ func routes(_ app: Application) throws {
                     filter.insert(.init(param))
                 }
             }
+            if filter.isEmpty { filter = .all }
             return RSSFeed.recentReleases(on: req.db,
                                           maxItemCount: Constants.rssFeedMaxItemCount,
                                           filter: filter)
