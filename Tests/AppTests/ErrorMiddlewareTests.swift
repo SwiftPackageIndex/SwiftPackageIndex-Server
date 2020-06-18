@@ -27,7 +27,7 @@ class ErrorMiddlewareTests: AppTestCase {
         // Test to ensure errors are converted to html error pages via the ErrorMiddleware
         try app.test(.GET, "404") { response in
             XCTAssertEqual(response.content.contentType, .html)
-            XCTAssert(response.body.asString()!.contains("404 - Not Found"))
+            XCTAssert(response.body.asString().contains("404 - Not Found"))
         }
     }
 
@@ -78,7 +78,7 @@ class ErrorMiddlewareTests: AppTestCase {
 
 
 extension ByteBuffer {
-    func asString() -> String? {
-        getString(at: 0, length: readableBytes)
+    func asString() -> String {
+        String(decoding: readableBytesView, as: UTF8.self)
     }
 }

@@ -40,8 +40,9 @@ extension RSSFeed {
     }
 
     static func recentReleases(on database: Database,
-                               maxItemCount: Int = Constants.rssFeedMaxItemCount) -> EventLoopFuture<Self> {
-        RecentRelease.fetch(on: database, limit: maxItemCount)
+                               maxItemCount: Int = Constants.rssFeedMaxItemCount,
+                               filter: RecentRelease.Filter = .all) -> EventLoopFuture<Self> {
+        RecentRelease.fetch(on: database, limit: maxItemCount, filter: filter)
             .mapEach(\.rssItem)
             .map {
                 RSSFeed(title: "Swift Package Index – Recent Releases",

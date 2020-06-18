@@ -110,4 +110,41 @@ class RSSTests: AppTestCase {
                            .some(.init(type: "application", subType: "rss+xml")))
         }
     }
+
+    func test_recentReleases_major() throws {
+        // List only major releases via query parameter
+        // setup
+        // see RecentViewsTests.test_recentReleases_filter for filter results
+        try (1...10).forEach {
+            let major = $0 / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
+            let minor = $0 % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
+            let patch = $0 % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+            let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
+            try pkg.save(on: app.db).wait()
+            try Repository(package: pkg,
+                           summary: "Summary",
+                           name: "pkg-\($0)",
+                           owner: "owner-\($0)")
+                .create(on: app.db).wait()
+            try Version(package: pkg,
+                        reference: .tag(.init(major, minor, patch), "\(major).\(minor).\(patch)"),
+                        packageName: "pkg-\($0)",
+                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)))
+                .save(on: app.db).wait()
+        }
+        // make sure to refresh the materialized view
+        try RecentRelease.refresh(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "releases.rss?major=true") { res in
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(res.content.contentType,
+                           .some(.init(type: "application", subType: "rss+xml")))
+            // validation
+            assertSnapshot(matching: String(decoding: res.body.readableBytesView, as: UTF8.self),
+                           as: .init(pathExtension: "xml", diffing: .lines))
+        }
+
+    }
+
 }
