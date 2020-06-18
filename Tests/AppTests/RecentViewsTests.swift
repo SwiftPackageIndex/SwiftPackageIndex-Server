@@ -123,6 +123,49 @@ class RecentViewsTests: AppTestCase {
         XCTAssertEqual(res.map(\.packageSummary), ["pkg 5", "pkg 1"])
     }
 
+    func test_recentReleases_Filter() throws {
+        XCTAssertTrue(RecentRelease.Filter.minor == .init("minor"))
+        XCTAssertTrue(RecentRelease.Filter.major == .init("major"))
+        XCTAssertTrue(RecentRelease.Filter.patch == .init("patch"))
+        XCTAssertTrue(RecentRelease.Filter.all == [.init("minor"), .init("major"), .init("patch")])
+        XCTAssertTrue(RecentRelease.Filter.all == .init("nonsensical defaults to all"))
+    }
+
+    func test_recentReleases_filter() throws {
+        // List only major releases
+        // setup
+        let releases: [RecentRelease] = (1...10).map {
+            let major = $0 / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
+            let minor = $0 % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
+            let patch = $0 % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+            return RecentRelease(id: UUID(),
+                                 repositoryOwner: "",
+                                 repositoryName: "",
+                                 packageName: "",
+                                 packageSummary: nil,
+                                 version: "\(major).\(minor).\(patch)",
+                                 releasedAt: Date())
+        }
+
+        // MUT
+        let all = RecentRelease.filterReleases(releases, by: .all)
+        let majorOnly = RecentRelease.filterReleases(releases, by: .major)
+        let minorOnly = RecentRelease.filterReleases(releases, by: .minor)
+        let majorMinor = RecentRelease.filterReleases(releases, by: [.major, .minor])
+
+        // validate
+        XCTAssertEqual(
+            all.map(\.version),
+            ["0.1.1", "0.2.0", "1.0.1", "1.1.0", "1.2.1", "2.0.0", "2.1.1", "2.2.0", "3.0.1", "3.1.0"])
+        XCTAssertEqual(
+            majorOnly.map(\.version), ["2.0.0"])
+        XCTAssertEqual(
+            minorOnly.map(\.version), ["0.2.0", "1.1.0", "2.2.0", "3.1.0"])
+        XCTAssertEqual(
+            majorMinor.map(\.version),
+            ["0.2.0", "1.1.0", "2.0.0", "2.2.0", "3.1.0"])
+    }
+
     func test_recentPackages_dedupe_issue() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/315
         // setup
