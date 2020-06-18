@@ -49,7 +49,7 @@ func routes(_ app: Application) throws {
 
     do {  // RSS + Sitemap
         app.get(SiteURL.rssPackages.pathComponents) { req in
-            RSSFeed.recentPackages(on: req.db, maxItemCount: Constants.rssFeedMaxItemCount)
+            RSSFeed.recentPackages(on: req.db, limit: Constants.rssFeedMaxItemCount)
                 .map { $0.rss }
         }
         
@@ -62,7 +62,7 @@ func routes(_ app: Application) throws {
             }
             if filter.isEmpty { filter = .all }
             return RSSFeed.recentReleases(on: req.db,
-                                          maxItemCount: Constants.rssFeedMaxItemCount,
+                                          limit: Constants.rssFeedMaxItemCount,
                                           filter: filter)
                 .map { $0.rss }
         }

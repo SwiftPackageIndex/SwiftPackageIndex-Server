@@ -65,7 +65,7 @@ class RSSTests: AppTestCase {
         try RecentPackage.refresh(on: app.db).wait()
 
         // MUT
-        let feed = try RSSFeed.recentPackages(on: app.db, maxItemCount: 8).wait()
+        let feed = try RSSFeed.recentPackages(on: app.db, limit: 8).wait()
 
         // validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
@@ -88,7 +88,7 @@ class RSSTests: AppTestCase {
         try RecentRelease.refresh(on: app.db).wait()
 
         // MUT
-        let feed = try RSSFeed.recentReleases(on: app.db, maxItemCount: 8).wait()
+        let feed = try RSSFeed.recentReleases(on: app.db, limit: 8).wait()
 
         // validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
