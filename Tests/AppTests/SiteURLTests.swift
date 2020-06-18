@@ -52,7 +52,8 @@ class SiteURLTests: XCTestCase {
 
     func test_absoluteURL_with_parameters() throws {
         Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.rssReleases.absoluteURL(parameters: ["c d": "2", "a b": "1"]), "https://indexsite.com/releases.rss?a%20b=1&c%20d=2")
+        XCTAssertEqual(SiteURL.rssReleases.absoluteURL(parameters: ["c d": "2", "a b": "1"]),
+                       "https://indexsite.com/releases.rss?a%20b=1&c%20d=2")
     }
 
     func test_url_escaping() throws {
