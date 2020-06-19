@@ -55,7 +55,7 @@ func routes(_ app: Application) throws {
         
         app.get(SiteURL.rssReleases.pathComponents) { req -> EventLoopFuture<RSS> in
             var filter: RecentRelease.Filter = []
-            for param in ["major", "minor", "patch"] {
+            for param in ["major", "minor", "patch", "pre"] {
                 if let value = req.query[Bool.self, at: param], value == true {
                     filter.insert(.init(param))
                 }

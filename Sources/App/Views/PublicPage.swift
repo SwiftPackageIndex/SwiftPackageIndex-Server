@@ -68,6 +68,12 @@ class PublicPage {
                 .attribute(named: "title", value: "Swift Package Index – Recent Major & Minor Releases"),
                 .href(SiteURL.rssReleases.absoluteURL(parameters: ["major": "true", "minor": "true"]))
             ),
+            .link(
+                .rel(.alternate),
+                .type("application/rss+xml"),
+                .attribute(named: "title", value: "Swift Package Index – Recent Pre-Releases"),
+                .href(SiteURL.rssReleases.absoluteURL(parameters: ["pre": "true"]))
+            ),
             .script(
                 .src("/javascripts/main.min.js?\(resourceReloadQueryString())")
             ),

@@ -135,9 +135,9 @@ class RecentViewsTests: AppTestCase {
         // List only major releases
         // setup
         let releases: [RecentRelease] = (1...12).map {
-            let major = $0 / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
-            let minor = $0 % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
-            let patch = $0 % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+            let major = $0 / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4
+            let minor = $0 % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0
+            let patch = $0 % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
             let pre = $0 <= 10 ? "" : "-b1"
             return RecentRelease(id: UUID(),
                                  repositoryOwner: "",
