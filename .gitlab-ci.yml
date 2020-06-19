@@ -46,14 +46,7 @@ build-tag:
   image: docker/compose:1.25.5
   script: |
     set -eu
-    echo $ENV
-    echo $FOO  # test set -eu
-    exit 0
-
-    # TODO: unpack env vars
-
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
-    if [ -z "$VERSION" ]; then echo VERSION not set; exit 1 ; fi
     # install curl and set up alias to post deployment to rollbar
     apk add --no-cache curl
     rollbar() {
@@ -88,6 +81,17 @@ deploy dev:
     ENV: dev
   tags:
     - dev
+  only:
+    - main
+  <<: *deploy-common
+
+
+deploy dev (ad hoc):
+  variables:
+    ENV: dev
+  tags:
+    - dev
+  when: manual
   <<: *deploy-common
 
 
