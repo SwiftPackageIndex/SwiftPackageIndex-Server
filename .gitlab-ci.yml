@@ -2,8 +2,9 @@ image: docker:stable
 
 
 variables:
-  IMAGE_SHA: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+  REGISTRY_IMAGE: registry.gitlab.com/finestructure/swiftpackageindex
+  IMAGE_SHA: $REGISTRY_IMAGE:$CI_COMMIT_SHA
+  IMAGE_TAG: $REGISTRY_IMAGE:$CI_COMMIT_TAG
   DOCKER_TLS_CERTDIR: "/certs"
 
 
