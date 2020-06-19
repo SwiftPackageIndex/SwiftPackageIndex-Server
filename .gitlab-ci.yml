@@ -110,10 +110,8 @@ smoke-test:
     rester restfiles/active-packages-test.restfile
 
 
-db-backup (scheduled):
+.backup-common: &backup-common
   stage: build
-  only:
-    - schedules
   tags:
     - ceres
   script: |
@@ -125,15 +123,14 @@ db-backup (scheduled):
     mv ${FILENAME} ${DB_BACKUP_DIR}
 
 
-db-backup (manual):
-  stage: build
-  when: manual
-  tags:
-    - ceres
-  script: |
-    FILENAME=spi_prod_$(date "+%Y-%m-%dT%H:%M:%S").dump
-    echo Backing up database to file ${FILENAME}
-    echo Note: This requires the appropriate SSH tunnel to be active on the runner
-    env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -Fc -h localhost -p 7432 -U spi_prod spi_prod > ${FILENAME}
-    echo "Moving backup file to ${DB_BACKUP_DIR}"
-    mv ${FILENAME} ${DB_BACKUP_DIR}
+db-backup (scheduled):  # PROD: auto-backup on schedule
+  rules:
+    - if: '$ENV == "prod" && $CI_PIPELINE_SOURCE == "schedule"'
+  <<: *backup-common
+
+
+db-backup (manual):     # PROD: allow manual backup any time
+  rules:
+    - if: '$ENV == "prod"'
+      when: manual
+  <<: *backup-common
