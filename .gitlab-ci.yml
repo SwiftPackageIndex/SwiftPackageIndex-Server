@@ -69,32 +69,28 @@ build-tag:
     fi
   
   
-deploy prod:
-  variables:
-    ENV: prod
+deploy prod:  # PROD: auto-deploy tags
+  rules:
+    - if: '$ENV == "prod" && $CI_COMMIT_TAG != null'
   tags:
     - spi-prod
   <<: *deploy-common
-  only:
-    - tags
   
   
-deploy dev:
-  variables:
-    ENV: dev
+deploy dev:  # DEV: auto-deploy main
+  rules:
+    - if: '$ENV == "dev" && $CI_COMMIT_BRANCH == "main"'
   tags:
     - spi-dev
-  only:
-    - main
   <<: *deploy-common
 
 
-deploy dev (ad hoc):
-  variables:
-    ENV: dev
+deploy dev (ad hoc):  # DEV: deploy any revision manually
+  rules:
+    - if: '$ENV == "dev"'
+      when: manual
   tags:
     - spi-dev
-  when: manual
   <<: *deploy-common
 
 
