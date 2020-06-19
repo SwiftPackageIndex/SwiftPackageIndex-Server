@@ -127,7 +127,7 @@ class RecentViewsTests: AppTestCase {
         XCTAssertTrue(RecentRelease.Filter.minor == .init("minor"))
         XCTAssertTrue(RecentRelease.Filter.major == .init("major"))
         XCTAssertTrue(RecentRelease.Filter.patch == .init("patch"))
-        XCTAssertTrue(RecentRelease.Filter.all == [.init("minor"), .init("major"), .init("patch")])
+        XCTAssertTrue(RecentRelease.Filter.all == [.init("minor"), .init("major"), .init("patch"), .init("pre")])
         XCTAssertTrue(RecentRelease.Filter.all == .init("nonsensical defaults to all"))
     }
 
