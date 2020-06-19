@@ -127,16 +127,7 @@ extension Resourceable {
     }
 
     func absoluteURL(parameters: [String: String]) -> String {
-        guard !parameters.isEmpty else { return absoluteURL() }
-        let query: String = parameters.keys
-            .sorted()
-            .map { key in
-                let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? key
-                let value = parameters[key]!
-                let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
-                return "\(encodedKey)=\(encodedValue)"
-        }.joined(separator: "&")
-        return "\(Current.siteURL())/\(path)?\(query)"
+        "\(Current.siteURL())/\(path)\(parameters.queryString())"
     }
 
     func relativeURL(anchor: String? = nil) -> String {

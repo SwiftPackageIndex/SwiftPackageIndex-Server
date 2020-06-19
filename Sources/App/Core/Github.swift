@@ -148,9 +148,7 @@ enum Github {
                        resource: Resource,
                        query: [String: String] = [:]) throws -> URI {
         guard package.url.hasPrefix(Constants.githubComPrefix) else { throw AppError.invalidPackageUrl(package.id, package.url) }
-        let queryString = query.isEmpty
-            ? ""
-            : "?" + query.keys.sorted().map { key in "\(key)=\(query[key]!)" }.joined(separator: "&")
+        let queryString = query.queryString()
         let trunk = package.url
             .droppingGithubComPrefix
             .droppingGitExtension
