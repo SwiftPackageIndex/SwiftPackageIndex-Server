@@ -2,9 +2,8 @@ image: docker:stable
 
 
 variables:
-  REGISTRY_IMAGE: registry.gitlab.com/finestructure/swiftpackageindex
-  IMAGE_SHA: $REGISTRY_IMAGE:$CI_COMMIT_SHA
-  IMAGE_TAG: $REGISTRY_IMAGE:$CI_COMMIT_TAG
+  IMAGE_SHA: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
   DOCKER_TLS_CERTDIR: "/certs"
 
 
@@ -24,6 +23,8 @@ stages:
 
 build-sha:
   stage: build
+  tags:
+    - spi-builder
   script:
     - echo 'let appVersion = "'${CI_COMMIT_TAG:-$CI_COMMIT_SHA}'"' > ./Sources/App/Core/AppVersion.swift
     - docker build -t $IMAGE_SHA .
@@ -34,6 +35,8 @@ build-tag:
   stage: build
   only:
     - tags
+  tags:
+    - spi-builder
   script:
     # re-tag image with tag name
     - docker pull $IMAGE_SHA
@@ -70,7 +73,7 @@ deploy prod:
   variables:
     ENV: prod
   tags:
-    - prod
+    - spi-prod
   <<: *deploy-common
   only:
     - tags
@@ -80,7 +83,7 @@ deploy dev:
   variables:
     ENV: dev
   tags:
-    - dev
+    - spi-dev
   only:
     - main
   <<: *deploy-common
@@ -90,7 +93,7 @@ deploy dev (ad hoc):
   variables:
     ENV: dev
   tags:
-    - dev
+    - spi-dev
   when: manual
   <<: *deploy-common
 
@@ -100,6 +103,8 @@ smoke-test:
   only:
     - tags
     - schedules
+  tags:
+    - ceres
   script: |
     rester() {
       docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.7.2 "$1"
