@@ -102,9 +102,8 @@ deploy dev (ad hoc):  # DEV: deploy any revision manually
 
 smoke-test:
   rules:
-    # rule evaluation doesn't allow () so we use && before || precedence to write
-    # $ENV == "prod" && ($CI_PIPELINE_SOURCE == "schedule" || $CI_COMMIT_TAG != null)
-    - if: '$ENV == "prod" && $CI_PIPELINE_SOURCE == "schedule" || $ENV == "prod" && $CI_COMMIT_TAG != null'
+    - if: '$ENV == "prod" && $CI_COMMIT_TAG != null'
+    - if: '$ENV == "prod" && $CI_PIPELINE_SOURCE == "schedule"'
   stage: smoke-test
   tags:
     - ceres
