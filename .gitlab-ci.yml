@@ -21,7 +21,9 @@ stages:
   - smoke-test
 
 
-build-sha:
+build-sha:  # full build when not a tag
+  rules:
+    - if: '$CI_COMMIT_TAG == null'
   stage: build
   tags:
     - spi-builder
@@ -31,10 +33,10 @@ build-sha:
     - docker push $IMAGE_SHA
     
 
-build-tag:
+build-tag:  # tag previously built docker image when a tag
+  rules:
+    - if: '$CI_COMMIT_TAG != null'
   stage: build
-  only:
-    - tags
   tags:
     - spi-builder
   script:
