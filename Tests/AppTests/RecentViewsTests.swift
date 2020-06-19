@@ -134,16 +134,17 @@ class RecentViewsTests: AppTestCase {
     func test_recentReleases_filter() throws {
         // List only major releases
         // setup
-        let releases: [RecentRelease] = (1...10).map {
+        let releases: [RecentRelease] = (1...12).map {
             let major = $0 / 3  // 0, 0, 1, 1, 1, 2, 2, 2, 3, 3
             let minor = $0 % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1
             let patch = $0 % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+            let pre = $0 <= 10 ? "" : "-b1"
             return RecentRelease(id: UUID(),
                                  repositoryOwner: "",
                                  repositoryName: "",
                                  packageName: "",
                                  packageSummary: nil,
-                                 version: "\(major).\(minor).\(patch)",
+                                 version: "\(major).\(minor).\(patch)\(pre)",
                                  releasedAt: Date())
         }
 
@@ -152,18 +153,21 @@ class RecentViewsTests: AppTestCase {
         let majorOnly = RecentRelease.filterReleases(releases, by: .major)
         let minorOnly = RecentRelease.filterReleases(releases, by: .minor)
         let majorMinor = RecentRelease.filterReleases(releases, by: [.major, .minor])
+        let pre = RecentRelease.filterReleases(releases, by: [.pre])
 
         // validate
         XCTAssertEqual(
             all.map(\.version),
-            ["0.1.1", "0.2.0", "1.0.1", "1.1.0", "1.2.1", "2.0.0", "2.1.1", "2.2.0", "3.0.1", "3.1.0"])
+            ["0.1.1", "0.2.0", "1.0.1", "1.1.0", "1.2.1", "2.0.0", "2.1.1", "2.2.0", "3.0.1", "3.1.0",
+             "3.2.1-b1", "4.0.0-b1"])
         XCTAssertEqual(
             majorOnly.map(\.version), ["2.0.0"])
         XCTAssertEqual(
             minorOnly.map(\.version), ["0.2.0", "1.1.0", "2.2.0", "3.1.0"])
         XCTAssertEqual(
-            majorMinor.map(\.version),
-            ["0.2.0", "1.1.0", "2.0.0", "2.2.0", "3.1.0"])
+            majorMinor.map(\.version), ["0.2.0", "1.1.0", "2.0.0", "2.2.0", "3.1.0"])
+        XCTAssertEqual(
+            pre.map(\.version), ["3.2.1-b1", "4.0.0-b1"])
     }
 
     func test_recentPackages_dedupe_issue() throws {

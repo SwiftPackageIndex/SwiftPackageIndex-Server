@@ -40,6 +40,7 @@ extension RecentRelease {
             if filter.contains(.major) && version.isMajorRelease { return true }
             if filter.contains(.minor) && version.isMinorRelease { return true }
             if filter.contains(.patch) && version.isPatchRelease { return true }
+            if filter.contains(.pre) && version.isPreRelease { return true }
             return false
         }
     }
@@ -65,7 +66,8 @@ extension RecentRelease {
         static let major = Filter(rawValue: 1 << 0)
         static let minor = Filter(rawValue: 1 << 1)
         static let patch = Filter(rawValue: 1 << 2)
-        static var all: Self { [.major, .minor, .patch] }
+        static let pre = Filter(rawValue: 1 << 3)
+        static var all: Self { [.major, .minor, .patch, .pre] }
     }
 }
 
@@ -79,8 +81,10 @@ extension RecentRelease.Filter {
                 self = .minor
             case "patch":
                 self = .patch
+            case "pre":
+                self = .pre
             default:
-                self = [.major, .minor, .patch]
+                self = [.major, .minor, .patch, .pre]
         }
     }
 }
