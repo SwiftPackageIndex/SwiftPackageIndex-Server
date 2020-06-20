@@ -73,9 +73,9 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
             let versions = reconcileVersions(application: application,
                                              transaction: tx,
                                              checkouts: checkouts)
-            let versionsAndManifests = versions.map { getManifests(logger: application.logger,
-                                                                   versions: $0) }
-            return versionsAndManifests.flatMap { updateVersionsAndProducts(on: tx, results: $0) }
+            return versions
+                .map { getManifests(logger: application.logger, versions: $0) }
+                .flatMap { updateVersionsAndProducts(on: tx, results: $0) }
         }
     }
 
@@ -267,7 +267,8 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 }
 
 
-func updateVersionsAndProducts(on database: Database, results: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+func updateVersionsAndProducts(on database: Database,
+                               results: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = results.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success((pkg, versionsAndManifests)):
