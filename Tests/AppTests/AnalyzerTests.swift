@@ -436,7 +436,7 @@ class AnalyzerTests: AppTestCase {
                                 swiftLanguageVersions: ["1", "2", "3.0.0"])
 
         // MUT
-        _ = try updateVersion(on: app.db, client: app.client, version: version, manifest: manifest).wait()
+        _ = try updateVersion(on: app.db, version: version, manifest: manifest).wait()
 
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!
@@ -495,7 +495,7 @@ class AnalyzerTests: AppTestCase {
         ]
 
         // MUT
-        let res = try updateVersionsAndProducts(on: app.db, client: app.client, results: results).wait()
+        let res = try updateVersionsAndProducts(on: app.db, results: results).wait()
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [false, true])

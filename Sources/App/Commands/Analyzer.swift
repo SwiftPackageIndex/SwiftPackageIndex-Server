@@ -75,9 +75,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
                                              checkouts: checkouts)
             return versions
                 .map { getManifests(logger: application.logger, versions: $0) }
-                .flatMap { updateVersionsAndProducts(on: tx,
-                                                     client: application.client,
-                                                     results: $0) }
+                .flatMap { updateVersionsAndProducts(on: tx, results: $0) }
         }
     }
 
@@ -270,16 +268,12 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 
 
 func updateVersionsAndProducts(on database: Database,
-                               client: Client,
                                results: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = results.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success((pkg, versionsAndManifests)):
                 let updates = versionsAndManifests.map { version, manifest in
-                    updateVersion(on: database,
-                                  client: client,
-                                  version: version,
-                                  manifest: manifest)
+                    updateVersion(on: database, version: version, manifest: manifest)
                         .flatMap { updateProducts(on: database, version: version, manifest: manifest)}
                 }
                 return EventLoopFuture
@@ -294,7 +288,7 @@ func updateVersionsAndProducts(on database: Database,
 }
 
 
-func updateVersion(on database: Database, client: Client, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
+func updateVersion(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
     version.packageName = manifest.name
     version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
     version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
