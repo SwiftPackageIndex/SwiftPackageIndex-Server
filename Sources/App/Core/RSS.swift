@@ -28,8 +28,8 @@ struct RSSFeed {
 
 extension RSSFeed {
     static func recentPackages(on database: Database,
-                               maxItemCount: Int = Constants.rssFeedMaxItemCount) -> EventLoopFuture<Self> {
-        RecentPackage.fetch(on: database, limit: maxItemCount)
+                               limit: Int = Constants.rssFeedMaxItemCount) -> EventLoopFuture<Self> {
+        RecentPackage.fetch(on: database, limit: limit)
             .mapEach(\.rssItem)
             .map {
                 RSSFeed(title: "Swift Package Index – Recently Added",
@@ -40,8 +40,9 @@ extension RSSFeed {
     }
 
     static func recentReleases(on database: Database,
-                               maxItemCount: Int = Constants.rssFeedMaxItemCount) -> EventLoopFuture<Self> {
-        RecentRelease.fetch(on: database, limit: maxItemCount)
+                               limit: Int = Constants.rssFeedMaxItemCount,
+                               filter: RecentRelease.Filter = .all) -> EventLoopFuture<Self> {
+        RecentRelease.fetch(on: database, limit: limit, filter: filter)
             .mapEach(\.rssItem)
             .map {
                 RSSFeed(title: "Swift Package Index – Recent Releases",

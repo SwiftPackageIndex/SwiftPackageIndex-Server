@@ -119,4 +119,37 @@ class SemVerTests: XCTestCase {
         XCTAssertFalse(SemVer(1, 0, 0, "a").isStable)
         XCTAssertFalse(SemVer(1, 0, 0, "", "a").isStable)
     }
+
+    func test_isMajorRelease() throws {
+        XCTAssertTrue(SemVer(1, 0, 0).isMajorRelease)
+        XCTAssertFalse(SemVer(1, 0, 0, "b").isMajorRelease)
+        XCTAssertFalse(SemVer(0, 0, 1).isMajorRelease)
+        XCTAssertFalse(SemVer(0, 0, 1, "b").isMajorRelease)
+        XCTAssertFalse(SemVer(0, 1, 0).isMajorRelease)
+        XCTAssertFalse(SemVer(0, 1, 0, "b").isMajorRelease)
+        XCTAssertFalse(SemVer(0, 1, 1).isMajorRelease)
+        XCTAssertFalse(SemVer(0, 0, 0).isMajorRelease)
+    }
+
+    func test_isMinorRelease() throws {
+        XCTAssertFalse(SemVer(1, 0, 0).isMinorRelease)
+        XCTAssertFalse(SemVer(1, 0, 0, "b").isMinorRelease)
+        XCTAssertFalse(SemVer(0, 0, 1).isMinorRelease)
+        XCTAssertFalse(SemVer(0, 0, 1, "b").isMinorRelease)
+        XCTAssertTrue(SemVer(0, 1, 0).isMinorRelease)
+        XCTAssertFalse(SemVer(0, 1, 0, "b").isMinorRelease)
+        XCTAssertFalse(SemVer(0, 1, 1).isMinorRelease)
+        XCTAssertFalse(SemVer(0, 0, 0).isMinorRelease)
+    }
+
+    func test_isPatchRelease() throws {
+        XCTAssertFalse(SemVer(1, 0, 0).isPatchRelease)
+        XCTAssertFalse(SemVer(1, 0, 0, "b").isPatchRelease)
+        XCTAssertTrue(SemVer(0, 0, 1).isPatchRelease)
+        XCTAssertFalse(SemVer(0, 0, 1, "b").isPatchRelease)
+        XCTAssertFalse(SemVer(0, 1, 0).isPatchRelease)
+        XCTAssertFalse(SemVer(0, 1, 0, "b").isPatchRelease)
+        XCTAssertTrue(SemVer(0, 1, 1).isPatchRelease)
+        XCTAssertFalse(SemVer(0, 0, 0).isPatchRelease)
+    }
 }

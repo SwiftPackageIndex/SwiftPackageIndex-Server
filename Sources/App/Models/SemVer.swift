@@ -53,7 +53,11 @@ extension SemVer: Comparable {
 
 extension SemVer {
     var isStable: Bool { preRelease.isEmpty && build.isEmpty }
-    var isPrerelease: Bool { !isStable }
+    var isPreRelease: Bool { !isStable }
+    var isMajorRelease: Bool { isStable && (major > 0 && minor == 0 && patch == 0) }
+    var isMinorRelease: Bool { isStable && (minor > 0 && patch == 0) }
+    var isPatchRelease: Bool { isStable && patch > 0 }
+    var isInitialRelease: Bool { self == .init(0, 0, 0) }
 }
 
 

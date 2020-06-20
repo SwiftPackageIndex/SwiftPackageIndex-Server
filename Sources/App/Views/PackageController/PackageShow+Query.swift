@@ -135,7 +135,7 @@ extension Package {
         let beta = releases.reversed().first {
             // pick first version that is a prerelease *and* no older (in terms of SemVer)
             // than stable
-            ($0.reference?.semVer?.isPrerelease ?? false)
+            ($0.reference?.semVer?.isPreRelease ?? false)
                 && ($0.reference?.semVer ?? SemVer(0, 0, 0)
                     >= stable?.reference?.semVer ?? SemVer(0, 0, 0))
         }

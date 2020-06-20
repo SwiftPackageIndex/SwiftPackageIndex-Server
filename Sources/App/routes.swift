@@ -49,12 +49,21 @@ func routes(_ app: Application) throws {
 
     do {  // RSS + Sitemap
         app.get(SiteURL.rssPackages.pathComponents) { req in
-            RSSFeed.recentPackages(on: req.db, maxItemCount: Constants.rssFeedMaxItemCount)
+            RSSFeed.recentPackages(on: req.db, limit: Constants.rssFeedMaxItemCount)
                 .map { $0.rss }
         }
         
-        app.get(SiteURL.rssReleases.pathComponents) { req in
-            RSSFeed.recentReleases(on: req.db, maxItemCount: Constants.rssFeedMaxItemCount)
+        app.get(SiteURL.rssReleases.pathComponents) { req -> EventLoopFuture<RSS> in
+            var filter: RecentRelease.Filter = []
+            for param in ["major", "minor", "patch", "pre"] {
+                if let value = req.query[Bool.self, at: param], value == true {
+                    filter.insert(.init(param))
+                }
+            }
+            if filter.isEmpty { filter = .all }
+            return RSSFeed.recentReleases(on: req.db,
+                                          limit: Constants.rssFeedMaxItemCount,
+                                          filter: filter)
                 .map { $0.rss }
         }
 
