@@ -1,7 +1,7 @@
 enum Score {
     struct Input {
         var supportsLatestSwiftVersion: Bool
-        var hasAppStoreCompatibleLicense: Bool
+        var licenseKind: License.Kind
         var releaseCount: Int
         var likeCount: Int
     }
@@ -12,7 +12,11 @@ enum Score {
         // Swift major version support
         if candidate.supportsLatestSwiftVersion { score += 10 }
 
-        if candidate.hasAppStoreCompatibleLicense { score += 10 }
+        // Is the license open-source and compatible with the App Store?
+        switch candidate.licenseKind {
+            case .compatibleWithAppStore: score += 10
+            default: break;
+        }
 
         // Number of releases
         switch candidate.releaseCount {
@@ -47,7 +51,7 @@ extension Package {
         let releases = versions.filter { $0.reference?.isTag ?? false }
         return Score.compute(
             .init(supportsLatestSwiftVersion: defaultVersion.supportsMajorSwiftVersion(Constants.latestMajorSwiftVersion),
-                  hasAppStoreCompatibleLicense: r.license.isCompatibleWithAppStore,
+                  licenseKind: r.license.licenseKind,
                   releaseCount: releases.count,
                   likeCount: starsCount)
         )
