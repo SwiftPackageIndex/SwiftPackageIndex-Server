@@ -124,7 +124,7 @@ Push an updated `Package.swift` and the Swift Package Index will automatically u
 If a package's license shows with a background that isn't green, it is for one of three reasons:
 
 1. The package does not have a license.
-2. We're unable to detect software license the package uses.
+2. We're unable to detect the software license that the package uses.
 2. The license chosen by the package authors is incompatible with the terms and conditions of the App Store.
 
 #### No License
