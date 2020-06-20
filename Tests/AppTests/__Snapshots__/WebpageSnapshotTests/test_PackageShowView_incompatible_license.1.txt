@@ -58,7 +58,7 @@
               <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
             </small>
           </div>
-          <a href="/faq#incompatible-license">
+          <a href="/faq#license-problems">
             <div class="license incompatible" title="GNU General Public License v3.0">
               <i class="icon warning"></i>GPL 3.0
             </div>

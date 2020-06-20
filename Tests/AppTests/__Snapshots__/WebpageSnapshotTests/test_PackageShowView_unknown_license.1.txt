@@ -58,7 +58,7 @@
               <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
             </small>
           </div>
-          <a href="/faq#incompatible-license">
+          <a href="/faq#license-problems">
             <div class="license none" title="No License">
               <i class="icon warning"></i>No License
             </div>

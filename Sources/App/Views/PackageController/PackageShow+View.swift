@@ -105,7 +105,7 @@ enum PackageShow {
                 case .noneOrUnknown,
                      .incompatibleWithAppStore:
                     return .a(
-                        .href(SiteURL.faq.relativeURL(anchor: "incompatible-license")),
+                        .href(SiteURL.faq.relativeURL(anchor: "license-problems")),
                         .div(
                             .class("license \(model.license.licenseKind.rawValue)"),
                             .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
