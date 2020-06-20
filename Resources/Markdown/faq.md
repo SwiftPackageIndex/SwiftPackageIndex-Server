@@ -12,7 +12,7 @@ description: Frequently Asked Questions about the Swift Package Index
 * [How does the Swift Package Index work?](#how-does-it-work)
 * [What about the GitHub Package Registry?](#package-registry)
 * [How do I define Language and Platform information?](#language-and-platforms)
-* [Why do some packages show a red license lozenge?](#incompatible-license)
+* [Why do some packages show red license information?](#incompatible-license)
 * [Can I contribute?](#contributing)
 * [Is there an API?](#api)
 * [Why are package versions missing?](#missing-versions)
@@ -119,7 +119,7 @@ Push an updated `Package.swift` and the Swift Package Index will automatically u
 
 ---
 
-<h3 id="incompatible-license">Why do some packages show a red license lozenge?</h3>
+<h3 id="incompatible-license">Why do some packages show red license information?</h3>
 
 If a package's license shows in a red lozenge rather than a green one, it is for one of two reasons:
 
