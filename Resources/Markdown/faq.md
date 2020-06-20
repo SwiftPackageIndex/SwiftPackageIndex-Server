@@ -15,6 +15,7 @@ description: Frequently Asked Questions about the Swift Package Index
 * [Why do some packages show a red license lozenge?](#incompatible-license)
 * [Can I contribute?](#contributing)
 * [Is there an API?](#api)
+* [Why are package versions missing?](#missing-versions)
 
 ---
 
@@ -152,3 +153,11 @@ For feature development, we prefer to receive issues rather than completed pull 
 <h3 id="api">Is there an API?</h3>
 
 Not right now. The Swift Package Index is in a period of rapid development right now and we'd like the flexibility to change things around at this stage in the project's life. It's on the list for the future though!
+
+---
+
+<h3 id="missing-versions">Why are package versions missing?</h3>
+
+Package releases must use git tags that are fullly qualified [semantic versions](https://semver.org). For example, `2.6.0` is a valid semantic version number and `2.6` is not.
+
+A good way to check what the latest semantic version release of a package is is to add it to a project in Xcode. By default, Xcode will show the latest semantic version when adding the package to a project. The number you see on this site should match the version Xcode sees. If you are seeing something different please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose)!
