@@ -123,12 +123,19 @@ Push an updated `Package.swift` and the Swift Package Index will automatically u
 
 If a package's license shows in a red lozenge rather than a green one, it is for one of two reasons:
 
-1. We're unable to detect software license the package uses.
+1. The package does not have a license.
+2. We're unable to detect software license the package uses.
 2. The license chosen by the package authors is incompatible with the terms and conditions of the App Store.
+
+#### No License
+
+If the package license is showing as "No License", it means we could not find *any* license at all in the package repository. If you are the package author, you can fix this by adding a `LICENSE` file with an open-source license that is compatible with the terms and conditions of the App Store. The Swift Package Index will update license metadata a few hours after you push a license to the repository.
+
+Code without a license is not open-source and presents significant legal risks.
 
 #### Unknown License
 
-If the package license is showing as "Unknown License", it means the code is either unlicensed, or we have been unable to detect the license. We get this information directly from GitHub, so if you are the package author and would like to fix this, please [see GitHub's documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
+If the package license is showing as "Unknown License", it means the code is either unlicensed, or we have been unable to detect the license. We get this information directly from GitHub. If you are the package author and would like to fix this, please [see GitHub's documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
 
 For more information, read [this great blog post](https://expressionengine.com/blog/the-truth-about-the-risks-of-unlicensed-software) on the significant risks of using unlicensed code.
 
