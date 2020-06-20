@@ -14,6 +14,7 @@ description: Frequently Asked Questions about the Swift Package Index
 * [How do I define Language and Platform information?](#language-and-platforms)
 * [Why do some packages show a red license lozenge?](#incompatible-license)
 * [Can I contribute?](#contributing)
+* [Is there an API?](#api)
 
 ---
 
@@ -145,3 +146,9 @@ Absolutely. The Swift Package Index is [open-source](https://github.com/SwiftPac
 If you spot a bug or want to make a small fix to the site, pull requests are welcome. If you have a feature request, a good first step is to look through the [list of open issues](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues) and see if it’s already under discussion. If it’s not, please [open a new issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose).
 
 For feature development, we prefer to receive issues rather than completed pull requests. After a discussion, if the enhancement you’re proposing fits well with our vision for the index, we’ll encourage you to take it to a pull request.
+
+---
+
+<h3 id="api">Is there an API?</h3>
+
+Not right now. The Swift Package Index is in a period of rapid development right now and we'd like the flexibility to change things around at this stage in the project's life. It's on the list for the future though!
