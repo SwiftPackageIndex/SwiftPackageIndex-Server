@@ -12,8 +12,10 @@ description: Frequently Asked Questions about the Swift Package Index
 * [How does the Swift Package Index work?](#how-does-it-work)
 * [What about the GitHub Package Registry?](#package-registry)
 * [How do I define Language and Platform information?](#language-and-platforms)
-* [Why do some packages show a red license lozenge?](#incompatible-license)
+* [Why do some packages show red license information?](#incompatible-license)
 * [Can I contribute?](#contributing)
+* [Is there an API?](#api)
+* [Why are package versions missing?](#missing-versions)
 
 ---
 
@@ -117,24 +119,35 @@ Push an updated `Package.swift` and the Swift Package Index will automatically u
 
 ---
 
-<h3 id="incompatible-license">Why do some packages show a red license lozenge?</h3>
+<h3 id="incompatible-license">Why do some packages show red license information?</h3>
 
-If a package's license shows in a red lozenge rather than a green one, it is for one of two reasons:
+If a package's license shows with a background that isn't green, it is for one of three reasons:
 
-1. We're unable to detect software license the package uses.
+1. The package does not have a license.
+2. We're unable to detect the software license that the package uses.
 2. The license chosen by the package authors is incompatible with the terms and conditions of the App Store.
+
+#### No License
+
+If the package license is showing as "No License", it means we could not find *any* license information in the package repository.
+
+If you are considering using a package that does not have a license, you should be aware that it presents a significant legal risk. Code without a license is not open-source, and the original author reserves all rights by default. For more information, read [this great blog post](https://expressionengine.com/blog/the-truth-about-the-risks-of-unlicensed-software) on the significant risks of using unlicensed code.
+
+If you are the package author, you can fix this by adding a `LICENSE` file with an open-source license that is compatible with the terms and conditions of the App Store. The Swift Package Index will update license metadata a few hours after you push a license to the repository.
 
 #### Unknown License
 
-If the package license is showing as "Unknown License", it means the code is either unlicensed, or we have been unable to detect the license. We get this information directly from GitHub, so if you are the package author and would like to fix this, please [see GitHub's documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
+If the package license is showing as "Unknown License", it means we have been unable to detect the license.
 
-For more information, read [this great blog post](https://expressionengine.com/blog/the-truth-about-the-risks-of-unlicensed-software) on the significant risks of using unlicensed code.
+If you are considering using a package with an unidentified license, you should check the package's repository for the details in the `LICENSE` file. If the license details are not clear, you should treat the code as unlicensed and see the section above.
+
+If you are the package author and would like to fix this, please [see GitHub's documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
 
 #### Incompatible license
 
-If the package license shows in an orange lozenge but does *not* say "Unknown License", then the package is using a license which is incompatible with the terms and conditions of the App Store, such as any version of a GPL license.
+If the package license shows with a red background but does *not* say "Unknown License", then the package is using a license which is incompatible with the terms and conditions of the App Store, such as any version of a GPL license.
 
-Using code licensed under an license incompatible with the App Store presents a significant legal risk.
+If you are considering shipping your app to the App Store, you should be aware that using code licensed under one of these licences presents a legal risk.
 
 ---
 
@@ -145,3 +158,22 @@ Absolutely. The Swift Package Index is [open-source](https://github.com/SwiftPac
 If you spot a bug or want to make a small fix to the site, pull requests are welcome. If you have a feature request, a good first step is to look through the [list of open issues](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues) and see if it’s already under discussion. If it’s not, please [open a new issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose).
 
 For feature development, we prefer to receive issues rather than completed pull requests. After a discussion, if the enhancement you’re proposing fits well with our vision for the index, we’ll encourage you to take it to a pull request.
+
+---
+
+<h3 id="api">Is there an API?</h3>
+
+Not right now. The Swift Package Index is in a period of rapid development right now, and we'd like the flexibility to change things around at this stage in the project's life. It's on the list for the future though!
+
+---
+
+<h3 id="missing-versions">Why are package versions missing?</h3>
+
+Package releases must use git tags that are *fully qualified* [semantic versions](https://semver.org). For example, `2.6.0` is a valid semantic version number, and `2.6` is not.
+
+A good way to check what the latest semantic version release of a package is is to add it to a project in Xcode. By default, Xcode will show the latest semantic version when adding the package to a project. The number you see on this site should match the version Xcode shows when adding the package. If you see something different, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose)!
+
+<picture>
+  <source srcset="/images/add-package-in-xcode~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/add-package-in-xcode~light.png" alt="Adding a package in Xcode">
+</picture>
