@@ -35,6 +35,28 @@
 		"oAP": "/fonts/icomoon.woff",
 		"oF": 0
 		},
+	"/images/add-package-in-xcode~dark.png": {
+		"ft": 32768,
+		"iS": 28133,
+		"oA": 0,
+		"oAP": "/images/add-package-in-xcode~dark.png",
+		"oF": 0,
+		"oIPL": 0,
+		"opt": 0,
+		"oT": 1,
+		"q": 100
+		},
+	"/images/add-package-in-xcode~light.png": {
+		"ft": 32768,
+		"iS": 32018,
+		"oA": 0,
+		"oAP": "/images/add-package-in-xcode~light.png",
+		"oF": 0,
+		"oIPL": 1,
+		"opt": 1,
+		"oT": 1,
+		"q": 100
+		},
 	"/images/language-and-platforms-full-metadata~dark.png": {
 		"ft": 32768,
 		"iS": 41605,
