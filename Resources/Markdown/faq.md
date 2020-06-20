@@ -129,7 +129,7 @@ If a package's license shows with a background that isn't green, it is for one o
 
 #### No License
 
-If the package license is showing as "No License", it means we could not find *any* license at all in the package repository.
+If the package license is showing as "No License", it means we could not find *any* license information in the package repository.
 
 If you are considering using a package that does not have a license, you should be aware that it presents a significant legal risk. Code without a license is not open-source, and the original author reserves all rights by default. For more information, read [this great blog post](https://expressionengine.com/blog/the-truth-about-the-risks-of-unlicensed-software) on the significant risks of using unlicensed code.
 
