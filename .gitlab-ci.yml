@@ -25,9 +25,9 @@ stages:
 # We build only on the PROD project's pipeline, because we can read the image
 # for dev deployment. There is no need to build the images twice in parallel.
 # The PROD projects registry already has a build history, so we keep pushing to it.
-build-sha:  # full build when not a tag
+build-sha:
   rules:
-    - if: '$ENV == "prod" && $CI_COMMIT_TAG == null'
+    - if: '$ENV == "prod"'
   stage: build
   tags:
     - ceres
@@ -61,12 +61,22 @@ build-tag:  # tag previously built docker image when a tag
     rollbar() {
       curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "local_username": "CI", "revision": "'"$VERSION"'", "status": "'"$1"'"}' https://api.rollbar.com/api/1/deploy
     }
-    # migrate
+
+    # pull image (retry for up to 10 minutes to allow builds on another pipeline to complete)
+    echo Pulling image ...
+    retries=120
+    until docker pull $REGISTRY_IMAGE:$VERSION; do
+      [[ $retries -eq 0 ]] && echo "docker pull failed" && exit 1
+      sleep 5
+      echo Retrying ...
+      ((retries--))
+    done
+
     echo Migrating database ...
-    docker-compose up -d db
-    echo Deploying with SITE_URL: ${SITE_URL} ...
+    docker-compose up -d db  # ensure db is up
     env VERSION=$VERSION docker-compose run migrate
-    # deploy
+
+    echo Deploying with SITE_URL: ${SITE_URL} ...
     env VERSION=$VERSION docker-compose up -d
     if [[ $? == 0 ]]; then
       rollbar succeeded
@@ -141,4 +151,5 @@ db-backup (manual):     # PROD: allow manual backup any time
   rules:
     - if: '$ENV == "prod"'
       when: manual
+  allow_failure: true
   <<: *backup-common
