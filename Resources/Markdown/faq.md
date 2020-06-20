@@ -121,7 +121,7 @@ Push an updated `Package.swift` and the Swift Package Index will automatically u
 
 <h3 id="incompatible-license">Why do some packages show red license information?</h3>
 
-If a package's license shows in a red lozenge rather than a green one, it is for one of two reasons:
+If a package's license shows with a background that isn't green, it is for one of three reasons:
 
 1. The package does not have a license.
 2. We're unable to detect software license the package uses.
@@ -129,21 +129,25 @@ If a package's license shows in a red lozenge rather than a green one, it is for
 
 #### No License
 
-If the package license is showing as "No License", it means we could not find *any* license at all in the package repository. If you are the package author, you can fix this by adding a `LICENSE` file with an open-source license that is compatible with the terms and conditions of the App Store. The Swift Package Index will update license metadata a few hours after you push a license to the repository.
+If the package license is showing as "No License", it means we could not find *any* license at all in the package repository.
 
-Code without a license is not open-source and presents significant legal risks.
+If you are considering using a package that does not have a license, you should be aware that it presents a significant legal risk. Code without a license is not open-source, and the original author reserves all rights by default. For more information, read [this great blog post](https://expressionengine.com/blog/the-truth-about-the-risks-of-unlicensed-software) on the significant risks of using unlicensed code.
+
+If you are the package author, you can fix this by adding a `LICENSE` file with an open-source license that is compatible with the terms and conditions of the App Store. The Swift Package Index will update license metadata a few hours after you push a license to the repository.
 
 #### Unknown License
 
-If the package license is showing as "Unknown License", it means the code is either unlicensed, or we have been unable to detect the license. We get this information directly from GitHub. If you are the package author and would like to fix this, please [see GitHub's documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
+If the package license is showing as "Unknown License", it means we have been unable to detect the license.
 
-For more information, read [this great blog post](https://expressionengine.com/blog/the-truth-about-the-risks-of-unlicensed-software) on the significant risks of using unlicensed code.
+If you are considering using a package with an unidentified license, you should check the package's repository for the details in the `LICENSE` file. If the license details are not clear, you should treat the code as unlicensed and see the section above.
+
+If you are the package author and would like to fix this, please [see GitHub's documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
 
 #### Incompatible license
 
-If the package license shows in an orange lozenge but does *not* say "Unknown License", then the package is using a license which is incompatible with the terms and conditions of the App Store, such as any version of a GPL license.
+If the package license shows with a red background but does *not* say "Unknown License", then the package is using a license which is incompatible with the terms and conditions of the App Store, such as any version of a GPL license.
 
-Using code licensed under an license incompatible with the App Store presents a significant legal risk.
+If you are considering shipping your app to the App Store, you should be aware that using code licensed under one of these licences presents a legal risk.
 
 ---
 
