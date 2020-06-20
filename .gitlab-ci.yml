@@ -141,4 +141,5 @@ db-backup (manual):     # PROD: allow manual backup any time
   rules:
     - if: '$ENV == "prod"'
       when: manual
+  allow_failure: true
   <<: *backup-common
