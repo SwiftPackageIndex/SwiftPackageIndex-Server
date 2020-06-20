@@ -15,6 +15,7 @@ enum Score {
         // Is the license open-source and compatible with the App Store?
         switch candidate.licenseKind {
             case .compatibleWithAppStore: score += 10
+            case .incompatibleWithAppStore: score += 3
             default: break;
         }
 
