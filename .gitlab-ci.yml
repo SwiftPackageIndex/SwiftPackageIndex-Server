@@ -61,12 +61,22 @@ build-tag:  # tag previously built docker image when a tag
     rollbar() {
       curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "local_username": "CI", "revision": "'"$VERSION"'", "status": "'"$1"'"}' https://api.rollbar.com/api/1/deploy
     }
-    # migrate
+
+    # pull image (retry for up to 10 minutes to allow builds on another pipeline to complete)
+    echo Pulling image ...
+    retries=120
+    until docker pull $REGISTRY_IMAGE:$VERSION; do
+      [[ $retries -eq 0 ]] && echo "docker pull failed" && exit 1
+      sleep 5
+      echo Retrying ...
+      ((retries--))
+    done
+
     echo Migrating database ...
-    docker-compose up -d db
-    echo Deploying with SITE_URL: ${SITE_URL} ...
+    docker-compose up -d db  # ensure db is up
     env VERSION=$VERSION docker-compose run migrate
-    # deploy
+
+    echo Deploying with SITE_URL: ${SITE_URL} ...
     env VERSION=$VERSION docker-compose up -d
     if [[ $? == 0 ]]; then
       rollbar succeeded
