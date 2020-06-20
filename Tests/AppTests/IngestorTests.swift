@@ -29,12 +29,12 @@ class IngestorTests: AppTestCase {
             XCTAssertNotNil($0.updatedAt)
             XCTAssertNotNil($0.description)
             XCTAssertEqual($0.defaultBranch, "main")
-            XCTAssert($0.forks! > 0)
-            XCTAssert($0.stars! > 0)
+            XCTAssert($0.forks != nil && $0.forks! > 0)
+            XCTAssert($0.stars != nil && $0.stars! > 0)
         }
         // assert packages have been updated
         (try Package.query(on: app.db).all().wait()).forEach {
-            XCTAssert($0.updatedAt! > lastUpdate)
+            XCTAssert($0.updatedAt != nil && $0.updatedAt! > lastUpdate)
             XCTAssertEqual($0.status, .new)
             XCTAssertEqual($0.processingStage, .ingestion)
         }

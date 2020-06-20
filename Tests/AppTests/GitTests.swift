@@ -4,11 +4,10 @@ import ShellOut
 import XCTVapor
 
 
-class GitTests: AppTestCase {
+class GitTests: XCTestCase {
 
     static let tempDir = NSTemporaryDirectory().appending("spi-test-\(UUID())")
     static let errNoZip = fixturesDirectory().appendingPathComponent("ErrNo.zip").path
-
 
     override class func setUp() {
         try! Foundation.FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: false, attributes: nil)

@@ -8,7 +8,7 @@ import XCTest
 // MARK: - Test helpers
 
 
-func setup(_ environment: Environment, resetDb: Bool = true) throws -> Application {
+func setup(_ environment: Environment, resetDb: Bool = false) throws -> Application {
     // Always start with a baseline mock environment to avoid hitting live resources
     Current = .mock
     
