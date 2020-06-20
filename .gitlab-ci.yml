@@ -25,9 +25,9 @@ stages:
 # We build only on the PROD project's pipeline, because we can read the image
 # for dev deployment. There is no need to build the images twice in parallel.
 # The PROD projects registry already has a build history, so we keep pushing to it.
-build-sha:  # full build when not a tag
+build-sha:
   rules:
-    - if: '$ENV == "prod" && $CI_COMMIT_TAG == null'
+    - if: '$ENV == "prod"'
   stage: build
   tags:
     - ceres
