@@ -69,7 +69,7 @@ build-tag:  # tag previously built docker image when a tag
       [[ $retries -eq 0 ]] && echo "docker pull failed" && exit 1
       sleep 5
       echo Retrying ...
-      ((retries--))
+      echo $((retries--)) retries left
     done
 
     echo Migrating database ...
