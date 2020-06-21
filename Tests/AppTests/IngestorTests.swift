@@ -8,6 +8,7 @@ import XCTest
 class IngestorTests: AppTestCase {
     
     func test_ingest_basic() throws {
+        try resetDb(app)
         // setup
         let urls = ["https://github.com/finestructure/Gala",
                     "https://github.com/finestructure/Rester",
@@ -41,6 +42,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_fetchMetadata() throws {
+        try resetDb(app)
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
         Current.fetchMetadata = { _, pkg in
@@ -58,6 +60,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_insertOrUpdateRepository() throws {
+        try resetDb(app)
         let pkg = try savePackage(on: app.db, "foo")
         do {  // test insert
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: .mock(for: pkg)).wait()
@@ -74,6 +77,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_updateRepositories() throws {
+        try resetDb(app)
         // setup
         let pkg = try savePackage(on: app.db, "2")
         let metadata: [Result<(Package, Github.Metadata), Error>] = [
@@ -122,6 +126,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_updatePackage() throws {
+        try resetDb(app)
         // setup
         let pkgs = try savePackages(on: app.db, ["1", "2"])
         let results: [Result<Package, Error>] = [
@@ -141,6 +146,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_updatePackages_new() throws {
+        try resetDb(app)
         // Ensure newly ingested packages are passed on with status = new to fast-track
         // them into analysis
         let pkgs = [
@@ -162,6 +168,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_partial_save_issue() throws {
+        try resetDb(app)
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
         Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
@@ -177,6 +184,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_insertOrUpdateRepository_bulk() throws {
+        try resetDb(app)
         // test flattening of many updates
         // Mainly a debug test for the issue described here:
         // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
@@ -195,6 +203,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_ingest_badMetadata() throws {
+        try resetDb(app)
         // setup
         let urls = ["1", "2", "3"]
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
@@ -225,6 +234,7 @@ class IngestorTests: AppTestCase {
     }
 
     func test_ingest_unique_owner_name_violation() throws {
+        try resetDb(app)
         // Test error behaviour when two packages resolving to the same owner/name are ingested:
         //   - don't update package
         //   - don't create repository records

@@ -6,6 +6,7 @@ import XCTVapor
 class ProductTests: AppTestCase {
 
     func test_Product_save() throws {
+        try resetDb(app)
         let pkg = Package(id: UUID(), url: "1")
         let ver = try Version(id: UUID(), package: pkg)
         let prod = try Product(id: UUID(), version: ver, type: .library, name: "p1")
@@ -22,6 +23,7 @@ class ProductTests: AppTestCase {
 
     func test_delete_cascade() throws {
         // delete version must delete products
+        try resetDb(app)
         let pkg = Package(id: UUID(), url: "1")
         let ver = try Version(id: UUID(), package: pkg)
         let prod = try Product(id: UUID(), version: ver, type: .library, name: "p1")

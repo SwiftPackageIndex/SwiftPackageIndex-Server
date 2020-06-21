@@ -26,6 +26,7 @@ class PackageControllerTests: AppTestCase {
                                   packageName: "Test package")
         let product = try Product(id: UUID(), version: version, type: .library, name: "Library")
 
+        try resetDb(app)
         try package.save(on: app.db).wait()
         try repository.save(on: app.db).wait()
         try version.save(on: app.db).wait()

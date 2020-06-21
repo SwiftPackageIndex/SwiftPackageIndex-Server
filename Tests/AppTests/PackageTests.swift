@@ -27,6 +27,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_save_status() throws {
+        try resetDb(app)
         do {  // default status
             let pkg = Package()  // avoid using init with default argument in order to test db default
             pkg.url = "1"
@@ -82,6 +83,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_repository() throws {
+        try resetDb(app)
         let pkg = try savePackage(on: app.db, "1")
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$repositories).first().wait())
@@ -96,6 +98,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_versions() throws {
+        try resetDb(app)
         let pkg = try savePackage(on: app.db, "1")
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
@@ -110,6 +113,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_defaultVersion() throws {
+        try resetDb(app)
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
@@ -133,6 +137,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_defaultVersion_eagerLoading() throws {
+        try resetDb(app)
         // Ensure failure to eager load doesn't trigger a fatalError
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -158,6 +163,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_releaseInfo() throws {
+        try resetDb(app)
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
@@ -184,6 +190,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_releaseInfo_exclude_old_betas() throws {
+        try resetDb(app)
         // Test to ensure that we don't publish a beta that's older than stable
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -209,6 +216,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_releaseInfo_nonEager() throws {
+        try resetDb(app)
         // ensure non-eager access does not fatalError
         let pkg = try savePackage(on: app.db, "1")
         let versions = [
@@ -221,6 +229,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_languagePlatformInfo() throws {
+        try resetDb(app)
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
@@ -266,6 +275,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_history() throws {
+        try resetDb(app)
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg,
@@ -295,6 +305,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_computeScore() throws {
+        try resetDb(app)
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db).wait()

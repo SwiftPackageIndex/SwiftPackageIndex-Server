@@ -6,6 +6,7 @@ import XCTVapor
 class PackageShowModelTests: AppTestCase {
 
     func test_query_owner_repository() throws {
+        try resetDb(app)
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
@@ -29,6 +30,7 @@ class PackageShowModelTests: AppTestCase {
     }
 
     func test_query_owner_repository_case_insensitivity() throws {
+        try resetDb(app)
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
@@ -52,6 +54,7 @@ class PackageShowModelTests: AppTestCase {
     }
 
     func test_query_no_title() throws {
+        try resetDb(app)
         // Tests behaviour when we're lacking data
         // setup package without package name
         let pkg = try savePackage(on: app.db, "1".url)

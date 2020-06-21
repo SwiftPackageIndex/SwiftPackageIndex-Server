@@ -7,6 +7,7 @@ import XCTest
 class ReconcilerTests: AppTestCase {
     
     func test_basic_reconciliation() throws {
+        try resetDb(app)
         let urls = ["1", "2", "3"]
         Current.fetchPackageList = { _ in .just(value: urls.asURLs) }
 
@@ -24,6 +25,7 @@ class ReconcilerTests: AppTestCase {
     }
 
     func test_adds_and_deletes() throws {
+        try resetDb(app)
         // save intial set of packages 1, 2, 3
         try savePackages(on: app.db, ["1", "2", "3"].asURLs)
 

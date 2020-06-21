@@ -14,6 +14,7 @@ class SitemapTests: AppTestCase {
 
     func test_fetchPackages() throws {
         // Test fetching all record in the search view
+        try resetDb(app)
         // setup
         let packages = (0..<3).map { Package(url: "\($0)".url) }
         try packages.save(on: app.db).wait()
@@ -55,6 +56,7 @@ class SitemapTests: AppTestCase {
     }
 
     func test_sitemap_route() throws {
+        try resetDb(app)
         // setup
         Current.siteURL = { "https://indexsite.com" }
         let packages = (0..<3).map { Package(url: "\($0)".url) }

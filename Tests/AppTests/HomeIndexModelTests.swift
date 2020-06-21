@@ -6,6 +6,7 @@ import XCTVapor
 class HomeIndexModelTests: AppTestCase {
 
     func test_query() throws {
+        try resetDb(app)
         // setup
         let pkgId = UUID()
         let pkg = Package(id: pkgId, url: "1".url)

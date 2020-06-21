@@ -8,18 +8,20 @@ import XCTest
 // MARK: - Test helpers
 
 
-func setup(_ environment: Environment, resetDb: Bool = false) throws -> Application {
+func setup(_ environment: Environment) throws -> Application {
     // Always start with a baseline mock environment to avoid hitting live resources
     Current = .mock
     
     let app = Application(.testing)
     app.logger.logLevel = Environment.get("LOG_LEVEL").flatMap(Logger.Level.init(rawValue:)) ?? .warning
     try configure(app)
-    if resetDb {
-        try app.autoRevert().wait()
-        try app.autoMigrate().wait()
-    }
     return app
+}
+
+
+func resetDb(_ app: Application) throws {
+    try app.autoRevert().wait()
+    try app.autoMigrate().wait()
 }
 
 
