@@ -6,7 +6,6 @@ import XCTVapor
 class VersionTests: AppTestCase {
 
     func test_Version_save() throws {
-        try resetDb(app)
         // setup
         let pkg = try savePackage(on: app.db, "1")
         let v = try Version(package: pkg)
@@ -40,7 +39,6 @@ class VersionTests: AppTestCase {
         // Test for
         // invalid field: swift_versions type: Array<SemVer> error: Unexpected data type: JSONB[]. Expected array.
         // Fix is .sql(.default("{}"))
-        try resetDb(app)
         // setup
 
         let pkg = try savePackage(on: app.db, "1")
@@ -55,7 +53,6 @@ class VersionTests: AppTestCase {
 
     func test_delete_cascade() throws {
         // delete package must delete version
-        try resetDb(app)
         // setup
 
         let pkg = Package(id: UUID(), url: "1")

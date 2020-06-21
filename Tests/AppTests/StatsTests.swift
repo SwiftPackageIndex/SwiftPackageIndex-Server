@@ -6,7 +6,6 @@ import XCTVapor
 class StatsTests: AppTestCase {
 
     func test_fetch() throws {
-        try resetDb(app)
         // setup
         // Save 2 packages and 5 versions
         do {

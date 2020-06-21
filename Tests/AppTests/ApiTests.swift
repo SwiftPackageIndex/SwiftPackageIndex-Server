@@ -22,7 +22,6 @@ class ApiTests: AppTestCase {
     }
 
     func test_search_basic_param() throws {
-        try resetDb(app)
         // setup
         let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
                          url: "1")

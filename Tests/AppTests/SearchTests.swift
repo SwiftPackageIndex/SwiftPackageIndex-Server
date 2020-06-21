@@ -18,7 +18,6 @@ class SearchTests: AppTestCase {
 
     func test_run_single() throws {
         // Test search with a single term
-        try resetDb(app)
         // setup
         let p1 = try savePackage(on: app.db, "1")
         let p2 = try savePackage(on: app.db, "2")
@@ -51,7 +50,6 @@ class SearchTests: AppTestCase {
 
     func test_run_multiple() throws {
         // Test search with multiple terms ("and")
-        try resetDb(app)
         // setup
         let p1 = try savePackage(on: app.db, "1")
         let p2 = try savePackage(on: app.db, "2")
@@ -88,7 +86,6 @@ class SearchTests: AppTestCase {
 
     func test_quoting() throws {
         // Test searching for a `'`
-        try resetDb(app)
         // setup
         let p1 = try savePackage(on: app.db, "1")
         let p2 = try savePackage(on: app.db, "2")
@@ -124,7 +121,6 @@ class SearchTests: AppTestCase {
 
 
     func test_search_limit() throws {
-        try resetDb(app)
         // setup
         let packages = (0..<25).map { Package(url: "\($0)".url) }
         try packages.save(on: app.db).wait()
@@ -147,7 +143,6 @@ class SearchTests: AppTestCase {
 
     func test_search_limit_leeway() throws {
         // Tests leeway: we only start cutting off if we have 25 or more results
-        try resetDb(app)
         // setup
         let packages = (0..<21).map { Package(url: "\($0)".url) }
         try packages.save(on: app.db).wait()
@@ -169,7 +164,6 @@ class SearchTests: AppTestCase {
     }
 
     func test_order_by_score() throws {
-        try resetDb(app)
         // setup
         try (0..<10).shuffled().forEach {
             let p = Package(id: UUID(), url: "\($0)".url, score: $0)
@@ -190,7 +184,6 @@ class SearchTests: AppTestCase {
 
     func test_exact_name_match() throws {
         // Ensure exact name matches are boosted
-        try resetDb(app)
         // setup
         // We have three packages that all match in some way:
         // 1: exact package name match - we want this one to be at the top
@@ -230,7 +223,6 @@ class SearchTests: AppTestCase {
     }
 
     func test_exact_name_match_whitespace() throws {
-        try resetDb(app)
         // Ensure exact name matches are boosted, for package name with whitespace
         // setup
         // We have three packages that all match in some way:
@@ -271,7 +263,6 @@ class SearchTests: AppTestCase {
     }
 
     func test_exclude_null_fields() throws {
-        try resetDb(app)
         // Ensure excluding results with NULL fields
         // setup
         // Three packages that all match but each has a different required field with

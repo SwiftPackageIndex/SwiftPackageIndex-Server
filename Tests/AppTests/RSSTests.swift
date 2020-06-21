@@ -51,7 +51,6 @@ class RSSTests: AppTestCase {
     }
 
     func test_recentPackages() throws {
-        try resetDb(app)
         // setup
         try (1...10).forEach {
             let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
@@ -74,7 +73,6 @@ class RSSTests: AppTestCase {
     }
 
     func test_recentReleases() throws {
-        try resetDb(app)
         // setup
         try (1...10).forEach {
             let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
@@ -108,7 +106,6 @@ class RSSTests: AppTestCase {
 
     func test_recentReleases_route_all() throws {
         // Test request handler - without parameters (all)
-        try resetDb(app)
         // setup
         // see RecentViewsTests.test_recentReleases_filter for filter results
         try (1...10).forEach {
@@ -144,7 +141,6 @@ class RSSTests: AppTestCase {
 
     func test_recentReleases_route_major() throws {
         // Test request handler - major releases only
-        try resetDb(app)
         // setup
         // see RecentViewsTests.test_recentReleases_filter for filter results
         try (1...10).forEach {
@@ -180,7 +176,6 @@ class RSSTests: AppTestCase {
 
     func test_recentReleases_route_majorMinor() throws {
         // Test request handler - major & minor releases only
-        try resetDb(app)
         // setup
         // see RecentViewsTests.test_recentReleases_filter for filter results
         try (1...10).forEach {
@@ -216,7 +211,6 @@ class RSSTests: AppTestCase {
 
     func test_recentReleases_route_preRelease() throws {
         // Test request handler - pre-releases only
-        try resetDb(app)
         // setup
         // see RecentViewsTests.test_recentReleases_filter for filter results
         try (1...12).forEach {

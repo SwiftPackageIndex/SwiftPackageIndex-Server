@@ -9,7 +9,6 @@ import XCTest
 class AnalyzerTests: AppTestCase {
     
     func test_analyze() throws {
-        try resetDb(app)
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
@@ -119,7 +118,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_package_status() throws {
-        try resetDb(app)
         // Ensure packages record success/error status
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -155,7 +153,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_continue_on_exception() throws {
-        try resetDb(app)
         // Test to ensure exceptions don't break processing
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
@@ -201,7 +198,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_pullOrClone() throws {
-        try resetDb(app)
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
@@ -232,7 +228,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_pullOrClone_continueOnError() throws {
-        try resetDb(app)
         // Test that processing continues on if a url in invalid
         // setup - first URL is not a valid url
         try savePackages(on: app.db, ["1", "2".asGithubUrl].asURLs, processingStage: .ingestion)
@@ -247,7 +242,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_updateRepository() throws {
-        try resetDb(app)
         // setup
         Current.shell.run = { cmd, _ in
             if cmd.string == "git rev-list --count HEAD" { return "12" }
@@ -271,7 +265,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_updateRepositories() throws {
-        try resetDb(app)
         // setup
         Current.shell.run = { cmd, _ in
             if cmd.string == "git rev-list --count HEAD" { return "12" }
@@ -307,7 +300,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_reconcileVersions_package() throws {
-        try resetDb(app)
         //setup
         Current.shell.run = { cmd, _ in
             if cmd.string == "git tag" {
@@ -334,7 +326,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_reconcileVersions_checkouts() throws {
-        try resetDb(app)
         //setup
         Current.shell.run = { cmd, _ in
             if cmd.string == "git tag" {
@@ -365,7 +356,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_getManifest() throws {
-        try resetDb(app)
         // setup
         let queue = DispatchQueue(label: "serial")
         var commands = [String]()
@@ -395,7 +385,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_getManifests() throws {
-        try resetDb(app)
         // setup
         let queue = DispatchQueue(label: "serial")
         var commands = [String]()
@@ -435,7 +424,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_updateVersion() throws {
-        try resetDb(app)
         // setup
         let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
@@ -472,7 +460,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_updateProducts() throws {
-        try resetDb(app)
         // setup
         let p = Package(id: UUID(), url: "1")
         let v = try Version(id: UUID(), package: p, reference: .tag(.init(1, 0, 0)), packageName: "1")
@@ -490,7 +477,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_updateVersionsAndProducts() throws {
-        try resetDb(app)
         // setup
         let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
@@ -526,7 +512,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_updatePackage() throws {
-        try resetDb(app)
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
         let results: [Result<Package, Error>] = [
@@ -547,7 +532,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_issue_42() throws {
-        try resetDb(app)
         // setup
         Current.shell.run = { cmd, path in
             if cmd.string == "git tag" {
@@ -578,7 +562,6 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_issue_70() throws {
-        try resetDb(app)
         // Certain git commands fail when index.lock exists
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
         // setup

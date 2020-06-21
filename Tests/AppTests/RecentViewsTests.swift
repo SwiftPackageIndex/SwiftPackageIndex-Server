@@ -6,7 +6,6 @@ import XCTVapor
 class RecentViewsTests: AppTestCase {
 
     func test_recentPackages() throws {
-        try resetDb(app)
         // setup
         do {  // 1st package is eligible
             let pkg = Package(id: UUID(), url: "1")
@@ -47,7 +46,6 @@ class RecentViewsTests: AppTestCase {
     }
 
     func test_recentReleases() throws {
-        try resetDb(app)
         // setup
         do {  // 1st package is eligible
             let pkg = Package(id: UUID(), url: "1")
@@ -174,7 +172,6 @@ class RecentViewsTests: AppTestCase {
 
     func test_recentPackages_dedupe_issue() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/315
-        try resetDb(app)
         // setup
         // Package with two eligible versions that differ in package name
         let pkg = Package(id: UUID(), url: "1")
@@ -201,7 +198,6 @@ class RecentViewsTests: AppTestCase {
 
     func test_recentReleases_dedupe_issue() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/315
-        try resetDb(app)
         // setup
         let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()

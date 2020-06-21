@@ -7,7 +7,6 @@ import XCTVapor
 final class RepositoryTests: AppTestCase {
 
     func test_save() throws {
-        try resetDb(app)
         let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
         let repo = try Repository(id: UUID(),
@@ -54,7 +53,6 @@ final class RepositoryTests: AppTestCase {
     }
     
     func test_package_relationship() throws {
-        try resetDb(app)
         let pkg = Package(url: "p1")
         try pkg.save(on: app.db).wait()
         let repo = try Repository(package: pkg)
@@ -72,7 +70,6 @@ final class RepositoryTests: AppTestCase {
     }
 
     func test_forkedFrom_relationship() throws {
-        try resetDb(app)
         let p1 = Package(url: "p1")
         try p1.save(on: app.db).wait()
         let p2 = Package(url: "p2")
@@ -86,7 +83,6 @@ final class RepositoryTests: AppTestCase {
     }
 
     func test_delete_cascade() throws {
-        try resetDb(app)
         // delete package must delete repository
         let pkg = Package(id: UUID(), url: "1")
         let repo = try Repository(id: UUID(), package: pkg)
@@ -105,7 +101,6 @@ final class RepositoryTests: AppTestCase {
     }
 
     func test_defaultBranch() throws {
-        try resetDb(app)
         // setup
         let pkg = Package(id: UUID(), url: "1")
         let repo = try Repository(id: UUID(), package: pkg, defaultBranch: "default")
@@ -122,7 +117,6 @@ final class RepositoryTests: AppTestCase {
     func test_uniqueOwnerRepository() throws {
         // Ensure owner/repository is unique, testing various combinations with
         // matching/non-matching case
-        try resetDb(app)
         let p1 = try savePackage(on: app.db, "1")
         try Repository(id: UUID(), package: p1, name: "bar", owner: "foo").save(on: app.db).wait()
         let p2 = try savePackage(on: app.db, "2")

@@ -6,7 +6,6 @@ import XCTVapor
 class ErrorReportingTests: AppTestCase {
 
     func test_recordError() throws {
-        try resetDb(app)
         let pkg = try savePackage(on: app.db, "1")
         try recordError(database: app.db,
                         error: AppError.invalidPackageUrl(pkg.id, "foo"),
@@ -25,7 +24,6 @@ class ErrorReportingTests: AppTestCase {
     }
 
     func test_Ingestor_error_reporting() throws {
-        try resetDb(app)
         // setup
         try savePackages(on: app.db, ["1", "2"], processingStage: .reconciliation)
         Current.fetchMetadata = { _, pkg in .just(error: AppError.invalidPackageUrl(nil, "foo")) }
@@ -74,7 +72,6 @@ class ErrorReportingTests: AppTestCase {
     }
 
     func test_invalidPackageCachePath() throws {
-        try resetDb(app)
         // setup
         try savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
 

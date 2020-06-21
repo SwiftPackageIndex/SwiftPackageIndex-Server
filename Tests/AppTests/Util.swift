@@ -10,7 +10,7 @@ import XCTest
 
 private var _schemaCreated = false
 
-func setup(_ environment: Environment) throws -> Application {
+func setup(_ environment: Environment, resetDb: Bool = true) throws -> Application {
     // Always start with a baseline mock environment to avoid hitting live resources
     Current = .mock
     
@@ -22,13 +22,14 @@ func setup(_ environment: Environment) throws -> Application {
         try app.autoMigrate().wait()
         _schemaCreated = true
     }
+    if resetDb { try _resetDb(app) }
     return app
 }
 
 
 private var _tables: [String]?
 
-func resetDb(_ app: Application) throws {
+func _resetDb(_ app: Application) throws {
     guard let db = app.db as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
@@ -46,7 +47,7 @@ func resetDb(_ app: Application) throws {
             .all(decoding: Row.self)
             .wait()
             .map(\.table_name)
-        if _tables != nil { try resetDb(app) }
+        if _tables != nil { try _resetDb(app) }
         return
     }
 
