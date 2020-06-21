@@ -1,4 +1,4 @@
-▿ 31 elements
+▿ 30 elements
   ▿ 'git checkout "1.0.0" --quiet' at path: '.../github.com-foo-1'
     - command: "git checkout \"1.0.0\" --quiet"
     - path: ".../github.com-foo-1"
@@ -71,11 +71,8 @@
   ▿ 'git log -n1 --format=format:"%ct"' at path: '.../github.com-foo-2'
     - command: "git log -n1 --format=format:\"%ct\""
     - path: ".../github.com-foo-2"
-  ▿ 'git pull --quiet' at path: '.../github.com-foo-2'
-    - command: "git pull --quiet"
-    - path: ".../github.com-foo-2"
-  ▿ 'git reset --hard' at path: '.../github.com-foo-2'
-    - command: "git reset --hard"
+  ▿ 'git reset "origin/main" --hard' at path: '.../github.com-foo-2'
+    - command: "git reset \"origin/main\" --hard"
     - path: ".../github.com-foo-2"
   ▿ 'git rev-list --count HEAD' at path: '.../github.com-foo-2'
     - command: "git rev-list --count HEAD"
