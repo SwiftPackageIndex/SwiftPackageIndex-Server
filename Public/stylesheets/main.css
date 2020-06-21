@@ -691,3 +691,13 @@ footer ul {
     align-items: center;
   }
 }
+
+/* Staging banner ---------------------------------------------------------- */
+.staging {
+  padding: 10px;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+  background-color: var(--mid-red);
+  color: var(--white);
+}
