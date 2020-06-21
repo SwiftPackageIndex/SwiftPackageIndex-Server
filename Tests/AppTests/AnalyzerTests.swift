@@ -221,10 +221,9 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(commands, [
             #"rm "-f" ".../github.com-foo-1/.git/HEAD.lock""#,
             #"rm "-f" ".../github.com-foo-1/.git/index.lock""#,
-            #"git reset --hard"#,
             #"git fetch"#,
             #"git checkout "main" --quiet"#,
-            #"git pull --quiet"#,
+            #"git reset "origin/main" --hard"#,
         ])
     }
 
