@@ -12,6 +12,7 @@
   --light-green: #5FBF1B;
 
   --yellow: #F2B94F;
+  --orange: #F58E36;
   --mid-red: #CC4444;
   --light-red: #FFEEEE;
 
@@ -30,6 +31,7 @@
     --very-dark-grey: #191923;
 
     --mid-blue: #55B7FF;
+    --orange: #EC8329;
     --mid-red: #FF4343;
     --dark-red: #250201;
     --yellow: #FFB834;
@@ -71,8 +73,9 @@
   --rule-background: var(--light-blue);
 
   --license-text: var(--white);
+  --license-none-background: var(--mid-red);
   --license-compatible-background: var(--mid-green);
-  --license-incompatible-background: var(--mid-red);
+  --license-incompatible-background: var(--orange);
 
   --stable-text: var(--light-green);
   --beta-text: var(--mid-green);
@@ -621,6 +624,10 @@ div.license {
   font-weight: 600;
   font-size: 18px;
   background-color: var(--license-compatible-background);
+}
+
+div.license.none {
+  background-color: var(--license-none-background);
 }
 
 div.license.incompatible {

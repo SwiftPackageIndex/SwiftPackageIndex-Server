@@ -38,9 +38,7 @@ enum PackageShow {
                             )
                         ])
                     ),
-                    .if(model.license.isCompatibleWithAppStore,
-                        licenseLozenge(),
-                        else: incompatibleLicenseLozenge())
+                    licenseLozenge()
                 ),
                 .hr(),
                 .p(
@@ -96,24 +94,26 @@ enum PackageShow {
         }
 
         func licenseLozenge() -> Node<HTML.BodyContext> {
-            .div(
-                .class("license"),
-                .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                .i(.class("icon osi")),
-                .text(model.license.shortName)
-            )
-        }
-
-        func incompatibleLicenseLozenge() -> Node<HTML.BodyContext> {
-            .a(
-                .href(SiteURL.faq.relativeURL(anchor: "incompatible-license")),
-                .div(
-                    .class("license incompatible"),
-                    .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                    .i(.class("icon warning")),
-                    .text(model.license.shortName)
-                )
-            )
+            switch model.license.licenseKind {
+                case .compatibleWithAppStore:
+                    return .div(
+                        .class("license"),
+                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                        .i(.class("icon osi")),
+                        .text(model.license.shortName)
+                    )
+                case .noneOrUnknown,
+                     .incompatibleWithAppStore:
+                    return .a(
+                        .href(SiteURL.faq.relativeURL(anchor: "license-problems")),
+                        .div(
+                            .class("license \(model.license.licenseKind.rawValue)"),
+                            .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                            .i(.class("icon warning")),
+                            .text(model.license.shortName)
+                        )
+                    )
+            }
         }
 
     }

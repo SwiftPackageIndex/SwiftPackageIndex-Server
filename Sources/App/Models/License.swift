@@ -112,19 +112,25 @@ enum License: String, Codable, Equatable {
         }
     }
 
-    var isCompatibleWithAppStore: Bool {
+    var licenseKind: Kind {
         switch self {
+            case .other,
+                 .none: return .noneOrUnknown
             case .agpl_3_0,
                  .gpl,
                  .gpl_2_0,
                  .gpl_3_0,
                  .lgpl,
                  .lgpl_2_1,
-                 .lgpl_3_0: return false
-            case .other,
-                 .none: return false
-            default: return true
+                 .lgpl_3_0: return .incompatibleWithAppStore
+            default: return .compatibleWithAppStore
         }
+    }
+
+    enum Kind: String {
+        case noneOrUnknown = "none"
+        case incompatibleWithAppStore = "incompatible"
+        case compatibleWithAppStore = "compatible"
     }
 }
 

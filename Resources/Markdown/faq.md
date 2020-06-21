@@ -12,7 +12,7 @@ description: Frequently Asked Questions about the Swift Package Index
 * [How does the Swift Package Index work?](#how-does-it-work)
 * [What about the GitHub Package Registry?](#package-registry)
 * [How do I define Language and Platform information?](#language-and-platforms)
-* [Why do some packages show red license information?](#incompatible-license)
+* [What do the license colours mean?](#license-problems)
 * [Can I contribute?](#contributing)
 * [Is there an API?](#api)
 * [Why are package versions missing?](#missing-versions)
@@ -119,9 +119,9 @@ Push an updated `Package.swift` and the Swift Package Index will automatically u
 
 ---
 
-<h3 id="incompatible-license">Why do some packages show red license information?</h3>
+<h3 id="license-problems">What do the license colours mean?</h3>
 
-If a package's license shows with a background that isn't green, it is for one of three reasons:
+If a package's license shows with a background that is orange or red, it is for one of three reasons:
 
 1. The package does not have a license.
 2. We're unable to detect the software license that the package uses.
@@ -145,7 +145,7 @@ If you are the package author and would like to fix this, please [see GitHub's d
 
 #### Incompatible license
 
-If the package license shows with a red background but does *not* say "Unknown License", then the package is using a license which is incompatible with the terms and conditions of the App Store, such as any version of a GPL license.
+If the package license shows with an orange background but does *not* say "No License" or "Unknown License", then the package is using a license which is incompatible with the terms and conditions of the App Store, such as any GPL style license.
 
 If you are considering shipping your app to the App Store, you should be aware that using code licensed under one of these licences presents a legal risk.
 
