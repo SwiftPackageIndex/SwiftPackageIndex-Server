@@ -13,7 +13,7 @@ class PipelineTests: AppTestCase {
 
     func test_fetchCandidates_ingestion_fifo() throws {
         // oldest first
-        try  [
+        try [
             Package(url: "1", status: .ok, processingStage: .reconciliation),
             Package(url: "2", status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
@@ -24,7 +24,7 @@ class PipelineTests: AppTestCase {
     }
 
     func test_fetchCandidates_ingestion_limit() throws {
-        try  [
+        try [
             Package(url: "1", status: .ok, processingStage: .reconciliation),
             Package(url: "2", status: .ok, processingStage: .reconciliation),
             ].save(on: app.db).wait()
@@ -36,7 +36,7 @@ class PipelineTests: AppTestCase {
 
     func test_fetchCandidates_ingestion_correct_stage() throws {
         // only pick up from reconciliation stage
-        try  [
+        try [
             Package(url: "1", status: .ok, processingStage: nil),
             Package(url: "2", status: .ok, processingStage: .reconciliation),
             Package(url: "3", status: .ok, processingStage: .analysis),
@@ -47,7 +47,7 @@ class PipelineTests: AppTestCase {
 
     func test_fetchCandidates_ingestion_prefer_new() throws {
         // make sure records with status = new come first, then least recent
-        try  [
+        try [
             Package(url: "1", status: .notFound, processingStage: .reconciliation),
             Package(url: "2", status: .new, processingStage: .reconciliation),
             Package(url: "3", status: .ok, processingStage: .reconciliation),
@@ -61,7 +61,7 @@ class PipelineTests: AppTestCase {
     func test_fetchCandidates_ingestion_eventual_refresh() throws {
         // Make sure packages in .analysis stage get re-ingested after a while to
         // check for upstream package changes
-        try  [
+        try [
             Package(url: "1", status: .ok, processingStage: .analysis),
             Package(url: "2", status: .ok, processingStage: .analysis),
             ].save(on: app.db).wait()
@@ -74,7 +74,7 @@ class PipelineTests: AppTestCase {
 
     func test_fetchCandidates_analysis_correct_stage() throws {
         // only pick up from ingestion stage
-        try  [
+        try [
             Package(url: "1", status: .ok, processingStage: nil),
             Package(url: "2", status: .ok, processingStage: .reconciliation),
             Package(url: "3", status: .ok, processingStage: .ingestion),
@@ -86,7 +86,7 @@ class PipelineTests: AppTestCase {
 
     func test_fetchCandidates_analysis_prefer_new() throws {
         // Test pick up from ingestion stage with status = new first, then FIFO
-        try  [
+        try [
             Package(url: "1", status: .notFound, processingStage: .ingestion),
             Package(url: "2", status: .ok, processingStage: .ingestion),
             Package(url: "3", status: .analysisFailed, processingStage: .ingestion),
@@ -98,7 +98,6 @@ class PipelineTests: AppTestCase {
 
     func test_processing_pipeline() throws {
         // Test pipeline pick-up end to end
-
         // setup
         let urls = ["1", "2", "3"].asGithubUrls
         Current.fetchPackageList = { _ in .just(value: urls.asURLs) }
