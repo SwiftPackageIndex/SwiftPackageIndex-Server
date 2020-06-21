@@ -167,13 +167,29 @@ class PublicPage {
         .body(
             .class(bodyClass() ?? ""),
             analyticsBody(),
+            stagingBanner(),
             header(),
             noScript(),
             preMain(),
             main(),
             postMain(),
-            footer()
+            footer(),
+            stagingBanner()
         )
+    }
+
+    /// A stagig banner, which only appears on the staging/development server.
+    /// - Returns: Either a <div> element, or nothing.
+    final func stagingBanner() -> Node<HTML.BodyContext> {
+        let environment = (try? Environment.detect()) ?? .development
+        if environment == .development {
+            return .div(
+                .class("staging"),
+                .text("Staging / Development")
+            )
+        } else {
+            return .text("")
+        }
     }
 
     /// The site header, including the site navigation.
