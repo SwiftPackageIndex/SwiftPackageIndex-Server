@@ -93,9 +93,11 @@ extension Package {
         let rl = Link(
             label: releaseCountString + " release".pluralized(for: releases.count),
             url: url.droppingGitExtension + "/releases")
-        return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
+        let timeSinceFirstCommit = Current.date().timeIntervalSince(firstCommitDate)
+        return .init(since: "\(inWords: timeSinceFirstCommit)",
                      commitCount: cl,
-                     releaseCount: rl)
+                     releaseCount: rl,
+                     releaseCadence: releases.isEmpty ? nil : "\(inWords: timeSinceFirstCommit / Double(releases.count))")
     }
 
     func activity() -> PackageShow.Model.Activity? {

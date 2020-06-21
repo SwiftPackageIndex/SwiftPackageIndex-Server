@@ -26,7 +26,8 @@ extension PackageShow.Model {
                 commitCount: .init(label: "1,433 commits",
                                    url: "https://github.com/Alamofire/Alamofire/commits/main"),
                 releaseCount: .init(label: "79 releases",
-                                    url: "https://github.com/Alamofire/Alamofire/releases")
+                                    url: "https://github.com/Alamofire/Alamofire/releases"),
+                releaseCadence: "10 days"
             ),
             languagePlatforms: .init(
                 stable: .init(

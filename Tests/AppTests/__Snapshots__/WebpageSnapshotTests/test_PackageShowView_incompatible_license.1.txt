@@ -78,7 +78,7 @@
             </li>
             <li class="icon history">In development for over 5 years, with 
               <a href="https://github.com/Alamofire/Alamofire/commits/main">1,433 commits</a> and 
-              <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
+              <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>. The average time between releases is approximately 10 days.
             </li>
             <li class="icon activity">There are 
               <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and 

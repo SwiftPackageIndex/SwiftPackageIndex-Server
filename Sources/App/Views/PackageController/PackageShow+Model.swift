@@ -20,6 +20,7 @@ extension PackageShow {
             var since: String
             var commitCount: Link
             var releaseCount: Link
+            var releaseCadence: String?
         }
 
         struct Activity: Equatable {
@@ -79,7 +80,8 @@ extension PackageShow.Model {
                 .href(history.releaseCount.url),
                 .text(history.releaseCount.label)
             ),
-            "."
+            ".",
+            history.releaseCadence.map { " The average time between releases is approximately \($0)." } ?? ""
         ])
     }
 
