@@ -27,6 +27,7 @@
     <script src="/javascripts/main.min.js?0"></script>
   </head>
   <body class="package">
+    <div class="staging">Staging / Development</div>
     <header>
       <div class="inner">
         <a href="/">
@@ -142,5 +143,6 @@
         </nav>
       </div>
     </footer>
+    <div class="staging">Staging / Development</div>
   </body>
 </html>
