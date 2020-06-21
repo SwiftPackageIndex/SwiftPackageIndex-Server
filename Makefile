@@ -19,7 +19,7 @@ build:
 run:
 	$(VAPOR) run
 
-test:
+test: migrate
 	swift test --enable-test-discovery --enable-code-coverage
 
 docker-build: version
@@ -37,7 +37,7 @@ test-e2e: db-reset reconcile ingest analyze
 	@# run import sequence test
 
 migrate:
-	echo y | $(VAPOR) run migrate
+	echo y | swift run Run migrate
 
 revert:
 	$(VAPOR) run migrate --revert
