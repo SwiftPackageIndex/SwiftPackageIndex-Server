@@ -1,8 +1,9 @@
+@testable import App
+
 import Fluent
+import SQLKit
 import Vapor
 import XCTest
-
-@testable import App
 
 
 // MARK: - Test helpers
@@ -20,8 +21,17 @@ func setup(_ environment: Environment) throws -> Application {
 
 
 func resetDb(_ app: Application) throws {
-    try app.autoRevert().wait()
-    try app.autoMigrate().wait()
+    guard let db = app.db as? SQLDatabase else {
+        fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+    }
+
+    let tables = ["packages",
+                  "products",
+                  "repositories",
+                  "versions"]
+    for table in tables {
+        try db.raw("TRUNCATE TABLE \(table) CASCADE").run().wait()
+    }
 }
 
 

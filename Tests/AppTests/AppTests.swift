@@ -4,7 +4,7 @@ import Vapor
 import XCTest
 
 
-class AppTests: XCTestCase {
+class AppTests: AppTestCase {
 
     func test_Filemanager_checkoutsDirectory() throws {
         Current.fileManager = .live
@@ -15,4 +15,8 @@ class AppTests: XCTestCase {
         XCTAssertEqual(Current.fileManager.checkoutsDirectory(), "/tmp/foo")
     }
 
+    func test_migrations() throws {
+        XCTAssertNoThrow(try app.autoRevert().wait())
+        XCTAssertNoThrow(try app.autoMigrate().wait())
+    }
 }
