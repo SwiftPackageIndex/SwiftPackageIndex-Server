@@ -213,7 +213,7 @@ func reconcileVersions(application: Application,
     }
 
     let references = defaultBranch.and(tags).map { $0 + $1 }
-    let versions: EventLoopFuture<[Version]> = references
+    let incoming: EventLoopFuture<[Version]> = references
         .flatMapEachThrowing { ref in
             let revInfo = try Git.revisionInfo(ref, at: cacheDir)
             return try Version(package: package,
@@ -221,11 +221,25 @@ func reconcileVersions(application: Application,
                                commit: revInfo.commit,
                                commitDate: revInfo.date) }
 
-    let delete = Version.query(on: transaction)
-        .filter(\.$package.$id == pkgId)
-        .delete()
-    let insert = versions.flatMap { versions in versions.create(on: transaction).map { versions }  }
-    return delete.flatMap { insert }
+    let newReconciliation = true
+    if newReconciliation {
+        return Version.query(on: transaction)
+            .filter(\.$package.$id == pkgId)
+            .all()
+            .and(incoming)
+            .flatMap { saved, incoming -> EventLoopFuture<[Version]> in
+                let delta = Version.diff(local: saved, incoming: incoming)
+                let delete = delta.toDelete.delete(on: application.db)
+                let insert = delta.toAdd.create(on: application.db).transform(to: delta.toAdd)
+                return delete.flatMap { insert }
+        }
+    } else {
+        let delete = Version.query(on: transaction)
+            .filter(\.$package.$id == pkgId)
+            .delete()
+        let insert = incoming.flatMap { versions in versions.create(on: transaction).map { versions }  }
+        return delete.flatMap { insert }
+    }
 }
 
 
@@ -238,7 +252,9 @@ func getManifests(logger: Logger,
             let errors = m.compactMap { $0.getError() }
                 .map { AppError.genericError(pkg.id, "getManifests failed: \($0.localizedDescription)") }
             errors.forEach { logger.report(error: $0) }
-            guard !successes.isEmpty else { return .failure(AppError.noValidVersions(pkg.id, pkg.url)) }
+            if !versions.isEmpty && successes.isEmpty {
+                return .failure(AppError.noValidVersions(pkg.id, pkg.url))
+            }
             return .success((pkg, successes))
         }
     }
