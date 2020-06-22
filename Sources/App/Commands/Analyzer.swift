@@ -170,7 +170,9 @@ func reconcileVersions(application: Application,
     let ops = checkouts.map { checkout -> EventLoopFuture<(Package, [Version])> in
         switch checkout {
             case .success(let pkg):
-                return reconcileVersions(application: application,
+                return reconcileVersions(client: application.client,
+                                         logger: application.logger,
+                                         threadPool: application.threadPool,
                                          transaction: transaction,
                                          package: pkg)
                     .map { (pkg, $0) }
@@ -182,16 +184,18 @@ func reconcileVersions(application: Application,
 }
 
 
-func reconcileVersions(application: Application,
+func reconcileVersions(client: Client,
+                       logger: Logger,
+                       threadPool: NIOThreadPool,
                        transaction: Database,
                        package: Package) -> EventLoopFuture<[Version]> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return application.eventLoopGroup.next().future(error:
+        return transaction.eventLoop.future(error:
             AppError.invalidPackageCachePath(package.id, package.url)
         )
     }
     guard let pkgId = package.id else {
-        return application.eventLoopGroup.next().future(error:
+        return transaction.eventLoop.future(error:
             AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
         )
     }
@@ -201,14 +205,14 @@ func reconcileVersions(application: Application,
             if let b = b { return [.branch(b)] } else { return [] }  // drop nil default branch
         }
 
-    let tags: EventLoopFuture<[Reference]> = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
-        application.logger.info("listing tags for package \(package.url)")
+    let tags: EventLoopFuture<[Reference]> = threadPool.runIfActive(eventLoop: transaction.eventLoop) {
+        logger.info("listing tags for package \(package.url)")
         return try Git.tag(at: cacheDir)
     }
     .flatMapError {
         let appError = AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)")
-        application.logger.report(error: appError)
-        return Current.reportError(application.client, .error, appError)
+        logger.report(error: appError)
+        return Current.reportError(client, .error, appError)
             .transform(to: [])
     }
 
