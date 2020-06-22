@@ -1,4 +1,3 @@
-VAPOR=vapor-beta
 DOCKER_IMAGE=registry.gitlab.com/finestructure/swiftpackageindex
 
 ifndef VERSION
@@ -14,10 +13,10 @@ else
 endif
 
 build:
-	$(VAPOR) build
+	swift build
 
 run:
-	$(VAPOR) run
+	swift run
 
 test:
 	swift test --enable-test-discovery --enable-code-coverage
@@ -37,22 +36,22 @@ test-e2e: db-reset reconcile ingest analyze
 	@# run import sequence test
 
 migrate:
-	echo y | $(VAPOR) run migrate
+	echo y | swift run Run migrate
 
 revert:
-	$(VAPOR) run migrate --revert
+	swift run Run migrate --revert
 
 routes:
-	$(VAPOR) run routes
+	swift run Run routes
 
 reconcile:
-	$(VAPOR) run reconcile
+	swift run Run reconcile
 
 ingest:
-	$(VAPOR) run ingest --limit 1
+	swift run Run ingest --limit 1
 
 analyze:
-	$(VAPOR) run analyze --limit 1
+	swift run Run analyze --limit 1
 
 db-up: db-up-dev db-up-test
 

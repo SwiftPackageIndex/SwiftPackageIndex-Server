@@ -70,7 +70,7 @@ class ErrorMiddlewareTests: AppTestCase {
 
         try app.test(.GET, "500") { response in
             XCTAssertEqual(reportedLevel, .critical)
-            XCTAssertEqual(reportedError, Abort(.internalServerError).localizedDescription)
+            XCTAssert(reportedError?.contains("Abort.500: Internal Server Error") ?? false)
         }
     }
 
