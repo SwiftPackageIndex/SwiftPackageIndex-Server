@@ -70,7 +70,9 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
 
     let versionUpdates = checkouts.flatMap { checkouts in
         application.db.transaction { tx -> EventLoopFuture<[Result<Package, Error>]> in
-            let versions = reconcileVersions(application: application,
+            let versions = reconcileVersions(client: application.client,
+                                             logger: application.logger,
+                                             threadPool: application.threadPool,
                                              transaction: tx,
                                              checkouts: checkouts)
             return versions
@@ -164,23 +166,25 @@ func updateRepository(package: Package) -> Result<Package, Error> {
 }
 
 
-func reconcileVersions(application: Application,
+func reconcileVersions(client: Client,
+                       logger: Logger,
+                       threadPool: NIOThreadPool,
                        transaction: Database,
                        checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
     let ops = checkouts.map { checkout -> EventLoopFuture<(Package, [Version])> in
         switch checkout {
             case .success(let pkg):
-                return reconcileVersions(client: application.client,
-                                         logger: application.logger,
-                                         threadPool: application.threadPool,
+                return reconcileVersions(client: client,
+                                         logger: logger,
+                                         threadPool: threadPool,
                                          transaction: transaction,
                                          package: pkg)
                     .map { (pkg, $0) }
             case .failure(let error):
-                return application.eventLoopGroup.future(error: error)
+                return transaction.eventLoop.future(error: error)
         }
     }
-    return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
+    return EventLoopFuture.whenAllComplete(ops, on: transaction.eventLoop)
 }
 
 
