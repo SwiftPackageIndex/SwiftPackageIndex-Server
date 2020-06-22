@@ -114,4 +114,13 @@ extension Version {
         let incoming = Set(incoming)
         return (toAdd: incoming.subtracting(local), toDelete: local.subtracting(incoming))
     }
+
+    static func diff(local: [Version], incoming: [Version]) -> (toAdd: [Version], toDelete: [Version]) {
+        let delta = diff(local: local.compactMap(\.immutableReference),
+                         incoming: incoming.compactMap(\.immutableReference))
+        return (
+            toAdd: incoming.filter { $0.immutableReference.map({delta.toAdd.contains($0)}) ?? false },
+            toDelete: local.filter { $0.immutableReference.map({delta.toDelete.contains($0)}) ?? false }
+        )
+    }
 }
