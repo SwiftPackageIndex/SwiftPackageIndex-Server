@@ -75,7 +75,8 @@ func fixturesDirectory(path: String = #file) -> URL {
 
 
 @discardableResult
-func savePackage(on db: Database, _ url: URL, processingStage: ProcessingStage? = nil) throws -> Package {
+func savePackage(on db: Database, _ url: URL,
+                 processingStage: Package.ProcessingStage? = nil) throws -> Package {
     let p = Package(id: UUID(), url: url, processingStage: processingStage)
     try p.save(on: db).wait()
     return p
@@ -83,7 +84,8 @@ func savePackage(on db: Database, _ url: URL, processingStage: ProcessingStage? 
 
 
 @discardableResult
-func savePackages(on db: Database, _ urls: [URL], processingStage: ProcessingStage? = nil) throws -> [Package] {
+func savePackages(on db: Database, _ urls: [URL],
+                  processingStage: Package.ProcessingStage? = nil) throws -> [Package] {
     try urls.map { try savePackage(on: db, $0, processingStage: processingStage) }
 }
 

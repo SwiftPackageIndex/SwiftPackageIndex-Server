@@ -5,7 +5,7 @@ import Vapor
 
 func updatePackage(application: Application,
                    results: [Result<Package, Error>],
-                   stage: ProcessingStage) -> EventLoopFuture<Void> {
+                   stage: Package.ProcessingStage) -> EventLoopFuture<Void> {
     let updates = results.map { result -> EventLoopFuture<Void> in
         switch result {
             case .success(let pkg):
@@ -44,8 +44,8 @@ func updatePackage(application: Application,
 
 func recordError(database: Database,
                  error: Error,
-                 stage: ProcessingStage) -> EventLoopFuture<Void> {
-    func setStatus(id: Package.Id?, status: Status) -> EventLoopFuture<Void> {
+                 stage: Package.ProcessingStage) -> EventLoopFuture<Void> {
+    func setStatus(id: Package.Id?, status: Package.Status) -> EventLoopFuture<Void> {
         guard let id = id else { return database.eventLoop.future() }
         return Package.query(on: database)
             .filter(\.$id == id)
