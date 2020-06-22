@@ -73,7 +73,7 @@ extension Build {
 
 
 extension Build {
-    struct PostDTO: Decodable {
+    struct PostDTO: Codable {
         var logs: String?
         var platform: Platform?
         var status: Status
