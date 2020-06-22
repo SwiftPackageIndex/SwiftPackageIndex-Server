@@ -52,6 +52,15 @@ final class Build: Model, Content {
         self.status = status
         self.swiftVersion = swiftVersion
     }
+
+    init(_ dto: PostDTO, _ version: Version) throws {
+        self.logs = dto.logs
+        self.platform = dto.platform
+        self.status = dto.status
+        self.swiftVersion = dto.swiftVersion
+        self.$version.id = try version.requireID()
+    }
+    
 }
 
 
@@ -59,5 +68,15 @@ extension Build {
     enum Status: String, Codable {
         case ok
         case failed
+    }
+}
+
+
+extension Build {
+    struct PostDTO: Decodable {
+        var logs: String?
+        var platform: Platform?
+        var status: Status
+        var swiftVersion: SwiftVersion
     }
 }

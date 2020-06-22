@@ -44,4 +44,5 @@ class BuildTests: AppTestCase {
         // validate
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
     }
+
 }
