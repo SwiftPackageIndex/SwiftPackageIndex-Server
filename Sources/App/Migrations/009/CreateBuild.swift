@@ -22,6 +22,6 @@ struct CreateBuild: Migration {
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("versions").delete()
+        return database.schema("builds").delete()
     }
 }
