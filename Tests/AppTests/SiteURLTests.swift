@@ -72,4 +72,22 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.absoluteURL(for: "foo"), "https://indexsite.com/foo")
         XCTAssertEqual(SiteURL.absoluteURL(for: "/foo"), "https://indexsite.com/foo")
     }
+
+    func test_api_path() throws {
+        XCTAssertEqual(SiteURL.api(.search).path, "api/search")
+        XCTAssertEqual(SiteURL.api(.version).path, "api/version")
+        do {
+            let uuid = UUID()
+            XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .builds)).path,
+                           "api/versions/\(uuid.uuidString)/builds")
+        }
+    }
+
+    func test_api_pathComponents() throws {
+        XCTAssertEqual(SiteURL.api(.search).pathComponents.map(\.description), ["api", "search"])
+        XCTAssertEqual(SiteURL.api(.version).pathComponents.map(\.description), ["api", "version"])
+        XCTAssertEqual(SiteURL.api(.versions(.name("id"), .builds)).pathComponents.map(\.description),
+                       ["api", "versions", ":id", "builds"])
+    }
+
 }
