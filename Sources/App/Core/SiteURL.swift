@@ -16,7 +16,7 @@ import Vapor
 
 enum Api: Resourceable {
     case version
-    case versions(_ id: Parameter<UUID>, Versions)
+    case versions(_ id: Parameter<UUID>, VersionsPathComponents)
     case search
 
     var path: String {
@@ -44,7 +44,7 @@ enum Api: Resourceable {
     }
 
 
-    enum Versions: String, Resourceable {
+    enum VersionsPathComponents: String, Resourceable {
         case builds
     }
 }
