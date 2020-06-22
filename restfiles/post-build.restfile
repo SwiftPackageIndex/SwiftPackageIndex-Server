@@ -1,0 +1,21 @@
+variables:
+    base_url: http://localhost:8080/api
+    version_id: f1689f37-9383-477c-81da-4f492825ac5d
+
+requests:
+
+    post build:
+        url: ${base_url}/versions/${version_id}/builds
+        method: POST
+        body:
+            json:
+                logs: some logs
+                status: ok
+                swiftVersion:
+                    major: 5
+                    minor: 2
+                    patch: 0
+
+        validation:
+            status: 200
+        log: json

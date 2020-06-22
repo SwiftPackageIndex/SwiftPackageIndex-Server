@@ -52,6 +52,15 @@ final class Build: Model, Content {
         self.status = status
         self.swiftVersion = swiftVersion
     }
+
+    init(_ dto: PostDTO, _ version: Version) throws {
+        self.logs = dto.logs
+        self.platform = dto.platform
+        self.status = dto.status
+        self.swiftVersion = dto.swiftVersion
+        self.$version.id = try version.requireID()
+    }
+    
 }
 
 
@@ -79,5 +88,15 @@ extension Build {
         static func macos(_ version: String) -> Self { .init(name: .macos, version: version) }
         static func tvos(_ version: String) -> Self { .init(name: .tvos, version: version) }
         static func watchos(_ version: String) -> Self { .init(name: .watchos, version: version) }
+    }
+}
+
+
+extension Build {
+    struct PostDTO: Decodable {
+        var logs: String?
+        var platform: Platform?
+        var status: Status
+        var swiftVersion: SwiftVersion
     }
 }
