@@ -229,8 +229,8 @@ func reconcileVersions(application: Application,
             .and(incoming)
             .flatMap { saved, incoming -> EventLoopFuture<[Version]> in
                 let delta = Version.diff(local: saved, incoming: incoming)
-                let delete = delta.toDelete.delete(on: application.db)
-                let insert = delta.toAdd.create(on: application.db).transform(to: delta.toAdd)
+                let delete = delta.toDelete.delete(on: transaction)
+                let insert = delta.toAdd.create(on: transaction).transform(to: delta.toAdd)
                 return delete.flatMap { insert }
         }
     } else {
