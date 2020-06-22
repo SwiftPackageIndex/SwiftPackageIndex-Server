@@ -1,7 +1,7 @@
 import Vapor
 
 
-struct SemVer: Content, Equatable {
+struct SemVer: Content, Equatable, Hashable {
     var major: Int
     var minor: Int
     var patch: Int

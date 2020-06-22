@@ -93,3 +93,25 @@ extension Version {
         values.first { supportsMajorSwiftVersion(swiftVersion, value: $0) } != nil
     }
 }
+
+
+// MARK: - Version reconciliation / diffing
+
+extension Version {
+    struct ImmutableReference: Equatable, Hashable {
+        var reference: Reference
+        var commit: CommitHash
+    }
+
+    var immutableReference: ImmutableReference? {
+        guard let ref = reference, let commit = commit else { return nil }
+        return .init(reference: ref, commit: commit)
+    }
+
+    static func diff(local: [Version.ImmutableReference],
+                     incoming: [Version.ImmutableReference]) -> (toAdd: Set<Version.ImmutableReference>, toDelete: Set<Version.ImmutableReference>) {
+        let local = Set(local)
+        let incoming = Set(incoming)
+        return (toAdd: incoming.subtracting(local), toDelete: local.subtracting(incoming))
+    }
+}
