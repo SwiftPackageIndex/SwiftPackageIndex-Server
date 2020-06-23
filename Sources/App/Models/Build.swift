@@ -60,4 +60,24 @@ extension Build {
         case ok
         case failed
     }
+
+    struct Platform: Codable, Equatable {
+        enum Name: String, Codable, Equatable, CaseIterable {
+            case ios
+            case linux
+            case macos
+            case tvos
+            case watchos
+
+            case unknown
+        }
+        var name: Name
+        var version: String
+
+        static func ios(_ version: String) -> Self { .init(name: .ios, version: version) }
+        static func linux(_ version: String) -> Self { .init(name: .linux, version: version) }
+        static func macos(_ version: String) -> Self { .init(name: .macos, version: version) }
+        static func tvos(_ version: String) -> Self { .init(name: .tvos, version: version) }
+        static func watchos(_ version: String) -> Self { .init(name: .watchos, version: version) }
+    }
 }
