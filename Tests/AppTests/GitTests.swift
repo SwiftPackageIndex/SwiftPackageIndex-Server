@@ -11,7 +11,7 @@ class GitTests: XCTestCase {
 
     override class func setUp() {
         try! Foundation.FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: false, attributes: nil)
-        try! ShellOut.shellOut(to: .init("unzip \(errNoZip)"), at: tempDir)
+        try! ShellOut.shellOut(to: .init(#"unzip "\#(errNoZip)""#), at: tempDir)
     }
 
     override class func tearDown() {
