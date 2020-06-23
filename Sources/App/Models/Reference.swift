@@ -1,7 +1,7 @@
 import Foundation
 
 
-enum Reference: Equatable {
+enum Reference: Equatable, Hashable {
     case branch(String)
     case tag(SemVer, _ tagName: String)
 

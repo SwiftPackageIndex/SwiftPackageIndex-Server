@@ -70,7 +70,9 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
 
     let versionUpdates = checkouts.flatMap { checkouts in
         application.db.transaction { tx -> EventLoopFuture<[Result<Package, Error>]> in
-            let versions = reconcileVersions(application: application,
+            let versions = reconcileVersions(client: application.client,
+                                             logger: application.logger,
+                                             threadPool: application.threadPool,
                                              transaction: tx,
                                              checkouts: checkouts)
             return versions
@@ -164,34 +166,40 @@ func updateRepository(package: Package) -> Result<Package, Error> {
 }
 
 
-func reconcileVersions(application: Application,
+func reconcileVersions(client: Client,
+                       logger: Logger,
+                       threadPool: NIOThreadPool,
                        transaction: Database,
                        checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
     let ops = checkouts.map { checkout -> EventLoopFuture<(Package, [Version])> in
         switch checkout {
             case .success(let pkg):
-                return reconcileVersions(application: application,
+                return reconcileVersions(client: client,
+                                         logger: logger,
+                                         threadPool: threadPool,
                                          transaction: transaction,
                                          package: pkg)
                     .map { (pkg, $0) }
             case .failure(let error):
-                return application.eventLoopGroup.future(error: error)
+                return transaction.eventLoop.future(error: error)
         }
     }
-    return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
+    return EventLoopFuture.whenAllComplete(ops, on: transaction.eventLoop)
 }
 
 
-func reconcileVersions(application: Application,
+func reconcileVersions(client: Client,
+                       logger: Logger,
+                       threadPool: NIOThreadPool,
                        transaction: Database,
                        package: Package) -> EventLoopFuture<[Version]> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return application.eventLoopGroup.next().future(error:
+        return transaction.eventLoop.future(error:
             AppError.invalidPackageCachePath(package.id, package.url)
         )
     }
     guard let pkgId = package.id else {
-        return application.eventLoopGroup.next().future(error:
+        return transaction.eventLoop.future(error:
             AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
         )
     }
@@ -201,19 +209,19 @@ func reconcileVersions(application: Application,
             if let b = b { return [.branch(b)] } else { return [] }  // drop nil default branch
         }
 
-    let tags: EventLoopFuture<[Reference]> = application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
-        application.logger.info("listing tags for package \(package.url)")
+    let tags: EventLoopFuture<[Reference]> = threadPool.runIfActive(eventLoop: transaction.eventLoop) {
+        logger.info("listing tags for package \(package.url)")
         return try Git.tag(at: cacheDir)
     }
     .flatMapError {
         let appError = AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)")
-        application.logger.report(error: appError)
-        return Current.reportError(application.client, .error, appError)
+        logger.report(error: appError)
+        return Current.reportError(client, .error, appError)
             .transform(to: [])
     }
 
     let references = defaultBranch.and(tags).map { $0 + $1 }
-    let versions: EventLoopFuture<[Version]> = references
+    let incoming: EventLoopFuture<[Version]> = references
         .flatMapEachThrowing { ref in
             let revInfo = try Git.revisionInfo(ref, at: cacheDir)
             return try Version(package: package,
@@ -221,11 +229,16 @@ func reconcileVersions(application: Application,
                                commit: revInfo.commit,
                                commitDate: revInfo.date) }
 
-    let delete = Version.query(on: transaction)
+    return Version.query(on: transaction)
         .filter(\.$package.$id == pkgId)
-        .delete()
-    let insert = versions.flatMap { versions in versions.create(on: transaction).map { versions }  }
-    return delete.flatMap { insert }
+        .all()
+        .and(incoming)
+        .flatMap { saved, incoming -> EventLoopFuture<[Version]> in
+            let delta = Version.diff(local: saved, incoming: incoming)
+            let delete = delta.toDelete.delete(on: transaction)
+            let insert = delta.toAdd.create(on: transaction).transform(to: delta.toAdd)
+            return delete.flatMap { insert }
+    }
 }
 
 
@@ -238,7 +251,9 @@ func getManifests(logger: Logger,
             let errors = m.compactMap { $0.getError() }
                 .map { AppError.genericError(pkg.id, "getManifests failed: \($0.localizedDescription)") }
             errors.forEach { logger.report(error: $0) }
-            guard !successes.isEmpty else { return .failure(AppError.noValidVersions(pkg.id, pkg.url)) }
+            if !versions.isEmpty && successes.isEmpty {
+                return .failure(AppError.noValidVersions(pkg.id, pkg.url))
+            }
             return .success((pkg, successes))
         }
     }
