@@ -90,6 +90,7 @@ class ApiTests: AppTestCase {
     }
 
     func test_post_build_unauthenticated() throws {
+        // Ensure unauthenticated access raises a 401
         // setup
         Current.builderToken = { "secr3t" }
         let p = try savePackage(on: app.db, "1")
