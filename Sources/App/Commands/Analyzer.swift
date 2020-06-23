@@ -229,24 +229,15 @@ func reconcileVersions(client: Client,
                                commit: revInfo.commit,
                                commitDate: revInfo.date) }
 
-    let newReconciliation = true
-    if newReconciliation {
-        return Version.query(on: transaction)
-            .filter(\.$package.$id == pkgId)
-            .all()
-            .and(incoming)
-            .flatMap { saved, incoming -> EventLoopFuture<[Version]> in
-                let delta = Version.diff(local: saved, incoming: incoming)
-                let delete = delta.toDelete.delete(on: transaction)
-                let insert = delta.toAdd.create(on: transaction).transform(to: delta.toAdd)
-                return delete.flatMap { insert }
-        }
-    } else {
-        let delete = Version.query(on: transaction)
-            .filter(\.$package.$id == pkgId)
-            .delete()
-        let insert = incoming.flatMap { versions in versions.create(on: transaction).map { versions }  }
-        return delete.flatMap { insert }
+    return Version.query(on: transaction)
+        .filter(\.$package.$id == pkgId)
+        .all()
+        .and(incoming)
+        .flatMap { saved, incoming -> EventLoopFuture<[Version]> in
+            let delta = Version.diff(local: saved, incoming: incoming)
+            let delete = delta.toDelete.delete(on: transaction)
+            let insert = delta.toAdd.create(on: transaction).transform(to: delta.toAdd)
+            return delete.flatMap { insert }
     }
 }
 
