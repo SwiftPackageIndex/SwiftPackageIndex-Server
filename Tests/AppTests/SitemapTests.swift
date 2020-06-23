@@ -9,7 +9,7 @@ class SitemapTests: AppTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()
-        record = false
+        SnapshotTesting.record = false
     }
 
     func test_fetchPackages() throws {

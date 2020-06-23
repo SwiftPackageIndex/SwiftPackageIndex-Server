@@ -18,7 +18,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PublicPage.admin()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -33,7 +33,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = HomeIndex.View(path: "/", model: .mock).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -53,7 +53,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: .mock).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -75,7 +75,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -97,7 +97,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -122,7 +122,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -146,7 +146,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -172,7 +172,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -198,7 +198,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -219,7 +219,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = ErrorPage.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -239,7 +239,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = MarkdownPage(path: "", "privacy.md").document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 

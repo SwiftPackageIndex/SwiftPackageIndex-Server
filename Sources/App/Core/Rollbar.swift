@@ -49,15 +49,15 @@ extension Rollbar {
         }
 
         struct Data: Content {
-            let environment: String
-            let body: Body
-            let level: Level
-            let language = "swift"
-            let framework = "vapor"
-            let uuid = UUID().uuidString
+            var environment: String
+            var body: Body
+            var level: Level
+            var language = "swift"
+            var framework = "vapor"
+            var uuid = UUID().uuidString
 
             struct Body: Content {
-                let message: Message
+                var message: Message
 
                 init(message: String) {
                   self.message = .init(body: message)

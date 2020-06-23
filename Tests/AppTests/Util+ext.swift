@@ -22,7 +22,7 @@ extension XCTestCase {
     func assertEquals<Root, Value: Equatable>(_ keyPath: KeyPath<Root, Value>,
                                               _ value1: Root,
                                               _ value2: Root,
-                                              file: StaticString = #file,
+                                              file: StaticString = #filePath,
                                               line: UInt = #line) {
         XCTAssertEqual(value1[keyPath: keyPath],
                        value2[keyPath: keyPath],
@@ -33,7 +33,7 @@ extension XCTestCase {
     func assertEquals<Root, Value: Equatable>(_ values: [Root],
                                               _ keyPath: KeyPath<Root, Value>,
                                               _ expectations: [Value],
-                                              file: StaticString = #file,
+                                              file: StaticString = #filePath,
                                               line: UInt = #line) {
         XCTAssertEqual(values.map { $0[keyPath: keyPath] },
                        expectations,
