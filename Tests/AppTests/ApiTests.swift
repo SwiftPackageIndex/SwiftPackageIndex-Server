@@ -62,6 +62,7 @@ class ApiTests: AppTestCase {
 
     func test_post_build() throws {
         // setup
+        Current.builderToken = { "secr3t" }
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
@@ -73,7 +74,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
-            headers: .init(dictionaryLiteral: ("Content-Type", "application/json")),
+            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
             body: body) { res in
                 // validation
                 XCTAssertEqual(res.status, .ok)
@@ -84,6 +85,74 @@ class ApiTests: AppTestCase {
                 let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
                 XCTAssertEqual(b.status, .ok)
                 XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+        }
+    }
+
+    func test_post_build_unauthenticated() throws {
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p)
+        try v.save(on: app.db).wait()
+        let versionId = try XCTUnwrap(v.id)
+        let dto: Build.PostDTO = .init(status: .ok, swiftVersion: .init(5, 2, 0))
+        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+
+        // MUT - no auth header
+        try app.test(
+            .POST,
+            "api/versions/\(versionId)/builds",
+            headers: .init([("Content-Type", "application/json")]),
+            body: body) { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+        }
+
+        // MUT - wrong token
+        try app.test(
+            .POST,
+            "api/versions/\(versionId)/builds",
+            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer wrong")]),
+            body: body) { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+        }
+    }
+
+    func test_post_build_unauthenticated_without_server_token() throws {
+        // Ensure we don't allow API requests when no token is configured server-side
+        // setup
+        Current.builderToken = { nil }
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p)
+        try v.save(on: app.db).wait()
+        let versionId = try XCTUnwrap(v.id)
+        let dto: Build.PostDTO = .init(status: .ok, swiftVersion: .init(5, 2, 0))
+        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+
+        // MUT - no auth header
+        try app.test(
+            .POST,
+            "api/versions/\(versionId)/builds",
+            headers: .init([("Content-Type", "application/json")]),
+            body: body) { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+        }
+
+        // MUT - with auth header
+        try app.test(
+            .POST,
+            "api/versions/\(versionId)/builds",
+            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer token")]),
+            body: body) { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
         }
     }
 

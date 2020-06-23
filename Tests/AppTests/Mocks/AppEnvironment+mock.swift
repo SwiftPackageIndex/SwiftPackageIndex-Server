@@ -5,6 +5,7 @@ import Vapor
 
 extension AppEnvironment {
     static let mock: Self = .init(
+        builderToken: { nil },
         date: Date.init,
         fetchPackageList: { _ in
             .just(value: ["https://github.com/finestructure/Gala",

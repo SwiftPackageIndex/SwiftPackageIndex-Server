@@ -3,6 +3,7 @@ import Vapor
 
 
 struct AppEnvironment {
+    var builderToken: () -> String?
     var date: () -> Date
     var fetchPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
     var fetchMetadata: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Metadata>
@@ -17,6 +18,7 @@ struct AppEnvironment {
 
 extension AppEnvironment {
     static let live: Self = .init(
+        builderToken: { Environment.get("BUILDER_TOKEN") },
         date: Date.init,
         fetchPackageList: liveFetchPackageList,
         fetchMetadata: Github.fetchMetadata(client:package:),
