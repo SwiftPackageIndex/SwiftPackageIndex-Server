@@ -8,6 +8,7 @@ x-shared: &shared
   environment:
     # set these variables via the environment or a `.env` file, which
     # docker-compose reads and uses to populate variables
+    BUILDER_TOKEN: ${BUILDER_TOKEN}
     CHECKOUTS_DIR: ${CHECKOUTS_DIR}
     DATABASE_HOST: ${DATABASE_HOST}
     DATABASE_PORT: ${DATABASE_PORT}
