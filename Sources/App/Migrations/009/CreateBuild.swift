@@ -18,6 +18,9 @@ struct CreateBuild: Migration {
             .field("status", .string)
             .field("swift_version", .json)
 
+            // constraints
+            .unique(on: "version_id", "platform", "swift_version")
+            
             .create()
     }
 
