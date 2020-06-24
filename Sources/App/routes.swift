@@ -36,6 +36,10 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.api(.version).pathComponents) { req in API.Version(version: appVersion) }
         app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
 
+        let builds = API.BuildController()
+        app.post(SiteURL.api(.versions(.name("id"), .builds)).pathComponents,
+                 use: builds.create)
+
         // sas: 2020-05-19: shut down public API until we have an auth mechanism
         //  let apiPackageController = API.PackageController()
         //  api.get("packages", use: apiPackageController.index)

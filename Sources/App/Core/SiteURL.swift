@@ -14,9 +14,39 @@ import Vapor
 // Enums based on String are automatically Resourceable via RawRepresentable.
 
 
-enum Api: String, Resourceable {
+enum Api: Resourceable {
     case version
+    case versions(_ id: Parameter<UUID>, VersionsPathComponents)
     case search
+
+    var path: String {
+        switch self {
+            case .search:
+                return "search"
+            case .version:
+                return "version"
+            case let .versions(.value(id), next):
+                return "versions/\(id.uuidString)/\(next.path)"
+            case .versions(.name, _):
+                fatalError("path must not be called with a name parameter")
+        }
+    }
+
+    var pathComponents: [PathComponent] {
+        switch self {
+            case .search, .version:
+                return [.init(stringLiteral: path)]
+            case let .versions(.name(id), remainder):
+                return ["versions", .init(stringLiteral: ":\(id)")] + remainder.pathComponents
+            case .versions(.value, _):
+                fatalError("pathComponents must not be called with a value parameter")
+        }
+    }
+
+
+    enum VersionsPathComponents: String, Resourceable {
+        case builds
+    }
 }
 
 
@@ -40,8 +70,8 @@ enum SiteURL: Resourceable {
             case .admin:
                 return "admin"
 
-            case .api:
-                return "api"
+            case let .api(next):
+                return "api/\(next.path)"
 
             case .faq:
                 return "faq"
