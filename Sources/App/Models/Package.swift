@@ -2,28 +2,6 @@ import Fluent
 import Vapor
 
 
-enum Status: String, Codable {
-    case ok
-    case new
-    // errors
-    case analysisFailed = "analysis_failed"
-    case ingestionFailed = "ingestion_failed"
-    case invalidCachePath = "invalid_cache_path"
-    case invalidUrl = "invalid_url"
-    case metadataRequestFailed = "metadata_request_failed"
-    case notFound = "not_found"
-    case noValidVersions = "no_valid_versions"
-    case shellCommandFailed = "shell_command_failed"
-}
-
-
-enum ProcessingStage: String, Codable {
-    case reconciliation
-    case ingestion
-    case analysis
-}
-
-
 final class Package: Model, Content {
     static let schema = "packages"
 
@@ -79,6 +57,29 @@ final class Package: Model, Content {
 
 
 extension Package {
+    enum Status: String, Codable {
+        case ok
+        case new
+        // errors
+        case analysisFailed = "analysis_failed"
+        case ingestionFailed = "ingestion_failed"
+        case invalidCachePath = "invalid_cache_path"
+        case invalidUrl = "invalid_url"
+        case metadataRequestFailed = "metadata_request_failed"
+        case notFound = "not_found"
+        case noValidVersions = "no_valid_versions"
+        case shellCommandFailed = "shell_command_failed"
+    }
+
+    enum ProcessingStage: String, Codable {
+        case reconciliation
+        case ingestion
+        case analysis
+    }
+}
+
+
+extension Package {
     var repository: Repository? {
         guard let repositories = $repositories.value else { return nil }
         return repositories.first
@@ -128,7 +129,7 @@ extension Package {
 
 
 private extension QueryBuilder where Model == Package {
-    func filter(for stage: ProcessingStage) -> Self {
+    func filter(for stage: Package.ProcessingStage) -> Self {
         switch stage {
             case .reconciliation:
                 fatalError("reconciliation stage does not select candidates")

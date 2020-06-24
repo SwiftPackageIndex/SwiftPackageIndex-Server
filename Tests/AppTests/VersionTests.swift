@@ -5,7 +5,7 @@ import XCTVapor
 
 class VersionTests: AppTestCase {
 
-    func test_Version_save() throws {
+    func test_save() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         let v = try Version(package: pkg)
@@ -35,7 +35,7 @@ class VersionTests: AppTestCase {
         }
     }
 
-    func test_Version_empty_array_error() throws {
+    func test_empty_array_error() throws {
         // Test for
         // invalid field: swift_versions type: Array<SemVer> error: Unexpected data type: JSONB[]. Expected array.
         // Fix is .sql(.default("{}"))

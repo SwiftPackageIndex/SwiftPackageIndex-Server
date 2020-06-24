@@ -61,6 +61,9 @@ public func configure(_ app: Application) throws {
     do { // Migration 008 - add stats view
         app.migrations.add(CreateStats())
     }
+    do { // Migration 009 - add builds table
+        app.migrations.add(CreateBuild())
+    }
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")
