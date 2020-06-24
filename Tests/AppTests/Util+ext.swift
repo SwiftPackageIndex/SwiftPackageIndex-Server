@@ -27,7 +27,7 @@ extension XCTestCase {
         XCTAssertEqual(value1[keyPath: keyPath],
                        value2[keyPath: keyPath],
                        "\(value1[keyPath: keyPath]) not equal to \(value2[keyPath: keyPath])",
-                       file: file, line: line)
+                       file: (file), line: line)
     }
 
     func assertEquals<Root, Value: Equatable>(_ values: [Root],
@@ -38,7 +38,7 @@ extension XCTestCase {
         XCTAssertEqual(values.map { $0[keyPath: keyPath] },
                        expectations,
                        "\(values.map { $0[keyPath: keyPath] }) not equal to \(expectations)",
-                       file: file, line: line)
+                       file: (file), line: line)
     }
 }
 

@@ -18,11 +18,12 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PublicPage.admin()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
-        #if os(macOS)
+        // Snapshot renders slightly differently on macOS 11 (swift 5.3) - exclude it for now
+        #if os(macOS) && swift(<5.3)
         if !isRunningInCI {
             assertSnapshot(matching: page, as: .image(size: defaultSize, baseURL: baseURL()))
         }
@@ -33,7 +34,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = HomeIndex.View(path: "/", model: .mock).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -53,7 +54,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: .mock).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -75,7 +76,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -97,7 +98,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -122,7 +123,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -146,7 +147,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -172,7 +173,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -198,7 +199,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = PackageShow.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -219,7 +220,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = ErrorPage.View(path: "", model: model).document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 
@@ -239,7 +240,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = MarkdownPage(path: "", "privacy.md").document()
 
         let recordSnapshotForThisTest = false
-        record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
 

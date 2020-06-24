@@ -89,7 +89,7 @@ func savePackages(on db: Database, _ urls: [URL], processingStage: ProcessingSta
 
 
 func fetch(id: Package.Id?, on db: Database, file: StaticString = #file, line: UInt = #line) throws -> Package {
-    try XCTUnwrap(try Package.find(id, on: db).wait(), file: file, line: line)
+    try XCTUnwrap(try Package.find(id, on: db).wait(), file: (file), line: line)
 }
 
 

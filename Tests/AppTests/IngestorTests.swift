@@ -260,7 +260,7 @@ class IngestorTests: AppTestCase {
 
         // validate repositories (single element pointing to first package)
         let repos = try Repository.query(on: app.db).all().wait()
-        XCTAssertEqual(repos.map(\.$package.id), [packages[0].id])
+        XCTAssertEqual(repos.map(\.$package.id), [packages[0].id].compactMap{ $0 })
 
         // validate packages
         let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
