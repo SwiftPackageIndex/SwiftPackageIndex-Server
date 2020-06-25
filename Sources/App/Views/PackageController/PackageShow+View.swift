@@ -125,7 +125,6 @@ enum PackageShow {
                 .ul(
                     // Implementation note: Include one row here for every grouped set of references
                     swiftVersionCompatibilityListItem(),
-                    swiftVersionCompatibilityListItem(),
                     swiftVersionCompatibilityListItem()
                 )
             ))
@@ -173,23 +172,23 @@ enum PackageShow {
                         .class("build_statuses"),
                         .div(
                             .class("success"),
-                            .span("✔")
+                            .i(.class("icon build_success"))
                         ),
                         .div(
                             .class("success"),
-                            .span("✔")
+                            .i(.class("icon build_success"))
                         ),
                         .div(
                             .class("unknown"),
-                            .span("✔")
+                            .i(.class("icon build_unknown"))
                         ),
                         .div(
                             .class("failed"),
-                            .span("✔")
+                            .i(.class("icon build_failed"))
                         ),
                         .div(
                             .class("failed"),
-                            .span("✔")
+                            .i(.class("icon build_failed"))
                         )
                     )
                 )

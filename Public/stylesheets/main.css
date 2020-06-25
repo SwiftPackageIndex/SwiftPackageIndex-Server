@@ -290,6 +290,9 @@ i.beta:before { content: "\e907"; }
 i.branch:before { content: "\e908"; }
 i.question:before { content: "\e909"; }
 i.warning:before { content: "\e90a"; }
+i.build_success:before { content: "\e90b"; }
+i.build_unknown:before { content: "\e90c"; }
+i.build_failed:before { content: "\e90d"; }
 
 li.author:before { content: "\e901"; }
 li.history:before { content: "\e902" }
@@ -617,6 +620,13 @@ p.description {
   margin: 5px 0;
 }
 
+@media screen and (max-width: 767px) {
+  .swift li {
+    padding: 0;
+    margin: 30px 0;
+  }
+}
+
 .swift .reference {
   display: flex;
   flex-direction: row;
@@ -708,16 +718,26 @@ p.description {
   flex-grow: 1;
 }
 
+.build_statuses i.icon {
+  margin: 0;
+}
+
 .build_statuses .success {
   background-color: var(--light-green);
+  color: var(--white);
+  font-size: 22px;
 }
 
 .build_statuses .unknown {
   background-color: var(--very-light-grey);
+  color: var(--light-grey);
+  font-size: 25px;
 }
 
 .build_statuses .failed {
   background-color: var(--light-grey);
+  color: var(--grey);
+  font-size: 20px;
 }
 
 /* Language and platforms section ------------------------------------------ */
