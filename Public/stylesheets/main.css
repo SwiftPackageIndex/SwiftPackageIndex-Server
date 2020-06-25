@@ -74,7 +74,7 @@
 
   --license-text: var(--white);
   --license-none-background: var(--mid-red);
-  --license-compatible-background: var(--mid-green);
+  --license-compatible-background: var(--light-green);
   --license-incompatible-background: var(--orange);
 
   --stable-text: var(--light-green);
@@ -121,6 +121,8 @@
     --button-border: var(--mid-blue);
 
     --rule-background: var(--dark-blue);
+
+    --license-compatible-background: var(--mid-green);
 
     --build-status-success-text: var(--white);
     --build-status-success-background: var(--mid-green);
