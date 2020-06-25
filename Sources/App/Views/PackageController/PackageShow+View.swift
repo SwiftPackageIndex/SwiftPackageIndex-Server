@@ -172,22 +172,27 @@ enum PackageShow {
                         .class("build_statuses"),
                         .div(
                             .class("success"),
+                            .attribute(named: "title", value: "Built successfully with Swift 5.3"),
                             .i(.class("icon build_success"))
                         ),
                         .div(
                             .class("success"),
+                            .attribute(named: "title", value: "Built successfully with Swift 5.2"),
                             .i(.class("icon build_success"))
                         ),
                         .div(
                             .class("unknown"),
+                            .attribute(named: "title", value: "No build information available for Swift 5.1"),
                             .i(.class("icon build_unknown"))
                         ),
                         .div(
                             .class("failed"),
+                            .attribute(named: "title", value: "Build failed with Swift 5.0"),
                             .i(.class("icon build_failed"))
                         ),
                         .div(
                             .class("failed"),
+                            .attribute(named: "title", value: "Build failed with Swift 4.2"),
                             .i(.class("icon build_failed"))
                         )
                     )
