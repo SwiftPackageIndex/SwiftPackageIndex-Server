@@ -90,5 +90,41 @@ class BuildTests: AppTestCase {
         // validate
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 4)
     }
+ 
+    func test_trigger() throws {
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p)
+        try v.save(on: app.db).wait()
+        let versionID = try XCTUnwrap(v.id)
+
+        var called = false
+        let client = MockClient { req, res in
+            called = true
+            // validate request data
+            XCTAssertEqual(try? req.query.decode([String: String].self),
+                           .some([
+                            "token": "pipeline token",
+                            "ref": "main",
+                            "variables[API_BASEURL]": "http://example.com/api",
+                            "variables[BUILDER_TOKEN]": "builder token",
+                            "variables[CLONE_URL]": "1",
+                            "variables[SWIFT_MAJOR_VERSION]": "5",
+                            "variables[SWIFT_MINOR_VERSION]": "2",
+                            "variables[SWIFT_PATCH_VERSION]": "4",
+                            "variables[VERSION_ID]": versionID.uuidString,
+                           ]))
+        }
+        
+        // MUT
+        try Build.trigger(database: app.db, client: client,
+                          versionId: versionID, swiftVersion: .init(5, 2, 4)).wait()
+
+        // validate
+        XCTAssertTrue(called)
+    }
     
 }

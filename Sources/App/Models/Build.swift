@@ -105,3 +105,30 @@ extension Build {
         var swiftVersion: SwiftVersion
     }
 }
+
+
+// MARK: - Triggers
+
+extension Build {
+    
+    static func trigger(database: Database,
+                        client: Client,
+                        versionId: Version.Id,
+                        swiftVersion: SwiftVersion,
+                        platform: Build.Platform? = nil) -> EventLoopFuture<Void> {
+        let version: EventLoopFuture<Version> = Version
+            .query(on: database)
+            .with(\.$package)
+            .first()
+            .unwrap(or: Abort(.notFound))
+        return version.flatMap {
+            Gitlab.Builder.postTrigger(client: client,
+                                       versionID: versionId,
+                                       cloneURL: $0.package.url,
+                                       platform: platform,
+                                       swiftVersion: swiftVersion)
+                .transform(to: ())
+        }
+    }
+
+}
