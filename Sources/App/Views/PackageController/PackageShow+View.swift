@@ -136,7 +136,21 @@ enum PackageShow {
                 .class("reference"),
                 .div(
                     .class("label"),
-                    .div("5.2.3 and main")
+                    .div( // Note: It may look like there is a completely useless div here, but it's needed. I promise.
+                        .div(
+                            .span(
+                                .class("stable"),
+                                .i(.class("icon stable")),
+                                "5.2.3"
+                            ),
+                            " and ",
+                            .span(
+                                .class("branch"),
+                                .i(.class("icon branch")),
+                                "main"
+                            )
+                        )
+                    )
                 ),
                 // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
                 .div(
