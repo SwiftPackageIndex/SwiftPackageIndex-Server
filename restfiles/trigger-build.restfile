@@ -1,0 +1,25 @@
+variables:
+    base_url: http://localhost:8080/api
+    version_id: d7007076-3214-402a-ab7b-600fa2e28df2  # ValueCodable 0.1.0
+    builder_token: secr3t
+
+requests:
+
+    post build:
+        url: ${base_url}/versions/${version_id}/trigger-build
+        method: POST
+        headers:
+            Authorization: Bearer ${builder_token}
+        body:
+            json:
+                # platform:
+                #     name: macos
+                #     version: "10.15"
+                swiftVersion:
+                    major: 5
+                    minor: 2
+                    patch: 0
+
+        validation:
+            status: 201
+        log: json

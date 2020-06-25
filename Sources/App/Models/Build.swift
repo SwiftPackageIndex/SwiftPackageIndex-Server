@@ -53,7 +53,7 @@ final class Build: Model, Content {
         self.swiftVersion = swiftVersion
     }
 
-    init(_ dto: PostDTO, _ version: Version) throws {
+    init(_ dto: PostCreateDTO, _ version: Version) throws {
         self.logs = dto.logs
         self.platform = dto.platform
         self.status = dto.status
@@ -93,10 +93,42 @@ extension Build {
 
 
 extension Build {
-    struct PostDTO: Codable {
+    struct PostTriggerDTO: Codable {
+        var platform: Platform?
+        var swiftVersion: SwiftVersion
+    }
+
+    struct PostCreateDTO: Codable {
         var logs: String?
         var platform: Platform?
         var status: Status
         var swiftVersion: SwiftVersion
     }
+}
+
+
+// MARK: - Triggers
+
+extension Build {
+    
+    static func trigger(database: Database,
+                        client: Client,
+                        versionId: Version.Id,
+                        swiftVersion: SwiftVersion,
+                        platform: Build.Platform? = nil) -> EventLoopFuture<HTTPStatus> {
+        let version: EventLoopFuture<Version> = Version
+            .query(on: database)
+            .with(\.$package)
+            .first()
+            .unwrap(or: Abort(.notFound))
+        return version.flatMap {
+            Gitlab.Builder.postTrigger(client: client,
+                                       versionID: versionId,
+                                       cloneURL: $0.package.url,
+                                       platform: platform,
+                                       swiftVersion: swiftVersion)
+                .map { $0.status }
+        }
+    }
+
 }
