@@ -81,6 +81,13 @@
   --beta-text: var(--mid-green);
   --branch-text: var(--dark-green);
 
+  --build-status-success-text: var(--white);
+  --build-status-success-background: var(--light-green);
+  --build-status-unknown-text: var(--light-grey);
+  --build-status-unknown-background: var(--very-light-grey);
+  --build-status-failed-text: var(--grey);
+  --build-status-failed-background: var(--light-grey);
+
   --icon-text: var(--dark-grey);
 
   --error-background: var(--light-red);
@@ -114,6 +121,13 @@
     --button-border: var(--mid-blue);
 
     --rule-background: var(--dark-blue);
+
+    --build-status-success-text: var(--white);
+    --build-status-success-background: var(--mid-green);
+    --build-status-unknown-text: var(--dark-grey);
+    --build-status-unknown-background: var(--very-dark-grey);
+    --build-status-failed-text: var(--very-dark-grey);
+    --build-status-failed-background: var(--dark-grey);
 
     --icon-text: var(--light-grey);
 
@@ -723,20 +737,20 @@ p.description {
 }
 
 .build_statuses .success {
-  background-color: var(--light-green);
-  color: var(--white);
+  background-color: var(--build-status-success-background);
+  color: var(--build-status-success-text);
   font-size: 22px;
 }
 
 .build_statuses .unknown {
-  background-color: var(--very-light-grey);
-  color: var(--light-grey);
+  background-color: var(--build-status-unknown-background);
+  color: var(--build-status-unknown-text);
   font-size: 25px;
 }
 
 .build_statuses .failed {
-  background-color: var(--light-grey);
-  color: var(--grey);
+  background-color: var(--build-status-failed-background);
+  color: var(--build-status-failed-text);
   font-size: 20px;
 }
 
