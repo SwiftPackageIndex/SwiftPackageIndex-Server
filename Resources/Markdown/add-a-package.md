@@ -3,7 +3,7 @@ page-title: Add a Package
 description: Want to add a package to the Swift Package Index? It's easy.
 ---
 
-Adding a new package to the Swift Package Index is straightforward. Every package indexed by this site comes from a master list of repositories, stored in a [publicly available JSON file](https://github.com/SwiftPackageIndex/PackageList/blob/main/packages.json). To add a package to the index, add the URL of the repository to that file.
+Adding a new package to the Swift Package Index is straightforward. Every package indexed by this site comes from the list of package repositories, stored in a [publicly available JSON file](https://github.com/SwiftPackageIndex/PackageList/blob/main/packages.json). To add a package to the index, add the URL of the repository to that file.
 
 ### Adding packages to the Swift Package Index
 
