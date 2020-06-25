@@ -605,6 +605,114 @@ p.description {
   margin: 30px 0;
 }
 
+/* Swift version compatibility section ------------------------------------- */
+
+.swift ul {
+  padding: 0;
+  margin: 0;
+}
+
+.swift .reference {
+  display: flex;
+  flex-direction: row;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference {
+    flex-direction: column;
+  }
+}
+
+.swift .reference:first-child .compatibility > div:first-child {
+  display: flex;
+}
+
+.swift .reference .label {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  flex-basis: 0;
+  flex-grow: 3;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference .label {
+    /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
+    flex-basis: auto;
+  }
+}
+
+.swift .reference .label > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 40px;
+}
+
+.swift .reference .compatibility {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 0;
+  flex-grow: 7;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference .compatibility {
+    /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
+    flex-basis: auto;
+  }
+}
+
+.swift .reference .compatibility > div {
+  display: flex;
+  flex-direction: row;
+}
+
+.swift .reference .compatibility > div:first-child {
+  display: none;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference .compatibility > div:first-child {
+    display: flex;
+  }
+}
+
+.swift .reference .compatibility > div > div {
+  display: flex;
+  flex-basis: 0;
+  flex-grow: 1;
+}
+
+.swift_version {
+  padding: 5px 0;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.build_status {
+  display: flex;
+  margin: 0 3px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+.build_status.success {
+  background-color: var(--light-green);
+}
+
+.build_status.unknown {
+  background-color: var(--very-light-grey);
+}
+
+.build_status.failed {
+  background-color: var(--light-grey);
+}
+
+/* Language and platforms section ------------------------------------------ */
+
 .language_platforms ul li ul {
   padding: 0 40px;
   list-style: disc;
