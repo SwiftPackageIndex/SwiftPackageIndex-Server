@@ -115,7 +115,7 @@ extension Build {
                         client: Client,
                         versionId: Version.Id,
                         swiftVersion: SwiftVersion,
-                        platform: Build.Platform? = nil) -> EventLoopFuture<Void> {
+                        platform: Build.Platform? = nil) -> EventLoopFuture<HTTPStatus> {
         let version: EventLoopFuture<Version> = Version
             .query(on: database)
             .with(\.$package)
@@ -127,7 +127,7 @@ extension Build {
                                        cloneURL: $0.package.url,
                                        platform: platform,
                                        swiftVersion: swiftVersion)
-                .transform(to: ())
+                .map { $0.status }
         }
     }
 

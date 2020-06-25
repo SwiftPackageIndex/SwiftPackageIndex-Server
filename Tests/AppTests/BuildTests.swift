@@ -104,6 +104,7 @@ class BuildTests: AppTestCase {
         var called = false
         let client = MockClient { req, res in
             called = true
+            res.status = .created
             // validate request data
             XCTAssertEqual(try? req.query.decode([String: String].self),
                            .some([
@@ -120,11 +121,12 @@ class BuildTests: AppTestCase {
         }
         
         // MUT
-        try Build.trigger(database: app.db, client: client,
-                          versionId: versionID, swiftVersion: .init(5, 2, 4)).wait()
+        let res = try Build.trigger(database: app.db, client: client,
+                                    versionId: versionID, swiftVersion: .init(5, 2, 4)).wait()
 
         // validate
         XCTAssertTrue(called)
+        XCTAssertEqual(res, .created)
     }
     
 }

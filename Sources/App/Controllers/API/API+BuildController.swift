@@ -14,11 +14,16 @@ extension API {
         }
 
         func trigger(req: Request) throws -> EventLoopFuture<HTTPStatus> {
+            guard let id = req.parameters.get("id"),
+                  let versionId = UUID(uuidString: id) else {
+                return req.eventLoop.future(error: Abort(.badRequest))
+            }
             let dto = try req.content.decode(Build.PostTriggerDTO.self)
-            return App.Version.find(req.parameters.get("id"), on: req.db)
-                .unwrap(or: Abort(.notFound))
-                // FIXME: look up parameters and post Gitlab build trigger
-                .transform(to: .ok)
+            return Build.trigger(database: req.db,
+                                 client: req.client,
+                                 versionId: versionId,
+                                 swiftVersion: dto.swiftVersion,
+                                 platform: dto.platform)
         }
     }
 
