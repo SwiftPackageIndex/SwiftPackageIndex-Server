@@ -34,7 +34,10 @@ let package = Package(
             "SnapshotTesting"
         ], exclude: [
             "__Snapshots__",
-            "Fixtures"
+            "Fixtures",
+            "Public/node_modules",
+        ], resources: [
+            .copy("Public")
         ])
     ],
     swiftLanguageVersions: [.v5]

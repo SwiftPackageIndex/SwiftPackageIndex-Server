@@ -42,7 +42,7 @@ class PublicPage {
             ),
             .link(
                 .rel(.stylesheet),
-                .href("/stylesheets/main.min.css?\(resourceReloadQueryString())")
+                .href("stylesheets/main.min.css?\(resourceReloadQueryString())")
             ),
             .link(
                 .rel(.alternate),

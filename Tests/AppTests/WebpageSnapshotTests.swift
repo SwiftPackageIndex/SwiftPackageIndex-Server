@@ -13,6 +13,15 @@ class WebpageSnapshotTests: XCTestCase {
     override func setUpWithError() throws {
         Current.date = { Date(timeIntervalSince1970: 0) }
     }
+    
+    override func tearDownWithError() throws {
+        // Remove any HTML files in bundle
+        let fileManager = Foundation.FileManager.default
+        let indexURL = baseURL().appendingPathComponent("index.html")
+        if fileManager.fileExists(atPath: indexURL.path) {
+            try fileManager.removeItem(at: indexURL)
+        }
+    }
 
     func test_home() throws {
         let page = PublicPage.admin()
@@ -260,5 +269,5 @@ class WebpageSnapshotTests: XCTestCase {
 
 
 func baseURL(_ path: String = #file) -> URL {
-    URL(fileURLWithPath: DirectoryConfiguration.detect().workingDirectory + "Public/")
+    Bundle.module.bundleURL.appendingPathComponent("Contents/Resources/Public")
 }

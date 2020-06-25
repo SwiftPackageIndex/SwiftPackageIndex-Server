@@ -90,7 +90,23 @@ extension Snapshotting where Value == HTML, Format == NSImage {
         Snapshotting<NSView, NSImage>.image(precision: precision, size: size).pullback { node in
             let html = node.render()
             let webView = WKWebView()
-            webView.loadHTMLString(html, baseURL: baseURL)
+            
+            if let url = baseURL {
+                let htmlURL = url.appendingPathComponent("index.html")
+                
+                // Save HTML file at root of public directory
+                do {
+                    try html.write(to: htmlURL, atomically: true, encoding: .utf8)
+                } catch {
+                    print("💥 Failed to write index.html: \(error)")
+                }
+                
+                // Load the HTML file into the web view with access to public directory
+                webView.loadFileURL(htmlURL, allowingReadAccessTo: url)
+            } else {
+                webView.loadHTMLString(html, baseURL: baseURL)
+            }
+            
             return webView
         }
     }
