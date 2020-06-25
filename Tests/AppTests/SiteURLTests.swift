@@ -81,7 +81,7 @@ class SiteURLTests: XCTestCase {
             XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .builds)).path,
                            "api/versions/\(uuid.uuidString)/builds")
             XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .triggerBuild)).path,
-                           "api/versions/\(uuid.uuidString)/triggerBuild")
+                           "api/versions/\(uuid.uuidString)/trigger-build")
         }
     }
 
@@ -91,7 +91,7 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.api(.versions(.name("id"), .builds)).pathComponents.map(\.description),
                        ["api", "versions", ":id", "builds"])
         XCTAssertEqual(SiteURL.api(.versions(.name("id"), .triggerBuild)).pathComponents.map(\.description),
-                       ["api", "versions", ":id", "triggerBuild"])
+                       ["api", "versions", ":id", "trigger-build"])
     }
 
     func test_apiBaseURL() throws {
