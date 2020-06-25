@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.3
 import PackageDescription
 
 let package = Package(
@@ -32,6 +32,9 @@ let package = Package(
             .product(name: "XCTVapor", package: "vapor"),
             "ShellOut",
             "SnapshotTesting"
+        ], exclude: [
+            "__Snapshots__",
+            "Fixtures"
         ])
     ],
     swiftLanguageVersions: [.v5]
