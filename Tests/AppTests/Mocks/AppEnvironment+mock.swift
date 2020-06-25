@@ -14,6 +14,7 @@ extension AppEnvironment {
         fetchMetadata: { _, _ in .just(value: .mock) },
         fileManager: .mock,
         githubToken: { nil },
+        gitlabPipelineToken: { nil },
         reportError: { _, _, _ in .just(value: ()) },
         rollbarToken: { nil },
         rollbarLogLevel: { .critical },

@@ -36,12 +36,13 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.api(.version).pathComponents) { req in API.Version(version: appVersion) }
         app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
 
-        let builds = API.BuildController()
-        app
-            .grouped(User.TokenAuthenticator())
-            .grouped(User.guardMiddleware())
-            .post(SiteURL.api(.versions(.name("id"), .builds)).pathComponents,
-                  use: builds.create)
+        app.group(User.TokenAuthenticator(), User.guardMiddleware()) { protected in
+            let builds = API.BuildController()
+            protected.post(SiteURL.api(.versions(.name("id"), .builds)).pathComponents,
+                           use: builds.create)
+            protected.post(SiteURL.api(.versions(.name("id"), .triggerBuild)).pathComponents,
+                           use: builds.trigger)
+        }
 
         // sas: 2020-05-19: shut down public API until we have an auth mechanism
         //  let apiPackageController = API.PackageController()

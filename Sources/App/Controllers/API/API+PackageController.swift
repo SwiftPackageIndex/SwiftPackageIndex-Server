@@ -1,17 +1,8 @@
 import Fluent
 import Vapor
 
-extension API {
 
-    struct BuildController {
-        func create(req: Request) throws -> EventLoopFuture<Build> {
-            let dto = try req.content.decode(Build.PostDTO.self)
-            return App.Version.find(req.parameters.get("id"), on: req.db)
-                .unwrap(or: Abort(.notFound))
-                .flatMapThrowing { try Build(dto, $0) }
-                .flatMap { build in build.save(on: req.db).transform(to: build) }
-        }
-    }
+extension API {
 
     struct PackageController {
         func index(req: Request) throws -> EventLoopFuture<[Package]> {
