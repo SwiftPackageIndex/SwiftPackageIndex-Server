@@ -132,4 +132,45 @@ class BuildTests: AppTestCase {
         XCTAssertEqual(res, .created)
     }
     
+    func test_upsert() throws {
+        // Test "upsert" (insert or update)
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        let v = try Version(package: pkg)
+        try v.save(on: app.db).wait()
+
+        // MUT
+        // initial save - ok
+        try Build(version: v,
+                  platform: .linux("ubuntu-18.04"),
+                  status: .ok,
+                  swiftVersion: .init(5, 2, 0))
+            .upsert(on: app.db).wait()
+        
+        // validate
+        do {
+            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+            let b = try XCTUnwrap(try Build.query(on: app.db).first().wait())
+            XCTAssertEqual(b.platform, .linux("ubuntu-18.04"))
+            XCTAssertEqual(b.status, .ok)
+            XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+        }
+
+        // next insert is update
+        try Build(version: v,
+                  platform: .linux("ubuntu-18.04"),
+                  status: .failed,
+                  swiftVersion: .init(5, 2, 0))
+            .upsert(on: app.db).wait()
+        
+        // validate
+        do {
+            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+            let b = try XCTUnwrap(try Build.query(on: app.db).first().wait())
+            XCTAssertEqual(b.platform, .linux("ubuntu-18.04"))
+            XCTAssertEqual(b.status, .failed)
+            XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+        }
+    }
+    
 }
