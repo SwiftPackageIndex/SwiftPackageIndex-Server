@@ -156,5 +156,41 @@ class ApiTests: AppTestCase {
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
         }
     }
+    
+    // NB: Unfortunately we can't run a happy path test for build trigger, because we can't
+    // control the app.client. I.e. any requests we make would be live requests where we
+    // can't guarantee the outcome.
+    
+    func test_post_build_trigger_protected() throws {
+        // Ensure unauthenticated access raises a 401
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p)
+        try v.save(on: app.db).wait()
+        let versionId = try XCTUnwrap(v.id)
+        let dto: Build.PostTriggerDTO = .init(platform: .macos("10.15"), swiftVersion: .init(5, 2, 4))
+        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
 
+        // MUT - no auth header
+        try app.test(
+            .POST,
+            "api/versions/\(versionId)/trigger-build",
+            headers: .init([("Content-Type", "application/json")]),
+            body: body) { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+        }
+
+        // MUT - wrong token
+        try app.test(
+            .POST,
+            "api/versions/\(versionId)/trigger-build",
+            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer wrong")]),
+            body: body) { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+        }
+    }
+    
 }
