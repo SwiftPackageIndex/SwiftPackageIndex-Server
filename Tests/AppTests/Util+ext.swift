@@ -86,11 +86,23 @@ extension Array where Element == String {
 
 #if os(macOS)
 extension Snapshotting where Value == HTML, Format == NSImage {
-    public static func image(precision: Float = 1, size: CGSize? = nil, baseURL: URL? = nil) -> Snapshotting {
+    public static func image(precision: Float = 1, size: CGSize? = nil, baseURL: URL) -> Snapshotting {
         Snapshotting<NSView, NSImage>.image(precision: precision, size: size).pullback { node in
             let html = node.render()
             let webView = WKWebView()
-            webView.loadHTMLString(html, baseURL: baseURL)
+            
+            let htmlURL = baseURL.appendingPathComponent(SnapshotTestCoordinator.fileName)
+            
+            // Save HTML file at root of public directory
+            do {
+                try html.write(to: htmlURL, atomically: true, encoding: .utf8)
+            } catch {
+                print("💥 Failed to write index.html: \(error)")
+            }
+            
+            // Load the HTML file into the web view with access to public directory
+            webView.loadFileURL(htmlURL, allowingReadAccessTo: baseURL)
+            
             return webView
         }
     }

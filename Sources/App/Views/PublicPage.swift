@@ -42,7 +42,7 @@ class PublicPage {
             ),
             .link(
                 .rel(.stylesheet),
-                .href("/stylesheets/main.min.css?\(resourceReloadQueryString())")
+                .href(SiteURL.absoluteURL(for: "stylesheets/main.min.css") + "?\(resourceReloadQueryString())")
             ),
             .link(
                 .rel(.alternate),
@@ -201,7 +201,7 @@ class PublicPage {
                 .a(
                     .href(SiteURL.home.relativeURL()),
                     .h1(
-                        .img(.src(SiteURL.images("logo.svg").relativeURL())),
+                        .img(.src(SiteURL.images("logo.svg").absoluteURL())),
                         "Swift Package Index"
                     )
                 ),
