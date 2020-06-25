@@ -9,7 +9,7 @@
 
   --dark-green: #027353;
   --mid-green: #038C33;
-  --light-green: #5FBF1B;
+  --light-green: #6ACC24;
 
   --yellow: #F2B94F;
   --orange: #F58E36;
@@ -612,6 +612,11 @@ p.description {
   margin: 0;
 }
 
+.swift li {
+  padding: 0;
+  margin: 5px 0;
+}
+
 .swift .reference {
   display: flex;
   flex-direction: row;
@@ -646,7 +651,7 @@ p.description {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 40px;
+  height: 35px;
 }
 
 .swift .reference .compatibility {
@@ -678,36 +683,35 @@ p.description {
   }
 }
 
-.swift .reference .compatibility > div > div {
+.swift_versions > div {
+  padding: 5px 0;
   display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
   flex-basis: 0;
   flex-grow: 1;
 }
 
-.swift_version {
-  padding: 5px 0;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.build_status {
-  display: flex;
+.build_statuses > div {
   margin: 0 3px;
-  height: 40px;
-  align-items: center;
+  height: 35px;
+  display: flex;
   justify-content: center;
+  align-items: center;
+  flex-basis: 0;
+  flex-grow: 1;
 }
 
-.build_status.success {
+.build_statuses .success {
   background-color: var(--light-green);
 }
 
-.build_status.unknown {
+.build_statuses .unknown {
   background-color: var(--very-light-grey);
 }
 
-.build_status.failed {
+.build_statuses .failed {
   background-color: var(--light-grey);
 }
 

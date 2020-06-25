@@ -142,48 +142,39 @@ enum PackageShow {
                 .div(
                     .class("compatibility"),
                     .div(
+                        .class("swift_versions"),
                         .div(
-                            .class("swift_version"),
                             "5.3",
                             .element(named: "small", text: "(beta)")
                         ),
                         .div(
-                            .class("swift_version"),
                             "5.2",
                             .element(named: "small", text: "(latest)")
                         ),
-                        .div(
-                            .class("swift_version"),
-                            "5.1"
-                        ),
-                        .div(
-                            .class("swift_version"),
-                            "5.0"
-                        ),
-                        .div(
-                            .class("swift_version"),
-                            "4.2"
-                        )
+                        .div("5.1"),
+                        .div("5.0"),
+                        .div("4.2")
                     ),
                     .div(
+                        .class("build_statuses"),
                         .div(
-                            .class("build_status success"),
+                            .class("success"),
                             .span("✔")
                         ),
                         .div(
-                            .class("build_status success"),
+                            .class("success"),
                             .span("✔")
                         ),
                         .div(
-                            .class("build_status unknown"),
+                            .class("unknown"),
                             .span("✔")
                         ),
                         .div(
-                            .class("build_status failed"),
+                            .class("failed"),
                             .span("✔")
                         ),
                         .div(
-                            .class("build_status failed"),
+                            .class("failed"),
                             .span("✔")
                         )
                     )
