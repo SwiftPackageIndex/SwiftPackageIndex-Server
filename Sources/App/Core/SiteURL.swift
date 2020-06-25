@@ -137,6 +137,9 @@ enum SiteURL: Resourceable {
     static func absoluteURL(for path: String) -> String {
         Current.siteURL() + relativeURL(for: path)
     }
+    
+    static var apiBaseURL: String { absoluteURL(for: "api") }
+    
 }
 
 

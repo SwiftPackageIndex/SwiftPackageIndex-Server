@@ -94,4 +94,9 @@ class SiteURLTests: XCTestCase {
                        ["api", "versions", ":id", "triggerBuild"])
     }
 
+    func test_apiBaseURL() throws {
+        Current.siteURL = { "http://example.com" }
+        XCTAssertEqual(SiteURL.apiBaseURL, "http://example.com/api")
+    }
+
 }
