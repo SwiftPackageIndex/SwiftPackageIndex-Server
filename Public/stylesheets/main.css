@@ -691,6 +691,11 @@ p.description {
   align-items: center;
   flex-basis: 0;
   flex-grow: 1;
+  font-weight: 600;
+}
+
+.swift_versions > div small {
+  font-weight: normal;
 }
 
 .build_statuses > div {
