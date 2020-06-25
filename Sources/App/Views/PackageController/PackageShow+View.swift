@@ -1,5 +1,5 @@
+import Vapor
 import Plot
-
 
 enum PackageShow {
 
@@ -76,6 +76,7 @@ enum PackageShow {
                         .li(.group(model.latestReleaseClause()))
                     )
                 ),
+                swiftVersionCompatibilitySection(),
                 .section(
                     .class("language_platforms"),
                     .h3("Language and Platforms"),
@@ -87,7 +88,7 @@ enum PackageShow {
                                     .text("Learn how to fix this")
                                 ),
                                 .text(".")
-                        )
+                            )
                     )
                 )
             )
@@ -116,5 +117,78 @@ enum PackageShow {
             }
         }
 
+        final func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
+            let environment = (try? Environment.detect()) ?? .development
+            return .if(environment != .production, .section(
+                .class("swift"),
+                .h3("Swift Version Compatibility"),
+                .ul(
+                    // Implementation note: Include one row here for every grouped set of references
+                    swiftVersionCompatibilityListItem(),
+                    swiftVersionCompatibilityListItem(),
+                    swiftVersionCompatibilityListItem()
+                )
+            ))
+        }
+
+        final func swiftVersionCompatibilityListItem() -> Node<HTML.ListContext> {
+            .li(
+                .class("reference"),
+                .div(
+                    .class("label"),
+                    .div("5.2.3 and main")
+                ),
+                // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
+                .div(
+                    .class("compatibility"),
+                    .div(
+                        .div(
+                            .class("swift_version"),
+                            "5.3",
+                            .element(named: "small", text: "(beta)")
+                        ),
+                        .div(
+                            .class("swift_version"),
+                            "5.2",
+                            .element(named: "small", text: "(latest)")
+                        ),
+                        .div(
+                            .class("swift_version"),
+                            "5.1"
+                        ),
+                        .div(
+                            .class("swift_version"),
+                            "5.0"
+                        ),
+                        .div(
+                            .class("swift_version"),
+                            "4.2"
+                        )
+                    ),
+                    .div(
+                        .div(
+                            .class("build_status success"),
+                            .span("✔")
+                        ),
+                        .div(
+                            .class("build_status success"),
+                            .span("✔")
+                        ),
+                        .div(
+                            .class("build_status unknown"),
+                            .span("✔")
+                        ),
+                        .div(
+                            .class("build_status failed"),
+                            .span("✔")
+                        ),
+                        .div(
+                            .class("build_status failed"),
+                            .span("✔")
+                        )
+                    )
+                )
+            )
+        }
     }
 }
