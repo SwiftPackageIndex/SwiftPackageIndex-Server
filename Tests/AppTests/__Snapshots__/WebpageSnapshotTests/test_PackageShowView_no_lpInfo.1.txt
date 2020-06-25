@@ -144,19 +144,19 @@
                   <div>4.2</div>
                 </div>
                 <div class="build_statuses">
-                  <div class="success">
+                  <div class="success" title="Built successfully with Swift 5.3">
                     <i class="icon build_success"></i>
                   </div>
-                  <div class="success">
+                  <div class="success" title="Built successfully with Swift 5.2">
                     <i class="icon build_success"></i>
                   </div>
-                  <div class="unknown">
+                  <div class="unknown" title="No build information available for Swift 5.1">
                     <i class="icon build_unknown"></i>
                   </div>
-                  <div class="failed">
+                  <div class="failed" title="Build failed with Swift 5.0">
                     <i class="icon build_failed"></i>
                   </div>
-                  <div class="failed">
+                  <div class="failed" title="Build failed with Swift 4.2">
                     <i class="icon build_failed"></i>
                   </div>
                 </div>
@@ -188,19 +188,19 @@
                   <div>4.2</div>
                 </div>
                 <div class="build_statuses">
-                  <div class="success">
+                  <div class="success" title="Built successfully with Swift 5.3">
                     <i class="icon build_success"></i>
                   </div>
-                  <div class="success">
+                  <div class="success" title="Built successfully with Swift 5.2">
                     <i class="icon build_success"></i>
                   </div>
-                  <div class="unknown">
+                  <div class="unknown" title="No build information available for Swift 5.1">
                     <i class="icon build_unknown"></i>
                   </div>
-                  <div class="failed">
+                  <div class="failed" title="Build failed with Swift 5.0">
                     <i class="icon build_failed"></i>
                   </div>
-                  <div class="failed">
+                  <div class="failed" title="Build failed with Swift 4.2">
                     <i class="icon build_failed"></i>
                   </div>
                 </div>
