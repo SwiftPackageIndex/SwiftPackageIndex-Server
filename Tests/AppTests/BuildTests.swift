@@ -23,7 +23,7 @@ class BuildTests: AppTestCase {
         do {  // validate
             let b = try XCTUnwrap(Build.find(b.id, on: app.db).wait())
             XCTAssertEqual(b.logs, "logs")
-            XCTAssertEqual(b.platform, .some(.linux("ubuntu-18.04")))
+            XCTAssertEqual(b.platform, .linux("ubuntu-18.04"))
             XCTAssertEqual(b.$version.id, v.id)
             XCTAssertEqual(b.status, .ok)
         }
@@ -35,7 +35,10 @@ class BuildTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
         let v = try Version(package: pkg)
         try v.save(on: app.db).wait()
-        let b = try Build(version: v, status: .ok, swiftVersion: .init(5, 2, 0))
+        let b = try Build(version: v,
+                          platform: .init(name: .unknown, version: "some"),
+                          status: .ok,
+                          swiftVersion: .init(5, 2, 0))
         try b.save(on: app.db).wait()
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 

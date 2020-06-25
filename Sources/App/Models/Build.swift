@@ -29,7 +29,7 @@ final class Build: Model, Content {
     var logs: String?
 
     @Field(key: "platform")
-    var platform: Platform?
+    var platform: Platform
 
     @Field(key: "status")
     var status: Build.Status
@@ -42,7 +42,7 @@ final class Build: Model, Content {
     init(id: Id? = nil,
          version: Version,
          logs: String? = nil,
-         platform: Platform? = nil,
+         platform: Platform,
          status: Status,
          swiftVersion: SwiftVersion) throws {
         self.id = id
@@ -94,13 +94,13 @@ extension Build {
 
 extension Build {
     struct PostTriggerDTO: Codable {
-        var platform: Platform?
+        var platform: Platform
         var swiftVersion: SwiftVersion
     }
 
     struct PostCreateDTO: Codable {
         var logs: String?
-        var platform: Platform?
+        var platform: Platform
         var status: Status
         var swiftVersion: SwiftVersion
     }

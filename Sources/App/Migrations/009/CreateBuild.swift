@@ -1,5 +1,6 @@
 import Fluent
 
+
 struct CreateBuild: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("builds")
