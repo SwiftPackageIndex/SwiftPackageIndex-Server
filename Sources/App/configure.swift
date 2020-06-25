@@ -64,6 +64,9 @@ public func configure(_ app: Application) throws {
     do { // Migration 009 - add builds table
         app.migrations.add(CreateBuild())
     }
+    do { // Migration 010 - add non-null constraints to builds fields
+        app.migrations.add(UpdateBuildNonNull())
+    }
 
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")

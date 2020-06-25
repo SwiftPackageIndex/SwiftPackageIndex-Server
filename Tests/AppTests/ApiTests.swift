@@ -67,7 +67,9 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: Build.PostCreateDTO = .init(status: .ok, swiftVersion: .init(5, 2, 0))
+        let dto: Build.PostCreateDTO = .init(platform: .macos("10.15"),
+                                             status: .ok,
+                                             swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
 
         // MUT
@@ -97,7 +99,9 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: Build.PostCreateDTO = .init(status: .ok, swiftVersion: .init(5, 2, 0))
+        let dto: Build.PostCreateDTO = .init(platform: .macos("10.15"),
+                                             status: .ok,
+                                             swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
 
         // MUT - no auth header
@@ -131,7 +135,9 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: Build.PostCreateDTO = .init(status: .ok, swiftVersion: .init(5, 2, 0))
+        let dto: Build.PostCreateDTO = .init(platform: .macos("10.15"),
+                                             status: .ok,
+                                             swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
 
         // MUT - no auth header

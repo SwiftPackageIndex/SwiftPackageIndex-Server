@@ -1,7 +1,10 @@
 variables:
-    base_url: http://localhost:8080/api
-    version_id: d7007076-3214-402a-ab7b-600fa2e28df2  # ValueCodable 0.1.0
-    builder_token: secr3t
+    base_url: https://staging.swiftpackageindex.com/api
+    # base_url: http://localhost:8080/api
+    # set here or via env variables:
+    # env version_id=... builder_token=... rester ...
+    # version_id: 
+    # builder_token: 
 
 requests:
 
@@ -12,13 +15,13 @@ requests:
             Authorization: Bearer ${builder_token}
         body:
             json:
-                # platform:
-                #     name: macos
-                #     version: "10.15"
+                platform:
+                    name: unknown
+                    version: test
                 swiftVersion:
                     major: 5
                     minor: 2
-                    patch: 0
+                    patch: 4
 
         validation:
             status: 201
