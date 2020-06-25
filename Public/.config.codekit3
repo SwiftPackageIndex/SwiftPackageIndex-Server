@@ -9,32 +9,6 @@
 	],
 "creatorBuild": "32186",
 "files": {
-	"/fonts/icomoon.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/fonts/icomoon.svg",
-		"oF": 0,
-		"opt": 0,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/fonts/icomoon.ttf": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 0,
-		"oAP": "/fonts/icomoon.ttf",
-		"oF": 0
-		},
-	"/fonts/icomoon.woff": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 0,
-		"oAP": "/fonts/icomoon.woff",
-		"oF": 0
-		},
 	"/images/add-package-in-xcode~dark.png": {
 		"ft": 32768,
 		"iS": 28133,

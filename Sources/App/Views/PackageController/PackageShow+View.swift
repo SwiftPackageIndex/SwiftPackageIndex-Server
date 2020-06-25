@@ -1,5 +1,5 @@
+import Vapor
 import Plot
-
 
 enum PackageShow {
 
@@ -76,6 +76,7 @@ enum PackageShow {
                         .li(.group(model.latestReleaseClause()))
                     )
                 ),
+                swiftVersionCompatibilitySection(),
                 .section(
                     .class("language_platforms"),
                     .h3("Language and Platforms"),
@@ -87,7 +88,7 @@ enum PackageShow {
                                     .text("Learn how to fix this")
                                 ),
                                 .text(".")
-                        )
+                            )
                     )
                 )
             )
@@ -116,5 +117,87 @@ enum PackageShow {
             }
         }
 
+        final func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
+            let environment = (try? Environment.detect()) ?? .development
+            return .if(environment != .production, .section(
+                .class("swift"),
+                .h3("Swift Version Compatibility"),
+                .ul(
+                    // Implementation note: Include one row here for every grouped set of references
+                    swiftVersionCompatibilityListItem(),
+                    swiftVersionCompatibilityListItem()
+                )
+            ))
+        }
+
+        final func swiftVersionCompatibilityListItem() -> Node<HTML.ListContext> {
+            .li(
+                .class("reference"),
+                .div(
+                    .class("label"),
+                    .div( // Note: It may look like there is a completely useless div here, but it's needed. I promise.
+                        .div(
+                            .span(
+                                .class("stable"),
+                                .i(.class("icon stable")),
+                                "5.2.3"
+                            ),
+                            " and ",
+                            .span(
+                                .class("branch"),
+                                .i(.class("icon branch")),
+                                "main"
+                            )
+                        )
+                    )
+                ),
+                // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
+                .div(
+                    .class("compatibility"),
+                    .div(
+                        .class("swift_versions"),
+                        .div(
+                            "5.3",
+                            .element(named: "small", text: "(beta)")
+                        ),
+                        .div(
+                            "5.2",
+                            .element(named: "small", text: "(latest)")
+                        ),
+                        .div("5.1"),
+                        .div("5.0"),
+                        .div("4.2")
+                    ),
+                    .div(
+                        .class("build_statuses"),
+                        .div(
+                            .class("success"),
+                            .attribute(named: "title", value: "Built successfully with Swift 5.3"),
+                            .i(.class("icon build_success"))
+                        ),
+                        .div(
+                            .class("success"),
+                            .attribute(named: "title", value: "Built successfully with Swift 5.2"),
+                            .i(.class("icon build_success"))
+                        ),
+                        .div(
+                            .class("unknown"),
+                            .attribute(named: "title", value: "No build information available for Swift 5.1"),
+                            .i(.class("icon build_unknown"))
+                        ),
+                        .div(
+                            .class("failed"),
+                            .attribute(named: "title", value: "Build failed with Swift 5.0"),
+                            .i(.class("icon build_failed"))
+                        ),
+                        .div(
+                            .class("failed"),
+                            .attribute(named: "title", value: "Build failed with Swift 4.2"),
+                            .i(.class("icon build_failed"))
+                        )
+                    )
+                )
+            )
+        }
     }
 }

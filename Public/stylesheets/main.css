@@ -9,7 +9,7 @@
 
   --dark-green: #027353;
   --mid-green: #038C33;
-  --light-green: #5FBF1B;
+  --light-green: #68BB13;
 
   --yellow: #F2B94F;
   --orange: #F58E36;
@@ -81,6 +81,13 @@
   --beta-text: var(--mid-green);
   --branch-text: var(--dark-green);
 
+  --build-status-success-text: var(--white);
+  --build-status-success-background: var(--light-green);
+  --build-status-unknown-text: var(--light-grey);
+  --build-status-unknown-background: var(--very-light-grey);
+  --build-status-failed-text: var(--grey);
+  --build-status-failed-background: var(--light-grey);
+
   --icon-text: var(--dark-grey);
 
   --error-background: var(--light-red);
@@ -114,6 +121,13 @@
     --button-border: var(--mid-blue);
 
     --rule-background: var(--dark-blue);
+
+    --build-status-success-text: var(--white);
+    --build-status-success-background: var(--mid-green);
+    --build-status-unknown-text: var(--dark-grey);
+    --build-status-unknown-background: var(--very-dark-grey);
+    --build-status-failed-text: var(--very-dark-grey);
+    --build-status-failed-background: var(--dark-grey);
 
     --icon-text: var(--light-grey);
 
@@ -290,6 +304,9 @@ i.beta:before { content: "\e907"; }
 i.branch:before { content: "\e908"; }
 i.question:before { content: "\e909"; }
 i.warning:before { content: "\e90a"; }
+i.build_success:before { content: "\e90b"; }
+i.build_unknown:before { content: "\e90c"; }
+i.build_failed:before { content: "\e90d"; }
 
 li.author:before { content: "\e901"; }
 li.history:before { content: "\e902" }
@@ -604,6 +621,140 @@ p.description {
 .language_platforms li {
   margin: 30px 0;
 }
+
+/* Swift version compatibility section ------------------------------------- */
+
+.swift ul {
+  padding: 0;
+  margin: 0;
+}
+
+.swift li {
+  padding: 0;
+  margin: 5px 0;
+}
+
+@media screen and (max-width: 767px) {
+  .swift li {
+    padding: 0;
+    margin: 30px 0;
+  }
+}
+
+.swift .reference {
+  display: flex;
+  flex-direction: row;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference {
+    flex-direction: column;
+  }
+}
+
+.swift .reference:first-child .compatibility > div:first-child {
+  display: flex;
+}
+
+.swift .reference .label {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  flex-basis: 0;
+  flex-grow: 3;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference .label {
+    /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
+    flex-basis: auto;
+  }
+}
+
+.swift .reference .label > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 35px;
+}
+
+.swift .reference .compatibility {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 0;
+  flex-grow: 7;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference .compatibility {
+    /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
+    flex-basis: auto;
+  }
+}
+
+.swift .reference .compatibility > div {
+  display: flex;
+  flex-direction: row;
+}
+
+.swift .reference .compatibility > div:first-child {
+  display: none;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference .compatibility > div:first-child {
+    display: flex;
+  }
+}
+
+.swift_versions > div {
+  padding: 5px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  flex-basis: 0;
+  flex-grow: 1;
+  font-weight: 600;
+}
+
+.swift_versions > div small {
+  font-weight: normal;
+}
+
+.build_statuses > div {
+  margin: 0 3px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-basis: 0;
+  flex-grow: 1;
+}
+
+.build_statuses i.icon {
+  margin: 0;
+}
+
+.build_statuses .success {
+  background-color: var(--build-status-success-background);
+  color: var(--build-status-success-text);
+  font-size: 22px;
+}
+
+.build_statuses .unknown {
+  background-color: var(--build-status-unknown-background);
+  color: var(--build-status-unknown-text);
+  font-size: 25px;
+}
+
+.build_statuses .failed {
+  background-color: var(--build-status-failed-background);
+  color: var(--build-status-failed-text);
+  font-size: 20px;
+}
+
+/* Language and platforms section ------------------------------------------ */
 
 .language_platforms ul li ul {
   padding: 0 40px;
