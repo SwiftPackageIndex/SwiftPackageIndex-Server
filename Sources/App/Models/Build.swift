@@ -119,6 +119,7 @@ extension Build {
                         swiftVersion: SwiftVersion) -> EventLoopFuture<HTTPStatus> {
         let version: EventLoopFuture<Version> = Version
             .query(on: database)
+            .filter(\.$id == versionId)
             .with(\.$package)
             .first()
             .unwrap(or: Abort(.notFound))
