@@ -16,7 +16,7 @@ enum Gitlab {
         static func postTrigger(client: Client,
                                 versionID: Version.Id,
                                 cloneURL: String,
-                                platform: Build.Platform? = nil,
+                                platform: Build.Platform,
                                 swiftVersion: SwiftVersion) -> EventLoopFuture<ClientResponse> {
             guard let pipelineToken = Current.gitlabPipelineToken(),
                   let builderToken = Current.builderToken()
@@ -25,20 +25,19 @@ enum Gitlab {
             let uri: URI = .init(string: "\(projectURL)/trigger/pipeline")
             let req = client
                 .post(uri) { req in
-                    var data: [String: String] = [
+                    let data: [String: String] = [
                         "token": pipelineToken,
                         "ref": branch,
                         "variables[API_BASEURL]": SiteURL.apiBaseURL,
                         "variables[BUILDER_TOKEN]": builderToken,
                         "variables[CLONE_URL]": cloneURL,
+                        "variables[PLATFORM_NAME]": "\(platform.name)",
+                        "variables[PLATFORM_VERSION]": platform.version,
                         "variables[SWIFT_MAJOR_VERSION]": "\(swiftVersion.major)",
                         "variables[SWIFT_MINOR_VERSION]": "\(swiftVersion.minor)",
                         "variables[SWIFT_PATCH_VERSION]": "\(swiftVersion.patch)",
                         "variables[VERSION_ID]": versionID.uuidString,
                     ]
-                    if let platform = platform {
-                        data["variables[PLATFORM]"] = "\(platform)"
-                    }
                     try req.query.encode(data)
                 }
             return req

@@ -116,6 +116,8 @@ class BuildTests: AppTestCase {
                             "variables[API_BASEURL]": "http://example.com/api",
                             "variables[BUILDER_TOKEN]": "builder token",
                             "variables[CLONE_URL]": "1",
+                            "variables[PLATFORM_NAME]": "unknown",
+                            "variables[PLATFORM_VERSION]": "test",
                             "variables[SWIFT_MAJOR_VERSION]": "5",
                             "variables[SWIFT_MINOR_VERSION]": "2",
                             "variables[SWIFT_PATCH_VERSION]": "4",
@@ -124,8 +126,11 @@ class BuildTests: AppTestCase {
         }
         
         // MUT
-        let res = try Build.trigger(database: app.db, client: client,
-                                    versionId: versionID, swiftVersion: .init(5, 2, 4)).wait()
+        let res = try Build.trigger(database: app.db,
+                                    client: client,
+                                    versionId: versionID,
+                                    platform: .init(name: .unknown, version: "test"),
+                                    swiftVersion: .init(5, 2, 4)).wait()
 
         // validate
         XCTAssertTrue(called)

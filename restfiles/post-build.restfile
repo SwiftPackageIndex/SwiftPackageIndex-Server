@@ -16,6 +16,9 @@ requests:
         body:
             json:
                 logs: some logs
+                platform:
+                    name: unknown
+                    version: test
                 status: ok
                 swiftVersion:
                     major: 5

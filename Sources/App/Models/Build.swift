@@ -115,8 +115,8 @@ extension Build {
     static func trigger(database: Database,
                         client: Client,
                         versionId: Version.Id,
-                        swiftVersion: SwiftVersion,
-                        platform: Build.Platform? = nil) -> EventLoopFuture<HTTPStatus> {
+                        platform: Build.Platform,
+                        swiftVersion: SwiftVersion) -> EventLoopFuture<HTTPStatus> {
         let version: EventLoopFuture<Version> = Version
             .query(on: database)
             .with(\.$package)

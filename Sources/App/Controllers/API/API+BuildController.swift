@@ -22,8 +22,8 @@ extension API {
             return Build.trigger(database: req.db,
                                  client: req.client,
                                  versionId: versionId,
-                                 swiftVersion: dto.swiftVersion,
-                                 platform: dto.platform)
+                                 platform: dto.platform,
+                                 swiftVersion: dto.swiftVersion)
         }
     }
 
