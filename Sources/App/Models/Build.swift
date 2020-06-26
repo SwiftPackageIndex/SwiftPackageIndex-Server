@@ -1,4 +1,5 @@
 import Fluent
+import PostgresKit
 import Vapor
 
 
@@ -131,4 +132,28 @@ extension Build {
         }
     }
 
+}
+
+
+extension Build {
+    func upsert(on database: Database) -> EventLoopFuture<Void> {
+        save(on: database)
+            .flatMapError {
+                // if we run into a unique key violation ...
+                guard let error = $0 as? PostgresError,
+                      error.code == .uniqueViolation else {
+                    return database.eventLoop.future(error: $0)
+                }
+                // ... find the existing build
+                return Build.query(on: database)
+                    .filter(\.$platform == self.platform)
+                    .filter(\.$swiftVersion == self.swiftVersion)
+                    .filter(\.$version.$id == self.$version.id)
+                    .all()
+                    // ... delete it
+                    .flatMap { $0.delete(on: database) }
+                    // ... and insert the new build instead
+                    .flatMap { self.save(on: database) }
+            }
+    }
 }
