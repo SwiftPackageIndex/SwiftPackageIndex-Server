@@ -22,6 +22,8 @@ class GitlabBuilderTests: XCTestCase {
                             "variables[API_BASEURL]": "http://example.com/api",
                             "variables[BUILDER_TOKEN]": "builder token",
                             "variables[CLONE_URL]": "https://github.com/daveverwer/LeftPad.git",
+                            "variables[PLATFORM_NAME]": "unknown",
+                            "variables[PLATFORM_VERSION]": "test",
                             "variables[SWIFT_MAJOR_VERSION]": "5",
                             "variables[SWIFT_MINOR_VERSION]": "2",
                             "variables[SWIFT_PATCH_VERSION]": "4",
@@ -33,6 +35,7 @@ class GitlabBuilderTests: XCTestCase {
         _ = try Gitlab.Builder.postTrigger(client: client,
                                            versionID: versionID,
                                            cloneURL: "https://github.com/daveverwer/LeftPad.git",
+                                           platform: .init(name: .unknown, version: "test"),
                                            swiftVersion: .init(5, 2, 4)).wait()
         XCTAssertTrue(called)
     }
