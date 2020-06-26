@@ -1,5 +1,6 @@
 import Foundation
 import Plot
+import Vapor
 
 
 extension PackageShow {
@@ -17,59 +18,6 @@ extension PackageShow {
         var title: String
         var url: String
         var score: Int?
-
-        struct History: Equatable {
-            var since: String
-            var commitCount: Link
-            var releaseCount: Link
-        }
-
-        struct Activity: Equatable {
-            var openIssuesCount: Int
-            var openIssues: Link?
-            var openPullRequests: Link?
-            var lastIssueClosedAt: String?
-            var lastPullRequestClosedAt: String?
-        }
-
-        struct ProductCounts: Equatable {
-            var libraries: Int
-            var executables: Int
-        }
-
-        struct ReleaseInfo: Equatable {
-            var stable: DatedLink?
-            var beta: DatedLink?
-            var latest: DatedLink?
-        }
-
-        struct Version: Equatable {
-            var link: Link
-            var swiftVersions: [String]
-            var platforms: [Platform]
-        }
-
-        struct LanguagePlatformInfo: Equatable {
-            var stable: Version?
-            var beta: Version?
-            var latest: Version?
-        }
-        
-        enum BuildStatus: String, Equatable {
-            case ok
-            case failed
-        }
-        
-        struct BuildResult: Equatable {
-            var swiftVersion: String
-            var status: BuildStatus
-        }
-        
-        struct BuildInfo: Equatable {
-            var stable: BuildResult?
-            var beta: BuildResult?
-            var latest: BuildResult?
-        }
     }
 }
 
@@ -296,6 +244,48 @@ extension PackageShow.Model {
         return Self.listPhrase(opening: "", nodes: nodes, closing: ".")
     }
 
+    
+    func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
+        let environment = (try? Environment.detect()) ?? .development
+        let row = BuildStatusRow(references: [.init(name: "5.2.3", kind: .stable),
+                                              .init(name: "main", kind: .branch)],
+                                 results: [
+                                    .init(swiftVersion: .v4_2, status: .failed),
+                                    .init(swiftVersion: .v5_0, status: .failed),
+                                    .init(swiftVersion: .v5_1, status: .unknown),
+                                    .init(swiftVersion: .v5_2, status: .success),
+                                    .init(swiftVersion: .v5_3, status: .success)
+                                ])
+        return .if(environment != .production, .section(
+            .class("swift"),
+            .h3("Swift Version Compatibility"),
+            .ul(
+                swiftVersionCompatibilityListItem(row),
+                swiftVersionCompatibilityListItem(row)
+            )
+        ))
+    }
+
+    func swiftVersionCompatibilityListItem(_ row: BuildStatusRow) -> Node<HTML.ListContext> {
+        let results: [BuildResult] = row.results
+            .sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
+        return .li(
+            .class("reference"),
+            row.label,
+            // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
+            .div(
+                .class("compatibility"),
+                .div(
+                    .class("swift_versions"),
+                    .forEach(results) { $0.headerNode }
+                ),
+                .div(
+                    .class("build_statuses"),
+                    .forEach(results) { $0.cellNode }
+                )
+            )
+        )
+    }
 }
 
 
