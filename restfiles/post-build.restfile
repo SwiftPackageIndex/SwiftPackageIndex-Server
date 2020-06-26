@@ -23,7 +23,7 @@ requests:
                 swiftVersion:
                     major: 5
                     minor: 2
-                    patch: 0
+                    patch: 4
 
         validation:
             status: 200

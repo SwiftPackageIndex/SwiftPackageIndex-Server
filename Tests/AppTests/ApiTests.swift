@@ -67,17 +67,42 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: Build.PostCreateDTO = .init(platform: .macos("10.15"),
-                                             status: .ok,
-                                             swiftVersion: .init(5, 2, 0))
-        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
 
-        // MUT
-        try app.test(
-            .POST,
-            "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
-            body: body) { res in
+        do {  // MUT - initial insert
+            let dto: Build.PostCreateDTO = .init(platform: .macos("10.15"),
+                                                 status: .failed,
+                                                 swiftVersion: .init(5, 2, 0))
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try app.test(
+                .POST,
+                "api/versions/\(versionId)/builds",
+                headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+                body: body
+            ) { res in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                struct DTO: Decodable {
+                    var id: Build.Id?
+                }
+                let dto = try JSONDecoder().decode(DTO.self, from: res.body)
+                let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                XCTAssertEqual(b.status, .failed)
+                XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+            }
+        }
+        
+        do {  // MUT - update (upsert)
+            let dto: Build.PostCreateDTO = .init(platform: .macos("10.15"),
+                                                 status: .ok,
+                                                 swiftVersion: .init(5, 2, 0))
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try app.test(
+                .POST,
+                "api/versions/\(versionId)/builds",
+                headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+                body: body
+            ) { res in
                 // validation
                 XCTAssertEqual(res.status, .ok)
                 struct DTO: Decodable {
@@ -88,6 +113,7 @@ class ApiTests: AppTestCase {
                 XCTAssertEqual(b.status, .ok)
                 XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+            }
         }
     }
 
