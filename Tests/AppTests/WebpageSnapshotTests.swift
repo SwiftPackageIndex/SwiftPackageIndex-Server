@@ -53,7 +53,7 @@ class WebpageSnapshotTests: XCTestCase {
     func test_PackageShowView() throws {
         let page = PackageShow.View(path: "", model: .mock).document()
 
-        let recordSnapshotForThisTest = true
+        let recordSnapshotForThisTest = false
         SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
