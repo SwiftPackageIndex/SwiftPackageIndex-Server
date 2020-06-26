@@ -243,27 +243,38 @@ extension PackageShow.Model {
             .map { Node<HTML.BodyContext>.strong(.text($0)) }
         return Self.listPhrase(opening: "", nodes: nodes, closing: ".")
     }
-
     
     func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
         let environment = (try? Environment.detect()) ?? .development
-        let row = BuildStatusRow(references: [.init(name: "5.2.3", kind: .stable),
-                                              .init(name: "main", kind: .branch)],
-                                 results: [
-                                    .init(swiftVersion: .v4_2, status: .failed),
-                                    .init(swiftVersion: .v5_0, status: .failed),
-                                    .init(swiftVersion: .v5_1, status: .unknown),
-                                    .init(swiftVersion: .v5_2, status: .success),
-                                    .init(swiftVersion: .v5_3, status: .success)
-                                ])
-        return .if(environment != .production, .section(
+        guard environment != .production else {
+            return .empty
+        }
+        let rows = [
+            BuildStatusRow(references: [.init(name: "5.2.3", kind: .stable),
+                                        .init(name: "main", kind: .branch)],
+                           results: [
+                            .init(swiftVersion: .v4_2, status: .failed),
+                            .init(swiftVersion: .v5_0, status: .failed),
+                            .init(swiftVersion: .v5_1, status: .unknown),
+                            .init(swiftVersion: .v5_2, status: .success),
+                            .init(swiftVersion: .v5_3, status: .success)
+                           ]),
+            BuildStatusRow(references: [.init(name: "6.0.0-b1", kind: .beta)],
+                           results: [
+                            .init(swiftVersion: .v4_2, status: .failed),
+                            .init(swiftVersion: .v5_0, status: .success),
+                            .init(swiftVersion: .v5_1, status: .success),
+                            .init(swiftVersion: .v5_2, status: .success),
+                            .init(swiftVersion: .v5_3, status: .success)
+                           ])
+        ]
+        return .section(
             .class("swift"),
             .h3("Swift Version Compatibility"),
             .ul(
-                swiftVersionCompatibilityListItem(row),
-                swiftVersionCompatibilityListItem(row)
+                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
             )
-        ))
+        )
     }
 
     func swiftVersionCompatibilityListItem(_ row: BuildStatusRow) -> Node<HTML.ListContext> {
