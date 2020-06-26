@@ -21,6 +21,9 @@ extension PackageShow.Model {
                 .init(label: "Kevin Harwood", url: "https://github.com/kcharwood"),
                 .init(label: "186 other contributors", url: "https://github.com/Alamofire/Alamofire/graphs/contributors"),
             ],
+            buildInfo: .init(stable: .init(swiftVersion: "5.2", status: .ok),
+                             beta: .init(swiftVersion: "5.2", status: .ok),
+                             latest: .init(swiftVersion: "5.3", status: .failed)),
             history: .init(
                 since: "over 5 years",
                 commitCount: .init(label: "1,433 commits",

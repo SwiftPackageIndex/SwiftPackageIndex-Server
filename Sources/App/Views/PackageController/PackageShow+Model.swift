@@ -6,6 +6,7 @@ extension PackageShow {
     struct Model: Equatable {
         var activity: Activity?
         var authors: [Link]?
+        var buildInfo: BuildInfo?
         var history: History?
         var languagePlatforms: LanguagePlatformInfo
         var license: License
@@ -52,6 +53,22 @@ extension PackageShow {
             var stable: Version?
             var beta: Version?
             var latest: Version?
+        }
+        
+        enum BuildStatus: String, Equatable {
+            case ok
+            case failed
+        }
+        
+        struct BuildResult: Equatable {
+            var swiftVersion: String
+            var status: BuildStatus
+        }
+        
+        struct BuildInfo: Equatable {
+            var stable: BuildResult?
+            var beta: BuildResult?
+            var latest: BuildResult?
         }
     }
 }

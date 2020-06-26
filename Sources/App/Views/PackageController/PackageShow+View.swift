@@ -120,85 +120,151 @@ enum PackageShow {
 
         final func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
             let environment = (try? Environment.detect()) ?? .development
+            let row = BuildStatusRow(references: [.init(name: "5.2.3", kind: .stable),
+                                                  .init(name: "main", kind: .branch)],
+                                     results: [
+                                        .init(swiftVersion: .v4_2, status: .failed),
+                                        .init(swiftVersion: .v5_0, status: .failed),
+                                        .init(swiftVersion: .v5_1, status: .unknown),
+                                        .init(swiftVersion: .v5_2, status: .success),
+                                        .init(swiftVersion: .v5_3, status: .success)
+                                    ])
             return .if(environment != .production, .section(
                 .class("swift"),
                 .h3("Swift Version Compatibility"),
                 .ul(
-                    // Implementation note: Include one row here for every grouped set of references
-                    swiftVersionCompatibilityListItem(),
-                    swiftVersionCompatibilityListItem()
+                    swiftVersionCompatibilityListItem(row),
+                    swiftVersionCompatibilityListItem(row)
                 )
             ))
         }
 
-        final func swiftVersionCompatibilityListItem() -> Node<HTML.ListContext> {
-            .li(
+        final func swiftVersionCompatibilityListItem(_ row: BuildStatusRow) -> Node<HTML.ListContext> {
+            let results: [BuildResult] = row.results
+                .sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
+            return .li(
                 .class("reference"),
-                .div(
-                    .class("label"),
-                    .div( // Note: It may look like there is a completely useless div here, but it's needed. I promise.
-                        .div(
-                            .span(
-                                .class("stable"),
-                                .i(.class("icon stable")),
-                                "5.2.3"
-                            ),
-                            " and ",
-                            .span(
-                                .class("branch"),
-                                .i(.class("icon branch")),
-                                "main"
-                            )
-                        )
-                    )
-                ),
+                row.label,
                 // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
                 .div(
                     .class("compatibility"),
                     .div(
                         .class("swift_versions"),
-                        .div(
-                            "5.3",
-                            .element(named: "small", text: "(beta)")
-                        ),
-                        .div(
-                            "5.2",
-                            .element(named: "small", text: "(latest)")
-                        ),
-                        .div("5.1"),
-                        .div("5.0"),
-                        .div("4.2")
+                        .forEach(results) { $0.headerNode }
                     ),
                     .div(
                         .class("build_statuses"),
-                        .div(
-                            .class("success"),
-                            .attribute(named: "title", value: "Built successfully with Swift 5.3"),
-                            .i(.class("icon build_success"))
-                        ),
-                        .div(
-                            .class("success"),
-                            .attribute(named: "title", value: "Built successfully with Swift 5.2"),
-                            .i(.class("icon build_success"))
-                        ),
-                        .div(
-                            .class("unknown"),
-                            .attribute(named: "title", value: "No build information available for Swift 5.1"),
-                            .i(.class("icon build_unknown"))
-                        ),
-                        .div(
-                            .class("failed"),
-                            .attribute(named: "title", value: "Build failed with Swift 5.0"),
-                            .i(.class("icon build_failed"))
-                        ),
-                        .div(
-                            .class("failed"),
-                            .attribute(named: "title", value: "Build failed with Swift 4.2"),
-                            .i(.class("icon build_failed"))
-                        )
+                        .forEach(results) { $0.cellNode }
                     )
                 )
             )
         }
+    }
+}
+
+
+extension PackageShow.View {
+    struct SwiftVersion: Equatable, Hashable, Comparable {
+        static func < (lhs: SwiftVersion, rhs: SwiftVersion) -> Bool {
+            lhs.displayName < rhs.displayName
+        }
+        
+        var displayName: String
+        var isLatest: Bool
+        var isBeta: Bool
+        var note: String? {
+            if isLatest { return "latest" }
+            if isBeta { return "beta" }
+            return nil
+        }
+        
+        static let v4_2: Self = .init(displayName: "4.2", isLatest: false, isBeta: false)
+        static let v5_0: Self = .init(displayName: "5.0", isLatest: false, isBeta: false)
+        static let v5_1: Self = .init(displayName: "5.1", isLatest: false, isBeta: false)
+        static let v5_2: Self = .init(displayName: "5.2", isLatest: true, isBeta: false)
+        static let v5_3: Self = .init(displayName: "5.3", isLatest: false, isBeta: true)
+        
+        static let all: [Self] = [v4_2, v5_0, v5_1, v5_2, v5_3]
+    }
+
+    struct Reference: Equatable {
+        var name: String
+        var kind: Kind
+        
+        enum Kind: String {
+            case beta
+            case branch
+            case stable
+        }
+        
+        var node: Node<HTML.BodyContext> {
+            .span(
+                .class("\(kind)"),
+                .i(.class("icon \(kind)")),
+                .text(name)
+            )
+        }
+    }
+    
+    struct BuildStatusRow {
+        var references: [Reference]
+        var results: [BuildResult]
+        
+        var label: Node<HTML.BodyContext> {
+            guard !references.isEmpty else { return .empty }
+            return .div(
+                .class("label"),
+                .div( // Note: It may look like there is a completely useless div here, but it's needed. I promise.
+                    .div(
+                        .group(references.map(\.node).joined(separator: .text(" and ")))
+                    )
+                )
+            )
+        }
+    }
+    
+    struct BuildResult: Equatable {
+        var swiftVersion: SwiftVersion
+        var status: Status
+        
+        enum Status: String, Equatable {
+            case success
+            case failed
+            case unknown
+        }
+        
+        var headerNode: Node<HTML.BodyContext> {
+            .div(
+                .text(swiftVersion.displayName),
+                .unwrap(swiftVersion.note) { .element(named: "small", text: "(\($0))") }
+            )
+        }
+        
+        var cellNode: Node<HTML.BodyContext> {
+            .div(
+                .class("\(status)"),
+                .attribute(named: "title", value: title),
+                .i(.class("icon build_\(status)"))
+            )
+        }
+        
+        var title: String {
+            switch status {
+                case .success:
+                    return "Built successfully with Swift \(swiftVersion.displayName)"
+                case .failed:
+                    return "Build failed with Swift \(swiftVersion.displayName)"
+                case .unknown:
+                    return "No build information available for Swift \(swiftVersion.displayName)"
+            }
+        }
+    }
+}
+
+
+extension Array where Element == Node<HTML.BodyContext> {
+    func joined(separator: Node<HTML.BodyContext>) -> [Node<HTML.BodyContext>] {
+        guard let first = first else { return [] }
+        return dropFirst().reduce([first]) { $0 + [separator, $1] }
     }
 }
