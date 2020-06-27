@@ -41,7 +41,8 @@ extension PackageShow.Model {
                     // when summary is nil
                     summary: p.repository?.summary ?? "–",
                     title: title,
-                    url: p.url
+                    url: p.url,
+                    score: p.score
                 )
             }
             .unwrap(or: Abort(.notFound))
