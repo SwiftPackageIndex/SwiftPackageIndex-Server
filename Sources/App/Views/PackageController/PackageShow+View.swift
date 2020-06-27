@@ -43,7 +43,7 @@ enum PackageShow {
                 .hr(),
                 .p(
                     .class("description"),
-                    .text(model.summary)
+                    .text(model.summary.replaceShorthandEmojis())
                 ),
                 .section(
                     .class("metadata"),
