@@ -31,6 +31,7 @@ extension PackageShow.Model {
                 return Self.init(
                     activity: p.activity(),
                     authors: p.authors(),
+                    buildInfo: p.buildInfo(),
                     history: p.history(),
                     languagePlatforms: p.languagePlatformInfo(),
                     license: p.repository?.license ?? .none,
@@ -197,4 +198,13 @@ extension Package {
         f.numberStyle = .decimal
         return f
     }()
+}
+
+
+// MARK: - Build info
+
+extension Package {
+    func buildInfo() -> PackageShow.Model.BuildInfo? {
+        nil
+    }
 }

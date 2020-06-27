@@ -252,21 +252,19 @@ extension PackageShow.Model {
         let rows = [
             BuildStatusRow(references: [.init(name: "5.2.3", kind: .stable),
                                         .init(name: "main", kind: .branch)],
-                           results: [
-                            .init(swiftVersion: .v4_2, status: .failed),
-                            .init(swiftVersion: .v5_0, status: .failed),
-                            .init(swiftVersion: .v5_1, status: .unknown),
-                            .init(swiftVersion: .v5_2, status: .success),
-                            .init(swiftVersion: .v5_3, status: .success)
-                           ]),
+                           results: .init(status4_2: .failed,
+                                          status5_0: .failed,
+                                          status5_1: .unknown,
+                                          status5_2: .success,
+                                          status5_3: .success)
+            ),
             BuildStatusRow(references: [.init(name: "6.0.0-b1", kind: .beta)],
-                           results: [
-                            .init(swiftVersion: .v4_2, status: .failed),
-                            .init(swiftVersion: .v5_0, status: .success),
-                            .init(swiftVersion: .v5_1, status: .success),
-                            .init(swiftVersion: .v5_2, status: .success),
-                            .init(swiftVersion: .v5_3, status: .success)
-                           ])
+                           results: .init(status4_2: .failed,
+                                          status5_0: .success,
+                                          status5_1: .success,
+                                          status5_2: .success,
+                                          status5_3: .success)
+            )
         ]
         return .section(
             .class("swift"),
@@ -279,7 +277,7 @@ extension PackageShow.Model {
 
     func swiftVersionCompatibilityListItem(_ row: BuildStatusRow) -> Node<HTML.ListContext> {
         let results: [BuildResult] = row.results
-            .sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
+            .all.sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
         return .li(
             .class("reference"),
             row.label,

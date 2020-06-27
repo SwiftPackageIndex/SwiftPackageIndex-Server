@@ -41,9 +41,9 @@ extension PackageShow.Model {
     }
     
     struct BuildInfo: Equatable {
-        var stable: BuildResult?
-        var beta: BuildResult?
-        var latest: BuildResult?
+        var stable: BuildResults?
+        var beta: BuildResults?
+        var latest: BuildResults?
     }
 
     struct SwiftVersion: Equatable, Hashable, Comparable {
@@ -90,7 +90,7 @@ extension PackageShow.Model {
     
     struct BuildStatusRow {
         var references: [Reference]
-        var results: [BuildResult]
+        var results: BuildResults
         
         var label: Node<HTML.BodyContext> {
             guard !references.isEmpty else { return .empty }
@@ -105,15 +105,37 @@ extension PackageShow.Model {
         }
     }
     
+    struct BuildResults: Equatable {
+        var v4_2: BuildResult
+        var v5_0: BuildResult
+        var v5_1: BuildResult
+        var v5_2: BuildResult
+        var v5_3: BuildResult
+        
+        init(status4_2: BuildStatus,
+             status5_0: BuildStatus,
+             status5_1: BuildStatus,
+             status5_2: BuildStatus,
+             status5_3: BuildStatus) {
+            self.v4_2 = .init(swiftVersion: .v4_2, status: status4_2)
+            self.v5_0 = .init(swiftVersion: .v5_0, status: status5_0)
+            self.v5_1 = .init(swiftVersion: .v5_1, status: status5_1)
+            self.v5_2 = .init(swiftVersion: .v5_2, status: status5_2)
+            self.v5_3 = .init(swiftVersion: .v5_3, status: status5_3)
+        }
+        
+        var all: [BuildResult] { [v4_2, v5_0, v5_1, v5_2, v5_3] }
+    }
+    
+    enum BuildStatus: String, Equatable {
+        case success
+        case failed
+        case unknown
+    }
+    
     struct BuildResult: Equatable {
         var swiftVersion: SwiftVersion
-        var status: Status
-        
-        enum Status: String, Equatable {
-            case success
-            case failed
-            case unknown
-        }
+        var status: BuildStatus
         
         var headerNode: Node<HTML.BodyContext> {
             .div(
