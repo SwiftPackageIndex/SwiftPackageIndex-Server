@@ -204,7 +204,47 @@ extension Package {
 // MARK: - Build info
 
 extension Package {
+    
     func buildInfo() -> PackageShow.Model.BuildInfo? {
-        nil
+        // 1) get three relevant version:
+        let (stable, beta, latest) = releases()
+        
+        // 2) collect build info for swift versions per package version
+        return .init(stable: stable.flatMap(Package.buildResults),
+                     beta: beta.flatMap(Package.buildResults),
+                     latest: latest.flatMap(Package.buildResults))
+    }
+    
+    static func buildResults(_ version: Version) -> PackageShow.Model.BuildResults? {
+        guard let builds = version.$builds.value else { return nil }
+        // sort latest to oldest ...
+        let sortedBuilds = builds.sorted { $0.swiftVersion > $1.swiftVersion }
+        // ... for each reported swift version pick the most recent major/minor version match
+        let v4_2 = sortedBuilds.first { $0.swiftVersion.major == 4 && $0.swiftVersion.minor == 2 }
+        let v5_0 = sortedBuilds.first { $0.swiftVersion.major == 5 && $0.swiftVersion.minor == 0 }
+        let v5_1 = sortedBuilds.first { $0.swiftVersion.major == 5 && $0.swiftVersion.minor == 1 }
+        let v5_2 = sortedBuilds.first { $0.swiftVersion.major == 5 && $0.swiftVersion.minor == 2 }
+        let v5_3 = sortedBuilds.first { $0.swiftVersion.major == 5 && $0.swiftVersion.minor == 3 }
+        // ... and report the status
+        return .init(status4_2: v4_2.buildStatus,
+                     status5_0: v5_0.buildStatus,
+                     status5_1: v5_1.buildStatus,
+                     status5_2: v5_2.buildStatus,
+                     status5_3: v5_3.buildStatus)
+    }
+    
+}
+
+
+private extension Optional where Wrapped == Build {
+    var buildStatus: PackageShow.Model.BuildStatus {
+        switch map(\.status) {
+            case .ok:
+                return .success
+            case .failed:
+                return .failed
+            case .none:
+                return .unknown
+        }
     }
 }

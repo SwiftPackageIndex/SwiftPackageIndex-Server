@@ -249,6 +249,9 @@ extension PackageShow.Model {
         guard environment != .production else {
             return .empty
         }
+        #warning("FIXME")
+        //        guard let buildInfo = buildInfo else { return .empty }
+        // FIMXE: group buildInfo into rows: [BuildStatusRow]
         let rows = [
             BuildStatusRow(references: [.init(name: "5.2.3", kind: .stable),
                                         .init(name: "main", kind: .branch)],

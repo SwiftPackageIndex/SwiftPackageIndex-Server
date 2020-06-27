@@ -340,6 +340,48 @@ final class PackageTests: AppTestCase {
                              lastIssueClosedAt: "5 days ago",
                              lastPullRequestClosedAt: "6 days ago"))
     }
+    
+    func test_buildResults() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p)
+        try v.save(on: app.db).wait()
+        func makeBuild(_ status: Build.Status, _ version: SwiftVersion) throws {
+            try Build(version: v, platform: .macos("10.15"), status: status, swiftVersion: version)
+                .save(on: app.db)
+                .wait()
+        }
+        try makeBuild(.failed, .init(4, 2, 4))
+        try makeBuild(.failed, .init(5, 0, 1))
+        try makeBuild(.failed, .init(5, 2, 0))  // this should not be reported: latest (5, 2, 2) taking precedence
+        try makeBuild(.ok, .init(5, 2, 2))
+        try makeBuild(.ok, .init(5, 3, 0))
+        try v.$builds.load(on: app.db).wait()
+
+        // MUT
+        let res = Package.buildResults(v)
+        
+        // validate
+        XCTAssertEqual(res?.v4_2, .some(.init(swiftVersion: .v4_2, status: .failed)))
+        XCTAssertEqual(res?.v5_0, .some(.init(swiftVersion: .v5_0, status: .failed)))
+        XCTAssertEqual(res?.v5_1, .some(.init(swiftVersion: .v5_1, status: .unknown)))
+        XCTAssertEqual(res?.v5_2, .some(.init(swiftVersion: .v5_2, status: .success)))
+        XCTAssertEqual(res?.v5_3, .some(.init(swiftVersion: .v5_3, status: .success)))
+    }
+    
+    func test_buildInfo() throws {
+        let bi = PackageShow.Model.BuildInfo(
+            stable: .init(status4_2: .success,
+                          status5_0: .success,
+                          status5_1: .success,
+                          status5_2: .success,
+                          status5_3: .success),
+            beta: nil,
+            latest: nil)
+        
+        
+    }
+    
 }
 
 

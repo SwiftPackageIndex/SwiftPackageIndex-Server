@@ -37,6 +37,15 @@ extension SwiftVersion: LosslessStringConvertible {
 }
 
 
+extension SwiftVersion: Comparable {
+    static func < (lhs: SwiftVersion, rhs: SwiftVersion) -> Bool {
+        if lhs.major != rhs.major { return lhs.major < rhs.major }
+        if lhs.minor != rhs.minor { return lhs.minor < rhs.minor }
+        return lhs.patch < rhs.patch
+    }
+}
+
+
 let swiftVerRegex = NSRegularExpression(#"""
 ^
 v?                              # SPI extension: allow leading 'v'
