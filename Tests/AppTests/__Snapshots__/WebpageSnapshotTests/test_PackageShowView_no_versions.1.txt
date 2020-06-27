@@ -53,7 +53,7 @@
     <main>
       <div class="inner">
         <div class="split">
-          <div><!--Package Score is unknown for Alamofire-->
+          <div><!--10-->
             <h2>Alamofire</h2>
             <small>
               <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>

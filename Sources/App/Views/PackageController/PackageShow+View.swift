@@ -29,7 +29,7 @@ enum PackageShow {
                 .div(
                     .class("split"),
                     .div(
-                        .comment("Package Score is \(model.score.map(String.init) ?? "unknown") for \(model.title)"),
+                        .comment(model.score.map(String.init) ?? "unknown"),
                         .h2(.text(model.title)),
                         .element(named: "small", nodes: [ // TODO: Fix after Plot update
                             .a(
