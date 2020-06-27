@@ -6,6 +6,8 @@ import Vapor
 extension PackageShow.Model {
 
     static func query(database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
+        #warning("FIXME:")
+        //            .with(\.$versions) { $0.with(\.$builds) }
         let res = Package.query(on: database)
             .with(\.$repositories)
             .with(\.$versions) { $0.with(\.$products) }

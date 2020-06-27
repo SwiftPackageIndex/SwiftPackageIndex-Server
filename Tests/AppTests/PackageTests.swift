@@ -362,24 +362,37 @@ final class PackageTests: AppTestCase {
         let res = Package.buildResults(v)
         
         // validate
-        XCTAssertEqual(res?.v4_2, .some(.init(swiftVersion: .v4_2, status: .failed)))
-        XCTAssertEqual(res?.v5_0, .some(.init(swiftVersion: .v5_0, status: .failed)))
-        XCTAssertEqual(res?.v5_1, .some(.init(swiftVersion: .v5_1, status: .unknown)))
-        XCTAssertEqual(res?.v5_2, .some(.init(swiftVersion: .v5_2, status: .success)))
-        XCTAssertEqual(res?.v5_3, .some(.init(swiftVersion: .v5_3, status: .success)))
+        XCTAssertEqual(res?.v4_2, .init(swiftVersion: .v4_2, status: .failed))
+        XCTAssertEqual(res?.v5_0, .init(swiftVersion: .v5_0, status: .failed))
+        XCTAssertEqual(res?.v5_1, .init(swiftVersion: .v5_1, status: .unknown))
+        XCTAssertEqual(res?.v5_2, .init(swiftVersion: .v5_2, status: .success))
+        XCTAssertEqual(res?.v5_3, .init(swiftVersion: .v5_3, status: .success))
     }
     
     func test_buildInfo() throws {
-        let bi = PackageShow.Model.BuildInfo(
-            stable: .init(status4_2: .success,
-                          status5_0: .success,
-                          status5_1: .success,
-                          status5_2: .success,
-                          status5_3: .success),
-            beta: nil,
-            latest: nil)
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
+        try v.save(on: app.db).wait()
+        try Build(version: v, platform: .macos("10.15"), status: .ok, swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+        try p.$versions.load(on: app.db).wait()
+        try p.versions.forEach {
+            try $0.$builds.load(on: app.db).wait()
+        }
         
-        
+        // MUT
+        let res = p.buildInfo()
+
+        // validate
+        XCTAssertEqual(res?.stable?.v4_2, .init(swiftVersion: .v4_2, status: .unknown))
+        XCTAssertEqual(res?.stable?.v5_0, .init(swiftVersion: .v5_0, status: .unknown))
+        XCTAssertEqual(res?.stable?.v5_1, .init(swiftVersion: .v5_1, status: .unknown))
+        XCTAssertEqual(res?.stable?.v5_2, .init(swiftVersion: .v5_2, status: .success))
+        XCTAssertEqual(res?.stable?.v5_3, .init(swiftVersion: .v5_3, status: .unknown))
+        XCTAssertNil(res?.beta)
+        XCTAssertNil(res?.latest)
     }
     
 }
