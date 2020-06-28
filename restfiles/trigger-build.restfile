@@ -8,7 +8,7 @@ variables:
 
 requests:
 
-    post build:
+    post build 5.2.4:
         url: ${base_url}/versions/${version_id}/trigger-build
         method: POST
         headers:
@@ -22,6 +22,63 @@ requests:
                     major: 5
                     minor: 2
                     patch: 4
+
+        validation:
+            status: 201
+        log: json
+
+    post build 5.1.3:
+        url: ${base_url}/versions/${version_id}/trigger-build
+        method: POST
+        headers:
+            Authorization: Bearer ${builder_token}
+        body:
+            json:
+                platform:
+                    name: unknown
+                    version: test
+                swiftVersion:
+                    major: 5
+                    minor: 1
+                    patch: 3
+
+        validation:
+            status: 201
+        log: json
+
+    post build 5.0.1:
+        url: ${base_url}/versions/${version_id}/trigger-build
+        method: POST
+        headers:
+            Authorization: Bearer ${builder_token}
+        body:
+            json:
+                platform:
+                    name: unknown
+                    version: test
+                swiftVersion:
+                    major: 5
+                    minor: 0
+                    patch: 1
+
+        validation:
+            status: 201
+        log: json
+
+    post build 4.2.1:
+        url: ${base_url}/versions/${version_id}/trigger-build
+        method: POST
+        headers:
+            Authorization: Bearer ${builder_token}
+        body:
+            json:
+                platform:
+                    name: unknown
+                    version: test
+                swiftVersion:
+                    major: 4
+                    minor: 2
+                    patch: 1
 
         validation:
             status: 201
