@@ -1,41 +1,67 @@
 import Foundation
 import Vapor
 
-struct Emoji: Decodable {
+fileprivate struct Emoji: Decodable {
     
     enum CodingKeys: String, CodingKey {
-        case emoji
-        case aliases
-        case tags
+        case unicode = "emoji"
+        case names = "aliases"
     }
     
     let unicode: String
     let names: [String]
     
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        unicode = try container.decode(String.self, forKey: .emoji)
-        
-        let aliases = try container.decode([String].self, forKey: .aliases)
-        let tags = try container.decode([String].self, forKey: .tags)
-        names = aliases + tags
-    }
-    
 }
 
-extension Emoji {
+struct EmojiStorage {
     
-    static func fetchAll() -> [Emoji] {
+    static var current = EmojiStorage()
+    var lookup: [String: String]
+    var regularExpression: NSRegularExpression?
+    
+    init() {
         let pathToEmojiFile = Current.fileManager.workingDirectory()
             .appending("Resources/emoji.json")
         
+        lookup = [:]
+        regularExpression = nil
+        
         do {
             let data = try Data(contentsOf: URL(fileURLWithPath: pathToEmojiFile))
-            return try JSONDecoder().decode([Emoji].self, from: data)
+            let emojis = try JSONDecoder().decode([Emoji].self, from: data)
+            
+            lookup = emojis.reduce(into: [String: String]()) { lookup, emoji in
+                emoji.names.forEach {
+                    lookup[":\($0):"] = emoji.unicode
+                }
+            }
+            
+            let escapedKeys = lookup.keys.map(NSRegularExpression.escapedPattern(for:))
+            let pattern = "(" + escapedKeys.joined(separator: "|") + ")"
+            regularExpression = try NSRegularExpression(pattern: pattern, options: [])
         } catch {
             print("🚨 Failed to decode emoji list: \(error)")
-            return []
         }
+    }
+    
+    func replace(inString string: String) -> String {
+        guard let regEx = regularExpression else {
+            return string
+        }
+        
+        let nsRange = NSRange(location: 0, length: string.count)
+        let results = regEx.matches(in: string, options: [], range: nsRange)
+        
+        var mutableString = string
+        results.reversed().forEach { result in
+            let shorthand = (string as NSString).substring(with: result.range)
+            
+            if let range = Range(result.range, in: mutableString), let unicode = lookup[shorthand] {
+                mutableString = mutableString.replacingCharacters(in: range, with: unicode)
+            }
+        }
+        
+        return mutableString
     }
     
 }
@@ -43,13 +69,7 @@ extension Emoji {
 extension String {
     
     func replaceShorthandEmojis() -> String {
-        var builder = self
-        Emoji.fetchAll().forEach { emoji in
-            emoji.names.forEach { emojiShortcode in
-                builder = builder.replacingOccurrences(of: ":\(emojiShortcode):", with: emoji.unicode)
-            }
-        }
-        return builder
+        return EmojiStorage.current.replace(inString: self)
     }
     
 }
