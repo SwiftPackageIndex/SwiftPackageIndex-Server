@@ -15,6 +15,7 @@ extension PackageShow {
         var summary: String
         var title: String
         var url: String
+        var score: Int?
 
         struct History: Equatable {
             var since: String
