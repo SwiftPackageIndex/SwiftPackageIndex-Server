@@ -189,9 +189,36 @@ class ApiTests: AppTestCase {
         }
     }
     
-    // NB: Unfortunately we can't run a happy path test for build trigger, because we can't
-    // control the app.client. I.e. any requests we make would be live requests where we
-    // can't guarantee the outcome.
+    func test_post_build_trigger() throws {
+        // Ensure unauthenticated access raises a 401
+        // setup
+        Current.builderToken = { "secr3t" }
+        Current.gitlabPipelineToken = { "ptoken" }
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p)
+        try v.save(on: app.db).wait()
+        let versionId = try XCTUnwrap(v.id)
+        let dto: Build.PostTriggerDTO = .init(platform: .macos("10.15"), swiftVersion: .init(5, 2, 4))
+        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+
+        // we're testing the exact Gitlab trigger post request in detail in
+        // GitlabBuilderTests - so here we just ensure a request is being made
+        var requestSent = false
+        app.clients.use( { _ in MockClient { req, _ in
+            requestSent = true
+        }})
+        
+        // MUT
+        try app.test(
+            .POST,
+            "api/versions/\(versionId)/trigger-build",
+            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+            body: body) { res in
+            // validation
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertTrue(requestSent)
+        }
+    }
     
     func test_post_build_trigger_protected() throws {
         // Ensure unauthenticated access raises a 401
@@ -222,6 +249,76 @@ class ApiTests: AppTestCase {
             body: body) { res in
                 // validation
                 XCTAssertEqual(res.status, .unauthorized)
+        }
+    }
+    
+    func test_post_build_trigger_package_name() throws {
+        // Test POST /packages/{owner}/{repo}/trigger-builds
+        // Ensure unauthenticated access raises a 401
+        // setup
+        Current.builderToken = { "secr3t" }
+        Current.gitlabPipelineToken = { "ptoken" }
+        let p = try savePackage(on: app.db, "1")
+        try Repository(package: p,
+                       defaultBranch: "main",
+                       license: .mit,
+                       name: "bar",
+                       owner: "foo").save(on: app.db).wait()
+        try Version(package: p, reference: .branch("main")).save(on: app.db).wait()
+        try Version(package: p, reference: .tag(.init(1, 2, 3))).save(on: app.db).wait()
+        let owner = "foo"
+        let repo = "bar"
+        let dto: Build.PostTriggerDTO = .init(platform: .macos("10.15"), swiftVersion: .init(5, 2, 4))
+        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+        
+        // we're testing the exact Gitlab trigger post request in detail in
+        // GitlabBuilderTests - so here we just ensure two requests are being
+        // made (one for each version to build)
+        var requestsSent = 0
+        app.clients.use( { _ in MockClient { req, _ in
+            requestsSent += 1
+        }})
+
+        // MUT
+        try app.test(
+            .POST,
+            "api/packages/\(owner)/\(repo)/trigger-builds",
+            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+            body: body) { res in
+            // validation
+            XCTAssertEqual(res.status, .ok)
+            XCTAssertEqual(requestsSent, 2)
+        }
+    }
+    
+    func test_post_build_trigger_package_name_protected() throws {
+        // Test POST /packages/{owner}/{repo}/trigger-builds
+        // Ensure unauthenticated access raises a 401
+        // setup
+        Current.builderToken = { "secr3t" }
+        Current.gitlabPipelineToken = { "ptoken" }
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p)
+        try v.save(on: app.db).wait()
+        let owner = "owner"
+        let repo = "repo"
+        let dto: Build.PostTriggerDTO = .init(platform: .macos("10.15"), swiftVersion: .init(5, 2, 4))
+        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+        
+        var requestsSent = 0
+        app.clients.use( { _ in MockClient { req, _ in
+            requestsSent += 1
+        }})
+
+        // MUT - no auth header
+        try app.test(
+            .POST,
+            "api/packages/\(owner)/\(repo)/trigger-builds",
+            headers: .init([("Content-Type", "application/json")]),
+            body: body) { res in
+            // validation
+            XCTAssertEqual(res.status, .unauthorized)
+            XCTAssertEqual(requestsSent, 0)
         }
     }
     

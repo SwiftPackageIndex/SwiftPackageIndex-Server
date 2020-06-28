@@ -157,6 +157,52 @@ final class PackageTests: AppTestCase {
         }
     }
 
+    func test_query_owner_repository() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try Repository(package: pkg,
+                       summary: "summary",
+                       defaultBranch: "main",
+                       license: .mit,
+                       name: "bar",
+                       owner: "foo",
+                       stars: 17,
+                       forks: 42).save(on: app.db).wait()
+        let version = try App.Version(package: pkg,
+                                      reference: .branch("main"),
+                                      packageName: "test package")
+        try version.save(on: app.db).wait()
+
+        // MUT
+        let p = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertEqual(p.id, pkg.id)
+    }
+
+    func test_query_owner_repository_case_insensitivity() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try Repository(package: pkg,
+                       summary: "summary",
+                       defaultBranch: "main",
+                       license: .mit,
+                       name: "bar",
+                       owner: "foo",
+                       stars: 17,
+                       forks: 42).save(on: app.db).wait()
+        let version = try App.Version(package: pkg,
+                                      reference: .branch("main"),
+                                      packageName: "test package")
+        try version.save(on: app.db).wait()
+
+        // MUT
+        let p = try Package.query(on: app.db, owner: "Foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertEqual(p.id, pkg.id)
+    }
+
     func test_releaseInfo() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")

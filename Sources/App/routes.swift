@@ -25,7 +25,7 @@ func routes(_ app: Application) throws {
     let packageController = PackageController()
     app.get(SiteURL.packages.pathComponents, use: packageController.index)
 
-    app.get(SiteURL.package(.name("owner"), .name("repository")).pathComponents, use: packageController.show)
+    app.get(SiteURL.package(.key, .key).pathComponents, use: packageController.show)
 
     do {  // admin
         // sas: 2020-06-01: disable admin page until we have an auth mechanism
@@ -38,10 +38,13 @@ func routes(_ app: Application) throws {
 
         app.group(User.TokenAuthenticator(), User.guardMiddleware()) { protected in
             let builds = API.BuildController()
-            protected.post(SiteURL.api(.versions(.name("id"), .builds)).pathComponents,
+            protected.post(SiteURL.api(.versions(.key, .builds)).pathComponents,
                            use: builds.create)
-            protected.post(SiteURL.api(.versions(.name("id"), .triggerBuild)).pathComponents,
+            protected.post(SiteURL.api(.versions(.key, .triggerBuild)).pathComponents,
                            use: builds.trigger)
+            let packages = API.PackageController()
+            protected.post(SiteURL.api(.packages(.key, .key, .triggerBuilds)).pathComponents,
+                           use: packages.trigger)
         }
 
         // sas: 2020-05-19: shut down public API until we have an auth mechanism

@@ -3,10 +3,10 @@ import Foundation
 import Vapor
 
 
-extension PackageShow.Model {
-
-    static func query(database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        let res = Package.query(on: database)
+extension Package {
+    
+    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Package> {
+        Package.query(on: database)
             .with(\.$repositories)
             .with(\.$versions) {
                 $0.with(\.$products)
@@ -26,36 +26,9 @@ extension PackageShow.Model {
                 DatabaseQuery.Value.bind(repository)
             )
             .first()
-        
-        return res.unwrap(or: Abort(.notFound))
-            .map { p -> Self? in
-                // we consider certain attributes as essential and return nil (raising .notFound)
-                guard let title = p.name() else { return nil }
-                return Self.init(
-                    activity: p.activity(),
-                    authors: p.authors(),
-                    buildInfo: p.buildInfo(),
-                    history: p.history(),
-                    languagePlatforms: p.languagePlatformInfo(),
-                    license: p.repository?.license ?? .none,
-                    products: p.productCounts(),
-                    releases: p.releaseInfo(),
-                    stars: p.repository?.stars,
-                    // FIXME: we should probably also display an explainer
-                    // when summary is nil
-                    summary: p.repository?.summary ?? "–",
-                    title: title,
-                    url: p.url,
-                    score: p.score
-                )
-            }
             .unwrap(or: Abort(.notFound))
     }
-
-}
-
-
-extension Package {
+    
     func defaultVersion() -> Version? {
         guard
             let versions = $versions.value,

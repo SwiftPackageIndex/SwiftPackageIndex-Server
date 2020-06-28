@@ -15,38 +15,52 @@ import Vapor
 
 
 enum Api: Resourceable {
+    case packages(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagesPathComponents)
+    case search
     case version
     case versions(_ id: Parameter<UUID>, VersionsPathComponents)
-    case search
 
     var path: String {
         switch self {
-            case .search:
-                return "search"
+            case let .packages(.value(owner), .value(repo), next):
+                return "packages/\(owner)/\(repo)/\(next.path)"
+            case .packages:
+                fatalError("path must not be called with a name parameter")
             case .version:
                 return "version"
             case let .versions(.value(id), next):
                 return "versions/\(id.uuidString)/\(next.path)"
-            case .versions(.name, _):
+            case .versions(.key, _):
                 fatalError("path must not be called with a name parameter")
+            case .search:
+                return "search"
         }
     }
 
     var pathComponents: [PathComponent] {
         switch self {
+            case let .packages(.key, .key, remainder):
+                return ["packages", ":owner", ":repository"] + remainder.pathComponents
+            case .packages:
+                fatalError("pathComponents must not be called with a value parameter")
             case .search, .version:
                 return [.init(stringLiteral: path)]
-            case let .versions(.name(id), remainder):
-                return ["versions", .init(stringLiteral: ":\(id)")] + remainder.pathComponents
+            case let .versions(.key, remainder):
+                return ["versions", ":id"] + remainder.pathComponents
             case .versions(.value, _):
                 fatalError("pathComponents must not be called with a value parameter")
         }
     }
 
+    enum PackagesPathComponents: String, Resourceable {
+        case triggerBuilds = "trigger-builds"
+    }
+    
     enum VersionsPathComponents: String, Resourceable {
         case builds
         case triggerBuild = "trigger-build"
     }
+    
 }
 
 
@@ -118,8 +132,8 @@ enum SiteURL: Resourceable {
             case let .api(res):
                 return ["api"] + res.pathComponents
 
-            case let .package(.name(owner), .name(repository)):
-                return [":\(owner)", ":\(repository)"].map(PathComponent.init(stringLiteral:))
+            case .package(.key, .key):
+                return [":owner", ":repository"]
 
             case .package:
                 fatalError("pathComponents must not be called with a value parameter")
@@ -176,6 +190,6 @@ extension Resourceable where Self: RawRepresentable, RawValue == String {
 
 
 enum Parameter<T> {
-    case name(String)
+    case key
     case value(T)
 }

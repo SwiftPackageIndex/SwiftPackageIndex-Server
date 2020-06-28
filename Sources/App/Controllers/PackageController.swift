@@ -16,7 +16,9 @@ struct PackageController {
             else {
                 return req.eventLoop.future(error: Abort(.notFound))
         }
-        return PackageShow.Model.query(database: req.db, owner: owner, repository: repository)
+        return Package.query(on: req.db, owner: owner, repository: repository)
+            .map(PackageShow.Model.init(package:))
+            .unwrap(or: Abort(.notFound))
             .map { PackageShow.View(path: req.url.path, model: $0).document() }
     }
 
