@@ -13,7 +13,7 @@ class SiteURLTests: XCTestCase {
     }
 
     func test_pathComponents_with_parameter() throws {
-        let p = SiteURL.package(.name("owner"), .name("repository")).pathComponents
+        let p = SiteURL.package(.key, .key).pathComponents
         XCTAssertEqual(p.map(\.description), [":owner", ":repository"])
     }
 
@@ -88,10 +88,13 @@ class SiteURLTests: XCTestCase {
     func test_api_pathComponents() throws {
         XCTAssertEqual(SiteURL.api(.search).pathComponents.map(\.description), ["api", "search"])
         XCTAssertEqual(SiteURL.api(.version).pathComponents.map(\.description), ["api", "version"])
-        XCTAssertEqual(SiteURL.api(.versions(.name("id"), .builds)).pathComponents.map(\.description),
+        XCTAssertEqual(SiteURL.api(.versions(.key, .builds)).pathComponents.map(\.description),
                        ["api", "versions", ":id", "builds"])
-        XCTAssertEqual(SiteURL.api(.versions(.name("id"), .triggerBuild)).pathComponents.map(\.description),
+        XCTAssertEqual(SiteURL.api(.versions(.key, .triggerBuild)).pathComponents.map(\.description),
                        ["api", "versions", ":id", "trigger-build"])
+        XCTAssertEqual(SiteURL.api(.packages(.key, .key, .triggerBuild))
+                        .pathComponents.map(\.description),
+                       ["api", "packages", ":owner", ":repository", "trigger-build"])
     }
 
     func test_apiBaseURL() throws {

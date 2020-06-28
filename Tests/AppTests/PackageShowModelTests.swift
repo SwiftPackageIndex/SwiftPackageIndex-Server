@@ -22,7 +22,7 @@ class PackageShowModelTests: AppTestCase {
         try version.save(on: app.db).wait()
 
         // MUT
-        let m = try PackageShow.Model.query(database: app.db, owner: "foo", repository: "bar").wait()
+        let m = try PackageShow.Model.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // validate
         XCTAssertEqual(m.title, "test package")
@@ -45,7 +45,7 @@ class PackageShowModelTests: AppTestCase {
         try version.save(on: app.db).wait()
 
         // MUT
-        let m = try PackageShow.Model.query(database: app.db, owner: "Foo", repository: "bar").wait()
+        let m = try PackageShow.Model.query(on: app.db, owner: "Foo", repository: "bar").wait()
 
         // validate
         XCTAssertEqual(m.title, "test package")
@@ -71,7 +71,7 @@ class PackageShowModelTests: AppTestCase {
                     type: .library, name: "lib 1").save(on: app.db).wait()
 
         // MUT
-        XCTAssertThrowsError(try PackageShow.Model.query(database: app.db, owner: "foo", repository: "bar").wait()) {
+        XCTAssertThrowsError(try PackageShow.Model.query(on: app.db, owner: "foo", repository: "bar").wait()) {
             let error = try? XCTUnwrap($0 as? Vapor.Abort)
             XCTAssertEqual(error?.identifier, "404")
         }
@@ -101,7 +101,7 @@ class PackageShowModelTests: AppTestCase {
             .wait()
 
         // MUT
-        let m = try PackageShow.Model.query(database: app.db, owner: "foo", repository: "bar").wait()
+        let m = try PackageShow.Model.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // validate
         XCTAssertNotNil(m.buildInfo?.latest)

@@ -5,29 +5,9 @@ import Vapor
 
 extension PackageShow.Model {
 
-    static func query(database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        let res = Package.query(on: database)
-            .with(\.$repositories)
-            .with(\.$versions) {
-                $0.with(\.$products)
-                $0.with(\.$builds)
-            }
-            .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
-            // TODO: make less verbose once fixed in Fluent:
-            // https://github.com/vapor/fluent-kit/issues/310
-            .filter(
-                DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
-                DatabaseQuery.Filter.Method.custom("ilike"),
-                DatabaseQuery.Value.bind(owner)
-            )
-            .filter(
-                DatabaseQuery.Field.path(Repository.path(for: \.$name), schema: Repository.schema),
-                DatabaseQuery.Filter.Method.custom("ilike"),
-                DatabaseQuery.Value.bind(repository)
-            )
-            .first()
-        
-        return res.unwrap(or: Abort(.notFound))
+    #warning("FIXME: turn into init?(package: Package)")
+    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
+        Package.query(on: database, owner: owner, repository: repository)
             .map { p -> Self? in
                 // we consider certain attributes as essential and return nil (raising .notFound)
                 guard let title = p.name() else { return nil }
