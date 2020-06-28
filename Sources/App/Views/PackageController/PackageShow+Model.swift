@@ -244,31 +244,21 @@ extension PackageShow.Model {
         return Self.listPhrase(opening: "", nodes: nodes, closing: ".")
     }
     
+    static func groupBuildInfo(_ buildInfo: BuildInfo) -> [BuildStatusRow] {
+        let rows = [buildInfo.stable.map { BuildStatusRow(namedResult: $0, kind: .stable)},
+                    buildInfo.beta.map { BuildStatusRow(namedResult: $0, kind: .beta)},
+                    buildInfo.latest.map { BuildStatusRow(namedResult: $0, kind: .branch)}]
+            .compactMap { $0 }
+        return rows
+    }
+    
     func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
         let environment = (try? Environment.detect()) ?? .development
         guard environment != .production else {
             return .empty
         }
-        #warning("FIXME")
-        //        guard let buildInfo = buildInfo else { return .empty }
-        // FIMXE: group buildInfo into rows: [BuildStatusRow]
-        let rows = [
-            BuildStatusRow(references: [.init(name: "5.2.3", kind: .stable),
-                                        .init(name: "main", kind: .branch)],
-                           results: .init(status4_2: .failed,
-                                          status5_0: .failed,
-                                          status5_1: .unknown,
-                                          status5_2: .success,
-                                          status5_3: .success)
-            ),
-            BuildStatusRow(references: [.init(name: "6.0.0-b1", kind: .beta)],
-                           results: .init(status4_2: .failed,
-                                          status5_0: .success,
-                                          status5_1: .success,
-                                          status5_2: .success,
-                                          status5_3: .success)
-            )
-        ]
+        guard let buildInfo = buildInfo else { return .empty }
+        let rows = Self.groupBuildInfo(buildInfo)
         return .section(
             .class("swift"),
             .h3("Swift Version Compatibility"),

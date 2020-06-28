@@ -208,10 +208,49 @@ class PackageShowModelTests: AppTestCase {
         model.stars = 1_000_000
         XCTAssertEqual(model.starsClause()?.render(), "1,000,000 stars.")
     }
-
+    
+    func test_groupBuildInfo() throws {
+        let result1: BuildResults = .init(status4_2: .success,
+                                          status5_0: .success,
+                                          status5_1: .success,
+                                          status5_2: .success,
+                                          status5_3: .success)
+        let result2: BuildResults = .init(status4_2: .failed,
+                                          status5_0: .failed,
+                                          status5_1: .failed,
+                                          status5_2: .failed,
+                                          status5_3: .failed)
+        let result3: BuildResults = .init(status4_2: .unknown,
+                                          status5_0: .unknown,
+                                          status5_1: .unknown,
+                                          status5_2: .unknown,
+                                          status5_3: .unknown)
+        do {  // three distinct groups
+            let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3",
+                                                           results: result1),
+                                             beta: .init(referenceName: "2.0.0-b1",
+                                                         results: result2),
+                                             latest: .init(referenceName: "main",
+                                                           results: result3))
+            
+            // MUT
+            let res = PackageShow.Model.groupBuildInfo(buildInfo)
+            
+            // validate
+            XCTAssertEqual(res, [
+                .init(references: [.init(name: "1.2.3", kind: .stable)], results: result1),
+                .init(references: [.init(name: "2.0.0-b1", kind: .beta)], results: result2),
+                .init(references: [.init(name: "main", kind: .branch)], results: result3),
+            ])
+        }
+    }
+    
 }
 
 
 // local typealiases / references to make tests more readable
 fileprivate typealias Version = PackageShow.Model.Version
+fileprivate typealias BuildInfo = PackageShow.Model.BuildInfo
+fileprivate typealias BuildResults = PackageShow.Model.BuildResults
+fileprivate typealias BuildStatusRow = PackageShow.Model.BuildStatusRow
 let lpInfoGroups = PackageShow.Model.lpInfoGroups

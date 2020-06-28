@@ -217,8 +217,9 @@ extension Package {
                      latest: latest.flatMap(Package.buildResults))
     }
     
-    static func buildResults(_ version: Version) -> PackageShow.Model.BuildResults? {
-        guard let builds = version.$builds.value else { return nil }
+    static func buildResults(_ version: Version) -> PackageShow.Model.NamedBuildResults? {
+        guard let builds = version.$builds.value,
+              let referenceName = version.reference?.description else { return nil }
         // sort latest to oldest ...
         let sortedBuilds = builds.sorted { $0.swiftVersion > $1.swiftVersion }
         // ... for each reported swift version pick the most recent major/minor version match
@@ -228,11 +229,14 @@ extension Package {
         let v5_2 = sortedBuilds.first { $0.swiftVersion.major == 5 && $0.swiftVersion.minor == 2 }
         let v5_3 = sortedBuilds.first { $0.swiftVersion.major == 5 && $0.swiftVersion.minor == 3 }
         // ... and report the status
-        return .init(status4_2: v4_2.buildStatus,
-                     status5_0: v5_0.buildStatus,
-                     status5_1: v5_1.buildStatus,
-                     status5_2: v5_2.buildStatus,
-                     status5_3: v5_3.buildStatus)
+        return
+            .init(referenceName: referenceName,
+                  results: .init(status4_2: v4_2.buildStatus,
+                                 status5_0: v5_0.buildStatus,
+                                 status5_1: v5_1.buildStatus,
+                                 status5_2: v5_2.buildStatus,
+                                 status5_3: v5_3.buildStatus)
+            )
     }
     
 }
