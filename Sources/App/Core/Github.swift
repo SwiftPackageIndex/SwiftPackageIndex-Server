@@ -82,9 +82,7 @@ enum Github {
                         }
                 }
                 guard response.status == .ok else {
-                    return client.eventLoop.future(error:
-                                                    Error.requestFailed(response.status, uri)
-                    )
+                    return client.eventLoop.future(error: Error.requestFailed(response.status, uri))
                 }
                 do {
                     let res = try response.content.decode(T.self, using: decoder)

@@ -19,14 +19,13 @@ class GitTests: XCTestCase {
     }
     
     func test_tag() throws {
-        Current.shell.run = mock(for: "git tag",
-                                 """
-             test
-             1.0.0-pre
-             1.0.0
-             1.0.1
-             1.0.2
-             """
+        Current.shell.run = mock(for: "git tag", """
+            test
+            1.0.0-pre
+            1.0.0
+            1.0.1
+            1.0.2
+            """
         )
         XCTAssertEqual(
             try Git.tag(at: "ignored"), [
@@ -39,10 +38,9 @@ class GitTests: XCTestCase {
     
     func test_showDate() throws {
         Current.shell.run = mock(
-            for: #"git show -s --format=%ct "2c6399a1fa6f3b023bcdeac24b6a46ce3bd89ed0""#,
-            """
-             1536799579
-             """
+            for: #"git show -s --format=%ct "2c6399a1fa6f3b023bcdeac24b6a46ce3bd89ed0""#, """
+                1536799579
+                """
         )
         XCTAssertEqual(
             try Git.showDate("2c6399a1fa6f3b023bcdeac24b6a46ce3bd89ed0", at: "ignored"),
