@@ -3,13 +3,13 @@ import Vapor
 import Plot
 
 class PublicPage {
-
+    
     let path: String
-
+    
     init(path: String) {
         self.path = path
     }
-
+    
     /// The page's full HTML document.
     /// - Returns: A fully formed page inside a <html> element.
     final func document() -> HTML {
@@ -19,7 +19,7 @@ class PublicPage {
             body()
         )
     }
-
+    
     /// The page head.
     /// - Returns: A <head> element.
     final func head() -> Node<HTML.DocumentContext> {
@@ -80,7 +80,7 @@ class PublicPage {
             analyticsHead()
         )
     }
-
+    
     /// The Google Tag Manager code to be inserted into the <head> element.
     /// - Returns: A <script> containing the Google Tag Manager template code.
     final func analyticsHead() -> Node<HTML.HeadContext> {
@@ -94,7 +94,7 @@ class PublicPage {
                     })(window,document,'script','dataLayer','GTM-T2KRSKX');</script>
                     """))
     }
-
+    
     /// The Google Tag Manager code to be inserted into the <body> element.
     /// - Returns: A <noscript> containing the Google Tag Manager template code.
     final func analyticsBody() -> Node<HTML.BodyContext> {
@@ -105,7 +105,7 @@ class PublicPage {
                     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     """))
     }
-
+    
     /// A query string that will force resources to reload after they change. In development this is the
     /// current date, to force a reload every time. In production this is the date of the last deploy.
     /// - Returns: A string containing the query string.
@@ -117,22 +117,22 @@ class PublicPage {
             return secondsSince1970String
         }
     }
-
+    
     /// The full page title, including the site name.
     /// - Returns: A string with the fully formed page title, ready for use in a <title> element.
     final func title() -> String {
         guard let pageTitle = pageTitle()
-            else { return "Swift Package Index" }
-
+        else { return "Swift Package Index" }
+        
         return "\(pageTitle) &ndash; Swift Package Index"
     }
-
+    
     /// The title for the current page.
     /// - Returns: A string with a custom page title, if one is desired.
     func pageTitle() -> String? {
         nil
     }
-
+    
     /// The page description, or a default page description if none is specified.
     /// - Returns: A string with the fully formed page description, ready for use in a meta tag.
     final func description(maxLength: Int = 200) -> String {
@@ -141,26 +141,26 @@ class PublicPage {
             The Swift Package Index is the place to find the best Swift packages.
             """
         }
-
+        
         if pageDescription.count >= maxLength - 1 {
             return pageDescription.prefix(maxLength - 1) + "…"
         } else {
             return pageDescription
         }
     }
-
+    
     /// The description for the current page.
     /// - Returns: A string with a custom page description, if one is desired.
     func pageDescription() -> String? {
         nil
     }
-
+    
     /// A CSS class name to add to the <body> element.
     /// - Returns: A string with one or more CSS class names.
     func bodyClass() -> String? {
         nil
     }
-
+    
     /// The page body.
     /// - Returns: A <body> element.
     final func body() -> Node<HTML.DocumentContext> {
@@ -177,7 +177,7 @@ class PublicPage {
             stagingBanner()
         )
     }
-
+    
     /// A stagig banner, which only appears on the staging/development server.
     /// - Returns: Either a <div> element, or nothing.
     final func stagingBanner() -> Node<HTML.BodyContext> {
@@ -191,7 +191,7 @@ class PublicPage {
             return .text("")
         }
     }
-
+    
     /// The site header, including the site navigation.
     /// - Returns: A <header> element.
     final func header() -> Node<HTML.BodyContext> {
@@ -213,7 +213,7 @@ class PublicPage {
             )
         )
     }
-
+    
     /// List items to be rendered in the site navigation menu.
     /// - Returns: An array of <li> elements.
     func navItems() -> [Node<HTML.ListContext>] {
@@ -238,19 +238,19 @@ class PublicPage {
             )
         ]
     }
-
+    
     /// A <noscript> element that will only be shown to people with JavaScript disabled.
     /// - Returns: A <noscript> element.
     func noScript() -> Node<HTML.BodyContext> {
         .text("")
     }
-
+    
     /// Optional content that will be inserted in between the page header and the main content for the page.
     /// - Returns: An optional element, or group of elements.
     func preMain() -> Node<HTML.BodyContext> {
         .text("")
     }
-
+    
     /// The <main> element that will contain the primary content for the page.
     /// - Returns: A <main> element.
     final func main() -> Node<HTML.BodyContext> {
@@ -260,13 +260,13 @@ class PublicPage {
             )
         )
     }
-
+    
     /// Optional content that will be inserted in between the main content for the page and the page footer.
     /// - Returns: An optional element, or group of elements.
     func postMain() -> Node<HTML.BodyContext> {
         .text("")
     }
-
+    
     /// The page's content.
     /// - Returns: A node, or nodes (in a `.group`) with the page's content.
     func content() -> Node<HTML.BodyContext> {
@@ -276,7 +276,7 @@ class PublicPage {
             " to change this page's content."
         )
     }
-
+    
     /// The site footer, including all footer links.
     /// - Returns: A <footer> element.
     final func footer() -> Node<HTML.BodyContext> {
@@ -306,12 +306,12 @@ class PublicPage {
                     .element(named: "small", nodes: [ // TODO: Fix after Plot update
                         .a(
                             .href("https://macstadium.com/"),
-                             "Kindly hosted by MacStadium"
+                            "Kindly hosted by MacStadium"
                         )
                     ])
-                )
+                 )
             )
         )
     }
-
+    
 }

@@ -5,7 +5,7 @@ import XCTest
 
 /// Tests for utilities and extesions that don't each need a full separate test class
 class MiscTests: XCTestCase {
-
+    
     func test_Dictionary_queryString() throws {
         // basic
         XCTAssertEqual(["foo": "bar"].queryString(), "?foo=bar")
@@ -19,5 +19,5 @@ class MiscTests: XCTestCase {
         XCTAssertEqual([String: String]().queryString(), "")
         XCTAssertEqual([String: String]().queryString(includeSeparator: false), "")
     }
-
+    
 }

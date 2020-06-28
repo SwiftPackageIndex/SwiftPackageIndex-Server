@@ -3,22 +3,22 @@ import Vapor
 
 
 extension API {
-
+    
     struct PackageController {
         func index(req: Request) throws -> EventLoopFuture<[Package]> {
             return Package.query(on: req.db).all()
         }
-
+        
         func create(req: Request) throws -> EventLoopFuture<Package> {
             let pkg = try req.content.decode(Package.self)
             return pkg.save(on: req.db).map { pkg }
         }
-
+        
         func get(req: Request) throws -> EventLoopFuture<Package> {
             return Package.find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
         }
-
+        
         func replace(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             let pkg = try req.content.decode(Package.self)
             return Package.find(req.parameters.get("id"), on: req.db)
@@ -26,14 +26,14 @@ extension API {
                 .flatMap { _ in pkg.save(on: req.db) }
                 .transform(to: .ok)
         }
-
+        
         func delete(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             return Package.find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
                 .flatMap { $0.delete(on: req.db) }
                 .transform(to: .ok)
         }
-
+        
         func trigger(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             guard
                 let owner = req.parameters.get("owner"),
@@ -61,7 +61,7 @@ extension API {
                         }
                 }
         }
-
+        
         func run(req: Request) throws -> EventLoopFuture<Command.Response> {
             let cmd = req.parameters.get("command")
                 .flatMap(Command.init(rawValue:))
@@ -96,7 +96,7 @@ extension API.PackageController {
         case reconcile
         case ingest
         case analyze
-
+        
         struct Response: Content {
             var status: String
             var rows: Int

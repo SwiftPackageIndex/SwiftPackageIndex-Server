@@ -4,7 +4,7 @@ import XCTVapor
 
 
 class HomeIndexModelTests: AppTestCase {
-
+    
     func test_query() throws {
         // setup
         let pkgId = UUID()
@@ -19,10 +19,10 @@ class HomeIndexModelTests: AppTestCase {
                         commitDate: Date(timeIntervalSince1970: 0)).save(on: app.db).wait()
         try RecentPackage.refresh(on: app.db).wait()
         try RecentRelease.refresh(on: app.db).wait()
-
+        
         // MUT
         let m = try HomeIndex.Model.query(database: app.db).wait()
-
+        
         // validate
         let createdAt = try XCTUnwrap(pkg.createdAt)
         XCTAssertEqual(m.recentPackages, [
@@ -38,5 +38,5 @@ class HomeIndexModelTests: AppTestCase {
                   url: "/foo/1"),
         ])
     }
-
+    
 }

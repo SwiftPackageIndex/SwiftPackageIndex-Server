@@ -4,7 +4,7 @@ import XCTest
 
 
 class ViewUtilsTests: XCTestCase {
-
+    
     func test_pluralizedCount() throws {
         XCTAssertEqual(pluralizedCount(0, singular: "executable"), "no executables")
         XCTAssertEqual(pluralizedCount(1, singular: "executable"), "1 executable")
@@ -13,7 +13,7 @@ class ViewUtilsTests: XCTestCase {
         XCTAssertEqual(pluralizedCount(1, singular: "library", plural: "libraries"), "1 library")
         XCTAssertEqual(pluralizedCount(2, singular: "library", plural: "libraries"), "2 libraries")
     }
-
+    
     func test_pluralised() throws {
         XCTAssertEqual("version".pluralized(for: 0), "versions")
         XCTAssertEqual("version".pluralized(for: 1), "version")

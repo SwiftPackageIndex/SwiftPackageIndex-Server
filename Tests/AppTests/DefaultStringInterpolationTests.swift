@@ -5,7 +5,7 @@ import XCTest
 
 
 class DefaultStringInterpolationTests: XCTestCase {
-
+    
     func test_inWords_timeDifference() throws {
         let m = 60
         let H = 60*m
@@ -33,7 +33,7 @@ class DefaultStringInterpolationTests: XCTestCase {
             XCTAssertEqual("\(inWords: TimeInterval(delta))", exp, "delta was: \(delta)")
         }
     }
-
+    
     func test_relativeDate_interpolation() throws {
         let now = Date()
         XCTAssertEqual("\(date: now.addingTimeInterval(5), relativeTo: now)", "in less than a minute")

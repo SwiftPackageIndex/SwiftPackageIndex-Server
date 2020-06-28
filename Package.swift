@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "SPI-Server",
     platforms: [
-       .macOS(.v10_15)
+        .macOS(.v10_15)
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.

@@ -7,13 +7,13 @@ struct CreateRepository: Migration {
             .id()
             .field("created_at", .datetime)
             .field("updated_at", .datetime)
-
+            
             // reference fields
             .field("forked_from_id", .uuid,
                    .references("repositories", "id")).unique(on: "forked_from_id")
             .field("package_id", .uuid,
                    .references("packages", "id", onDelete: .cascade)).unique(on: "package_id")
-
+            
             // data fields
             .field("authors", .array(of: .json), .sql(.default("{}")))
             .field("commit_count", .int)
@@ -30,10 +30,10 @@ struct CreateRepository: Migration {
             .field("owner", .string)
             .field("stars", .int)
             .field("summary", .string)
-
+            
             .create()
     }
-
+    
     func revert(on database: Database) -> EventLoopFuture<Void> {
         return database.schema("repositories").delete()
     }

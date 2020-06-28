@@ -8,7 +8,7 @@ struct RSSFeed {
     var description: String
     var link: String
     var items: [Node<RSS.ChannelContext>]
-
+    
     var rss: RSS {
         RSS(
             .title(title),
@@ -22,7 +22,7 @@ struct RSSFeed {
             .group(items)
         )
     }
-
+    
 }
 
 
@@ -35,10 +35,10 @@ extension RSSFeed {
                 RSSFeed(title: "Swift Package Index – Recently Added",
                         description: "List of recently added Swift packages",
                         link: SiteURL.rssPackages.absoluteURL(),
-                    items: $0)
-        }
+                        items: $0)
+            }
     }
-
+    
     static func recentReleases(on database: Database,
                                limit: Int = Constants.rssFeedMaxItemCount,
                                filter: RecentRelease.Filter = .all) -> EventLoopFuture<Self> {
@@ -48,8 +48,8 @@ extension RSSFeed {
                 RSSFeed(title: "Swift Package Index – Recent Releases",
                         description: "List of recent Swift packages releases",
                         link: SiteURL.rssReleases.absoluteURL(),
-                    items: $0)
-        }
+                        items: $0)
+            }
     }
 }
 

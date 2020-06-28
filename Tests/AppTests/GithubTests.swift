@@ -19,7 +19,7 @@ class GithubTests: AppTestCase {
             ]))
         }
     }
-
+    
     func test_Github_apiUri() throws {
         do {
             let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server.git")
@@ -50,7 +50,7 @@ class GithubTests: AppTestCase {
                            "https://api.github.com/repos/foo/bar/issues?direction=desc&sort=updated")
         }
     }
-
+    
     func test_fetchResource_repo() throws {
         // setup
         let pkg = Package(url: "https://github.com/finestructure/Gala")
@@ -60,10 +60,10 @@ class GithubTests: AppTestCase {
             resp.body = makeBody(data)
         }
         let uri = try Github.apiUri(for: pkg, resource: .repo)
-
+        
         // MUT
         let res = try Github.fetchResource(Github.Repo.self, client: client, uri: uri).wait()
-
+        
         // validate
         XCTAssertEqual(res, Github.Repo(defaultBranch: "main",
                                         description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
@@ -75,7 +75,7 @@ class GithubTests: AppTestCase {
                                         parent: nil,
                                         stargazersCount: 44))
     }
-
+    
     func test_fetchResource_pulls() throws {
         // setup
         let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server")
@@ -85,19 +85,19 @@ class GithubTests: AppTestCase {
             resp.body = makeBody(data)
         }
         let uri = try Github.apiUri(for: pkg, resource: .pulls, query: ["state": "open",
-                                                                         "sort": "updated",
-                                                                         "direction": "desc"])
-
+                                                                        "sort": "updated",
+                                                                        "direction": "desc"])
+        
         // MUT
         let res = try Github.fetchResource([Github.Pull].self, client: client, uri: uri).wait()
-
+        
         // validate
         XCTAssertEqual(res.count, 1)
         let first = try XCTUnwrap(res.first)
         XCTAssertEqual(first,
                        .init(url: "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server/pulls/182"))
     }
-
+    
     func test_fetchResource_issues() throws {
         // setup
         let pkg = Package(url: "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server")
@@ -109,10 +109,10 @@ class GithubTests: AppTestCase {
         let uri = try Github.apiUri(for: pkg, resource: .issues, query: ["state": "closed",
                                                                          "sort": "closed",
                                                                          "direction": "desc"])
-
+        
         // MUT
         let res = try Github.fetchResource([Github.Issue].self, client: client, uri: uri).wait()
-
+        
         // validate
         XCTAssertEqual(res.count, 30)
         let first = try XCTUnwrap(res.first)
@@ -124,7 +124,7 @@ class GithubTests: AppTestCase {
                        .init(closedAt: Date(rfc1123: "Sun, 24 May 2020 09:38:26 GMT"),
                              pullRequest: .init(url: "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server/pulls/134")))
     }
-
+    
     func test_fetchMetadata() throws {
         let pkg = Package(url: "https://github.com/finestructure/Gala")
         let client = MockClient { req, resp in
@@ -144,10 +144,10 @@ class GithubTests: AppTestCase {
                 resp.body = makeBody(data)
             }
         }
-
+        
         // MUT
         let md = try Github.fetchMetadata(client: client, package: pkg).wait()
-
+        
         // validate repo
         XCTAssertEqual(md.repo, Github.Repo(defaultBranch: "main",
                                             description: "Gala is a Swift Package Manager project for macOS, iOS, tvOS, and watchOS to help you create SwiftUI preview variants.",
@@ -161,14 +161,14 @@ class GithubTests: AppTestCase {
         // validate issues
         // don't validate issues in detail - it's the same as test_fetchResource_issues above
         XCTAssertEqual(md.issues.count, 30)
-
+        
         // validate PRs
         XCTAssertEqual(md.openPullRequests.count, 1)
         let firstPR = try XCTUnwrap(md.openPullRequests.first)
         XCTAssertEqual(firstPR,
                        .init(url: "https://api.github.com/repos/SwiftPackageIndex/SwiftPackageIndex-Server/pulls/182"))
     }
-
+    
     func test_fetchMetadata_badUrl() throws {
         let pkg = Package(url: "https://foo/bar")
         let client = MockClient { _, resp in
@@ -181,7 +181,7 @@ class GithubTests: AppTestCase {
             }
         }
     }
-
+    
     func test_fetchMetadata_badData() throws {
         let pkg = Package(url: "https://github.com/foo/bar")
         let client = MockClient { _, resp in
@@ -195,7 +195,7 @@ class GithubTests: AppTestCase {
             }
         }
     }
-
+    
     func test_fetchMetadata_rateLimiting_429() throws {
         // Github doesn't actually send a 429 when you hit the rate limit
         let pkg = Package(url: "https://github.com/foo/bar")
@@ -209,7 +209,7 @@ class GithubTests: AppTestCase {
             }
         }
     }
-
+    
     func test_isRateLimited() throws {
         do {
             let res = ClientResponse(status: .forbidden,
@@ -237,7 +237,7 @@ class GithubTests: AppTestCase {
             XCTAssertFalse(Github.isRateLimited(res))
         }
     }
-
+    
     func test_fetchMetadata_rateLimiting_403() throws {
         // Github sends a 403 and a rate limit remaining header
         //   X-RateLimit-Limit: 60
@@ -256,7 +256,7 @@ class GithubTests: AppTestCase {
             reportedError = error
             return .just(value: ())
         }
-
+        
         // MUT
         XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
             // validation

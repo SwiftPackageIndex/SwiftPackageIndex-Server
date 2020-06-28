@@ -5,10 +5,10 @@ version: '3.7'
 
 
 x-shared: &shared
-  environment:
+    environment:
     # set these variables via the environment or a `.env` file, which
-    # docker-compose reads and uses to populate variables
-    BUILDER_TOKEN: ${BUILDER_TOKEN}
+        # docker-compose reads and uses to populate variables
+        BUILDER_TOKEN: ${BUILDER_TOKEN}
     CHECKOUTS_DIR: ${CHECKOUTS_DIR}
     DATABASE_HOST: ${DATABASE_HOST}
     DATABASE_PORT: ${DATABASE_PORT}
@@ -20,104 +20,104 @@ x-shared: &shared
     LOG_LEVEL: ${LOG_LEVEL}
     ROLLBAR_TOKEN: ${ROLLBAR_TOKEN}
     SITE_URL: ${SITE_URL}
-  volumes:
+    volumes:
     - checkouts:/checkouts
 
 
 services:
-  app:
+    app:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     depends_on:
-      - migrate
+        - migrate
     ports:
-      - '80:80'
+        - '80:80'
     command: ["serve", "--env", "${ENV}", "--hostname", "0.0.0.0", "--port", "80"]
     restart: always
-
-  reconcile:
+    
+    reconcile:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     depends_on:
-      - migrate
+        - migrate
     entrypoint: ["/bin/bash"]
     command: ["-c", "--",
-      "trap : TERM INT; while true; do ./Run reconcile --env ${ENV}; sleep ${RECONCILE_SLEEP:-120}; done"
+        "trap : TERM INT; while true; do ./Run reconcile --env ${ENV}; sleep ${RECONCILE_SLEEP:-120}; done"
     ]
     restart: always
-
-  ingest:
+    
+    ingest:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     depends_on:
-      - migrate
+        - migrate
     entrypoint: ["/bin/bash"]
     command: ["-c", "--",
-      "trap : TERM INT; while true; do ./Run ingest --env ${ENV} --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-300}; done"
+        "trap : TERM INT; while true; do ./Run ingest --env ${ENV} --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-300}; done"
     ]
     restart: always
-
-  analyze:
+    
+    analyze:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     depends_on:
-      - migrate
+        - migrate
     entrypoint: ["/bin/bash"]
     command: ["-c", "--",
-      "trap : TERM INT; while true; do ./Run analyze --env ${ENV} --limit ${ANALYZE_LIMIT:-25}; sleep ${ANALYZE_SLEEP:-20}; done"
+        "trap : TERM INT; while true; do ./Run analyze --env ${ENV} --limit ${ANALYZE_LIMIT:-25}; sleep ${ANALYZE_SLEEP:-20}; done"
     ]
     restart: always
-
-  migrate:
+    
+    migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     depends_on:
-      - db
+        - db
     command: ["migrate", "--yes"]
     deploy:
-      replicas: 0
-
-  db:
+        replicas: 0
+    
+    db:
     image: postgres:12.1-alpine
     volumes:
-      - db_data:/var/lib/postgresql/data/pgdata
+        - db_data:/var/lib/postgresql/data/pgdata
     environment:
-      PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_USER: ${DATABASE_USERNAME}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
+        PGDATA: /var/lib/postgresql/data/pgdata
+        POSTGRES_USER: ${DATABASE_USERNAME}
+        POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+        POSTGRES_DB: ${DATABASE_NAME}
     restart: always
-
-  sshd:
+    
+    sshd:
     image: registry.gitlab.com/finestructure/spi-sshd:0.0.1
     entrypoint: ["/bin/bash"]
     command: ["-c", "--", "echo '${authorized_keys}' > /root/.ssh/authorized_keys && chmod 0400 /root/.ssh/authorized_keys && ssh-start ssh-server"]
     ports:
-      - "2222:22"
+        - "2222:22"
     restart: always
-
-  grafana:
+    
+    grafana:
     image: grafana/grafana:7.0.0
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_USERS_ALLOW_SIGN_UP: 'false'
+        GF_SECURITY_ADMIN_PASSWORD: admin
+        GF_USERS_ALLOW_SIGN_UP: 'false'
     volumes:
-      - grafana_data:/var/lib/grafana
+        - grafana_data:/var/lib/grafana
     restart: always
-
-  loki:
+    
+    loki:
     image: grafana/loki:1.5.0
     command: -config.file=/etc/loki/local-config.yaml
     restart: always
-
-  promtail:
+    
+    promtail:
     image: finestructure/spi-promtail:1.5.0
     volumes:
-      - /var/lib/docker/containers:/var/log
+        - /var/lib/docker/containers:/var/log
     command: -config.file=/promtail.yaml
     restart: always
 
 volumes:
-  db_data:
-  checkouts:
-  grafana_data:
+    db_data:
+    checkouts:
+    grafana_data:

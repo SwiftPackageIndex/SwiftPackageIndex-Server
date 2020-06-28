@@ -4,7 +4,7 @@ import XCTVapor
 
 
 class SearchTests: AppTestCase {
-
+    
     func test_DBRecord_packageURL() throws {
         XCTAssertEqual(Search.DBRecord(packageId: UUID(),
                                        repositoryName: "bar",
@@ -15,7 +15,7 @@ class SearchTests: AppTestCase {
                                        repositoryOwner: "baz").packageURL,
                        "/baz/foo%20bar")
     }
-
+    
     func test_run_single() throws {
         // Test search with a single term
         // setup
@@ -30,10 +30,10 @@ class SearchTests: AppTestCase {
         try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
         try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         let res = try Search.run(app.db, ["bar"]).wait()
-
+        
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
@@ -44,10 +44,10 @@ class SearchTests: AppTestCase {
                                       repositoryName: "name 2",
                                       repositoryOwner: "owner 2",
                                       summary: "bar package")
-                       ])
+                             ])
         )
     }
-
+    
     func test_run_multiple() throws {
         // Test search with multiple terms ("and")
         // setup
@@ -66,10 +66,10 @@ class SearchTests: AppTestCase {
         try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
         try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         let res = try Search.run(app.db, ["owner", "bar"]).wait()
-
+        
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
@@ -80,10 +80,10 @@ class SearchTests: AppTestCase {
                                       repositoryName: "package 2",
                                       repositoryOwner: "owner",
                                       summary: "package 2 description")
-                       ])
+                             ])
         )
     }
-
+    
     func test_quoting() throws {
         // Test searching for a `'`
         // setup
@@ -101,10 +101,10 @@ class SearchTests: AppTestCase {
         try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
         try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         let res = try Search.run(app.db, ["'"]).wait()
-
+        
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
@@ -115,11 +115,11 @@ class SearchTests: AppTestCase {
                                       repositoryName: "name 1",
                                       repositoryOwner: "owner 1",
                                       summary: "some 'package'")
-                       ])
+                             ])
         )
     }
-
-
+    
+    
     func test_search_limit() throws {
         // setup
         let packages = (0..<25).map { Package(url: "\($0)".url) }
@@ -132,15 +132,15 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         let res = try API.search(database: app.db, query: "foo").wait()
-
+        
         // validate
         XCTAssertTrue(res.hasMoreResults)
         XCTAssertEqual(res.results.count, 20)
     }
-
+    
     func test_search_limit_leeway() throws {
         // Tests leeway: we only start cutting off if we have 25 or more results
         // setup
@@ -154,15 +154,15 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         let res = try API.search(database: app.db, query: "foo").wait()
-
+        
         // validate
         XCTAssertFalse(res.hasMoreResults)
         XCTAssertEqual(res.results.count, 21)
     }
-
+    
     func test_order_by_score() throws {
         // setup
         try (0..<10).shuffled().forEach {
@@ -173,15 +173,15 @@ class SearchTests: AppTestCase {
             try Version(package: p, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
         }
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         let res = try Search.run(app.db, ["foo"]).wait()
-
+        
         // validation
         XCTAssertEqual(res.results.count, 10)
         XCTAssertEqual(res.results.map(\.summary), ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"])
     }
-
+    
     func test_exact_name_match() throws {
         // Ensure exact name matches are boosted
         // setup
@@ -215,13 +215,13 @@ class SearchTests: AppTestCase {
         try Version(package: p3, reference: .branch("main"), packageName: "some name")
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         let res = try Search.run(app.db, ["ink"]).wait()
-
+        
         XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
     }
-
+    
     func test_exact_name_match_whitespace() throws {
         // Ensure exact name matches are boosted, for package name with whitespace
         // setup
@@ -255,13 +255,13 @@ class SearchTests: AppTestCase {
         try Version(package: p3, reference: .branch("main"), packageName: "some name")
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         let res = try Search.run(app.db, ["foo", "bar"]).wait()
-
+        
         XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
     }
-
+    
     func test_exclude_null_fields() throws {
         // Ensure excluding results with NULL fields
         // setup
@@ -293,11 +293,11 @@ class SearchTests: AppTestCase {
         try Version(package: p3, reference: .branch("main"), packageName: "foo3")
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         let res = try Search.run(app.db, ["foo"]).wait()
-
+        
         XCTAssertEqual(res.results, [])
     }
-
+    
 }

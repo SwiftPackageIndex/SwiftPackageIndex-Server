@@ -2,10 +2,10 @@ import Plot
 
 
 extension PublicPage {
-
+    
     static func admin() -> HTML {
         let title = "Swift Package Index"
-
+        
         return HTML(
             adminHead(title: title),
             .body(
@@ -17,7 +17,7 @@ extension PublicPage {
             )
         )
     }
-
+    
     static func adminHead(title: String) -> Node<HTML.DocumentContext> {
         .head(
             .meta(.charset(.utf8)),
@@ -35,7 +35,7 @@ extension PublicPage {
             .title(title)
         )
     }
-
+    
 }
 
 func reconcileButton() -> Node<HTML.BodyContext> {

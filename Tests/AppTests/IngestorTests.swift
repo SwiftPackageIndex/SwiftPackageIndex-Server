@@ -15,10 +15,10 @@ class IngestorTests: AppTestCase {
         Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         let lastUpdate = Date()
-
+        
         // MUT
         try ingest(application: app, database: app.db, limit: 10).wait()
-
+        
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.map(\.$package.id), packages.map(\.id))
@@ -39,24 +39,24 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual($0.processingStage, .ingestion)
         }
     }
-
+    
     func test_fetchMetadata() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "1" {
-               return .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
+                return .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
             }
             return .just(value: .mock(for: pkg))
         }
-
+        
         // MUT
         let res = try fetchMetadata(client: app.client, packages: packages).wait()
-
+        
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
     }
-
+    
     func test_insertOrUpdateRepository() throws {
         let pkg = try savePackage(on: app.db, "foo")
         do {  // test insert
@@ -72,35 +72,35 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])
         }
     }
-
+    
     func test_updateRepositories() throws {
         // setup
         let pkg = try savePackage(on: app.db, "2")
         let metadata: [Result<(Package, Github.Metadata), Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
             .success((pkg, .init(
-                issues: [
-                    .init(closedAt: Date(timeIntervalSince1970: 0), pullRequest: nil),
-                    .init(closedAt: Date(timeIntervalSince1970: 1), pullRequest: .init(url: "1")),
-                    .init(closedAt: Date(timeIntervalSince1970: 2), pullRequest: nil),
-                ],
-                openPullRequests: [
-                    .init(url: "2"),
-                    .init(url: "3"),
-                ],
-                repo: .init(defaultBranch: "main",
-                            description: "package desc",
-                            forksCount: 1,
-                            license: .init(key: "mit"),
-                            name: "bar",
-                            openIssues: 3,
-                            owner: .init(login: "foo"),
-                            stargazersCount: 2))))
+                        issues: [
+                            .init(closedAt: Date(timeIntervalSince1970: 0), pullRequest: nil),
+                            .init(closedAt: Date(timeIntervalSince1970: 1), pullRequest: .init(url: "1")),
+                            .init(closedAt: Date(timeIntervalSince1970: 2), pullRequest: nil),
+                        ],
+                        openPullRequests: [
+                            .init(url: "2"),
+                            .init(url: "3"),
+                        ],
+                        repo: .init(defaultBranch: "main",
+                                    description: "package desc",
+                                    forksCount: 1,
+                                    license: .init(key: "mit"),
+                                    name: "bar",
+                                    openIssues: 3,
+                                    owner: .init(login: "foo"),
+                                    stargazersCount: 2))))
         ]
-
+        
         // MUT
         let res = try updateRespositories(on: app.db, metadata: metadata).wait()
-
+        
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
         let repo = try XCTUnwrap(
@@ -120,7 +120,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.stars, 2)
         XCTAssertEqual(repo.summary, "package desc")
     }
-
+    
     func test_updatePackage() throws {
         // setup
         let pkgs = try savePackages(on: app.db, ["1", "2"])
@@ -128,10 +128,10 @@ class IngestorTests: AppTestCase {
             .failure(AppError.metadataRequestFailed(try pkgs[0].requireID(), .badRequest, "1")),
             .success(pkgs[1])
         ]
-
+        
         // MUT
         try updatePackage(application: app, results: results, stage: .ingestion).wait()
-
+        
         // validate
         do {
             let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
@@ -139,20 +139,20 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(pkgs.map(\.processingStage), [.ingestion, .ingestion])
         }
     }
-
+    
     func test_updatePackages_new() throws {
         // Ensure newly ingested packages are passed on with status = new to fast-track
         // them into analysis
         let pkgs = [
             Package(id: UUID(), url: "1", status: .ok, processingStage: .reconciliation),
             Package(id: UUID(), url: "2", status: .new, processingStage: .reconciliation)
-            ]
+        ]
         try pkgs.save(on: app.db).wait()
         let results: [Result<Package, Error>] = [ .success(pkgs[0]), .success(pkgs[1])]
-
+        
         // MUT
         try updatePackage(application: app, results: results, stage: .ingestion).wait()
-
+        
         // validate
         do {
             let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
@@ -160,22 +160,22 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(pkgs.map(\.processingStage), [.ingestion, .ingestion])
         }
     }
-
+    
     func test_partial_save_issue() throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
         Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         let packages = try savePackages(on: app.db, testUrls, processingStage: .reconciliation)
-
+        
         // MUT
         try ingest(application: app, database: app.db, limit: testUrls.count).wait()
-
+        
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.count, testUrls.count)
         XCTAssertEqual(repos.map(\.$package.id), packages.map(\.id))
     }
-
+    
     func test_insertOrUpdateRepository_bulk() throws {
         // test flattening of many updates
         // Mainly a debug test for the issue described here:
@@ -185,15 +185,15 @@ class IngestorTests: AppTestCase {
             .map { ($0, Github.Metadata.mock(for: $0)) }
             .map { insertOrUpdateRepository(on: self.app.db, for: $0.0, metadata: $0.1) }
             .flatten(on: app.db.eventLoop)
-
+        
         try req.wait()
-
+        
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.count, testUrls100.count)
         XCTAssertEqual(repos.map(\.$package.id.uuidString).sorted(),
                        packages.map(\.id).compactMap { $0?.uuidString }.sorted())
     }
-
+    
     func test_ingest_badMetadata() throws {
         // setup
         let urls = ["1", "2", "3"]
@@ -205,10 +205,10 @@ class IngestorTests: AppTestCase {
             return .just(value: .mock(for: pkg))
         }
         let lastUpdate = Date()
-
+        
         // MUT
         try ingest(application: app, database: app.db, limit: 10).wait()
-
+        
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.count, 2)
@@ -223,7 +223,7 @@ class IngestorTests: AppTestCase {
             XCTAssert($0.updatedAt! > lastUpdate)
         }
     }
-
+    
     func test_ingest_unique_owner_name_violation() throws {
         // Test error behaviour when two packages resolving to the same owner/name are ingested:
         //   - don't update package
@@ -235,15 +235,15 @@ class IngestorTests: AppTestCase {
         // Return identical metadata for both packages, same as a for instance a redirected
         // package would after a rename / ownership change
         Current.fetchMetadata = { _, _ in .just(value: Github.Metadata(
-                issues: [],
-                openPullRequests: [],
-                repo: .init(defaultBranch: "main",
-                            description: "desc",
-                            forksCount: 0,
-                            name: "package name",
-                            openIssues: 0,
-                            owner: .some(.init(login: "owner")),
-                            stargazersCount: 0)))
+                                                    issues: [],
+                                                    openPullRequests: [],
+                                                    repo: .init(defaultBranch: "main",
+                                                                description: "desc",
+                                                                forksCount: 0,
+                                                                name: "package name",
+                                                                openIssues: 0,
+                                                                owner: .some(.init(login: "owner")),
+                                                                stargazersCount: 0)))
         }
         var reportedLevel: AppError.Level? = nil
         var reportedError: String? = nil
@@ -254,14 +254,14 @@ class IngestorTests: AppTestCase {
             return .just(value: ())
         }
         let lastUpdate = Date()
-
+        
         // MUT
         try ingest(application: app, database: app.db, limit: 10).wait()
-
+        
         // validate repositories (single element pointing to first package)
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.map(\.$package.id), [packages[0].id].compactMap{ $0 })
-
+        
         // validate packages
         let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
         // the first package gets the update ...
@@ -276,8 +276,8 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(reportedLevel, .critical)
         XCTAssert(reportedError?.contains("duplicate key value violates unique constraint") ?? false)
     }
-
-
+    
+    
 }
 
 

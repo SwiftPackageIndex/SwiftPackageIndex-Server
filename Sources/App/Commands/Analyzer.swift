@@ -5,16 +5,16 @@ import ShellOut
 
 struct AnalyzerCommand: Command {
     let defaultLimit = 1
-
+    
     struct Signature: CommandSignature {
         @Option(name: "limit", short: "l")
         var limit: Int?
         @Option(name: "id")
         var id: String?
     }
-
+    
     var help: String { "Run package analysis (fetching git repository and inspecting content)" }
-
+    
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
         let id = signature.id.flatMap(UUID.init(uuidString:))
@@ -63,11 +63,11 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
                                        AppError.genericError(nil, msg))
         }
     }
-
+    
     let checkouts = packages
         .flatMap { pullOrClone(application: application, packages: $0) }
         .flatMap { updateRepositories(application: application, checkouts: $0) }
-
+    
     let versionUpdates = checkouts.flatMap { checkouts in
         application.db.transaction { tx -> EventLoopFuture<[Result<Package, Error>]> in
             let versions = reconcileVersions(client: application.client,
@@ -80,17 +80,17 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
                 .flatMap { updateVersionsAndProducts(on: tx, results: $0) }
         }
     }
-
+    
     let statusOps = versionUpdates.flatMap { updatePackage(application: application,
                                                            results: $0,
                                                            stage: .analysis) }
-
+    
     let materializedViewRefresh = statusOps
         .flatMap { RecentPackage.refresh(on: application.db) }
         .flatMap { RecentRelease.refresh(on: application.db) }
         .flatMap { Search.refresh(on: application.db) }
         .flatMap { Stats.refresh(on: application.db) }
-
+    
     return materializedViewRefresh
 }
 
@@ -157,7 +157,7 @@ func updateRepository(package: Package) -> Result<Package, Error> {
     guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package) else {
         return .failure(AppError.invalidPackageCachePath(package.id, package.url))
     }
-
+    
     return Result {
         repo.commitCount = try Git.commitCount(at: gitDirectory)
         repo.firstCommitDate = try Git.firstCommitDate(at: gitDirectory)
@@ -195,21 +195,17 @@ func reconcileVersions(client: Client,
                        transaction: Database,
                        package: Package) -> EventLoopFuture<[Version]> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return transaction.eventLoop.future(error:
-            AppError.invalidPackageCachePath(package.id, package.url)
-        )
+        return transaction.eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
     guard let pkgId = package.id else {
-        return transaction.eventLoop.future(error:
-            AppError.genericError(nil, "PANIC: package id nil for package \(package.url)")
-        )
+        return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.url)"))
     }
-
+    
     let defaultBranch = Repository.defaultBranch(on: transaction, for: package)
         .map { b -> [Reference] in
             if let b = b { return [.branch(b)] } else { return [] }  // drop nil default branch
         }
-
+    
     let tags: EventLoopFuture<[Reference]> = threadPool.runIfActive(eventLoop: transaction.eventLoop) {
         logger.info("listing tags for package \(package.url)")
         return try Git.tag(at: cacheDir)
@@ -220,7 +216,7 @@ func reconcileVersions(client: Client,
         return Current.reportError(client, .error, appError)
             .transform(to: [])
     }
-
+    
     let references = defaultBranch.and(tags).map { $0 + $1 }
     let incoming: EventLoopFuture<[Version]> = references
         .flatMapEachThrowing { ref in
@@ -229,7 +225,7 @@ func reconcileVersions(client: Client,
                                reference: ref,
                                commit: revInfo.commit,
                                commitDate: revInfo.date) }
-
+    
     return Version.query(on: transaction)
         .filter(\.$package.$id == pkgId)
         .all()
@@ -239,7 +235,7 @@ func reconcileVersions(client: Client,
             let delete = delta.toDelete.delete(on: transaction)
             let insert = delta.toAdd.create(on: transaction).transform(to: delta.toAdd)
             return delete.flatMap { insert }
-    }
+        }
 }
 
 
@@ -295,7 +291,7 @@ func updateVersionsAndProducts(on database: Database,
                 return EventLoopFuture
                     .andAllComplete(updates, on: database.eventLoop)
                     .transform(to: pkg)
-
+                
             case let .failure(error):
                 return database.eventLoop.future(error: error)
         }

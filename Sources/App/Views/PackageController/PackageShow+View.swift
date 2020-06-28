@@ -2,28 +2,28 @@ import Vapor
 import Plot
 
 enum PackageShow {
-
+    
     class View: PublicPage {
-
+        
         let model: Model
-
+        
         init(path: String, model: Model) {
             self.model = model
             super.init(path: path)
         }
-
+        
         override func pageTitle() -> String? {
             model.title
         }
-
+        
         override func pageDescription() -> String? {
             "\(model.title) on the Swift Package Index – \(model.summary)"
         }
-
+        
         override func bodyClass() -> String? {
             "package"
         }
-
+        
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .div(
@@ -94,7 +94,7 @@ enum PackageShow {
                 )
             )
         }
-
+        
         func licenseLozenge() -> Node<HTML.BodyContext> {
             switch model.license.licenseKind {
                 case .compatibleWithAppStore:
@@ -117,7 +117,7 @@ enum PackageShow {
                     )
             }
         }
-
+        
     }
 }
 

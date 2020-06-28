@@ -4,44 +4,44 @@ import Vapor
 
 final class Package: Model, Content {
     static let schema = "packages"
-
+    
     typealias Id = UUID
-
+    
     // managed fields
-
+    
     @ID(key: .id)
     var id: Id?
-
+    
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
-
+    
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
-
+    
     // data fields
-
+    
     @OptionalEnum(key: "processing_stage")
     var processingStage: ProcessingStage?
-
+    
     @Field(key: "score")
     var score: Int?
-
+    
     @Enum(key: "status")
     var status: Status
-
+    
     @Field(key: "url")
     var url: String
     
     // relationships
-
+    
     @Children(for: \.$package)
     var repositories: [Repository]
-
+    
     @Children(for: \.$package)
     var versions: [Version]
-
+    
     init() { }
-
+    
     init(id: UUID? = nil,
          url: URL,
          score: Int? = nil,
@@ -70,7 +70,7 @@ extension Package {
         case noValidVersions = "no_valid_versions"
         case shellCommandFailed = "shell_command_failed"
     }
-
+    
     enum ProcessingStage: String, Codable {
         case reconciliation
         case ingestion
@@ -136,7 +136,7 @@ private extension QueryBuilder where Model == Package {
             case .ingestion:
                 return group(.or) {
                     $0.filter(\.$processingStage == .reconciliation)
-                    .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reIngestionDeadtime))
+                        .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reIngestionDeadtime))
                 }
             case .analysis:
                 return filter(\.$processingStage == .ingestion)

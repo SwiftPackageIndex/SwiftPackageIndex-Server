@@ -2,23 +2,23 @@ import Plot
 
 
 enum HomeIndex {
-
+    
     class View: PublicPage {
-
+        
         let model: Model
-
+        
         init(path: String, model: Model) {
             self.model = model
             super.init(path: path)
         }
-
+        
         override func pageDescription() -> String? {
             """
             The Swift Package Index is the place to find the best Swift packages. \
             \(model.statsDescription() ?? "")
             """
         }
-
+        
         override func noScript() -> Node<HTML.BodyContext> {
             .noscript(
                 .i(
@@ -27,7 +27,7 @@ enum HomeIndex {
                 .p("The search function of this site requires JavaScript.")
             )
         }
-
+        
         override func preMain() -> Node<HTML.BodyContext> {
             .section(
                 .class("search"),
@@ -52,7 +52,7 @@ enum HomeIndex {
                 )
             )
         }
-
+        
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .class("recent"),
@@ -68,7 +68,7 @@ enum HomeIndex {
                 )
             )
         }
-
+        
         override func navItems() -> [Node<HTML.ListContext>] {
             // The default navigation menu, without search.
             [
@@ -86,7 +86,7 @@ enum HomeIndex {
                 )
             ]
         }
-
+        
     }
-
+    
 }

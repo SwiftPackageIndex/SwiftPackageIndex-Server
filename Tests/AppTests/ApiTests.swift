@@ -4,7 +4,7 @@ import XCTVapor
 
 
 class ApiTests: AppTestCase {
-
+    
     func test_version() throws {
         try app.test(.GET, "api/version") { res in
             XCTAssertEqual(res.status, .ok)
@@ -12,7 +12,7 @@ class ApiTests: AppTestCase {
                            API.Version(version: "dev - will be overriden in release builds"))
         }
     }
-
+    
     func test_search_noQuery() throws {
         try app.test(.GET, "api/search") { res in
             XCTAssertEqual(res.status, .ok)
@@ -20,7 +20,7 @@ class ApiTests: AppTestCase {
                            .init(hasMoreResults: false, results: []))
         }
     }
-
+    
     func test_search_basic_param() throws {
         // setup
         let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
@@ -40,7 +40,7 @@ class ApiTests: AppTestCase {
         try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
         try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         try app.test(.GET, "api/search?query=foo%20bar") { res in
             // validation
@@ -55,11 +55,11 @@ class ApiTests: AppTestCase {
                               repositoryName: "name 2",
                               repositoryOwner: "owner 2",
                               summary: "foo bar package"),
-                ])
+                      ])
             )
         }
     }
-
+    
     func test_post_build() throws {
         // setup
         Current.builderToken = { "secr3t" }
@@ -67,7 +67,7 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-
+        
         do {  // MUT - initial insert
             let dto: Build.PostCreateDTO = .init(platform: .macos("10.15"),
                                                  status: .failed,
@@ -116,7 +116,7 @@ class ApiTests: AppTestCase {
             }
         }
     }
-
+    
     func test_post_build_unauthenticated() throws {
         // Ensure unauthenticated access raises a 401
         // setup
@@ -129,30 +129,30 @@ class ApiTests: AppTestCase {
                                              status: .ok,
                                              swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-
+        
         // MUT - no auth header
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
             headers: .init([("Content-Type", "application/json")]),
             body: body) { res in
-                // validation
-                XCTAssertEqual(res.status, .unauthorized)
-                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+            // validation
+            XCTAssertEqual(res.status, .unauthorized)
+            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
         }
-
+        
         // MUT - wrong token
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
             headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer wrong")]),
             body: body) { res in
-                // validation
-                XCTAssertEqual(res.status, .unauthorized)
-                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+            // validation
+            XCTAssertEqual(res.status, .unauthorized)
+            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
         }
     }
-
+    
     func test_post_build_unauthenticated_without_server_token() throws {
         // Ensure we don't allow API requests when no token is configured server-side
         // setup
@@ -165,27 +165,27 @@ class ApiTests: AppTestCase {
                                              status: .ok,
                                              swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-
+        
         // MUT - no auth header
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
             headers: .init([("Content-Type", "application/json")]),
             body: body) { res in
-                // validation
-                XCTAssertEqual(res.status, .unauthorized)
-                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+            // validation
+            XCTAssertEqual(res.status, .unauthorized)
+            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
         }
-
+        
         // MUT - with auth header
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
             headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer token")]),
             body: body) { res in
-                // validation
-                XCTAssertEqual(res.status, .unauthorized)
-                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+            // validation
+            XCTAssertEqual(res.status, .unauthorized)
+            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
         }
     }
     
@@ -200,7 +200,7 @@ class ApiTests: AppTestCase {
         let versionId = try XCTUnwrap(v.id)
         let dto: Build.PostTriggerDTO = .init(platform: .macos("10.15"), swiftVersion: .init(5, 2, 4))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-
+        
         // we're testing the exact Gitlab trigger post request in detail in
         // GitlabBuilderTests - so here we just ensure a request is being made
         var requestSent = false
@@ -230,25 +230,25 @@ class ApiTests: AppTestCase {
         let versionId = try XCTUnwrap(v.id)
         let dto: Build.PostTriggerDTO = .init(platform: .macos("10.15"), swiftVersion: .init(5, 2, 4))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-
+        
         // MUT - no auth header
         try app.test(
             .POST,
             "api/versions/\(versionId)/trigger-build",
             headers: .init([("Content-Type", "application/json")]),
             body: body) { res in
-                // validation
-                XCTAssertEqual(res.status, .unauthorized)
+            // validation
+            XCTAssertEqual(res.status, .unauthorized)
         }
-
+        
         // MUT - wrong token
         try app.test(
             .POST,
             "api/versions/\(versionId)/trigger-build",
             headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer wrong")]),
             body: body) { res in
-                // validation
-                XCTAssertEqual(res.status, .unauthorized)
+            // validation
+            XCTAssertEqual(res.status, .unauthorized)
         }
     }
     
@@ -278,7 +278,7 @@ class ApiTests: AppTestCase {
         app.clients.use( { _ in MockClient { req, _ in
             requestsSent += 1
         }})
-
+        
         // MUT
         try app.test(
             .POST,
@@ -309,7 +309,7 @@ class ApiTests: AppTestCase {
         app.clients.use( { _ in MockClient { req, _ in
             requestsSent += 1
         }})
-
+        
         // MUT - no auth header
         try app.test(
             .POST,

@@ -6,12 +6,12 @@ import XCTVapor
 
 
 class SitemapTests: AppTestCase {
-
+    
     override func setUpWithError() throws {
         try super.setUpWithError()
         SnapshotTesting.record = false
     }
-
+    
     func test_fetchPackages() throws {
         // Test fetching all record in the search view
         // setup
@@ -25,10 +25,10 @@ class SitemapTests: AppTestCase {
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         let res = try SiteMap.fetchPackages(app.db).wait()
-
+        
         // validation
         XCTAssertEqual(res, [
             .init(owner: "foo", repository: "0"),
@@ -36,8 +36,8 @@ class SitemapTests: AppTestCase {
             .init(owner: "foo", repository: "2"),
         ])
     }
-
-
+    
+    
     func test_render() throws {
         // setup
         Current.siteURL = { "https://indexsite.com" }
@@ -46,14 +46,14 @@ class SitemapTests: AppTestCase {
             .init(owner: "foo2", repository: "bar2"),
             .init(owner: "foo3", repository: "bar3"),
         ]
-
+        
         // MUT
         let xml = SiteURL.siteMap(with: packages).render(indentedBy: .spaces(2))
-
+        
         // MUT + validation
         assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
     }
-
+    
     func test_sitemap_route() throws {
         // setup
         Current.siteURL = { "https://indexsite.com" }
@@ -67,7 +67,7 @@ class SitemapTests: AppTestCase {
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
-
+        
         // MUT
         try app.test(.GET, "sitemap.xml") { res in
             XCTAssertEqual(res.status, .ok)
@@ -77,5 +77,5 @@ class SitemapTests: AppTestCase {
             assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
         }
     }
-
+    
 }

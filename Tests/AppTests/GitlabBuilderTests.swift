@@ -4,7 +4,7 @@ import XCTest
 
 
 class GitlabBuilderTests: XCTestCase {
-
+    
     func test_post_trigger() throws {
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }

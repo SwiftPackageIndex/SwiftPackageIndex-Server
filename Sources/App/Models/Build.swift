@@ -5,41 +5,41 @@ import Vapor
 
 final class Build: Model, Content {
     static let schema = "builds"
-
+    
     typealias Id = UUID
-
+    
     // managed fields
-
+    
     @ID(key: .id)
     var id: Id?
-
+    
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
-
+    
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
-
+    
     // reference fields
-
+    
     @Parent(key: "version_id")
     var version: Version
-
+    
     // data fields
-
+    
     @Field(key: "logs")
     var logs: String?
-
+    
     @Field(key: "platform")
     var platform: Platform
-
+    
     @Field(key: "status")
     var status: Build.Status
-
+    
     @Field(key: "swift_version")
     var swiftVersion: SwiftVersion
-
+    
     init() { }
-
+    
     init(id: Id? = nil,
          version: Version,
          logs: String? = nil,
@@ -53,7 +53,7 @@ final class Build: Model, Content {
         self.status = status
         self.swiftVersion = swiftVersion
     }
-
+    
     init(_ dto: PostCreateDTO, _ version: Version) throws {
         self.logs = dto.logs
         self.platform = dto.platform
@@ -70,7 +70,7 @@ extension Build {
         case ok
         case failed
     }
-
+    
     struct Platform: Codable, Equatable {
         enum Name: String, Codable, Equatable, CaseIterable {
             case ios
@@ -78,12 +78,12 @@ extension Build {
             case macos
             case tvos
             case watchos
-
+            
             case unknown
         }
         var name: Name
         var version: String
-
+        
         static func ios(_ version: String) -> Self { .init(name: .ios, version: version) }
         static func linux(_ version: String) -> Self { .init(name: .linux, version: version) }
         static func macos(_ version: String) -> Self { .init(name: .macos, version: version) }
@@ -98,7 +98,7 @@ extension Build {
         var platform: Platform
         var swiftVersion: SwiftVersion
     }
-
+    
     struct PostCreateDTO: Codable {
         var logs: String?
         var platform: Platform
@@ -132,7 +132,7 @@ extension Build {
                 .map { $0.status }
         }
     }
-
+    
 }
 
 

@@ -4,7 +4,7 @@ import XCTVapor
 
 
 class PackageShowModelTests: AppTestCase {
-
+    
     func test_init_no_title() throws {
         // Tests behaviour when we're lacking data
         // setup package without package name
@@ -25,7 +25,7 @@ class PackageShowModelTests: AppTestCase {
                     type: .library, name: "lib 1").save(on: app.db).wait()
         // reload via query to ensure relationships are loaded
         pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
-
+        
         // MUT
         let m = PackageShow.Model(package: pkg)
         
@@ -57,21 +57,21 @@ class PackageShowModelTests: AppTestCase {
             .wait()
         // reload via query to ensure relationships are loaded
         pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
-
+        
         // MUT
         let m = PackageShow.Model(package: pkg)
-
+        
         // validate
         XCTAssertNotNil(m?.buildInfo?.latest)
     }
-
+    
     func test_lpInfoGroups_by_swiftVersions() throws {
         // Test grouping by swift versions
         let lnk = Link(label: "1", url: "1")
         let v1 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
         let v2 = Version(link: lnk, swiftVersions: ["2"], platforms: [.macos("10")])
         let v3 = Version(link: lnk, swiftVersions: ["3"], platforms: [.macos("10")])
-
+        
         XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
                        [[\.stable], [\.beta], [\.latest]])
         XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v2)),
@@ -83,14 +83,14 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v1)),
                        [[\.stable, \.beta, \.latest]])
     }
-
+    
     func test_lpInfoGroups_by_platforms() throws {
         // Test grouping by platforms
         let lnk = Link(label: "1", url: "1")
         let v1 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
         let v2 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("11")])
         let v3 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("12")])
-
+        
         XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
                        [[\.stable], [\.beta], [\.latest]])
         XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v2)),
@@ -102,7 +102,7 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v1)),
                        [[\.stable, \.beta, \.latest]])
     }
-
+    
     func test_lpInfoGroups_ignores_link() throws {
         // Test to ensure the link isn't part of the grouping
         let l1 = Link(label: "1", url: "1")
@@ -111,11 +111,11 @@ class PackageShowModelTests: AppTestCase {
         let v1 = Version(link: l1, swiftVersions: ["1"], platforms: [.macos("10")])
         let v2 = Version(link: l2, swiftVersions: ["1"], platforms: [.macos("10")])
         let v3 = Version(link: l3, swiftVersions: ["1"], platforms: [.macos("10")])
-
+        
         XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
                        [[\.stable, \.beta, \.latest]])
     }
-
+    
     func test_lpInfoSection_nil() throws {
         // Test to ensure lpInfoSection returns nil when there are no swift versions or platforms
         // setup
@@ -124,15 +124,15 @@ class PackageShowModelTests: AppTestCase {
             beta: nil,
             latest: .init(link: .init(label: "2", url: "2"), swiftVersions: [], platforms: [])
         )
-
+        
         // MUT
         let res = PackageShow.Model.lpInfoSection(keypaths: [\.stable, \.latest],
                                                   languagePlatforms: lpInfo)
-
+        
         // validate
         XCTAssertNil(res)
     }
-
+    
     // Test output of some activity variants without firing up a full snapshot test:
     func test_activity_variants__missing_open_issue() throws {
         var model = PackageShow.Model.mock
@@ -140,14 +140,14 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertEqual(model.activityClause()?.render(),
                        "There are <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
     }
-
+    
     func test_activity_variants__missing_open_PRs() throws {
         var model = PackageShow.Model.mock
         model.activity?.openPullRequests = nil
         XCTAssertEqual(model.activityClause()?.render(),
                        "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
     }
-
+    
     func test_activity_variants__missing_open_issues_and_PRs() throws {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
@@ -155,21 +155,21 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertEqual(model.activityClause()?.render(),
                        "The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
     }
-
+    
     func test_activity_variants__missing_last_closed_issue() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastIssueClosedAt = nil
         XCTAssertEqual(model.activityClause()?.render(),
                        "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last pull request was merged/closed 6 days ago.")
     }
-
+    
     func test_activity_variants__missing_last_closed_PR() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastPullRequestClosedAt = nil
         XCTAssertEqual(model.activityClause()?.render(),
                        "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last issue was closed 5 days ago.")
     }
-
+    
     func test_activity_variants__missing_last_closed_issue_and_PR() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastIssueClosedAt = nil
@@ -177,7 +177,7 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertEqual(model.activityClause()?.render(),
                        "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. ")
     }
-
+    
     func test_activity_variants__missing_everything() throws {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
@@ -186,7 +186,7 @@ class PackageShowModelTests: AppTestCase {
         model.activity?.lastPullRequestClosedAt = nil
         XCTAssertEqual(model.activityClause()?.render(), nil)
     }
-
+    
     func test_stars_formatting() throws {
         var model = PackageShow.Model.mock
         model.stars = 999
@@ -231,7 +231,7 @@ class PackageShowModelTests: AppTestCase {
                 .init(references: [.init(name: "main", kind: .branch)], results: result3),
             ])
         }
-
+        
         do {  // stable and latest share the same result and should be grouped
             let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3",
                                                            results: result1),

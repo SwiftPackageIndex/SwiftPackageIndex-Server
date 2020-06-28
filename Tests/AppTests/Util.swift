@@ -33,7 +33,7 @@ func _resetDb(_ app: Application) throws {
     guard let db = app.db as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
-
+    
     guard let tables = _tables else {
         struct Row: Decodable { var table_name: String }
         _tables = try db.raw("""
@@ -50,7 +50,7 @@ func _resetDb(_ app: Application) throws {
         if _tables != nil { try _resetDb(app) }
         return
     }
-
+    
     for table in tables {
         try db.raw("TRUNCATE TABLE \(table) CASCADE").run().wait()
     }
@@ -100,21 +100,21 @@ func fetch(id: Package.Id?, on db: Database, file: StaticString = #file, line: U
 
 class MockClient: Client {
     var updateResponse: (ClientRequest, inout ClientResponse) -> Void
-
+    
     func send(_ request: ClientRequest) -> EventLoopFuture<ClientResponse> {
         var response = ClientResponse()
         updateResponse(request, &response)
         return eventLoop.makeSucceededFuture(response)
     }
-
+    
     var eventLoop: EventLoop {
         return EmbeddedEventLoop()
     }
-
+    
     func delegating(to eventLoop: EventLoop) -> Client {
         self
     }
-
+    
     init(_ updateResponse: @escaping (ClientRequest, inout ClientResponse) -> Void) {
         self.updateResponse = updateResponse
     }

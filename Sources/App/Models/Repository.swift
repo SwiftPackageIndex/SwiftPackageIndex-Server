@@ -4,79 +4,79 @@ import Vapor
 
 final class Repository: Model, Content {
     static let schema = "repositories"
-
+    
     typealias Id = UUID
-
+    
     // managed fields
-
+    
     @ID(key: .id)
     var id: Id?
-
+    
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
-
+    
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
-
+    
     // reference fields
-
+    
     @OptionalParent(key: "forked_from_id")  // TODO: remove or implement
     var forkedFrom: Repository?
-
+    
     @Parent(key: "package_id")
     var package: Package
-
+    
     // data fields
-
+    
     @Field(key: "authors")
     var authors: [Author]
-
+    
     @Field(key: "commit_count")
     var commitCount: Int?
-
+    
     @Field(key: "default_branch")
     var defaultBranch: String?
-
+    
     @Field(key: "first_commit_date")
     var firstCommitDate: Date?
-
+    
     @Field(key: "forks")
     var forks: Int?
-
+    
     @Field(key: "last_commit_date")
     var lastCommitDate: Date?
     
     @Field(key: "last_issue_closed_at")
     var lastIssueClosedAt: Date?
-
+    
     @Field(key: "last_pull_request_closed_at")
     var lastPullRequestClosedAt: Date?
-
+    
     @Field(key: "license")
     var license: License
-
+    
     @Field(key: "name")
     var name: String?
-
+    
     @Field(key: "open_issues")
     var openIssues: Int?
-
+    
     @Field(key: "open_pull_requests")
     var openPullRequests: Int?
-
+    
     @Field(key: "owner")
     var owner: String?
-
+    
     @Field(key: "stars")
     var stars: Int?
-
+    
     @Field(key: "summary")
     var summary: String?
-
+    
     // initializers
-
+    
     init() { }
-
+    
     init(id: Id? = nil,
          package: Package,
          authors: [Author] = [],
@@ -116,7 +116,7 @@ final class Repository: Model, Content {
             self.$forkedFrom.id = forkId
         }
     }
-
+    
     init(packageId: Package.Id) {
         self.$package.id = packageId
     }

@@ -6,7 +6,7 @@ import Vapor
 // https://github.com/brokenhandsio/leaf-error-middleware
 
 public final class ErrorMiddleware: Middleware {
-
+    
     public func respond(to req: Request, chainingTo next: Responder) -> EventLoopFuture<Response> {
         next.respond(to: req)
             .flatMapError { error in
@@ -15,9 +15,9 @@ public final class ErrorMiddleware: Middleware {
                 } else {
                     return self.handleError(for: req, error: Abort(.internalServerError))
                 }
-        }
+            }
     }
-
+    
     private func handleError(for req: Request, error: AbortError) -> EventLoopFuture<Response> {
         let alert = error.status.code >= 500
             ? Current.reportError(req.client, .critical, error)

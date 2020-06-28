@@ -5,7 +5,7 @@ import Vapor
 
 enum Search {
     static let schema = "search"
-
+    
     // identifiers
     static let id = SQLIdentifier("id")
     static let packageName = SQLIdentifier("package_name")
@@ -14,12 +14,12 @@ enum Search {
     static let summary = SQLIdentifier("summary")
     static let score = SQLIdentifier("score")
     static let searchView = SQLIdentifier("search")
-
+    
     struct Result: Content, Equatable {
         var hasMoreResults: Bool
         var results: [Search.Record]
     }
-
+    
     struct Record: Content, Equatable {
         var packageId: Package.Id
         var packageName: String?
@@ -28,14 +28,14 @@ enum Search {
         var repositoryOwner: String?
         var summary: String?
     }
-
+    
     struct DBRecord: Content, Equatable {
         var packageId: Package.Id
         var packageName: String?
         var repositoryName: String?
         var repositoryOwner: String?
         var summary: String?
-
+        
         enum CodingKeys: String, CodingKey {
             case packageId = "id"
             case packageName = "package_name"
@@ -43,15 +43,15 @@ enum Search {
             case repositoryOwner = "owner"
             case summary
         }
-
+        
         var packageURL: String? {
             guard
                 let owner = repositoryOwner,
                 let name = repositoryName
-                else { return nil }
+            else { return nil }
             return SiteURL.package(.value(owner), .value(name)).relativeURL()
         }
-
+        
         var asRecord: Record {
             .init(packageId: packageId,
                   packageName: packageName,
@@ -61,23 +61,23 @@ enum Search {
                   summary: summary)
         }
     }
-
+    
     private static func query(_ db: SQLDatabase, _ terms: [String]) -> EventLoopFuture<[DBRecord]> {
         let maxSearchTerms = 20  // just to impose some sort of limit
-
+        
         // binds
         let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
         let binds = terms[..<min(terms.count, maxSearchTerms)].map(SQLBind.init)
-
+        
         // constants
         let empty = SQLLiteral.string("")
         let space = SQLLiteral.string(" ")
         let contains = SQLRaw("~*")
-
+        
         let haystack = concat(
             packageName, space, coalesce(summary, empty), space, repoName, space, repoOwner
         )
-
+        
         let preamble = db
             .select()
             .column(id)
@@ -86,7 +86,7 @@ enum Search {
             .column(repoOwner)
             .column(summary)
             .from(searchView)
-
+        
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(packageName))
             .where(isNotNull(repoOwner))
@@ -96,7 +96,7 @@ enum Search {
             .limit(Constants.searchLimit + Constants.searchLimitLeeway)
             .all(decoding: DBRecord.self)
     }
-
+    
     static func run(_ database: Database, _ terms: [String]) -> EventLoopFuture<Search.Result> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
@@ -110,9 +110,9 @@ enum Search {
                 let cutOff = hasMoreResults ? Constants.searchLimit : results.count
                 return Search.Result(hasMoreResults: hasMoreResults,
                                      results: Array(results[..<cutOff]))
-        }
+            }
     }
-
+    
     static func refresh(on database: Database) -> EventLoopFuture<Void> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")

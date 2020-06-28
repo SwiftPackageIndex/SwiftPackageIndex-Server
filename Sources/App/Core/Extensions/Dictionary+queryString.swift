@@ -8,7 +8,7 @@ extension Dictionary where Key == String, Value == String {
                 let value = self[key]!
                 let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
                 return "\(encodedKey)=\(encodedValue)"
-        }.joined(separator: "&")
+            }.joined(separator: "&")
         return includeSeparator ? "?" + query : query
     }
 }

@@ -5,7 +5,7 @@ import XCTest
 
 
 class ManifestTests: XCTestCase {
-
+    
     func test_decode_Product_Type() throws {
         do { // exe
             let json = """
@@ -36,27 +36,27 @@ class ManifestTests: XCTestCase {
             XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data), .init(type: .library))
         }
     }
-
+    
     func test_decode_name() throws {
         let data = try loadData(for: "manifest-1.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
         XCTAssertEqual(m.name, "SPI-Server")
     }
-
+    
     func test_decode_swiftLanguageVersions() throws {
         let data = try loadData(for: "PromiseKit.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
         XCTAssertEqual(m.name, "PromiseKit")
         XCTAssertEqual(m.swiftLanguageVersions, ["4", "4.2", "5"])
     }
-
+    
     func test_decode_products_basic() throws {
         let data = try loadData(for: "PromiseKit.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
         XCTAssertEqual(m.products, [.init(name: "PromiseKit",
                                           type: .library)])
     }
-
+    
     func test_decode_products_complex() throws {
         let data = try loadData(for: "SwiftNIO.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
@@ -83,7 +83,7 @@ class ManifestTests: XCTestCase {
             .init(name: "NIOTestUtils", type: .library),
         ])
     }
-
+    
     func test_platform_list() throws {
         // Test to ensure the platforms listed in the DTO struct Manifest.Platform.Name
         // do not accidentally diverge from those in the db entity's Platform.Name
