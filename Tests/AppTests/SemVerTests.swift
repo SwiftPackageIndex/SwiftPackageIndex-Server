@@ -152,4 +152,5 @@ class SemVerTests: XCTestCase {
         XCTAssertTrue(SemVer(0, 1, 1).isPatchRelease)
         XCTAssertFalse(SemVer(0, 0, 0).isPatchRelease)
     }
+
 }

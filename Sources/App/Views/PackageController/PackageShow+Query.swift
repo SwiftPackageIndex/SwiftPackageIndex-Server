@@ -206,6 +206,7 @@ extension Package {
 
 // MARK: - Build info
 
+
 extension Package {
     
     func buildInfo() -> PackageShow.Model.BuildInfo? {
@@ -224,11 +225,11 @@ extension Package {
         // sort latest to oldest ...
         let sortedBuilds = builds.sorted { $0.swiftVersion > $1.swiftVersion }
         // ... for each reported swift version pick the most recent major/minor version match
-        let v4_2 = sortedBuilds.first { $0.swiftVersion.major == 4 && $0.swiftVersion.minor == 2 }
-        let v5_0 = sortedBuilds.first { $0.swiftVersion.major == 5 && $0.swiftVersion.minor == 0 }
-        let v5_1 = sortedBuilds.first { $0.swiftVersion.major == 5 && $0.swiftVersion.minor == 1 }
-        let v5_2 = sortedBuilds.first { $0.swiftVersion.major == 5 && $0.swiftVersion.minor == 2 }
-        let v5_3 = sortedBuilds.first { $0.swiftVersion.major == 5 && $0.swiftVersion.minor == 3 }
+        let v4_2 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v4_2) }
+        let v5_0 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_0) }
+        let v5_1 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_1) }
+        let v5_2 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_2) }
+        let v5_3 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_3) }
         // ... and report the status
         return
             .init(referenceName: referenceName,
@@ -254,4 +255,12 @@ private extension Optional where Wrapped == Build {
                 return .unknown
         }
     }
+}
+
+
+private extension SwiftVersion {
+    func isCompatible(with other: PackageShow.Model.SwiftVersion) -> Bool {
+        major == other.semVer.major && minor == other.semVer.minor
+    }
+
 }

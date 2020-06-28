@@ -46,6 +46,13 @@ extension SwiftVersion: Comparable {
 }
 
 
+extension SwiftVersion {
+    func isCompatible(with other: SwiftVersion) -> Bool {
+        major == other.major && minor == other.minor
+    }
+}
+
+
 let swiftVerRegex = NSRegularExpression(#"""
 ^
 v?                              # SPI extension: allow leading 'v'
