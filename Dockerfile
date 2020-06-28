@@ -16,9 +16,9 @@ COPY . .
 
 # Compile with optimizations
 RUN swift build \
---enable-test-discovery \
--c release \
--Xswiftc -g
+    --enable-test-discovery \
+    -c release \
+    -Xswiftc -g
 
 # ================================
 # Run image
