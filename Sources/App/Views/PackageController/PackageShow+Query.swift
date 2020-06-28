@@ -6,11 +6,12 @@ import Vapor
 extension PackageShow.Model {
 
     static func query(database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        #warning("FIXME:")
-        //            .with(\.$versions) { $0.with(\.$builds) }
         let res = Package.query(on: database)
             .with(\.$repositories)
-            .with(\.$versions) { $0.with(\.$products) }
+            .with(\.$versions) {
+                $0.with(\.$products)
+                $0.with(\.$builds)
+            }
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
             // TODO: make less verbose once fixed in Fluent:
             // https://github.com/vapor/fluent-kit/issues/310

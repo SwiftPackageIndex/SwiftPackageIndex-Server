@@ -76,6 +76,36 @@ class PackageShowModelTests: AppTestCase {
             XCTAssertEqual(error?.identifier, "404")
         }
     }
+    
+    func test_query_builds() throws {
+        // Ensure the builds relationship is loaded
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try Repository(package: pkg,
+                       summary: "summary",
+                       defaultBranch: "main",
+                       license: .mit,
+                       name: "bar",
+                       owner: "foo",
+                       stars: 17,
+                       forks: 42).save(on: app.db).wait()
+        let version = try App.Version(package: pkg,
+                                      reference: .branch("main"),
+                                      packageName: "test package")
+        try version.save(on: app.db).wait()
+        try Build(version: version,
+                  platform: .macos("10.15"),
+                  status: .ok,
+                  swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+
+        // MUT
+        let m = try PackageShow.Model.query(database: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertNotNil(m.buildInfo?.latest)
+    }
 
     func test_lpInfoGroups_by_swiftVersions() throws {
         // Test grouping by swift versions
