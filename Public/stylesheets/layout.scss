@@ -1,0 +1,53 @@
+/* -------------------------------------------------------------------------
+  Site layout, containers, and generic section configuration.
+---------------------------------------------------------------------------- */
+
+.inner {
+  margin: 0 auto;
+  padding: 20px 10px;
+  max-width: 800px;
+}
+
+.split {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media screen and (max-width: 767px) {
+  .split {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+section {
+  margin: 35px 0;
+}
+
+section li {
+  margin: 10px 0;
+}
+
+section li p {
+  margin: 10px 0;
+}
+
+nav ul {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+nav ul li {
+  margin: 0 5px;
+  list-style: none;
+}
+
+nav ul li a {
+  padding: 3px;
+  font-size: 15px;
+  font-weight: 600;
+}

@@ -1,0 +1,87 @@
+/* -------------------------------------------------------------------------
+  Site header and footer.
+---------------------------------------------------------------------------- */
+
+/* Common */
+
+header,
+footer {
+  color: var(--header-text);
+  background-color: var(--header-background);
+}
+
+header .inner,
+footer .inner {
+  display: flex;
+  flex-direction: row;
+}
+
+@media screen and (max-width: 767px) {
+  header .inner,
+  footer .inner {
+    flex-direction: column;
+  }
+}
+
+header a,
+footer a {
+  color: var(--header-link-text);
+}
+
+header a:hover,
+footer a:hover {
+  color: var(--header-link-highlight);
+}
+
+/* Header specific */
+
+header .inner {
+  justify-content: space-between;
+  align-items: center;
+}
+
+header nav a {
+  border-bottom: 1px var(--header-link-text) solid;
+}
+
+header nav a:hover {
+  border-color: var(--header-link-highlight);
+}
+
+header h1 {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+@media screen and (max-width: 767px) {
+  header h1 {
+    margin-bottom: 20px;
+  }
+}
+
+header h1 img {
+  margin-right: 10px;
+  max-width: 64px;
+}
+
+/* Footer specific */
+
+footer {
+  text-align: center;
+}
+
+footer .inner {
+  justify-content: center;
+}
+
+footer ul {
+  margin: 10px;
+}
+
+@media screen and (max-width: 767px) {
+  footer .inner nav ul {
+    flex-direction: column;
+    align-items: center;
+  }
+}

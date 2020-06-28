@@ -1,0 +1,110 @@
+/* -------------------------------------------------------------------------
+  Basic element styles, generic across the whole page.
+---------------------------------------------------------------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color: var(--page-text);
+  background-color: var(--page-background);
+  font-family: "Open Sans", -apple-system, "BlinkMacSystemFont", "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+h1 {
+  margin: 0;
+  padding: 0;
+  font-size: 23px;
+  line-height: 1.2;
+}
+
+h2 {
+  margin: 0;
+  padding: 0;
+  font-size: 35px;
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+h3 {
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+h4 {
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+a {
+  color: var(--link-text);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-highlight);
+}
+
+strong {
+  font-weight: 600;
+}
+
+small {
+  font-size: 11px;
+}
+
+pre {
+  border: 1px var(--code-snippet-border) solid;
+  background-color: var(--code-snippet-background);
+  color: var(--code-snippet-text);
+  font-size: 14px;
+  border-radius: 4px;
+  padding: 15px;
+  overflow: scroll;
+}
+
+hr {
+  margin: 40px 0;
+  border: 0;
+  height: 2px;
+  background-color: var(--rule-background);
+}
+
+hr.short {
+  max-width: 40%;
+  height: 1px;
+}
+
+noscript {
+  display: block;
+  padding: 20px 0;
+  background-color: var(--error-background);
+  color: var(--error-text);
+  text-align: center;
+}
+
+noscript i {
+  font-size: 30px;
+}
+
+::placeholder {
+  color: var(--input-placeholder);
+}
+
+button {
+  padding: 2px 4px;
+  margin: 0 5px;
+  border: 1px var(--button-border) solid;
+  background-color: var(--button-background);
+  color: var(--button-text);
+  border-radius: 3px;
+  font-weight: 600;
+  font-size: 9px;
+}
+
+button:focus {
+  outline: none;
+}

@@ -1,0 +1,151 @@
+/* -------------------------------------------------------------------------
+  Color variables for both light and dark mode.
+---------------------------------------------------------------------------- */
+
+/* Light mode base colors */
+
+:root {
+  --very-dark-blue: #111930;
+  --dark-blue: #232339;
+  --mid-blue: #356FCE;
+  --light-blue: #BEDEFF;
+  --very-light-blue: #E6F2FF;
+
+  --dark-green: #027353;
+  --mid-green: #038C33;
+  --light-green: #68BB13;
+
+  --yellow: #F2B94F;
+  --orange: #F58E36;
+  --mid-red: #CC4444;
+  --light-red: #FFEEEE;
+
+  --black: #1D1D1D;
+  --very-dark-grey: #2F2F2F;
+  --dark-grey: #3E3E3E;
+  --grey: #9A9A9A;
+  --light-grey: #DADADA;
+  --very-light-grey: #F1F1F1;
+  --white: #FFFFFF;
+}
+
+/* Dark mode base color overrides */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --black: #070710;
+    --very-dark-grey: #191923;
+
+    --mid-blue: #55B7FF;
+    --orange: #EC8329;
+    --mid-red: #FF4343;
+    --dark-red: #250201;
+    --yellow: #FFB834;
+
+    --mid-green: #0EBF4C;
+    --light-green: #96FF4C;
+    --dark-green: #0C946E;
+  }
+}
+
+/* Light mode semantic colors */
+
+:root {
+  --page-background: var(--white);
+  --page-text: var(--black);
+  --link-text: var(--mid-blue);
+  --link-highlight: var(--mid-red);
+
+  --header-background: var(--very-dark-blue);
+  --header-text: var(--white);
+  --header-link-text: var(--white);
+  --header-link-highlight: var(--yellow);
+  --header-gradient-start: rgba(255, 255, 255, 0.2);
+  --header-gradient-end: rgba(255, 255, 255, 0.05);
+
+  --input-background: var(--white);
+  --input-text: var(--black);
+  --input-placeholder: var(--light-grey);
+
+  --results-background: var(--white);
+  --results-selected-background: var(--very-light-blue);
+  --results-separator: var(--light-grey);
+  --results-shadow: rgba(100, 100, 100, 0.2);
+
+  --button-background: var(--very-light-blue);
+  --button-text: var(--mid-blue);
+  --button-border: var(--light-blue);
+
+  --rule-background: var(--light-blue);
+
+  --license-text: var(--white);
+  --license-none-background: var(--mid-red);
+  --license-compatible-background: var(--light-green);
+  --license-incompatible-background: var(--orange);
+
+  --stable-text: var(--light-green);
+  --beta-text: var(--mid-green);
+  --branch-text: var(--dark-green);
+
+  --build-status-success-text: var(--white);
+  --build-status-success-background: var(--light-green);
+  --build-status-unknown-text: var(--light-grey);
+  --build-status-unknown-background: var(--very-light-grey);
+  --build-status-failed-text: var(--grey);
+  --build-status-failed-background: var(--light-grey);
+
+  --icon-text: var(--dark-grey);
+
+  --error-background: var(--light-red);
+  --error-text: var(--mid-red);
+
+  --code-snippet-background: var(--very-light-grey);
+  --code-snippet-text: var(--black);
+  --code-snippet-border: var(--grey);
+}
+
+/* Dark mode semantic color overrides */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-background: var(--black);
+    --page-text: var(--white);
+
+    --header-background: var(--very-dark-blue);
+    --header-gradient-start: rgba(255, 255, 255, 0.08);
+    --header-gradient-end: rgba(255, 255, 255, 0.03);
+
+    --input-background: var(--very-dark-grey);
+    --input-text: var(--white);
+    --input-placeholder: var(--grey);
+
+    --results-background: var(--very-dark-grey);
+    --results-selected-background: var(--dark-blue);
+    --results-separator: var(--very-dark-grey);
+    --results-shadow: rgba(20, 20, 60, 0.3);
+
+    --button-background: var(--dark-blue);
+    --button-text: var(--mid-blue);
+    --button-border: var(--mid-blue);
+
+    --rule-background: var(--dark-blue);
+
+    --license-compatible-background: var(--mid-green);
+
+    --build-status-success-text: var(--white);
+    --build-status-success-background: var(--mid-green);
+    --build-status-unknown-text: var(--dark-grey);
+    --build-status-unknown-background: var(--very-dark-grey);
+    --build-status-failed-text: var(--very-dark-grey);
+    --build-status-failed-background: var(--dark-grey);
+
+    --icon-text: var(--light-grey);
+
+    --error-background: var(--dark-red);
+    --error-text: var(--mid-red);
+
+    --code-snippet-background: var(--very-dark-grey);
+    --code-snippet-text: var(--white);
+    --code-snippet-border: var(--grey);
+  }
+}
