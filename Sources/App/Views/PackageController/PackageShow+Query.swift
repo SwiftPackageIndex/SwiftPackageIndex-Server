@@ -8,7 +8,10 @@ extension PackageShow.Model {
     static func query(database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
         let res = Package.query(on: database)
             .with(\.$repositories)
-            .with(\.$versions) { $0.with(\.$products) }
+            .with(\.$versions) {
+                $0.with(\.$products)
+                $0.with(\.$builds)
+            }
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
             // TODO: make less verbose once fixed in Fluent:
             // https://github.com/vapor/fluent-kit/issues/310
@@ -31,6 +34,7 @@ extension PackageShow.Model {
                 return Self.init(
                     activity: p.activity(),
                     authors: p.authors(),
+                    buildInfo: p.buildInfo(),
                     history: p.history(),
                     languagePlatforms: p.languagePlatformInfo(),
                     license: p.repository?.license ?? .none,
@@ -197,4 +201,66 @@ extension Package {
         f.numberStyle = .decimal
         return f
     }()
+}
+
+
+// MARK: - Build info
+
+
+extension Package {
+    
+    func buildInfo() -> PackageShow.Model.BuildInfo? {
+        // 1) get three relevant version:
+        let (stable, beta, latest) = releases()
+        
+        // 2) collect build info for swift versions per package version
+        return .init(stable: stable.flatMap(Package.buildResults),
+                     beta: beta.flatMap(Package.buildResults),
+                     latest: latest.flatMap(Package.buildResults))
+    }
+    
+    static func buildResults(_ version: Version) -> PackageShow.Model.NamedBuildResults? {
+        guard let builds = version.$builds.value,
+              let referenceName = version.reference?.description else { return nil }
+        // sort latest to oldest ...
+        let sortedBuilds = builds.sorted { $0.swiftVersion > $1.swiftVersion }
+        // ... for each reported swift version pick the most recent major/minor version match
+        let v4_2 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v4_2) }
+        let v5_0 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_0) }
+        let v5_1 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_1) }
+        let v5_2 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_2) }
+        let v5_3 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_3) }
+        // ... and report the status
+        return
+            .init(referenceName: referenceName,
+                  results: .init(status4_2: v4_2.buildStatus,
+                                 status5_0: v5_0.buildStatus,
+                                 status5_1: v5_1.buildStatus,
+                                 status5_2: v5_2.buildStatus,
+                                 status5_3: v5_3.buildStatus)
+            )
+    }
+    
+}
+
+
+private extension Optional where Wrapped == Build {
+    var buildStatus: PackageShow.Model.BuildStatus {
+        switch map(\.status) {
+            case .ok:
+                return .success
+            case .failed:
+                return .failed
+            case .none:
+                return .unknown
+        }
+    }
+}
+
+
+private extension SwiftVersion {
+    func isCompatible(with other: PackageShow.Model.SwiftVersion) -> Bool {
+        major == other.semVer.major && minor == other.semVer.minor
+    }
+
 }

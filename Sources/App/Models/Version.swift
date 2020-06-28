@@ -49,6 +49,9 @@ final class Version: Model, Content {
     // relationships
     
     @Children(for: \.$version)
+    var builds: [Build]
+    
+    @Children(for: \.$version)
     var products: [Product]
 
     init() { }

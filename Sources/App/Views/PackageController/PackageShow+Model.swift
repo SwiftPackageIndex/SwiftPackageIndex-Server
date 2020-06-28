@@ -1,11 +1,13 @@
 import Foundation
 import Plot
+import Vapor
 
 
 extension PackageShow {
     struct Model: Equatable {
         var activity: Activity?
         var authors: [Link]?
+        var buildInfo: BuildInfo?
         var history: History?
         var languagePlatforms: LanguagePlatformInfo
         var license: License
@@ -16,43 +18,6 @@ extension PackageShow {
         var title: String
         var url: String
         var score: Int?
-
-        struct History: Equatable {
-            var since: String
-            var commitCount: Link
-            var releaseCount: Link
-        }
-
-        struct Activity: Equatable {
-            var openIssuesCount: Int
-            var openIssues: Link?
-            var openPullRequests: Link?
-            var lastIssueClosedAt: String?
-            var lastPullRequestClosedAt: String?
-        }
-
-        struct ProductCounts: Equatable {
-            var libraries: Int
-            var executables: Int
-        }
-
-        struct ReleaseInfo: Equatable {
-            var stable: DatedLink?
-            var beta: DatedLink?
-            var latest: DatedLink?
-        }
-
-        struct Version: Equatable {
-            var link: Link
-            var swiftVersions: [String]
-            var platforms: [Platform]
-        }
-
-        struct LanguagePlatformInfo: Equatable {
-            var stable: Version?
-            var beta: Version?
-            var latest: Version?
-        }
     }
 }
 
@@ -278,7 +243,75 @@ extension PackageShow.Model {
             .map { Node<HTML.BodyContext>.strong(.text($0)) }
         return Self.listPhrase(opening: "", nodes: nodes, closing: ".")
     }
+    
+    typealias BuildInfoKeyPath = KeyPath<BuildInfo, NamedBuildResults?>
+    
+    static func groupBuildInfo(_ buildInfo: BuildInfo) -> [BuildStatusRow] {
+        let allKeyPaths: [BuildInfoKeyPath] = [\.stable, \.beta, \.latest]
+        var availableKeyPaths = allKeyPaths
+        let groups = allKeyPaths.map { kp -> [BuildInfoKeyPath] in
+            guard let r = buildInfo[keyPath: kp] else { return [] }
+            let group = availableKeyPaths.filter { buildInfo[keyPath: $0]?.results == r.results }
+            availableKeyPaths.removeAll(where: { group.contains($0) })
+            return group
+        }
+        let rows = groups.compactMap { keyPaths -> BuildStatusRow? in
+            guard let first = keyPaths.first,
+                  let results = buildInfo[keyPath: first]?.results else { return nil }
+            let references = keyPaths.compactMap { kp -> Reference? in
+                guard let name = buildInfo[keyPath: kp]?.referenceName else { return nil }
+                switch kp {
+                    case \.stable:
+                        return .init(name: name, kind: .stable)
+                    case \.beta:
+                        return .init(name: name, kind: .beta)
+                    case \.latest:
+                        return .init(name: name, kind: .branch)
+                    default:
+                        return nil
+                }
+            }
+            return .init(references: references, results: results)
+        }
+        return rows
+    }
+    
+    func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
+        let environment = (try? Environment.detect()) ?? .development
+        guard environment != .production else {
+            return .empty
+        }
+        guard let buildInfo = buildInfo else { return .empty }
+        let rows = Self.groupBuildInfo(buildInfo)
+        return .section(
+            .class("swift"),
+            .h3("Swift Version Compatibility"),
+            .ul(
+                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
+            )
+        )
+    }
 
+    func swiftVersionCompatibilityListItem(_ row: BuildStatusRow) -> Node<HTML.ListContext> {
+        let results: [BuildResult] = row.results
+            .all.sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
+        return .li(
+            .class("reference"),
+            row.label,
+            // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
+            .div(
+                .class("compatibility"),
+                .div(
+                    .class("swift_versions"),
+                    .forEach(results) { $0.headerNode }
+                ),
+                .div(
+                    .class("build_statuses"),
+                    .forEach(results) { $0.cellNode }
+                )
+            )
+        )
+    }
 }
 
 

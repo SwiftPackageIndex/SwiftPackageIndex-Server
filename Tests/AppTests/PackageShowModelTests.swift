@@ -76,6 +76,36 @@ class PackageShowModelTests: AppTestCase {
             XCTAssertEqual(error?.identifier, "404")
         }
     }
+    
+    func test_query_builds() throws {
+        // Ensure the builds relationship is loaded
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try Repository(package: pkg,
+                       summary: "summary",
+                       defaultBranch: "main",
+                       license: .mit,
+                       name: "bar",
+                       owner: "foo",
+                       stars: 17,
+                       forks: 42).save(on: app.db).wait()
+        let version = try App.Version(package: pkg,
+                                      reference: .branch("main"),
+                                      packageName: "test package")
+        try version.save(on: app.db).wait()
+        try Build(version: version,
+                  platform: .macos("10.15"),
+                  status: .ok,
+                  swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+
+        // MUT
+        let m = try PackageShow.Model.query(database: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertNotNil(m.buildInfo?.latest)
+    }
 
     func test_lpInfoGroups_by_swiftVersions() throws {
         // Test grouping by swift versions
@@ -208,10 +238,68 @@ class PackageShowModelTests: AppTestCase {
         model.stars = 1_000_000
         XCTAssertEqual(model.starsClause()?.render(), "1,000,000 stars.")
     }
+    
+    func test_groupBuildInfo() throws {
+        let result1: BuildResults = .init(status4_2: .success,
+                                          status5_0: .success,
+                                          status5_1: .success,
+                                          status5_2: .success,
+                                          status5_3: .success)
+        let result2: BuildResults = .init(status4_2: .failed,
+                                          status5_0: .failed,
+                                          status5_1: .failed,
+                                          status5_2: .failed,
+                                          status5_3: .failed)
+        let result3: BuildResults = .init(status4_2: .unknown,
+                                          status5_0: .unknown,
+                                          status5_1: .unknown,
+                                          status5_2: .unknown,
+                                          status5_3: .unknown)
+        do {  // three distinct groups
+            let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3",
+                                                           results: result1),
+                                             beta: .init(referenceName: "2.0.0-b1",
+                                                         results: result2),
+                                             latest: .init(referenceName: "main",
+                                                           results: result3))
+            
+            // MUT
+            let res = PackageShow.Model.groupBuildInfo(buildInfo)
+            
+            // validate
+            XCTAssertEqual(res, [
+                .init(references: [.init(name: "1.2.3", kind: .stable)], results: result1),
+                .init(references: [.init(name: "2.0.0-b1", kind: .beta)], results: result2),
+                .init(references: [.init(name: "main", kind: .branch)], results: result3),
+            ])
+        }
 
+        do {  // stable and latest share the same result and should be grouped
+            let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3",
+                                                           results: result1),
+                                             beta: .init(referenceName: "2.0.0-b1",
+                                                         results: result2),
+                                             latest: .init(referenceName: "main",
+                                                           results: result1))
+            
+            // MUT
+            let res = PackageShow.Model.groupBuildInfo(buildInfo)
+            
+            // validate
+            XCTAssertEqual(res, [
+                .init(references: [.init(name: "1.2.3", kind: .stable),
+                                   .init(name: "main", kind: .branch)], results: result1),
+                .init(references: [.init(name: "2.0.0-b1", kind: .beta)], results: result2),
+            ])
+        }
+    }
+    
 }
 
 
 // local typealiases / references to make tests more readable
 fileprivate typealias Version = PackageShow.Model.Version
+fileprivate typealias BuildInfo = PackageShow.Model.BuildInfo
+fileprivate typealias BuildResults = PackageShow.Model.BuildResults
+fileprivate typealias BuildStatusRow = PackageShow.Model.BuildStatusRow
 let lpInfoGroups = PackageShow.Model.lpInfoGroups
