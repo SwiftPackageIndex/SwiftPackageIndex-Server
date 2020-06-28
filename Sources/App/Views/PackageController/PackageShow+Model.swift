@@ -244,11 +244,35 @@ extension PackageShow.Model {
         return Self.listPhrase(opening: "", nodes: nodes, closing: ".")
     }
     
+    typealias BuildInfoKeyPath = KeyPath<BuildInfo, NamedBuildResults?>
+    
     static func groupBuildInfo(_ buildInfo: BuildInfo) -> [BuildStatusRow] {
-        let rows = [buildInfo.stable.map { BuildStatusRow(namedResult: $0, kind: .stable)},
-                    buildInfo.beta.map { BuildStatusRow(namedResult: $0, kind: .beta)},
-                    buildInfo.latest.map { BuildStatusRow(namedResult: $0, kind: .branch)}]
-            .compactMap { $0 }
+        let allKeyPaths: [BuildInfoKeyPath] = [\.stable, \.beta, \.latest]
+        var availableKeyPaths = allKeyPaths
+        let groups = allKeyPaths.map { kp -> [BuildInfoKeyPath] in
+            guard let r = buildInfo[keyPath: kp] else { return [] }
+            let group = availableKeyPaths.filter { buildInfo[keyPath: $0]?.results == r.results }
+            availableKeyPaths.removeAll(where: { group.contains($0) })
+            return group
+        }
+        let rows = groups.compactMap { keyPaths -> BuildStatusRow? in
+            guard let first = keyPaths.first,
+                  let results = buildInfo[keyPath: first]?.results else { return nil }
+            let references = keyPaths.compactMap { kp -> Reference? in
+                guard let name = buildInfo[keyPath: kp]?.referenceName else { return nil }
+                switch kp {
+                    case \.stable:
+                        return .init(name: name, kind: .stable)
+                    case \.beta:
+                        return .init(name: name, kind: .beta)
+                    case \.latest:
+                        return .init(name: name, kind: .branch)
+                    default:
+                        return nil
+                }
+            }
+            return .init(references: references, results: results)
+        }
         return rows
     }
     

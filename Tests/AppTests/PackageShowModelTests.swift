@@ -243,6 +243,25 @@ class PackageShowModelTests: AppTestCase {
                 .init(references: [.init(name: "main", kind: .branch)], results: result3),
             ])
         }
+
+        do {  // stable and latest share the same result and should be grouped
+            let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3",
+                                                           results: result1),
+                                             beta: .init(referenceName: "2.0.0-b1",
+                                                         results: result2),
+                                             latest: .init(referenceName: "main",
+                                                           results: result1))
+            
+            // MUT
+            let res = PackageShow.Model.groupBuildInfo(buildInfo)
+            
+            // validate
+            XCTAssertEqual(res, [
+                .init(references: [.init(name: "1.2.3", kind: .stable),
+                                   .init(name: "main", kind: .branch)], results: result1),
+                .init(references: [.init(name: "2.0.0-b1", kind: .beta)], results: result2),
+            ])
+        }
     }
     
 }
