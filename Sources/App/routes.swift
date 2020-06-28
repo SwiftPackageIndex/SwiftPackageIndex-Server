@@ -43,7 +43,7 @@ func routes(_ app: Application) throws {
             protected.post(SiteURL.api(.versions(.key, .triggerBuild)).pathComponents,
                            use: builds.trigger)
             let packages = API.PackageController()
-            protected.post(SiteURL.api(.packages(.key, .key, .triggerBuild)).pathComponents,
+            protected.post(SiteURL.api(.packages(.key, .key, .triggerBuilds)).pathComponents,
                            use: packages.trigger)
         }
 

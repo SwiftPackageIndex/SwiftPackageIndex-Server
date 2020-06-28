@@ -92,9 +92,9 @@ class SiteURLTests: XCTestCase {
                        ["api", "versions", ":id", "builds"])
         XCTAssertEqual(SiteURL.api(.versions(.key, .triggerBuild)).pathComponents.map(\.description),
                        ["api", "versions", ":id", "trigger-build"])
-        XCTAssertEqual(SiteURL.api(.packages(.key, .key, .triggerBuild))
+        XCTAssertEqual(SiteURL.api(.packages(.key, .key, .triggerBuilds))
                         .pathComponents.map(\.description),
-                       ["api", "packages", ":owner", ":repository", "trigger-build"])
+                       ["api", "packages", ":owner", ":repository", "trigger-builds"])
     }
 
     func test_apiBaseURL() throws {

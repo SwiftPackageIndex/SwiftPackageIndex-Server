@@ -53,7 +53,7 @@ enum Api: Resourceable {
     }
 
     enum PackagesPathComponents: String, Resourceable {
-        case triggerBuild = "trigger-build"
+        case triggerBuilds = "trigger-builds"
     }
     
     enum VersionsPathComponents: String, Resourceable {

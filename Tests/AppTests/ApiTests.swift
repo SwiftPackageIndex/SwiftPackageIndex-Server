@@ -282,7 +282,7 @@ class ApiTests: AppTestCase {
         // MUT
         try app.test(
             .POST,
-            "api/packages/\(owner)/\(repo)/trigger-build",
+            "api/packages/\(owner)/\(repo)/trigger-builds",
             headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
             body: body) { res in
             // validation
@@ -313,7 +313,7 @@ class ApiTests: AppTestCase {
         // MUT - no auth header
         try app.test(
             .POST,
-            "api/packages/\(owner)/\(repo)/trigger-build",
+            "api/packages/\(owner)/\(repo)/trigger-builds",
             headers: .init([("Content-Type", "application/json")]),
             body: body) { res in
             // validation
