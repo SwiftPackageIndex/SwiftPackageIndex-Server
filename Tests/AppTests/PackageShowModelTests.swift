@@ -5,56 +5,10 @@ import XCTVapor
 
 class PackageShowModelTests: AppTestCase {
 
-    func test_query_owner_repository() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
-                       summary: "summary",
-                       defaultBranch: "main",
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       forks: 42).save(on: app.db).wait()
-        let version = try App.Version(package: pkg,
-                                      reference: .branch("main"),
-                                      packageName: "test package")
-        try version.save(on: app.db).wait()
-
-        // MUT
-        let m = try PackageShow.Model.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // validate
-        XCTAssertEqual(m.title, "test package")
-    }
-
-    func test_query_owner_repository_case_insensitivity() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
-                       summary: "summary",
-                       defaultBranch: "main",
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       forks: 42).save(on: app.db).wait()
-        let version = try App.Version(package: pkg,
-                                      reference: .branch("main"),
-                                      packageName: "test package")
-        try version.save(on: app.db).wait()
-
-        // MUT
-        let m = try PackageShow.Model.query(on: app.db, owner: "Foo", repository: "bar").wait()
-
-        // validate
-        XCTAssertEqual(m.title, "test package")
-    }
-
-    func test_query_no_title() throws {
+    func test_init_no_title() throws {
         // Tests behaviour when we're lacking data
         // setup package without package name
-        let pkg = try savePackage(on: app.db, "1".url)
+        var pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
                        summary: "summary",
                        defaultBranch: "main",
@@ -69,18 +23,20 @@ class PackageShowModelTests: AppTestCase {
         try version.save(on: app.db).wait()
         try Product(version: version,
                     type: .library, name: "lib 1").save(on: app.db).wait()
+        // reload via query to ensure relationships are loaded
+        pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        XCTAssertThrowsError(try PackageShow.Model.query(on: app.db, owner: "foo", repository: "bar").wait()) {
-            let error = try? XCTUnwrap($0 as? Vapor.Abort)
-            XCTAssertEqual(error?.identifier, "404")
-        }
+        let m = PackageShow.Model(package: pkg)
+        
+        // validate
+        XCTAssertNil(m)
     }
     
     func test_query_builds() throws {
         // Ensure the builds relationship is loaded
         // setup
-        let pkg = try savePackage(on: app.db, "1".url)
+        var pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
                        summary: "summary",
                        defaultBranch: "main",
@@ -99,12 +55,14 @@ class PackageShowModelTests: AppTestCase {
                   swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
+        // reload via query to ensure relationships are loaded
+        pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let m = try PackageShow.Model.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let m = PackageShow.Model(package: pkg)
 
         // validate
-        XCTAssertNotNil(m.buildInfo?.latest)
+        XCTAssertNotNil(m?.buildInfo?.latest)
     }
 
     func test_lpInfoGroups_by_swiftVersions() throws {

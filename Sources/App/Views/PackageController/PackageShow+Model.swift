@@ -4,6 +4,7 @@ import Vapor
 
 
 extension PackageShow {
+    
     struct Model: Equatable {
         var activity: Activity?
         var authors: [Link]?
@@ -18,7 +19,44 @@ extension PackageShow {
         var title: String
         var url: String
         var score: Int?
+        
+        internal init(activity: PackageShow.Model.Activity? = nil, authors: [Link]? = nil, buildInfo: PackageShow.Model.BuildInfo? = nil, history: PackageShow.Model.History? = nil, languagePlatforms: PackageShow.Model.LanguagePlatformInfo, license: License, products: PackageShow.Model.ProductCounts? = nil, releases: PackageShow.Model.ReleaseInfo, stars: Int? = nil, summary: String, title: String, url: String, score: Int? = nil) {
+            self.activity = activity
+            self.authors = authors
+            self.buildInfo = buildInfo
+            self.history = history
+            self.languagePlatforms = languagePlatforms
+            self.license = license
+            self.products = products
+            self.releases = releases
+            self.stars = stars
+            self.summary = summary
+            self.title = title
+            self.url = url
+            self.score = score
+        }
+        
+        init?(package: Package) {
+            // we consider certain attributes as essential and return nil (raising .notFound)
+            guard let title = package.name() else { return nil }
+            self.activity = package.activity()
+            self.authors = package.authors()
+            self.buildInfo = package.buildInfo()
+            self.history = package.history()
+            self.languagePlatforms = package.languagePlatformInfo()
+            self.license = package.repository?.license ?? .none
+            self.products = package.productCounts()
+            self.releases = package.releaseInfo()
+            self.stars = package.repository?.stars
+            // FIXME: we should probably also display an explainer
+            // when summary is nil
+            self.summary = package.repository?.summary ?? "–"
+            self.title = title
+            self.url = package.url
+            self.score = package.score
+        }
     }
+    
 }
 
 

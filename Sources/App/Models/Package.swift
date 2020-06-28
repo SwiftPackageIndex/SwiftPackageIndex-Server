@@ -143,34 +143,3 @@ private extension QueryBuilder where Model == Package {
         }
     }
 }
-
-
-// MARK: - PackageShow.Model support
-
-extension Package {
-    
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Package> {
-        Package.query(on: database)
-            .with(\.$repositories)
-            .with(\.$versions) {
-                $0.with(\.$products)
-                $0.with(\.$builds)
-            }
-            .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
-            // TODO: make less verbose once fixed in Fluent:
-            // https://github.com/vapor/fluent-kit/issues/310
-            .filter(
-                DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
-                DatabaseQuery.Filter.Method.custom("ilike"),
-                DatabaseQuery.Value.bind(owner)
-            )
-            .filter(
-                DatabaseQuery.Field.path(Repository.path(for: \.$name), schema: Repository.schema),
-                DatabaseQuery.Filter.Method.custom("ilike"),
-                DatabaseQuery.Value.bind(repository)
-            )
-            .first()
-            .unwrap(or: Abort(.notFound))
-    }
-    
-}
