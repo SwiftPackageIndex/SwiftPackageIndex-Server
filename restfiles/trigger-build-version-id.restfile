@@ -1,10 +1,9 @@
 variables:
-    base_url: https://staging.swiftpackageindex.com/api
-    # base_url: http://localhost:8080/api
     # set here or via env variables:
-    # env version_id=... builder_token=... rester ...
-    # version_id: 
-    # builder_token: 
+    # env base_url=... builder_token=... version_id=... rester ...
+    # base_url: http://localhost:8080/api
+    # builder_token: secr3t
+    # version_id: eda3ade4-9183-41d1-b340-e5bca0090b92
 
 requests:
 
