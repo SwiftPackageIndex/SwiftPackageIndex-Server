@@ -78,6 +78,7 @@ enum SiteURL: Resourceable {
     case rssPackages
     case rssReleases
     case siteMap
+    case stylesheets(String)
 
     var path: String {
         switch self {
@@ -121,6 +122,9 @@ enum SiteURL: Resourceable {
 
             case .siteMap:
                 return "sitemap.xml"
+
+            case let .stylesheets(name):
+                return "stylesheets/\(name)"
         }
     }
 
@@ -138,7 +142,7 @@ enum SiteURL: Resourceable {
             case .package:
                 fatalError("pathComponents must not be called with a value parameter")
 
-            case .images:
+            case .images, .stylesheets:
                 fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
     }
