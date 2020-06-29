@@ -18,7 +18,7 @@
     <link rel="shortcut icon" href="/images/logo-simple.png" type="image/png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
-    <link rel="stylesheet" href="/stylesheets/main.min.css?0"/>
+    <link rel="stylesheet" href="http://localhost:8080/stylesheets/main.min.css?0"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recently Added" href="http://localhost:8080/packages.rss"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Releases" href="http://localhost:8080/releases.rss"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Releases" href="http://localhost:8080/releases.rss?major=true"/>
@@ -32,7 +32,7 @@
       <div class="inner">
         <a href="/">
           <h1>
-            <img src="/images/logo.svg"/>Swift Package Index
+            <img src="http://localhost:8080/images/logo.svg"/>Swift Package Index
           </h1>
         </a>
         <nav>
