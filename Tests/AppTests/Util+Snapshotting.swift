@@ -20,13 +20,9 @@ extension Snapshotting where Value == () -> HTML, Format == String {
 
 #if os(macOS)
 extension Snapshotting where Value == () -> HTML, Format == NSImage {
-    public static func image(precision: Float = 1, size: CGSize? = nil, rootDir: URL) -> Snapshotting {
-        Current.siteURL = { String(rootDir.absoluteString.dropLast()) }
-        return image(precision: precision, size: size, baseURL: rootDir)
-    }
-
     public static func image(precision: Float = 1, size: CGSize? = nil, baseURL: URL) -> Snapshotting {
-        Snapshotting<NSView, NSImage>.image(precision: precision, size: size).pullback { node in
+        Current.siteURL = { baseURL.absoluteString }
+        return Snapshotting<NSView, NSImage>.image(precision: precision, size: size).pullback { node in
             let html = node().render()
             let webView = WKWebView()
 
