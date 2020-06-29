@@ -112,7 +112,7 @@ class PublicPage {
     final func siteStylesheetURL() -> String {
         let stylesheetURL: String = {
             switch (try? Environment.detect()) ?? .development {
-                case .testing:
+                case .development, .testing:
                     // Absolute URLs are needed for snapshot testing to work
                     return SiteURL.stylesheets("main.min.css").absoluteURL()
                 default:
