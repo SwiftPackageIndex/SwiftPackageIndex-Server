@@ -7,9 +7,10 @@ import Plot
 
 
 extension CGSize {
-    static var desktop: Self { CGSize(width: 1200, height: 1200) }
-    static var mobile: Self { CGSize(width: 375, height: 1600) }
+    static var desktop: Self { CGSize(width: 1200, height: 1500) }
+    static var mobile: Self { CGSize(width: 375, height: 2000) }
 }
+
 
 let configs: [(name: String, size: CGSize)] = [
     ("desktop", .desktop),
