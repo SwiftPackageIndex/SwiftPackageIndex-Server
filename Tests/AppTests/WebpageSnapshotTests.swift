@@ -22,16 +22,13 @@ let recordSnapshotForAllTests = false
 
 class WebpageSnapshotTests: XCTestCase {
 
-    static var testCoordinator = SnapshotTestCoordinator()
-    var rootDir: URL { Self.testCoordinator.baseURL }
-    
     override func setUpWithError() throws {
         Current.date = { Date(timeIntervalSince1970: 0) }
-        WebpageSnapshotTests.testCoordinator.cleanup()
+        TempWebRoot.cleanup()
     }
     
     override class func setUp() {
-        testCoordinator.setup()
+        TempWebRoot.setup()
     }
 
     func test_home() throws {
@@ -65,7 +62,8 @@ class WebpageSnapshotTests: XCTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+                               as: .image(size: $0.size, rootDir: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif
@@ -83,7 +81,8 @@ class WebpageSnapshotTests: XCTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+                               as: .image(size: $0.size, rootDir: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif
@@ -104,7 +103,8 @@ class WebpageSnapshotTests: XCTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+                               as: .image(size: $0.size, rootDir: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif
@@ -124,7 +124,8 @@ class WebpageSnapshotTests: XCTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+                               as: .image(size: $0.size, rootDir: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif
@@ -144,7 +145,8 @@ class WebpageSnapshotTests: XCTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+                               as: .image(size: $0.size, rootDir: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif
@@ -167,7 +169,8 @@ class WebpageSnapshotTests: XCTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+                               as: .image(size: $0.size, rootDir: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif
@@ -189,7 +192,8 @@ class WebpageSnapshotTests: XCTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+                               as: .image(size: $0.size, rootDir: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif
@@ -213,7 +217,8 @@ class WebpageSnapshotTests: XCTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+                               as: .image(size: $0.size, rootDir: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif
@@ -237,7 +242,8 @@ class WebpageSnapshotTests: XCTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+                               as: .image(size: $0.size, rootDir: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif
@@ -256,7 +262,8 @@ class WebpageSnapshotTests: XCTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+                               as: .image(size: $0.size, rootDir: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif
@@ -274,7 +281,8 @@ class WebpageSnapshotTests: XCTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+                               as: .image(size: $0.size, rootDir: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif

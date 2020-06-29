@@ -105,7 +105,7 @@ extension Snapshotting where Value == () -> HTML, Format == NSImage {
             let html = node().render()
             let webView = WKWebView()
             
-            let htmlURL = baseURL.appendingPathComponent(SnapshotTestCoordinator.fileName)
+            let htmlURL = baseURL.appendingPathComponent(TempWebRoot.fileName)
             
             // Save HTML file at root of public directory
             do {
