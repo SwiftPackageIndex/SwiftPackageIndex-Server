@@ -85,10 +85,24 @@ extension Array where Element == String {
 
 
 #if os(macOS)
-extension Snapshotting where Value == HTML, Format == NSImage {
+extension Snapshotting where Value == () -> HTML, Format == String {
+    public static var html: Snapshotting {
+        Snapshotting<String, String>.lines.pullback { node in
+            Current.siteURL = { "http://localhost:8080" }
+            return node().render(indentedBy: .spaces(2))
+        }
+    }
+}
+
+extension Snapshotting where Value == () -> HTML, Format == NSImage {
+    public static func image(precision: Float = 1, size: CGSize? = nil, rootDir: URL) -> Snapshotting {
+        Current.siteURL = { String(rootDir.absoluteString.dropLast()) }
+        return image(precision: precision, size: size, baseURL: rootDir)
+    }
+
     public static func image(precision: Float = 1, size: CGSize? = nil, baseURL: URL) -> Snapshotting {
         Snapshotting<NSView, NSImage>.image(precision: precision, size: size).pullback { node in
-            let html = node.render()
+            let html = node().render()
             let webView = WKWebView()
             
             let htmlURL = baseURL.appendingPathComponent(SnapshotTestCoordinator.fileName)

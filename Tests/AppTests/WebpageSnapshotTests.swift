@@ -5,11 +5,24 @@ import Vapor
 import XCTest
 import Plot
 
+
+extension CGSize {
+    static var desktop: Self { CGSize(width: 1200, height: 1200) }
+    static var mobile: Self { CGSize(width: 375, height: 1600) }
+}
+
+let configs: [(name: String, size: CGSize)] = [
+    ("desktop", .desktop),
+    ("mobile", .mobile)
+]
+
+
 let recordSnapshotForAllTests = false
 
 class WebpageSnapshotTests: XCTestCase {
 
     static var testCoordinator = SnapshotTestCoordinator()
+    var rootDir: URL { Self.testCoordinator.baseURL }
     
     override func setUpWithError() throws {
         Current.date = { Date(timeIntervalSince1970: 0) }
@@ -67,28 +80,26 @@ class WebpageSnapshotTests: XCTestCase {
         #endif
     }
     
-//    func test_PackageShowView_emoji_summary() throws {
-//        var model = PackageShow.Model.mock
-//        model.summary = ":package: Nothing but Cache. :octocat:"
-//        
-//        let page = PackageShow.View(path: "", model: model).document()
-//
-//        let recordSnapshotForThisTest = false
-//        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
-//
-//        assertSnapshot(matching: page.render(indentedBy: .spaces(2)), as: .lines)
-//
-//        #if os(macOS)
-//        if !isRunningInCI {
-//            // FIXME: css and image loading broken, despite setting correct base url
-//            // permission issue? In a macOS app project this required setting
-//            // com.apple.security.network.client permissions but I don't see how to do
-//            // that with SPM - nor would I expect to need that for tests?
-//            assertSnapshot(matching: page, as: .image(size: .init(width: 800, height: 1000),
-//                                                      baseURL: baseURL()))
-//        }
-//        #endif
-//    }
+    func test_PackageShowView_emoji_summary() throws {
+        var model = PackageShow.Model.mock
+        model.summary = ":package: Nothing but Cache. :octocat:"
+
+        let page = { PackageShow.View(path: "", model: model).document() }
+
+        let recordSnapshotForThisTest = false
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+
+        assertSnapshot(matching: page, as: .html)
+
+        #if os(macOS)
+        if !isRunningInCI {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(size: $0.size, rootDir: rootDir), named: $0.name)
+            }
+        }
+        #endif
+    }
 
     func test_PackageShowView_unknown_license() throws {
         var model = PackageShow.Model.mock
@@ -248,18 +259,18 @@ class WebpageSnapshotTests: XCTestCase {
     ) {
         setSiteURL(forImageSnapshot: true)
         
-        let mobile: Snapshotting<HTML, NSImage> = .image(
-            size: .init(width: 375, height: 1600),
-            baseURL: WebpageSnapshotTests.testCoordinator.baseURL
-        )
-        
-        let desktop: Snapshotting<HTML, NSImage> = .image(
-            size: .init(width: 1200, height: 1200),
-            baseURL: WebpageSnapshotTests.testCoordinator.baseURL
-        )
-        
-        assertSnapshot(matching: page(), as: mobile, named: "mobile", file: file, testName: testName, line: line)
-        assertSnapshot(matching: page(), as: desktop, named: "desktop", file: file, testName: testName, line: line)
+//        let mobile: Snapshotting<HTML, NSImage> = .image(
+//            size: .init(width: 375, height: 1600),
+//            baseURL: WebpageSnapshotTests.testCoordinator.baseURL
+//        )
+//
+//        let desktop: Snapshotting<HTML, NSImage> = .image(
+//            size: .init(width: 1200, height: 1200),
+//            baseURL: WebpageSnapshotTests.testCoordinator.baseURL
+//        )
+//
+//        assertSnapshot(matching: page(), as: mobile, named: "mobile", file: file, testName: testName, line: line)
+//        assertSnapshot(matching: page(), as: desktop, named: "desktop", file: file, testName: testName, line: line)
     }
 
 }
