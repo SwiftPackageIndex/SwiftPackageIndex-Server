@@ -2,6 +2,7 @@
 <html><!--Version: dev - will be overriden in release builds-->
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8"/>
     <meta name="og:site_name" content="The Swift Package Index"/>
     <link rel="canonical" href="http://localhost:8080/"/>
     <meta name="twitter:url" content="http://localhost:8080/"/>
