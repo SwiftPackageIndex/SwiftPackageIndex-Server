@@ -97,7 +97,7 @@ extension Snapshotting where Value == HTML, Format == NSImage {
             do {
                 try html.write(to: htmlURL, atomically: true, encoding: .utf8)
             } catch {
-                print("💥 Failed to write index.html: \(error)")
+                fatalError("Snapshotting: 💥 Failed to write index.html: \(error)")
             }
             
             // Load the HTML file into the web view with access to public directory

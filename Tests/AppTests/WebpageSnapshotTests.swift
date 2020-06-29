@@ -5,7 +5,7 @@ import Vapor
 import XCTest
 import Plot
 
-let recordSnapshotForAllTests = true
+let recordSnapshotForAllTests = false
 
 class WebpageSnapshotTests: XCTestCase {
 

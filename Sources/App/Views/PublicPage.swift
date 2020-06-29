@@ -42,6 +42,7 @@ class PublicPage {
             ),
             .link(
                 .rel(.stylesheet),
+                // FIXME: turn into SiteURL.stylesheet(...)
                 .href(SiteURL.absoluteURL(for: "stylesheets/main.min.css") + "?\(resourceReloadQueryString())")
             ),
             .link(
