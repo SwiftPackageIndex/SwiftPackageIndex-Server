@@ -84,7 +84,6 @@ extension Array where Element == String {
 }
 
 
-#if os(macOS)
 extension Snapshotting where Value == () -> HTML, Format == String {
     public static var html: Snapshotting {
         Snapshotting<String, String>.lines.pullback { node in
@@ -94,6 +93,7 @@ extension Snapshotting where Value == () -> HTML, Format == String {
     }
 }
 
+#if os(macOS)
 extension Snapshotting where Value == () -> HTML, Format == NSImage {
     public static func image(precision: Float = 1, size: CGSize? = nil, rootDir: URL) -> Snapshotting {
         Current.siteURL = { String(rootDir.absoluteString.dropLast()) }
