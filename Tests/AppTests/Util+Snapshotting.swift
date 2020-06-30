@@ -22,6 +22,10 @@ extension Snapshotting where Value == () -> HTML, Format == String {
 extension Snapshotting where Value == () -> HTML, Format == NSImage {
     public static func image(precision: Float = 1, size: CGSize? = nil, baseURL: URL) -> Snapshotting {
         Current.siteURL = { baseURL.absoluteString }
+
+        // Force light mode
+        NSApplication.shared.appearance = NSAppearance(named: .aqua)
+
         return Snapshotting<NSView, NSImage>.image(precision: precision, size: size).pullback { node in
             let html = node().render()
             let webView = WKWebView()
