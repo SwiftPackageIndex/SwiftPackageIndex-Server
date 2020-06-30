@@ -32,7 +32,8 @@ class WebpageSnapshotTests: XCTestCase {
         TempWebRoot.setup()
     }
 
-    func test_home() throws {
+    func test_admin() throws {
+        try XCTSkipIf(true, "currently not deploying admin page")
         let page: () -> HTML = { PublicPage.admin() }
 
         let recordSnapshotForThisTest = false
@@ -41,11 +42,12 @@ class WebpageSnapshotTests: XCTestCase {
         assertSnapshot(matching: page, as: .html)
 
         // Snapshot renders slightly differently on macOS 11 (swift 5.3) - exclude it for now
-        #if os(macOS) && swift(<5.3)
+        #if os(macOS)
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(size: $0.size, baseURL: rootDir), named: $0.name)
+                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
             }
         }
         #endif
