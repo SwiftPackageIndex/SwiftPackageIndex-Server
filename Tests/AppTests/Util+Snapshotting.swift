@@ -21,12 +21,21 @@ extension Snapshotting where Value == () -> HTML, Format == String {
 #if os(macOS)
 extension Snapshotting where Value == () -> HTML, Format == NSImage {
     public static func image(precision: Float = 1, size: CGSize? = nil, baseURL: URL) -> Snapshotting {
+        // Set siteURL to the webroot folder ...
         Current.siteURL = { baseURL.absoluteString }
+        // ... and ensure we use absolute paths for stylesheet urls
+        SiteURL.relativeURL = { path in
+            (path.hasPrefix("stylesheets") ? Current.siteURL() : "")
+                + SiteURL._relativeURL(path)
+        }
 
         // Force light mode
         NSApplication.shared.appearance = NSAppearance(named: .aqua)
 
         return Snapshotting<NSView, NSImage>.image(precision: precision, size: size).pullback { node in
+            // ... and reset our relativeURL override from above so we don't break other tests
+            defer { SiteURL.relativeURL = SiteURL._relativeURL }
+
             let html = node().render()
             let webView = WKWebView()
 

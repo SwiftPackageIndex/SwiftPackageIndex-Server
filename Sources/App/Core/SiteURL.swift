@@ -147,16 +147,23 @@ enum SiteURL: Resourceable {
         }
     }
 
-    static func relativeURL(for path: String) -> String {
+    static let _relativeURL: (String) -> String = { path in
         guard path.hasPrefix("/") else { return "/" + path }
         return path
     }
 
-    static func absoluteURL(for path: String) -> String {
-        Current.siteURL() + relativeURL(for: path)
+    #if DEBUG
+    // make `var` for debug so we can dependency inject
+    static var relativeURL = _relativeURL
+    #else
+    static let relativeURL = _relativeURL
+    #endif
+
+    static func absoluteURL(_ path: String) -> String {
+        Current.siteURL() + relativeURL(path)
     }
-    
-    static var apiBaseURL: String { absoluteURL(for: "api") }
+
+    static var apiBaseURL: String { absoluteURL("api") }
     
 }
 
@@ -174,15 +181,15 @@ protocol Resourceable {
 
 extension Resourceable {
     func absoluteURL(anchor: String? = nil) -> String {
-        "\(Current.siteURL())/\(path)" + (anchor.map { "#\($0)" } ?? "")
+        "\(SiteURL.absoluteURL(path))" + (anchor.map { "#\($0)" } ?? "")
     }
 
     func absoluteURL(parameters: [String: String]) -> String {
-        "\(Current.siteURL())/\(path)\(parameters.queryString())"
+        "\(SiteURL.absoluteURL(path))\(parameters.queryString())"
     }
 
     func relativeURL(anchor: String? = nil) -> String {
-        "/" + path + (anchor.map { "#\($0)" } ?? "")
+        "\(SiteURL.relativeURL(path))" + (anchor.map { "#\($0)" } ?? "")
     }
 }
 

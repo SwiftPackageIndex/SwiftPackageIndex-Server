@@ -27,7 +27,7 @@ class PublicPage {
             .viewport(.accordingToDevice, initialScale: 1),
             .meta(.charset(.utf8)),
             .siteName("The Swift Package Index"),
-            .url(SiteURL.absoluteURL(for: path)),
+            .url(SiteURL.absoluteURL(path)),
             .title(title()),
             .description(description()),
             .twitterCardType(.summary),
@@ -43,7 +43,8 @@ class PublicPage {
             ),
             .link(
                 .rel(.stylesheet),
-                .href(siteStylesheetURL())
+                .href(SiteURL.stylesheets("main.min.css").relativeURL()
+                        + "?\(resourceReloadQueryString())")
             ),
             .link(
                 .rel(.alternate),
@@ -105,22 +106,6 @@ class PublicPage {
                     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T2KRSKX"
                     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     """))
-    }
-
-    /// The path or fully qualified URL to the site stylesheet.
-    /// - Returns: A relative, or absolute URL.
-    final func siteStylesheetURL() -> String {
-        let stylesheetURL: String = {
-            switch (try? Environment.detect()) ?? .development {
-                case .development, .testing:
-                    // Absolute URLs are needed for snapshot testing to work
-                    return SiteURL.stylesheets("main.min.css").absoluteURL()
-                default:
-                    return SiteURL.stylesheets("main.min.css").relativeURL()
-            }
-        }()
-
-        return stylesheetURL + "?\(resourceReloadQueryString())"
     }
 
     /// A query string that will force resources to reload after they change. In development this is the
