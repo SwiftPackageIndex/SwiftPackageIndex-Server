@@ -23,10 +23,14 @@ extension Snapshotting where Value == () -> HTML, Format == NSImage {
     public static func image(precision: Float = 1, size: CGSize? = nil, baseURL: URL) -> Snapshotting {
         // Set siteURL to the webroot folder ...
         Current.siteURL = { baseURL.absoluteString }
-        // ... and ensure we use absolute paths for stylesheet urls
+        // ... and ensure we use absolute paths for image + stylesheet urls
         SiteURL.relativeURL = { path in
-            (path.hasPrefix("stylesheets") ? Current.siteURL() : "")
-                + SiteURL._relativeURL(path)
+            switch path {
+                case _ where path.hasPrefix("stylesheets/") || path.hasPrefix("images/"):
+                    return Current.siteURL() + SiteURL._relativeURL(path)
+                default:
+                    return SiteURL._relativeURL(path)
+            }
         }
 
         // Force light mode
