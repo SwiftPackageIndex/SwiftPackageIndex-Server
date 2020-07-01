@@ -4,7 +4,7 @@ import XCTVapor
 
 
 class StatsTests: AppTestCase {
-
+    
     func test_fetch() throws {
         // setup
         // Save 2 packages and 5 versions
@@ -22,12 +22,12 @@ class StatsTests: AppTestCase {
             try Version(package: pkg).create(on: app.db).wait()
         }
         try Stats.refresh(on: app.db).wait()
-
+        
         // MUT
         let res = try Stats.fetch(on: app.db).wait()
-
+        
         // validate
         XCTAssertEqual(res, .some(.init(packageCount: 2, versionCount: 5)))
     }
-
+    
 }

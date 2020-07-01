@@ -3,7 +3,7 @@ import Vapor
 
 
 extension API {
-
+    
     struct BuildController {
         func create(req: Request) throws -> EventLoopFuture<Build> {
             let dto = try req.content.decode(Build.PostCreateDTO.self)
@@ -12,7 +12,7 @@ extension API {
                 .flatMapThrowing { try Build(dto, $0) }
                 .flatMap { build in build.upsert(on: req.db).transform(to: build) }
         }
-
+        
         func trigger(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             guard let id = req.parameters.get("id"),
                   let versionId = UUID(uuidString: id) else {
@@ -26,5 +26,5 @@ extension API {
                                  swiftVersion: dto.swiftVersion)
         }
     }
-
+    
 }

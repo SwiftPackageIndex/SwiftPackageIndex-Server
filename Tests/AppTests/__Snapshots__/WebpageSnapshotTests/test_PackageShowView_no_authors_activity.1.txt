@@ -2,6 +2,7 @@
 <html><!--Version: dev - will be overriden in release builds-->
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8"/>
     <meta name="og:site_name" content="The Swift Package Index"/>
     <link rel="canonical" href="http://localhost:8080/"/>
     <meta name="twitter:url" content="http://localhost:8080/"/>
@@ -155,11 +156,8 @@
               <div class="label">
                 <div>
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>5.2.3
-                    </span> and 
-                    <span class="branch">
-                      <i class="icon branch"></i>main
+                    <span class="beta">
+                      <i class="icon beta"></i>6.0.0-b1
                     </span>
                   </div>
                 </div>
@@ -183,11 +181,11 @@
                   <div class="success" title="Built successfully with Swift 5.2">
                     <i class="icon build_success"></i>
                   </div>
-                  <div class="unknown" title="No build information available for Swift 5.1">
-                    <i class="icon build_unknown"></i>
+                  <div class="success" title="Built successfully with Swift 5.1">
+                    <i class="icon build_success"></i>
                   </div>
-                  <div class="failed" title="Build failed with Swift 5.0">
-                    <i class="icon build_failed"></i>
+                  <div class="success" title="Built successfully with Swift 5.0">
+                    <i class="icon build_success"></i>
                   </div>
                   <div class="failed" title="Build failed with Swift 4.2">
                     <i class="icon build_failed"></i>

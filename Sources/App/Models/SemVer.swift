@@ -7,7 +7,7 @@ struct SemVer: Content, Equatable, Hashable {
     var patch: Int
     var preRelease: String
     var build: String
-
+    
     init(_ major: Int, _ minor: Int, _ patch: Int, _ preRelease: String = "", _ build: String = "") {
         self.major = major
         self.minor = minor
@@ -26,10 +26,10 @@ extension SemVer: LosslessStringConvertible {
             let major = Int(groups[0]),
             let minor = Int(groups[1]),
             let patch = Int(groups[2])
-            else { return nil }
+        else { return nil }
         self = .init(major, minor, patch, groups[3], groups[4])
     }
-
+    
     var description: String {
         let pre = preRelease.isEmpty ? "" : "-" + preRelease
         let bld = build.isEmpty ? "" : "+" + build

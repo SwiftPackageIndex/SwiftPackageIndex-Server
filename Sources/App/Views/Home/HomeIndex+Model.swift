@@ -9,7 +9,7 @@ extension HomeIndex {
         var stats: Stats?
         var recentPackages: [DatedLink]
         var recentReleases: [Release]
-
+        
         struct Release: Equatable {
             var packageName: String
             var version: String
@@ -27,21 +27,21 @@ extension HomeIndex.Model {
         f.numberStyle = .decimal
         return f
     }()
-
+    
     func statsDescription() -> String? {
         guard
             let stats = stats,
             let packageCount = Self.numberFormatter.string(from: NSNumber(value: stats.packageCount)),
             let versionCount = Self.numberFormatter.string(from: NSNumber(value: stats.versionCount))
-            else { return nil }
+        else { return nil }
         return "Indexing \(packageCount) packages and \(versionCount) versions."
     }
-
+    
     func statsClause() -> Node<HTML.BodyContext>? {
         guard let description = statsDescription() else { return nil }
         return .element(named: "small", text: description)
     }
-
+    
     func recentPackagesSection() -> Node<HTML.ListContext> {
         .group(
             recentPackages.map { datedLink -> Node<HTML.ListContext> in
@@ -55,7 +55,7 @@ extension HomeIndex.Model {
             }
         )
     }
-
+    
     func recentReleasesSection() -> Node<HTML.ListContext> {
         .group(
             recentReleases.map { release -> Node<HTML.ListContext> in

@@ -8,14 +8,14 @@ extension String {
         }
         return self
     }
-
+    
     var droppingGitExtension: String {
         if lowercased().hasSuffix(Constants.gitSuffix) {
             return String(dropLast(Constants.gitSuffix.count))
         }
         return self
     }
-
+    
     func contained(in characterSet: CharacterSet) -> Bool {
         unicodeScalars.allSatisfy({ characterSet.contains($0) })
     }

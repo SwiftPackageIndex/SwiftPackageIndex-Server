@@ -3,12 +3,15 @@ import Foundation
 import Vapor
 
 
-extension PackageShow.Model {
-
-    static func query(database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        let res = Package.query(on: database)
+extension Package {
+    
+    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Package> {
+        Package.query(on: database)
             .with(\.$repositories)
-            .with(\.$versions) { $0.with(\.$products) }
+            .with(\.$versions) {
+                $0.with(\.$products)
+                $0.with(\.$builds)
+            }
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
             // TODO: make less verbose once fixed in Fluent:
             // https://github.com/vapor/fluent-kit/issues/310
@@ -23,42 +26,16 @@ extension PackageShow.Model {
                 DatabaseQuery.Value.bind(repository)
             )
             .first()
-        
-        return res.unwrap(or: Abort(.notFound))
-            .map { p -> Self? in
-                // we consider certain attributes as essential and return nil (raising .notFound)
-                guard let title = p.name() else { return nil }
-                return Self.init(
-                    activity: p.activity(),
-                    authors: p.authors(),
-                    history: p.history(),
-                    languagePlatforms: p.languagePlatformInfo(),
-                    license: p.repository?.license ?? .none,
-                    products: p.productCounts(),
-                    releases: p.releaseInfo(),
-                    stars: p.repository?.stars,
-                    // FIXME: we should probably also display an explainer
-                    // when summary is nil
-                    summary: p.repository?.summary ?? "–",
-                    title: title,
-                    url: p.url,
-                    score: p.score
-                )
-            }
             .unwrap(or: Abort(.notFound))
     }
-
-}
-
-
-extension Package {
+    
     func defaultVersion() -> Version? {
         guard
             let versions = $versions.value,
             let repositories = $repositories.value,
             let repo = repositories.first,
             let defaultBranch = repo.defaultBranch
-            else { return nil }
+        else { return nil }
         return versions.first(where: { v in
             guard let ref = v.reference else { return false }
             switch ref {
@@ -69,15 +46,15 @@ extension Package {
             }
         })
     }
-
+    
     func name() -> String? { defaultVersion()?.packageName }
-
+    
     func authors() -> [Link]? {
         // TODO: fill in
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/175
         return nil
     }
-
+    
     func history() -> PackageShow.Model.History? {
         guard
             let repo = repository,
@@ -87,7 +64,7 @@ extension Package {
             let firstCommitDate = repo.firstCommitDate,
             let commitCountString = Self.numberFormatter.string(from: NSNumber(value: commitCount)),
             let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))
-            else { return nil }
+        else { return nil }
         let cl = Link(
             label: commitCountString + " commit".pluralized(for: commitCount),
             url: url.droppingGitExtension + "/commits/\(defaultBranch)")
@@ -98,12 +75,12 @@ extension Package {
                      commitCount: cl,
                      releaseCount: rl)
     }
-
+    
     func activity() -> PackageShow.Model.Activity? {
         guard
             let repo = repository,
             repo.openIssues != nil || repo.openPullRequests != nil || repo.lastPullRequestClosedAt != nil
-            else { return nil }
+        else { return nil }
         let openIssues = repo.openIssues.map {
             Link(label: pluralizedCount($0, singular: "open issue"), url: url.droppingGitExtension + "/issues")
         }
@@ -118,7 +95,7 @@ extension Package {
                      lastIssueClosedAt: lastIssueClosed,
                      lastPullRequestClosedAt: lastPRClosed)
     }
-
+    
     func productCounts() -> PackageShow.Model.ProductCounts? {
         guard let version = defaultVersion() else { return nil }
         return .init(
@@ -126,7 +103,7 @@ extension Package {
             executables: version.products.filter(\.isExecutable).count
         )
     }
-
+    
     func releases() -> (stable: Version?, beta: Version?, latest: Version?) {
         guard let versions = $versions.value else { return (nil, nil, nil) }
         let releases = versions
@@ -138,35 +115,35 @@ extension Package {
             // than stable
             ($0.reference?.semVer?.isPreRelease ?? false)
                 && ($0.reference?.semVer ?? SemVer(0, 0, 0)
-                    >= stable?.reference?.semVer ?? SemVer(0, 0, 0))
+                        >= stable?.reference?.semVer ?? SemVer(0, 0, 0))
         }
         let latest = defaultVersion()
         return (stable, beta, latest)
     }
-
+    
     func releaseInfo() -> PackageShow.Model.ReleaseInfo {
         let (stable, beta, latest) = releases()
         return .init(stable: stable.flatMap { makeDatedLink($0, \.commitDate) },
                      beta: beta.flatMap { makeDatedLink($0, \.commitDate) },
                      latest: latest.flatMap { makeDatedLink($0, \.commitDate) })
     }
-
+    
     func makeDatedLink(_ version: Version,
                        _ keyPath: KeyPath<Version, Date?>) -> DatedLink? {
         guard
             let date = version[keyPath: keyPath],
             let link = makeLink(version)
-            else { return nil }
+        else { return nil }
         return .init(date: "\(date: date, relativeTo: Current.date())",
                      link: link)
     }
-
+    
     func makeLink(_ version: Version) -> Link? {
         guard
             // FIXME: test eager loading resolution
             let fault = version.$reference.value,
             let ref = fault
-            else { return nil }
+        else { return nil }
         let linkUrl: String
         switch ref {
             case .branch:
@@ -176,25 +153,87 @@ extension Package {
         }
         return .init(label: "\(ref)", url: linkUrl)
     }
-
+    
     func makeModelVersion(_ version: Version) -> PackageShow.Model.Version? {
         guard let link = makeLink(version) else { return nil }
         return PackageShow.Model.Version(link: link,
                                          swiftVersions: version.swiftVersions.map(\.description),
                                          platforms: version.supportedPlatforms)
     }
-
+    
     func languagePlatformInfo() -> PackageShow.Model.LanguagePlatformInfo {
         let (stable, beta, latest) = releases()
         return .init(stable: stable.flatMap(makeModelVersion),
                      beta: beta.flatMap(makeModelVersion),
                      latest: latest.flatMap(makeModelVersion))
     }
-
+    
     static let numberFormatter: NumberFormatter = {
         let f = NumberFormatter()
         f.thousandSeparator = ","
         f.numberStyle = .decimal
         return f
     }()
+}
+
+
+// MARK: - Build info
+
+
+extension Package {
+    
+    func buildInfo() -> PackageShow.Model.BuildInfo? {
+        // 1) get three relevant version:
+        let (stable, beta, latest) = releases()
+        
+        // 2) collect build info for swift versions per package version
+        return .init(stable: stable.flatMap(Package.buildResults),
+                     beta: beta.flatMap(Package.buildResults),
+                     latest: latest.flatMap(Package.buildResults))
+    }
+    
+    static func buildResults(_ version: Version) -> PackageShow.Model.NamedBuildResults? {
+        guard let builds = version.$builds.value,
+              let referenceName = version.reference?.description else { return nil }
+        // sort latest to oldest ...
+        let sortedBuilds = builds.sorted { $0.swiftVersion > $1.swiftVersion }
+        // ... for each reported swift version pick the most recent major/minor version match
+        let v4_2 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v4_2) }
+        let v5_0 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_0) }
+        let v5_1 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_1) }
+        let v5_2 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_2) }
+        let v5_3 = sortedBuilds.first { $0.swiftVersion.isCompatible(with: .v5_3) }
+        // ... and report the status
+        return
+            .init(referenceName: referenceName,
+                  results: .init(status4_2: v4_2.buildStatus,
+                                 status5_0: v5_0.buildStatus,
+                                 status5_1: v5_1.buildStatus,
+                                 status5_2: v5_2.buildStatus,
+                                 status5_3: v5_3.buildStatus)
+            )
+    }
+    
+}
+
+
+private extension Optional where Wrapped == Build {
+    var buildStatus: PackageShow.Model.BuildStatus {
+        switch map(\.status) {
+            case .ok:
+                return .success
+            case .failed:
+                return .failed
+            case .none:
+                return .unknown
+        }
+    }
+}
+
+
+private extension SwiftVersion {
+    func isCompatible(with other: PackageShow.Model.SwiftVersion) -> Bool {
+        major == other.semVer.major && minor == other.semVer.minor
+    }
+    
 }

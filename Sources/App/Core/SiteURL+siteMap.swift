@@ -4,11 +4,11 @@ import SQLKit
 
 
 extension SiteURL {
-
+    
     static var staticRoutes: [SiteURL] = [
         .faq, .home, .privacy
     ]
-
+    
     static func siteMap(with packages: [SiteMap.Package]) -> SiteMap {
         .init(
             .forEach(staticRoutes) {
@@ -25,12 +25,12 @@ extension SiteURL {
             }
         )
     }
-
+    
     var changefreq: SiteMapChangeFrequency {
         switch self {
             case .admin:
                 return .weekly
-            case .api(_):
+            case .api:
                 return .weekly
             case .faq:
                 return .weekly
@@ -38,11 +38,11 @@ extension SiteURL {
                 return .weekly
             case .home:
                 return .hourly
-            case .images(_):
+            case .images:
                 return .weekly
             case .packages:
                 return .daily
-            case .package(_, _):
+            case .package:
                 return .daily
             case .privacy:
                 return .monthly
@@ -51,10 +51,12 @@ extension SiteURL {
             case .rssReleases:
                 return .hourly
             case .siteMap:
-                return.weekly
+                return .weekly
+            case .stylesheets:
+                return .weekly
         }
     }
-
+    
 }
 
 
@@ -62,18 +64,18 @@ extension SiteMap {
     struct Package: Equatable, Decodable {
         var owner: String
         var repository: String
-
+        
         enum CodingKeys: String, CodingKey {
             case owner = "owner"
             case repository = "name"
         }
     }
-
+    
     static func fetchPackages(_ database: Database) -> EventLoopFuture<[Package]> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-
+        
         // Drive sitemap from the search view for two reasons:
         // 1) access is fast
         // 2) packages listed are valid for presentation
@@ -83,7 +85,7 @@ extension SiteMap {
             .from(Search.searchView)
             .orderBy(Search.repoName)
             .orderBy(Search.repoOwner)
-
+        
         return query.all(decoding: Package.self)
     }
 }

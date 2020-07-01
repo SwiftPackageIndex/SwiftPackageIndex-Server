@@ -16,9 +16,9 @@ enum AppError: LocalizedError {
     case metadataRequestFailed(Package.Id?, HTTPStatus, URI)
     case noValidVersions(Package.Id?, _ url: String)
     case shellCommandFailed(_ command: String, _ path: String, _ message: String)
-
+    
     case genericError(Package.Id?, _ message: String)
-
+    
     var localizedDescription: String {
         switch self {
             case let .envVariableNotSet(value):
@@ -44,11 +44,11 @@ enum AppError: LocalizedError {
                 return "Generic error: \(value) (id: \(String(describing: id)))"
         }
     }
-
+    
     var errorDescription: String? {
         localizedDescription
     }
-
+    
     enum Level: String, Codable, CaseIterable {
         case critical
         case error

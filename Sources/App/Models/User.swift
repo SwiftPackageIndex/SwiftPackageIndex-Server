@@ -3,9 +3,9 @@ import Vapor
 
 struct User: Authenticatable {
     var name: String
-
+    
     static var builder: Self { .init(name: "builder") }
-
+    
     struct TokenAuthenticator: BearerAuthenticator {
         func authenticate(bearer: BearerAuthorization, for request: Request) -> EventLoopFuture<Void> {
             if

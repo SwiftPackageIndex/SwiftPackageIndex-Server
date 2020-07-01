@@ -10,7 +10,7 @@ enum GitError: LocalizedError {
 
 
 enum Git {
-
+    
     static func commitCount(at path: String) throws -> Int {
         let res = try Current.shell.run(
             command: .init(string: "git rev-list --count HEAD"),
@@ -20,7 +20,7 @@ enum Git {
         }
         return count
     }
-
+    
     static func firstCommitDate(at path: String) throws -> Date {
         let res = try Current.shell.run(
             command: .init(string: #"git log --max-parents=0 -n1 --format=format:"%ct""#),
@@ -30,7 +30,7 @@ enum Git {
         }
         return Date(timeIntervalSince1970: timestamp)
     }
-
+    
     static func lastCommitDate(at path: String) throws -> Date {
         let res = try Current.shell.run(
             command: .init(string: #"git log -n1 --format=format:"%ct""#),
@@ -40,7 +40,7 @@ enum Git {
         }
         return Date(timeIntervalSince1970: timestamp)
     }
-
+    
     static func tag(at path: String) throws -> [Reference] {
         let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
         return tags.split(separator: "\n")
@@ -48,7 +48,7 @@ enum Git {
             .compactMap { tag in SemVer(tag).map { ($0, tag) } }
             .map { Reference.tag($0, $1) }
     }
-
+    
     static func showDate(_ commit: CommitHash, at path: String) throws -> Date {
         let safe = sanitizeInput("\(commit)")
         let res = try Current.shell.run(command: .init(string: #"git show -s --format=%ct "\#(safe)""#),
@@ -58,7 +58,7 @@ enum Git {
         }
         return Date(timeIntervalSince1970: timestamp)
     }
-
+    
     static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
         let safe = sanitizeInput("\(reference)")
         let dash = "-"
@@ -73,8 +73,8 @@ enum Git {
         let date = Date(timeIntervalSince1970: timestamp)
         return .init(commit: hash, date: date)
     }
-
-
+    
+    
     /// Sanitize input strings not controlled by us. Ensure commands that use input strings
     /// properly quote the commands:
     ///   let safe = sanitizeInput(input)
@@ -89,7 +89,7 @@ enum Git {
             .union(CharacterSet.illegalCharacters)
         return String(input.unicodeScalars.filter { !bannedCharacters.contains($0) })
     }
-
+    
     struct RevisionInfo: Equatable {
         let commit: CommitHash
         let date: Date

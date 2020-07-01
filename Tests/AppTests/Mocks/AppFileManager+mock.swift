@@ -13,7 +13,7 @@ extension App.FileManager {
             },
             fileExists: { path in
                 print("ℹ️ MOCK: file at \(path) exists")
-
+                
                 return fileExists
             },
             workingDirectory: { DirectoryConfiguration.detect().workingDirectory }

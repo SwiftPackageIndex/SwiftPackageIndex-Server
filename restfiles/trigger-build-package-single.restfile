@@ -1,15 +1,14 @@
 variables:
-    base_url: https://staging.swiftpackageindex.com/api
-    # base_url: http://localhost:8080/api
     # set here or via env variables:
-    # env version_id=... builder_token=... rester ...
-    # version_id: 
-    # builder_token: 
+    # env base_url=... builder_token=... package=... rester ...
+    # base_url: http://localhost:8080/api
+    # builder_token: secr3t
+    # package: owner/repo
 
 requests:
 
     post build:
-        url: ${base_url}/versions/${version_id}/trigger-build
+        url: ${base_url}/api/packages/${package}/trigger-builds
         method: POST
         headers:
             Authorization: Bearer ${builder_token}
@@ -24,5 +23,5 @@ requests:
                     patch: 4
 
         validation:
-            status: 201
+            status: 200
         log: json

@@ -14,7 +14,7 @@ extension Github.Metadata {
                     stargazersCount: 2
         )
     )
-
+    
     static func mock(for package: Package) -> Self {
         // populate with some mock data derived from the package
         .init(

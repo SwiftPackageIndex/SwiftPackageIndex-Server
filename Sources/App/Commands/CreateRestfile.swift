@@ -6,10 +6,10 @@ enum Variant: String, LosslessStringConvertible {
     var description: String {
         rawValue
     }
-
+    
     case all
     case active
-
+    
     init(_ string: String) {
         self = Variant(rawValue: string) ?? .active
     }
@@ -21,9 +21,9 @@ struct CreateRestfileCommand: Command {
         @Argument(name: "variant")
         var variant: Variant
     }
-
+    
     var help: String { "Create restfile for automated testing" }
-
+    
     func run(using context: CommandContext, signature: Signature) throws {
         try createRestfile(application: context.application, variant: signature.variant).wait()
     }
@@ -77,5 +77,5 @@ func createRestfile(application: Application, variant: Variant) -> EventLoopFutu
                   validation:
                     status: 200
               """)
-    }.transform(to: ())
+        }.transform(to: ())
 }

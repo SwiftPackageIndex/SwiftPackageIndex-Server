@@ -52,7 +52,7 @@ extension Manifest.Product.`Type`: Decodable {
                 self = k
                 return
             }
-
+            
         }
         throw DecodingError.dataCorrupted(
             DecodingError.Context(codingPath: container.codingPath,

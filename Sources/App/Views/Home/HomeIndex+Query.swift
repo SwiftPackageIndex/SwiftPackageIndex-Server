@@ -20,7 +20,7 @@ extension HomeIndex.Model {
                      url: SiteURL.package(.value(recent.repositoryOwner),
                                           .value(recent.repositoryName)).relativeURL())
     }
-
+    
     static func makeDatedLink(_ recent: RecentPackage) -> DatedLink {
         let link = makeLink(recent)
         return .init(date: "\(date: recent.createdAt, relativeTo: Current.date())", link: link)

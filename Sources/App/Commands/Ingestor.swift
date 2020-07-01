@@ -4,16 +4,16 @@ import Fluent
 
 struct IngestorCommand: Command {
     let defaultLimit = 1
-
+    
     struct Signature: CommandSignature {
         @Option(name: "limit", short: "l")
         var limit: Int?
         @Option(name: "id")
         var id: String?
     }
-
+    
     var help: String { "Run package ingestion (fetching repository metadata)" }
-
+    
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
         let id = signature.id.flatMap(UUID.init(uuidString:))
@@ -31,7 +31,7 @@ struct IngestorCommand: Command {
                 .wait()
         }
     }
-
+    
 }
 
 
@@ -86,7 +86,7 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
     guard let pkgId = try? package.requireID() else {
         return database.eventLoop.makeFailedFuture(AppError.genericError(nil, "package id not found"))
     }
-
+    
     return Repository.query(on: database)
         .filter(\.$package.$id == pkgId)
         .first()
@@ -107,5 +107,5 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
             repo.summary = metadata.repo.description
             // TODO: find and assign parent repo
             return repo.save(on: database)
-    }
+        }
 }

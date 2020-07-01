@@ -10,7 +10,7 @@ struct Platform: Codable, Equatable {
     }
     var name: Name
     var version: String
-
+    
     static func ios(_ version: String) -> Self { .init(name: .ios, version: version) }
     static func macos(_ version: String) -> Self { .init(name: .macos, version: version) }
     static func watchos(_ version: String) -> Self { .init(name: .watchos, version: version) }
