@@ -99,7 +99,7 @@ let testUrls100 = [
     "https://github.com/haekelmeister/MacAddress.git",
     "https://github.com/SDWebImage/SDWebImagePDFCoder.git",
     "https://github.com/hallee/dotfiles.git",
-    ].asURLs
+].asURLs
 
 
 let testUrls = Array(testUrls100[..<20])

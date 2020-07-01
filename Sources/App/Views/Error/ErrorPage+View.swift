@@ -2,17 +2,17 @@ import Plot
 import Vapor
 
 enum ErrorPage {
-
+    
     final class View: PublicPage {
         let model: Model
-
+        
         
         init(path: String, model: Model) {
             self.model = model
             super.init(path: path)
         }
-
-
+        
+        
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .class("error"),
@@ -25,7 +25,7 @@ enum ErrorPage {
                 .unwrap(model.errorInstructions) { .p(.text($0)) }
             )
         }
-
+        
     }
-
+    
 }

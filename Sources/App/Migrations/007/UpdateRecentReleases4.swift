@@ -4,7 +4,7 @@ import SQLKit
 
 struct UpdateRecentReleases4: Migration {
     let dropSQL: SQLQueryString = "DROP MATERIALIZED VIEW recent_releases"
-
+    
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
@@ -35,7 +35,7 @@ struct UpdateRecentReleases4: Migration {
         return db.raw(dropSQL).run()
             .flatMap { db.raw(updatedViewSQL).run() }
     }
-
+    
     func revert(on database: Database) -> EventLoopFuture<Void> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")

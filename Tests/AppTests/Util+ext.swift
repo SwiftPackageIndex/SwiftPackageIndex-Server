@@ -12,7 +12,7 @@ extension XCTestCase {
     var isRunningInCI: Bool {
         ProcessInfo.processInfo.environment.keys.contains("GITHUB_WORKFLOW")
     }
-
+    
     func assertEquals<Root, Value: Equatable>(_ keyPath: KeyPath<Root, Value>,
                                               _ value1: Root,
                                               _ value2: Root,
@@ -23,7 +23,7 @@ extension XCTestCase {
                        "\(value1[keyPath: keyPath]) not equal to \(value2[keyPath: keyPath])",
                        file: (file), line: line)
     }
-
+    
     func assertEquals<Root, Value: Equatable>(_ values: [Root],
                                               _ keyPath: KeyPath<Root, Value>,
                                               _ expectations: [Value],
@@ -57,7 +57,7 @@ extension Result {
         if case .success = self { return true }
         return false
     }
-
+    
     var isFailure: Bool {
         if case .failure = self { return true }
         return false

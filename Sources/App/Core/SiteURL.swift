@@ -19,7 +19,7 @@ enum Api: Resourceable {
     case search
     case version
     case versions(_ id: Parameter<UUID>, VersionsPathComponents)
-
+    
     var path: String {
         switch self {
             case let .packages(.value(owner), .value(repo), next):
@@ -36,7 +36,7 @@ enum Api: Resourceable {
                 return "search"
         }
     }
-
+    
     var pathComponents: [PathComponent] {
         switch self {
             case let .packages(.key, .key, remainder):
@@ -51,7 +51,7 @@ enum Api: Resourceable {
                 fatalError("pathComponents must not be called with a value parameter")
         }
     }
-
+    
     enum PackagesPathComponents: String, Resourceable {
         case triggerBuilds = "trigger-builds"
     }
@@ -65,7 +65,7 @@ enum Api: Resourceable {
 
 
 enum SiteURL: Resourceable {
-
+    
     case admin
     case api(Api)
     case faq
@@ -79,90 +79,90 @@ enum SiteURL: Resourceable {
     case rssReleases
     case siteMap
     case stylesheets(String)
-
+    
     var path: String {
         switch self {
             case .admin:
                 return "admin"
-
+                
             case let .api(next):
                 return "api/\(next.path)"
-
+                
             case .faq:
                 return "faq"
-
+                
             case .addAPackage:
                 return "add-a-package"
-
+                
             case .home:
                 return ""
-
+                
             case let .images(name):
                 return "images/\(name)"
-
+                
             case let .package(.value(owner), .value(repo)):
                 let owner = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? owner
                 let repo = repo.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? repo
                 return "\(owner)/\(repo)"
-
+                
             case .package:
                 fatalError("invalid path: \(self)")
-
+                
             case .packages:
                 return "packages"
-
+                
             case .privacy:
                 return "privacy"
-
+                
             case .rssPackages:
                 return "packages.rss"
-
+                
             case .rssReleases:
                 return "releases.rss"
-
+                
             case .siteMap:
                 return "sitemap.xml"
-
+                
             case let .stylesheets(name):
                 return "stylesheets/\(name)"
         }
     }
-
+    
     var pathComponents: [PathComponent] {
         switch self {
             case .admin, .faq, .addAPackage, .home, .packages, .privacy, .rssPackages, .rssReleases, .siteMap:
                 return [.init(stringLiteral: path)]
-
+                
             case let .api(res):
                 return ["api"] + res.pathComponents
-
+                
             case .package(.key, .key):
                 return [":owner", ":repository"]
-
+                
             case .package:
                 fatalError("pathComponents must not be called with a value parameter")
-
+                
             case .images, .stylesheets:
                 fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
     }
-
+    
     static let _relativeURL: (String) -> String = { path in
         guard path.hasPrefix("/") else { return "/" + path }
         return path
     }
-
+    
     #if DEBUG
     // make `var` for debug so we can dependency inject
     static var relativeURL = _relativeURL
     #else
     static let relativeURL = _relativeURL
     #endif
-
+    
     static func absoluteURL(_ path: String) -> String {
         Current.siteURL() + relativeURL(path)
     }
-
+    
     static var apiBaseURL: String { absoluteURL("api") }
     
 }
@@ -183,11 +183,11 @@ extension Resourceable {
     func absoluteURL(anchor: String? = nil) -> String {
         "\(SiteURL.absoluteURL(path))" + (anchor.map { "#\($0)" } ?? "")
     }
-
+    
     func absoluteURL(parameters: [String: String]) -> String {
         "\(SiteURL.absoluteURL(path))\(parameters.queryString())"
     }
-
+    
     func relativeURL(anchor: String? = nil) -> String {
         "\(SiteURL.relativeURL(path))" + (anchor.map { "#\($0)" } ?? "")
     }

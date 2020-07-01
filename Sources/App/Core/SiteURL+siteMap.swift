@@ -4,11 +4,11 @@ import SQLKit
 
 
 extension SiteURL {
-
+    
     static var staticRoutes: [SiteURL] = [
         .faq, .home, .privacy
     ]
-
+    
     static func siteMap(with packages: [SiteMap.Package]) -> SiteMap {
         .init(
             .forEach(staticRoutes) {
@@ -25,7 +25,7 @@ extension SiteURL {
             }
         )
     }
-
+    
     var changefreq: SiteMapChangeFrequency {
         switch self {
             case .admin:
@@ -56,7 +56,7 @@ extension SiteURL {
                 return .weekly
         }
     }
-
+    
 }
 
 
@@ -64,18 +64,18 @@ extension SiteMap {
     struct Package: Equatable, Decodable {
         var owner: String
         var repository: String
-
+        
         enum CodingKeys: String, CodingKey {
             case owner = "owner"
             case repository = "name"
         }
     }
-
+    
     static func fetchPackages(_ database: Database) -> EventLoopFuture<[Package]> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-
+        
         // Drive sitemap from the search view for two reasons:
         // 1) access is fast
         // 2) packages listed are valid for presentation
@@ -85,7 +85,7 @@ extension SiteMap {
             .from(Search.searchView)
             .orderBy(Search.repoName)
             .orderBy(Search.repoOwner)
-
+        
         return query.all(decoding: Package.self)
     }
 }

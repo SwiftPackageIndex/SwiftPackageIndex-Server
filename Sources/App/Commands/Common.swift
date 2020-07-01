@@ -52,13 +52,13 @@ func recordError(database: Database,
             .set(\.$processingStage, to: stage)
             .set(\.$status, to: status)
             .update()
-
+        
     }
-
+    
     database.logger.error("\(stage) error: \(error.localizedDescription)")
-
+    
     guard let error = error as? AppError else { return database.eventLoop.future() }
-
+    
     switch error {
         case .envVariableNotSet, .shellCommandFailed:
             return database.eventLoop.future()

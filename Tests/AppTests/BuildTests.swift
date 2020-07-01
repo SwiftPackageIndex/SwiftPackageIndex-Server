@@ -5,7 +5,7 @@ import XCTVapor
 
 
 class BuildTests: AppTestCase {
-
+    
     func test_save() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -16,10 +16,10 @@ class BuildTests: AppTestCase {
                           platform: .linux("ubuntu-18.04"),
                           status: .ok,
                           swiftVersion: .init(5, 2, 0))
-
+        
         // MUT
         try b.save(on: app.db).wait()
-
+        
         do {  // validate
             let b = try XCTUnwrap(Build.find(b.id, on: app.db).wait())
             XCTAssertEqual(b.logs, "logs")
@@ -28,7 +28,7 @@ class BuildTests: AppTestCase {
             XCTAssertEqual(b.status, .ok)
         }
     }
-
+    
     func test_delete_cascade() throws {
         // Ensure deleting a version also deletes the builds
         // setup
@@ -41,14 +41,14 @@ class BuildTests: AppTestCase {
                           swiftVersion: .init(5, 2, 0))
         try b.save(on: app.db).wait()
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
-
+        
         // MUT
         try v.delete(on: app.db).wait()
-
+        
         // validate
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
     }
-
+    
     func test_unique_constraint() throws {
         // Ensure builds are unique over (id, platform, swiftVersion)
         // setup
@@ -57,7 +57,7 @@ class BuildTests: AppTestCase {
         try v1.save(on: app.db).wait()
         let v2 = try Version(package: pkg)
         try v2.save(on: app.db).wait()
-
+        
         // MUT
         // initial save - ok
         try Build(version: v1,
@@ -79,7 +79,7 @@ class BuildTests: AppTestCase {
                   platform: .linux("ubuntu-18.04"),
                   status: .ok,
                   swiftVersion: .init(4, 0, 0)).save(on: app.db).wait()
-
+        
         // (v1, linx, 5.2.0) - not ok
         XCTAssertThrowsError(
             try Build(version: v1,
@@ -93,7 +93,7 @@ class BuildTests: AppTestCase {
         // validate
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 4)
     }
- 
+    
     func test_trigger() throws {
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
@@ -103,7 +103,7 @@ class BuildTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionID = try XCTUnwrap(v.id)
-
+        
         var called = false
         let client = MockClient { req, res in
             called = true
@@ -131,7 +131,7 @@ class BuildTests: AppTestCase {
                                     versionId: versionID,
                                     platform: .init(name: .unknown, version: "test"),
                                     swiftVersion: .init(5, 2, 4)).wait()
-
+        
         // validate
         XCTAssertTrue(called)
         XCTAssertEqual(res, .created)
@@ -143,7 +143,7 @@ class BuildTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
         let v = try Version(package: pkg)
         try v.save(on: app.db).wait()
-
+        
         // MUT
         // initial save - ok
         try Build(version: v,
@@ -160,7 +160,7 @@ class BuildTests: AppTestCase {
             XCTAssertEqual(b.status, .ok)
             XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
         }
-
+        
         // next insert is update
         try Build(version: v,
                   platform: .linux("ubuntu-18.04"),

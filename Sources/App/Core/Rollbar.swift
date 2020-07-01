@@ -20,7 +20,7 @@ enum Rollbar {
         }
         .transform(to: ())
     }
-
+    
     static var rollbarURI: URI { URI("https://api.rollbar.com/api/1/item/") }
 }
 
@@ -29,12 +29,12 @@ extension Rollbar {
     struct Item: Content {
         let accessToken: String
         let data: Data
-
+        
         enum CodingKeys: String, CodingKey {
-          case accessToken = "access_token"
-          case data
+            case accessToken = "access_token"
+            case data
         }
-
+        
         init(accessToken: String, environment: Environment, level: Level, message: String) {
             #if DEBUG
             // always pin to testing for debug builds, so we don't ever risk polluting prod
@@ -47,7 +47,7 @@ extension Rollbar {
                               body: .init(message: message),
                               level: level)
         }
-
+        
         struct Data: Content {
             var environment: String
             var body: Body
@@ -55,27 +55,27 @@ extension Rollbar {
             var language = "swift"
             var framework = "vapor"
             var uuid = UUID().uuidString
-
+            
             struct Body: Content {
                 var message: Message
-
+                
                 init(message: String) {
-                  self.message = .init(body: message)
+                    self.message = .init(body: message)
                 }
-
+                
                 struct Message: Content {
                     let body: String
                 }
             }
         }
-
+        
         enum Level: String, Codable {
             case critical
             case error
             case warning
             case info
             case debug
-
+            
             init(level: AppError.Level) {
                 switch level {
                     case .critical: self = .critical

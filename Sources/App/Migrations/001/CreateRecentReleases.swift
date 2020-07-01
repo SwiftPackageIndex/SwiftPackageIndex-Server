@@ -25,7 +25,7 @@ struct CreateRecentReleases: Migration {
             """
         ).run()
     }
-
+    
     func revert(on database: Database) -> EventLoopFuture<Void> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")

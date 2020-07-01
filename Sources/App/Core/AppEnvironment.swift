@@ -50,7 +50,7 @@ struct FileManager {
         try createDirectory(path, createIntermediates, attributes)
     }
     func fileExists(atPath path: String) -> Bool { fileExists(path) }
-
+    
     static let live: Self = .init(
         checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
         createDirectory: Foundation.FileManager.default.createDirectory(atPath:withIntermediateDirectories:attributes:),
@@ -80,7 +80,7 @@ struct Shell {
             throw AppError.shellCommandFailed(command.string, path, error.localizedDescription)
         }
     }
-
+    
     static let live: Self = .init(run: { cmd, path in
         try ShellOut.shellOut(to: cmd, at: path)
     })

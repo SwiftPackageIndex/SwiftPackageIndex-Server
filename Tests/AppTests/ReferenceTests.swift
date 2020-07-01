@@ -4,7 +4,7 @@ import XCTest
 
 
 class ReferenceTests: XCTestCase {
-
+    
     func test_Codable() throws {
         do { // branch
             let ref = Reference.branch("foo")
@@ -19,11 +19,11 @@ class ReferenceTests: XCTestCase {
             XCTAssertEqual(decoded, .tag(.init(1, 2, 3)))
         }
     }
-
+    
     func test_isRelease() throws {
         XCTAssertTrue(Reference.tag(.init(1, 0, 0)).isRelease)
         XCTAssertFalse(Reference.tag(.init(1, 0, 0, "beta1")).isRelease)
         XCTAssertFalse(Reference.branch("main").isRelease)
     }
-
+    
 }

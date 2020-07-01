@@ -4,7 +4,7 @@ import XCTest
 
 
 class ScoreTests: XCTestCase {
-
+    
     func test_computeScore() throws {
         XCTAssertEqual(Score.compute(.init(supportsLatestSwiftVersion: false,
                                            licenseKind: .noneOrUnknown,
@@ -43,5 +43,5 @@ class ScoreTests: XCTestCase {
                                            likeCount: 20_000)),
                        77)
     }
-
+    
 }

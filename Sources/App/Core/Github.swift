@@ -5,18 +5,18 @@ enum Github {
     struct License: Decodable, Equatable {
         var key: String
     }
-
+    
     // Content from https://api.github.com/repos/${repo}/issues
     struct Issue: Decodable, Equatable {
         var closedAt: Date?
         var pullRequest: Pull?
     }
-
+    
     // Content from https://api.github.com/repos/${repo}/pulls
     struct Pull: Decodable, Equatable {
         var url: String
     }
-
+    
     // Content from https://api.github.com/repos/${repo}
     struct Repo: Decodable, Equatable {
         var defaultBranch: String
@@ -28,36 +28,36 @@ enum Github {
         var owner: Owner?
         var parent: Parent?
         var stargazersCount: Int
-
+        
         struct Parent: Decodable, Equatable {
             var cloneUrl: String
             var fullName: String
             var url: String
         }
-
+        
         struct Owner: Decodable, Equatable {
             var login: String?
         }
     }
-
+    
     struct Metadata: Decodable, Equatable {
         var issues: [Issue]
         var openPullRequests: [Pull]
         var repo: Repo
     }
-
+    
     enum Error: LocalizedError {
         case requestFailed(HTTPStatus, URI)
         case invalidURI(Package.Id?, _ url: String)
     }
-
+    
     static var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }()
-
+    
     static func isRateLimited(_ response: ClientResponse) -> Bool {
         if
             response.status == .forbidden,
@@ -67,7 +67,7 @@ enum Github {
         }
         return false
     }
-
+    
     static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) -> EventLoopFuture<T> {
         let request = client
             .get(uri, headers: getHeaders)
@@ -79,12 +79,10 @@ enum Github {
                                      AppError.metadataRequestFailed(nil, .tooManyRequests, uri))
                         .flatMap {
                             client.eventLoop.future(error: Error.requestFailed(.tooManyRequests, uri))
-                    }
+                        }
                 }
                 guard response.status == .ok else {
-                    return client.eventLoop.future(error:
-                        Error.requestFailed(response.status, uri)
-                    )
+                    return client.eventLoop.future(error: Error.requestFailed(response.status, uri))
                 }
                 do {
                     let res = try response.content.decode(T.self, using: decoder)
@@ -95,7 +93,7 @@ enum Github {
             }
         return request
     }
-
+    
     static func fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {
         guard
             let repoUri = try? apiUri(for: package, resource: .repo),
@@ -107,17 +105,17 @@ enum Github {
                                                                                "sort": "updated",
                                                                                "direction": "desc",
                                                                                "page_size": "100"])
-            else { return client.eventLoop.future(error: Error.invalidURI(package.id, package.url)) }
-
+        else { return client.eventLoop.future(error: Error.invalidURI(package.id, package.url)) }
+        
         // Chain requests together
         let issues = fetchResource([Issue].self, client: client, uri: issuesUri)
         let pulls = fetchResource([Pull].self, client: client, uri: pullsUri)
         let repo = fetchResource(Repo.self, client: client, uri: repoUri)
-
+        
         let metadata = issues.and(pulls).and(repo)
             .map { ($0.0, $0.1, $1) }  // unpack into (issues, pulls, repo) tuple
             .map(Metadata.init)
-
+        
         return metadata
             .flatMapError { error in
                 // remap request failures to AppError
@@ -125,9 +123,9 @@ enum Github {
                     return client.eventLoop.future(error: AppError.metadataRequestFailed(package.id, status, uri))
                 }
                 return client.eventLoop.future(error: error)
-        }
+            }
     }
-
+    
     static var getHeaders: HTTPHeaders {
         // Set User-Agent or we get a 403
         // https://developer.github.com/v3/#user-agent-required
@@ -137,13 +135,13 @@ enum Github {
         }
         return headers
     }
-
+    
     enum Resource: String {
         case issues
         case pulls
         case repo
     }
-
+    
     static func apiUri(for package: Package,
                        resource: Resource,
                        query: [String: String] = [:]) throws -> URI {

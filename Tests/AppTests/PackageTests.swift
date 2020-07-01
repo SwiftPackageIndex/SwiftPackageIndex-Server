@@ -25,7 +25,7 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(Package(url: "file://foo").cacheDirectoryName, nil)
         XCTAssertEqual(Package(url: "http:///foo/bar").cacheDirectoryName, nil)
     }
-
+    
     func test_save_status() throws {
         do {  // default status
             let pkg = Package()  // avoid using init with default argument in order to test db default
@@ -40,14 +40,14 @@ final class PackageTests: AppTestCase {
             XCTAssertEqual(pkg.status, .ok)
         }
     }
-
+    
     func test_encode() throws {
         let p = Package(id: UUID(), url: URL(string: "https://github.com/finestructure/Arena")!)
         p.status = .ok
         let data = try JSONEncoder().encode(p)
         XCTAssertTrue(!data.isEmpty)
     }
-
+    
     func test_decode_date() throws {
         let json = """
         {
@@ -67,12 +67,12 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(p.createdAt, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(p.updatedAt, Date(timeIntervalSince1970: 1))
     }
-
+    
     func test_unique_url() throws {
         try Package(url: "p1").save(on: app.db).wait()
         XCTAssertThrowsError(try Package(url: "p1").save(on: app.db).wait())
     }
-
+    
     func test_filter_by_url() throws {
         try ["https://foo.com/1", "https://foo.com/2"].forEach {
             try Package(url: $0).save(on: app.db).wait()
@@ -80,7 +80,7 @@ final class PackageTests: AppTestCase {
         let res = try Package.query(on: app.db).filter(by: "https://foo.com/1").all().wait()
         XCTAssertEqual(res.map(\.url), ["https://foo.com/1"])
     }
-
+    
     func test_repository() throws {
         let pkg = try savePackage(on: app.db, "1")
         do {
@@ -94,7 +94,7 @@ final class PackageTests: AppTestCase {
             XCTAssertEqual(pkg.repository, repo)
         }
     }
-
+    
     func test_versions() throws {
         let pkg = try savePackage(on: app.db, "1")
         let versions = [
@@ -108,7 +108,7 @@ final class PackageTests: AppTestCase {
             XCTAssertEqual(pkg.versions.count, 3)
         }
     }
-
+    
     func test_defaultVersion() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -124,14 +124,14 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db)
             .flatMap { pkg.$versions.load(on: self.app.db) }
             .wait()
-
+        
         // MUT
         let version = pkg.defaultVersion()
-
+        
         // validation
         XCTAssertEqual(version?.reference, .branch("default"))
     }
-
+    
     func test_defaultVersion_eagerLoading() throws {
         // Ensure failure to eager load doesn't trigger a fatalError
         // setup
@@ -139,24 +139,24 @@ final class PackageTests: AppTestCase {
         try Repository(package: pkg, defaultBranch: "branch").create(on: app.db).wait()
         let version = try Version(package: pkg, reference: .branch("branch"))
         try version.create(on: app.db).wait()
-
+        
         // MUT / validation
-
+        
         do {  // no eager loading
             XCTAssertNil(pkg.$versions.value)
             XCTAssertNil(pkg.defaultVersion())
         }
-
+        
         do {  // load eagerly
             let pkg = try XCTUnwrap(Package.query(on: app.db)
-                .with(\.$repositories)
-                .with(\.$versions)
-                .first().wait())
+                                        .with(\.$repositories)
+                                        .with(\.$versions)
+                                        .first().wait())
             XCTAssertNotNil(pkg.$versions.value)
             XCTAssertEqual(pkg.defaultVersion(), version)
         }
     }
-
+    
     func test_query_owner_repository() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
@@ -172,14 +172,14 @@ final class PackageTests: AppTestCase {
                                       reference: .branch("main"),
                                       packageName: "test package")
         try version.save(on: app.db).wait()
-
+        
         // MUT
         let p = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
-
+        
         // validate
         XCTAssertEqual(p.id, pkg.id)
     }
-
+    
     func test_query_owner_repository_case_insensitivity() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
@@ -195,14 +195,14 @@ final class PackageTests: AppTestCase {
                                       reference: .branch("main"),
                                       packageName: "test package")
         try version.save(on: app.db).wait()
-
+        
         // MUT
         let p = try Package.query(on: app.db, owner: "Foo", repository: "bar").wait()
-
+        
         // validate
         XCTAssertEqual(p.id, pkg.id)
     }
-
+    
     func test_releaseInfo() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -219,16 +219,16 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db)
             .flatMap { pkg.$versions.load(on: self.app.db) }
             .wait()
-
+        
         // MUT
         let info = pkg.releaseInfo()
-
+        
         // validate
         XCTAssertEqual(info.stable?.date, "3 days ago")
         XCTAssertEqual(info.beta?.date, "2 days ago")
         XCTAssertEqual(info.latest?.date, "1 day ago")
     }
-
+    
     func test_releaseInfo_exclude_old_betas() throws {
         // Test to ensure that we don't publish a beta that's older than stable
         // setup
@@ -244,16 +244,16 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db)
             .flatMap { pkg.$versions.load(on: self.app.db) }
             .wait()
-
+        
         // MUT
         let info = pkg.releaseInfo()
-
+        
         // validate
         XCTAssertEqual(info.stable?.date, "3 days ago")
         XCTAssertEqual(info.beta, nil)
         XCTAssertEqual(info.latest?.date, "1 day ago")
     }
-
+    
     func test_releaseInfo_nonEager() throws {
         // ensure non-eager access does not fatalError
         let pkg = try savePackage(on: app.db, "1")
@@ -261,11 +261,11 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, reference: .branch("default")),
         ]
         try versions.create(on: app.db).wait()
-
+        
         // MUT / validate
         XCTAssertNoThrow(pkg.releaseInfo)
     }
-
+    
     func test_languagePlatformInfo() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -291,26 +291,26 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db)
             .flatMap { pkg.$versions.load(on: self.app.db) }
             .wait()
-
+        
         // MUT
         let lpInfo = pkg.languagePlatformInfo()
-
+        
         // validate
         XCTAssertEqual(lpInfo.stable?.link, .init(label: "2.1.0",
                                                   url: "1/releases/tag/2.1.0"))
         XCTAssertEqual(lpInfo.stable?.swiftVersions, ["4", "5"])
         XCTAssertEqual(lpInfo.stable?.platforms, [.macos("10.13"), .ios("10")])
-
+        
         XCTAssertEqual(lpInfo.beta?.link, .init(label: "3.0.0-beta",
                                                 url: "1/releases/tag/3.0.0-beta"))
         XCTAssertEqual(lpInfo.beta?.swiftVersions, ["5", "5.2"])
         XCTAssertEqual(lpInfo.beta?.platforms, [.macos("10.14"), .ios("13")])
-
+        
         XCTAssertEqual(lpInfo.latest?.link, .init(label: "default", url: "1"))
         XCTAssertEqual(lpInfo.latest?.swiftVersions, ["5.2", "5.3"])
         XCTAssertEqual(lpInfo.latest?.platforms, [.macos("10.15"), .ios("13")])
     }
-
+    
     func test_history() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -328,10 +328,10 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db)
             .flatMap { pkg.$versions.load(on: self.app.db) }
             .wait()
-
+        
         // MUT
         let history = try XCTUnwrap(pkg.history())
-
+        
         // validate
         XCTAssertEqual(history.since, "50 years")
         XCTAssertEqual(history.commitCount.label, "1,433 commits")
@@ -339,7 +339,7 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(history.releaseCount.label, "10 releases")
         XCTAssertEqual(history.releaseCount.url, "1/releases")
     }
-
+    
     func test_computeScore() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -354,11 +354,11 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db)
             .flatMap { pkg.$versions.load(on: self.app.db) }
             .wait()
-
+        
         // MUT
         XCTAssertEqual(pkg.computeScore(), 67)
     }
-
+    
     func test_activity() throws {
         // setup
         let m: TimeInterval = 60
@@ -372,10 +372,10 @@ final class PackageTests: AppTestCase {
                        openPullRequests: 1).create(on: app.db).wait()
         // re-load pkg with relationships
         try pkg.$repositories.load(on: app.db).wait()
-
+        
         // MUT
         let res = pkg.activity()
-
+        
         // validate
         XCTAssertEqual(res,
                        .init(openIssuesCount: 27,
@@ -403,7 +403,7 @@ final class PackageTests: AppTestCase {
         try makeBuild(.ok, .init(5, 2, 2))
         try makeBuild(.ok, .init(5, 3, 0))
         try v.$builds.load(on: app.db).wait()
-
+        
         // MUT
         let res = Package.buildResults(v)
         
@@ -431,7 +431,7 @@ final class PackageTests: AppTestCase {
         
         // MUT
         let res = p.buildInfo()
-
+        
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res?.stable?.results.v4_2, .init(swiftVersion: .v4_2, status: .unknown))

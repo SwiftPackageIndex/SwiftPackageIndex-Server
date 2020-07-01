@@ -8,7 +8,7 @@ extension PackageShow.Model {
         var commitCount: Link
         var releaseCount: Link
     }
-
+    
     struct Activity: Equatable {
         var openIssuesCount: Int
         var openIssues: Link?
@@ -16,24 +16,24 @@ extension PackageShow.Model {
         var lastIssueClosedAt: String?
         var lastPullRequestClosedAt: String?
     }
-
+    
     struct ProductCounts: Equatable {
         var libraries: Int
         var executables: Int
     }
-
+    
     struct ReleaseInfo: Equatable {
         var stable: DatedLink?
         var beta: DatedLink?
         var latest: DatedLink?
     }
-
+    
     struct Version: Equatable {
         var link: Link
         var swiftVersions: [String]
         var platforms: [Platform]
     }
-
+    
     struct LanguagePlatformInfo: Equatable {
         var stable: Version?
         var beta: Version?
@@ -45,7 +45,7 @@ extension PackageShow.Model {
         var beta: NamedBuildResults?
         var latest: NamedBuildResults?
     }
-
+    
     struct SwiftVersion: Equatable, Hashable, Comparable {
         static func < (lhs: SwiftVersion, rhs: SwiftVersion) -> Bool {
             lhs.displayName < rhs.displayName
@@ -83,7 +83,7 @@ extension PackageShow.Model {
                                       isLatest: false,
                                       isBeta: true)
     }
-
+    
     struct Reference: Equatable {
         var name: String
         var kind: Kind
@@ -111,7 +111,7 @@ extension PackageShow.Model {
             self.references = references
             self.results = results
         }
-
+        
         init(namedResult: NamedBuildResults, kind: Reference.Kind) {
             self.references = [.init(name: namedResult.referenceName, kind: kind)]
             self.results = namedResult.results

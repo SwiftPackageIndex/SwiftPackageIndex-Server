@@ -1,163 +1,163 @@
 {
-  "cLanguageStandard" : null,
-  "cxxLanguageStandard" : null,
-  "dependencies" : [
-    {
-      "name" : "vapor",
-      "requirement" : {
-        "range" : [
-          {
-            "lowerBound" : "4.0.0-rc",
-            "upperBound" : "5.0.0"
-          }
-        ]
-      },
-      "url" : "https:\/\/github.com\/vapor\/vapor.git"
-    },
-    {
-      "name" : "fluent",
-      "requirement" : {
-        "range" : [
-          {
-            "lowerBound" : "4.0.0-rc",
-            "upperBound" : "5.0.0"
-          }
-        ]
-      },
-      "url" : "https:\/\/github.com\/vapor\/fluent.git"
-    },
-    {
-      "name" : "fluent-postgres-driver",
-      "requirement" : {
-        "range" : [
-          {
-            "lowerBound" : "2.0.0-rc",
-            "upperBound" : "3.0.0"
-          }
-        ]
-      },
-      "url" : "https:\/\/github.com\/vapor\/fluent-postgres-driver.git"
-    },
-    {
-      "name" : "ShellOut",
-      "requirement" : {
-        "range" : [
-          {
-            "lowerBound" : "2.0.0",
-            "upperBound" : "3.0.0"
-          }
-        ]
-      },
-      "url" : "https:\/\/github.com\/JohnSundell\/ShellOut.git"
-    }
-  ],
-  "name" : "SPI-Server",
-  "pkgConfig" : null,
-  "platforms" : [
-    {
-      "platformName" : "macos",
-      "version" : "10.15"
-    }
-  ],
-  "products" : [
-
-  ],
-  "providers" : null,
-  "swiftLanguageVersions" : null,
-  "targets" : [
-    {
-      "dependencies" : [
+    "cLanguageStandard" : null,
+    "cxxLanguageStandard" : null,
+    "dependencies" : [
         {
-          "product" : [
-            "Fluent",
-            "fluent"
-          ]
+            "name" : "vapor",
+            "requirement" : {
+                "range" : [
+                    {
+                        "lowerBound" : "4.0.0-rc",
+                        "upperBound" : "5.0.0"
+                    }
+                ]
+            },
+            "url" : "https:\/\/github.com\/vapor\/vapor.git"
         },
         {
-          "product" : [
-            "FluentPostgresDriver",
-            "fluent-postgres-driver"
-          ]
+            "name" : "fluent",
+            "requirement" : {
+                "range" : [
+                    {
+                        "lowerBound" : "4.0.0-rc",
+                        "upperBound" : "5.0.0"
+                    }
+                ]
+            },
+            "url" : "https:\/\/github.com\/vapor\/fluent.git"
         },
         {
-          "product" : [
-            "Vapor",
-            "vapor"
-          ]
+            "name" : "fluent-postgres-driver",
+            "requirement" : {
+                "range" : [
+                    {
+                        "lowerBound" : "2.0.0-rc",
+                        "upperBound" : "3.0.0"
+                    }
+                ]
+            },
+            "url" : "https:\/\/github.com\/vapor\/fluent-postgres-driver.git"
         },
         {
-          "product" : [
-            "ShellOut",
-            "ShellOut"
-          ]
+            "name" : "ShellOut",
+            "requirement" : {
+                "range" : [
+                    {
+                        "lowerBound" : "2.0.0",
+                        "upperBound" : "3.0.0"
+                    }
+                ]
+            },
+            "url" : "https:\/\/github.com\/JohnSundell\/ShellOut.git"
         }
-      ],
-      "exclude" : [
-
-      ],
-      "name" : "App",
-      "resources" : [
-
-      ],
-      "settings" : [
-
-      ],
-      "type" : "regular"
-    },
-    {
-      "dependencies" : [
+    ],
+    "name" : "SPI-Server",
+    "pkgConfig" : null,
+    "platforms" : [
         {
-          "byName" : [
-            "App"
-          ]
+            "platformName" : "macos",
+            "version" : "10.15"
         }
-      ],
-      "exclude" : [
-
-      ],
-      "name" : "Run",
-      "resources" : [
-
-      ],
-      "settings" : [
-
-      ],
-      "type" : "regular"
-    },
-    {
-      "dependencies" : [
+    ],
+    "products" : [
+        
+    ],
+    "providers" : null,
+    "swiftLanguageVersions" : null,
+    "targets" : [
         {
-          "target" : [
-            "App"
-          ]
+            "dependencies" : [
+                {
+                    "product" : [
+                        "Fluent",
+                        "fluent"
+                    ]
+                },
+                {
+                    "product" : [
+                        "FluentPostgresDriver",
+                        "fluent-postgres-driver"
+                    ]
+                },
+                {
+                    "product" : [
+                        "Vapor",
+                        "vapor"
+                    ]
+                },
+                {
+                    "product" : [
+                        "ShellOut",
+                        "ShellOut"
+                    ]
+                }
+            ],
+            "exclude" : [
+                
+            ],
+            "name" : "App",
+            "resources" : [
+                
+            ],
+            "settings" : [
+                
+            ],
+            "type" : "regular"
         },
         {
-          "product" : [
-            "XCTVapor",
-            "vapor"
-          ]
+            "dependencies" : [
+                {
+                    "byName" : [
+                        "App"
+                    ]
+                }
+            ],
+            "exclude" : [
+                
+            ],
+            "name" : "Run",
+            "resources" : [
+                
+            ],
+            "settings" : [
+                
+            ],
+            "type" : "regular"
         },
         {
-          "product" : [
-            "ShellOut",
-            "ShellOut"
-          ]
+            "dependencies" : [
+                {
+                    "target" : [
+                        "App"
+                    ]
+                },
+                {
+                    "product" : [
+                        "XCTVapor",
+                        "vapor"
+                    ]
+                },
+                {
+                    "product" : [
+                        "ShellOut",
+                        "ShellOut"
+                    ]
+                }
+            ],
+            "exclude" : [
+                
+            ],
+            "name" : "AppTests",
+            "resources" : [
+                
+            ],
+            "settings" : [
+                
+            ],
+            "type" : "test"
         }
-      ],
-      "exclude" : [
-
-      ],
-      "name" : "AppTests",
-      "resources" : [
-
-      ],
-      "settings" : [
-
-      ],
-      "type" : "test"
+    ],
+    "toolsVersion" : {
+        "_version" : "5.2.0"
     }
-  ],
-  "toolsVersion" : {
-    "_version" : "5.2.0"
-  }
 }

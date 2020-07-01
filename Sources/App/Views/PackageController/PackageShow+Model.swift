@@ -69,7 +69,7 @@ extension PackageShow.Model {
                                       ifNoValues: "-",
                                       closing: "."))
     }
-
+    
     func historyClause() -> Node<HTML.BodyContext>? {
         guard let history = history else { return nil }
         return .group([
@@ -86,7 +86,7 @@ extension PackageShow.Model {
             "."
         ])
     }
-
+    
     func activityClause() -> Node<HTML.BodyContext>? {
         guard
             let activity = activity,
@@ -95,18 +95,18 @@ extension PackageShow.Model {
                 || activity.openPullRequests != nil
                 || activity.lastIssueClosedAt != nil
                 || activity.lastPullRequestClosedAt != nil
-            else { return nil }
-
+        else { return nil }
+        
         let openItems = [activity.openIssues, activity.openPullRequests]
             .compactMap { $0 }
             .map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
-
+        
         let lastClosed: [Node<HTML.BodyContext>] = [
             activity.lastIssueClosedAt.map { .text("last issue was closed \($0)") },
             activity.lastPullRequestClosedAt.map { .text("last pull request was merged/closed \($0)") }
-            ]
-            .compactMap { $0 }
-
+        ]
+        .compactMap { $0 }
+        
         return .group(
             Self.listPhrase(opening: .text("There is ".pluralized(for: activity.openIssuesCount,
                                                                   plural: "There are ")),
@@ -114,7 +114,7 @@ extension PackageShow.Model {
                 Self.listPhrase(opening: "The ", nodes: lastClosed, conjunction: " and the ", closing: ".")
         )
     }
-
+    
     func productsClause() -> Node<HTML.BodyContext>? {
         guard let products = products else { return nil }
         return .group([
@@ -129,24 +129,24 @@ extension PackageShow.Model {
             "."
         ])
     }
-
+    
     static var starsNumberFormatter: NumberFormatter = {
         let f = NumberFormatter()
         f.thousandSeparator = ","
         f.numberStyle = .decimal
         return f
     }()
-
+    
     func starsClause() -> Node<HTML.BodyContext>? {
         guard
             let stars = stars,
             let str = Self.starsNumberFormatter.string(from: NSNumber(value: stars))
-            else { return nil }
+        else { return nil }
         return .group(
             "\(str) stars."
         )
     }
-
+    
     func stableReleaseClause() -> [Node<HTML.BodyContext>] {
         releases.stable.map { datedLink -> [Node<HTML.BodyContext>] in
             [
@@ -163,7 +163,7 @@ extension PackageShow.Model {
             ]
         } ?? []
     }
-
+    
     func betaReleaseClause() -> [Node<HTML.BodyContext>] {
         releases.beta.map { datedLink -> [Node<HTML.BodyContext>] in
             [
@@ -180,7 +180,7 @@ extension PackageShow.Model {
             ]
         } ?? []
     }
-
+    
     func latestReleaseClause() -> [Node<HTML.BodyContext>] {
         releases.latest.map { datedLink -> [Node<HTML.BodyContext>] in
             [
@@ -197,7 +197,7 @@ extension PackageShow.Model {
             ]
         } ?? []
     }
-
+    
     func languagesAndPlatformsClause() -> Node<HTML.ListContext>? {
         let groups = Self.lpInfoGroups(languagePlatforms)
         let listItems = groups
@@ -206,9 +206,9 @@ extension PackageShow.Model {
         guard !listItems.isEmpty else { return nil }
         return .group(listItems)
     }
-
+    
     typealias LanguagePlatformKeyPath = KeyPath<LanguagePlatformInfo, Version?>
-
+    
     static func lpInfoGroups(_ lpInfo: LanguagePlatformInfo) -> [[LanguagePlatformKeyPath]] {
         let allKeyPaths: [LanguagePlatformKeyPath] = [\.stable, \.beta, \.latest]
         var availableKeyPaths = allKeyPaths
@@ -223,7 +223,7 @@ extension PackageShow.Model {
         .filter { !$0.isEmpty }
         return groups
     }
-
+    
     static func lpInfoSection(keypaths: [LanguagePlatformKeyPath],
                               languagePlatforms: LanguagePlatformInfo) -> Node<HTML.BodyContext>? {
         guard let leadingKeyPath = keypaths.first else { return nil }
@@ -242,15 +242,15 @@ extension PackageShow.Model {
                 )
             )
         }
-
+        
         // swift versions and platforms are the same for all versions because we grouped them,
         // so we use the leading keypath to obtain it
         guard
             let versionInfo = languagePlatforms[keyPath: leadingKeyPath],
             // at least one group must be non-empty - or else we return nil and collapse the group
             !(versionInfo.swiftVersions.isEmpty && versionInfo.platforms.isEmpty)
-            else { return nil }
-
+        else { return nil }
+        
         return .group([
             .p(
                 .group(Self.listPhrase(opening: .text("Version".pluralized(for: keypaths.count) + " "),
@@ -261,19 +261,19 @@ extension PackageShow.Model {
                 .group([
                     versionsClause(versionInfo.swiftVersions),
                     platformsClause(versionInfo.platforms)
-                    ]
-                    .filter { !$0.isEmpty }
-                    .map { .li(.group($0)) }
+                ]
+                .filter { !$0.isEmpty }
+                .map { .li(.group($0)) }
                 )
             )
         ])
     }
-
+    
     static func versionsClause(_ versions: [String]) -> [Node<HTML.BodyContext>] {
         let nodes = versions.map { Node<HTML.BodyContext>.strong(.text($0)) }
         return Self.listPhrase(opening: "Swift ", nodes: nodes)
     }
-
+    
     static func platformsClause(_ platforms: [Platform]) -> [Node<HTML.BodyContext>] {
         let nodes = platforms
             .sorted(by: { $0.ordinal < $1.ordinal })
@@ -329,7 +329,7 @@ extension PackageShow.Model {
             )
         )
     }
-
+    
     func swiftVersionCompatibilityListItem(_ row: BuildStatusRow) -> Node<HTML.ListContext> {
         let results: [BuildResult] = row.results
             .all.sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
@@ -356,7 +356,7 @@ extension PackageShow.Model {
 // MARK: - General helpers
 
 extension PackageShow.Model {
-
+    
     static func listPhrase(opening: Node<HTML.BodyContext>,
                            nodes: [Node<HTML.BodyContext>],
                            ifNoValues: Node<HTML.BodyContext>? = nil,
@@ -380,7 +380,7 @@ extension PackageShow.Model {
                 return middle.reduce(start) { $0 + $1 } + end
         }
     }
-
+    
 }
 
 

@@ -5,12 +5,12 @@ import XCTVapor
 
 
 class RSSTests: AppTestCase {
-
+    
     override func setUpWithError() throws {
         try super.setUpWithError()
         SnapshotTesting.record = false
     }
-
+    
     func test_render_item() throws {
         let item = RecentPackage(id: UUID(),
                                  repositoryOwner: "owner",
@@ -19,12 +19,12 @@ class RSSTests: AppTestCase {
                                  packageSummary: "summary",
                                  createdAt: Date(timeIntervalSince1970: 0))
             .rssItem
-
+        
         // MUT + validation
         assertSnapshot(matching: item.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
-
+    
     func test_render_feed() throws {
         // Test generated feed. The result should validate successfully
         // on https://validator.w3.org/feed/check.cgi
@@ -36,7 +36,7 @@ class RSSTests: AppTestCase {
                                           repositoryName: "repo0",
                                           packageName: "package0",
                                           packageSummary: "summary0",
-                                createdAt: Date(timeIntervalSince1970: 0)).rssItem,
+                                          createdAt: Date(timeIntervalSince1970: 0)).rssItem,
                             RecentPackage(id: UUID(),
                                           repositoryOwner: "owner1",
                                           repositoryName: "repo1",
@@ -44,12 +44,12 @@ class RSSTests: AppTestCase {
                                           packageSummary: "summary1",
                                           createdAt: Date(timeIntervalSince1970: 1)).rssItem]
         )
-
+        
         // MUT + validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
-
+    
     func test_recentPackages() throws {
         // setup
         try (1...10).forEach {
@@ -63,15 +63,15 @@ class RSSTests: AppTestCase {
         }
         // make sure to refresh the materialized view
         try RecentPackage.refresh(on: app.db).wait()
-
+        
         // MUT
         let feed = try RSSFeed.recentPackages(on: app.db, limit: 8).wait()
-
+        
         // validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
-
+    
     func test_recentReleases() throws {
         // setup
         try (1...10).forEach {
@@ -86,15 +86,15 @@ class RSSTests: AppTestCase {
         }
         // make sure to refresh the materialized view
         try RecentRelease.refresh(on: app.db).wait()
-
+        
         // MUT
         let feed = try RSSFeed.recentReleases(on: app.db, limit: 8).wait()
-
+        
         // validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
     }
-
+    
     func test_recentPackages_route() throws {
         // Test request handler
         try app.test(.GET, "packages.rss") { res in
@@ -103,7 +103,7 @@ class RSSTests: AppTestCase {
                            .some(.init(type: "application", subType: "rss+xml")))
         }
     }
-
+    
     func test_recentReleases_route_all() throws {
         // Test request handler - without parameters (all)
         // setup
@@ -127,7 +127,7 @@ class RSSTests: AppTestCase {
         }
         // make sure to refresh the materialized view
         try RecentRelease.refresh(on: app.db).wait()
-
+        
         // MUT
         try app.test(.GET, "releases.rss") { res in
             XCTAssertEqual(res.status, .ok)
@@ -138,7 +138,7 @@ class RSSTests: AppTestCase {
                            as: .init(pathExtension: "xml", diffing: .lines))
         }
     }
-
+    
     func test_recentReleases_route_major() throws {
         // Test request handler - major releases only
         // setup
@@ -162,7 +162,7 @@ class RSSTests: AppTestCase {
         }
         // make sure to refresh the materialized view
         try RecentRelease.refresh(on: app.db).wait()
-
+        
         // MUT
         try app.test(.GET, "releases.rss?major=true") { res in
             XCTAssertEqual(res.status, .ok)
@@ -173,7 +173,7 @@ class RSSTests: AppTestCase {
                            as: .init(pathExtension: "xml", diffing: .lines))
         }
     }
-
+    
     func test_recentReleases_route_majorMinor() throws {
         // Test request handler - major & minor releases only
         // setup
@@ -197,7 +197,7 @@ class RSSTests: AppTestCase {
         }
         // make sure to refresh the materialized view
         try RecentRelease.refresh(on: app.db).wait()
-
+        
         // MUT
         try app.test(.GET, "releases.rss?major=true&minor=true") { res in
             XCTAssertEqual(res.status, .ok)
@@ -208,7 +208,7 @@ class RSSTests: AppTestCase {
                            as: .init(pathExtension: "xml", diffing: .lines))
         }
     }
-
+    
     func test_recentReleases_route_preRelease() throws {
         // Test request handler - pre-releases only
         // setup
@@ -233,7 +233,7 @@ class RSSTests: AppTestCase {
         }
         // make sure to refresh the materialized view
         try RecentRelease.refresh(on: app.db).wait()
-
+        
         // MUT
         try app.test(.GET, "releases.rss?pre=true") { res in
             XCTAssertEqual(res.status, .ok)
@@ -244,5 +244,5 @@ class RSSTests: AppTestCase {
                            as: .init(pathExtension: "xml", diffing: .lines))
         }
     }
-
+    
 }

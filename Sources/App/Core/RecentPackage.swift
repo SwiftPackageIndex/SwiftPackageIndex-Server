@@ -5,14 +5,14 @@ import SQLKit
 
 struct RecentPackage: Decodable, Equatable {
     static let schema = "recent_packages"
-
+    
     var id: UUID
     var repositoryOwner: String
     var repositoryName: String
     var packageName: String
     var packageSummary: String?
     var createdAt: Date
-
+    
     enum CodingKeys: String, CodingKey {
         case id
         case repositoryOwner = "repository_owner"
@@ -30,8 +30,8 @@ extension RecentPackage {
         }
         return db.raw("REFRESH MATERIALIZED VIEW \(Self.schema)").run()
     }
-
-
+    
+    
     static func fetch(on database: Database,
                       limit: Int = Constants.recentPackagesLimit) -> EventLoopFuture<[RecentPackage]> {
         guard let db = database as? SQLDatabase else {
