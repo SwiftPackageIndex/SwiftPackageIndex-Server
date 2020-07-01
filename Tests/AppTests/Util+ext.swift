@@ -1,13 +1,7 @@
 import Foundation
 
-#if canImport(WebKit)
-import WebKit
-#endif
-
 @testable import App
 import Fluent
-import Plot
-import SnapshotTesting
 import XCTest
 
 
@@ -82,20 +76,6 @@ extension Array where Element == String {
     var asGithubUrls: Self { map(\.asGithubUrl) }
     var asSwiftVersions: [SwiftVersion] { map(\.asSwiftVersion) }
 }
-
-
-#if os(macOS)
-extension Snapshotting where Value == HTML, Format == NSImage {
-    public static func image(precision: Float = 1, size: CGSize? = nil, baseURL: URL? = nil) -> Snapshotting {
-        Snapshotting<NSView, NSImage>.image(precision: precision, size: size).pullback { node in
-            let html = node.render()
-            let webView = WKWebView()
-            webView.loadHTMLString(html, baseURL: baseURL)
-            return webView
-        }
-    }
-}
-#endif
 
 
 extension AppError: Equatable {

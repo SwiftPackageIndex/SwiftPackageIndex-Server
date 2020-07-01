@@ -25,8 +25,9 @@ class PublicPage {
     final func head() -> Node<HTML.DocumentContext> {
         .head(
             .viewport(.accordingToDevice, initialScale: 1),
+            .meta(.charset(.utf8)),
             .siteName("The Swift Package Index"),
-            .url(SiteURL.absoluteURL(for: path)),
+            .url(SiteURL.absoluteURL(path)),
             .title(title()),
             .description(description()),
             .twitterCardType(.summary),
@@ -42,7 +43,8 @@ class PublicPage {
             ),
             .link(
                 .rel(.stylesheet),
-                .href("/stylesheets/main.min.css?\(resourceReloadQueryString())")
+                .href(SiteURL.stylesheets("main.min.css").relativeURL()
+                        + "?\(resourceReloadQueryString())")
             ),
             .link(
                 .rel(.alternate),

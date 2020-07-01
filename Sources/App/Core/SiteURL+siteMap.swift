@@ -30,7 +30,7 @@ extension SiteURL {
         switch self {
             case .admin:
                 return .weekly
-            case .api(_):
+            case .api:
                 return .weekly
             case .faq:
                 return .weekly
@@ -38,11 +38,11 @@ extension SiteURL {
                 return .weekly
             case .home:
                 return .hourly
-            case .images(_):
+            case .images:
                 return .weekly
             case .packages:
                 return .daily
-            case .package(_, _):
+            case .package:
                 return .daily
             case .privacy:
                 return .monthly
@@ -51,7 +51,9 @@ extension SiteURL {
             case .rssReleases:
                 return .hourly
             case .siteMap:
-                return.weekly
+                return .weekly
+            case .stylesheets:
+                return .weekly
         }
     }
 
