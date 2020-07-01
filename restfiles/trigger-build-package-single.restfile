@@ -1,0 +1,27 @@
+variables:
+    # set here or via env variables:
+    # env base_url=... builder_token=... package=... rester ...
+    # base_url: http://localhost:8080/api
+    # builder_token: secr3t
+    # package: owner/repo
+
+requests:
+
+    post build:
+        url: ${base_url}/api/packages/${package}/trigger-builds
+        method: POST
+        headers:
+            Authorization: Bearer ${builder_token}
+        body:
+            json:
+                platform:
+                    name: unknown
+                    version: test
+                swiftVersion:
+                    major: 5
+                    minor: 2
+                    patch: 4
+
+        validation:
+            status: 200
+        log: json

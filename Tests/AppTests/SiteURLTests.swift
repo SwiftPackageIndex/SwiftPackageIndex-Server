@@ -63,14 +63,14 @@ class SiteURLTests: XCTestCase {
     }
     
     func test_static_relativeURL() throws {
-        XCTAssertEqual(SiteURL.relativeURL(for: "foo"), "/foo")
-        XCTAssertEqual(SiteURL.relativeURL(for: "/foo"), "/foo")
+        XCTAssertEqual(SiteURL.relativeURL("foo"), "/foo")
+        XCTAssertEqual(SiteURL.relativeURL("/foo"), "/foo")
     }
     
     func test_static_absoluteURL() throws {
         Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.absoluteURL(for: "foo"), "https://indexsite.com/foo")
-        XCTAssertEqual(SiteURL.absoluteURL(for: "/foo"), "https://indexsite.com/foo")
+        XCTAssertEqual(SiteURL.absoluteURL("foo"), "https://indexsite.com/foo")
+        XCTAssertEqual(SiteURL.absoluteURL("/foo"), "https://indexsite.com/foo")
     }
     
     func test_api_path() throws {
