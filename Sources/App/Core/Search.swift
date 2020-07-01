@@ -58,7 +58,7 @@ enum Search {
                   packageURL: packageURL,
                   repositoryName: repositoryName,
                   repositoryOwner: repositoryOwner,
-                  summary: summary)
+                  summary: summary?.replaceShorthandEmojis())
         }
     }
     
