@@ -611,14 +611,12 @@ class AnalyzerTests: AppTestCase {
 
         let queue = DispatchQueue(label: "serial")
         var commands = [String]()
-        var firstCheckout = true
         Current.shell.run = { cmd, path in
             queue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
                 commands.append(c)
             }
-            if cmd.string.hasPrefix("git checkout") && firstCheckout {
-                firstCheckout.toggle()
+            if cmd.string.hasPrefix("git checkout") {
                 throw TestError.unknownCommand
             }
             return ""
