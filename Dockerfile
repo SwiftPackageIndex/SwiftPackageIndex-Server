@@ -24,7 +24,7 @@ RUN swift build \
 # Run image
 # ================================
 # we need a swift base image so that we can run `swift dump-package`
-FROM finestructure/swift:2020-07-02-5.3-bionic
+FROM swift:5.2.4-bionic
 WORKDIR /run
 
 # install git so we can run clone/pull/etc
