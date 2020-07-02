@@ -1,4 +1,4 @@
-▿ 31 elements
+▿ 32 elements
   ▿ 'git checkout "1.0.0" --quiet' at path: '.../github.com-foo-1'
     - command: "git checkout \"1.0.0\" --quiet"
     - path: ".../github.com-foo-1"
@@ -19,6 +19,9 @@
     - path: ".../github.com-foo-2"
   ▿ 'git checkout "main" --quiet' at path: '.../github.com-foo-2'
     - command: "git checkout \"main\" --quiet"
+    - path: ".../github.com-foo-2"
+  ▿ 'git clean -fdx' at path: '.../github.com-foo-2'
+    - command: "git clean -fdx"
     - path: ".../github.com-foo-2"
   ▿ 'git clone https://github.com/foo/1 ".../github.com-foo-1" --quiet' at path: '...'
     - command: "git clone https://github.com/foo/1 \".../github.com-foo-1\" --quiet"

@@ -81,7 +81,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         let outDir = try XCTUnwrap(checkoutDir)
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
-        XCTAssertEqual(commands.count, 31)
+        XCTAssertEqual(commands.count, 32)
         // We need to sort the issued commands, because macOS and Linux have stable but different
         // sort orders o.O
         assertSnapshot(matching: commands.sorted(), as: .dump)
@@ -192,7 +192,7 @@ class AnalyzerTests: AppTestCase {
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
         // which we intentionally broke. Command count must remain the same.
-        XCTAssertEqual(commands.count, 31, "was: \(dump(commands))")
+        XCTAssertEqual(commands.count, 32, "was: \(dump(commands))")
         // 2 packages with 2 tags + 1 default branch each -> 6 versions
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
     }
@@ -222,6 +222,7 @@ class AnalyzerTests: AppTestCase {
             #"rm "-f" ".../github.com-foo-1/.git/HEAD.lock""#,
             #"rm "-f" ".../github.com-foo-1/.git/index.lock""#,
             #"git reset --hard"#,
+            #"git clean -fdx"#,
             #"git fetch"#,
             #"git checkout "main" --quiet"#,
             #"git reset "origin/main" --hard"#,
@@ -595,6 +596,40 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(res.map(\.isSuccess), [true])
         assertSnapshot(matching: commands, as: .dump)
     }
+
+    func test_issue_498() throws {
+        // git checkout can still fail despite git reset --hard + git clean
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
+        // setup
+        try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
+        let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
+
+        let checkoutDir = Current.fileManager.checkoutsDirectory()
+        // claim every file exists, including our ficticious 'index.lock' for which
+        // we want to trigger the cleanup mechanism
+        Current.fileManager.fileExists = { path in true }
+
+        let queue = DispatchQueue(label: "serial")
+        var commands = [String]()
+        Current.shell.run = { cmd, path in
+            queue.sync {
+                let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
+                commands.append(c)
+            }
+            if cmd.string.hasPrefix("git checkout") {
+                throw TestError.unknownCommand
+            }
+            return ""
+        }
+
+        // MUT
+        let res = try pkgs.flatMap { pullOrClone(application: self.app, packages: $0) }.wait()
+
+        // validation
+        XCTAssertEqual(res.map(\.isSuccess), [true])
+        assertSnapshot(matching: commands, as: .dump)
+    }
+
 }
 
 
