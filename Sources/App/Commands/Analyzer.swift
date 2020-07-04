@@ -120,15 +120,24 @@ func pullOrClone(application: Application, package: Package) -> EventLoopFuture<
             }
             // git reset --hard to deal with stray .DS_Store files on macOS
             try Current.shell.run(command: .init(string: "git reset --hard"), at: cacheDir)
+            try Current.shell.run(command: .init(string: "git clean -fdx"), at: cacheDir)
             try Current.shell.run(command: .init(string: "git fetch"), at: cacheDir)
             let branch = package.repository?.defaultBranch ?? "master"
-            try Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
-            try Current.shell.run(command: .init(string: #"git reset "origin/\#(branch)" --hard"#),
-                                  at: cacheDir)
+            do {
+                try Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
+                try Current.shell.run(command: .init(string: #"git reset "origin/\#(branch)" --hard"#),
+                                      at: cacheDir)
+            } catch {
+                application.logger.info("checkout failed: \(error.localizedDescription)")
+                application.logger.info("removing directory and re-cloning")
+                try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
+                try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: cacheDir),
+                                      at: Current.fileManager.checkoutsDirectory())
+            }
         } else {
             application.logger.info("cloning \(package.url) to \(cacheDir)")
-            let wdir = Current.fileManager.checkoutsDirectory()
-            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: cacheDir), at: wdir)
+            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: cacheDir),
+                                  at: Current.fileManager.checkoutsDirectory())
         }
         return package
     }
