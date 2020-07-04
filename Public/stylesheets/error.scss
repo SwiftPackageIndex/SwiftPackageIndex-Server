@@ -1,0 +1,18 @@
+/* Error page -------------------------------------------------------------- */
+div.error {
+  padding: 100px 0;
+  text-align: center;
+}
+
+div.error h4 {
+  margin: 20px 0 10px 0;
+}
+
+div.error p {
+  margin: 20px 0;
+}
+
+div.error i {
+  font-size: 35px;
+  color: var(--error-text);
+}

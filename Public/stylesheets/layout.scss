@@ -51,3 +51,13 @@ nav ul li a {
   font-size: 15px;
   font-weight: 600;
 }
+
+/* Staging banner ---------------------------------------------------------- */
+.staging {
+  padding: 10px;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+  background-color: var(--mid-red);
+  color: var(--white);
+}

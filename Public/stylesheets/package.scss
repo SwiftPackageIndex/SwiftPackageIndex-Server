@@ -1,0 +1,202 @@
+/* -------------------------------------------------------------------------
+  Individual package pages
+---------------------------------------------------------------------------- */
+
+.package hr {
+  margin: 5px 0;
+}
+
+p.description {
+  font-size: 19px;
+}
+
+.releases ul,
+.language_platforms ul {
+  padding: 0;
+  list-style: none;
+}
+
+.language_platforms li {
+  margin: 30px 0;
+}
+
+/* Swift version compatibility section ------------------------------------- */
+
+.swift ul {
+  padding: 0;
+  margin: 0;
+}
+
+.swift li {
+  padding: 0;
+  margin: 5px 0;
+}
+
+@media screen and (max-width: 767px) {
+  .swift li {
+    padding: 0;
+    margin: 30px 0;
+  }
+}
+
+.swift .reference {
+  display: flex;
+  flex-direction: row;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference {
+    flex-direction: column;
+  }
+}
+
+.swift .reference:first-child .compatibility > div:first-child {
+  display: flex;
+}
+
+.swift .reference .label {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  flex-basis: 0;
+  flex-grow: 3;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference .label {
+    /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
+    flex-basis: auto;
+  }
+}
+
+.swift .reference .label > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 35px;
+}
+
+.swift .reference .compatibility {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 0;
+  flex-grow: 7;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference .compatibility {
+    /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
+    flex-basis: auto;
+  }
+}
+
+.swift .reference .compatibility > div {
+  display: flex;
+  flex-direction: row;
+}
+
+.swift .reference .compatibility > div:first-child {
+  display: none;
+}
+
+@media screen and (max-width: 767px) {
+  .swift .reference .compatibility > div:first-child {
+    display: flex;
+  }
+}
+
+.swift_versions > div {
+  padding: 5px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  flex-basis: 0;
+  flex-grow: 1;
+  font-weight: 600;
+}
+
+.swift_versions > div small {
+  font-weight: normal;
+}
+
+.build_statuses > div {
+  margin: 0 3px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-basis: 0;
+  flex-grow: 1;
+}
+
+.build_statuses i.icon {
+  margin: 0;
+}
+
+.build_statuses .success {
+  background-color: var(--build-status-success-background);
+  color: var(--build-status-success-text);
+  font-size: 22px;
+}
+
+.build_statuses .unknown {
+  background-color: var(--build-status-unknown-background);
+  color: var(--build-status-unknown-text);
+  font-size: 25px;
+}
+
+.build_statuses .failed {
+  background-color: var(--build-status-failed-background);
+  color: var(--build-status-failed-text);
+  font-size: 20px;
+}
+
+/* Language and platforms section ------------------------------------------ */
+
+.language_platforms ul li ul {
+  padding: 0 40px;
+  list-style: disc;
+}
+
+.language_platforms ul li li {
+  margin: 5px 0;
+}
+
+div.license {
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: var(--license-text);
+  font-weight: 600;
+  font-size: 18px;
+  background-color: var(--license-compatible-background);
+}
+
+div.license.none {
+  background-color: var(--license-none-background);
+}
+
+div.license.incompatible {
+  background-color: var(--license-incompatible-background);
+}
+
+span.stable,
+span.beta,
+span.branch {
+  font-weight: 600;
+}
+
+span.stable {
+  color: var(--stable-text);
+}
+
+span.beta {
+  color: var(--beta-text);
+}
+
+span.branch {
+  color: var(--branch-text);
+}
