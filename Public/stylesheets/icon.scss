@@ -27,10 +27,12 @@ li.icon:before {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* TODO: Candidate for removal/refactoring */
 div i.icon {
   margin-right: 7px;
 }
 
+/* TODO: Candidate for removal/refactoring */
 span i.icon {
   display: inline-block;
   margin-top: -3px;
@@ -40,13 +42,13 @@ span i.icon {
 
 li.icon {
   list-style: none;
-}
 
-li.icon:before {
-  margin-left: -35px;
-  margin-right: 15px;
-  color: var(--icon-text);
-  font-size: 18px;
+  &:before {
+    margin-left: -35px;
+    margin-right: 15px;
+    color: var(--icon-text);
+    font-size: 18px;
+  }
 }
 
 i.osi:before { content: "\e900"; }
