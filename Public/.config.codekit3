@@ -423,16 +423,6 @@
 		"oS": 0,
 		"sct": 0
 		},
-	"/stylesheets/layout.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "/stylesheets/layout.min.css",
-		"oF": 0,
-		"oS": 3
-		},
 	"/stylesheets/layout.scss": {
 		"aP": 0,
 		"bl": 0,
