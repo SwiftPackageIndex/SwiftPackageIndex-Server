@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------
-  Site layout, containers, and generic section configuration.
+  Site layout and containers.
 ---------------------------------------------------------------------------- */
 
 .inner {
@@ -22,37 +22,42 @@
   }
 }
 
+/* TODO: Candidate for moving into package page? */
 section {
   margin: 35px 0;
+
+  li {
+    margin: 10px 0;
+
+    p {
+      margin: 10px 0;
+    }
+  }
 }
 
-section li {
-  margin: 10px 0;
+/* TODO: Candidate for moving into header/footer? */
+nav {
+  ul {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+
+    li {
+      margin: 0 5px;
+      list-style: none;
+
+      a {
+        padding: 3px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+    }
+  }
 }
 
-section li p {
-  margin: 10px 0;
-}
+/* Staging banner */
 
-nav ul {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: row;
-}
-
-nav ul li {
-  margin: 0 5px;
-  list-style: none;
-}
-
-nav ul li a {
-  padding: 3px;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-/* Staging banner ---------------------------------------------------------- */
 .staging {
   padding: 10px;
   text-align: center;
