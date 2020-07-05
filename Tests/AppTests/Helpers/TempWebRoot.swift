@@ -16,7 +16,7 @@ enum TempWebRoot {
     
     /// This is the Public/ directory as stored in the local copy of the repository.
     private static var publicDirectory: URL {
-        URL(fileURLWithPath: DirectoryConfiguration.detect().workingDirectory + "Public/")
+        URL(fileURLWithPath: DirectoryConfiguration.detect().workingDirectory + "Public/deploy")
     }
     
     /// This is a constant for the name of the HTML file which is saved to before rendering in the web view.

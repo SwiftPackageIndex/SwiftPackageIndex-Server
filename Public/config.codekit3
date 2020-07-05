@@ -12,10 +12,10 @@
 	"/fonts/icomoon.svg": {
 		"ft": 2097152,
 		"miP": 0,
-		"oA": 0,
-		"oAP": "/fonts/icomoon.svg",
-		"oF": 0,
-		"opt": 0,
+		"oA": 2,
+		"oAP": "/deploy/fonts/icomoon.svg",
+		"oF": 1,
+		"opt": 1,
 		"plM": 52780316221407,
 		"prP": 0
 		},
@@ -23,26 +23,26 @@
 		"cB": 0,
 		"ft": 8192,
 		"hM": 0,
-		"oA": 0,
-		"oAP": "/fonts/icomoon.ttf",
-		"oF": 0
+		"oA": 2,
+		"oAP": "/deploy/fonts/icomoon.ttf",
+		"oF": 1
 		},
 	"/fonts/icomoon.woff": {
 		"cB": 0,
 		"ft": 8192,
 		"hM": 0,
-		"oA": 0,
-		"oAP": "/fonts/icomoon.woff",
-		"oF": 0
+		"oA": 2,
+		"oAP": "/deploy/fonts/icomoon.woff",
+		"oF": 1
 		},
 	"/images/add-package-in-xcode~dark.png": {
 		"ft": 32768,
 		"iS": 28133,
 		"oA": 0,
-		"oAP": "/images/add-package-in-xcode~dark.png",
+		"oAP": "/deploy/images/add-package-in-xcode~dark.png",
 		"oF": 0,
 		"oIPL": 0,
-		"opt": 0,
+		"opt": 1,
 		"oT": 1,
 		"q": 100
 		},
@@ -50,7 +50,7 @@
 		"ft": 32768,
 		"iS": 32018,
 		"oA": 0,
-		"oAP": "/images/add-package-in-xcode~light.png",
+		"oAP": "/deploy/images/add-package-in-xcode~light.png",
 		"oF": 0,
 		"oIPL": 1,
 		"opt": 1,
@@ -61,10 +61,10 @@
 		"ft": 32768,
 		"iS": 41605,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-full-metadata~dark.png",
+		"oAP": "/deploy/images/language-and-platforms-full-metadata~dark.png",
 		"oF": 0,
 		"oIPL": 0,
-		"opt": 0,
+		"opt": 1,
 		"oT": 1,
 		"q": 100
 		},
@@ -72,7 +72,7 @@
 		"ft": 32768,
 		"iS": 41155,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-full-metadata~light.png",
+		"oAP": "/deploy/images/language-and-platforms-full-metadata~light.png",
 		"oF": 0,
 		"oIPL": 1,
 		"opt": 1,
@@ -83,10 +83,10 @@
 		"ft": 32768,
 		"iS": 28843,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-language-only~dark.png",
+		"oAP": "/deploy/images/language-and-platforms-language-only~dark.png",
 		"oF": 0,
 		"oIPL": 0,
-		"opt": 0,
+		"opt": 1,
 		"oT": 1,
 		"q": 100
 		},
@@ -94,7 +94,7 @@
 		"ft": 32768,
 		"iS": 29934,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-language-only~light.png",
+		"oAP": "/deploy/images/language-and-platforms-language-only~light.png",
 		"oF": 0,
 		"oIPL": 1,
 		"opt": 1,
@@ -105,10 +105,10 @@
 		"ft": 32768,
 		"iS": 47434,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-no-metadata~dark.png",
+		"oAP": "/deploy/images/language-and-platforms-no-metadata~dark.png",
 		"oF": 0,
 		"oIPL": 0,
-		"opt": 0,
+		"opt": 1,
 		"oT": 1,
 		"q": 100
 		},
@@ -116,7 +116,7 @@
 		"ft": 32768,
 		"iS": 39176,
 		"oA": 0,
-		"oAP": "/images/language-and-platforms-no-metadata~light.png",
+		"oAP": "/deploy/images/language-and-platforms-no-metadata~light.png",
 		"oF": 0,
 		"oIPL": 1,
 		"opt": 1,
@@ -127,7 +127,7 @@
 		"ft": 32768,
 		"iS": 10086,
 		"oA": 0,
-		"oAP": "/images/logo-simple.png",
+		"oAP": "/deploy/images/logo-simple.png",
 		"oF": 0,
 		"oIPL": 1,
 		"opt": 1,
@@ -138,7 +138,7 @@
 		"ft": 32768,
 		"iS": 348426,
 		"oA": 0,
-		"oAP": "/images/logo.png",
+		"oAP": "/deploy/images/logo.png",
 		"oF": 0,
 		"oIPL": 1,
 		"opt": 1,
@@ -149,7 +149,7 @@
 		"ft": 2097152,
 		"miP": 0,
 		"oA": 0,
-		"oAP": "/images/logo.svg",
+		"oAP": "/deploy/images/logo.svg",
 		"oF": 0,
 		"opt": 1,
 		"plM": 52780316221407,
@@ -159,10 +159,10 @@
 		"ft": 32768,
 		"iS": 499622,
 		"oA": 0,
-		"oAP": "/images/swiftpm-library.png",
+		"oAP": "/deploy/images/swiftpm-library.png",
 		"oF": 0,
 		"oIPL": 0,
-		"opt": 0,
+		"opt": 1,
 		"oT": 1,
 		"q": 100
 		},
@@ -172,7 +172,7 @@
 		"ma": 1,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/javascripts/copy_package_url.min.js",
+		"oAP": "/deploy/javascripts/copy_package_url-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -183,7 +183,7 @@
 		"ma": 1,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/javascripts/external_link_retargeter.min.js",
+		"oAP": "/deploy/javascripts/external_link_retargeter-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -194,7 +194,7 @@
 		"ma": 1,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/javascripts/find_parent_matching.min.js",
+		"oAP": "/deploy/javascripts/find_parent_matching-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -205,7 +205,7 @@
 		"ma": 1,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/javascripts/keycodes.min.js",
+		"oAP": "/deploy/javascripts/keycodes-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -216,29 +216,10 @@
 		"ma": 1,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "/javascripts/main.min.js",
-		"oF": 0,
+		"oAP": "/deploy/javascripts/main.min.js",
+		"oF": 3,
 		"sC": 3,
 		"tS": 0
-		},
-	"/javascripts/main.min.js": {
-		"bF": 0,
-		"ft": 64,
-		"ma": 1,
-		"mi": 1,
-		"oA": 0,
-		"oAP": "/javascripts/main.min.min.js",
-		"oF": 0,
-		"sC": 3,
-		"tS": 0
-		},
-	"/javascripts/main.min.js.map": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 0,
-		"oAP": "/javascripts/main.min.js.map",
-		"oF": 0
 		},
 	"/javascripts/search_core.js": {
 		"bF": 0,
@@ -246,7 +227,7 @@
 		"ma": 1,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/javascripts/search_core.min.js",
+		"oAP": "/deploy/javascripts/search_core-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -257,7 +238,7 @@
 		"ma": 1,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/javascripts/search_focus_handler.min.js",
+		"oAP": "/deploy/javascripts/search_focus_handler-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -268,7 +249,7 @@
 		"ma": 1,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/javascripts/search_keyboard_navigation.min.js",
+		"oAP": "/deploy/javascripts/search_keyboard_navigation-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -279,7 +260,7 @@
 		"ma": 1,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/javascripts/session_serialization.min.js",
+		"oAP": "/deploy/javascripts/session_serialization-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -287,7 +268,7 @@
 	"/node_modules": {
 		"ft": 65536,
 		"oA": 2,
-		"oAP": "/build/node_modules",
+		"oAP": "/deploy/node_modules",
 		"oF": 0
 		},
 	"/node_modules/axios/index.js": {
@@ -304,7 +285,7 @@
 	"/package-lock.json": {
 		"ft": 524288,
 		"oA": 1,
-		"oAP": "/package-lock-min.json",
+		"oAP": "/deploy/package-lock-min.json",
 		"oF": 0,
 		"oO": 0,
 		"oS": 1
@@ -312,7 +293,7 @@
 	"/package.json": {
 		"ft": 524288,
 		"oA": 1,
-		"oAP": "/package-min.json",
+		"oAP": "/deploy/package-min.json",
 		"oF": 0,
 		"oO": 0,
 		"oS": 1
@@ -321,9 +302,9 @@
 		"cB": 0,
 		"ft": 8192,
 		"hM": 0,
-		"oA": 0,
-		"oAP": "/robots.txt",
-		"oF": 0
+		"oA": 2,
+		"oAP": "/deploy/robots.txt",
+		"oF": 1
 		},
 	"/stylesheets/base.scss": {
 		"aP": 0,
@@ -333,7 +314,7 @@
 		"ft": 4,
 		"ma": 0,
 		"oA": 1,
-		"oAP": "/stylesheets/base.css",
+		"oAP": "/deploy/stylesheets/base.css",
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
@@ -346,7 +327,7 @@
 		"ft": 4,
 		"ma": 0,
 		"oA": 1,
-		"oAP": "/stylesheets/colors.css",
+		"oAP": "/deploy/stylesheets/colors.css",
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
@@ -359,30 +340,10 @@
 		"ft": 4,
 		"ma": 0,
 		"oA": 1,
-		"oAP": "/stylesheets/error.css",
+		"oAP": "/deploy/stylesheets/error.css",
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
-		},
-	"/stylesheets/grid.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "/stylesheets/grid.min.css",
-		"oF": 0,
-		"oS": 3
-		},
-	"/stylesheets/grid.min.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "/stylesheets/grid.min.min.css",
-		"oF": 0,
-		"oS": 3
 		},
 	"/stylesheets/header_footer.scss": {
 		"aP": 0,
@@ -392,7 +353,7 @@
 		"ft": 4,
 		"ma": 0,
 		"oA": 1,
-		"oAP": "/stylesheets/header_footer.css",
+		"oAP": "/deploy/stylesheets/header_footer.css",
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
@@ -405,7 +366,7 @@
 		"ft": 4,
 		"ma": 0,
 		"oA": 1,
-		"oAP": "/stylesheets/home.css",
+		"oAP": "/deploy/stylesheets/home.css",
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
@@ -418,7 +379,7 @@
 		"ft": 4,
 		"ma": 0,
 		"oA": 1,
-		"oAP": "/stylesheets/icon.css",
+		"oAP": "/deploy/stylesheets/icon.css",
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
@@ -431,28 +392,10 @@
 		"ft": 4,
 		"ma": 0,
 		"oA": 1,
-		"oAP": "/stylesheets/layout.css",
+		"oAP": "/deploy/stylesheets/layout.css",
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
-		},
-	"/stylesheets/main.min.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "/stylesheets/main.min.min.css",
-		"oF": 0,
-		"oS": 3
-		},
-	"/stylesheets/main.min.css.map": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 0,
-		"oAP": "/stylesheets/main.min.css.map",
-		"oF": 0
 		},
 	"/stylesheets/main.scss": {
 		"aP": 0,
@@ -462,7 +405,7 @@
 		"ft": 4,
 		"ma": 1,
 		"oA": 0,
-		"oAP": "/stylesheets/main.min.css",
+		"oAP": "/deploy/stylesheets/main.min.css",
 		"oF": 3,
 		"oS": 3,
 		"sct": 0
@@ -475,7 +418,7 @@
 		"ft": 4,
 		"ma": 0,
 		"oA": 1,
-		"oAP": "/stylesheets/markdown.css",
+		"oAP": "/deploy/stylesheets/markdown.css",
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
@@ -488,7 +431,7 @@
 		"ft": 4,
 		"ma": 0,
 		"oA": 1,
-		"oAP": "/stylesheets/package.css",
+		"oAP": "/deploy/stylesheets/package.css",
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
@@ -504,7 +447,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 612180065.48969901
+	"lastBuiltDate": 615649758.086339
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
@@ -798,8 +741,8 @@
 	"bowerUseExactVersion": 0,
 	"browserRefreshDelay": 0,
 	"browserslistString": ">0.2%, last 2 versions, Firefox ESR, not dead",
-	"buildFolderActive": 0,
-	"buildFolderName": "build",
+	"buildFolderActive": 1,
+	"buildFolderName": "deploy",
 	"cleanBuild": 1,
 	"coffeeLintFlags2": {
 		"arrow_spacing": {
@@ -946,7 +889,7 @@
 	"esLintRules": {
 		"accessor-pairs": {
 			"active": 0,
-			"optionString": "{'setWithoutGet': true, 'getWithoutSet': false}"
+			"optionString": "{'setWithoutGet': true, 'getWithoutSet': false, 'enforceForClassMembers': true}"
 			},
 		"array-bracket-newline": {
 			"active": 0,
@@ -1022,7 +965,7 @@
 			},
 		"computed-property-spacing": {
 			"active": 0,
-			"optionString": "'never'"
+			"optionString": "'never', {'enforceForClassMembers': true}"
 			},
 		"consistent-return": {
 			"active": 0,
@@ -1770,7 +1713,7 @@
 			},
 		"no-void": {
 			"active": 0,
-			"optionString": ""
+			"optionString": "{'allowAsStatement': false}"
 			},
 		"no-warning-comments": {
 			"active": 0,
@@ -1986,7 +1929,7 @@
 			},
 		"use-isnan": {
 			"active": 1,
-			"optionString": "{'enforceForSwitchCase': false, 'enforceForIndexOf': false}"
+			"optionString": "{'enforceForSwitchCase': true, 'enforceForIndexOf': false}"
 			},
 		"valid-jsdoc": {
 			"active": 0,
@@ -2020,7 +1963,7 @@
 	"esLintSourceType": 0,
 	"externalServerAddress": "http://localhost:8888",
 	"gitIgnoreBuildFolder": 0,
-	"hideConfigFile": 1,
+	"hideConfigFile": 0,
 	"jsCheckerReservedNamesString": "",
 	"jsHintFlags2": {
 		"asi": {
@@ -2385,7 +2328,7 @@
 		},
 	"languageDefaultsCSS": {
 		"autoOutputAction": 0,
-		"autoOutputPathFilenamePattern": "*.min.css",
+		"autoOutputPathFilenamePattern": "*-min.css",
 		"autoOutputPathRelativePath": "",
 		"autoOutputPathReplace1": "",
 		"autoOutputPathReplace2": "",
@@ -2431,13 +2374,13 @@
 		},
 	"languageDefaultsJS": {
 		"autoOutputAction": 0,
-		"autoOutputPathFilenamePattern": "*.min.js",
+		"autoOutputPathFilenamePattern": "*-min.js",
 		"autoOutputPathRelativePath": "/min",
 		"autoOutputPathReplace1": "",
 		"autoOutputPathReplace2": "",
 		"autoOutputPathStyle": 0,
 		"bundleFormat": 0,
-		"createSourceMap": 1,
+		"createSourceMap": 0,
 		"minifyOutput": 1,
 		"syntaxCheckerStyle": 3,
 		"transpilerStyle": 0
@@ -2579,7 +2522,7 @@
 		"shouldRunBless": 0
 		},
 	"languageDefaultsSVG": {
-		"autoOutputAction": 0,
+		"autoOutputAction": 2,
 		"autoOutputPathFilenamePattern": "*.svg",
 		"autoOutputPathRelativePath": "",
 		"autoOutputPathReplace1": "",
@@ -2615,7 +2558,7 @@
 	"rollupReplacements": "process.env.NODE_ENV:::$NODE_ENV,,,ENVIRONMENT:::$NODE_ENV",
 	"rollupTreeshakingEnabled": 1,
 	"skippedFoldersString": "log, _logs, logs, _cache, cache, .idea, /storage/framework/sessions, node_modules",
-	"sourceFolderName": "source",
+	"sourceFolderName": "",
 	"susyVersion": 3,
 	"tsAllowSyntheticDefaultImports": 0,
 	"tsAllowUnreachableCode": 0,
@@ -2920,7 +2863,7 @@
 		},
 	"uglifyMangleNames": 1,
 	"uglifyReservedNamesString": "$,exports,require",
-	"websiteRelativeRoot": ""
+	"websiteRelativeRoot": "/deploy"
 	},
 "settingsFileVersion": "3"
 }
