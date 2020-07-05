@@ -11,3 +11,5 @@ SPI-checkouts/
 .env
 *.dump
 misc/
+
+Public/deploy/node_modules/
