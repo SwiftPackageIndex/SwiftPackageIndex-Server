@@ -4,7 +4,7 @@ import Vapor
 
 
 public func configure(_ app: Application) throws {
-    app.middleware.use(FileMiddleware(publicDirectory: appPublicDirectory(app)))
+    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory + "deploy/"))
     app.middleware.use(ErrorMiddleware())
     
     guard
@@ -75,16 +75,4 @@ public func configure(_ app: Application) throws {
     
     // register routes
     try routes(app)
-}
-
-func appPublicDirectory(_ app: Application) -> String {
-    var path = app.directory.publicDirectory
-
-    let environment = (try? Environment.detect()) ?? .development
-    if environment == .development {
-        // The `publicDirectory` has a trailing slash, so no leading slash is necessary
-        path += "deploy/"
-    }
-
-    return path
 }
