@@ -1,0 +1,68 @@
+/* -------------------------------------------------------------------------
+  Site layout and containers.
+---------------------------------------------------------------------------- */
+
+.inner {
+  margin: 0 auto;
+  padding: 20px 10px;
+  max-width: 800px;
+}
+
+.split {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media screen and (max-width: $mobile-breakpoint) {
+  .split {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* TODO: Candidate for moving into package page? */
+section {
+  margin: 35px 0;
+
+  li {
+    margin: 10px 0;
+
+    p {
+      margin: 10px 0;
+    }
+  }
+}
+
+/* TODO: Candidate for moving into header/footer? */
+nav {
+  ul {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+
+    li {
+      margin: 0 5px;
+      list-style: none;
+
+      a {
+        padding: 3px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+/* Staging banner */
+
+.staging {
+  padding: 10px;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+  background-color: var(--mid-red);
+  color: var(--white);
+}

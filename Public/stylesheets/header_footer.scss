@@ -1,0 +1,86 @@
+/* -------------------------------------------------------------------------
+  Site header and footer.
+---------------------------------------------------------------------------- */
+
+/* Common */
+
+header,
+footer {
+  color: var(--header-text);
+  background-color: var(--header-background);
+
+  .inner {
+    display: flex;
+    flex-direction: row;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    .inner,
+    .inner {
+      flex-direction: column;
+    }
+  }
+
+  a {
+    color: var(--header-link-text);
+
+    &:hover {
+      color: var(--header-link-highlight);
+    }
+  }
+}
+
+/* Header specific */
+
+header {
+  .inner {
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  h1 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    img {
+      margin-right: 10px;
+      max-width: 64px;
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    h1 {
+      margin-bottom: 20px;
+    }
+  }
+
+  nav a {
+    border-bottom: 1px var(--header-link-text) solid;
+
+    &:hover {
+      border-color: var(--header-link-highlight);
+    }
+  }
+}
+
+/* Footer specific */
+
+footer {
+  text-align: center;
+
+  .inner {
+    justify-content: center;
+  }
+
+  ul {
+    margin: 10px;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    ul {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+}
