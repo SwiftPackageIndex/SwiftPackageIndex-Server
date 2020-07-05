@@ -75,7 +75,7 @@ p.description {
     margin: 5px 0;
   }
 
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: $mobile-breakpoint) {
     li {
       padding: 0;
       margin: 30px 0;
@@ -105,7 +105,7 @@ p.description {
       }
     }
 
-    @media screen and (max-width: 767px) {
+    @media screen and (max-width: $mobile-breakpoint) {
       .label {
         /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
         flex-basis: auto;
@@ -127,14 +127,14 @@ p.description {
         display: none;
       }
 
-      @media screen and (max-width: 767px) {
+      @media screen and (max-width: $mobile-breakpoint) {
         > div:first-child {
           display: flex;
         }
       }
     }
 
-    @media screen and (max-width: 767px) {
+    @media screen and (max-width: $mobile-breakpoint) {
       .compatibility {
         /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
         flex-basis: auto;
@@ -142,7 +142,7 @@ p.description {
     }
   }
 
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: $mobile-breakpoint) {
     .reference {
       flex-direction: column;
     }
