@@ -111,7 +111,8 @@ smoke-test:
     }
     echo Testing with SITE_URL: ${SITE_URL}
     rester restfiles/smoke-test.restfile
-    rester restfiles/active-packages-test.restfile
+    docker run finestructure/rester-sitemap:1.0.0 > all-packages.restfile
+    rester all-packages.restfile
 
 
 .backup-common: &backup-common
