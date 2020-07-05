@@ -9,6 +9,12 @@
 	],
 "creatorBuild": "32186",
 "files": {
+	"/deploy": {
+		"ft": 65536,
+		"oA": 1,
+		"oAP": "/deploy/deploy",
+		"oF": 0
+		},
 	"/fonts/icomoon.svg": {
 		"ft": 2097152,
 		"miP": 0,
@@ -216,29 +222,10 @@
 		"ma": 1,
 		"mi": 1,
 		"oA": 0,
-		"oAP": "/deploy/javascripts/main-min.js",
-		"oF": 0,
+		"oAP": "/deploy/javascripts/main.min.js",
+		"oF": 3,
 		"sC": 3,
 		"tS": 0
-		},
-	"/javascripts/main.min.js": {
-		"bF": 0,
-		"ft": 64,
-		"ma": 1,
-		"mi": 1,
-		"oA": 1,
-		"oAP": "/deploy/javascripts/main.min-min.js",
-		"oF": 0,
-		"sC": 3,
-		"tS": 0
-		},
-	"/javascripts/main.min.js.map": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 1,
-		"oAP": "/deploy/javascripts/main.min.js.map",
-		"oF": 0
 		},
 	"/javascripts/search_core.js": {
 		"bF": 0,
@@ -364,26 +351,6 @@
 		"oS": 0,
 		"sct": 0
 		},
-	"/stylesheets/grid.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 0,
-		"oAP": "/deploy/stylesheets/grid-min.css",
-		"oF": 0,
-		"oS": 3
-		},
-	"/stylesheets/grid.min.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 1,
-		"oAP": "/deploy/stylesheets/grid.min-min.css",
-		"oF": 0,
-		"oS": 3
-		},
 	"/stylesheets/header_footer.scss": {
 		"aP": 0,
 		"bl": 0,
@@ -436,24 +403,6 @@
 		"oS": 0,
 		"sct": 0
 		},
-	"/stylesheets/main.min.css": {
-		"aP": 1,
-		"bl": 0,
-		"ft": 16,
-		"ma": 0,
-		"oA": 1,
-		"oAP": "/deploy/stylesheets/main.min-min.css",
-		"oF": 0,
-		"oS": 3
-		},
-	"/stylesheets/main.min.css.map": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 1,
-		"oAP": "/deploy/stylesheets/main.min.css.map",
-		"oF": 0
-		},
 	"/stylesheets/main.scss": {
 		"aP": 0,
 		"bl": 0,
@@ -462,7 +411,7 @@
 		"ft": 4,
 		"ma": 1,
 		"oA": 0,
-		"oAP": "/deploy/build/stylesheets/main.min.css",
+		"oAP": "/deploy/stylesheets/main.min.css",
 		"oF": 3,
 		"oS": 3,
 		"sct": 0
@@ -504,7 +453,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 615647939.10183096
+	"lastBuiltDate": 615648492.25141096
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
