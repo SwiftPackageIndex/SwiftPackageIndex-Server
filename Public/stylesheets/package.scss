@@ -40,6 +40,10 @@ p.description {
   &.incompatible {
     background-color: var(--license-incompatible-background);
   }
+
+  i.icon {
+    margin-right: 7px;
+  }
 }
 
 /* Branches */
