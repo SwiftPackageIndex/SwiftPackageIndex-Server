@@ -3,8 +3,6 @@ image: docker:stable
 
 variables:
   REGISTRY_IMAGE: registry.gitlab.com/finestructure/swiftpackageindex
-  IMAGE_SHA: $REGISTRY_IMAGE:$CI_COMMIT_SHA
-  IMAGE_TAG: $REGISTRY_IMAGE:$CI_COMMIT_TAG
   DOCKER_TLS_CERTDIR: "/certs"
 
 
@@ -25,29 +23,17 @@ stages:
 # We build only on the PROD project's pipeline, because we can read the image
 # for dev deployment. There is no need to build the images twice in parallel.
 # The PROD projects registry already has a build history, so we keep pushing to it.
-build-sha:
+build:
   rules:
     - if: '$ENV == "prod"'
   stage: build
   tags:
     - ceres
-  script:
-    - echo 'let appVersion = "'${CI_COMMIT_TAG:-$CI_COMMIT_SHA}'"' > ./Sources/App/Core/AppVersion.swift
-    - docker build -t $IMAGE_SHA .
-    - docker push $IMAGE_SHA
-    
-
-build-tag:  # tag previously built docker image when a tag
-  rules:
-    - if: '$ENV == "prod" && $CI_COMMIT_TAG != null'
-  stage: build
-  tags:
-    - ceres
-  script:
-    # re-tag image with tag name
-    - docker pull $IMAGE_SHA
-    - docker tag $IMAGE_SHA $IMAGE_TAG
-    - docker push $IMAGE_TAG
+  script: |
+    VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
+    echo 'let appVersion = "'${VERSION}'"' > ./Sources/App/Core/AppVersion.swift
+    docker build -t $REGISTRY_IMAGE:$VERSION .
+    docker push $REGISTRY_IMAGE:$VERSION
 
 
 .deploy-common: &deploy-common
