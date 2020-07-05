@@ -111,7 +111,8 @@ smoke-test:
     }
     echo Testing with SITE_URL: ${SITE_URL}
     rester restfiles/smoke-test.restfile
-    docker run finestructure/rester-sitemap:1.0.0 > all-packages.restfile
+    echo "Running full suite of package tests ..."
+    docker run finestructure/rester-sitemap:1.0.0 ${SITE_URL}/sitemap.xml > all-packages.restfile
     rester all-packages.restfile
 
 
