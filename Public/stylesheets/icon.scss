@@ -27,14 +27,6 @@ li.icon:before {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* TODO: Candidate for removal/refactoring */
-span i.icon {
-  display: inline-block;
-  margin-top: -3px;
-  margin-right: 4px;
-  font-size: 20px;
-}
-
 li.icon {
   list-style: none;
 
@@ -44,6 +36,10 @@ li.icon {
     color: var(--icon-text);
     font-size: 18px;
   }
+}
+
+span > i.icon {
+  margin: 0 4px;
 }
 
 i.osi:before { content: "\e900"; }
