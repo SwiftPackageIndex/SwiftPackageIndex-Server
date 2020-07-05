@@ -22,40 +22,6 @@
   }
 }
 
-/* TODO: Candidate for moving into package page? */
-section {
-  margin: 35px 0;
-
-  li {
-    margin: 10px 0;
-
-    p {
-      margin: 10px 0;
-    }
-  }
-}
-
-/* TODO: Candidate for moving into header/footer? */
-nav {
-  ul {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: row;
-
-    li {
-      margin: 0 5px;
-      list-style: none;
-
-      a {
-        padding: 3px;
-        font-size: 15px;
-        font-weight: 600;
-      }
-    }
-  }
-}
-
 /* Staging banner */
 
 .staging {

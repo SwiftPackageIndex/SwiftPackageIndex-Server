@@ -2,8 +2,25 @@
   Individual package pages.
 ---------------------------------------------------------------------------- */
 
-.package hr {
-  margin: 5px 0;
+.package {
+  h2 {
+    margin: 0;
+    padding: 0;
+  }
+
+  hr {
+    margin: 10px 0;
+  }
+
+  section.metadata{
+    li {
+      margin: 10px 0;
+
+      p {
+        margin: 10px 0;
+      }
+    }
+  }
 }
 
 p.description {
@@ -39,6 +56,10 @@ p.description {
 
   &.incompatible {
     background-color: var(--license-incompatible-background);
+  }
+
+  i.icon {
+    margin-right: 7px;
   }
 }
 

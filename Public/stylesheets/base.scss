@@ -22,8 +22,6 @@ h1 {
 }
 
 h2 {
-  margin: 0;
-  padding: 0;
   font-size: 35px;
   line-height: 1;
   letter-spacing: -0.5px;
@@ -76,6 +74,10 @@ hr {
 hr.short {
   max-width: 40%;
   height: 1px;
+}
+
+section {
+  margin: 35px 0;
 }
 
 noscript {

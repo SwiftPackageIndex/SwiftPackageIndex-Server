@@ -47,29 +47,6 @@
   }
 }
 
-.recent {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-evenly;
-
-  ul {
-    padding: 0;
-  }
-
-  li {
-    margin: 15px;
-    display: flex;
-    flex-direction: column;
-  }
-}
-
-@media screen and (max-width: $mobile-breakpoint) {
-  .recent {
-    flex-direction: column;
-    align-items: center;
-  }
-}
-
 /* Search results drop down */
 
 #results {
@@ -152,5 +129,30 @@
       margin: 20px;
       font-size: 40px;
     }
+  }
+}
+
+/* Recent packages */
+
+.recent {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-evenly;
+
+  ul {
+    padding: 0;
+  }
+
+  li {
+    margin: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media screen and (max-width: $mobile-breakpoint) {
+  .recent {
+    flex-direction: column;
+    align-items: center;
   }
 }
