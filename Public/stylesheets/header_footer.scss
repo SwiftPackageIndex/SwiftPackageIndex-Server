@@ -9,15 +9,14 @@ footer {
   color: var(--header-text);
   background-color: var(--header-background);
 
-  .inner {
-    display: flex;
-    flex-direction: row;
-  }
+  a {
+    padding: 3px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--header-link-text);
 
-  @media screen and (max-width: $mobile-breakpoint) {
-    .inner,
-    .inner {
-      flex-direction: column;
+    &:hover {
+      color: var(--header-link-highlight);
     }
   }
 
@@ -31,17 +30,6 @@ footer {
       li {
         margin: 0 5px;
         list-style: none;
-
-        a {
-          padding: 3px;
-          font-size: 15px;
-          font-weight: 600;
-          color: var(--header-link-text);
-
-          &:hover {
-            color: var(--header-link-highlight);
-          }
-        }
       }
     }
   }
@@ -51,8 +39,16 @@ footer {
 
 header {
   .inner {
-    justify-content: space-between;
+    display: flex;
+    flex-direction: row;
     align-items: center;
+    justify-content: space-between;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    .inner {
+      flex-direction: column;
+    }
   }
 
   h1 {
@@ -84,20 +80,18 @@ header {
 /* Footer specific */
 
 footer {
-  text-align: center;
+  nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
-  .inner {
-    justify-content: center;
+  small a {
+    font-size: 10px;
+    font-weight: normal;
   }
 
   ul {
     margin: 10px;
-  }
-
-  @media screen and (max-width: $mobile-breakpoint) {
-    ul {
-      flex-direction: column;
-      align-items: center;
-    }
   }
 }
