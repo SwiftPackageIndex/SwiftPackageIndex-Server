@@ -31,13 +31,7 @@ class PackageControllerTests: AppTestCase {
         try version.save(on: app.db).wait()
         try product.save(on: app.db).wait()
     }
-    
-    func test_index() throws {
-        try app.test(.GET, "/packages") { response in
-            XCTAssertEqual(response.status, .seeOther)
-        }
-    }
-    
+
     func test_show_owner_repository() throws {
         try app.test(.GET, "/owner/package") { response in
             XCTAssertEqual(response.status, .ok)

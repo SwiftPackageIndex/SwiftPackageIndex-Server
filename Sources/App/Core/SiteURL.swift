@@ -72,7 +72,6 @@ enum SiteURL: Resourceable {
     case addAPackage
     case home
     case images(String)
-    case packages
     case package(_ owner: Parameter<String>, _ repository: Parameter<String>)
     case privacy
     case rssPackages
@@ -108,9 +107,6 @@ enum SiteURL: Resourceable {
             case .package:
                 fatalError("invalid path: \(self)")
                 
-            case .packages:
-                return "packages"
-                
             case .privacy:
                 return "privacy"
                 
@@ -130,7 +126,7 @@ enum SiteURL: Resourceable {
     
     var pathComponents: [PathComponent] {
         switch self {
-            case .admin, .faq, .addAPackage, .home, .packages, .privacy, .rssPackages, .rssReleases, .siteMap:
+            case .admin, .faq, .addAPackage, .home, .privacy, .rssPackages, .rssReleases, .siteMap:
                 return [.init(stringLiteral: path)]
                 
             case let .api(res):
