@@ -25,13 +25,26 @@ enum BuildIndex {
 }
 
 
-#if DEBUG
 extension BuildIndex {
     struct Model {
         var packageName: String
         var stable: BuildGroup
         var latest: BuildGroup
         var beta: BuildGroup
+
+        init?(package: Package) {
+            // we consider certain attributes as essential and return nil (raising .notFound)
+            guard let name = package.name() else { return nil }
+            let (stable, beta, latest) = package.releases()
+
+            self.packageName = name
+            self.stable = .init(name: stable?.reference?.description ?? "n/a",
+                                builds: stable?.builds.map(Build.init) ?? [])
+            self.latest = .init(name: latest?.reference?.description ?? "n/a",
+                                builds: latest?.builds.map(Build.init) ?? [])
+            self.beta = .init(name: beta?.reference?.description ?? "n/a",
+                              builds: beta?.builds.map(Build.init) ?? [])
+        }
 
         struct BuildGroup {
             var name: String
@@ -54,6 +67,12 @@ extension BuildIndex {
             var platform: App.Build.Platform
             var status: App.Build.Status
 
+            init(_ build: App.Build) {
+                swiftVersion = build.swiftVersion
+                platform = build.platform
+                status = build.status
+            }
+
             var node: Node<HTML.BodyContext> {
                 .group(
                     .text("\(swiftVersion)"), " – ",
@@ -62,63 +81,5 @@ extension BuildIndex {
                 )
             }
         }
-
-        static var mock: Self {
-            .init(
-                packageName: "foobar",
-                stable: .init(
-                    name: "1.2.3",
-                    builds: [
-                        Build(swiftVersion: .init(5, 2, 4), platform: .macos("x86_64"), status: .ok),
-                        Build(swiftVersion: .init(5, 2, 4), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(5, 2, 4), platform: .tvos(""), status: .ok),
-                        Build(swiftVersion: .init(5, 1, 5), platform: .macos("x86_64"), status: .ok),
-                                Build(swiftVersion: .init(5, 1, 5), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(5, 1, 5), platform: .tvos(""), status: .ok),
-                        Build(swiftVersion: .init(5, 0, 3), platform: .macos("x86_64"), status: .ok),
-                        Build(swiftVersion: .init(5, 0, 3), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(5, 0, 3), platform: .tvos(""), status: .ok),
-                        Build(swiftVersion: .init(4, 2, 3), platform: .macos("x86_64"), status: .ok),
-                        Build(swiftVersion: .init(4, 2, 3), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(4, 2, 3), platform: .tvos(""), status: .ok),
-                    ]
-                ),
-                latest: .init(
-                    name: "main",
-                    builds: [
-                        Build(swiftVersion: .init(5, 2, 4), platform: .macos("x86_64"), status: .ok),
-                        Build(swiftVersion: .init(5, 2, 4), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(5, 2, 4), platform: .tvos(""), status: .ok),
-                        Build(swiftVersion: .init(5, 1, 5), platform: .macos("x86_64"), status: .ok),
-                        Build(swiftVersion: .init(5, 1, 5), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(5, 1, 5), platform: .tvos(""), status: .ok),
-                        Build(swiftVersion: .init(5, 0, 3), platform: .macos("x86_64"), status: .ok),
-                        Build(swiftVersion: .init(5, 0, 3), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(5, 0, 3), platform: .tvos(""), status: .ok),
-                        Build(swiftVersion: .init(4, 2, 3), platform: .macos("x86_64"), status: .ok),
-                        Build(swiftVersion: .init(4, 2, 3), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(4, 2, 3), platform: .tvos(""), status: .ok),
-                    ]
-                ),
-                beta: .init(
-                    name: "2.0.0-b1",
-                    builds: [
-                        Build(swiftVersion: .init(5, 2, 4), platform: .macos("x86_64"), status: .ok),
-                        Build(swiftVersion: .init(5, 2, 4), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(5, 2, 4), platform: .tvos(""), status: .ok),
-                        Build(swiftVersion: .init(5, 1, 5), platform: .macos("x86_64"), status: .ok),
-                        Build(swiftVersion: .init(5, 1, 5), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(5, 1, 5), platform: .tvos(""), status: .ok),
-                        Build(swiftVersion: .init(5, 0, 3), platform: .macos("x86_64"), status: .ok),
-                        Build(swiftVersion: .init(5, 0, 3), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(5, 0, 3), platform: .tvos(""), status: .ok),
-                        Build(swiftVersion: .init(4, 2, 3), platform: .macos("x86_64"), status: .ok),
-                        Build(swiftVersion: .init(4, 2, 3), platform: .ios(""), status: .ok),
-                        Build(swiftVersion: .init(4, 2, 3), platform: .tvos(""), status: .ok),
-                    ]
-                )
-            )
-        }
     }
 }
-#endif
