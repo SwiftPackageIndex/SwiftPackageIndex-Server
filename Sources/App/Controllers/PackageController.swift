@@ -16,5 +16,9 @@ struct PackageController {
             .unwrap(or: Abort(.notFound))
             .map { PackageShow.View(path: req.url.path, model: $0).document() }
     }
-    
+
+    func builds(req: Request) throws -> EventLoopFuture<HTML> {
+        req.eventLoop.future(BuildIndex.View(path: req.url.path).document())
+    }
+
 }
