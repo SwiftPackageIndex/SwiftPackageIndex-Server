@@ -40,8 +40,6 @@ extension SiteURL {
                 return .hourly
             case .images:
                 return .weekly
-            case .packages:
-                return .daily
             case .package:
                 return .daily
             case .privacy:

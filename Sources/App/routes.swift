@@ -23,8 +23,6 @@ func routes(_ app: Application) throws {
     }
     
     let packageController = PackageController()
-    app.get(SiteURL.packages.pathComponents, use: packageController.index)
-    
     app.get(SiteURL.package(.key, .key).pathComponents, use: packageController.show)
     
     do {  // admin
