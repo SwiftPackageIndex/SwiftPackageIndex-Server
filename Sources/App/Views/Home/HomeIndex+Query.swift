@@ -18,7 +18,8 @@ extension HomeIndex.Model {
     static func makeLink(_ recent: RecentPackage) -> Link {
         return .init(label: recent.packageName,
                      url: SiteURL.package(.value(recent.repositoryOwner),
-                                          .value(recent.repositoryName)).relativeURL())
+                                          .value(recent.repositoryName),
+                                          .none).relativeURL())
     }
     
     static func makeDatedLink(_ recent: RecentPackage) -> DatedLink {
@@ -34,6 +35,7 @@ extension HomeIndex.Model.Release {
         version = recent.version
         date = "\(date: recent.releasedAt, relativeTo: Current.date())"
         url = SiteURL.package(.value(recent.repositoryOwner),
-                              .value(recent.repositoryName)).relativeURL()
+                              .value(recent.repositoryName),
+                              .none).relativeURL()
     }
 }

@@ -23,7 +23,7 @@ func routes(_ app: Application) throws {
     }
     
     let packageController = PackageController()
-    app.get(SiteURL.package(.key, .key).pathComponents, use: packageController.show)
+    app.get(SiteURL.package(.key, .key, .none).pathComponents, use: packageController.show)
     
     do {  // admin
         // sas: 2020-06-01: disable admin page until we have an auth mechanism

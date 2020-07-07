@@ -72,7 +72,7 @@ enum SiteURL: Resourceable {
     case addAPackage
     case home
     case images(String)
-    case package(_ owner: Parameter<String>, _ repository: Parameter<String>)
+    case package(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagePathComponents?)
     case privacy
     case rssPackages
     case rssReleases
@@ -99,11 +99,14 @@ enum SiteURL: Resourceable {
             case let .images(name):
                 return "images/\(name)"
                 
-            case let .package(.value(owner), .value(repo)):
+            case let .package(.value(owner), .value(repo), .none):
                 let owner = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? owner
                 let repo = repo.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? repo
                 return "\(owner)/\(repo)"
-                
+
+            case let .package(owner, repo, .some(next)):
+                return "\(Self.package(owner, repo, .none).path)/\(next.path)"
+
             case .package:
                 fatalError("invalid path: \(self)")
                 
@@ -132,9 +135,12 @@ enum SiteURL: Resourceable {
             case let .api(res):
                 return ["api"] + res.pathComponents
                 
-            case .package(.key, .key):
+            case .package(.key, .key, .none):
                 return [":owner", ":repository"]
                 
+            case let .package(k1, k2, .some(next)):
+                return Self.package(k1, k2, .none).pathComponents + next.pathComponents
+
             case .package:
                 fatalError("pathComponents must not be called with a value parameter")
                 
@@ -160,7 +166,11 @@ enum SiteURL: Resourceable {
     }
     
     static var apiBaseURL: String { absoluteURL("api") }
-    
+
+    enum PackagePathComponents: String, Resourceable {
+        case builds = "builds"
+    }
+
 }
 
 
