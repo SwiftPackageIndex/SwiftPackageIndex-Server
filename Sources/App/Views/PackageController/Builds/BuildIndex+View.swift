@@ -37,13 +37,25 @@ extension BuildIndex {
             guard let name = package.name() else { return nil }
             let (stable, beta, latest) = package.releases()
 
+            // sort builds by swift version desc, platform name
+            let versionPlatform: (Build, Build) -> Bool = { lhs, rhs in
+                if lhs.swiftVersion != rhs.swiftVersion { return lhs.swiftVersion > rhs.swiftVersion }
+                return lhs.platform.name.rawValue < rhs.platform.name.rawValue
+            }
+
             self.packageName = name
             self.stable = .init(name: stable?.reference?.description ?? "n/a",
-                                builds: stable?.builds.map(Build.init) ?? [])
+                                builds: stable?.builds
+                                    .map(Build.init)
+                                    .sorted(by: versionPlatform) ?? [])
             self.latest = .init(name: latest?.reference?.description ?? "n/a",
-                                builds: latest?.builds.map(Build.init) ?? [])
+                                builds: latest?.builds
+                                    .map(Build.init)
+                                    .sorted(by: versionPlatform) ?? [])
             self.beta = .init(name: beta?.reference?.description ?? "n/a",
-                              builds: beta?.builds.map(Build.init) ?? [])
+                              builds: beta?.builds
+                                .map(Build.init)
+                                .sorted(by: versionPlatform) ?? [])
         }
 
         struct BuildGroup {
