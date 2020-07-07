@@ -18,7 +18,8 @@ struct PackageController {
     }
 
     func builds(req: Request) throws -> EventLoopFuture<HTML> {
-        req.eventLoop.future(BuildIndex.View(path: req.url.path).document())
+        let model = BuildIndex.Model.mock
+        return req.eventLoop.future(BuildIndex.View(path: req.url.path, model: model).document())
     }
 
 }
