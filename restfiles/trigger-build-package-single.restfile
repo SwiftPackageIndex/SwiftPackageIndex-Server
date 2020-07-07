@@ -7,7 +7,7 @@ variables:
 
 requests:
 
-    post build:
+    post build ios:
         url: ${base_url}/api/packages/${package}/trigger-builds
         method: POST
         headers:
@@ -15,13 +15,62 @@ requests:
         body:
             json:
                 platform:
-                    name: unknown
-                    version: test
+                    name: ios
+                    version: ""
                 swiftVersion:
-                    major: 5
-                    minor: 2
-                    patch: 4
-
+                    major: ${major}
+                    minor: ${minor}
+                    patch: ${patch}
         validation:
             status: 200
-        log: json
+
+    post build macos:
+        url: ${base_url}/api/packages/${package}/trigger-builds
+        method: POST
+        headers:
+            Authorization: Bearer ${builder_token}
+        body:
+            json:
+                platform:
+                    name: macos
+                    version: "x86_64"
+                swiftVersion:
+                    major: ${major}
+                    minor: ${minor}
+                    patch: ${patch}
+        validation:
+            status: 200
+
+    post build tvos:
+        url: ${base_url}/api/packages/${package}/trigger-builds
+        method: POST
+        headers:
+            Authorization: Bearer ${builder_token}
+        body:
+            json:
+                platform:
+                    name: tvos
+                    version: ""
+                swiftVersion:
+                    major: ${major}
+                    minor: ${minor}
+                    patch: ${patch}
+        validation:
+            status: 200
+
+    # post build watchos:
+    #     url: ${base_url}/api/packages/${package}/trigger-builds
+    #     method: POST
+    #     headers:
+    #         Authorization: Bearer ${builder_token}
+    #     body:
+    #         json:
+    #             platform:
+    #                 name: watchos
+    #                 version: "latest"
+    #             swiftVersion:
+    #                 major: ${major}
+    #                 minor: ${minor}
+    #                 patch: ${patch}
+    #     validation:
+    #         status: 200

@@ -19,8 +19,10 @@ extension SiteURL {
             },
             .forEach(packages) { p in
                 .url(
-                    .loc(SiteURL.package(.value(p.owner), .value(p.repository)).absoluteURL()),
-                    .changefreq(SiteURL.package(.value(p.owner), .value(p.repository)).changefreq)
+                    .loc(
+                        SiteURL.package(.value(p.owner), .value(p.repository), .none).absoluteURL()),
+                    .changefreq(
+                        SiteURL.package(.value(p.owner), .value(p.repository), .none).changefreq)
                 )
             }
         )
