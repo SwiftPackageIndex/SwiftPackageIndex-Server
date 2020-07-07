@@ -18,13 +18,11 @@ requests:
                     name: ios
                     version: ""
                 swiftVersion:
-                    major: 5
-                    minor: 2
-                    patch: 4
-
+                    major: ${major}
+                    minor: ${minor}
+                    patch: ${patch}
         validation:
             status: 200
-        log: json
 
     post build macos:
         url: ${base_url}/api/packages/${package}/trigger-builds
@@ -37,13 +35,11 @@ requests:
                     name: macos
                     version: "x86_64"
                 swiftVersion:
-                    major: 5
-                    minor: 2
-                    patch: 4
-
+                    major: ${major}
+                    minor: ${minor}
+                    patch: ${patch}
         validation:
             status: 200
-        log: json
 
     post build tvos:
         url: ${base_url}/api/packages/${package}/trigger-builds
@@ -56,13 +52,11 @@ requests:
                     name: tvos
                     version: ""
                 swiftVersion:
-                    major: 5
-                    minor: 2
-                    patch: 4
-
+                    major: ${major}
+                    minor: ${minor}
+                    patch: ${patch}
         validation:
             status: 200
-        log: json
 
     # post build watchos:
     #     url: ${base_url}/api/packages/${package}/trigger-builds
@@ -75,10 +69,8 @@ requests:
     #                 name: watchos
     #                 version: "latest"
     #             swiftVersion:
-    #                 major: 5
-    #                 minor: 2
-    #                 patch: 4
-
+    #                 major: ${major}
+    #                 minor: ${minor}
+    #                 patch: ${patch}
     #     validation:
     #         status: 200
-    #     log: json
