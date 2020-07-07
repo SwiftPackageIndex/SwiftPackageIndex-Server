@@ -11,12 +11,12 @@ requests:
         body:
             form:
                 token: ${pipeline_token}
-                ref: swift-binary
+                ref: main
                 variables[API_BASEURL]: https://staging.swiftpackageindex.com/api
                 variables[BUILDER_TOKEN]: ${builder_token}
                 variables[CLONE_URL]: https://github.com/finestructure/Gala
-                variables[PLATFORM_NAME]: xcodebuilder
-                variables[PLATFORM_VERSION]: "v10.15"
+                variables[PLATFORM_NAME]: macos
+                variables[PLATFORM_VERSION]: x86_64
                 variables[SWIFT_MAJOR_VERSION]: 5
                 variables[SWIFT_MINOR_VERSION]: 2
                 variables[SWIFT_PATCH_VERSION]: 4
