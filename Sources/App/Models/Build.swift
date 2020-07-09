@@ -124,11 +124,15 @@ extension Build {
             .first()
             .unwrap(or: Abort(.notFound))
         return version.flatMap {
-            Gitlab.Builder.postTrigger(client: client,
-                                       versionID: versionId,
-                                       cloneURL: $0.package.url,
-                                       platform: platform,
-                                       swiftVersion: swiftVersion)
+            guard let reference = $0.reference else {
+                return database.eventLoop.future(error: Abort(.internalServerError))
+            }
+            return Gitlab.Builder.postTrigger(client: client,
+                                              versionID: versionId,
+                                              cloneURL: $0.package.url,
+                                              platform: platform,
+                                              reference: reference,
+                                              swiftVersion: swiftVersion)
                 .map { $0.status }
         }
     }

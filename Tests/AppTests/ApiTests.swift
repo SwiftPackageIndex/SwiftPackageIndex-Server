@@ -195,7 +195,7 @@ class ApiTests: AppTestCase {
         Current.builderToken = { "secr3t" }
         Current.gitlabPipelineToken = { "ptoken" }
         let p = try savePackage(on: app.db, "1")
-        let v = try Version(package: p)
+        let v = try Version(package: p, reference: .tag(.init(1, 2, 3, "beta1")))
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
         let dto: Build.PostTriggerDTO = .init(platform: .macos("10.15"), swiftVersion: .init(5, 2, 4))

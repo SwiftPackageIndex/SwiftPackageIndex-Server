@@ -100,7 +100,7 @@ class BuildTests: AppTestCase {
         Current.siteURL = { "http://example.com" }
         // setup
         let p = try savePackage(on: app.db, "1")
-        let v = try Version(package: p)
+        let v = try Version(package: p, reference: .branch("main"))
         try v.save(on: app.db).wait()
         let versionID = try XCTUnwrap(v.id)
         
@@ -118,9 +118,8 @@ class BuildTests: AppTestCase {
                             "variables[CLONE_URL]": "1",
                             "variables[PLATFORM_NAME]": "unknown",
                             "variables[PLATFORM_VERSION]": "test",
-                            "variables[SWIFT_MAJOR_VERSION]": "5",
-                            "variables[SWIFT_MINOR_VERSION]": "2",
-                            "variables[SWIFT_PATCH_VERSION]": "4",
+                            "variables[REFERENCE]": "main",
+                            "variables[SWIFT_VERSION]": "5.2.4",
                             "variables[VERSION_ID]": versionID.uuidString,
                            ]))
         }

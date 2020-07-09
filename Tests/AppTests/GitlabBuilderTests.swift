@@ -24,9 +24,8 @@ class GitlabBuilderTests: XCTestCase {
                             "variables[CLONE_URL]": "https://github.com/daveverwer/LeftPad.git",
                             "variables[PLATFORM_NAME]": "unknown",
                             "variables[PLATFORM_VERSION]": "test",
-                            "variables[SWIFT_MAJOR_VERSION]": "5",
-                            "variables[SWIFT_MINOR_VERSION]": "2",
-                            "variables[SWIFT_PATCH_VERSION]": "4",
+                            "variables[REFERENCE]": "1.2.3",
+                            "variables[SWIFT_VERSION]": "5.2.4",
                             "variables[VERSION_ID]": versionID.uuidString,
                            ]))
         }
@@ -36,6 +35,7 @@ class GitlabBuilderTests: XCTestCase {
                                            versionID: versionID,
                                            cloneURL: "https://github.com/daveverwer/LeftPad.git",
                                            platform: .init(name: .unknown, version: "test"),
+                                           reference: .tag(.init(1, 2, 3)),
                                            swiftVersion: .init(5, 2, 4)).wait()
         XCTAssertTrue(called)
     }
