@@ -102,7 +102,7 @@ class PipelineTests: AppTestCase {
         let urls = ["1", "2", "3"].asGithubUrls
         Current.fetchPackageList = { _ in .just(value: urls.asURLs) }
         Current.shell.run = { cmd, path in
-            if cmd.string == "swift package dump-package" {
+            if cmd.string == "/swift-5.3/usr/bin/swift package dump-package" {
                 return #"{ "name": "Mock", "products": [] }"#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }

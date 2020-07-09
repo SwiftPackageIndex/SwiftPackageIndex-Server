@@ -281,7 +281,11 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
             // up the tree through parent directories to find one
             throw AppError.invalidRevision(version.id, "no Package.swift")
         }
-        let json = try Current.shell.run(command: .init(string: "swift package dump-package"), at: cacheDir)
+        let swiftCommand = Current.fileManager.fileExists("/swift-5.3/usr/bin/swift")
+            ? "/swift-5.3/usr/bin/swift"
+            : "swift"
+        let json = try Current.shell.run(command: .init(string: "\(swiftCommand) package dump-package"),
+                                         at: cacheDir)
         let manifest = try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
         return (version, manifest)
     }
