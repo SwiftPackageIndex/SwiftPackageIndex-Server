@@ -1,7 +1,7 @@
 # ================================
 # Build image
 # ================================
-FROM swift:5.2.4-bionic as build
+FROM swiftlang/swift@sha256:5c038060f9feeb49ded30695e7062f0066a31e12feb80aba1a2779cd1fab6a73 as build
 WORKDIR /build
 
 # First just resolve dependencies.
@@ -24,7 +24,7 @@ RUN swift build \
 # Run image
 # ================================
 # we need a swift base image so that we can run `swift dump-package`
-FROM swift:5.2.4-bionic
+FROM swiftlang/swift@sha256:5c038060f9feeb49ded30695e7062f0066a31e12feb80aba1a2779cd1fab6a73
 WORKDIR /run
 
 # install git so we can run clone/pull/etc

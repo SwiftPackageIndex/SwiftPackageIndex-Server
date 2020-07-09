@@ -7,7 +7,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: swift:5.2.4-bionic
+      image: swiftlang/swift@sha256:5c038060f9feeb49ded30695e7062f0066a31e12feb80aba1a2779cd1fab6a73
     services:
       postgres:
         image: postgres:12.1-alpine
