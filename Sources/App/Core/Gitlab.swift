@@ -17,6 +17,7 @@ enum Gitlab {
                                 versionID: Version.Id,
                                 cloneURL: String,
                                 platform: Build.Platform,
+                                reference: Reference,
                                 swiftVersion: SwiftVersion) -> EventLoopFuture<ClientResponse> {
             guard let pipelineToken = Current.gitlabPipelineToken(),
                   let builderToken = Current.builderToken()
@@ -33,6 +34,7 @@ enum Gitlab {
                         "variables[CLONE_URL]": cloneURL,
                         "variables[PLATFORM_NAME]": "\(platform.name)",
                         "variables[PLATFORM_VERSION]": platform.version,
+                        "variables[REFERENCE]": "\(reference)",
                         "variables[SWIFT_VERSION]": "\(swiftVersion)",
                         "variables[VERSION_ID]": versionID.uuidString,
                     ]
