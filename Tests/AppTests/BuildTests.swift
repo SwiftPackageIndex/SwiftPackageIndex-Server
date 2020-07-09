@@ -118,9 +118,7 @@ class BuildTests: AppTestCase {
                             "variables[CLONE_URL]": "1",
                             "variables[PLATFORM_NAME]": "unknown",
                             "variables[PLATFORM_VERSION]": "test",
-                            "variables[SWIFT_MAJOR_VERSION]": "5",
-                            "variables[SWIFT_MINOR_VERSION]": "2",
-                            "variables[SWIFT_PATCH_VERSION]": "4",
+                            "variables[SWIFT_VERSION]": "5.2.4",
                             "variables[VERSION_ID]": versionID.uuidString,
                            ]))
         }
