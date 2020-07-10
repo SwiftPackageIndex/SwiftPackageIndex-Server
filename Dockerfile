@@ -23,12 +23,10 @@ RUN swift build \
 # ================================
 # Run image
 # ================================
-# we need a swift base image so that we can run `swift dump-package`
-FROM swift:5.2.4-bionic
-WORKDIR /run
+# we need a special base image so that we can run `swift dump-package`
+FROM finestructure/spi-base:0.1.0
 
-# install git so we can run clone/pull/etc
-RUN apt-get update && apt-get install -y git
+WORKDIR /run
 
 # Copy build artifacts
 COPY --from=build /build/.build/release /run
