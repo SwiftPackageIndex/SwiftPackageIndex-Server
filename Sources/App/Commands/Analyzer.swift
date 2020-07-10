@@ -266,6 +266,21 @@ func getManifests(logger: Logger,
 }
 
 
+func dumpPackage(at path: String, versionId: Version.Id?) throws -> Manifest {
+    guard Current.fileManager.fileExists(atPath: path + "/Package.swift") else {
+        // It's important to check for Package.swift - otherwise `dump-package` will go
+        // up the tree through parent directories to find one
+        throw AppError.invalidRevision(versionId, "no Package.swift")
+    }
+    let swiftCommand = Current.fileManager.fileExists("/swift-5.3/usr/bin/swift")
+        ? "/swift-5.3/usr/bin/swift"
+        : "swift"
+    let json = try Current.shell.run(command: .init(string: "\(swiftCommand) package dump-package"),
+                                     at: path)
+    return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+}
+
+
 func getManifest(package: Package, version: Version) -> Result<(Version, Manifest), Error> {
     Result {
         // check out version in cache directory
@@ -276,17 +291,9 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
             throw AppError.invalidRevision(version.id, nil)
         }
         try Current.shell.run(command: .gitCheckout(branch: reference.description), at: cacheDir)
-        guard Current.fileManager.fileExists(atPath: cacheDir + "/Package.swift") else {
-            // It's important to check for Package.swift - otherwise `dump-package` will go
-            // up the tree through parent directories to find one
-            throw AppError.invalidRevision(version.id, "no Package.swift")
-        }
-        let swiftCommand = Current.fileManager.fileExists("/swift-5.3/usr/bin/swift")
-            ? "/swift-5.3/usr/bin/swift"
-            : "swift"
-        let json = try Current.shell.run(command: .init(string: "\(swiftCommand) package dump-package"),
-                                         at: cacheDir)
-        let manifest = try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
+
+        let manifest = try dumpPackage(at: cacheDir, versionId: version.id)
+
         return (version, manifest)
     }
 }

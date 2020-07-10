@@ -1,6 +1,7 @@
 @testable import App
 
 import Fluent
+import ShellOut
 import SnapshotTesting
 import Vapor
 import XCTest
@@ -630,6 +631,22 @@ class AnalyzerTests: AppTestCase {
         assertSnapshot(matching: commands, as: .dump)
     }
 
+    func test_dumpPackage_5_3() throws {
+        // Test parsing a Package.swift that requires a 5.3 toolchain
+        // NB: If this test fails on macOS with Xcode 12, make sure
+        // xcode-select -p points to the correct version of Xcode!
+        // setup
+        Current.fileManager = .live
+        Current.shell = .live
+        try withTempDir { tempDir in
+            let fixture = fixturesDirectory()
+                .appendingPathComponent("VisualEffects-Package-swift").path
+            let fname = tempDir.appending("/Package.swift")
+            try ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+            let m = try dumpPackage(at: tempDir, versionId: nil)
+            XCTAssertEqual(m.name, "VisualEffects")
+        }
+    }
 }
 
 
