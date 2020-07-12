@@ -67,6 +67,9 @@ public func configure(_ app: Application) throws {
     do { // Migration 010 - add non-null constraints to builds fields
         app.migrations.add(UpdateBuildNonNull())
     }
+    do { // Migration 011 - add log_url field to builds
+        app.migrations.add(UpdateBuildAddLogURL())
+    }
     
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")
