@@ -86,8 +86,8 @@ extension BuildIndex {
                             .forEach(1..<10) { _ in
                                 .li(
                                     .div(
-                                        .class("status failed"), // Or "status failed"
-                                        .i(.class("icon build_failed")) // Or "icon build_failed"
+                                        .class("status success"), // Or "status failed"
+                                        .i(.class("icon build_success")) // Or "icon build_failed"
                                     ),
                                     .strong("Swift 4.2"),
                                     .text(" on "),
