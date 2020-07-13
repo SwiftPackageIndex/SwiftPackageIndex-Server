@@ -14,7 +14,7 @@ enum BuildIndex {
 
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .h1("Builds for \(model.packageName)"),
+                .h2("Builds for \(model.packageName)"),
                 model.stable.node("Stable"),
                 model.latest.node("Latest"),
                 model.beta.node("Beta")
@@ -63,12 +63,46 @@ extension BuildIndex {
             var builds: [Build]
 
             func node(_ label: String) -> Node<HTML.BodyContext> {
+//                .group(
+//                    .h4("\(label): \(name)"),
+//                    .ul(
+//                        .forEach(builds) {
+//                            .li($0.node)
+//                        }
+//                    )
+//                )
+
                 .group(
-                    .h4("\(label): \(name)"),
-                    .ul(
-                        .forEach(builds) {
-                            .li($0.node)
-                        }
+                    .h3(
+                        .span(
+                            .class("stable"),
+                            .i(.class("icon stable")),  // Or "icon branch" or "icon beta"
+                            .text("1.0.0")
+                        )
+                    ),
+                    .section(
+                        .class("builds"),
+                        .ul(
+                            .forEach(1..<10) { _ in
+                                .li(
+                                    .div(
+                                        .class("status failed"), // Or "status failed"
+                                        .i(.class("icon build_failed")) // Or "icon build_failed"
+                                    ),
+                                    .strong("Swift 4.2"),
+                                    .text(" on "),
+                                    .strong("macOS"),
+                                    .text(" &ndash; "),
+                                    .a( // Should we show logs for all builds or only failed?
+                                        .href("#"), // Path to log page for this build
+                                        "View build log"
+                                    )
+                                )
+                            }
+//                        .forEach(builds) { build in
+//                            .li(build.node)
+//                        }
+                        )
                     )
                 )
             }
