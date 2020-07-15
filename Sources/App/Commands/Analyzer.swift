@@ -338,6 +338,7 @@ func reconcileVersions(client: Client,
         .map(Version.diff)
         .flatMap { delta in
             applyVersionDelta(on: transaction, delta: delta)
+                .flatMap { onNewVersions(on: transaction, versions: delta.toAdd) }
                 .map { delta.toAdd }
         }
 }
@@ -548,4 +549,15 @@ func updateLatestVersions(on database: Database,
                 .flatten(on: database.eventLoop)
                 .map { package }
         }
+}
+
+
+/// Event hook to run logic when new versions have been discovered in an analysis pass. Note that the provided
+/// transaction could potentially be rolled back in case an error occurs before all versions are processed and saved.
+/// - Parameters:
+///   - transaction: database transaction
+///   - versions: array of newly discovered versions
+/// - Returns: future wrapping operation(s)
+func onNewVersions(on transaction: Database, versions: [Version]) -> EventLoopFuture<Void> {
+    transaction.eventLoop.future()
 }
