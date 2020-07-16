@@ -14,7 +14,7 @@ enum BuildIndex {
 
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .h1("Builds for \(model.packageName)"),
+                .h2("Builds for \(model.packageName)"),
                 model.stable.node("Stable"),
                 model.latest.node("Latest"),
                 model.beta.node("Beta")
@@ -45,32 +45,70 @@ extension BuildIndex {
 
             self.packageName = name
             self.stable = .init(name: stable?.reference?.description ?? "n/a",
+                                kind: .stable,
                                 builds: stable?.builds
                                     .map(Build.init)
                                     .sorted(by: versionPlatform) ?? [])
             self.latest = .init(name: latest?.reference?.description ?? "n/a",
+                                kind: .latest,
                                 builds: latest?.builds
                                     .map(Build.init)
                                     .sorted(by: versionPlatform) ?? [])
             self.beta = .init(name: beta?.reference?.description ?? "n/a",
+                              kind: .beta,
                               builds: beta?.builds
                                 .map(Build.init)
                                 .sorted(by: versionPlatform) ?? [])
         }
 
+        internal init(packageName: String,
+                      stable: BuildGroup,
+                      latest: BuildGroup,
+                      beta: BuildGroup) {
+            self.packageName = packageName
+            self.stable = stable
+            self.latest = latest
+            self.beta = beta
+        }
+
         struct BuildGroup {
             var name: String
+            var kind: Kind
             var builds: [Build]
 
             func node(_ label: String) -> Node<HTML.BodyContext> {
                 .group(
-                    .h4("\(label): \(name)"),
-                    .ul(
-                        .forEach(builds) {
-                            .li($0.node)
-                        }
+                    .h3(
+                        .span(
+                            .class(cssClass),
+                            .i(.class("icon \(cssClass)")),
+                            .text(name)
+                        )
+                    ),
+                    .section(
+                        .class("builds"),
+                        .ul(
+                            .forEach(builds) { $0.node }
+                        )
                     )
                 )
+            }
+
+            enum Kind {
+                case stable
+                case beta
+                case latest
+            }
+
+            var cssClass: String {
+                switch kind {
+                    case .stable:
+                        return "stable"
+                    case .beta:
+                        return "beta"
+                    case .latest:
+                        return "branch"
+                }
             }
         }
 
@@ -85,12 +123,42 @@ extension BuildIndex {
                 status = build.status
             }
 
-            var node: Node<HTML.BodyContext> {
-                .group(
-                    .text("\(swiftVersion)"), " – ",
-                    .text("\(platform.name)"), " – ",
-                    .text("\(status)")
+            internal init(swiftVersion: App.SwiftVersion,
+                          platform: App.Build.Platform,
+                          status: App.Build.Status) {
+                self.swiftVersion = swiftVersion
+                self.platform = platform
+                self.status = status
+            }
+
+            var node: Node<HTML.ListContext> {
+                .li(
+                    .div(
+                        .class("status \(cssClass)"),
+                        .i(.class("icon build_\(cssClass)"))
+                    ),
+                    .strong(.text(swiftVersionLabel)),
+                    .text(" on "),
+                    .strong("\(platform.name)"),
+                    .text(" &ndash; "),
+                    .a(
+                        .href("#"), // Path to log page for this build
+                        "View build log"
+                    )
                 )
+            }
+
+            var cssClass: String {
+                switch status {
+                    case .ok:
+                        return "success"
+                    case .failed:
+                        return "failed"
+                }
+            }
+
+            var swiftVersionLabel: String {
+                "Swift \(swiftVersion.major).\(swiftVersion.minor)"
             }
         }
     }
