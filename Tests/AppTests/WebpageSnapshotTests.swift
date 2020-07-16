@@ -291,4 +291,23 @@ class WebpageSnapshotTests: XCTestCase {
         #endif
     }
     
+    func test_BuildIndex() throws {
+        let page = { BuildIndex.View(path: "", model: .mock).document() }
+
+        let recordSnapshotForThisTest = false
+        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+
+        assertSnapshot(matching: page, as: .html)
+
+        #if os(macOS)
+        if !isRunningInCI {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
+
 }
