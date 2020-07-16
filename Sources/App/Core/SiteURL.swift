@@ -167,8 +167,32 @@ enum SiteURL: Resourceable {
     
     static var apiBaseURL: String { absoluteURL("api") }
 
-    enum PackagePathComponents: String, Resourceable {
-        case builds = "builds"
+    enum PackagePathComponents: Resourceable {
+        case builds
+        case build(_ id: Parameter<UUID>)
+
+        var path: String {
+            switch self {
+                case .builds:
+                    return "builds"
+                case let .build(.value(id)):
+                    return "builds/\(id.uuidString)"
+                case .build(.key):
+                    fatalError("invalid path: \(self)")
+            }
+        }
+
+        var pathComponents: [PathComponent] {
+            switch self {
+                case .builds:
+                    return ["builds"]
+                case .build(.key):
+                    return ["builds", ":id"]
+                case .build(.value):
+                    fatalError("pathComponents must not be called with a value parameter")
+            }
+        }
+
     }
 
 }
