@@ -37,8 +37,9 @@ func routes(_ app: Application) throws {
         
         app.group(User.TokenAuthenticator(), User.guardMiddleware()) { protected in
             let builds = API.BuildController()
-            protected.post(SiteURL.api(.versions(.key, .builds)).pathComponents,
-                           use: builds.create)
+            protected.on(.POST, SiteURL.api(.versions(.key, .builds)).pathComponents,
+                         body: .collect(maxSize: 100_000),
+                         use: builds.create)
             protected.post(SiteURL.api(.versions(.key, .triggerBuild)).pathComponents,
                            use: builds.trigger)
             let packages = API.PackageController()
