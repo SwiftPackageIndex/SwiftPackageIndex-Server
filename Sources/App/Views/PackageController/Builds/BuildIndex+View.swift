@@ -158,7 +158,7 @@ extension BuildIndex {
             }
 
             var swiftVersionLabel: String {
-                "Swift \(swiftVersion.major)/\(swiftVersion.minor)"
+                "Swift \(swiftVersion.major).\(swiftVersion.minor)"
             }
         }
     }
