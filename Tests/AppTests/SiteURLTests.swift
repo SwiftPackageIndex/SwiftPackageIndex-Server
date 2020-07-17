@@ -111,7 +111,6 @@ class SiteURLTests: XCTestCase {
         // /builds/{id}
         let id = UUID()
         XCTAssertEqual(SiteURL.builds(.value(id)).path, "builds/\(id.uuidString)")
-        XCTAssertEqual(SiteURL.builds(.key).pathComponents.map(\.description),
-                       ["builds", ":id"])
+        XCTAssertEqual(SiteURL.builds(.key).pathComponents.map(\.description), ["builds", ":id"])
     }
 }

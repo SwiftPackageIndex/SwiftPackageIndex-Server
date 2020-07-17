@@ -68,7 +68,7 @@
                 </div>
                 <strong>Swift 5.2</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -76,7 +76,7 @@
                 </div>
                 <strong>Swift 5.2</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -84,7 +84,7 @@
                 </div>
                 <strong>Swift 5.2</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -92,7 +92,7 @@
                 </div>
                 <strong>Swift 5.1</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -100,7 +100,7 @@
                 </div>
                 <strong>Swift 5.1</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -108,7 +108,7 @@
                 </div>
                 <strong>Swift 5.1</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -116,7 +116,7 @@
                 </div>
                 <strong>Swift 5.0</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -124,7 +124,7 @@
                 </div>
                 <strong>Swift 5.0</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -132,7 +132,7 @@
                 </div>
                 <strong>Swift 5.0</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -140,7 +140,7 @@
                 </div>
                 <strong>Swift 4.2</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -148,7 +148,7 @@
                 </div>
                 <strong>Swift 4.2</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -156,7 +156,7 @@
                 </div>
                 <strong>Swift 4.2</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
             </ul>
           </section>
@@ -173,7 +173,7 @@
                 </div>
                 <strong>Swift 5.2</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -181,7 +181,7 @@
                 </div>
                 <strong>Swift 5.2</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -189,7 +189,7 @@
                 </div>
                 <strong>Swift 5.2</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -197,7 +197,7 @@
                 </div>
                 <strong>Swift 5.1</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -205,7 +205,7 @@
                 </div>
                 <strong>Swift 5.1</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -213,7 +213,7 @@
                 </div>
                 <strong>Swift 5.1</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -221,7 +221,7 @@
                 </div>
                 <strong>Swift 5.0</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -229,7 +229,7 @@
                 </div>
                 <strong>Swift 5.0</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -237,7 +237,7 @@
                 </div>
                 <strong>Swift 5.0</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -245,7 +245,7 @@
                 </div>
                 <strong>Swift 4.2</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -253,7 +253,7 @@
                 </div>
                 <strong>Swift 4.2</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -261,7 +261,7 @@
                 </div>
                 <strong>Swift 4.2</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
             </ul>
           </section>
@@ -278,7 +278,7 @@
                 </div>
                 <strong>Swift 5.2</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -286,7 +286,7 @@
                 </div>
                 <strong>Swift 5.2</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -294,7 +294,7 @@
                 </div>
                 <strong>Swift 5.2</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -302,7 +302,7 @@
                 </div>
                 <strong>Swift 5.1</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -310,7 +310,7 @@
                 </div>
                 <strong>Swift 5.1</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status success">
@@ -318,7 +318,7 @@
                 </div>
                 <strong>Swift 5.1</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -326,7 +326,7 @@
                 </div>
                 <strong>Swift 5.0</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -334,7 +334,7 @@
                 </div>
                 <strong>Swift 5.0</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -342,7 +342,7 @@
                 </div>
                 <strong>Swift 5.0</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -350,7 +350,7 @@
                 </div>
                 <strong>Swift 4.2</strong> on 
                 <strong>macos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -358,7 +358,7 @@
                 </div>
                 <strong>Swift 4.2</strong> on 
                 <strong>ios</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
                 <div class="status failed">
@@ -366,7 +366,7 @@
                 </div>
                 <strong>Swift 4.2</strong> on 
                 <strong>tvos</strong> &ndash; 
-                <a href="#">View build log</a>
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
             </ul>
           </section>
