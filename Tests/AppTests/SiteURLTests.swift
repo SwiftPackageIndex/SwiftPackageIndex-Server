@@ -108,11 +108,10 @@ class SiteURLTests: XCTestCase {
                        "foo/bar/builds")
         XCTAssertEqual(SiteURL.package(.key, .key, .builds).pathComponents.map(\.description),
                        [":owner", ":repository", "builds"])
-        // owner/repo/builds/{id}
+        // /builds/{id}
         let id = UUID()
-        XCTAssertEqual(SiteURL.package(.value("foo"), .value("bar"), .build(.value(id))).path,
-                       "foo/bar/builds/\(id.uuidString)")
-        XCTAssertEqual(SiteURL.package(.key, .key, .build(.key)).pathComponents.map(\.description),
-                       [":owner", ":repository", "builds", ":id"])
+        XCTAssertEqual(SiteURL.builds(.value(id)).path, "builds/\(id.uuidString)")
+        XCTAssertEqual(SiteURL.builds(.key).pathComponents.map(\.description),
+                       ["builds", ":id"])
     }
 }

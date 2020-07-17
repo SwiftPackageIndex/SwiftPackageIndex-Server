@@ -34,6 +34,8 @@ extension SiteURL {
                 return .weekly
             case .api:
                 return .weekly
+            case .builds:
+                return .daily
             case .faq:
                 return .weekly
             case .addAPackage:

@@ -68,6 +68,7 @@ enum SiteURL: Resourceable {
     
     case admin
     case api(Api)
+    case builds(_ id: Parameter<UUID>)
     case faq
     case addAPackage
     case home
@@ -86,7 +87,13 @@ enum SiteURL: Resourceable {
                 
             case let .api(next):
                 return "api/\(next.path)"
-                
+
+            case let .builds(.value(id)):
+                return "builds/\(id.uuidString)"
+
+            case .builds(.key):
+                fatalError("invalid path: \(self)")
+
             case .faq:
                 return "faq"
                 
@@ -134,7 +141,13 @@ enum SiteURL: Resourceable {
                 
             case let .api(res):
                 return ["api"] + res.pathComponents
-                
+
+            case .builds(.key):
+                return ["builds", ":id"]
+
+            case .builds(.value):
+                fatalError("pathComponents must not be called with a value parameter")
+
             case .package(.key, .key, .none):
                 return [":owner", ":repository"]
                 
@@ -167,32 +180,8 @@ enum SiteURL: Resourceable {
     
     static var apiBaseURL: String { absoluteURL("api") }
 
-    enum PackagePathComponents: Resourceable {
+    enum PackagePathComponents: String, Resourceable {
         case builds
-        case build(_ id: Parameter<UUID>)
-
-        var path: String {
-            switch self {
-                case .builds:
-                    return "builds"
-                case let .build(.value(id)):
-                    return "builds/\(id.uuidString)"
-                case .build(.key):
-                    fatalError("invalid path: \(self)")
-            }
-        }
-
-        var pathComponents: [PathComponent] {
-            switch self {
-                case .builds:
-                    return ["builds"]
-                case .build(.key):
-                    return ["builds", ":id"]
-                case .build(.value):
-                    fatalError("pathComponents must not be called with a value parameter")
-            }
-        }
-
     }
 
 }
