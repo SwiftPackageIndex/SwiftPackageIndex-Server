@@ -14,8 +14,13 @@ enum BuildShow {
 
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .h2("Build Details"),
-                .pre(.text(model.logs))
+                .h2("Build Log"),
+                .pre(
+                    .class("wrap"),
+                    .code(
+                        .text(model.logs)
+                    )
+                )
             )
         }
     }
