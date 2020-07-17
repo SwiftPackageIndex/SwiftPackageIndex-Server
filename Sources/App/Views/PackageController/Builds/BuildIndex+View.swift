@@ -47,17 +47,17 @@ extension BuildIndex {
             self.stable = .init(name: stable?.reference?.description ?? "n/a",
                                 kind: .stable,
                                 builds: stable?.builds
-                                    .map(Build.init)
+                                    .compactMap(Build.init)
                                     .sorted(by: versionPlatform) ?? [])
             self.latest = .init(name: latest?.reference?.description ?? "n/a",
                                 kind: .latest,
                                 builds: latest?.builds
-                                    .map(Build.init)
+                                    .compactMap(Build.init)
                                     .sorted(by: versionPlatform) ?? [])
             self.beta = .init(name: beta?.reference?.description ?? "n/a",
                               kind: .beta,
                               builds: beta?.builds
-                                .map(Build.init)
+                                .compactMap(Build.init)
                                 .sorted(by: versionPlatform) ?? [])
         }
 
@@ -113,19 +113,24 @@ extension BuildIndex {
         }
 
         struct Build {
+            var id: App.Build.Id
             var swiftVersion: App.SwiftVersion
             var platform: App.Build.Platform
             var status: App.Build.Status
 
-            init(_ build: App.Build) {
+            init?(_ build: App.Build) {
+                guard let id = build.id else { return nil }
+                self.id = id
                 swiftVersion = build.swiftVersion
                 platform = build.platform
                 status = build.status
             }
 
-            internal init(swiftVersion: App.SwiftVersion,
+            internal init(id: App.Build.Id,
+                          swiftVersion: App.SwiftVersion,
                           platform: App.Build.Platform,
                           status: App.Build.Status) {
+                self.id = id
                 self.swiftVersion = swiftVersion
                 self.platform = platform
                 self.status = status
@@ -142,7 +147,7 @@ extension BuildIndex {
                     .strong("\(platform.name)"),
                     .text(" &ndash; "),
                     .a(
-                        .href("#"), // Path to log page for this build
+                        .href(SiteURL.builds(.value(id)).relativeURL()),
                         "View build log"
                     )
                 )

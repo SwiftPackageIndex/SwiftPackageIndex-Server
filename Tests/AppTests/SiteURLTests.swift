@@ -103,9 +103,14 @@ class SiteURLTests: XCTestCase {
     }
 
     func test_packageBuildsURL() throws {
+        // owner/repo/builds
         XCTAssertEqual(SiteURL.package(.value("foo"), .value("bar"), .builds).path,
                        "foo/bar/builds")
         XCTAssertEqual(SiteURL.package(.key, .key, .builds).pathComponents.map(\.description),
                        [":owner", ":repository", "builds"])
+        // /builds/{id}
+        let id = UUID()
+        XCTAssertEqual(SiteURL.builds(.value(id)).path, "builds/\(id.uuidString)")
+        XCTAssertEqual(SiteURL.builds(.key).pathComponents.map(\.description), ["builds", ":id"])
     }
 }
