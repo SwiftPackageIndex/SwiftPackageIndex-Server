@@ -26,6 +26,9 @@ func routes(_ app: Application) throws {
     app.get(SiteURL.package(.key, .key, .none).pathComponents, use: packageController.show)
     app.get(SiteURL.package(.key, .key, .builds).pathComponents, use: packageController.builds)
 
+    let buildController = BuildController()
+    app.get(SiteURL.builds(.key).pathComponents, use: buildController.show)
+
     do {  // admin
         // sas: 2020-06-01: disable admin page until we have an auth mechanism
         //  app.get(Root.admin.pathComponents) { req in PublicPage.admin() }

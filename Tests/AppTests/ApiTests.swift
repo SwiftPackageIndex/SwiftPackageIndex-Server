@@ -406,5 +406,5 @@ class ApiTests: AppTestCase {
             XCTAssertEqual(requestsSent, 0)
         }
     }
-    
+
 }
