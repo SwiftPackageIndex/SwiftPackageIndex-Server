@@ -335,14 +335,15 @@ extension PackageShow.Model {
         return .section(
             .class("swift"),
             .h3("Swift Version Compatibility"),
-            .element(named: "small", nodes: [
+            .ul(
+                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
+            ),
+            .p(
+                .class("right"),
                 .a(
                     .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
                     "Full build results"
                 )
-            ]),
-            .ul(
-                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
             )
         )
     }
