@@ -169,3 +169,15 @@ extension Build {
             }
     }
 }
+
+
+
+extension Array where Element == Build {
+    var noneSucceeded: Bool {
+        allSatisfy { $0.status != .ok }
+    }
+
+    var anySucceeded: Bool {
+        !noneSucceeded
+    }
+}
