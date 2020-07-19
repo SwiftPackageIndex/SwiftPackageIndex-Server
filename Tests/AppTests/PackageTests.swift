@@ -388,20 +388,31 @@ final class PackageTests: AppTestCase {
     }
     
     func test_buildResults() throws {
+        // Test build success reporting - we take any success across platforms
+        // as a success for a particular x.y swift version (4.2, 5.0, etc, i.e.
+        // ignoring swift patch versions)
         // setup
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .branch("main"))
         try v.save(on: app.db).wait()
-        func makeBuild(_ status: Build.Status, _ version: SwiftVersion) throws {
-            try Build(version: v, platform: .macos("10.15"), status: status, swiftVersion: version)
+        func makeBuild(_ status: Build.Status, _ platform: Build.Platform, _ version: SwiftVersion) throws {
+            try Build(version: v, platform: platform, status: status, swiftVersion: version)
                 .save(on: app.db)
                 .wait()
         }
-        try makeBuild(.failed, .init(4, 2, 4))
-        try makeBuild(.failed, .init(5, 0, 1))
-        try makeBuild(.failed, .init(5, 2, 0))  // this should not be reported: latest (5, 2, 2) taking precedence
-        try makeBuild(.ok, .init(5, 2, 2))
-        try makeBuild(.ok, .init(5, 3, 0))
+        // 4.2 - failed
+        try makeBuild(.failed, .ios("11"), .init(4, 2, 0))
+        try makeBuild(.failed, .macos("10.15"), .init(4, 2, 4))
+        // 5.0 - failed
+        try makeBuild(.failed, .ios("11"), .init(5, 0, 1))
+        try makeBuild(.failed, .macos("10.15"), .init(5, 0, 1))
+        // 5.1 - no data - unknown
+        // 5.2 - ok
+        try makeBuild(.failed, .macos("10.15"), .init(5, 2, 0))
+        try makeBuild(.ok, .macos("10.15"), .init(5, 2, 2))
+        // 5.3 - ok
+        try makeBuild(.failed, .ios("11"), .init(5, 3, 0))
+        try makeBuild(.ok, .macos("10.15"), .init(5, 3, 0))
         try v.$builds.load(on: app.db).wait()
         
         // MUT

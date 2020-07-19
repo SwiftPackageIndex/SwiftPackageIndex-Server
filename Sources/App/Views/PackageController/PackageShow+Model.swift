@@ -15,7 +15,7 @@ extension PackageShow {
         var products: ProductCounts?
         var releases: ReleaseInfo
         var stars: Int?
-        var summary: String
+        var summary: String?
         var title: String
         var url: String
         var score: Int?
@@ -48,9 +48,7 @@ extension PackageShow {
             self.products = package.productCounts()
             self.releases = package.releaseInfo()
             self.stars = package.repository?.stars
-            // FIXME: we should probably also display an explainer
-            // when summary is nil
-            self.summary = package.repository?.summary ?? "–"
+            self.summary = package.repository?.summary
             self.title = title
             self.url = package.url
             self.score = package.score
