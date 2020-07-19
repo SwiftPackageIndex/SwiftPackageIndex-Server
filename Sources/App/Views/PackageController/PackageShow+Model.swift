@@ -313,19 +313,24 @@ extension PackageShow.Model {
     }
     
     func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
-        let environment = (try? Environment.detect()) ?? .development
-        guard environment != .production else {
-            return .empty
-        }
-        guard let buildInfo = buildInfo else { return .empty }
-        let rows = Self.groupBuildInfo(buildInfo)
-        return .section(
-            .class("swift"),
-            .h3("Swift Version Compatibility"),
-            .ul(
-                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
-            )
-        )
+// --------------------------------------------------------------------------------------------
+// Temporarily removed for beta testing the build logs as this section is currently misleading.
+// --------------------------------------------------------------------------------------------
+//        let environment = (try? Environment.detect()) ?? .development
+//        guard environment != .production else {
+//            return .empty
+//        }
+//        guard let buildInfo = buildInfo else { return .empty }
+//        let rows = Self.groupBuildInfo(buildInfo)
+//        return .section(
+//            .class("swift"),
+//            .h3("Swift Version Compatibility"),
+//            .ul(
+//                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
+//            )
+//        )
+
+        return .empty
     }
     
     func swiftVersionCompatibilityListItem(_ row: BuildStatusRow) -> Node<HTML.ListContext> {
