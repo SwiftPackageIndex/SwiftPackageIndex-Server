@@ -17,7 +17,11 @@ enum PackageShow {
         }
         
         override func pageDescription() -> String? {
-            "\(model.title) on the Swift Package Index – \(model.summary)"
+            var description = "\(model.title) on the Swift Package Index"
+            if let summary = model.summary {
+                description += " – \(summary)"
+            }
+            return description
         }
         
         override func bodyClass() -> String? {
@@ -44,7 +48,9 @@ enum PackageShow {
                 .hr(),
                 .p(
                     .class("description"),
-                    .text(model.summary.replaceShorthandEmojis())
+                    .unwrap(model.summary) { summary in
+                        .text(summary.replaceShorthandEmojis())
+                    }
                 ),
                 .section(
                     .class("metadata"),
