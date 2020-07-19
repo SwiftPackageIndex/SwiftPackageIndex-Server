@@ -6,6 +6,8 @@ import Vapor
 extension PackageShow {
     
     struct Model: Equatable {
+        var repositoryOwner: String
+        var repositoryName: String
         var activity: Activity?
         var authors: [Link]?
         var buildInfo: BuildInfo?
@@ -20,7 +22,9 @@ extension PackageShow {
         var url: String
         var score: Int?
         
-        internal init(activity: PackageShow.Model.Activity? = nil, authors: [Link]? = nil, buildInfo: PackageShow.Model.BuildInfo? = nil, history: PackageShow.Model.History? = nil, languagePlatforms: PackageShow.Model.LanguagePlatformInfo, license: License, products: PackageShow.Model.ProductCounts? = nil, releases: PackageShow.Model.ReleaseInfo, stars: Int? = nil, summary: String, title: String, url: String, score: Int? = nil) {
+        internal init(repositoryOwner: String, repositoryName: String, activity: PackageShow.Model.Activity? = nil, authors: [Link]? = nil, buildInfo: PackageShow.Model.BuildInfo? = nil, history: PackageShow.Model.History? = nil, languagePlatforms: PackageShow.Model.LanguagePlatformInfo, license: License, products: PackageShow.Model.ProductCounts? = nil, releases: PackageShow.Model.ReleaseInfo, stars: Int? = nil, summary: String, title: String, url: String, score: Int? = nil) {
+            self.repositoryOwner = repositoryOwner
+            self.repositoryName = repositoryName
             self.activity = activity
             self.authors = authors
             self.buildInfo = buildInfo
@@ -39,6 +43,15 @@ extension PackageShow {
         init?(package: Package) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             guard let title = package.name() else { return nil }
+
+            guard
+                let repository = package.repository,
+                let repositoryOwner = repository.owner,
+                let repositoryName = repository.name
+            else { return nil }
+
+            self.repositoryOwner = repositoryOwner
+            self.repositoryName = repositoryName
             self.activity = package.activity()
             self.authors = package.authors()
             self.buildInfo = package.buildInfo()
@@ -313,24 +326,25 @@ extension PackageShow.Model {
     }
     
     func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
-// --------------------------------------------------------------------------------------------
-// Temporarily removed for beta testing the build logs as this section is currently misleading.
-// --------------------------------------------------------------------------------------------
-//        let environment = (try? Environment.detect()) ?? .development
-//        guard environment != .production else {
-//            return .empty
-//        }
-//        guard let buildInfo = buildInfo else { return .empty }
-//        let rows = Self.groupBuildInfo(buildInfo)
-//        return .section(
-//            .class("swift"),
-//            .h3("Swift Version Compatibility"),
-//            .ul(
-//                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
-//            )
-//        )
-
-        return .empty
+        let environment = (try? Environment.detect()) ?? .development
+        guard environment != .production else {
+            return .empty
+        }
+        guard let buildInfo = buildInfo else { return .empty }
+        let rows = Self.groupBuildInfo(buildInfo)
+        return .section(
+            .class("swift"),
+            .h3("Swift Version Compatibility"),
+            .element(named: "small", nodes: [
+                .a(
+                    .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
+                    "Full build results"
+                )
+            ]),
+            .ul(
+                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
+            )
+        )
     }
     
     func swiftVersionCompatibilityListItem(_ row: BuildStatusRow) -> Node<HTML.ListContext> {
