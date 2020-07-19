@@ -116,6 +116,97 @@
             </li>
           </ul>
         </section>
+        <section class="swift">
+          <h3>Swift Version Compatibility</h3>
+          <ul>
+            <li class="reference">
+              <div class="label">
+                <div>
+                  <div>
+                    <span class="stable">
+                      <i class="icon stable"></i>5.2.3
+                    </span> and 
+                    <span class="branch">
+                      <i class="icon branch"></i>main
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="compatibility">
+                <div class="swift_versions">
+                  <div>5.3
+                    <small>(beta)</small>
+                  </div>
+                  <div>5.2
+                    <small>(latest)</small>
+                  </div>
+                  <div>5.1</div>
+                  <div>5.0</div>
+                  <div>4.2</div>
+                </div>
+                <div class="build_statuses">
+                  <div class="success" title="Built successfully with Swift 5.3">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="success" title="Built successfully with Swift 5.2">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for Swift 5.1">
+                    <i class="icon build_unknown"></i>
+                  </div>
+                  <div class="failed" title="Build failed with Swift 5.0">
+                    <i class="icon build_failed"></i>
+                  </div>
+                  <div class="failed" title="Build failed with Swift 4.2">
+                    <i class="icon build_failed"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="reference">
+              <div class="label">
+                <div>
+                  <div>
+                    <span class="beta">
+                      <i class="icon beta"></i>6.0.0-b1
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="compatibility">
+                <div class="swift_versions">
+                  <div>5.3
+                    <small>(beta)</small>
+                  </div>
+                  <div>5.2
+                    <small>(latest)</small>
+                  </div>
+                  <div>5.1</div>
+                  <div>5.0</div>
+                  <div>4.2</div>
+                </div>
+                <div class="build_statuses">
+                  <div class="success" title="Built successfully with Swift 5.3">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="success" title="Built successfully with Swift 5.2">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="success" title="Built successfully with Swift 5.1">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="success" title="Built successfully with Swift 5.0">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="failed" title="Build failed with Swift 4.2">
+                    <i class="icon build_failed"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+          <a href="/Alamofire/Alamofire/builds">Full build results</a>
+        </section>
         <section class="language_platforms">
           <h3>Language and Platforms</h3>
           <ul>
