@@ -178,5 +178,29 @@ class BuildTests: AppTestCase {
             XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
         }
     }
-    
+
+    func test_noneSucceeded() throws {
+        let pkg = Package(id: UUID(), url: "1")
+        let v = try Version(id: UUID(), package: pkg)
+        let p = Build.Platform.ios("13")
+        let sv = SwiftVersion.init(5, 2, 0)
+        func mkBuild(_ status: Build.Status) -> Build {
+            return try! Build(version: v, platform: p, status: status, swiftVersion: sv)
+        }
+        XCTAssertTrue([mkBuild(.failed), mkBuild(.failed)].noneSucceeded)
+        XCTAssertFalse([mkBuild(.ok), mkBuild(.failed)].noneSucceeded)
+    }
+
+    func test_anySucceeded() throws {
+        let pkg = Package(id: UUID(), url: "1")
+        let v = try Version(id: UUID(), package: pkg)
+        let p = Build.Platform.ios("13")
+        let sv = SwiftVersion.init(5, 2, 0)
+        func mkBuild(_ status: Build.Status) -> Build {
+            return try! Build(version: v, platform: p, status: status, swiftVersion: sv)
+        }
+        XCTAssertTrue([mkBuild(.ok), mkBuild(.failed)].anySucceeded)
+        XCTAssertFalse([mkBuild(.failed), mkBuild(.failed)].anySucceeded)
+    }
+
 }

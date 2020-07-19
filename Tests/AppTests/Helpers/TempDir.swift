@@ -9,7 +9,7 @@ class TempDir {
         self.fileManager = fileManager
         let tempDir = fileManager.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
-        path = tempDir.absoluteString
+        path = tempDir.path
         try fileManager.createDirectory(atPath: path, withIntermediateDirectories: true, attributes: nil)
         precondition(fileManager.fileExists(atPath: path), "failed to create temp dir")
     }
