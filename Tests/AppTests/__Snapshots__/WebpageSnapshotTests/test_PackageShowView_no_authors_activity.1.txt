@@ -194,6 +194,9 @@
               </div>
             </li>
           </ul>
+          <p class="right">
+            <a href="/Alamofire/Alamofire/builds">Full build results</a>
+          </p>
         </section>
         <section class="language_platforms">
           <h3>Language and Platforms</h3>

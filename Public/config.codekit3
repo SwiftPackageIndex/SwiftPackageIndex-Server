@@ -9,12 +9,6 @@
 	],
 "creatorBuild": "32186",
 "files": {
-	"/deploy": {
-		"ft": 65536,
-		"oA": 1,
-		"oAP": "/deploy/deploy",
-		"oF": 0
-		},
 	"/fonts/icomoon.svg": {
 		"ft": 2097152,
 		"miP": 0,
@@ -466,7 +460,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 616765047.18278003
+	"lastBuiltDate": 616870723.34777296
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
