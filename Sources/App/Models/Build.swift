@@ -101,6 +101,7 @@ extension Build {
 
 extension Build {
     struct PostTriggerDTO: Codable {
+        var buildTool: BuildTool
         var platform: Platform
         var swiftVersion: SwiftVersion
     }
@@ -117,13 +118,21 @@ extension Build {
 
 // MARK: - Triggers
 
+
+enum BuildTool: String, Codable {
+    case spm
+    case xcodebuild
+}
+
+
 extension Build {
     
     static func trigger(database: Database,
                         client: Client,
-                        versionId: Version.Id,
+                        buildTool: BuildTool,
                         platform: Build.Platform,
-                        swiftVersion: SwiftVersion) -> EventLoopFuture<HTTPStatus> {
+                        swiftVersion: SwiftVersion,
+                        versionId: Version.Id) -> EventLoopFuture<HTTPStatus> {
         let version: EventLoopFuture<Version> = Version
             .query(on: database)
             .filter(\.$id == versionId)
@@ -135,11 +144,12 @@ extension Build {
                 return database.eventLoop.future(error: Abort(.internalServerError))
             }
             return Gitlab.Builder.postTrigger(client: client,
-                                              versionID: versionId,
+                                              buildTool: buildTool,
                                               cloneURL: $0.package.url,
                                               platform: platform,
                                               reference: reference,
-                                              swiftVersion: swiftVersion)
+                                              swiftVersion: swiftVersion,
+                                              versionID: versionId)
                 .map { $0.status }
         }
     }

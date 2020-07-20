@@ -20,6 +20,7 @@ class GitlabBuilderTests: XCTestCase {
                             "token": "pipeline token",
                             "ref": "main",
                             "variables[API_BASEURL]": "http://example.com/api",
+                            "variables[BUILD_TOOL]": "xcodebuild",
                             "variables[BUILDER_TOKEN]": "builder token",
                             "variables[CLONE_URL]": "https://github.com/daveverwer/LeftPad.git",
                             "variables[PLATFORM_NAME]": "unknown",
@@ -32,11 +33,12 @@ class GitlabBuilderTests: XCTestCase {
         
         // MUT
         _ = try Gitlab.Builder.postTrigger(client: client,
-                                           versionID: versionID,
+                                           buildTool: .xcodebuild,
                                            cloneURL: "https://github.com/daveverwer/LeftPad.git",
                                            platform: .init(name: .unknown, version: "test"),
                                            reference: .tag(.init(1, 2, 3)),
-                                           swiftVersion: .init(5, 2, 4)).wait()
+                                           swiftVersion: .init(5, 2, 4),
+                                           versionID: versionID).wait()
         XCTAssertTrue(called)
     }
     
