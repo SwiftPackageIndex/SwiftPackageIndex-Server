@@ -50,9 +50,10 @@ extension API {
                         .map {
                             Build.trigger(database: req.db,
                                           client: req.client,
-                                          versionId: $0,
+                                          buildTool: dto.buildTool,
                                           platform: dto.platform,
-                                          swiftVersion: dto.swiftVersion)
+                                          swiftVersion: dto.swiftVersion,
+                                          versionId: $0)
                         }
                         .flatten(on: req.eventLoop)
                         .map { statuses in

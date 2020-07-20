@@ -116,6 +116,7 @@ class BuildTests: AppTestCase {
                             "token": "pipeline token",
                             "ref": "main",
                             "variables[API_BASEURL]": "http://example.com/api",
+                            "variables[BUILD_TOOL]": "xcodebuild",
                             "variables[BUILDER_TOKEN]": "builder token",
                             "variables[CLONE_URL]": "1",
                             "variables[PLATFORM_NAME]": "unknown",
@@ -129,9 +130,10 @@ class BuildTests: AppTestCase {
         // MUT
         let res = try Build.trigger(database: app.db,
                                     client: client,
-                                    versionId: versionID,
+                                    buildTool: .xcodebuild,
                                     platform: .init(name: .unknown, version: "test"),
-                                    swiftVersion: .init(5, 2, 4)).wait()
+                                    swiftVersion: .init(5, 2, 4),
+                                    versionId: versionID).wait()
         
         // validate
         XCTAssertTrue(called)

@@ -14,6 +14,7 @@ requests:
             Authorization: Bearer ${builder_token}
         body:
             json:
+                buildTool: xcodebuild
                 platform:
                     name: unknown
                     version: test
@@ -33,6 +34,7 @@ requests:
             Authorization: Bearer ${builder_token}
         body:
             json:
+                buildTool: xcodebuild
                 platform:
                     name: unknown
                     version: test
@@ -52,6 +54,7 @@ requests:
             Authorization: Bearer ${builder_token}
         body:
             json:
+                buildTool: xcodebuild
                 platform:
                     name: unknown
                     version: test
@@ -71,6 +74,7 @@ requests:
             Authorization: Bearer ${builder_token}
         body:
             json:
+                buildTool: xcodebuild
                 platform:
                     name: unknown
                     version: test

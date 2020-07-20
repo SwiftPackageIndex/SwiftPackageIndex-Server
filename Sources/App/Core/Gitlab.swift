@@ -14,11 +14,12 @@ enum Gitlab {
         static var projectURL: String { "https://gitlab.com/api/v4/projects/\(projectId)" }
         
         static func postTrigger(client: Client,
-                                versionID: Version.Id,
+                                buildTool: BuildTool,
                                 cloneURL: String,
                                 platform: Build.Platform,
                                 reference: Reference,
-                                swiftVersion: SwiftVersion) -> EventLoopFuture<ClientResponse> {
+                                swiftVersion: SwiftVersion,
+                                versionID: Version.Id) -> EventLoopFuture<ClientResponse> {
             guard let pipelineToken = Current.gitlabPipelineToken(),
                   let builderToken = Current.builderToken()
             else { return client.eventLoop.future(error: Error.missingToken) }
@@ -30,9 +31,10 @@ enum Gitlab {
                         "token": pipelineToken,
                         "ref": branch,
                         "variables[API_BASEURL]": SiteURL.apiBaseURL,
+                        "variables[BUILD_TOOL]": buildTool.rawValue,
                         "variables[BUILDER_TOKEN]": builderToken,
                         "variables[CLONE_URL]": cloneURL,
-                        "variables[PLATFORM_NAME]": "\(platform.name)",
+                        "variables[PLATFORM_NAME]": platform.name.rawValue,
                         "variables[PLATFORM_VERSION]": platform.version,
                         "variables[REFERENCE]": "\(reference)",
                         "variables[SWIFT_VERSION]": "\(swiftVersion)",
