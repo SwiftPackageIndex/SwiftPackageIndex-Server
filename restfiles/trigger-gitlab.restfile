@@ -13,6 +13,7 @@ requests:
                 token: ${pipeline_token}
                 ref: main
                 variables[API_BASEURL]: https://staging.swiftpackageindex.com
+                variables[BUILD_TOOL]: xcodebuild
                 variables[BUILDER_TOKEN]: ${builder_token}
                 variables[CLONE_URL]: https://github.com/tadija/AECoreDataUI.git
                 variables[PLATFORM_NAME]: ios
