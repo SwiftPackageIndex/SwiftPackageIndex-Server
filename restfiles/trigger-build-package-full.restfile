@@ -3,6 +3,7 @@ variables:
     # env base_url=... builder_token=... package=... rester ...
     # base_url: http://localhost:8080/api
     # builder_token: secr3t
+    # platform: ios
     # package: owner/repo
 
 requests:
