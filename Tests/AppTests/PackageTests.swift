@@ -401,18 +401,18 @@ final class PackageTests: AppTestCase {
                 .wait()
         }
         // 4.2 - failed
-        try makeBuild(.failed, .ios("11"), .init(4, 2, 0))
-        try makeBuild(.failed, .macos("10.15"), .init(4, 2, 4))
+        try makeBuild(.failed, .ios, .init(4, 2, 0))
+        try makeBuild(.failed, .macosXcodebuild, .init(4, 2, 4))
         // 5.0 - failed
-        try makeBuild(.failed, .ios("11"), .init(5, 0, 1))
-        try makeBuild(.failed, .macos("10.15"), .init(5, 0, 1))
+        try makeBuild(.failed, .ios, .init(5, 0, 1))
+        try makeBuild(.failed, .macosXcodebuild, .init(5, 0, 1))
         // 5.1 - no data - unknown
         // 5.2 - ok
-        try makeBuild(.failed, .macos("10.15"), .init(5, 2, 0))
-        try makeBuild(.ok, .macos("10.15"), .init(5, 2, 2))
+        try makeBuild(.failed, .macosXcodebuild, .init(5, 2, 0))
+        try makeBuild(.ok, .macosXcodebuild, .init(5, 2, 2))
         // 5.3 - ok
-        try makeBuild(.failed, .ios("11"), .init(5, 3, 0))
-        try makeBuild(.ok, .macos("10.15"), .init(5, 3, 0))
+        try makeBuild(.failed, .ios, .init(5, 3, 0))
+        try makeBuild(.ok, .macosXcodebuild, .init(5, 3, 0))
         try v.$builds.load(on: app.db).wait()
         
         // MUT
@@ -432,7 +432,7 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
-        try Build(version: v, platform: .macos("10.15"), status: .ok, swiftVersion: .init(5, 2, 2))
+        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
         try p.$versions.load(on: app.db).wait()
