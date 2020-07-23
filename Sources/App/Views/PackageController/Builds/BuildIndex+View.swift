@@ -40,7 +40,7 @@ extension BuildIndex {
             // sort builds by swift version desc, platform name
             let versionPlatform: (Build, Build) -> Bool = { lhs, rhs in
                 if lhs.swiftVersion != rhs.swiftVersion { return lhs.swiftVersion > rhs.swiftVersion }
-                return lhs.platform.name.rawValue < rhs.platform.name.rawValue
+                return lhs.platform.rawValue < rhs.platform.rawValue
             }
 
             self.packageName = name
@@ -114,16 +114,16 @@ extension BuildIndex {
 
         struct Build {
             var id: App.Build.Id
-            var swiftVersion: App.SwiftVersion
             var platform: App.Build.Platform
             var status: App.Build.Status
+            var swiftVersion: App.SwiftVersion
 
             init?(_ build: App.Build) {
                 guard let id = build.id else { return nil }
                 self.id = id
-                swiftVersion = build.swiftVersion
                 platform = build.platform
                 status = build.status
+                swiftVersion = build.swiftVersion
             }
 
             internal init(id: App.Build.Id,
@@ -131,9 +131,9 @@ extension BuildIndex {
                           platform: App.Build.Platform,
                           status: App.Build.Status) {
                 self.id = id
-                self.swiftVersion = swiftVersion
                 self.platform = platform
                 self.status = status
+                self.swiftVersion = swiftVersion
             }
 
             var node: Node<HTML.ListContext> {

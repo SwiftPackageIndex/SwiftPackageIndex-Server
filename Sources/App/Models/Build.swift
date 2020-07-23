@@ -77,24 +77,36 @@ extension Build {
         case failed
     }
     
-    struct Platform: Codable, Equatable {
-        enum Name: String, Codable, Equatable, CaseIterable {
-            case ios
-            case linux
-            case macos
-            case tvos
-            case watchos
-            
-            case unknown
+    enum Platform: String, Codable, Equatable {
+        case ios
+        case macosSpmArm        = "macos-spm-arm"
+        case macosXcodebuildArm = "macos-xcodebuild-arm"
+        case macosSpm           = "macos-spm"
+        case macosXcodebuild    = "macos-xcodebuild"
+        case tvos
+        case watchos
+        case linux
+
+        var name: String {
+            switch self {
+                case .ios:
+                    return "iOS"
+                case .macosSpmArm:
+                    return "macOS - SPM - ARM"
+                case .macosXcodebuildArm:
+                    return "macOS - xcodebuild - ARM"
+                case .macosSpm:
+                    return "macOS - SPM"
+                case .macosXcodebuild:
+                    return "macOS - xcodebuild"
+                case .tvos:
+                    return "tvOS"
+                case .watchos:
+                    return "watchOS"
+                case .linux:
+                    return "Linux"
+            }
         }
-        var name: Name
-        var version: String
-        
-        static func ios(_ version: String) -> Self { .init(name: .ios, version: version) }
-        static func linux(_ version: String) -> Self { .init(name: .linux, version: version) }
-        static func macos(_ version: String) -> Self { .init(name: .macos, version: version) }
-        static func tvos(_ version: String) -> Self { .init(name: .tvos, version: version) }
-        static func watchos(_ version: String) -> Self { .init(name: .watchos, version: version) }
     }
 }
 
@@ -144,7 +156,6 @@ extension Build {
                 return database.eventLoop.future(error: Abort(.internalServerError))
             }
             return Gitlab.Builder.postTrigger(client: client,
-                                              buildTool: buildTool,
                                               cloneURL: $0.package.url,
                                               platform: platform,
                                               reference: reference,

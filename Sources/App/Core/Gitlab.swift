@@ -14,7 +14,6 @@ enum Gitlab {
         static var projectURL: String { "https://gitlab.com/api/v4/projects/\(projectId)" }
         
         static func postTrigger(client: Client,
-                                buildTool: BuildTool,
                                 cloneURL: String,
                                 platform: Build.Platform,
                                 reference: Reference,
@@ -31,11 +30,9 @@ enum Gitlab {
                         "token": pipelineToken,
                         "ref": branch,
                         "variables[API_BASEURL]": SiteURL.apiBaseURL,
-                        "variables[BUILD_TOOL]": buildTool.rawValue,
+                        "variables[BUILD_PLATFORM]": platform.rawValue,
                         "variables[BUILDER_TOKEN]": builderToken,
                         "variables[CLONE_URL]": cloneURL,
-                        "variables[PLATFORM_NAME]": platform.name.rawValue,
-                        "variables[PLATFORM_VERSION]": platform.version,
                         "variables[REFERENCE]": "\(reference)",
                         "variables[SWIFT_VERSION]": "\(swiftVersion)",
                         "variables[VERSION_ID]": versionID.uuidString,

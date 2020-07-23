@@ -20,11 +20,9 @@ class GitlabBuilderTests: XCTestCase {
                             "token": "pipeline token",
                             "ref": "main",
                             "variables[API_BASEURL]": "http://example.com/api",
-                            "variables[BUILD_TOOL]": "xcodebuild",
+                            "variables[BUILD_PLATFORM]": "macos-spm",
                             "variables[BUILDER_TOKEN]": "builder token",
                             "variables[CLONE_URL]": "https://github.com/daveverwer/LeftPad.git",
-                            "variables[PLATFORM_NAME]": "unknown",
-                            "variables[PLATFORM_VERSION]": "test",
                             "variables[REFERENCE]": "1.2.3",
                             "variables[SWIFT_VERSION]": "5.2.4",
                             "variables[VERSION_ID]": versionID.uuidString,
@@ -33,9 +31,8 @@ class GitlabBuilderTests: XCTestCase {
         
         // MUT
         _ = try Gitlab.Builder.postTrigger(client: client,
-                                           buildTool: .xcodebuild,
                                            cloneURL: "https://github.com/daveverwer/LeftPad.git",
-                                           platform: .init(name: .unknown, version: "test"),
+                                           platform: .macosSpm,
                                            reference: .tag(.init(1, 2, 3)),
                                            swiftVersion: .init(5, 2, 4),
                                            versionID: versionID).wait()

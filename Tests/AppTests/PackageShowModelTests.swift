@@ -50,7 +50,7 @@ class PackageShowModelTests: AppTestCase {
                                       packageName: "test package")
         try version.save(on: app.db).wait()
         try Build(version: version,
-                  platform: .macos("10.15"),
+                  platform: .macosXcodebuild,
                   status: .ok,
                   swiftVersion: .init(5, 2, 2))
             .save(on: app.db)

@@ -14,7 +14,7 @@ class BuildTests: AppTestCase {
         let b = try Build(version: v,
                           logs: "logs",
                           logUrl: "https://example.com/logs/1",
-                          platform: .linux("ubuntu-18.04"),
+                          platform: .linux,
                           status: .ok,
                           swiftVersion: .init(5, 2, 0))
         
@@ -25,7 +25,7 @@ class BuildTests: AppTestCase {
             let b = try XCTUnwrap(Build.find(b.id, on: app.db).wait())
             XCTAssertEqual(b.logs, "logs")
             XCTAssertEqual(b.logUrl, "https://example.com/logs/1")
-            XCTAssertEqual(b.platform, .linux("ubuntu-18.04"))
+            XCTAssertEqual(b.platform, .linux)
             XCTAssertEqual(b.$version.id, v.id)
             XCTAssertEqual(b.status, .ok)
         }
@@ -38,7 +38,7 @@ class BuildTests: AppTestCase {
         let v = try Version(package: pkg)
         try v.save(on: app.db).wait()
         let b = try Build(version: v,
-                          platform: .init(name: .unknown, version: "some"),
+                          platform: .ios,
                           status: .ok,
                           swiftVersion: .init(5, 2, 0))
         try b.save(on: app.db).wait()
@@ -63,29 +63,29 @@ class BuildTests: AppTestCase {
         // MUT
         // initial save - ok
         try Build(version: v1,
-                  platform: .linux("ubuntu-18.04"),
+                  platform: .linux,
                   status: .ok,
                   swiftVersion: .init(5, 2, 0)).save(on: app.db).wait()
         // different version - ok
         try Build(version: v2,
-                  platform: .linux("ubuntu-18.04"),
+                  platform: .linux,
                   status: .ok,
                   swiftVersion: .init(5, 2, 0)).save(on: app.db).wait()
         // different platform - ok
         try Build(version: v1,
-                  platform: .macos("11"),
+                  platform: .macosXcodebuild,
                   status: .ok,
                   swiftVersion: .init(5, 2, 0)).save(on: app.db).wait()
         // different swiftVersion - ok
         try Build(version: v1,
-                  platform: .linux("ubuntu-18.04"),
+                  platform: .linux,
                   status: .ok,
                   swiftVersion: .init(4, 0, 0)).save(on: app.db).wait()
         
         // (v1, linx, 5.2.0) - not ok
         XCTAssertThrowsError(
             try Build(version: v1,
-                      platform: .linux("ubuntu-18.04"),
+                      platform: .linux,
                       status: .ok,
                       swiftVersion: .init(5, 2, 0)).save(on: app.db).wait()
         ) {
@@ -116,11 +116,9 @@ class BuildTests: AppTestCase {
                             "token": "pipeline token",
                             "ref": "main",
                             "variables[API_BASEURL]": "http://example.com/api",
-                            "variables[BUILD_TOOL]": "xcodebuild",
+                            "variables[BUILD_PLATFORM]": "macos-xcodebuild",
                             "variables[BUILDER_TOKEN]": "builder token",
                             "variables[CLONE_URL]": "1",
-                            "variables[PLATFORM_NAME]": "unknown",
-                            "variables[PLATFORM_VERSION]": "test",
                             "variables[REFERENCE]": "main",
                             "variables[SWIFT_VERSION]": "5.2.4",
                             "variables[VERSION_ID]": versionID.uuidString,
@@ -131,7 +129,7 @@ class BuildTests: AppTestCase {
         let res = try Build.trigger(database: app.db,
                                     client: client,
                                     buildTool: .xcodebuild,
-                                    platform: .init(name: .unknown, version: "test"),
+                                    platform: .macosXcodebuild,
                                     swiftVersion: .init(5, 2, 4),
                                     versionId: versionID).wait()
         
@@ -150,7 +148,7 @@ class BuildTests: AppTestCase {
         // MUT
         // initial save - ok
         try Build(version: v,
-                  platform: .linux("ubuntu-18.04"),
+                  platform: .linux,
                   status: .ok,
                   swiftVersion: .init(5, 2, 0))
             .upsert(on: app.db).wait()
@@ -159,14 +157,14 @@ class BuildTests: AppTestCase {
         do {
             XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
             let b = try XCTUnwrap(try Build.query(on: app.db).first().wait())
-            XCTAssertEqual(b.platform, .linux("ubuntu-18.04"))
+            XCTAssertEqual(b.platform, .linux)
             XCTAssertEqual(b.status, .ok)
             XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
         }
         
         // next insert is update
         try Build(version: v,
-                  platform: .linux("ubuntu-18.04"),
+                  platform: .linux,
                   status: .failed,
                   swiftVersion: .init(5, 2, 0))
             .upsert(on: app.db).wait()
@@ -175,7 +173,7 @@ class BuildTests: AppTestCase {
         do {
             XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
             let b = try XCTUnwrap(try Build.query(on: app.db).first().wait())
-            XCTAssertEqual(b.platform, .linux("ubuntu-18.04"))
+            XCTAssertEqual(b.platform, .linux)
             XCTAssertEqual(b.status, .failed)
             XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
         }
@@ -184,7 +182,7 @@ class BuildTests: AppTestCase {
     func test_noneSucceeded() throws {
         let pkg = Package(id: UUID(), url: "1")
         let v = try Version(id: UUID(), package: pkg)
-        let p = Build.Platform.ios("13")
+        let p = Build.Platform.ios
         let sv = SwiftVersion.init(5, 2, 0)
         func mkBuild(_ status: Build.Status) -> Build {
             return try! Build(version: v, platform: p, status: status, swiftVersion: sv)
@@ -196,7 +194,7 @@ class BuildTests: AppTestCase {
     func test_anySucceeded() throws {
         let pkg = Package(id: UUID(), url: "1")
         let v = try Version(id: UUID(), package: pkg)
-        let p = Build.Platform.ios("13")
+        let p = Build.Platform.ios
         let sv = SwiftVersion.init(5, 2, 0)
         func mkBuild(_ status: Build.Status) -> Build {
             return try! Build(version: v, platform: p, status: status, swiftVersion: sv)
