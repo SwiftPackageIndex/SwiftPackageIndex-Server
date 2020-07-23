@@ -128,7 +128,6 @@ class BuildTests: AppTestCase {
         // MUT
         let res = try Build.trigger(database: app.db,
                                     client: client,
-                                    buildTool: .xcodebuild,
                                     platform: .macosXcodebuild,
                                     swiftVersion: .init(5, 2, 4),
                                     versionId: versionID).wait()

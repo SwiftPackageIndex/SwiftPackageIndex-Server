@@ -7,17 +7,14 @@ variables:
 
 requests:
 
-    post build ios 5.2:
+    post build 5.2:
         url: ${base_url}/api/packages/${package}/trigger-builds
         method: POST
         headers:
             Authorization: Bearer ${builder_token}
         body:
             json:
-                buildTool: xcodebuild
-                platform:
-                    name: ios
-                    version: ""
+                platform: ${platform}
                 swiftVersion:
                     major: 5
                     minor: 2
@@ -25,89 +22,14 @@ requests:
         validation:
             status: 200
 
-    post build macos 5.2:
+    post build 5.1:
         url: ${base_url}/api/packages/${package}/trigger-builds
         method: POST
         headers:
             Authorization: Bearer ${builder_token}
         body:
             json:
-                buildTool: xcodebuild
-                platform:
-                    name: macos
-                    version: "x86_64"
-                swiftVersion:
-                    major: 5
-                    minor: 2
-                    patch: 4
-        validation:
-            status: 200
-
-    post build macos 5.2 (spm):
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: spm
-                platform:
-                    name: macos
-                    version: "x86_64"
-                swiftVersion:
-                    major: 5
-                    minor: 2
-                    patch: 4
-        validation:
-            status: 200
-
-    post build tvos 5.2:
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: xcodebuild
-                platform:
-                    name: tvos
-                    version: ""
-                swiftVersion:
-                    major: 5
-                    minor: 2
-                    patch: 4
-        validation:
-            status: 200
-
-    # post build watchos 5.2:
-    #     url: ${base_url}/api/packages/${package}/trigger-builds
-    #     method: POST
-    #     headers:
-    #         Authorization: Bearer ${builder_token}
-    #     body:
-    #         json:
-    #             buildTool: xcodebuild
-    #             platform:
-    #                 name: watchos
-    #                 version: "latest"
-    #             swiftVersion:
-    #                 major: ${major}
-    #                 minor: ${minor}
-    #                 patch: ${patch}
-    #     validation:
-    #         status: 200
-
-    post build ios 5.1:
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: xcodebuild
-                platform:
-                    name: ios
-                    version: ""
+                platform: ${platform}
                 swiftVersion:
                     major: 5
                     minor: 1
@@ -115,89 +37,14 @@ requests:
         validation:
             status: 200
 
-    post build macos 5.1:
+    post build 5.0:
         url: ${base_url}/api/packages/${package}/trigger-builds
         method: POST
         headers:
             Authorization: Bearer ${builder_token}
         body:
             json:
-                buildTool: xcodebuild
-                platform:
-                    name: macos
-                    version: "x86_64"
-                swiftVersion:
-                    major: 5
-                    minor: 1
-                    patch: 5
-        validation:
-            status: 200
-
-    post build macos 5.1 (spm):
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: spm
-                platform:
-                    name: macos
-                    version: "x86_64"
-                swiftVersion:
-                    major: 5
-                    minor: 1
-                    patch: 5
-        validation:
-            status: 200
-
-    post build tvos 5.1:
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: xcodebuild
-                platform:
-                    name: tvos
-                    version: ""
-                swiftVersion:
-                    major: 5
-                    minor: 1
-                    patch: 5
-        validation:
-            status: 200
-
-    # post build watchos 5.1:
-    #     url: ${base_url}/api/packages/${package}/trigger-builds
-    #     method: POST
-    #     headers:
-    #         Authorization: Bearer ${builder_token}
-    #     body:
-    #         json:
-    #             buildTool: xcodebuild
-    #             platform:
-    #                 name: watchos
-    #                 version: "latest"
-    #             swiftVersion:
-    #                 major: ${major}
-    #                 minor: ${minor}
-    #                 patch: ${patch}
-    #     validation:
-    #         status: 200
-
-    post build ios 5.0:
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: xcodebuild
-                platform:
-                    name: ios
-                    version: ""
+                platform: ${platform}
                 swiftVersion:
                     major: 5
                     minor: 0
@@ -205,164 +52,17 @@ requests:
         validation:
             status: 200
 
-    post build macos 5.0:
+    post build 4.2:
         url: ${base_url}/api/packages/${package}/trigger-builds
         method: POST
         headers:
             Authorization: Bearer ${builder_token}
         body:
             json:
-                buildTool: xcodebuild
-                platform:
-                    name: macos
-                    version: "x86_64"
-                swiftVersion:
-                    major: 5
-                    minor: 0
-                    patch: 3
-        validation:
-            status: 200
-
-    post build macos 5.0 (spm):
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: spm
-                platform:
-                    name: macos
-                    version: "x86_64"
-                swiftVersion:
-                    major: 5
-                    minor: 0
-                    patch: 3
-        validation:
-            status: 200
-
-    post build tvos 5.0:
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: xcodebuild
-                platform:
-                    name: tvos
-                    version: ""
-                swiftVersion:
-                    major: 5
-                    minor: 0
-                    patch: 3
-        validation:
-            status: 200
-
-    # post build watchos 5.0:
-    #     url: ${base_url}/api/packages/${package}/trigger-builds
-    #     method: POST
-    #     headers:
-    #         Authorization: Bearer ${builder_token}
-    #     body:
-    #         json:
-    #             buildTool: xcodebuild
-    #             platform:
-    #                 name: watchos
-    #                 version: "latest"
-    #             swiftVersion:
-    #                 major: ${major}
-    #                 minor: ${minor}
-    #                 patch: ${patch}
-    #     validation:
-    #         status: 200
-
-    post build ios 4.2:
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: xcodebuild
-                platform:
-                    name: ios
-                    version: ""
+                platform: ${platform}
                 swiftVersion:
                     major: 4
                     minor: 2
                     patch: 3
         validation:
             status: 200
-
-    post build macos 4.2:
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: xcodebuild
-                platform:
-                    name: macos
-                    version: "x86_64"
-                swiftVersion:
-                    major: 4
-                    minor: 2
-                    patch: 3
-        validation:
-            status: 200
-
-    post build macos 4.2 (spm):
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: spm
-                platform:
-                    name: macos
-                    version: "x86_64"
-                swiftVersion:
-                    major: 4
-                    minor: 2
-                    patch: 3
-        validation:
-            status: 200
-
-    post build tvos 4.2:
-        url: ${base_url}/api/packages/${package}/trigger-builds
-        method: POST
-        headers:
-            Authorization: Bearer ${builder_token}
-        body:
-            json:
-                buildTool: xcodebuild
-                platform:
-                    name: tvos
-                    version: ""
-                swiftVersion:
-                    major: 4
-                    minor: 2
-                    patch: 3
-        validation:
-            status: 200
-
-    # post build watchos 4.2:
-    #     url: ${base_url}/api/packages/${package}/trigger-builds
-    #     method: POST
-    #     headers:
-    #         Authorization: Bearer ${builder_token}
-    #     body:
-    #         json:
-    #             buildTool: xcodebuild
-    #             platform:
-    #                 name: watchos
-    #                 version: "latest"
-    #             swiftVersion:
-    #                 major: ${major}
-    #                 minor: ${minor}
-    #                 patch: ${patch}
-    #     validation:
-    #         status: 200
