@@ -67,7 +67,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.2</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -75,7 +75,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.2</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -83,7 +83,31 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.2</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.2</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.2</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.2</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -91,7 +115,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.1</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -99,7 +123,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.1</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -107,7 +131,31 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.1</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.1</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.1</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.1</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -115,7 +163,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.0</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -123,7 +171,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.0</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -131,7 +179,31 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.0</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.0</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.0</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.0</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -139,7 +211,7 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 4.2</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -147,7 +219,7 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 4.2</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -155,7 +227,31 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 4.2</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 4.2</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 4.2</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 4.2</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
             </ul>
@@ -172,7 +268,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.2</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -180,7 +276,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.2</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -188,7 +284,31 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.2</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.2</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.2</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.2</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -196,7 +316,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.1</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -204,7 +324,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.1</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -212,7 +332,31 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.1</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.1</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.1</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.1</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -220,7 +364,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.0</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -228,7 +372,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.0</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -236,7 +380,31 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.0</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.0</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.0</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.0</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -244,7 +412,7 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 4.2</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -252,7 +420,7 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 4.2</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -260,7 +428,31 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 4.2</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 4.2</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 4.2</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 4.2</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
             </ul>
@@ -277,7 +469,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.2</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -285,7 +477,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.2</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -293,7 +485,31 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.2</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.2</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.2</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.2</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -301,7 +517,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.1</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -309,7 +525,7 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.1</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -317,7 +533,31 @@
                   <i class="icon build_success"></i>
                 </div>
                 <strong>Swift 5.1</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.1</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.1</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status success">
+                  <i class="icon build_success"></i>
+                </div>
+                <strong>Swift 5.1</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -325,7 +565,7 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 5.0</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -333,7 +573,7 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 5.0</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -341,7 +581,31 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 5.0</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 5.0</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 5.0</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 5.0</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -349,7 +613,7 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 4.2</strong> on 
-                <strong>macos</strong> &ndash; 
+                <strong>macOS - xcodebuild</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -357,7 +621,7 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 4.2</strong> on 
-                <strong>ios</strong> &ndash; 
+                <strong>macOS - SPM</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
               <li>
@@ -365,7 +629,31 @@
                   <i class="icon build_failed"></i>
                 </div>
                 <strong>Swift 4.2</strong> on 
-                <strong>tvos</strong> &ndash; 
+                <strong>macOS - xcodebuild - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 4.2</strong> on 
+                <strong>macOS - SPM - ARM</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 4.2</strong> on 
+                <strong>iOS</strong> &ndash; 
+                <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
+              </li>
+              <li>
+                <div class="status failed">
+                  <i class="icon build_failed"></i>
+                </div>
+                <strong>Swift 4.2</strong> on 
+                <strong>tvOS</strong> &ndash; 
                 <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View build log</a>
               </li>
             </ul>
