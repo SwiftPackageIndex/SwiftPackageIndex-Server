@@ -50,7 +50,6 @@ extension API {
                         .map {
                             Build.trigger(database: req.db,
                                           client: req.client,
-                                          buildTool: dto.buildTool,
                                           platform: dto.platform,
                                           swiftVersion: dto.swiftVersion,
                                           versionId: $0)

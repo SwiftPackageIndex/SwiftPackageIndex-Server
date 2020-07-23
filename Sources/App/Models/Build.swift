@@ -113,7 +113,6 @@ extension Build {
 
 extension Build {
     struct PostTriggerDTO: Codable {
-        var buildTool: BuildTool
         var platform: Platform
         var swiftVersion: SwiftVersion
     }
@@ -141,7 +140,6 @@ extension Build {
     
     static func trigger(database: Database,
                         client: Client,
-                        buildTool: BuildTool,
                         platform: Build.Platform,
                         swiftVersion: SwiftVersion,
                         versionId: Version.Id) -> EventLoopFuture<HTTPStatus> {
