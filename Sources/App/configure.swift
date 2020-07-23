@@ -58,17 +58,20 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateRecentPackages3())
         app.migrations.add(UpdateRecentReleases4())
     }
-    do { // Migration 008 - add stats view
+    do {  // Migration 008 - add stats view
         app.migrations.add(CreateStats())
     }
-    do { // Migration 009 - add builds table
+    do {  // Migration 009 - add builds table
         app.migrations.add(CreateBuild())
     }
-    do { // Migration 010 - add non-null constraints to builds fields
+    do {  // Migration 010 - add non-null constraints to builds fields
         app.migrations.add(UpdateBuildNonNull())
     }
-    do { // Migration 011 - add log_url field to builds
+    do {  // Migration 011 - add log_url field to builds
         app.migrations.add(UpdateBuildAddLogURL())
+    }
+    do {  // Migration 012 - change platfrom to .string
+        app.migrations.add(UpdateBuildPlatform())
     }
     
     app.commands.use(ReconcilerCommand(), as: "reconcile")
