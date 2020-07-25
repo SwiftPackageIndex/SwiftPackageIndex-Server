@@ -11,6 +11,7 @@ extension PackageShow {
         var activity: Activity?
         var authors: [Link]?
         var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
+        var platformBuildInfo: BuildInfo<PlatformResults>?
         var history: History?
         var languagePlatforms: LanguagePlatformInfo
         var license: License

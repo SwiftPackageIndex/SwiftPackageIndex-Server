@@ -46,7 +46,7 @@ extension PackageShow.Model {
         var latest: NamedBuildResults<T>?
     }
     
-    struct SwiftVersion: Equatable, Hashable, Comparable {
+    struct SwiftVersion: Equatable, Hashable, Comparable, BuildResultParameter {
         static func < (lhs: SwiftVersion, rhs: SwiftVersion) -> Bool {
             lhs.displayName < rhs.displayName
         }
@@ -83,7 +83,31 @@ extension PackageShow.Model {
                                       isLatest: false,
                                       isBeta: true)
     }
-    
+
+    enum BuildPlatform: BuildResultParameter {
+        case ios
+        case macos
+        case tvos
+        case watchos
+
+        var displayName: String {
+            switch self {
+                case .ios:
+                    return "iOS"
+                case .macos:
+                    return "macOS"
+                case .tvos:
+                    return "tvOS"
+                case .watchos:
+                    return "watchOS"
+            }
+        }
+
+        var note: String? {
+            nil
+        }
+    }
+
     struct Reference: Equatable {
         var name: String
         var kind: Kind
@@ -156,7 +180,27 @@ extension PackageShow.Model {
 
         var all: [BuildResult<SwiftVersion>] { [v4_2, v5_0, v5_1, v5_2, v5_3] }
     }
-    
+
+    struct PlatformResults: Equatable {
+        var ios: BuildResult<BuildPlatform>
+        var macos: BuildResult<BuildPlatform>
+        var tvos: BuildResult<BuildPlatform>
+        var watchos: BuildResult<BuildPlatform>
+        // TODO: var linux: BuildResult<Platform>
+
+        init(iosStatus: BuildStatus,
+             macosStatus: BuildStatus,
+             tvosStatus: BuildStatus,
+             watchosStatus: BuildStatus) {
+            self.ios = .init(swiftVersion: .ios, status: iosStatus)
+            self.macos = .init(swiftVersion: .macos, status: macosStatus)
+            self.tvos = .init(swiftVersion: .tvos, status: tvosStatus)
+            self.watchos = .init(swiftVersion: .watchos, status: watchosStatus)
+        }
+
+        var all: [BuildResult<BuildPlatform>] { [ios, macos, tvos, watchos] }
+    }
+
     enum BuildStatus: String, Equatable {
         case success
         case failed
@@ -201,6 +245,3 @@ protocol BuildResultParameter: Equatable {
     var displayName: String { get }
     var note: String? { get }
 }
-
-
-extension PackageShow.Model.SwiftVersion: BuildResultParameter { }
