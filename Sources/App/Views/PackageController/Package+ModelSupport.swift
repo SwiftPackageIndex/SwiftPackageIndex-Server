@@ -257,14 +257,14 @@ private extension Array where Element == Build {
 
 
 private extension SwiftVersion {
-    func isCompatible(with other: PackageShow.Model.SwiftVersion) -> Bool {
+    func isCompatible(with other: PackageShow.Model.SwiftVersionCompatibility) -> Bool {
         major == other.semVer.major && minor == other.semVer.minor
     }
 }
 
 
 private extension Build.Platform {
-    func isCompatible(with other: PackageShow.Model.BuildPlatform) -> Bool {
+    func isCompatible(with other: PackageShow.Model.PlatformCompatibility) -> Bool {
         switch self {
             case .ios:
                 return other == .ios

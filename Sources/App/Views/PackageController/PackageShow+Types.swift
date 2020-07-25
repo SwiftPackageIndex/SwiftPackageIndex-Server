@@ -46,8 +46,8 @@ extension PackageShow.Model {
         var latest: NamedBuildResults<T>?
     }
     
-    struct SwiftVersion: Equatable, Hashable, Comparable, BuildResultParameter {
-        static func < (lhs: SwiftVersion, rhs: SwiftVersion) -> Bool {
+    struct SwiftVersionCompatibility: Equatable, Hashable, Comparable, BuildResultParameter {
+        static func < (lhs: SwiftVersionCompatibility, rhs: SwiftVersionCompatibility) -> Bool {
             lhs.displayName < rhs.displayName
         }
         
@@ -86,7 +86,7 @@ extension PackageShow.Model {
                                       isBeta: true)
     }
 
-    enum BuildPlatform: BuildResultParameter {
+    enum PlatformCompatibility: BuildResultParameter {
         case ios
         case macos
         case tvos
@@ -164,11 +164,11 @@ extension PackageShow.Model {
     }
 
     struct SwiftVersionResults: Equatable {
-        var v4_2: BuildResult<SwiftVersion>
-        var v5_0: BuildResult<SwiftVersion>
-        var v5_1: BuildResult<SwiftVersion>
-        var v5_2: BuildResult<SwiftVersion>
-        var v5_3: BuildResult<SwiftVersion>
+        var v4_2: BuildResult<SwiftVersionCompatibility>
+        var v5_0: BuildResult<SwiftVersionCompatibility>
+        var v5_1: BuildResult<SwiftVersionCompatibility>
+        var v5_2: BuildResult<SwiftVersionCompatibility>
+        var v5_3: BuildResult<SwiftVersionCompatibility>
 
         init(status4_2: BuildStatus,
              status5_0: BuildStatus,
@@ -182,14 +182,14 @@ extension PackageShow.Model {
             self.v5_3 = .init(parameter: .v5_3, status: status5_3)
         }
 
-        var cells: [BuildResult<SwiftVersion>] { [v5_3, v5_2, v5_1, v5_0, v4_2 ] }
+        var cells: [BuildResult<SwiftVersionCompatibility>] { [v5_3, v5_2, v5_1, v5_0, v4_2 ] }
     }
 
     struct PlatformResults: Equatable {
-        var ios: BuildResult<BuildPlatform>
-        var macos: BuildResult<BuildPlatform>
-        var tvos: BuildResult<BuildPlatform>
-        var watchos: BuildResult<BuildPlatform>
+        var ios: BuildResult<PlatformCompatibility>
+        var macos: BuildResult<PlatformCompatibility>
+        var tvos: BuildResult<PlatformCompatibility>
+        var watchos: BuildResult<PlatformCompatibility>
         // TODO: var linux: BuildResult<Platform>
 
         init(iosStatus: BuildStatus,
@@ -202,7 +202,7 @@ extension PackageShow.Model {
             self.watchos = .init(parameter: .watchos, status: watchosStatus)
         }
 
-        var cells: [BuildResult<BuildPlatform>] { [ios, macos, tvos, watchos] }
+        var cells: [BuildResult<PlatformCompatibility>] { [ios, macos, tvos, watchos] }
     }
 
     enum BuildStatus: String, Equatable {
