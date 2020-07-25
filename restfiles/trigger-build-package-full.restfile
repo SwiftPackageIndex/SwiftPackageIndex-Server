@@ -8,6 +8,21 @@ variables:
 
 requests:
 
+    post build 5.3:
+        url: ${base_url}/api/packages/${package}/trigger-builds
+        method: POST
+        headers:
+            Authorization: Bearer ${builder_token}
+        body:
+            json:
+                platform: ${platform}
+                swiftVersion:
+                    major: 5
+                    minor: 3
+                    patch: 0
+        validation:
+            status: 200
+
     post build 5.2:
         url: ${base_url}/api/packages/${package}/trigger-builds
         method: POST
