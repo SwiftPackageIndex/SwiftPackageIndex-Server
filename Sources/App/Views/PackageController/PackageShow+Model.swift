@@ -348,7 +348,7 @@ extension PackageShow.Model {
             .class("swift"),
             .h3("Swift Version Compatibility"),
             .ul(
-                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
+                .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
             ),
             .p(
                 .class("right"),
@@ -367,7 +367,7 @@ extension PackageShow.Model {
             .class("swift"),
             .h3("Platform Compatibility"),
             .ul(
-                .forEach(rows) { platformCompatibilityListItem($0) }
+                .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
             ),
             .p(
                 .class("right"),
@@ -379,11 +379,11 @@ extension PackageShow.Model {
         )
     }
 
-    func swiftVersionCompatibilityListItem(_ row: BuildStatusRow<SwiftVersionResults>) -> Node<HTML.ListContext> {
-        let cells = row.results.cells
+    func compatibilityListItem<T>(label: Node<HTML.BodyContext>,
+                                  cells: [BuildResult<T>]) -> Node<HTML.ListContext> {
         return .li(
             .class("reference"),
-            row.label,
+            label,
             // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
             .div(
                 .class("compatibility"),
@@ -399,25 +399,6 @@ extension PackageShow.Model {
         )
     }
 
-    func platformCompatibilityListItem(_ row: BuildStatusRow<PlatformResults>) -> Node<HTML.ListContext> {
-        let cells = row.results.cells
-        return .li(
-            .class("reference"),
-            row.label,
-            // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
-            .div(
-                .class("compatibility"),
-                .div(
-                    .class("swift_versions"),
-                    .forEach(cells) { $0.headerNode }
-                ),
-                .div(
-                    .class("build_statuses"),
-                    .forEach(cells) { $0.cellNode }
-                )
-            )
-        )
-    }
 }
 
 
