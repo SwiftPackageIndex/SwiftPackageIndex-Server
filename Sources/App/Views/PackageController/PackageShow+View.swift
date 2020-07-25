@@ -83,21 +83,28 @@ enum PackageShow {
                         .li(.group(model.latestReleaseClause()))
                     )
                 ),
-                model.swiftVersionCompatibilitySection(),
-                model.platformCompatibilitySection(),
-                .section(
-                    .class("language_platforms"),
-                    .h3("Language and Platforms"),
-                    .unwrap(model.languagesAndPlatformsClause(), { .ul(.group($0)) },
-                            else: .p(
-                                .text("The manifest for this package doesn't include metadata on which versions of Swift, and which platforms it supports – Are you the package author? "),
-                                .a(
-                                    .href(SiteURL.faq.relativeURL(anchor: "language-and-platforms")),
-                                    .text("Learn how to fix this")
-                                ),
-                                .text(".")
-                            )
-                    )
+                .if(
+                    // TODO: remove .if and replace with else: branch when we go live with builds
+                    ((try? Environment.detect()) ?? .development) == .production,
+                    .section(
+                        .class("language_platforms"),
+                        .h3("Language and Platforms"),
+                        .unwrap(model.languagesAndPlatformsClause(), { .ul(.group($0)) },
+                                else: .p(
+                                    .text("The manifest for this package doesn't include metadata on which versions of Swift, and which platforms it supports – Are you the package author? "),
+                                    .a(
+                                        .href(SiteURL.faq.relativeURL(anchor: "language-and-platforms")),
+                                        .text("Learn how to fix this")
+                                    ),
+                                    .text(".")
+                                )
+                        )
+                    ),
+                    else:
+                        .group(
+                            model.swiftVersionCompatibilitySection(),
+                            model.platformCompatibilitySection()
+                        )
                 )
             )
         }

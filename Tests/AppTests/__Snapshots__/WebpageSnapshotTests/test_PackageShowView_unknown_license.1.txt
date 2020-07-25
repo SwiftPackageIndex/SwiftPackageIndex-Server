@@ -318,57 +318,6 @@
             <a href="/Alamofire/Alamofire/builds">Full build results</a>
           </p>
         </section>
-        <section class="language_platforms">
-          <h3>Language and Platforms</h3>
-          <ul>
-            <li>
-              <p>Version 
-                <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">
-                  <span class="stable">
-                    <i class="icon stable"></i>5.2.0
-                  </span>
-                </a> supports:
-              </p>
-              <ul>
-                <li>Swift 
-                  <strong>5</strong> and 
-                  <strong>5.2</strong>
-                </li>
-                <li>
-                  <strong>iOS 10.0+</strong>, 
-                  <strong>macOS 10.12+</strong>, 
-                  <strong>watchOS 3.0+</strong>, and 
-                  <strong>tvOS 10.0+</strong>.
-                </li>
-              </ul>
-            </li>
-            <li>
-              <p>Versions 
-                <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.1-beta1">
-                  <span class="beta">
-                    <i class="icon beta"></i>5.3.1-beta.1
-                  </span>
-                </a> and 
-                <a href="https://github.com/Alamofire/Alamofire">
-                  <span class="branch">
-                    <i class="icon branch"></i>main
-                  </span>
-                </a> support:
-              </p>
-              <ul>
-                <li>Swift 
-                  <strong>5.2</strong>
-                </li>
-                <li>
-                  <strong>iOS 13.0+</strong>, 
-                  <strong>macOS 10.15+</strong>, 
-                  <strong>watchOS 6.0+</strong>, and 
-                  <strong>tvOS 13.0+</strong>.
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </section>
       </div>
     </main>
     <footer>

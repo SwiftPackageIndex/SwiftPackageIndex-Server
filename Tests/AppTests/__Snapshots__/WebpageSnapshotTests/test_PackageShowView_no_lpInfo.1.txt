@@ -316,12 +316,6 @@
             <a href="/Alamofire/Alamofire/builds">Full build results</a>
           </p>
         </section>
-        <section class="language_platforms">
-          <h3>Language and Platforms</h3>
-          <p>The manifest for this package doesn't include metadata on which versions of Swift, and which platforms it supports – Are you the package author? 
-            <a href="/faq#language-and-platforms">Learn how to fix this</a>.
-          </p>
-        </section>
       </div>
     </main>
     <footer>

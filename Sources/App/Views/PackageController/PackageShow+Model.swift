@@ -341,10 +341,6 @@ extension PackageShow.Model {
     }
 
     func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
-        let environment = (try? Environment.detect()) ?? .development
-        guard environment != .production else {
-            return .empty
-        }
         guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .section(
@@ -364,10 +360,6 @@ extension PackageShow.Model {
     }
 
     func platformCompatibilitySection() -> Node<HTML.BodyContext> {
-        let environment = (try? Environment.detect()) ?? .development
-        guard environment != .production else {
-            return .empty
-        }
         guard let buildInfo = platformBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .section(
