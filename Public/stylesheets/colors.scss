@@ -87,12 +87,12 @@
   --beta-text: var(--mid-green);
   --branch-text: var(--dark-green);
 
-  --build-status-success-text: var(--white);
-  --build-status-success-background: var(--light-green);
-  --build-status-unknown-text: var(--light-grey);
-  --build-status-unknown-background: var(--very-light-grey);
-  --build-status-failed-text: var(--grey);
-  --build-status-failed-background: var(--light-grey);
+  --matrix-result-compatible-background: var(--light-green);
+  --matrix-result-compatible-text: var(--white);
+  --matrix-result-unknown-background: var(--very-light-grey);
+  --matrix-result-unknown-text: var(--light-grey);
+  --matrix-result-incompatible-background: var(--light-grey);
+  --matrix-result-incompatible-text: var(--grey);
 
   --icon-text: var(--dark-grey);
 
@@ -132,12 +132,12 @@
 
     --license-compatible-background: var(--mid-green);
 
-    --build-status-success-text: var(--white);
-    --build-status-success-background: var(--mid-green);
-    --build-status-unknown-text: var(--dark-grey);
-    --build-status-unknown-background: var(--very-dark-grey);
-    --build-status-failed-text: var(--very-dark-grey);
-    --build-status-failed-background: var(--dark-grey);
+    --matrix-result-compatible-background: var(--mid-green);
+    --matrix-result-compatible-text: var(--white);
+    --matrix-result-unknown-background: var(--very-dark-grey);
+    --matrix-result-unknown-text: var(--dark-grey);
+    --matrix-result-incompatible-background: var(--dark-grey);
+    --matrix-result-incompatible-text: var(--very-dark-grey);
 
     --icon-text: var(--light-grey);
 

@@ -48,9 +48,9 @@ i.beta:before { content: "\e907"; }
 i.branch:before { content: "\e908"; }
 i.question:before { content: "\e909"; }
 i.warning:before { content: "\e90a"; }
-i.build_success:before { content: "\e90b"; }
-i.build_unknown:before { content: "\e90c"; }
-i.build_failed:before { content: "\e90d"; }
+i.matrix_compatible:before { content: "\e90b"; }
+i.matrix_unknown:before { content: "\e90c"; }
+i.matrix_incompatible:before { content: "\e90d"; }
 
 li.author:before { content: "\e901"; }
 li.history:before { content: "\e902" }

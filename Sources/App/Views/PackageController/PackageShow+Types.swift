@@ -148,7 +148,7 @@ extension PackageShow.Model {
         var label: Node<HTML.BodyContext> {
             guard !references.isEmpty else { return .empty }
             return .div(
-                .class("label"),
+                .class("row_label"),
                 .div( // Note: It may look like there is a completely useless div here, but it's needed. I promise.
                     .div(
                         .group(references.map(\.node).joined(separator: .text(" and ")))
@@ -206,9 +206,13 @@ extension PackageShow.Model {
     }
 
     enum BuildStatus: String, Equatable {
-        case success
-        case failed
+        case compatible
+        case incompatible
         case unknown
+
+        var cssClass: String {
+            self.rawValue
+        }
     }
 
     struct BuildResult<T: BuildResultParameter>: Equatable {
@@ -224,17 +228,17 @@ extension PackageShow.Model {
         
         var cellNode: Node<HTML.BodyContext> {
             .div(
-                .class("\(status)"),
+                .class("\(status.cssClass)"),
                 .attribute(named: "title", value: title),
-                .i(.class("icon build_\(status)"))
+                .i(.class("icon matrix_\(status.cssClass)"))
             )
         }
         
         var title: String {
             switch status {
-                case .success:
+                case .compatible:
                     return "Built successfully with \(parameter.longDisplayName)"
-                case .failed:
+                case .incompatible:
                     return "Build failed with \(parameter.longDisplayName)"
                 case .unknown:
                     return "No build information available for \(parameter.longDisplayName)"

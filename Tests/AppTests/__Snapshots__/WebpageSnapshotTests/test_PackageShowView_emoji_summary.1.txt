@@ -116,11 +116,11 @@
             </li>
           </ul>
         </section>
-        <section class="swift">
+        <section>
           <h3>Swift Version Compatibility</h3>
-          <ul>
-            <li class="reference">
-              <div class="label">
+          <ul class="matrix">
+            <li class="row">
+              <div class="row_label">
                 <div>
                   <div>
                     <span class="stable">
@@ -132,8 +132,8 @@
                   </div>
                 </div>
               </div>
-              <div class="compatibility">
-                <div class="swift_versions">
+              <div class="row_values">
+                <div class="column_label">
                   <div>5.3
                     <small>(beta)</small>
                   </div>
@@ -144,27 +144,27 @@
                   <div>5.0</div>
                   <div>4.2</div>
                 </div>
-                <div class="build_statuses">
-                  <div class="success" title="Built successfully with Swift 5.3">
-                    <i class="icon build_success"></i>
+                <div class="result">
+                  <div class="compatible" title="Built successfully with Swift 5.3">
+                    <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="success" title="Built successfully with Swift 5.2">
-                    <i class="icon build_success"></i>
+                  <div class="compatible" title="Built successfully with Swift 5.2">
+                    <i class="icon matrix_compatible"></i>
                   </div>
                   <div class="unknown" title="No build information available for Swift 5.1">
-                    <i class="icon build_unknown"></i>
+                    <i class="icon matrix_unknown"></i>
                   </div>
-                  <div class="failed" title="Build failed with Swift 5.0">
-                    <i class="icon build_failed"></i>
+                  <div class="incompatible" title="Build failed with Swift 5.0">
+                    <i class="icon matrix_incompatible"></i>
                   </div>
-                  <div class="failed" title="Build failed with Swift 4.2">
-                    <i class="icon build_failed"></i>
+                  <div class="incompatible" title="Build failed with Swift 4.2">
+                    <i class="icon matrix_incompatible"></i>
                   </div>
                 </div>
               </div>
             </li>
-            <li class="reference">
-              <div class="label">
+            <li class="row">
+              <div class="row_label">
                 <div>
                   <div>
                     <span class="beta">
@@ -173,8 +173,8 @@
                   </div>
                 </div>
               </div>
-              <div class="compatibility">
-                <div class="swift_versions">
+              <div class="row_values">
+                <div class="column_label">
                   <div>5.3
                     <small>(beta)</small>
                   </div>
@@ -185,21 +185,21 @@
                   <div>5.0</div>
                   <div>4.2</div>
                 </div>
-                <div class="build_statuses">
-                  <div class="success" title="Built successfully with Swift 5.3">
-                    <i class="icon build_success"></i>
+                <div class="result">
+                  <div class="compatible" title="Built successfully with Swift 5.3">
+                    <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="success" title="Built successfully with Swift 5.2">
-                    <i class="icon build_success"></i>
+                  <div class="compatible" title="Built successfully with Swift 5.2">
+                    <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="success" title="Built successfully with Swift 5.1">
-                    <i class="icon build_success"></i>
+                  <div class="compatible" title="Built successfully with Swift 5.1">
+                    <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="success" title="Built successfully with Swift 5.0">
-                    <i class="icon build_success"></i>
+                  <div class="compatible" title="Built successfully with Swift 5.0">
+                    <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="failed" title="Build failed with Swift 4.2">
-                    <i class="icon build_failed"></i>
+                  <div class="incompatible" title="Build failed with Swift 4.2">
+                    <i class="icon matrix_incompatible"></i>
                   </div>
                 </div>
               </div>
@@ -209,11 +209,11 @@
             <a href="/Alamofire/Alamofire/builds">Full build results</a>
           </p>
         </section>
-        <section class="swift">
+        <section>
           <h3>Platform Compatibility</h3>
-          <ul>
-            <li class="reference">
-              <div class="label">
+          <ul class="matrix">
+            <li class="row">
+              <div class="row_label">
                 <div>
                   <div>
                     <span class="stable">
@@ -222,31 +222,31 @@
                   </div>
                 </div>
               </div>
-              <div class="compatibility">
-                <div class="swift_versions">
+              <div class="row_values">
+                <div class="column_label">
                   <div>iOS</div>
                   <div>macOS</div>
                   <div>tvOS</div>
                   <div>watchOS</div>
                 </div>
-                <div class="build_statuses">
-                  <div class="success" title="Built successfully with iOS">
-                    <i class="icon build_success"></i>
+                <div class="result">
+                  <div class="compatible" title="Built successfully with iOS">
+                    <i class="icon matrix_compatible"></i>
                   </div>
                   <div class="unknown" title="No build information available for macOS">
-                    <i class="icon build_unknown"></i>
+                    <i class="icon matrix_unknown"></i>
                   </div>
                   <div class="unknown" title="No build information available for tvOS">
-                    <i class="icon build_unknown"></i>
+                    <i class="icon matrix_unknown"></i>
                   </div>
                   <div class="unknown" title="No build information available for watchOS">
-                    <i class="icon build_unknown"></i>
+                    <i class="icon matrix_unknown"></i>
                   </div>
                 </div>
               </div>
             </li>
-            <li class="reference">
-              <div class="label">
+            <li class="row">
+              <div class="row_label">
                 <div>
                   <div>
                     <span class="beta">
@@ -255,31 +255,31 @@
                   </div>
                 </div>
               </div>
-              <div class="compatibility">
-                <div class="swift_versions">
+              <div class="row_values">
+                <div class="column_label">
                   <div>iOS</div>
                   <div>macOS</div>
                   <div>tvOS</div>
                   <div>watchOS</div>
                 </div>
-                <div class="build_statuses">
-                  <div class="success" title="Built successfully with iOS">
-                    <i class="icon build_success"></i>
+                <div class="result">
+                  <div class="compatible" title="Built successfully with iOS">
+                    <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="success" title="Built successfully with macOS">
-                    <i class="icon build_success"></i>
+                  <div class="compatible" title="Built successfully with macOS">
+                    <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="success" title="Built successfully with tvOS">
-                    <i class="icon build_success"></i>
+                  <div class="compatible" title="Built successfully with tvOS">
+                    <i class="icon matrix_compatible"></i>
                   </div>
                   <div class="unknown" title="No build information available for watchOS">
-                    <i class="icon build_unknown"></i>
+                    <i class="icon matrix_unknown"></i>
                   </div>
                 </div>
               </div>
             </li>
-            <li class="reference">
-              <div class="label">
+            <li class="row">
+              <div class="row_label">
                 <div>
                   <div>
                     <span class="branch">
@@ -288,25 +288,25 @@
                   </div>
                 </div>
               </div>
-              <div class="compatibility">
-                <div class="swift_versions">
+              <div class="row_values">
+                <div class="column_label">
                   <div>iOS</div>
                   <div>macOS</div>
                   <div>tvOS</div>
                   <div>watchOS</div>
                 </div>
-                <div class="build_statuses">
-                  <div class="success" title="Built successfully with iOS">
-                    <i class="icon build_success"></i>
+                <div class="result">
+                  <div class="compatible" title="Built successfully with iOS">
+                    <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="success" title="Built successfully with macOS">
-                    <i class="icon build_success"></i>
+                  <div class="compatible" title="Built successfully with macOS">
+                    <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="success" title="Built successfully with tvOS">
-                    <i class="icon build_success"></i>
+                  <div class="compatible" title="Built successfully with tvOS">
+                    <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="success" title="Built successfully with watchOS">
-                    <i class="icon build_success"></i>
+                  <div class="compatible" title="Built successfully with watchOS">
+                    <i class="icon matrix_compatible"></i>
                   </div>
                 </div>
               </div>

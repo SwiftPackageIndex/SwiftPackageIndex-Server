@@ -1,0 +1,133 @@
+/* -------------------------------------------------------------------------
+  Compatibility matrix styles - Swift and platform version compatibility.
+---------------------------------------------------------------------------- */
+
+ul.matrix {
+  padding: 0;
+  margin: 0;
+
+  li {
+    margin: 5px 0;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    li {
+      margin: 30px 0;
+    }
+  }
+
+  .row {
+    display: flex;
+    flex-direction: row;
+
+    &:first-child .row_values > div:first-child {
+      display: flex;
+    }
+
+    .row_label {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      flex-basis: 0;
+      flex-grow: 3;
+
+      > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 35px;
+      }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      .row_label {
+        /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
+        flex-basis: auto;
+      }
+    }
+
+    .row_values {
+      display: flex;
+      flex-direction: column;
+      flex-basis: 0;
+      flex-grow: 7;
+
+      > div {
+        display: flex;
+        flex-direction: row;
+      }
+
+      > div:first-child {
+        display: none;
+      }
+
+      @media screen and (max-width: $mobile-breakpoint) {
+        > div:first-child {
+          display: flex;
+        }
+      }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      .row_values {
+        /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
+        flex-basis: auto;
+      }
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    .row {
+      flex-direction: column;
+    }
+  }
+
+  .column_label > div {
+    padding: 5px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    flex-basis: 0;
+    flex-grow: 1;
+    font-weight: 600;
+
+    small {
+      font-weight: normal;
+    }
+  }
+
+  .result {
+    > div {
+      margin: 0 3px;
+      height: 35px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-basis: 0;
+      flex-grow: 1;
+    }
+
+    i.icon {
+      margin: 0;
+    }
+
+    .compatible {
+      background-color: var(--matrix-result-compatible-background);
+      color: var(--matrix-result-compatible-text);
+      font-size: 22px;
+    }
+
+    .unknown {
+      background-color: var(--matrix-result-unknown-background);
+      color: var(--matrix-result-unknown-text);
+      font-size: 25px;
+    }
+
+    .incompatible {
+      background-color: var(--matrix-result-incompatible-background);
+      color: var(--matrix-result-incompatible-text);
+      font-size: 20px;
+    }
+  }
+}

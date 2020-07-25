@@ -345,9 +345,9 @@ extension PackageShow.Model {
         guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .section(
-            .class("swift"),
             .h3("Swift Version Compatibility"),
             .ul(
+                .class("matrix"),
                 .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
             ),
             .p(
@@ -364,9 +364,9 @@ extension PackageShow.Model {
         guard let buildInfo = platformBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .section(
-            .class("swift"),
             .h3("Platform Compatibility"),
             .ul(
+                .class("matrix"),
                 .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
             ),
             .p(
@@ -382,17 +382,17 @@ extension PackageShow.Model {
     func compatibilityListItem<T>(label: Node<HTML.BodyContext>,
                                   cells: [BuildResult<T>]) -> Node<HTML.ListContext> {
         return .li(
-            .class("reference"),
+            .class("row"),
             label,
-            // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
             .div(
-                .class("compatibility"),
+                // Matrix CSS should include *both* the column labels, and the column values status boxes in *every* row.
+                .class("row_values"),
                 .div(
-                    .class("swift_versions"),
+                    .class("column_label"),
                     .forEach(cells) { $0.headerNode }
                 ),
                 .div(
-                    .class("build_statuses"),
+                    .class("result"),
                     .forEach(cells) { $0.cellNode }
                 )
             )
