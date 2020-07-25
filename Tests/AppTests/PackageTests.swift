@@ -420,11 +420,11 @@ final class PackageTests: AppTestCase {
         
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.v4_2, .init(swiftVersion: .v4_2, status: .failed))
-        XCTAssertEqual(res?.results.v5_0, .init(swiftVersion: .v5_0, status: .failed))
-        XCTAssertEqual(res?.results.v5_1, .init(swiftVersion: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.results.v5_2, .init(swiftVersion: .v5_2, status: .success))
-        XCTAssertEqual(res?.results.v5_3, .init(swiftVersion: .v5_3, status: .success))
+        XCTAssertEqual(res?.results.v4_2, .init(parameter: .v4_2, status: .failed))
+        XCTAssertEqual(res?.results.v5_0, .init(parameter: .v5_0, status: .failed))
+        XCTAssertEqual(res?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
+        XCTAssertEqual(res?.results.v5_2, .init(parameter: .v5_2, status: .success))
+        XCTAssertEqual(res?.results.v5_3, .init(parameter: .v5_3, status: .success))
     }
     
     func test_buildInfo() throws {
@@ -445,11 +445,11 @@ final class PackageTests: AppTestCase {
         
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.v4_2, .init(swiftVersion: .v4_2, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_0, .init(swiftVersion: .v5_0, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_1, .init(swiftVersion: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_2, .init(swiftVersion: .v5_2, status: .success))
-        XCTAssertEqual(res?.stable?.results.v5_3, .init(swiftVersion: .v5_3, status: .unknown))
+        XCTAssertEqual(res?.stable?.results.v4_2, .init(parameter: .v4_2, status: .unknown))
+        XCTAssertEqual(res?.stable?.results.v5_0, .init(parameter: .v5_0, status: .unknown))
+        XCTAssertEqual(res?.stable?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
+        XCTAssertEqual(res?.stable?.results.v5_2, .init(parameter: .v5_2, status: .success))
+        XCTAssertEqual(res?.stable?.results.v5_3, .init(parameter: .v5_3, status: .unknown))
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }

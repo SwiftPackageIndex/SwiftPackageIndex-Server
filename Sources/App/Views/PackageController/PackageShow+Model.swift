@@ -372,7 +372,7 @@ extension PackageShow.Model {
 
     func swiftVersionCompatibilityListItem(_ row: BuildStatusRow<SwiftVersionResults>) -> Node<HTML.ListContext> {
         let results: [BuildResult] = row.results
-            .all.sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
+            .all.sorted { $0.parameter < $1.parameter }.reversed()
         return .li(
             .class("reference"),
             row.label,

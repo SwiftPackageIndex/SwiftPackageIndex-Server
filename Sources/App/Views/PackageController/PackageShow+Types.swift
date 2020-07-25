@@ -55,6 +55,8 @@ extension PackageShow.Model {
         var semVer: SemVer
         var isLatest: Bool
         var isBeta: Bool
+
+        var longDisplayName: String { "Swift \(displayName)" }
         
         var note: String? {
             if isLatest { return "latest" }
@@ -102,6 +104,8 @@ extension PackageShow.Model {
                     return "watchOS"
             }
         }
+
+        var longDisplayName: String { displayName }
 
         var note: String? {
             nil
@@ -171,11 +175,11 @@ extension PackageShow.Model {
              status5_1: BuildStatus,
              status5_2: BuildStatus,
              status5_3: BuildStatus) {
-            self.v4_2 = .init(swiftVersion: .v4_2, status: status4_2)
-            self.v5_0 = .init(swiftVersion: .v5_0, status: status5_0)
-            self.v5_1 = .init(swiftVersion: .v5_1, status: status5_1)
-            self.v5_2 = .init(swiftVersion: .v5_2, status: status5_2)
-            self.v5_3 = .init(swiftVersion: .v5_3, status: status5_3)
+            self.v4_2 = .init(parameter: .v4_2, status: status4_2)
+            self.v5_0 = .init(parameter: .v5_0, status: status5_0)
+            self.v5_1 = .init(parameter: .v5_1, status: status5_1)
+            self.v5_2 = .init(parameter: .v5_2, status: status5_2)
+            self.v5_3 = .init(parameter: .v5_3, status: status5_3)
         }
 
         var all: [BuildResult<SwiftVersion>] { [v4_2, v5_0, v5_1, v5_2, v5_3] }
@@ -192,10 +196,10 @@ extension PackageShow.Model {
              macosStatus: BuildStatus,
              tvosStatus: BuildStatus,
              watchosStatus: BuildStatus) {
-            self.ios = .init(swiftVersion: .ios, status: iosStatus)
-            self.macos = .init(swiftVersion: .macos, status: macosStatus)
-            self.tvos = .init(swiftVersion: .tvos, status: tvosStatus)
-            self.watchos = .init(swiftVersion: .watchos, status: watchosStatus)
+            self.ios = .init(parameter: .ios, status: iosStatus)
+            self.macos = .init(parameter: .macos, status: macosStatus)
+            self.tvos = .init(parameter: .tvos, status: tvosStatus)
+            self.watchos = .init(parameter: .watchos, status: watchosStatus)
         }
 
         var all: [BuildResult<BuildPlatform>] { [ios, macos, tvos, watchos] }
@@ -208,13 +212,13 @@ extension PackageShow.Model {
     }
 
     struct BuildResult<T: BuildResultParameter>: Equatable {
-        var swiftVersion: T
+        var parameter: T
         var status: BuildStatus
         
         var headerNode: Node<HTML.BodyContext> {
             .div(
-                .text(swiftVersion.displayName),
-                .unwrap(swiftVersion.note) { .element(named: "small", text: "(\($0))") }
+                .text(parameter.displayName),
+                .unwrap(parameter.note) { .element(named: "small", text: "(\($0))") }
             )
         }
         
@@ -229,11 +233,11 @@ extension PackageShow.Model {
         var title: String {
             switch status {
                 case .success:
-                    return "Built successfully with Swift \(swiftVersion.displayName)"
+                    return "Built successfully with \(parameter.longDisplayName)"
                 case .failed:
-                    return "Build failed with Swift \(swiftVersion.displayName)"
+                    return "Build failed with \(parameter.longDisplayName)"
                 case .unknown:
-                    return "No build information available for Swift \(swiftVersion.displayName)"
+                    return "No build information available for \(parameter.longDisplayName)"
             }
         }
     }
@@ -243,5 +247,6 @@ extension PackageShow.Model {
 
 protocol BuildResultParameter: Equatable {
     var displayName: String { get }
+    var longDisplayName: String { get }
     var note: String? { get }
 }
