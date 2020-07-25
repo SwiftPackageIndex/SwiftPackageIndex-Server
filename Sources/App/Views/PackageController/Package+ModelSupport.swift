@@ -185,9 +185,9 @@ extension Package {
     typealias BuildInfo = PackageShow.Model.BuildInfo
     typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
     typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
+    typealias PlatformResults = PackageShow.Model.PlatformResults
 
-    // FIXME: rename & create platform variant
-    func buildInfo() -> BuildInfo<SwiftVersionResults>? {
+    func swiftVersionBuildInfo() -> BuildInfo<SwiftVersionResults>? {
         // 1) get three relevant version:
         let (stable, beta, latest) = releases()
         
@@ -197,7 +197,16 @@ extension Package {
                      latest: latest.flatMap(Package.buildResults))
     }
 
-    // FIXME: rename & create platform variant
+    func platformBuildInfo() -> BuildInfo<PlatformResults>? {
+        // 1) get three relevant version:
+        let (stable, beta, latest) = releases()
+
+        // 2) collect build info for swift versions per package version
+        return .init(stable: stable.flatMap(Package.buildResults),
+                     beta: beta.flatMap(Package.buildResults),
+                     latest: latest.flatMap(Package.buildResults))
+    }
+
     static func buildResults(_ version: Version) -> NamedBuildResults<SwiftVersionResults>? {
         guard let builds = version.$builds.value,
               let referenceName = version.reference?.description else { return nil }
@@ -217,7 +226,25 @@ extension Package {
                                  status5_3: v5_3.buildStatus)
             )
     }
-    
+
+    static func buildResults(_ version: Version) -> NamedBuildResults<PlatformResults>? {
+        guard let builds = version.$builds.value,
+              let referenceName = version.reference?.description else { return nil }
+        // For each reported platform pick appropriate build matches
+        let ios = builds.filter { $0.platform.isCompatible(with: .ios) }
+        let macos = builds.filter { $0.platform.isCompatible(with: .macos) }
+        let tvos = builds.filter { $0.platform.isCompatible(with: .tvos) }
+        let watchos = builds.filter { $0.platform.isCompatible(with: .watchos) }
+        // ... and report the status
+        return
+            .init(referenceName: referenceName,
+                  results: .init(iosStatus: ios.buildStatus,
+                                 macosStatus: macos.buildStatus,
+                                 tvosStatus: tvos.buildStatus,
+                                 watchosStatus: watchos.buildStatus)
+            )
+    }
+
 }
 
 
@@ -233,5 +260,23 @@ private extension SwiftVersion {
     func isCompatible(with other: PackageShow.Model.SwiftVersion) -> Bool {
         major == other.semVer.major && minor == other.semVer.minor
     }
-    
+}
+
+
+private extension Build.Platform {
+    func isCompatible(with other: PackageShow.Model.BuildPlatform) -> Bool {
+        switch self {
+            case .ios:
+                return other == .ios
+            case .macosSpm, .macosSpmArm, .macosXcodebuild, .macosXcodebuildArm:
+                return other == .macos
+            case .tvos:
+                return other == .tvos
+            case .watchos:
+                return other == .watchos
+            case .linux:
+                // currently unsupported
+                return false
+        }
+    }
 }

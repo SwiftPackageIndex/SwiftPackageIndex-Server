@@ -387,7 +387,7 @@ final class PackageTests: AppTestCase {
                              lastPullRequestClosedAt: "6 days ago"))
     }
     
-    func test_buildResults() throws {
+    func test_buildResults_swiftVersions() throws {
         // Test build success reporting - we take any success across platforms
         // as a success for a particular x.y swift version (4.2, 5.0, etc, i.e.
         // ignoring swift patch versions)
@@ -416,7 +416,7 @@ final class PackageTests: AppTestCase {
         try v.$builds.load(on: app.db).wait()
         
         // MUT
-        let res = Package.buildResults(v)
+        let res: NamedBuildResults<SwiftVersionResults>? = Package.buildResults(v)
         
         // validate
         XCTAssertEqual(res?.referenceName, "main")
@@ -426,8 +426,10 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(res?.results.v5_2, .init(parameter: .v5_2, status: .success))
         XCTAssertEqual(res?.results.v5_3, .init(parameter: .v5_3, status: .success))
     }
-    
-    func test_buildInfo() throws {
+
+    // FIXMME: add test_buildResults_platforms
+
+    func test_swiftVersionBuildInfo() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
@@ -441,7 +443,7 @@ final class PackageTests: AppTestCase {
         }
         
         // MUT
-        let res = p.buildInfo()
+        let res = p.swiftVersionBuildInfo()
         
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
@@ -453,6 +455,8 @@ final class PackageTests: AppTestCase {
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }
+
+    // FIXME: add test_platformBuildInfo
     
 }
 
@@ -460,3 +464,7 @@ final class PackageTests: AppTestCase {
 func daysAgo(_ days: Int) -> Date {
     Calendar.current.date(byAdding: .init(day: -days), to: Date())!
 }
+
+
+typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
+typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults

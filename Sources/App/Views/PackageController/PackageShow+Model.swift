@@ -71,7 +71,8 @@ extension PackageShow {
             self.repositoryName = repositoryName
             self.activity = package.activity()
             self.authors = package.authors()
-            self.swiftVersionBuildInfo = package.buildInfo()
+            self.swiftVersionBuildInfo = package.swiftVersionBuildInfo()
+            self.platformBuildInfo = package.platformBuildInfo()
             self.history = package.history()
             self.languagePlatforms = package.languagePlatformInfo()
             self.license = package.repository?.license ?? .none
