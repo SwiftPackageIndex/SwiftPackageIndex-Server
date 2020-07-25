@@ -198,6 +198,113 @@
             <a href="/Alamofire/Alamofire/builds">Full build results</a>
           </p>
         </section>
+        <section class="swift">
+          <h3>Platform Compatibility</h3>
+          <ul>
+            <li class="reference">
+              <div class="label">
+                <div>
+                  <div>
+                    <span class="stable">
+                      <i class="icon stable"></i>5.2.3
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="compatibility">
+                <div class="swift_versions">
+                  <div>iOS</div>
+                  <div>macOS</div>
+                  <div>tvOS</div>
+                  <div>watchOS</div>
+                </div>
+                <div class="build_statuses">
+                  <div class="success" title="Built successfully with iOS">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for macOS">
+                    <i class="icon build_unknown"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for tvOS">
+                    <i class="icon build_unknown"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for watchOS">
+                    <i class="icon build_unknown"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="reference">
+              <div class="label">
+                <div>
+                  <div>
+                    <span class="beta">
+                      <i class="icon beta"></i>6.0.0-b1
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="compatibility">
+                <div class="swift_versions">
+                  <div>iOS</div>
+                  <div>macOS</div>
+                  <div>tvOS</div>
+                  <div>watchOS</div>
+                </div>
+                <div class="build_statuses">
+                  <div class="success" title="Built successfully with iOS">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="success" title="Built successfully with macOS">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="success" title="Built successfully with tvOS">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for watchOS">
+                    <i class="icon build_unknown"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="reference">
+              <div class="label">
+                <div>
+                  <div>
+                    <span class="branch">
+                      <i class="icon branch"></i>main
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="compatibility">
+                <div class="swift_versions">
+                  <div>iOS</div>
+                  <div>macOS</div>
+                  <div>tvOS</div>
+                  <div>watchOS</div>
+                </div>
+                <div class="build_statuses">
+                  <div class="success" title="Built successfully with iOS">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="success" title="Built successfully with macOS">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="success" title="Built successfully with tvOS">
+                    <i class="icon build_success"></i>
+                  </div>
+                  <div class="success" title="Built successfully with watchOS">
+                    <i class="icon build_success"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+          <p class="right">
+            <a href="/Alamofire/Alamofire/builds">Full build results</a>
+          </p>
+        </section>
         <section class="language_platforms">
           <h3>Language and Platforms</h3>
           <ul>

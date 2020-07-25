@@ -23,12 +23,28 @@ extension PackageShow {
         var url: String
         var score: Int?
         
-        internal init(repositoryOwner: String, repositoryName: String, activity: Activity? = nil, authors: [Link]? = nil, swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil, history: History? = nil, languagePlatforms: LanguagePlatformInfo, license: License, products: ProductCounts? = nil, releases: ReleaseInfo, stars: Int? = nil, summary: String, title: String, url: String, score: Int? = nil) {
+        internal init(repositoryOwner: String,
+                      repositoryName: String,
+                      activity: Activity? = nil,
+                      authors: [Link]? = nil,
+                      swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
+                      platformBuildInfo: BuildInfo<PlatformResults>? = nil,
+                      history: History? = nil,
+                      languagePlatforms: LanguagePlatformInfo,
+                      license: License,
+                      products: ProductCounts? = nil,
+                      releases: ReleaseInfo,
+                      stars: Int? = nil,
+                      summary: String,
+                      title: String,
+                      url: String,
+                      score: Int? = nil) {
             self.repositoryOwner = repositoryOwner
             self.repositoryName = repositoryName
             self.activity = activity
             self.authors = authors
             self.swiftVersionBuildInfo = swiftVersionBuildInfo
+            self.platformBuildInfo = platformBuildInfo
             self.history = history
             self.languagePlatforms = languagePlatforms
             self.license = license

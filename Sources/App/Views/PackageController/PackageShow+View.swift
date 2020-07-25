@@ -84,6 +84,7 @@ enum PackageShow {
                     )
                 ),
                 model.swiftVersionCompatibilitySection(),
+                model.platformCompatibilitySection(),
                 .section(
                     .class("language_platforms"),
                     .h3("Language and Platforms"),
