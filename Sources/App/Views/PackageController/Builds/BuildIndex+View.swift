@@ -33,7 +33,7 @@ enum BuildIndex {
                 .div(
                     .class("row_label"),
                     .div(
-                        .div( // TODO: Can this be removed?
+                        .div(
                             .strong("Swift 5.3"),
                             .text(" on "),
                             .strong("iOS")
