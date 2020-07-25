@@ -36,6 +36,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --black: #070710;
+    --very-very-dark-grey: #0E0E19;
     --very-dark-grey: #191923;
 
     --mid-blue: #55B7FF;
@@ -140,10 +141,14 @@
 
     --matrix-result-compatible-background: var(--mid-green);
     --matrix-result-compatible-text: var(--white);
-    --matrix-result-unknown-background: var(--very-dark-grey);
+    --matrix-result-unknown-background: var(--very-very-dark-grey);
     --matrix-result-unknown-text: var(--dark-grey);
-    --matrix-result-incompatible-background: var(--dark-grey);
-    --matrix-result-incompatible-text: var(--very-dark-grey);
+    --matrix-result-incompatible-background: var(--very-dark-grey);
+    --matrix-result-incompatible-text: var(--dark-grey);
+    --matrix-result-succeeded-background: var(--very-dark-grey);
+    --matrix-result-succeeded-text: var(--mid-green);
+    --matrix-result-failed-background: var(--very-dark-grey);
+    --matrix-result-failed-text: var(--mid-red);
 
     --icon-text: var(--light-grey);
 
