@@ -161,6 +161,14 @@ extension PackageShow.Model {
         case success
         case failed
         case unknown
+
+        var cssClass: String {
+            switch self {
+                case .success: return "compatible"
+                case .unknown: return "unknown"
+                case .failed: return "incompatible"
+            }
+        }
     }
     
     struct BuildResult: Equatable {
@@ -176,7 +184,7 @@ extension PackageShow.Model {
         
         var cellNode: Node<HTML.BodyContext> {
             .div(
-                .class("\(status)"),
+                .class("\(status.cssClass)"),
                 .attribute(named: "title", value: title),
                 .i(.class("icon build_\(status)"))
             )
