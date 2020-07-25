@@ -368,6 +368,7 @@ extension PackageShow.Model {
             .class("swift"),
             .h3("Platform Compatibility"),
             .ul(
+                .class("matrix"),
                 .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
             ),
             .p(
