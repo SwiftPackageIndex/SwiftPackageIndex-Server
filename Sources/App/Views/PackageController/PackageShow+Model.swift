@@ -294,18 +294,16 @@ extension PackageShow.Model {
         return Self.listPhrase(opening: "", nodes: nodes, closing: ".")
     }
     
-    typealias BuildInfoKeyPath = KeyPath<BuildInfo<SwiftVersionResults>, NamedBuildResults<SwiftVersionResults>?>
-    
-    static func groupBuildInfo(_ buildInfo: BuildInfo<SwiftVersionResults>) -> [BuildStatusRow] {
-        let allKeyPaths: [BuildInfoKeyPath] = [\.stable, \.beta, \.latest]
+    static func groupBuildInfo<T>(_ buildInfo: BuildInfo<T>) -> [BuildStatusRow<T>] {
+        let allKeyPaths: [KeyPath<BuildInfo<T>, NamedBuildResults<T>?>] = [\.stable, \.beta, \.latest]
         var availableKeyPaths = allKeyPaths
-        let groups = allKeyPaths.map { kp -> [BuildInfoKeyPath] in
+        let groups = allKeyPaths.map { kp -> [KeyPath<BuildInfo<T>, NamedBuildResults<T>?>] in
             guard let r = buildInfo[keyPath: kp] else { return [] }
             let group = availableKeyPaths.filter { buildInfo[keyPath: $0]?.results == r.results }
             availableKeyPaths.removeAll(where: { group.contains($0) })
             return group
         }
-        let rows = groups.compactMap { keyPaths -> BuildStatusRow? in
+        let rows = groups.compactMap { keyPaths -> BuildStatusRow<T>? in
             guard let first = keyPaths.first,
                   let results = buildInfo[keyPath: first]?.results else { return nil }
             let references = keyPaths.compactMap { kp -> Reference? in
@@ -325,7 +323,7 @@ extension PackageShow.Model {
         }
         return rows
     }
-    
+
     func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
         let environment = (try? Environment.detect()) ?? .development
         guard environment != .production else {
@@ -354,13 +352,13 @@ extension PackageShow.Model {
         guard environment != .production else {
             return .empty
         }
-        guard let buildInfo = swiftVersionBuildInfo else { return .empty }
+        guard let buildInfo = platformBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .section(
             .class("swift"),
             .h3("Platform Compatibility"),
             .ul(
-                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
+                .forEach(rows) { platformCompatibilityListItem($0) }
             ),
             .p(
                 .class("right"),
@@ -372,9 +370,31 @@ extension PackageShow.Model {
         )
     }
 
-    func swiftVersionCompatibilityListItem(_ row: BuildStatusRow) -> Node<HTML.ListContext> {
+    func swiftVersionCompatibilityListItem(_ row: BuildStatusRow<SwiftVersionResults>) -> Node<HTML.ListContext> {
         let results: [BuildResult] = row.results
             .all.sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
+        return .li(
+            .class("reference"),
+            row.label,
+            // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
+            .div(
+                .class("compatibility"),
+                .div(
+                    .class("swift_versions"),
+                    .forEach(results) { $0.headerNode }
+                ),
+                .div(
+                    .class("build_statuses"),
+                    .forEach(results) { $0.cellNode }
+                )
+            )
+        )
+    }
+
+    func platformCompatibilityListItem(_ row: BuildStatusRow<PlatformResults>) -> Node<HTML.ListContext> {
+        let results: [BuildResult] = row.results.all
+        // FIXME: sort
+        //            .sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
         return .li(
             .class("reference"),
             row.label,

@@ -127,16 +127,16 @@ extension PackageShow.Model {
         }
     }
     
-    struct BuildStatusRow: Equatable {
+    struct BuildStatusRow<T: Equatable>: Equatable {
         var references: [Reference]
-        var results: SwiftVersionResults
+        var results: T
         
-        init(references: [Reference], results: SwiftVersionResults) {
+        init(references: [Reference], results: T) {
             self.references = references
             self.results = results
         }
         
-        init(namedResult: NamedBuildResults<SwiftVersionResults>, kind: Reference.Kind) {
+        init(namedResult: NamedBuildResults<T>, kind: Reference.Kind) {
             self.references = [.init(name: namedResult.referenceName, kind: kind)]
             self.results = namedResult.results
         }
