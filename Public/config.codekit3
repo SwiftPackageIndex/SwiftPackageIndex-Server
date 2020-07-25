@@ -9,6 +9,12 @@
 	],
 "creatorBuild": "32186",
 "files": {
+	"/deploy": {
+		"ft": 65536,
+		"oA": 1,
+		"oAP": "/deploy/deploy",
+		"oF": 0
+		},
 	"/fonts/icomoon.svg": {
 		"ft": 2097152,
 		"miP": 0,
