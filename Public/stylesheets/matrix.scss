@@ -1,0 +1,137 @@
+/* -------------------------------------------------------------------------
+  Compatibility matrix styles - Swift and platform version compatibility.
+---------------------------------------------------------------------------- */
+
+.swift {
+  ul {
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    padding: 0;
+    margin: 5px 0;
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    li {
+      padding: 0;
+      margin: 30px 0;
+    }
+  }
+
+  .reference {
+    display: flex;
+    flex-direction: row;
+
+    &:first-child .compatibility > div:first-child {
+      display: flex;
+    }
+
+    .label {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      flex-basis: 0;
+      flex-grow: 3;
+
+      > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 35px;
+      }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      .label {
+        /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
+        flex-basis: auto;
+      }
+    }
+
+    .compatibility {
+      display: flex;
+      flex-direction: column;
+      flex-basis: 0;
+      flex-grow: 7;
+
+      > div {
+        display: flex;
+        flex-direction: row;
+      }
+
+      > div:first-child {
+        display: none;
+      }
+
+      @media screen and (max-width: $mobile-breakpoint) {
+        > div:first-child {
+          display: flex;
+        }
+      }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      .compatibility {
+        /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
+        flex-basis: auto;
+      }
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    .reference {
+      flex-direction: column;
+    }
+  }
+
+  .swift_versions > div{
+    padding: 5px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    flex-basis: 0;
+    flex-grow: 1;
+    font-weight: 600;
+
+    small {
+      font-weight: normal;
+    }
+  }
+
+  .build_statuses {
+    > div {
+      margin: 0 3px;
+      height: 35px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-basis: 0;
+      flex-grow: 1;
+    }
+
+    i.icon {
+      margin: 0;
+    }
+
+    .success {
+      background-color: var(--build-status-success-background);
+      color: var(--build-status-success-text);
+      font-size: 22px;
+    }
+
+    .unknown {
+      background-color: var(--build-status-unknown-background);
+      color: var(--build-status-unknown-text);
+      font-size: 25px;
+    }
+
+    .failed {
+      background-color: var(--build-status-failed-background);
+      color: var(--build-status-failed-text);
+      font-size: 20px;
+    }
+  }
+}
