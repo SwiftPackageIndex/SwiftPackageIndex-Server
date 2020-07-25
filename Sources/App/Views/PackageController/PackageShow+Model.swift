@@ -293,7 +293,7 @@ extension PackageShow.Model {
         return Self.listPhrase(opening: "", nodes: nodes, closing: ".")
     }
     
-    typealias BuildInfoKeyPath = KeyPath<BuildInfo, NamedBuildResults?>
+    typealias BuildInfoKeyPath = KeyPath<BuildInfo, NamedBuildResults<SwiftVersionResults>?>
     
     static func groupBuildInfo(_ buildInfo: BuildInfo) -> [BuildStatusRow] {
         let allKeyPaths: [BuildInfoKeyPath] = [\.stable, \.beta, \.latest]
@@ -347,7 +347,30 @@ extension PackageShow.Model {
             )
         )
     }
-    
+
+    func platformCompatibilitySection() -> Node<HTML.BodyContext> {
+        let environment = (try? Environment.detect()) ?? .development
+        guard environment != .production else {
+            return .empty
+        }
+        guard let buildInfo = buildInfo else { return .empty }
+        let rows = Self.groupBuildInfo(buildInfo)
+        return .section(
+            .class("swift"),
+            .h3("Platform Compatibility"),
+            .ul(
+                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
+            ),
+            .p(
+                .class("right"),
+                .a(
+                    .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
+                    "Full build results"
+                )
+            )
+        )
+    }
+
     func swiftVersionCompatibilityListItem(_ row: BuildStatusRow) -> Node<HTML.ListContext> {
         let results: [BuildResult] = row.results
             .all.sorted { $0.swiftVersion < $1.swiftVersion }.reversed()

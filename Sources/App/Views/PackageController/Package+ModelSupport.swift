@@ -191,8 +191,11 @@ extension Package {
                      beta: beta.flatMap(Package.buildResults),
                      latest: latest.flatMap(Package.buildResults))
     }
-    
-    static func buildResults(_ version: Version) -> PackageShow.Model.NamedBuildResults? {
+
+    typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
+    typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
+
+    static func buildResults(_ version: Version) -> NamedBuildResults<SwiftVersionResults>? {
         guard let builds = version.$builds.value,
               let referenceName = version.reference?.description else { return nil }
         // For each reported swift version pick major/minor version matches

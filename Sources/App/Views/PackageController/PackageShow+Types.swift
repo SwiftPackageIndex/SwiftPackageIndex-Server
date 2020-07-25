@@ -41,9 +41,9 @@ extension PackageShow.Model {
     }
     
     struct BuildInfo: Equatable {
-        var stable: NamedBuildResults?
-        var beta: NamedBuildResults?
-        var latest: NamedBuildResults?
+        var stable: NamedBuildResults<SwiftVersionResults>?
+        var beta: NamedBuildResults<SwiftVersionResults>?
+        var latest: NamedBuildResults<SwiftVersionResults>?
     }
     
     struct SwiftVersion: Equatable, Hashable, Comparable {
@@ -105,14 +105,14 @@ extension PackageShow.Model {
     
     struct BuildStatusRow: Equatable {
         var references: [Reference]
-        var results: BuildResults
+        var results: SwiftVersionResults
         
-        init(references: [Reference], results: BuildResults) {
+        init(references: [Reference], results: SwiftVersionResults) {
             self.references = references
             self.results = results
         }
         
-        init(namedResult: NamedBuildResults, kind: Reference.Kind) {
+        init(namedResult: NamedBuildResults<SwiftVersionResults>, kind: Reference.Kind) {
             self.references = [.init(name: namedResult.referenceName, kind: kind)]
             self.results = namedResult.results
         }
@@ -130,12 +130,12 @@ extension PackageShow.Model {
         }
     }
     
-    struct NamedBuildResults: Equatable {
+    struct NamedBuildResults<T: Equatable>: Equatable {
         var referenceName: String
-        var results: BuildResults
+        var results: T
     }
     
-    struct BuildResults: Equatable {
+    struct SwiftVersionResults: Equatable {
         var v4_2: BuildResult
         var v5_0: BuildResult
         var v5_1: BuildResult
