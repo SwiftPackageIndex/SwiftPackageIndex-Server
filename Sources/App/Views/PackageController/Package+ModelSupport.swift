@@ -201,7 +201,7 @@ extension Package {
         // 1) get three relevant version:
         let (stable, beta, latest) = releases()
 
-        // 2) collect build info for swift versions per package version
+        // 2) collect build info for platforms per package version
         return .init(stable: stable.flatMap(Package.buildResults),
                      beta: beta.flatMap(Package.buildResults),
                      latest: latest.flatMap(Package.buildResults))
