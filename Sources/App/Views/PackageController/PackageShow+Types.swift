@@ -230,7 +230,7 @@ extension PackageShow.Model {
             .div(
                 .class("\(status.cssClass)"),
                 .attribute(named: "title", value: title),
-                .i(.class("icon build_\(status)"))
+                .i(.class("icon matrix_\(status.cssClass)"))
             )
         }
         
