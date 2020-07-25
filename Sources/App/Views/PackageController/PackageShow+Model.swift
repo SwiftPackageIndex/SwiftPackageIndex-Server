@@ -336,6 +336,7 @@ extension PackageShow.Model {
             .class("swift"),
             .h3("Swift Version Compatibility"),
             .ul(
+                .class("matrix"),
                 .forEach(rows) { swiftVersionCompatibilityListItem($0) }
             ),
             .p(
@@ -352,17 +353,17 @@ extension PackageShow.Model {
         let results: [BuildResult] = row.results
             .all.sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
         return .li(
-            .class("reference"),
+            .class("row"),
             row.label,
-            // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
+            // Matrix CSS should include *both* the column labels, and the column values status boxes on *every* row.
             .div(
-                .class("compatibility"),
+                .class("row_values"),
                 .div(
-                    .class("swift_versions"),
+                    .class("column_label"),
                     .forEach(results) { $0.headerNode }
                 ),
                 .div(
-                    .class("build_statuses"),
+                    .class("result"),
                     .forEach(results) { $0.cellNode }
                 )
             )

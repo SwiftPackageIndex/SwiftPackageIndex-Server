@@ -120,7 +120,7 @@ extension PackageShow.Model {
         var label: Node<HTML.BodyContext> {
             guard !references.isEmpty else { return .empty }
             return .div(
-                .class("label"),
+                .class("row_label"),
                 .div( // Note: It may look like there is a completely useless div here, but it's needed. I promise.
                     .div(
                         .group(references.map(\.node).joined(separator: .text(" and ")))

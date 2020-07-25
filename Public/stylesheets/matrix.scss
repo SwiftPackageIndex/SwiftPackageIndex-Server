@@ -2,33 +2,29 @@
   Compatibility matrix styles - Swift and platform version compatibility.
 ---------------------------------------------------------------------------- */
 
-.swift {
-  ul {
-    padding: 0;
-    margin: 0;
-  }
+ul.matrix {
+  padding: 0;
+  margin: 0;
 
   li {
-    padding: 0;
     margin: 5px 0;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
     li {
-      padding: 0;
       margin: 30px 0;
     }
   }
 
-  .reference {
+  .row {
     display: flex;
     flex-direction: row;
 
-    &:first-child .compatibility > div:first-child {
+    &:first-child .row_values > div:first-child {
       display: flex;
     }
 
-    .label {
+    .row_label {
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -44,13 +40,13 @@
     }
 
     @media screen and (max-width: $mobile-breakpoint) {
-      .label {
+      .row_label {
         /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
         flex-basis: auto;
       }
     }
 
-    .compatibility {
+    .row_values {
       display: flex;
       flex-direction: column;
       flex-basis: 0;
@@ -73,7 +69,7 @@
     }
 
     @media screen and (max-width: $mobile-breakpoint) {
-      .compatibility {
+      .row_values {
         /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
         flex-basis: auto;
       }
@@ -81,12 +77,12 @@
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
-    .reference {
+    .row {
       flex-direction: column;
     }
   }
 
-  .swift_versions > div{
+  .column_label > div {
     padding: 5px 0;
     display: flex;
     flex-direction: column;
@@ -101,7 +97,7 @@
     }
   }
 
-  .build_statuses {
+  .result {
     > div {
       margin: 0 3px;
       height: 35px;
@@ -116,21 +112,21 @@
       margin: 0;
     }
 
-    .success {
-      background-color: var(--build-status-success-background);
-      color: var(--build-status-success-text);
+    .compatible {
+      background-color: var(--matrix-result-compatible-background);
+      color: var(--matrix-result-compatible-text);
       font-size: 22px;
     }
 
     .unknown {
-      background-color: var(--build-status-unknown-background);
-      color: var(--build-status-unknown-text);
+      background-color: var(--matrix-result-unknown-background);
+      color: var(--matrix-result-unknown-text);
       font-size: 25px;
     }
 
-    .failed {
-      background-color: var(--build-status-failed-background);
-      color: var(--build-status-failed-text);
+    .incompatible {
+      background-color: var(--matrix-result-incompatible-background);
+      color: var(--matrix-result-incompatible-text);
       font-size: 20px;
     }
   }
