@@ -10,7 +10,8 @@ extension PackageShow {
         var repositoryName: String
         var activity: Activity?
         var authors: [Link]?
-        var buildInfo: BuildInfo?
+        var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
+        var platformBuildInfo: BuildInfo<PlatformResults>?
         var history: History?
         var languagePlatforms: LanguagePlatformInfo
         var license: License
@@ -22,12 +23,28 @@ extension PackageShow {
         var url: String
         var score: Int?
         
-        internal init(repositoryOwner: String, repositoryName: String, activity: PackageShow.Model.Activity? = nil, authors: [Link]? = nil, buildInfo: PackageShow.Model.BuildInfo? = nil, history: PackageShow.Model.History? = nil, languagePlatforms: PackageShow.Model.LanguagePlatformInfo, license: License, products: PackageShow.Model.ProductCounts? = nil, releases: PackageShow.Model.ReleaseInfo, stars: Int? = nil, summary: String, title: String, url: String, score: Int? = nil) {
+        internal init(repositoryOwner: String,
+                      repositoryName: String,
+                      activity: Activity? = nil,
+                      authors: [Link]? = nil,
+                      swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
+                      platformBuildInfo: BuildInfo<PlatformResults>? = nil,
+                      history: History? = nil,
+                      languagePlatforms: LanguagePlatformInfo,
+                      license: License,
+                      products: ProductCounts? = nil,
+                      releases: ReleaseInfo,
+                      stars: Int? = nil,
+                      summary: String,
+                      title: String,
+                      url: String,
+                      score: Int? = nil) {
             self.repositoryOwner = repositoryOwner
             self.repositoryName = repositoryName
             self.activity = activity
             self.authors = authors
-            self.buildInfo = buildInfo
+            self.swiftVersionBuildInfo = swiftVersionBuildInfo
+            self.platformBuildInfo = platformBuildInfo
             self.history = history
             self.languagePlatforms = languagePlatforms
             self.license = license
@@ -54,7 +71,8 @@ extension PackageShow {
             self.repositoryName = repositoryName
             self.activity = package.activity()
             self.authors = package.authors()
-            self.buildInfo = package.buildInfo()
+            self.swiftVersionBuildInfo = package.swiftVersionBuildInfo()
+            self.platformBuildInfo = package.platformBuildInfo()
             self.history = package.history()
             self.languagePlatforms = package.languagePlatformInfo()
             self.license = package.repository?.license ?? .none
@@ -293,18 +311,16 @@ extension PackageShow.Model {
         return Self.listPhrase(opening: "", nodes: nodes, closing: ".")
     }
     
-    typealias BuildInfoKeyPath = KeyPath<BuildInfo, NamedBuildResults?>
-    
-    static func groupBuildInfo(_ buildInfo: BuildInfo) -> [BuildStatusRow] {
-        let allKeyPaths: [BuildInfoKeyPath] = [\.stable, \.beta, \.latest]
+    static func groupBuildInfo<T>(_ buildInfo: BuildInfo<T>) -> [BuildStatusRow<T>] {
+        let allKeyPaths: [KeyPath<BuildInfo<T>, NamedBuildResults<T>?>] = [\.stable, \.beta, \.latest]
         var availableKeyPaths = allKeyPaths
-        let groups = allKeyPaths.map { kp -> [BuildInfoKeyPath] in
+        let groups = allKeyPaths.map { kp -> [KeyPath<BuildInfo<T>, NamedBuildResults<T>?>] in
             guard let r = buildInfo[keyPath: kp] else { return [] }
             let group = availableKeyPaths.filter { buildInfo[keyPath: $0]?.results == r.results }
             availableKeyPaths.removeAll(where: { group.contains($0) })
             return group
         }
-        let rows = groups.compactMap { keyPaths -> BuildStatusRow? in
+        let rows = groups.compactMap { keyPaths -> BuildStatusRow<T>? in
             guard let first = keyPaths.first,
                   let results = buildInfo[keyPath: first]?.results else { return nil }
             let references = keyPaths.compactMap { kp -> Reference? in
@@ -324,19 +340,15 @@ extension PackageShow.Model {
         }
         return rows
     }
-    
+
     func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
-        let environment = (try? Environment.detect()) ?? .development
-        guard environment != .production else {
-            return .empty
-        }
-        guard let buildInfo = buildInfo else { return .empty }
+        guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .section(
             .class("swift"),
             .h3("Swift Version Compatibility"),
             .ul(
-                .forEach(rows) { swiftVersionCompatibilityListItem($0) }
+                .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
             ),
             .p(
                 .class("right"),
@@ -347,27 +359,46 @@ extension PackageShow.Model {
             )
         )
     }
-    
-    func swiftVersionCompatibilityListItem(_ row: BuildStatusRow) -> Node<HTML.ListContext> {
-        let results: [BuildResult] = row.results
-            .all.sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
+
+    func platformCompatibilitySection() -> Node<HTML.BodyContext> {
+        guard let buildInfo = platformBuildInfo else { return .empty }
+        let rows = Self.groupBuildInfo(buildInfo)
+        return .section(
+            .class("swift"),
+            .h3("Platform Compatibility"),
+            .ul(
+                .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
+            ),
+            .p(
+                .class("right"),
+                .a(
+                    .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
+                    "Full build results"
+                )
+            )
+        )
+    }
+
+    func compatibilityListItem<T>(label: Node<HTML.BodyContext>,
+                                  cells: [BuildResult<T>]) -> Node<HTML.ListContext> {
         return .li(
             .class("reference"),
-            row.label,
+            label,
             // Implementation note: The compatibility section should include *both* the Swift labels, and the status boxes on *every* row. They are removed in desktop mode via CSS.
             .div(
                 .class("compatibility"),
                 .div(
                     .class("swift_versions"),
-                    .forEach(results) { $0.headerNode }
+                    .forEach(cells) { $0.headerNode }
                 ),
                 .div(
                     .class("build_statuses"),
-                    .forEach(results) { $0.cellNode }
+                    .forEach(cells) { $0.cellNode }
                 )
             )
         )
     }
+
 }
 
 

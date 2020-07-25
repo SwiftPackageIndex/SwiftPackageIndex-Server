@@ -62,7 +62,7 @@ class PackageShowModelTests: AppTestCase {
         let m = PackageShow.Model(package: pkg)
         
         // validate
-        XCTAssertNotNil(m?.buildInfo?.latest)
+        XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)
     }
     
     func test_lpInfoGroups_by_swiftVersions() throws {
@@ -258,6 +258,6 @@ class PackageShowModelTests: AppTestCase {
 // local typealiases / references to make tests more readable
 fileprivate typealias Version = PackageShow.Model.Version
 fileprivate typealias BuildInfo = PackageShow.Model.BuildInfo
-fileprivate typealias BuildResults = PackageShow.Model.BuildResults
+fileprivate typealias BuildResults = PackageShow.Model.SwiftVersionResults
 fileprivate typealias BuildStatusRow = PackageShow.Model.BuildStatusRow
 let lpInfoGroups = PackageShow.Model.lpInfoGroups

@@ -387,7 +387,7 @@ final class PackageTests: AppTestCase {
                              lastPullRequestClosedAt: "6 days ago"))
     }
     
-    func test_buildResults() throws {
+    func test_buildResults_swiftVersions() throws {
         // Test build success reporting - we take any success across platforms
         // as a success for a particular x.y swift version (4.2, 5.0, etc, i.e.
         // ignoring swift patch versions)
@@ -416,23 +416,61 @@ final class PackageTests: AppTestCase {
         try v.$builds.load(on: app.db).wait()
         
         // MUT
-        let res = Package.buildResults(v)
+        let res: NamedBuildResults<SwiftVersionResults>? = Package.buildResults(v)
         
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.v4_2, .init(swiftVersion: .v4_2, status: .failed))
-        XCTAssertEqual(res?.results.v5_0, .init(swiftVersion: .v5_0, status: .failed))
-        XCTAssertEqual(res?.results.v5_1, .init(swiftVersion: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.results.v5_2, .init(swiftVersion: .v5_2, status: .success))
-        XCTAssertEqual(res?.results.v5_3, .init(swiftVersion: .v5_3, status: .success))
+        XCTAssertEqual(res?.results.v4_2, .init(parameter: .v4_2, status: .failed))
+        XCTAssertEqual(res?.results.v5_0, .init(parameter: .v5_0, status: .failed))
+        XCTAssertEqual(res?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
+        XCTAssertEqual(res?.results.v5_2, .init(parameter: .v5_2, status: .success))
+        XCTAssertEqual(res?.results.v5_3, .init(parameter: .v5_3, status: .success))
     }
-    
-    func test_buildInfo() throws {
+
+    func test_buildResults_platforms() throws {
+        // Test build success reporting - we take any success across swift versions
+        // as a success for a particular platform
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, reference: .branch("main"))
+        try v.save(on: app.db).wait()
+        func makeBuild(_ status: Build.Status, _ platform: Build.Platform, _ version: SwiftVersion) throws {
+            try Build(version: v, platform: platform, status: status, swiftVersion: version)
+                .save(on: app.db)
+                .wait()
+        }
+        // ios - failed
+        try makeBuild(.failed, .ios, .init(5, 2, 0))
+        try makeBuild(.failed, .ios, .init(5, 0, 0))
+        // macos - failed
+        try makeBuild(.failed, .macosSpm, .init(5, 2, 0))
+        try makeBuild(.failed, .macosXcodebuild, .init(5, 0, 0))
+        // tvos - no data - unknown
+        // watchos - ok
+        try makeBuild(.failed, .watchos, .init(5, 2, 0))
+        try makeBuild(.ok, .watchos, .init(5, 0, 0))
+        try v.$builds.load(on: app.db).wait()
+
+        // MUT
+        let res: NamedBuildResults<PlatformResults>? = Package.buildResults(v)
+
+        // validate
+        XCTAssertEqual(res?.referenceName, "main")
+        XCTAssertEqual(res?.results.ios, .init(parameter: .ios, status: .failed))
+        XCTAssertEqual(res?.results.macos, .init(parameter: .macos, status: .failed))
+        XCTAssertEqual(res?.results.tvos, .init(parameter: .tvos, status: .unknown))
+        XCTAssertEqual(res?.results.watchos, .init(parameter: .watchos, status: .success))
+    }
+
+    func test_swiftVersionBuildInfo() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
         try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
         try p.$versions.load(on: app.db).wait()
@@ -441,22 +479,56 @@ final class PackageTests: AppTestCase {
         }
         
         // MUT
-        let res = p.buildInfo()
+        let res = p.swiftVersionBuildInfo()
         
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.v4_2, .init(swiftVersion: .v4_2, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_0, .init(swiftVersion: .v5_0, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_1, .init(swiftVersion: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_2, .init(swiftVersion: .v5_2, status: .success))
-        XCTAssertEqual(res?.stable?.results.v5_3, .init(swiftVersion: .v5_3, status: .unknown))
+        XCTAssertEqual(res?.stable?.results.v4_2, .init(parameter: .v4_2, status: .unknown))
+        XCTAssertEqual(res?.stable?.results.v5_0, .init(parameter: .v5_0, status: .failed))
+        XCTAssertEqual(res?.stable?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
+        XCTAssertEqual(res?.stable?.results.v5_2, .init(parameter: .v5_2, status: .success))
+        XCTAssertEqual(res?.stable?.results.v5_3, .init(parameter: .v5_3, status: .unknown))
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }
-    
+
+    func test_platformBuildInfo() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
+        try v.save(on: app.db).wait()
+        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .tvos, status: .failed, swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+        try p.$versions.load(on: app.db).wait()
+        try p.versions.forEach {
+            try $0.$builds.load(on: app.db).wait()
+        }
+
+        // MUT
+        let res = p.platformBuildInfo()
+
+        // validate
+        XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
+        XCTAssertEqual(res?.stable?.results.ios, .init(parameter: .ios, status: .unknown))
+        XCTAssertEqual(res?.stable?.results.macos, .init(parameter: .macos, status: .success))
+        XCTAssertEqual(res?.stable?.results.tvos, .init(parameter: .tvos, status: .failed))
+        XCTAssertEqual(res?.stable?.results.watchos, .init(parameter: .watchos, status: .unknown))
+        XCTAssertNil(res?.beta)
+        XCTAssertNil(res?.latest)
+    }
+
 }
 
 
 func daysAgo(_ days: Int) -> Date {
     Calendar.current.date(byAdding: .init(day: -days), to: Date())!
 }
+
+
+typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
+typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
+typealias PlatformResults = PackageShow.Model.PlatformResults
