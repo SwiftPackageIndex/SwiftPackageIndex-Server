@@ -181,8 +181,13 @@ extension Package {
 
 
 extension Package {
-    
-    func buildInfo() -> PackageShow.Model.BuildInfo? {
+
+    typealias BuildInfo = PackageShow.Model.BuildInfo
+    typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
+    typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
+
+    // FIXME: rename & create platform variant
+    func buildInfo() -> BuildInfo<SwiftVersionResults>? {
         // 1) get three relevant version:
         let (stable, beta, latest) = releases()
         
@@ -192,9 +197,7 @@ extension Package {
                      latest: latest.flatMap(Package.buildResults))
     }
 
-    typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
-    typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
-
+    // FIXME: rename & create platform variant
     static func buildResults(_ version: Version) -> NamedBuildResults<SwiftVersionResults>? {
         guard let builds = version.$builds.value,
               let referenceName = version.reference?.description else { return nil }

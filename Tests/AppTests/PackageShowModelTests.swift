@@ -62,7 +62,7 @@ class PackageShowModelTests: AppTestCase {
         let m = PackageShow.Model(package: pkg)
         
         // validate
-        XCTAssertNotNil(m?.buildInfo?.latest)
+        XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)
     }
     
     func test_lpInfoGroups_by_swiftVersions() throws {

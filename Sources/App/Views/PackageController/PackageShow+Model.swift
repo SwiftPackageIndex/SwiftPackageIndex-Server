@@ -10,7 +10,7 @@ extension PackageShow {
         var repositoryName: String
         var activity: Activity?
         var authors: [Link]?
-        var buildInfo: BuildInfo?
+        var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
         var history: History?
         var languagePlatforms: LanguagePlatformInfo
         var license: License
@@ -22,12 +22,12 @@ extension PackageShow {
         var url: String
         var score: Int?
         
-        internal init(repositoryOwner: String, repositoryName: String, activity: PackageShow.Model.Activity? = nil, authors: [Link]? = nil, buildInfo: PackageShow.Model.BuildInfo? = nil, history: PackageShow.Model.History? = nil, languagePlatforms: PackageShow.Model.LanguagePlatformInfo, license: License, products: PackageShow.Model.ProductCounts? = nil, releases: PackageShow.Model.ReleaseInfo, stars: Int? = nil, summary: String, title: String, url: String, score: Int? = nil) {
+        internal init(repositoryOwner: String, repositoryName: String, activity: Activity? = nil, authors: [Link]? = nil, swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil, history: History? = nil, languagePlatforms: LanguagePlatformInfo, license: License, products: ProductCounts? = nil, releases: ReleaseInfo, stars: Int? = nil, summary: String, title: String, url: String, score: Int? = nil) {
             self.repositoryOwner = repositoryOwner
             self.repositoryName = repositoryName
             self.activity = activity
             self.authors = authors
-            self.buildInfo = buildInfo
+            self.swiftVersionBuildInfo = swiftVersionBuildInfo
             self.history = history
             self.languagePlatforms = languagePlatforms
             self.license = license
@@ -54,7 +54,7 @@ extension PackageShow {
             self.repositoryName = repositoryName
             self.activity = package.activity()
             self.authors = package.authors()
-            self.buildInfo = package.buildInfo()
+            self.swiftVersionBuildInfo = package.buildInfo()
             self.history = package.history()
             self.languagePlatforms = package.languagePlatformInfo()
             self.license = package.repository?.license ?? .none
@@ -293,9 +293,9 @@ extension PackageShow.Model {
         return Self.listPhrase(opening: "", nodes: nodes, closing: ".")
     }
     
-    typealias BuildInfoKeyPath = KeyPath<BuildInfo, NamedBuildResults<SwiftVersionResults>?>
+    typealias BuildInfoKeyPath = KeyPath<BuildInfo<SwiftVersionResults>, NamedBuildResults<SwiftVersionResults>?>
     
-    static func groupBuildInfo(_ buildInfo: BuildInfo) -> [BuildStatusRow] {
+    static func groupBuildInfo(_ buildInfo: BuildInfo<SwiftVersionResults>) -> [BuildStatusRow] {
         let allKeyPaths: [BuildInfoKeyPath] = [\.stable, \.beta, \.latest]
         var availableKeyPaths = allKeyPaths
         let groups = allKeyPaths.map { kp -> [BuildInfoKeyPath] in
@@ -330,7 +330,7 @@ extension PackageShow.Model {
         guard environment != .production else {
             return .empty
         }
-        guard let buildInfo = buildInfo else { return .empty }
+        guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .section(
             .class("swift"),
@@ -353,7 +353,7 @@ extension PackageShow.Model {
         guard environment != .production else {
             return .empty
         }
-        guard let buildInfo = buildInfo else { return .empty }
+        guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .section(
             .class("swift"),

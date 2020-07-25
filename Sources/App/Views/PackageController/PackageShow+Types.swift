@@ -40,10 +40,10 @@ extension PackageShow.Model {
         var latest: Version?
     }
     
-    struct BuildInfo: Equatable {
-        var stable: NamedBuildResults<SwiftVersionResults>?
-        var beta: NamedBuildResults<SwiftVersionResults>?
-        var latest: NamedBuildResults<SwiftVersionResults>?
+    struct BuildInfo<T: Equatable>: Equatable {
+        var stable: NamedBuildResults<T>?
+        var beta: NamedBuildResults<T>?
+        var latest: NamedBuildResults<T>?
     }
     
     struct SwiftVersion: Equatable, Hashable, Comparable {
