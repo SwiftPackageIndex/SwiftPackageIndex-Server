@@ -21,11 +21,13 @@
   --light-red: #FFEEEE;
 
   --black: #1D1D1D;
+  --very-very-dark-grey: #232323;
   --very-dark-grey: #2F2F2F;
   --dark-grey: #3E3E3E;
   --grey: #9A9A9A;
   --light-grey: #DADADA;
   --very-light-grey: #F1F1F1;
+  --very-very-light-grey: #F8F8F8;
   --white: #FFFFFF;
 }
 
@@ -89,7 +91,7 @@
 
   --matrix-result-compatible-background: var(--light-green);
   --matrix-result-compatible-text: var(--white);
-  --matrix-result-unknown-background: var(--very-light-grey);
+  --matrix-result-unknown-background: var(--very-very-light-grey);
   --matrix-result-unknown-text: var(--light-grey);
   --matrix-result-incompatible-background: var(--light-grey);
   --matrix-result-incompatible-text: var(--grey);

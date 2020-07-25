@@ -77,12 +77,8 @@ enum BuildIndex {
                             )
                         ),
                         .div(
-                            .class("failed"),
-                            .i(.class("icon matrix_failed")),
-                            .a(
-                                .href("#"),
-                                .text("View Build Log")
-                            )
+                            .class("unknown"),
+                            .i(.class("icon matrix_unknown"))
                         ),
                         .div(
                             .class("failed"),

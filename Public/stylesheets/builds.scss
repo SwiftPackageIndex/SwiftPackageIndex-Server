@@ -45,7 +45,7 @@
         display: block;
       }
 
-      &:hover {
+      &:hover:not(.unknown) {
         a {
           display: block;
         }
