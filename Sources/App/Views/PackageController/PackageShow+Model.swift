@@ -380,8 +380,7 @@ extension PackageShow.Model {
     }
 
     func swiftVersionCompatibilityListItem(_ row: BuildStatusRow<SwiftVersionResults>) -> Node<HTML.ListContext> {
-        let results: [BuildResult] = row.results
-            .all.sorted { $0.parameter < $1.parameter }.reversed()
+        let cells = row.results.cells
         return .li(
             .class("reference"),
             row.label,
@@ -390,20 +389,18 @@ extension PackageShow.Model {
                 .class("compatibility"),
                 .div(
                     .class("swift_versions"),
-                    .forEach(results) { $0.headerNode }
+                    .forEach(cells) { $0.headerNode }
                 ),
                 .div(
                     .class("build_statuses"),
-                    .forEach(results) { $0.cellNode }
+                    .forEach(cells) { $0.cellNode }
                 )
             )
         )
     }
 
     func platformCompatibilityListItem(_ row: BuildStatusRow<PlatformResults>) -> Node<HTML.ListContext> {
-        let results: [BuildResult] = row.results.all
-        // FIXME: sort
-        //            .sorted { $0.swiftVersion < $1.swiftVersion }.reversed()
+        let cells = row.results.cells
         return .li(
             .class("reference"),
             row.label,
@@ -412,11 +409,11 @@ extension PackageShow.Model {
                 .class("compatibility"),
                 .div(
                     .class("swift_versions"),
-                    .forEach(results) { $0.headerNode }
+                    .forEach(cells) { $0.headerNode }
                 ),
                 .div(
                     .class("build_statuses"),
-                    .forEach(results) { $0.cellNode }
+                    .forEach(cells) { $0.cellNode }
                 )
             )
         )

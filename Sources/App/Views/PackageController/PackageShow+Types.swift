@@ -182,7 +182,7 @@ extension PackageShow.Model {
             self.v5_3 = .init(parameter: .v5_3, status: status5_3)
         }
 
-        var all: [BuildResult<SwiftVersion>] { [v4_2, v5_0, v5_1, v5_2, v5_3] }
+        var cells: [BuildResult<SwiftVersion>] { [v5_3, v5_2, v5_1, v5_0, v4_2 ] }
     }
 
     struct PlatformResults: Equatable {
@@ -202,7 +202,7 @@ extension PackageShow.Model {
             self.watchos = .init(parameter: .watchos, status: watchosStatus)
         }
 
-        var all: [BuildResult<BuildPlatform>] { [ios, macos, tvos, watchos] }
+        var cells: [BuildResult<BuildPlatform>] { [ios, macos, tvos, watchos] }
     }
 
     enum BuildStatus: String, Equatable {
