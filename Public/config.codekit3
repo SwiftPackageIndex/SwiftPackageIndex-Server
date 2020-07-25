@@ -443,7 +443,7 @@
 		"ec": 1,
 		"ft": 4,
 		"ma": 0,
-		"oA": 1,
+		"oA": 0,
 		"oAP": "/deploy/stylesheets/matrix.css",
 		"oF": 0,
 		"oS": 0,
@@ -473,7 +473,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 617363301.463709
+	"lastBuiltDate": 617369714.114025
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
