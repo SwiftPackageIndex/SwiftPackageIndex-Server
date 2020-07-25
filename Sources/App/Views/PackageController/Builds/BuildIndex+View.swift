@@ -14,14 +14,89 @@ enum BuildIndex {
 
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .h2("Builds for \(model.packageName)"),
-                model.stable.node("Stable"),
-                model.latest.node("Latest"),
-                model.beta.node("Beta")
+                .h2("Build Results for \(model.packageName)"),
+                .ul(
+                    .class("matrix"),
+                    buildItem(),
+                    buildItem(),
+                    buildItem()
+                )
+//                model.stable.node("Stable"),
+//                model.latest.node("Latest"),
+//                model.beta.node("Beta")
+            )
+        }
+
+        func buildItem() -> Node<HTML.ListContext> {
+            .li(
+                .class("row"),
+                .div(
+                    .class("row_label"),
+                    .div(
+                        .div( // TODO: Can this be removed?
+                            .strong("Swift 5.3"),
+                            .text(" on "),
+                            .strong("iOS")
+                        )
+                    )
+                ),
+                .div(
+                    .class("row_values"),
+                    .div(
+                        .class("column_label"),
+                        .div(
+                            .span(
+                                .class("stable"),
+                                .i(.class("icon stable")),
+                                .text("5.4.3")
+                            )
+                        ),
+                        .div(
+                            .span(
+                                .class("beta"),
+                                .i(.class("icon beta")),
+                                .text("6.0.0.beta.1")
+                            )
+                        ),
+                        .div(
+                            .span(
+                                .class("branch"),
+                                .i(.class("icon branch")),
+                                .text("main")
+                            )
+                        )
+                    ),
+                    .div(
+                        .class("result"),
+                        .div(
+                            .class("succeeded"),
+                            .i(.class("icon matrix_succeeded")),
+                            .a(
+                                .href("#"),
+                                .text("View Build Log")
+                            )
+                        ),
+                        .div(
+                            .class("failed"),
+                            .i(.class("icon matrix_failed")),
+                            .a(
+                                .href("#"),
+                                .text("View Build Log")
+                            )
+                        ),
+                        .div(
+                            .class("failed"),
+                            .i(.class("icon matrix_failed")),
+                            .a(
+                                .href("#"),
+                                .text("View Build Log")
+                            )
+                        )
+                    )
+                )
             )
         }
     }
-
 }
 
 

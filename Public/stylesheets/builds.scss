@@ -27,3 +27,36 @@
     }
   }
 }
+
+
+
+// -------------------------------------------------------------------------
+// New CSS (needed for matrix version, delete this comment when it's all cleared up)
+
+.matrix {
+  .result {
+    &>div {
+      a {
+        display: none;
+        margin-left: 5px;
+        font-size: 16px;
+        font-weight: normal;
+        // color: var(--matrix-result-succeeded-text);
+      }
+
+      i {
+        display: block;
+      }
+
+      &:hover {
+        a {
+          display: block;
+        }
+
+        i {
+          display: none;
+        }
+      }
+    }
+  }
+}

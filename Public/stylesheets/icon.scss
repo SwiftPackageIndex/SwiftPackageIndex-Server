@@ -51,6 +51,8 @@ i.warning:before { content: "\e90a"; }
 i.matrix_compatible:before { content: "\e90b"; }
 i.matrix_unknown:before { content: "\e90c"; }
 i.matrix_incompatible:before { content: "\e90d"; }
+i.matrix_succeeded:before { content: "\e90b"; }
+i.matrix_failed:before { content: "\e90d"; }
 
 li.author:before { content: "\e901"; }
 li.history:before { content: "\e902" }

@@ -93,6 +93,10 @@
   --matrix-result-unknown-text: var(--light-grey);
   --matrix-result-incompatible-background: var(--light-grey);
   --matrix-result-incompatible-text: var(--grey);
+  --matrix-result-succeeded-background: var(--very-light-grey);
+  --matrix-result-succeeded-text: var(--light-green);
+  --matrix-result-failed-background: var(--very-light-grey);
+  --matrix-result-failed-text: var(--mid-red);
 
   --icon-text: var(--dark-grey);
 
