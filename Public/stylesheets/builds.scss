@@ -45,7 +45,7 @@
         display: block;
       }
 
-      &:hover:not(.unknown) {
+      &:hover:not(.unknown):not(.compatible):not(.incompatible) {
         a {
           display: block;
         }
