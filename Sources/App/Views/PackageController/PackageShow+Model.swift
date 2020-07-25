@@ -345,7 +345,6 @@ extension PackageShow.Model {
         guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .section(
-            .class("swift"),
             .h3("Swift Version Compatibility"),
             .ul(
                 .class("matrix"),
@@ -365,7 +364,6 @@ extension PackageShow.Model {
         guard let buildInfo = platformBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .section(
-            .class("swift"),
             .h3("Platform Compatibility"),
             .ul(
                 .class("matrix"),
