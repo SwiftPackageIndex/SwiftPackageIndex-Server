@@ -134,14 +134,14 @@ extension PackageShow.Model {
         var referenceName: String
         var results: T
     }
-    
+
     struct SwiftVersionResults: Equatable {
-        var v4_2: BuildResult
-        var v5_0: BuildResult
-        var v5_1: BuildResult
-        var v5_2: BuildResult
-        var v5_3: BuildResult
-        
+        var v4_2: BuildResult<SwiftVersion>
+        var v5_0: BuildResult<SwiftVersion>
+        var v5_1: BuildResult<SwiftVersion>
+        var v5_2: BuildResult<SwiftVersion>
+        var v5_3: BuildResult<SwiftVersion>
+
         init(status4_2: BuildStatus,
              status5_0: BuildStatus,
              status5_1: BuildStatus,
@@ -153,8 +153,8 @@ extension PackageShow.Model {
             self.v5_2 = .init(swiftVersion: .v5_2, status: status5_2)
             self.v5_3 = .init(swiftVersion: .v5_3, status: status5_3)
         }
-        
-        var all: [BuildResult] { [v4_2, v5_0, v5_1, v5_2, v5_3] }
+
+        var all: [BuildResult<SwiftVersion>] { [v4_2, v5_0, v5_1, v5_2, v5_3] }
     }
     
     enum BuildStatus: String, Equatable {
@@ -162,9 +162,9 @@ extension PackageShow.Model {
         case failed
         case unknown
     }
-    
-    struct BuildResult: Equatable {
-        var swiftVersion: SwiftVersion
+
+    struct BuildResult<T: BuildResultParameter>: Equatable {
+        var swiftVersion: T
         var status: BuildStatus
         
         var headerNode: Node<HTML.BodyContext> {
@@ -195,3 +195,12 @@ extension PackageShow.Model {
     }
     
 }
+
+
+protocol BuildResultParameter: Equatable {
+    var displayName: String { get }
+    var note: String? { get }
+}
+
+
+extension PackageShow.Model.SwiftVersion: BuildResultParameter { }
