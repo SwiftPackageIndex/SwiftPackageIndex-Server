@@ -198,16 +198,16 @@ class PackageShowModelTests: AppTestCase {
     }
     
     func test_groupBuildInfo() throws {
-        let result1: BuildResults = .init(status4_2: .success,
-                                          status5_0: .success,
-                                          status5_1: .success,
-                                          status5_2: .success,
-                                          status5_3: .success)
-        let result2: BuildResults = .init(status4_2: .failed,
-                                          status5_0: .failed,
-                                          status5_1: .failed,
-                                          status5_2: .failed,
-                                          status5_3: .failed)
+        let result1: BuildResults = .init(status4_2: .compatible,
+                                          status5_0: .compatible,
+                                          status5_1: .compatible,
+                                          status5_2: .compatible,
+                                          status5_3: .compatible)
+        let result2: BuildResults = .init(status4_2: .incompatible,
+                                          status5_0: .incompatible,
+                                          status5_1: .incompatible,
+                                          status5_2: .incompatible,
+                                          status5_3: .incompatible)
         let result3: BuildResults = .init(status4_2: .unknown,
                                           status5_0: .unknown,
                                           status5_1: .unknown,

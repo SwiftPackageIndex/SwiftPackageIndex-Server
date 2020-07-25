@@ -206,16 +206,12 @@ extension PackageShow.Model {
     }
 
     enum BuildStatus: String, Equatable {
-        case success
-        case failed
+        case compatible
+        case incompatible
         case unknown
 
         var cssClass: String {
-            switch self {
-                case .success: return "compatible"
-                case .unknown: return "unknown"
-                case .failed: return "incompatible"
-            }
+            self.rawValue
         }
     }
 
@@ -240,9 +236,9 @@ extension PackageShow.Model {
         
         var title: String {
             switch status {
-                case .success:
+                case .compatible:
                     return "Built successfully with \(parameter.longDisplayName)"
-                case .failed:
+                case .incompatible:
                     return "Build failed with \(parameter.longDisplayName)"
                 case .unknown:
                     return "No build information available for \(parameter.longDisplayName)"

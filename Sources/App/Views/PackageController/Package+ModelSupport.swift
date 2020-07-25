@@ -251,7 +251,7 @@ extension Package {
 private extension Array where Element == Build {
     var buildStatus: PackageShow.Model.BuildStatus {
         guard !isEmpty else { return .unknown }
-        return anySucceeded ? .success : .failed
+        return anySucceeded ? .compatible : .incompatible
     }
 }
 

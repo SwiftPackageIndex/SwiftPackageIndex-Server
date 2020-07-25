@@ -420,11 +420,11 @@ final class PackageTests: AppTestCase {
         
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.v4_2, .init(parameter: .v4_2, status: .failed))
-        XCTAssertEqual(res?.results.v5_0, .init(parameter: .v5_0, status: .failed))
+        XCTAssertEqual(res?.results.v4_2, .init(parameter: .v4_2, status: .incompatible))
+        XCTAssertEqual(res?.results.v5_0, .init(parameter: .v5_0, status: .incompatible))
         XCTAssertEqual(res?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.results.v5_2, .init(parameter: .v5_2, status: .success))
-        XCTAssertEqual(res?.results.v5_3, .init(parameter: .v5_3, status: .success))
+        XCTAssertEqual(res?.results.v5_2, .init(parameter: .v5_2, status: .compatible))
+        XCTAssertEqual(res?.results.v5_3, .init(parameter: .v5_3, status: .compatible))
     }
 
     func test_buildResults_platforms() throws {
@@ -456,10 +456,10 @@ final class PackageTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.ios, .init(parameter: .ios, status: .failed))
-        XCTAssertEqual(res?.results.macos, .init(parameter: .macos, status: .failed))
+        XCTAssertEqual(res?.results.ios, .init(parameter: .ios, status: .incompatible))
+        XCTAssertEqual(res?.results.macos, .init(parameter: .macos, status: .incompatible))
         XCTAssertEqual(res?.results.tvos, .init(parameter: .tvos, status: .unknown))
-        XCTAssertEqual(res?.results.watchos, .init(parameter: .watchos, status: .success))
+        XCTAssertEqual(res?.results.watchos, .init(parameter: .watchos, status: .compatible))
     }
 
     func test_swiftVersionBuildInfo() throws {
@@ -484,9 +484,9 @@ final class PackageTests: AppTestCase {
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res?.stable?.results.v4_2, .init(parameter: .v4_2, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_0, .init(parameter: .v5_0, status: .failed))
+        XCTAssertEqual(res?.stable?.results.v5_0, .init(parameter: .v5_0, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_2, .init(parameter: .v5_2, status: .success))
+        XCTAssertEqual(res?.stable?.results.v5_2, .init(parameter: .v5_2, status: .compatible))
         XCTAssertEqual(res?.stable?.results.v5_3, .init(parameter: .v5_3, status: .unknown))
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
@@ -514,8 +514,8 @@ final class PackageTests: AppTestCase {
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res?.stable?.results.ios, .init(parameter: .ios, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.macos, .init(parameter: .macos, status: .success))
-        XCTAssertEqual(res?.stable?.results.tvos, .init(parameter: .tvos, status: .failed))
+        XCTAssertEqual(res?.stable?.results.macos, .init(parameter: .macos, status: .compatible))
+        XCTAssertEqual(res?.stable?.results.tvos, .init(parameter: .tvos, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.watchos, .init(parameter: .watchos, status: .unknown))
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
