@@ -118,9 +118,9 @@
         </section>
         <section class="swift">
           <h3>Swift Version Compatibility</h3>
-          <ul>
-            <li class="reference">
-              <div class="label">
+          <ul class="matrix">
+            <li class="row">
+              <div class="row_label">
                 <div>
                   <div>
                     <span class="stable">
@@ -132,8 +132,8 @@
                   </div>
                 </div>
               </div>
-              <div class="compatibility">
-                <div class="swift_versions">
+              <div class="row_values">
+                <div class="column_label">
                   <div>5.3
                     <small>(beta)</small>
                   </div>
@@ -144,27 +144,27 @@
                   <div>5.0</div>
                   <div>4.2</div>
                 </div>
-                <div class="build_statuses">
-                  <div class="success" title="Built successfully with Swift 5.3">
+                <div class="result">
+                  <div class="compatible" title="Built successfully with Swift 5.3">
                     <i class="icon build_success"></i>
                   </div>
-                  <div class="success" title="Built successfully with Swift 5.2">
+                  <div class="compatible" title="Built successfully with Swift 5.2">
                     <i class="icon build_success"></i>
                   </div>
                   <div class="unknown" title="No build information available for Swift 5.1">
                     <i class="icon build_unknown"></i>
                   </div>
-                  <div class="failed" title="Build failed with Swift 5.0">
+                  <div class="incompatible" title="Build failed with Swift 5.0">
                     <i class="icon build_failed"></i>
                   </div>
-                  <div class="failed" title="Build failed with Swift 4.2">
+                  <div class="incompatible" title="Build failed with Swift 4.2">
                     <i class="icon build_failed"></i>
                   </div>
                 </div>
               </div>
             </li>
-            <li class="reference">
-              <div class="label">
+            <li class="row">
+              <div class="row_label">
                 <div>
                   <div>
                     <span class="beta">
@@ -173,8 +173,8 @@
                   </div>
                 </div>
               </div>
-              <div class="compatibility">
-                <div class="swift_versions">
+              <div class="row_values">
+                <div class="column_label">
                   <div>5.3
                     <small>(beta)</small>
                   </div>
@@ -185,20 +185,20 @@
                   <div>5.0</div>
                   <div>4.2</div>
                 </div>
-                <div class="build_statuses">
-                  <div class="success" title="Built successfully with Swift 5.3">
+                <div class="result">
+                  <div class="compatible" title="Built successfully with Swift 5.3">
                     <i class="icon build_success"></i>
                   </div>
-                  <div class="success" title="Built successfully with Swift 5.2">
+                  <div class="compatible" title="Built successfully with Swift 5.2">
                     <i class="icon build_success"></i>
                   </div>
-                  <div class="success" title="Built successfully with Swift 5.1">
+                  <div class="compatible" title="Built successfully with Swift 5.1">
                     <i class="icon build_success"></i>
                   </div>
-                  <div class="success" title="Built successfully with Swift 5.0">
+                  <div class="compatible" title="Built successfully with Swift 5.0">
                     <i class="icon build_success"></i>
                   </div>
-                  <div class="failed" title="Build failed with Swift 4.2">
+                  <div class="incompatible" title="Build failed with Swift 4.2">
                     <i class="icon build_failed"></i>
                   </div>
                 </div>
