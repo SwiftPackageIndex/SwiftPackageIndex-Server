@@ -172,6 +172,17 @@
 		"oT": 1,
 		"q": 100
 		},
+	"/javascripts/build_log_navigation.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 0,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/deploy/javascripts/build_log_navigation-min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
 	"/javascripts/copy_package_url.js": {
 		"bF": 0,
 		"ft": 64,
