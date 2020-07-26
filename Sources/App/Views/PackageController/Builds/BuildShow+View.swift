@@ -14,7 +14,33 @@ enum BuildShow {
 
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .h2("Build Log"),
+                .div(
+                    .class("split"),
+                    .h2("Build Log"),
+                    .p(
+                        .a(
+                            .href("#"),
+                            "View all builds"
+                        )
+                    )
+                ),
+                .p(
+                    .text("Built "),
+                    .a(
+                        .href("#"),
+                        "PackageName"
+                    ),
+                    .text(" with "),
+                    .strong("Swift 5.2"),
+                    .text(" for "),
+                    .strong("iOS"),
+                    .text(" using "),
+                    // Note for Sven: I'm not sure we have the Xcode version encoded anywhere but we can derive it
+                    // from the Swift version. I think it's important to let people know that we're building with a
+                    // specific version of Xcode.
+                    .strong("Xcode 11.6"),
+                    .text(".")
+                ),
                 .pre(
                     .class("wrap"),
                     .code(
