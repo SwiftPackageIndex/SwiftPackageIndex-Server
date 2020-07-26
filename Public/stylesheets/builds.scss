@@ -35,7 +35,8 @@
 
 .matrix {
   .result {
-    &>div {
+    &>.succeeded,
+    &>.failed {
       a {
         display: none;
         font-size: 16px;
@@ -45,7 +46,7 @@
         display: block;
       }
 
-      &:hover:not(.unknown):not(.compatible):not(.incompatible) {
+      &:hover {
         a {
           display: block;
         }
