@@ -2,37 +2,6 @@
   Package build results page.
 ---------------------------------------------------------------------------- */
 
-.builds {
-  ul {
-    list-style: none;
-
-    li {
-      margin: 3px;
-    }
-
-    div {
-      margin: 0 5px;
-      padding: 2px 5px;
-      display: inline-block;
-
-      &.success {
-        background-color: var(--build-status-success-background);
-        color: var(--build-status-success-text);
-      }
-
-      &.failed {
-        background-color: var(--mid-red);
-        color: var(--white);
-      }
-    }
-  }
-}
-
-
-
-// -------------------------------------------------------------------------
-// New CSS (needed for matrix version, delete this comment when it's all cleared up)
-
 .matrix {
   .result {
     &>.succeeded,
