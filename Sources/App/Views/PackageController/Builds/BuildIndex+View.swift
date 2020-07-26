@@ -20,10 +20,10 @@ enum BuildIndex {
                     buildItem(),
                     buildItem(),
                     buildItem()
-                )
-//                model.stable.node("Stable"),
-//                model.latest.node("Latest"),
-//                model.beta.node("Beta")
+                ),
+                model.stable.node("Stable"),
+                model.latest.node("Latest"),
+                model.beta.node("Beta")
             )
         }
 
