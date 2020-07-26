@@ -14,7 +14,16 @@ enum BuildIndex {
 
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .h2("Build Results for \(model.packageName)"),
+                .h2("Build Results"),
+                .p(
+                    .strong("26"),
+                    .text(" completed builds for "),
+                    .a(
+                        .href("#"),
+                        .text(model.packageName)
+                    ),
+                    .text(".")
+                ),
                 .ul(
                     .class("matrix"),
                     buildItem(),
