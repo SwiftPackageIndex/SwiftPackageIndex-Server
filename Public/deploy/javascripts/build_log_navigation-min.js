@@ -1,1 +1,0 @@
-export class SPIBuildLogNavigation{constructor(){document.addEventListener("DOMContentLoaded",()=>{const o=document.getElementById("build_log");o&&(o.scrollTop=o.scrollHeight)})}}
