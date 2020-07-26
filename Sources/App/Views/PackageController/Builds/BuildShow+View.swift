@@ -16,7 +16,7 @@ enum BuildShow {
             .div(
                 .div(
                     .class("split"),
-                    .h2("Build Log"),
+                    .h2("Build Information"),
                     .p(
                         .a(
                             .href("#"),
@@ -41,8 +41,15 @@ enum BuildShow {
                     .strong("Xcode 11.6"),
                     .text(".")
                 ),
+                .h3("Build Command"),
                 .pre(
-                    .class("wrap"),
+                    .code(
+                        .text("env DEVELOPER_DIR=\"/Applications/Xcode_12_beta_2.app\" xcrun xcodebuild -IDEClonedSourcePackagesDirPathOverride=\"$PWD/.derivedData\" build -scheme \"Nimble\" -destination \"generic/platform=ios\"")
+                    )
+                ),
+                .h3("Build Log"),
+                .pre(
+                    .class("build_log"),
                     .code(
                         .text(model.logs)
                     )
