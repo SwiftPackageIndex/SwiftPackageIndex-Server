@@ -8,6 +8,8 @@ extension BuildIndex.Model {
 
     static var mock: Self {
         .init(
+            owner: "foo",
+            repositoryName: "foobar",
             packageName: "foobar",
             stable: .init(
                 name: "1.2.3",

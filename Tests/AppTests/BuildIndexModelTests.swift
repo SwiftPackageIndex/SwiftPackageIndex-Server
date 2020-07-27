@@ -27,12 +27,12 @@ class BuildIndexModelTests: AppTestCase {
 
     func test_buildCount() throws {
         let m = BuildIndex.Model.mock
+        XCTAssertEqual(m.buildCount, 72)
+    }
 
-        // MUT
-        let count = m.buildCount
-
-        // validate
-        XCTAssertEqual(count, 72)
+    func test_packageURL() throws {
+        let m = BuildIndex.Model.mock
+        XCTAssertEqual(m.packageURL, "/foo/foobar")
     }
 
 }

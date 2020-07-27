@@ -3,6 +3,8 @@ import Plot
 
 extension BuildIndex {
     struct Model {
+        var owner: String
+        var repositoryName: String
         var packageName: String
         var stable: BuildGroup
         var latest: BuildGroup
@@ -10,7 +12,9 @@ extension BuildIndex {
 
         init?(package: Package) {
             // we consider certain attributes as essential and return nil (raising .notFound)
-            guard let name = package.name() else { return nil }
+            guard let name = package.name(),
+                  let owner = package.repository?.owner,
+                  let repositoryName = package.repository?.name else { return nil }
             let (stable, beta, latest) = package.releases()
 
             // sort builds by swift version desc, platform name
@@ -19,6 +23,8 @@ extension BuildIndex {
                 return lhs.platform.rawValue < rhs.platform.rawValue
             }
 
+            self.owner = owner
+            self.repositoryName = repositoryName
             self.packageName = name
             self.stable = .init(name: stable?.reference?.description ?? "n/a",
                                 kind: .stable,
@@ -37,10 +43,14 @@ extension BuildIndex {
                                 .sorted(by: versionPlatform) ?? [])
         }
 
-        internal init(packageName: String,
+        internal init(owner: String,
+                      repositoryName: String,
+                      packageName: String,
                       stable: BuildGroup,
                       latest: BuildGroup,
                       beta: BuildGroup) {
+            self.owner = owner
+            self.repositoryName = repositoryName
             self.packageName = packageName
             self.stable = stable
             self.latest = latest
@@ -154,4 +164,5 @@ extension BuildIndex.Model {
 
 extension BuildIndex.Model {
     var buildCount: Int { stable.builds.count + latest.builds.count + beta.builds.count }
+    var packageURL: String { SiteURL.package(.value(owner), .value(repositoryName), .none).relativeURL() }
 }
