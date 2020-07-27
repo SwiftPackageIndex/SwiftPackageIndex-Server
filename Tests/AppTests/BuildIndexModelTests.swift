@@ -25,4 +25,14 @@ class BuildIndexModelTests: AppTestCase {
         XCTAssertNil(m)
     }
 
+    func test_buildCount() throws {
+        let m = BuildIndex.Model.mock
+
+        // MUT
+        let count = m.buildCount
+
+        // validate
+        XCTAssertEqual(count, 72)
+    }
+
 }

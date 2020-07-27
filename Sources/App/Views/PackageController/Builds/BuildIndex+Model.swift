@@ -153,5 +153,5 @@ extension BuildIndex.Model {
 
 
 extension BuildIndex.Model {
-
+    var buildCount: Int { stable.builds.count + latest.builds.count + beta.builds.count }
 }
