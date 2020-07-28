@@ -28,7 +28,7 @@ enum BuildShow {
                     .text("Built "),
                     .a(
                         .href("#"),
-                        "PackageName"
+                        .text(model.packageName)
                     ),
                     .text(" with "),
                     .strong("Swift 5.2"),

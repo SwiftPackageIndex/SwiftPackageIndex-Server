@@ -7,6 +7,7 @@ extension BuildShow.Model {
     static var mock: Self {
         .init(
             logs: buildLog,
+            packageName: "Bar",
             repositoryOwner: "foo",
             repositoryName: "bar"
         )
