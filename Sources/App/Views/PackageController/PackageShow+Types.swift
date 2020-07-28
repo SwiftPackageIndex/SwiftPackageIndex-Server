@@ -84,6 +84,8 @@ extension PackageShow.Model {
                                       semVer: .init(5, 3, 0),
                                       isLatest: false,
                                       isBeta: true)
+
+        static var all: [Self] { [v4_2, v5_0, v5_1, v5_2, v5_3] }
     }
 
     enum PlatformCompatibility: BuildResultParameter {

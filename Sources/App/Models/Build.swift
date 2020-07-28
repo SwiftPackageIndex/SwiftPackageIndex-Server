@@ -77,7 +77,7 @@ extension Build {
         case failed
     }
     
-    enum Platform: String, Codable, Equatable {
+    enum Platform: String, Codable, Equatable, CaseIterable {
         case ios
         case macosSpmArm        = "macos-spm-arm"
         case macosXcodebuildArm = "macos-xcodebuild-arm"
@@ -99,6 +99,27 @@ extension Build {
                     return "macOS - SPM"
                 case .macosXcodebuild:
                     return "macOS - xcodebuild"
+                case .tvos:
+                    return "tvOS"
+                case .watchos:
+                    return "watchOS"
+                case .linux:
+                    return "Linux"
+            }
+        }
+
+        var displayName: String {
+            switch self {
+                case .ios:
+                    return "iOS"
+                case .macosSpmArm:
+                    return "macOS (SPM,ARM)"
+                case .macosXcodebuildArm:
+                    return "macOS (Xcode,ARM)"
+                case .macosSpm:
+                    return "macOS (SPM)"
+                case .macosXcodebuild:
+                    return "macOS (Xcode)"
                 case .tvos:
                     return "tvOS"
                 case .watchos:
