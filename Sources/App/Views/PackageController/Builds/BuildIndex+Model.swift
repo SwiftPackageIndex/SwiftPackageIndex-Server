@@ -111,10 +111,11 @@ extension BuildIndex.Model {
                 var column = [RowIndex: BuildCell]()
                 for build in group.builds {
                     guard let index = RowIndex(build) else { continue }
-                    column[index] = .init(group.name, build.status)
+                    column[index] = .init(group.name, group.kind, build.status)
                 }
                 RowIndex.all.forEach {
-                    values[$0, default: []].append(column[$0, default: BuildCell(group.name)])
+                    values[$0, default: []]
+                        .append(column[$0, default: BuildCell(group.name, group.kind)])
                 }
             }
         }
@@ -131,8 +132,8 @@ extension BuildIndex.Model {
         var column: ColumnIndex
         var value: App.Build.Status?
 
-        init(_ column: BuildIndex.Model.ColumnIndex, _ value: Build.Status? = nil) {
-            self.column = column
+        init(_ column: String, _ kind: Kind, _ value: Build.Status? = nil) {
+            self.column = .init(label: column, kind: kind)
             self.value = value
         }
 
@@ -152,7 +153,22 @@ extension BuildIndex.Model {
         }
     }
 
-    typealias ColumnIndex = String
+    struct ColumnIndex: Equatable {
+        var label: String
+        var kind: Kind
+        var node: Node<HTML.BodyContext> {
+            let cssClass: String
+            switch kind {
+                case .beta:
+                    cssClass = "beta"
+                case .latest:
+                    cssClass = "branch"
+                case .stable:
+                    cssClass = "stable"
+            }
+            return .div(.span(.class(cssClass), .i(.class("icon \(cssClass)")), .text(label)))
+        }
+    }
 
     struct RowIndex: Hashable {
         var swiftVersion: SwiftVersionCompatibility
@@ -211,9 +227,7 @@ extension BuildIndex.Model {
         var columnLabels: Node<HTML.BodyContext> {
             .div(
                 .class("column_label"),
-                .div(.span(.class("stable"), .i(.class("icon stable")), .text("5.4.3"))),
-                .div(.span(.class("beta"), .i(.class("icon beta")), .text("6.0.0.beta.1"))),
-                .div(.span(.class("branch"), .i(.class("icon branch")), .text("main")))
+                .group(values.map(\.column.node))
             )
         }
 

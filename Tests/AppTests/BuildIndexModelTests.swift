@@ -37,6 +37,55 @@ class BuildIndexModelTests: AppTestCase {
     }
 
     func test_buildMatrix() throws {
+        // setup
+        let id = UUID()
+        let stable: [BuildInfo] = [
+            .init(id: id, swiftVersion: .init(5, 3, 0), platform: .ios, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 2, 0), platform: .macosXcodebuild, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 1, 0), platform: .tvos, status: .ok),
+        ]
+        let latest: [BuildInfo] = [
+            .init(id: id, swiftVersion: .init(5, 2, 0), platform: .macosSpm, status: .failed),
+            .init(id: id, swiftVersion: .init(5, 1, 0), platform: .tvos, status: .ok),
+        ]
+        let model = BuildIndex.Model.init(owner: "foo",
+                                          repositoryName: "bar",
+                                          packageName: "bar",
+                                          buildGroups: [
+                                            .init(name: "1.2.3", kind: .stable, builds: stable),
+                                            .init(name: "2.0.0-b1", kind: .beta, builds: []),
+                                            .init(name: "main", kind: .latest, builds: latest),
+                                          ])
+
+        // MUT
+        let matrix = model.buildMatrix
+
+        // validate
+        XCTAssertEqual(matrix.values.keys.count, 40)
+        XCTAssertEqual(matrix.values.keys.sorted(by: RowIndex.versionPlatform).map(\.label).first, "Swift 5.3 on iOS")
+        XCTAssertEqual(
+            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.column.label),
+            ["1.2.3", "2.0.0-b1", "main"]
+        )
+        XCTAssertEqual(
+            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.value),
+            .some([.ok, nil, nil])
+        )
+        XCTAssertEqual(
+            matrix.values[.init(swiftVersion: .v5_2, platform: .macosXcodebuild)]?.map(\.value),
+            [.ok, nil, nil]
+        )
+        XCTAssertEqual(
+            matrix.values[.init(swiftVersion: .v5_2, platform: .macosSpm)]?.map(\.value),
+            [nil, nil, .failed]
+        )
+        XCTAssertEqual(
+            matrix.values[.init(swiftVersion: .v5_1, platform: .tvos)]?.map(\.value),
+            [.ok, nil, .ok]
+        )
+    }
+
+    func test_buildMatrix_no_beta() throws {
         // Test BuildMatrix mapping, in particular absence of a beta version
         // setup
         let id = UUID()
@@ -64,7 +113,7 @@ class BuildIndexModelTests: AppTestCase {
         XCTAssertEqual(matrix.values.keys.count, 40)
         XCTAssertEqual(matrix.values.keys.sorted(by: RowIndex.versionPlatform).map(\.label).first, "Swift 5.3 on iOS")
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.column),
+            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.column.label),
             ["1.2.3", "main"]
         )
         XCTAssertEqual(
@@ -86,19 +135,19 @@ class BuildIndexModelTests: AppTestCase {
     }
 
     func test_BuildCell() throws {
-        XCTAssertEqual(BuildCell("1.2.3", .ok).node.render(indentedBy: .spaces(2)), """
+        XCTAssertEqual(BuildCell("1.2.3", .stable, .ok).node.render(indentedBy: .spaces(2)), """
                         <div class="succeeded">
                           <i class="icon matrix_succeeded"></i>
                           <a href="#">View Build Log</a>
                         </div>
                         """)
-        XCTAssertEqual(BuildCell("1.2.3", .failed).node.render(indentedBy: .spaces(2)), """
+        XCTAssertEqual(BuildCell("1.2.3", .stable, .failed).node.render(indentedBy: .spaces(2)), """
                         <div class="failed">
                           <i class="icon matrix_failed"></i>
                           <a href="#">View Build Log</a>
                         </div>
                         """)
-        XCTAssertEqual(BuildCell("1.2.3", nil).node.render(indentedBy: .spaces(2)), """
+        XCTAssertEqual(BuildCell("1.2.3", .stable, nil).node.render(indentedBy: .spaces(2)), """
                         <div class="unknown">
                           <i class="icon matrix_unknown"></i>
                         </div>
@@ -108,9 +157,9 @@ class BuildIndexModelTests: AppTestCase {
     func test_BuildItem() throws {
         // setup
         let bi = BuildItem(index: .init(swiftVersion: .v5_3, platform: .ios),
-                           values: [.init("5.4.3", .ok),
-                                    .init("6.0.0.beta.1", nil),
-                                    .init("main", .failed)])
+                           values: [.init("1.2.3", .stable, .ok),
+                                    .init("2.0.0-b1", .beta, nil),
+                                    .init("develop", .latest, .failed)])
 
         // MUT
         let columnLabels = bi.columnLabels
@@ -120,17 +169,17 @@ class BuildIndexModelTests: AppTestCase {
                         <div class="column_label">
                           <div>
                             <span class="stable">
-                              <i class="icon stable"></i>5.4.3
+                              <i class="icon stable"></i>1.2.3
                             </span>
                           </div>
                           <div>
                             <span class="beta">
-                              <i class="icon beta"></i>6.0.0.beta.1
+                              <i class="icon beta"></i>2.0.0-b1
                             </span>
                           </div>
                           <div>
                             <span class="branch">
-                              <i class="icon branch"></i>main
+                              <i class="icon branch"></i>develop
                             </span>
                           </div>
                         </div>
@@ -169,9 +218,9 @@ class BuildIndexModelTests: AppTestCase {
                 .class("row_values"),
                 .div(
                     .class("column_label"),
-                    .div(.span(.class("stable"), .i(.class("icon stable")), .text("5.4.3"))),
-                    .div(.span(.class("beta"), .i(.class("icon beta")), .text("6.0.0.beta.1"))),
-                    .div(.span(.class("branch"), .i(.class("icon branch")), .text("main")))
+                    .div(.span(.class("stable"), .i(.class("icon stable")), .text("1.2.3"))),
+                    .div(.span(.class("beta"), .i(.class("icon beta")), .text("2.0.0-b1"))),
+                    .div(.span(.class("branch"), .i(.class("icon branch")), .text("develop")))
                 ),
                 .div(
                     .class("result"),
