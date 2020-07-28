@@ -111,7 +111,7 @@ extension BuildIndex.Model {
                 var column = [RowIndex: BuildCell]()
                 for build in group.builds {
                     guard let index = RowIndex(build) else { continue }
-                    column[index] = .init(group.name, group.kind, build.status)
+                    column[index] = .init(group.name, group.kind, build.id, build.status)
                 }
                 RowIndex.all.forEach {
                     values[$0, default: []]
@@ -130,26 +130,37 @@ extension BuildIndex.Model {
 
     struct BuildCell: Equatable {
         var column: ColumnIndex
-        var value: App.Build.Status?
+        var value: Value?
 
-        init(_ column: String, _ kind: Kind, _ value: Build.Status? = nil) {
+        init(_ column: String, _ kind: Kind, _ id: App.Build.Id, _ status: Build.Status) {
             self.column = .init(label: column, kind: kind)
-            self.value = value
+            self.value = .init(id: id, status: status)
+        }
+
+        init(_ column: String, _ kind: Kind) {
+            self.column = .init(label: column, kind: kind)
         }
 
         var node: Node<HTML.BodyContext> {
             switch value {
-                case .ok:
+                case let .some(value) where value.status == .ok:
                     return .div(.class("succeeded"),
                                 .i(.class("icon matrix_succeeded")),
-                                .a(.href("#"),.text("View Build Log")))
-                case .failed:
+                                .a(.href(SiteURL.builds(.value(value.id)).relativeURL()),
+                                   .text("View Build Log")))
+                case let .some(value) where value.status == .failed:
                     return .div(.class("failed"),
                                 .i(.class("icon matrix_failed")),
-                                .a(.href("#"), .text("View Build Log")))
-                case .none:
+                                .a(.href(SiteURL.builds(.value(value.id)).relativeURL()),
+                                   .text("View Build Log")))
+                case .some, .none:
                     return .div(.class("unknown"), .i(.class("icon matrix_unknown")))
             }
+        }
+
+        struct Value: Equatable {
+            var id: App.Build.Id
+            var status: App.Build.Status
         }
     }
 

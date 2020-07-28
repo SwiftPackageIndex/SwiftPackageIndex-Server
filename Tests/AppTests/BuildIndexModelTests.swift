@@ -62,25 +62,25 @@ class BuildIndexModelTests: AppTestCase {
 
         // validate
         XCTAssertEqual(matrix.values.keys.count, 40)
-        XCTAssertEqual(matrix.values.keys.sorted(by: RowIndex.versionPlatform).map(\.label).first, "Swift 5.3 on iOS")
         XCTAssertEqual(
             matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.column.label),
             ["1.2.3", "2.0.0-b1", "main"]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.value),
+            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.value?.status),
             .some([.ok, nil, nil])
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_2, platform: .macosXcodebuild)]?.map(\.value),
+            matrix.values[.init(swiftVersion: .v5_2,
+                                platform: .macosXcodebuild)]?.map(\.value?.status),
             [.ok, nil, nil]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_2, platform: .macosSpm)]?.map(\.value),
+            matrix.values[.init(swiftVersion: .v5_2, platform: .macosSpm)]?.map(\.value?.status),
             [nil, nil, .failed]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_1, platform: .tvos)]?.map(\.value),
+            matrix.values[.init(swiftVersion: .v5_1, platform: .tvos)]?.map(\.value?.status),
             [.ok, nil, .ok]
         )
     }
@@ -111,43 +111,45 @@ class BuildIndexModelTests: AppTestCase {
 
         // validate
         XCTAssertEqual(matrix.values.keys.count, 40)
-        XCTAssertEqual(matrix.values.keys.sorted(by: RowIndex.versionPlatform).map(\.label).first, "Swift 5.3 on iOS")
         XCTAssertEqual(
             matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.column.label),
             ["1.2.3", "main"]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.value),
-            .some([.ok, nil])
-        )
-        XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_2, platform: .macosXcodebuild)]?.map(\.value),
+            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.value?.status),
             [.ok, nil]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_2, platform: .macosSpm)]?.map(\.value),
+            matrix.values[.init(swiftVersion: .v5_2,
+                                platform: .macosXcodebuild)]?.map(\.value?.status),
+            [.ok, nil]
+        )
+        XCTAssertEqual(
+            matrix.values[.init(swiftVersion: .v5_2,
+                                platform: .macosSpm)]?.map(\.value?.status),
             [nil, .failed]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_1, platform: .tvos)]?.map(\.value),
+            matrix.values[.init(swiftVersion: .v5_1, platform: .tvos)]?.map(\.value?.status),
             [.ok, .ok]
         )
     }
 
     func test_BuildCell() throws {
-        XCTAssertEqual(BuildCell("1.2.3", .stable, .ok).node.render(indentedBy: .spaces(2)), """
+        let id = UUID()
+        XCTAssertEqual(BuildCell("1.2.3", .stable, id, .ok).node.render(indentedBy: .spaces(2)), """
                         <div class="succeeded">
                           <i class="icon matrix_succeeded"></i>
-                          <a href="#">View Build Log</a>
+                          <a href="/builds/\(id.uuidString)">View Build Log</a>
                         </div>
                         """)
-        XCTAssertEqual(BuildCell("1.2.3", .stable, .failed).node.render(indentedBy: .spaces(2)), """
+        XCTAssertEqual(BuildCell("1.2.3", .stable, id, .failed).node.render(indentedBy: .spaces(2)), """
                         <div class="failed">
                           <i class="icon matrix_failed"></i>
-                          <a href="#">View Build Log</a>
+                          <a href="/builds/\(id.uuidString)">View Build Log</a>
                         </div>
                         """)
-        XCTAssertEqual(BuildCell("1.2.3", .stable, nil).node.render(indentedBy: .spaces(2)), """
+        XCTAssertEqual(BuildCell("1.2.3", .stable).node.render(indentedBy: .spaces(2)), """
                         <div class="unknown">
                           <i class="icon matrix_unknown"></i>
                         </div>
@@ -156,10 +158,11 @@ class BuildIndexModelTests: AppTestCase {
 
     func test_BuildItem() throws {
         // setup
+        let id = UUID()
         let bi = BuildItem(index: .init(swiftVersion: .v5_3, platform: .ios),
-                           values: [.init("1.2.3", .stable, .ok),
-                                    .init("2.0.0-b1", .beta, nil),
-                                    .init("develop", .latest, .failed)])
+                           values: [.init("1.2.3", .stable, id, .ok),
+                                    .init("2.0.0-b1", .beta),
+                                    .init("develop", .latest, id, .failed)])
 
         // MUT
         let columnLabels = bi.columnLabels
@@ -193,14 +196,14 @@ class BuildIndexModelTests: AppTestCase {
                         <div class="result">
                           <div class="succeeded">
                             <i class="icon matrix_succeeded"></i>
-                            <a href="#">View Build Log</a>
+                            <a href="/builds/\(id.uuidString)">View Build Log</a>
                           </div>
                           <div class="unknown">
                             <i class="icon matrix_unknown"></i>
                           </div>
                           <div class="failed">
                             <i class="icon matrix_failed"></i>
-                            <a href="#">View Build Log</a>
+                            <a href="/builds/\(id.uuidString)">View Build Log</a>
                           </div>
                         </div>
                         """)
@@ -224,9 +227,11 @@ class BuildIndexModelTests: AppTestCase {
                 ),
                 .div(
                     .class("result"),
-                    .div(.class("succeeded"), .i(.class("icon matrix_succeeded")), .a(.href("#"),.text("View Build Log"))),
+                    .div(.class("succeeded"), .i(.class("icon matrix_succeeded")),
+                         .a(.href("/builds/\(id.uuidString)"),.text("View Build Log"))),
                     .div(.class("unknown"), .i(.class("icon matrix_unknown"))),
-                    .div(.class("failed"), .i(.class("icon matrix_failed")), .a(.href("#"), .text("View Build Log")))
+                    .div(.class("failed"), .i(.class("icon matrix_failed")),
+                         .a(.href("/builds/\(id.uuidString)"), .text("View Build Log")))
                 )
             )
         )
