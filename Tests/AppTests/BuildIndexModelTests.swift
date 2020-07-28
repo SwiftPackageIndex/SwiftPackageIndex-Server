@@ -212,7 +212,7 @@ class BuildIndexModelTests: AppTestCase {
             .class("row"),
             .div(
                 .class("row_label"),
-                .div(.div(.strong("Swift 5.3"), .text(" on "), .strong("iOS")))
+                .div(.div(.strong("5.3"), .text(" / "), .strong("iOS")))
             ),
             .div(
                 .class("row_values"),

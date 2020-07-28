@@ -184,8 +184,6 @@ extension BuildIndex.Model {
             self.platform = platform
         }
 
-        var label: String { "\(swiftVersion.longDisplayName) on \(platform.name)" }
-
         static var all: [RowIndex] {
             let sw: [SwiftVersionCompatibility] = [.v5_3, .v5_2, .v5_1, .v5_0, .v4_2]
             let rows: [(SwiftVersionCompatibility, Build.Platform)] = sw.reduce([]) { rows, version in
@@ -211,9 +209,9 @@ extension BuildIndex.Model {
                 .div(
                     .class("row_label"),
                     .div(
-                        .div(.strong(.text(index.swiftVersion.longDisplayName)),
-                             .text(" on "),
-                             .strong(.text(index.platform.name)))
+                        .div(.strong(.text(index.swiftVersion.displayName)),
+                             .text(" / "),
+                             .strong(.text(index.platform.displayName)))
                     )
                 ),
                 .div(
