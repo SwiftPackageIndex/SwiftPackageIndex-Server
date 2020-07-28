@@ -19,7 +19,7 @@ enum BuildShow {
                     .h2("Build Information"),
                     .p(
                         .a(
-                            .href("#"),
+                            .href(model.buildsURL),
                             "View all builds"
                         )
                     )
@@ -55,23 +55,6 @@ enum BuildShow {
                     )
                 )
             )
-        }
-    }
-
-}
-
-
-extension BuildShow {
-
-    struct Model {
-        var logs: String
-
-        internal init(logs: String) {
-            self.logs = logs
-        }
-
-        init(build: App.Build) {
-            logs = build.logs ?? ""
         }
     }
 
