@@ -77,7 +77,7 @@ extension Build {
         case failed
     }
     
-    enum Platform: String, Codable, Equatable {
+    enum Platform: String, Codable, Equatable, CaseIterable {
         case ios
         case macosSpmArm        = "macos-spm-arm"
         case macosXcodebuildArm = "macos-xcodebuild-arm"
