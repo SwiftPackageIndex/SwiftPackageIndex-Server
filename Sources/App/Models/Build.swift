@@ -75,27 +75,6 @@ extension Build {
     enum Status: String, Codable {
         case ok
         case failed
-
-        var text: String {
-            switch self {
-                case .ok: return "Build Succeeded"
-                case .failed: return "Build Failed"
-            }
-        }
-
-        var cssClass: String {
-            switch self {
-                case .ok: return "green"
-                case .failed: return "red"
-            }
-        }
-
-        var cssIcon: String {
-            switch self {
-                case .ok: return "matrix_succeeded"
-                case .failed: return "matrix_failed"
-            }
-        }
     }
     
     enum Platform: String, Codable, Equatable, CaseIterable {
