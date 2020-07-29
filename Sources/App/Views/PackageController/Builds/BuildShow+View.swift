@@ -42,12 +42,14 @@ enum BuildShow {
                     },
                     .text(".")
                 ),
-                .h3("Build Command"),
-                .pre(
-                    .code(
-                        .text("env DEVELOPER_DIR=\"/Applications/Xcode_12_beta_2.app\" xcrun xcodebuild -IDEClonedSourcePackagesDirPathOverride=\"$PWD/.derivedData\" build -scheme \"Nimble\" -destination \"generic/platform=ios\"")
-                    )
-                ),
+                // FIXME: enable after implementing
+                // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/557
+                //.h3("Build Command"),
+                //.pre(
+                //    .code(
+                //        .text("env DEVELOPER_DIR=\"/Applications/Xcode_12_beta_2.app\" xcrun xcodebuild -IDEClonedSourcePackagesDirPathOverride=\"$PWD/.derivedData\" build -scheme \"Nimble\" -destination \"generic/platform=ios\"")
+                //    )
+                //),
                 .h3("Build Log"),
                 .pre(
                     .id("build_log"),
