@@ -37,4 +37,8 @@ extension BuildShow.Model {
     var buildsURL: String {
         SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()
     }
+
+    var packageURL: String {
+        SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()
+    }
 }

@@ -27,7 +27,7 @@ enum BuildShow {
                 .p(
                     .text("Built "),
                     .a(
-                        .href("#"),
+                        .href(model.packageURL),
                         .text(model.packageName)
                     ),
                     .text(" with "),

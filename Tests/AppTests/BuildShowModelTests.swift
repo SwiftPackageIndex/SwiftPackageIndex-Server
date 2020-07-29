@@ -9,6 +9,10 @@ class BuildShowModelTests: AppTestCase {
         XCTAssertEqual(Model.mock.buildsURL, "/foo/bar/builds")
     }
 
+    func test_packageURL() throws {
+        XCTAssertEqual(Model.mock.packageURL, "/foo/bar")
+    }
+
     func test_Build_query() throws {
         // Tests Build.query as it is used in BuildController by validating
         // packageName. This property requires relations to be fully loaded,
