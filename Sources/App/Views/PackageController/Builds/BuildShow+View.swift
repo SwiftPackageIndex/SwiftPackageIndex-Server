@@ -16,31 +16,34 @@ enum BuildShow {
             .div(
                 .div(
                     .class("split"),
-                    .h2("Build Information"),
-                    .p(
+                    .h2("Build Information")
+                ),
+                .div(
+                    .class("split"),
+                    .div(
+                        .text("Built "),
+                        .a(
+                            .href(model.packageURL),
+                            .text(model.packageName)
+                        ),
+                        .text(" with "),
+                        .strong(.text(model.buildInfo.swiftVersion.longDisplayName)),
+                        .text(" for "),
+                        .strong(.text(model.buildInfo.platform.displayName)),
+                        .unwrap(model.buildInfo.xcodeVersion) {
+                            .group(
+                                .text(" using "),
+                                .strong(.text($0))
+                            )
+                        },
+                        .text(".")
+                    ),
+                    .div(
                         .a(
                             .href(model.buildsURL),
                             "View all builds"
                         )
                     )
-                ),
-                .p(
-                    .text("Built "),
-                    .a(
-                        .href(model.packageURL),
-                        .text(model.packageName)
-                    ),
-                    .text(" with "),
-                    .strong(.text(model.buildInfo.swiftVersion.longDisplayName)),
-                    .text(" for "),
-                    .strong(.text(model.buildInfo.platform.displayName)),
-                    .unwrap(model.buildInfo.xcodeVersion) {
-                        .group(
-                            .text(" using "),
-                            .strong(.text($0))
-                        )
-                    },
-                    .text(".")
                 ),
                 // FIXME: enable after implementing
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/557
