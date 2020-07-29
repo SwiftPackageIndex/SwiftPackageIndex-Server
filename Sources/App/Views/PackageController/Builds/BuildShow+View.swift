@@ -16,7 +16,12 @@ enum BuildShow {
             .div(
                 .div(
                     .class("split"),
-                    .h2("Build Information")
+                    .h2("Build Information"),
+                    .div(
+                        .class("lozenge \(model.buildInfo.status.cssClass)"),
+                        .i(.class("icon \(model.buildInfo.status.cssIcon)")),
+                        .text(model.buildInfo.status.text)
+                    )
                 ),
                 .div(
                     .class("split"),
