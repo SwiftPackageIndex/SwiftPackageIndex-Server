@@ -64,14 +64,14 @@ final class Build: Model, Content {
         self.swiftVersion = swiftVersion
     }
     
-    init(_ dto: PostCreateDTO, _ version: Version) throws {
-        // FIXME: buildCommand
-        self.logs = dto.logs
-        self.logUrl = dto.logUrl
-        self.platform = dto.platform
-        self.status = dto.status
-        self.swiftVersion = dto.swiftVersion
-        self.$version.id = try version.requireID()
+    convenience init(_ dto: PostCreateDTO, _ version: Version) throws {
+        try self.init(version: version,
+                      buildCommand: dto.buildCommand,
+                      logs: dto.logs,
+                      logUrl: dto.logUrl,
+                      platform: dto.platform,
+                      status: dto.status,
+                      swiftVersion: dto.swiftVersion)
     }
     
 }
@@ -145,7 +145,7 @@ extension Build {
     }
     
     struct PostCreateDTO: Codable {
-        // FIXME: buildCommand
+        var buildCommand: String?
         var logs: String?
         var logUrl: String?
         var platform: Platform

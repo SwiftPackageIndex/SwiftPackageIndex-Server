@@ -69,7 +69,8 @@ class ApiTests: AppTestCase {
         let versionId = try XCTUnwrap(v.id)
         
         do {  // MUT - initial insert
-            let dto: Build.PostCreateDTO = .init(platform: .macosXcodebuild,
+            let dto: Build.PostCreateDTO = .init(buildCommand: "xcodebuild -scheme Foo",
+                                                 platform: .macosXcodebuild,
                                                  status: .failed,
                                                  swiftVersion: .init(5, 2, 0))
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
@@ -86,6 +87,7 @@ class ApiTests: AppTestCase {
                 }
                 let dto = try JSONDecoder().decode(DTO.self, from: res.body)
                 let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
                 XCTAssertEqual(b.status, .failed)
                 XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
