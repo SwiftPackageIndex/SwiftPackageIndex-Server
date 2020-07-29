@@ -60,7 +60,7 @@
               <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
             </small>
           </div>
-          <div class="license" title="MIT License">
+          <div class="lozenge green" title="MIT License">
             <i class="icon osi"></i>MIT
           </div>
         </div>

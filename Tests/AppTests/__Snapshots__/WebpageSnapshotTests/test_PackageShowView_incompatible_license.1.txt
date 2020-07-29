@@ -61,7 +61,7 @@
             </small>
           </div>
           <a href="/faq#license-problems">
-            <div class="license incompatible" title="GNU General Public License v3.0">
+            <div class="lozenge orange" title="GNU General Public License v3.0">
               <i class="icon warning"></i>GPL 3.0
             </div>
           </a>

@@ -17,30 +17,38 @@ enum BuildShow {
                 .div(
                     .class("split"),
                     .h2("Build Information"),
-                    .p(
+                    .div(
+                        .class("lozenge \(model.buildInfo.status.cssClass)"),
+                        .i(.class("icon \(model.buildInfo.status.cssIcon)")),
+                        .text(model.buildInfo.status.text)
+                    )
+                ),
+                .div(
+                    .class("split"),
+                    .div(
+                        .text("Built "),
+                        .a(
+                            .href(model.packageURL),
+                            .text(model.packageName)
+                        ),
+                        .text(" with "),
+                        .strong(.text(model.buildInfo.swiftVersion.longDisplayName)),
+                        .text(" for "),
+                        .strong(.text(model.buildInfo.platform.displayName)),
+                        .unwrap(model.buildInfo.xcodeVersion) {
+                            .group(
+                                .text(" using "),
+                                .strong(.text($0))
+                            )
+                        },
+                        .text(".")
+                    ),
+                    .div(
                         .a(
                             .href(model.buildsURL),
                             "View all builds"
                         )
                     )
-                ),
-                .p(
-                    .text("Built "),
-                    .a(
-                        .href(model.packageURL),
-                        .text(model.packageName)
-                    ),
-                    .text(" with "),
-                    .strong(.text(model.buildInfo.swiftVersion.longDisplayName)),
-                    .text(" for "),
-                    .strong(.text(model.buildInfo.platform.displayName)),
-                    .unwrap(model.buildInfo.xcodeVersion) {
-                        .group(
-                            .text(" using "),
-                            .strong(.text($0))
-                        )
-                    },
-                    .text(".")
                 ),
                 // FIXME: enable after implementing
                 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/557
@@ -61,4 +69,28 @@ enum BuildShow {
         }
     }
 
+}
+
+
+private extension Build.Status {
+    var text: String {
+        switch self {
+            case .ok: return "Build Succeeded"
+            case .failed: return "Build Failed"
+        }
+    }
+
+    var cssClass: String {
+        switch self {
+            case .ok: return "green"
+            case .failed: return "red"
+        }
+    }
+
+    var cssIcon: String {
+        switch self {
+            case .ok: return "matrix_succeeded"
+            case .failed: return "matrix_failed"
+        }
+    }
 }

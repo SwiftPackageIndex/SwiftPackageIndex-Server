@@ -37,32 +37,6 @@ p.description {
   margin: 30px 0;
 }
 
-/* License */
-
-.license {
-  margin: 5px 0;
-  display: flex;
-  align-items: center;
-  padding: 7px 10px;
-  border-radius: 8px;
-  color: var(--license-text);
-  font-weight: 600;
-  font-size: 18px;
-  background-color: var(--license-compatible-background);
-
-  &.none {
-    background-color: var(--license-none-background);
-  }
-
-  &.incompatible {
-    background-color: var(--license-incompatible-background);
-  }
-
-  i.icon {
-    margin-right: 7px;
-  }
-}
-
 /* Branches */
 
 .stable,
