@@ -9,8 +9,10 @@ class BuildShowModelTests: AppTestCase {
         XCTAssertEqual(Model.mock.buildsURL, "/foo/bar/builds")
     }
 
-    func test_query_packageName() throws {
-        // Ensure relations are fully loaded to allow resolving of package name
+    func test_Build_query() throws {
+        // Tests Build.query as it is used in BuildController by validating
+        // packageName. This property requires relations to be fully loaded,
+        // which is what Build.query is taking care of.
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
