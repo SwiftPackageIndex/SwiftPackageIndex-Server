@@ -73,6 +73,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 012 - change platfrom to .string
         app.migrations.add(UpdateBuildPlatform())
     }
+    do {  // Migration 013 - add build command
+        app.migrations.add(UpdateBuildAddBuildCommand())
+    }
     
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")
