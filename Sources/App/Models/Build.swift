@@ -25,7 +25,10 @@ final class Build: Model, Content {
     var version: Version
     
     // data fields
-    
+
+    @Field(key: "build_command")
+    var buildCommand: String?
+
     @Field(key: "logs")
     var logs: String?
 
@@ -45,6 +48,7 @@ final class Build: Model, Content {
     
     init(id: Id? = nil,
          version: Version,
+         buildCommand: String? = nil,
          logs: String? = nil,
          logUrl: String? = nil,
          platform: Platform,
@@ -52,6 +56,7 @@ final class Build: Model, Content {
          swiftVersion: SwiftVersion) throws {
         self.id = id
         self.$version.id = try version.requireID()
+        self.buildCommand = buildCommand
         self.logs = logs
         self.logUrl = logUrl
         self.platform = platform
@@ -59,13 +64,14 @@ final class Build: Model, Content {
         self.swiftVersion = swiftVersion
     }
     
-    init(_ dto: PostCreateDTO, _ version: Version) throws {
-        self.logs = dto.logs
-        self.logUrl = dto.logUrl
-        self.platform = dto.platform
-        self.status = dto.status
-        self.swiftVersion = dto.swiftVersion
-        self.$version.id = try version.requireID()
+    convenience init(_ dto: PostCreateDTO, _ version: Version) throws {
+        try self.init(version: version,
+                      buildCommand: dto.buildCommand,
+                      logs: dto.logs,
+                      logUrl: dto.logUrl,
+                      platform: dto.platform,
+                      status: dto.status,
+                      swiftVersion: dto.swiftVersion)
     }
     
 }
@@ -139,6 +145,7 @@ extension Build {
     }
     
     struct PostCreateDTO: Codable {
+        var buildCommand: String?
         var logs: String?
         var logUrl: String?
         var platform: Platform
