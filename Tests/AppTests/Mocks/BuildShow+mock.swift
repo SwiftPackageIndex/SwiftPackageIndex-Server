@@ -6,7 +6,8 @@ extension BuildShow.Model {
 
     static var mock: Self {
         .init(
-            buildInfo: .init(logs: buildLog,
+            buildInfo: .init(buildCommand: "env DEVELOPER_DIR=\"/Applications/Xcode_11_6.app\" xcrun xcodebuild -IDEClonedSourcePackagesDirPathOverride=\"$PWD/.derivedData\" build -scheme \"Bar\" -destination \"generic/platform=ios\"",
+                             logs: buildLog,
                              platform: .ios,
                              status: .ok,
                              swiftVersion: .v5_2),
