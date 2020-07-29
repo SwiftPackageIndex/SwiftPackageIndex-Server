@@ -71,6 +71,10 @@
               <a href="/foo/bar/builds">View all builds</a>
             </div>
           </div>
+          <h3>Build Command</h3>
+          <pre>
+            <code>env DEVELOPER_DIR="/Applications/Xcode_12_beta_2.app" xcrun xcodebuild -IDEClonedSourcePackagesDirPathOverride="$PWD/.derivedData" build -scheme "Nimble" -destination "generic/platform=ios"</code>
+          </pre>
           <h3>Build Log</h3>
           <pre id="build_log">
             <code>Ditto /Users/spi/Library/Developer/Xcode/DerivedData/spi-builder-workspace-biasxiwyxlwyupcfwytrllmqnogk/Build/Products/Debug/PMKFoundation.swiftmodule/x86_64.swiftdoc /Users/spi/Library/Developer/Xcode/DerivedData/spi-builder-workspace-biasxiwyxlwyupcfwytrllmqnogk/Build/Intermediates.noindex/PMKFoundation.build/Debug/PMKFoundation.build/Objects-normal/x86_64/PMKFoundation.swiftdoc (in target 'PMKFoundation' from project 'PMKFoundation')

@@ -32,6 +32,7 @@ extension BuildShow {
     }
 
     struct BuildInfo {
+        var buildCommand: String
         var logs: String
         var platform: App.Build.Platform
         var status: App.Build.Status
@@ -39,16 +40,19 @@ extension BuildShow {
 
         init?(_ build: App.Build) {
             guard let swiftVersion = build.swiftVersion.compatibility else { return nil }
-            self.init(logs: build.logs ?? "no logs recorded",
+            self.init(buildCommand: build.buildCommand ?? "build command unavailable",
+                      logs: build.logs ?? "no logs recorded",
                       platform: build.platform,
                       status: build.status,
                       swiftVersion: swiftVersion)
         }
 
-        internal init(logs: String,
+        internal init(buildCommand: String,
+                      logs: String,
                       platform: App.Build.Platform,
                       status: App.Build.Status,
                       swiftVersion: SwiftVersionCompatibility) {
+            self.buildCommand = buildCommand
             self.logs = logs
             self.platform = platform
             self.status = status
