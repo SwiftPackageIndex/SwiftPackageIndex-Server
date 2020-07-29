@@ -135,3 +135,13 @@ enum PackageShow {
     }
 }
 
+
+private extension License.Kind {
+    var cssClass: String {
+        switch self {
+            case .noneOrUnknown: return "red"
+            case .incompatibleWithAppStore: return "orange"
+            case .compatibleWithAppStore: return "green"
+        }
+    }
+}
