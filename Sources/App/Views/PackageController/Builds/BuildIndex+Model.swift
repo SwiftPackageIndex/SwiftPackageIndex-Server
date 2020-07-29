@@ -77,10 +77,10 @@ extension BuildIndex.Model {
 
         init?(_ build: App.Build) {
             guard let id = build.id else { return nil }
-            self.id = id
-            platform = build.platform
-            status = build.status
-            swiftVersion = build.swiftVersion
+            self.init(id: id,
+                      swiftVersion: build.swiftVersion,
+                      platform: build.platform,
+                      status: build.status)
         }
 
         internal init(id: App.Build.Id,
@@ -249,21 +249,3 @@ extension BuildIndex.Model {
     }
 
 }
-
-
-typealias SwiftVersionCompatibility = PackageShow.Model.SwiftVersionCompatibility
-
-
-private extension SwiftVersion {
-    var compatibility: SwiftVersionCompatibility? {
-       for version in SwiftVersionCompatibility.all {
-            if self.isCompatible(with: version) { return version }
-        }
-        return nil
-    }
-
-    func isCompatible(with other: SwiftVersionCompatibility) -> Bool {
-        major == other.semVer.major && minor == other.semVer.minor
-    }
-}
-
