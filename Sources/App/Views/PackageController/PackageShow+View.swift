@@ -113,7 +113,7 @@ enum PackageShow {
             switch model.license.licenseKind {
                 case .compatibleWithAppStore:
                     return .div(
-                        .class("license"),
+                        .class("lozenge green"),
                         .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
                         .i(.class("icon osi")),
                         .text(model.license.shortName)
@@ -123,7 +123,7 @@ enum PackageShow {
                     return .a(
                         .href(SiteURL.faq.relativeURL(anchor: "license-problems")),
                         .div(
-                            .class("license \(model.license.licenseKind.rawValue)"),
+                            .class("lozenge \(model.license.licenseKind.cssClass)"),
                             .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
                             .i(.class("icon warning")),
                             .text(model.license.shortName)

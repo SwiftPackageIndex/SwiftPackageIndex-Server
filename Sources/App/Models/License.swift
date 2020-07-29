@@ -131,6 +131,14 @@ enum License: String, Codable, Equatable {
         case noneOrUnknown = "none"
         case incompatibleWithAppStore = "incompatible"
         case compatibleWithAppStore = "compatible"
+
+        var cssClass: String {
+            switch self {
+                case .noneOrUnknown: return "red"
+                case .incompatibleWithAppStore: return "orange"
+                case .compatibleWithAppStore: return "green"
+            }
+        }
     }
 }
 

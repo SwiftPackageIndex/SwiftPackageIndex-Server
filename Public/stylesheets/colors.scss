@@ -81,10 +81,10 @@
 
   --rule-background: var(--light-blue);
 
-  --license-text: var(--white);
-  --license-none-background: var(--mid-red);
-  --license-compatible-background: var(--light-green);
-  --license-incompatible-background: var(--orange);
+  --lozenge-text: var(--white);
+  --lozenge-green-background: var(--light-green);
+  --lozenge-orange-background: var(--orange);
+  --lozenge-red-background: var(--mid-red);
 
   --stable-text: var(--light-green);
   --beta-text: var(--mid-green);
@@ -137,7 +137,7 @@
 
     --rule-background: var(--dark-blue);
 
-    --license-compatible-background: var(--mid-green);
+    --lozenge-green-background: var(--mid-green);
 
     --matrix-result-compatible-background: var(--mid-green);
     --matrix-result-compatible-text: var(--white);
