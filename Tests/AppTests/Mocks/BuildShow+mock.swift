@@ -6,7 +6,10 @@ extension BuildShow.Model {
 
     static var mock: Self {
         .init(
-            logs: buildLog,
+            buildInfo: .init(logs: buildLog,
+                             platform: .ios,
+                             status: .ok,
+                             swiftVersion: .v5_2),
             packageName: "Bar",
             repositoryOwner: "foo",
             repositoryName: "bar"

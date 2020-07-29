@@ -31,14 +31,15 @@ enum BuildShow {
                         .text(model.packageName)
                     ),
                     .text(" with "),
-                    .strong("Swift 5.2"),
+                    .strong(.text(model.buildInfo.swiftVersion.longDisplayName)),
                     .text(" for "),
-                    .strong("iOS"),
-                    .text(" using "),
-                    // Note for Sven: I'm not sure we have the Xcode version encoded anywhere but we can derive it
-                    // from the Swift version. I think it's important to let people know that we're building with a
-                    // specific version of Xcode.
-                    .strong("Xcode 11.6"),
+                    .strong(.text(model.buildInfo.platform.displayName)),
+                    .unwrap(model.buildInfo.xcodeVersion) {
+                        .group(
+                            .text(" using "),
+                            .strong(.text($0))
+                        )
+                    },
                     .text(".")
                 ),
                 .h3("Build Command"),
@@ -51,7 +52,7 @@ enum BuildShow {
                 .pre(
                     .id("build_log"),
                     .code(
-                        .text(model.logs)
+                        .text(model.buildInfo.logs)
                     )
                 )
             )
