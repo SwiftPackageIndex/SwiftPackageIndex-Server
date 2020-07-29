@@ -56,16 +56,21 @@
         <div>
           <div class="split">
             <h2>Build Information</h2>
-            <p>
-              <a href="/foo/bar/builds">View all builds</a>
-            </p>
+            <div class="lozenge green">
+              <i class="icon matrix_succeeded"></i>Build Succeeded
+            </div>
           </div>
-          <p>Built 
-            <a href="/foo/bar">Bar</a> with 
-            <strong>Swift 5.2</strong> for 
-            <strong>iOS</strong> using 
-            <strong>Xcode 11.6</strong>.
-          </p>
+          <div class="split">
+            <div>Built 
+              <a href="/foo/bar">Bar</a> with 
+              <strong>Swift 5.2</strong> for 
+              <strong>iOS</strong> using 
+              <strong>Xcode 11.6</strong>.
+            </div>
+            <div>
+              <a href="/foo/bar/builds">View all builds</a>
+            </div>
+          </div>
           <h3>Build Log</h3>
           <pre id="build_log">
             <code>Ditto /Users/spi/Library/Developer/Xcode/DerivedData/spi-builder-workspace-biasxiwyxlwyupcfwytrllmqnogk/Build/Products/Debug/PMKFoundation.swiftmodule/x86_64.swiftdoc /Users/spi/Library/Developer/Xcode/DerivedData/spi-builder-workspace-biasxiwyxlwyupcfwytrllmqnogk/Build/Intermediates.noindex/PMKFoundation.build/Debug/PMKFoundation.build/Objects-normal/x86_64/PMKFoundation.swiftdoc (in target 'PMKFoundation' from project 'PMKFoundation')
