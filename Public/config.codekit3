@@ -172,6 +172,17 @@
 		"oT": 1,
 		"q": 100
 		},
+	"/javascripts/build_log_navigation.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 0,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/deploy/javascripts/build_log_navigation-min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
 	"/javascripts/copy_package_url.js": {
 		"bF": 0,
 		"ft": 64,
@@ -321,6 +332,19 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/base.css",
+		"oF": 0,
+		"oS": 0,
+		"sct": 0
+		},
+	"/stylesheets/build_logs.scss": {
+		"aP": 0,
+		"bl": 0,
+		"dP": 10,
+		"ec": 1,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "/deploy/stylesheets/build_logs.css",
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
@@ -479,7 +503,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 617385362.66140199
+	"lastBuiltDate": 617453307.16937101
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,

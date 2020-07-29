@@ -115,18 +115,30 @@ ul.matrix {
     .compatible {
       background-color: var(--matrix-result-compatible-background);
       color: var(--matrix-result-compatible-text);
-      font-size: 22px;
+      font-size: 20px;
     }
 
     .unknown {
       background-color: var(--matrix-result-unknown-background);
       color: var(--matrix-result-unknown-text);
-      font-size: 25px;
+      font-size: 20px;
     }
 
     .incompatible {
       background-color: var(--matrix-result-incompatible-background);
       color: var(--matrix-result-incompatible-text);
+      font-size: 20px;
+    }
+
+    .succeeded {
+      background-color: var(--matrix-result-succeeded-background);
+      color: var(--matrix-result-succeeded-text);
+      font-size: 20px;
+    }
+
+    .failed {
+      background-color: var(--matrix-result-failed-background);
+      color: var(--matrix-result-failed-text);
       font-size: 20px;
     }
   }
