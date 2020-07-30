@@ -196,9 +196,13 @@ extension BuildIndex.Model {
         }
 
         static var all: [RowIndex] {
-            let sw: [SwiftVersionCompatibility] = [.v5_3, .v5_2, .v5_1, .v5_0, .v4_2]
-            let rows: [(SwiftVersionCompatibility, Build.Platform)] = sw.reduce([]) { rows, version in
-                rows + Build.Platform.allCases.map { (version, $0) }
+            let versions: [SwiftVersionCompatibility] = [.v5_3, .v5_2, .v5_1, .v5_0, .v4_2]
+            let platforms: [Build.Platform] = [.ios,
+                                               .macosXcodebuild, .macosSpm,
+                                               .tvos,
+                                               .watchos]
+            let rows: [(SwiftVersionCompatibility, Build.Platform)] = versions.reduce([]) { rows, version in
+                rows + platforms.map { (version, $0) }
             }
             return rows.map(RowIndex.init(swiftVersion:platform:))
         }
