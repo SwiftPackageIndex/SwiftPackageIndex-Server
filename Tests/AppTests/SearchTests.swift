@@ -27,8 +27,8 @@ class SearchTests: AppTestCase {
                        defaultBranch: "main",
                        name: "name 2",
                        owner: "owner 2").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
+        try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
+        try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
         
         // MUT
@@ -63,8 +63,8 @@ class SearchTests: AppTestCase {
                        defaultBranch: "main",
                        name: "package 2",
                        owner: "owner").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
+        try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
+        try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
         
         // MUT
@@ -98,8 +98,8 @@ class SearchTests: AppTestCase {
                        defaultBranch: "main",
                        name: "name 2",
                        owner: "owner 2").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
+        try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
+        try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
         
         // MUT
@@ -128,7 +128,7 @@ class SearchTests: AppTestCase {
                                           name: $0.url, owner: "foo") }
             .save(on: app.db)
             .wait()
-        try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
+        try packages.map { try Version(package: $0, packageName: "foo", reference: .branch("default")) }
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
@@ -150,7 +150,7 @@ class SearchTests: AppTestCase {
                                           name: $0.url, owner: "foo") }
             .save(on: app.db)
             .wait()
-        try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
+        try packages.map { try Version(package: $0, packageName: "foo", reference: .branch("default")) }
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
@@ -170,7 +170,7 @@ class SearchTests: AppTestCase {
             try p.save(on: app.db).wait()
             try Repository(package: p, summary: "\($0)", defaultBranch: "main",
                            name: "\($0)", owner: "foo").save(on: app.db).wait()
-            try Version(package: p, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
+            try Version(package: p, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         }
         try Search.refresh(on: app.db).wait()
         
@@ -208,11 +208,11 @@ class SearchTests: AppTestCase {
                        defaultBranch: "main",
                        name: "3",
                        owner: "foo").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("main"), packageName: "Ink")
+        try Version(package: p1, packageName: "Ink", reference: .branch("main"))
             .save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("main"), packageName: "inkInName")
+        try Version(package: p2, packageName: "inkInName", reference: .branch("main"))
             .save(on: app.db).wait()
-        try Version(package: p3, reference: .branch("main"), packageName: "some name")
+        try Version(package: p3, packageName: "some name", reference: .branch("main"))
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
         
@@ -248,11 +248,11 @@ class SearchTests: AppTestCase {
                        defaultBranch: "main",
                        name: "3",
                        owner: "foo").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("main"), packageName: "Foo bar")
+        try Version(package: p1, packageName: "Foo bar", reference: .branch("main"))
             .save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("main"), packageName: "foobar")
+        try Version(package: p2, packageName: "foobar", reference: .branch("main"))
             .save(on: app.db).wait()
-        try Version(package: p3, reference: .branch("main"), packageName: "some name")
+        try Version(package: p3, packageName: "some name", reference: .branch("main"))
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
         
@@ -286,11 +286,11 @@ class SearchTests: AppTestCase {
                        defaultBranch: "main",
                        name: "3",
                        owner: nil).save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("main"), packageName: nil)
+        try Version(package: p1, packageName: nil, reference: .branch("main"))
             .save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("main"), packageName: "foo2")
+        try Version(package: p2, packageName: "foo2", reference: .branch("main"))
             .save(on: app.db).wait()
-        try Version(package: p3, reference: .branch("main"), packageName: "foo3")
+        try Version(package: p3, packageName: "foo3", reference: .branch("main"))
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
         

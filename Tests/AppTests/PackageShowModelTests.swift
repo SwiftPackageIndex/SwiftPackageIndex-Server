@@ -18,8 +18,8 @@ class PackageShowModelTests: AppTestCase {
                        stars: 17,
                        forks: 42).save(on: app.db).wait()
         let version = try App.Version(package: pkg,
-                                      reference: .branch("main"),
-                                      packageName: nil)
+                                      packageName: nil,
+                                      reference: .branch("main"))
         try version.save(on: app.db).wait()
         try Product(version: version,
                     type: .library, name: "lib 1").save(on: app.db).wait()
@@ -46,8 +46,8 @@ class PackageShowModelTests: AppTestCase {
                        stars: 17,
                        forks: 42).save(on: app.db).wait()
         let version = try App.Version(package: pkg,
-                                      reference: .branch("main"),
-                                      packageName: "test package")
+                                      packageName: "test package",
+                                      reference: .branch("main"))
         try version.save(on: app.db).wait()
         try Build(version: version,
                   platform: .macosXcodebuild,

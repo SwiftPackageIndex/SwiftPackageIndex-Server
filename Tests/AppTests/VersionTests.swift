@@ -17,8 +17,9 @@ class VersionTests: AppTestCase {
         XCTAssertEqual(v.$package.id, pkg.id)
         
         v.commit = "commit"
-        v.reference = .branch("branch")
+        v.latest = .defaultBranch
         v.packageName = "pname"
+        v.reference = .branch("branch")
         v.supportedPlatforms = [.ios("13"), .macos("10.15")]
         v.swiftVersions = ["4.0", "5.2"].asSwiftVersions
         
@@ -28,8 +29,9 @@ class VersionTests: AppTestCase {
         do {  // validation
             let v = try XCTUnwrap(Version.find(v.id, on: app.db).wait())
             XCTAssertEqual(v.commit, "commit")
-            XCTAssertEqual(v.reference, .branch("branch"))
+            XCTAssertEqual(v.latest, .defaultBranch)
             XCTAssertEqual(v.packageName, "pname")
+            XCTAssertEqual(v.reference, .branch("branch"))
             XCTAssertEqual(v.supportedPlatforms, [.ios("13"), .macos("10.15")])
             XCTAssertEqual(v.swiftVersions, ["4.0", "5.2"].asSwiftVersions)
         }

@@ -231,9 +231,9 @@ func reconcileVersions(client: Client,
         .flatMapEachThrowing { ref in
             let revInfo = try Git.revisionInfo(ref, at: cacheDir)
             return try Version(package: package,
-                               reference: ref,
                                commit: revInfo.commit,
-                               commitDate: revInfo.date) }
+                               commitDate: revInfo.date,
+                               reference: ref) }
     
     return Version.query(on: transaction)
         .filter(\.$package.$id == pkgId)

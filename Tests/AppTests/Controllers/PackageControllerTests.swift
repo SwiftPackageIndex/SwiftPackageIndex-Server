@@ -22,8 +22,8 @@ class PackageControllerTests: AppTestCase {
                                         forks: 2)
         let version = try Version(id: UUID(),
                                   package: package,
-                                  reference: .branch("main"),
-                                  packageName: "Test package")
+                                  packageName: "Test package",
+                                  reference: .branch("main"))
         let product = try Product(id: UUID(), version: version, type: .library, name: "Library")
         
         try package.save(on: app.db).wait()

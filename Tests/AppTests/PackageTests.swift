@@ -115,10 +115,10 @@ final class PackageTests: AppTestCase {
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
-            try Version(package: pkg, reference: .branch("default"), commitDate: daysAgo(1)),
+            try Version(package: pkg, commitDate: daysAgo(1), reference: .branch("default")),
             try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
-            try Version(package: pkg, reference: .tag(.init(2, 1, 0)), commitDate: daysAgo(3)),
-            try Version(package: pkg, reference: .tag(.init(3, 0, 0, "beta")), commitDate: daysAgo(2)),
+            try Version(package: pkg, commitDate: daysAgo(3), reference: .tag(.init(2, 1, 0))),
+            try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(3, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
         try pkg.$repositories.load(on: app.db)
@@ -169,8 +169,8 @@ final class PackageTests: AppTestCase {
                        stars: 17,
                        forks: 42).save(on: app.db).wait()
         let version = try App.Version(package: pkg,
-                                      reference: .branch("main"),
-                                      packageName: "test package")
+                                      packageName: "test package",
+                                      reference: .branch("main"))
         try version.save(on: app.db).wait()
         
         // MUT
@@ -192,8 +192,8 @@ final class PackageTests: AppTestCase {
                        stars: 17,
                        forks: 42).save(on: app.db).wait()
         let version = try App.Version(package: pkg,
-                                      reference: .branch("main"),
-                                      packageName: "test package")
+                                      packageName: "test package",
+                                      reference: .branch("main"))
         try version.save(on: app.db).wait()
         
         // MUT
@@ -209,10 +209,10 @@ final class PackageTests: AppTestCase {
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
-            try Version(package: pkg, reference: .branch("default"), commitDate: daysAgo(1)),
+            try Version(package: pkg, commitDate: daysAgo(1), reference: .branch("default")),
             try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
-            try Version(package: pkg, reference: .tag(.init(2, 1, 0)), commitDate: daysAgo(3)),
-            try Version(package: pkg, reference: .tag(.init(3, 0, 0, "beta")), commitDate: daysAgo(2)),
+            try Version(package: pkg, commitDate: daysAgo(3), reference: .tag(.init(2, 1, 0))),
+            try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(3, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
         // re-load pkg with relationships
@@ -235,9 +235,9 @@ final class PackageTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
         let versions = [
-            try Version(package: pkg, reference: .branch("default"), commitDate: daysAgo(1)),
-            try Version(package: pkg, reference: .tag(.init(2, 1, 0)), commitDate: daysAgo(3)),
-            try Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta")), commitDate: daysAgo(2)),
+            try Version(package: pkg, commitDate: daysAgo(1), reference: .branch("default")),
+            try Version(package: pkg, commitDate: daysAgo(3), reference: .tag(.init(2, 1, 0))),
+            try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(2, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
         // re-load pkg with relationships
@@ -272,17 +272,20 @@ final class PackageTests: AppTestCase {
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
         let versions = [
             try Version(package: pkg, reference: .branch("branch")),
-            try Version(package: pkg, reference: .branch("default"),
+            try Version(package: pkg,
                         commitDate: daysAgo(1),
+                        reference: .branch("default"),
                         supportedPlatforms: [.macos("10.15"), .ios("13")],
                         swiftVersions: ["5.2", "5.3"].asSwiftVersions),
             try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
-            try Version(package: pkg, reference: .tag(.init(2, 1, 0)),
+            try Version(package: pkg,
                         commitDate: daysAgo(3),
+                        reference: .tag(.init(2, 1, 0)),
                         supportedPlatforms: [.macos("10.13"), .ios("10")],
                         swiftVersions: ["4", "5"].asSwiftVersions),
-            try Version(package: pkg, reference: .tag(.init(3, 0, 0, "beta")),
+            try Version(package: pkg,
                         commitDate: daysAgo(2),
+                        reference: .tag(.init(3, 0, 0, "beta")),
                         supportedPlatforms: [.macos("10.14"), .ios("13")],
                         swiftVersions: ["5", "5.2"].asSwiftVersions),
         ]
