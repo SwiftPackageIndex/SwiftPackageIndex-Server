@@ -35,8 +35,6 @@ extension Reference: Codable {
     private struct Tag: Codable {
         var semVer: SemVer
         var tagName: String
-        
-        var asReference: Reference { .tag(semVer, tagName) }
     }
     
     init(from decoder: Decoder) throws {
@@ -46,7 +44,7 @@ extension Reference: Codable {
             return
         }
         if let value = try? container.decode(Tag.self, forKey: .tag) {
-            self = value.asReference
+            self = .tag(value.semVer, value.tagName)
             return
         }
         throw DecodingError.dataCorrupted(
