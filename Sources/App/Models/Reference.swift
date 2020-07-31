@@ -6,9 +6,13 @@ enum Reference: Equatable, Hashable {
     case tag(SemVer, _ tagName: String)
     
     static func tag(_ semVer: SemVer) -> Self {
-        return .tag(semVer, "\(semVer)")
+        .tag(semVer, "\(semVer)")
     }
-    
+
+    static func tag(_ major: Int, _ minor: Int, _ patch: Int, _ preRelease: String = "", _ build: String = "") -> Self {
+        .tag(SemVer(major, minor, patch, preRelease, build))
+    }
+
     var isBranch: Bool {
         switch self {
             case .branch: return true

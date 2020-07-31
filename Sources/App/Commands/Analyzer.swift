@@ -78,6 +78,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
             return versions
                 .map { getManifests(logger: application.logger, versions: $0) }
                 .flatMap { updateVersionsAndProducts(on: tx, results: $0) }
+                .flatMap { updateLatestVersions(on: tx, results: $0) }
         }
     }
     
@@ -340,4 +341,34 @@ func updateProducts(on database: Database, version: Version, manifest: Manifest)
         return try? Product(version: version, type: type, name: p.name)
     }
     return products.create(on: database)
+}
+
+
+func updateLatestVersions(on database: Database,
+                          results: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = results.map { result -> EventLoopFuture<Package> in
+        switch result {
+            case let .success(pkg):
+                return updateLatestVersions(on: database, package: pkg)
+            case let .failure(error):
+                return database.eventLoop.future(error: error)
+        }
+    }
+    return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
+}
+
+
+func updateLatestVersions(on database: Database,
+                          package: Package) -> EventLoopFuture<Package> {
+    package
+        .$versions.load(on: database)
+        .flatMap {
+            let (stable, beta, latest) = package.releases()
+            stable.map { $0.latest = .release }
+            beta.map { $0.latest = .preRelease }
+            latest.map { $0.latest = .defaultBranch }
+            return [stable, beta, latest].compactMap { $0?.save(on: database) }
+                .flatten(on: database.eventLoop)
+                .map { package }
+        }
 }
