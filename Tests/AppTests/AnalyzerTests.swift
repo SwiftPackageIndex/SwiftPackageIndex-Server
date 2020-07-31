@@ -93,15 +93,18 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg1.status, .ok)
         XCTAssertEqual(pkg1.processingStage, .analysis)
         XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1", "foo-1"])
-        XCTAssertEqual(pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.reference?.description),
-                       ["main", "1.0.0", "1.1.1"])
+        let sortedVersions1 = pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        XCTAssertEqual(sortedVersions1.map(\.reference?.description), ["main", "1.0.0", "1.1.1"])
+        XCTAssertEqual(sortedVersions1.map(\.latest), [.defaultBranch, nil, .release])
+
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
         XCTAssertEqual(pkg2.processingStage, .analysis)
         XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2", "foo-2"])
-        XCTAssertEqual(pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.reference?.description),
-                       ["main", "2.0.0", "2.1.0"])
-        
+        let sortedVersions2 = pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        XCTAssertEqual(sortedVersions2.map(\.reference?.description), ["main", "2.0.0", "2.1.0"])
+        XCTAssertEqual(sortedVersions2.map(\.latest), [.defaultBranch, nil, .release])
+
         // validate products (each version has 2 products)
         let products = try Product.query(on: app.db).sort(\.$name).all().wait()
         XCTAssertEqual(products.count, 6)
@@ -117,7 +120,9 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try RecentPackage.fetch(on: app.db).wait().count, 2)
         XCTAssertEqual(try RecentRelease.fetch(on: app.db).wait().count, 2)
     }
-    
+
+    // TODO: add test that changes latest via version addition/replacement
+
     func test_package_status() throws {
         // Ensure packages record success/error status
         // setup
