@@ -157,12 +157,25 @@ extension QueryBuilder where Model == Package {
 
 
 extension Package {
+
+    /// `ProcessingStep` cases reflect the different processes that packages can run through.
+    ///
+    /// `ProcessingStep` processes consist of candidate selection followed by batch processing and recordig of results. Typically, `ProcessingStep`s have a corresponding `ProcessingStage`, which is a state recorded in the packages table, mainly to manage the processing pipeline for subsequent candidate selection.
+    ///
+    /// The build trigger step is a processing step where this is not the case, because builds are not recorded at the package level. Instead, they are reconciled against the builds table.
+    enum ProcessingStep: String {
+        case reconciliation
+        case ingestion
+        case analysis
+        case building
+    }
+
     static func fetchCandidates(_ database: Database,
-                                for stage: ProcessingStage,
+                                for step: ProcessingStep,
                                 limit: Int) -> EventLoopFuture<[Package]> {
         Package.query(on: database)
             .with(\.$repositories)
-            .filter(for: stage)
+            .filter(for: step)
             .sort(.sql(raw: "status != 'new'"))
             .sort(\.$updatedAt)
             .limit(limit)
@@ -172,10 +185,10 @@ extension Package {
 
 
 private extension QueryBuilder where Model == Package {
-    func filter(for stage: Package.ProcessingStage) -> Self {
-        switch stage {
+    func filter(for step: Package.ProcessingStep) -> Self {
+        switch step {
             case .reconciliation:
-                fatalError("reconciliation stage does not select candidates")
+                fatalError("reconciliation step does not select candidates")
             case .ingestion:
                 return group(.or) {
                     $0.filter(\.$processingStage == .reconciliation)
@@ -183,6 +196,8 @@ private extension QueryBuilder where Model == Package {
                 }
             case .analysis:
                 return filter(\.$processingStage == .ingestion)
+            case .building:
+                fatalError("not implemented")
         }
     }
 }
