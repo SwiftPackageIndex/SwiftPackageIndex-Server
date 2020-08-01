@@ -327,11 +327,11 @@ extension PackageShow.Model {
                 guard let name = buildInfo[keyPath: kp]?.referenceName else { return nil }
                 switch kp {
                     case \.stable:
-                        return .init(name: name, kind: .stable)
+                        return .init(name: name, kind: .release)
                     case \.beta:
-                        return .init(name: name, kind: .beta)
+                        return .init(name: name, kind: .preRelease)
                     case \.latest:
-                        return .init(name: name, kind: .branch)
+                        return .init(name: name, kind: .defaultBranch)
                     default:
                         return nil
                 }
