@@ -15,11 +15,13 @@ extension BuildIndex {
                   let owner = package.repository?.owner,
                   let repositoryName = package.repository?.name else { return nil }
 
-            let (stable, beta, latest) = package.releases()
             let buildGroups = [
-                stable.flatMap { BuildGroup(version: $0, kind: .stable) },
-                beta.flatMap { BuildGroup(version: $0, kind: .beta) },
-                latest.flatMap { BuildGroup(version: $0, kind: .latest) }
+                package.latestVersion(for: .release)
+                    .flatMap { BuildGroup(version: $0, kind: .stable) },
+                package.latestVersion(for: .preRelease)
+                    .flatMap { BuildGroup(version: $0, kind: .beta) },
+                package.latestVersion(for: .defaultBranch)
+                    .flatMap { BuildGroup(version: $0, kind: .latest) }
             ].compactMap { $0 }
 
             self.init(owner: owner,

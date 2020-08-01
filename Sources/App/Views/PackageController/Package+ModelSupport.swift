@@ -91,30 +91,12 @@ extension Package {
         )
     }
 
-    // FIXME: inline into Analyzer.updateLatestVersions and use latest property instead
-    @available(*, deprecated)
-    func releases() -> (stable: Version?, beta: Version?, latest: Version?) {
-        guard let versions = $versions.value else { return (nil, nil, nil) }
-        let releases = versions
-            .filter { $0.reference?.semVer != nil }
-            .sorted { $0.reference!.semVer! < $1.reference!.semVer! }
-        let stable = releases.reversed().first { $0.reference?.semVer?.isStable ?? false }
-        let beta = releases.reversed().first {
-            // pick first version that is a prerelease *and* no older (in terms of SemVer)
-            // than stable
-            ($0.reference?.semVer?.isPreRelease ?? false)
-                && ($0.reference?.semVer ?? SemVer(0, 0, 0)
-                        >= stable?.reference?.semVer ?? SemVer(0, 0, 0))
-        }
-        let latest = latestVersion(for: .defaultBranch)
-        return (stable, beta, latest)
-    }
-    
     func releaseInfo() -> PackageShow.Model.ReleaseInfo {
-        let (stable, beta, latest) = releases()
-        return .init(stable: stable.flatMap { makeDatedLink($0, \.commitDate) },
-                     beta: beta.flatMap { makeDatedLink($0, \.commitDate) },
-                     latest: latest.flatMap { makeDatedLink($0, \.commitDate) })
+        .init(
+            stable: latestVersion(for: .release).flatMap { makeDatedLink($0, \.commitDate) },
+            beta: latestVersion(for: .preRelease).flatMap { makeDatedLink($0, \.commitDate) },
+            latest: latestVersion(for: .defaultBranch).flatMap { makeDatedLink($0, \.commitDate) }
+        )
     }
     
     func makeDatedLink(_ version: Version,
@@ -151,10 +133,11 @@ extension Package {
     }
     
     func languagePlatformInfo() -> PackageShow.Model.LanguagePlatformInfo {
-        let (stable, beta, latest) = releases()
-        return .init(stable: stable.flatMap(makeModelVersion),
-                     beta: beta.flatMap(makeModelVersion),
-                     latest: latest.flatMap(makeModelVersion))
+        .init(
+            stable: latestVersion(for: .release).flatMap(makeModelVersion),
+            beta: latestVersion(for: .preRelease).flatMap(makeModelVersion),
+            latest: latestVersion(for: .defaultBranch).flatMap(makeModelVersion)
+        )
     }
     
     static let numberFormatter: NumberFormatter = {
@@ -177,23 +160,19 @@ extension Package {
     typealias PlatformResults = PackageShow.Model.PlatformResults
 
     func swiftVersionBuildInfo() -> BuildInfo<SwiftVersionResults>? {
-        // 1) get three relevant version:
-        let (stable, beta, latest) = releases()
-        
-        // 2) collect build info for swift versions per package version
-        return .init(stable: stable.flatMap(Package.buildResults),
-                     beta: beta.flatMap(Package.buildResults),
-                     latest: latest.flatMap(Package.buildResults))
+        .init(
+            stable: latestVersion(for: .release).flatMap(Package.buildResults),
+            beta: latestVersion(for: .preRelease).flatMap(Package.buildResults),
+            latest: latestVersion(for: .defaultBranch).flatMap(Package.buildResults))
+
     }
 
     func platformBuildInfo() -> BuildInfo<PlatformResults>? {
-        // 1) get three relevant version:
-        let (stable, beta, latest) = releases()
-
-        // 2) collect build info for platforms per package version
-        return .init(stable: stable.flatMap(Package.buildResults),
-                     beta: beta.flatMap(Package.buildResults),
-                     latest: latest.flatMap(Package.buildResults))
+        .init(
+            stable: latestVersion(for: .release).flatMap(Package.buildResults),
+            beta: latestVersion(for: .preRelease).flatMap(Package.buildResults),
+            latest: latestVersion(for: .defaultBranch).flatMap(Package.buildResults)
+        )
     }
 
     static func buildResults(_ version: Version) -> NamedBuildResults<SwiftVersionResults>? {
