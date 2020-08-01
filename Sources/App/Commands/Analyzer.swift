@@ -363,12 +363,50 @@ func updateLatestVersions(on database: Database,
     package
         .$versions.load(on: database)
         .flatMap {
-            let (stable, beta, latest) = package.releases()
-            stable.map { $0.latest = .release }
-            beta.map { $0.latest = .preRelease }
-            latest.map { $0.latest = .defaultBranch }
-            return [stable, beta, latest].compactMap { $0?.save(on: database) }
+            let (release, preRelease, defaultBranch) = package.findSignificantReleases()
+            release.map { $0.latest = .release }
+            preRelease.map { $0.latest = .preRelease }
+            defaultBranch.map { $0.latest = .defaultBranch }
+            return [release, preRelease, defaultBranch].compactMap { $0?.save(on: database) }
                 .flatten(on: database.eventLoop)
                 .map { package }
         }
+}
+
+
+private extension Package {
+    func findSignificantReleases() -> (release: Version?, preRelease: Version?, defaultBranch: Version?) {
+        guard let versions = $versions.value else { return (nil, nil, nil) }
+        let releases = versions
+            .filter { $0.reference?.semVer != nil }
+            .sorted { $0.reference!.semVer! < $1.reference!.semVer! }
+        let release = releases.reversed().first { $0.reference?.semVer?.isStable ?? false }
+        let preRelease = releases.reversed().first {
+            // pick first version that is a prerelease *and* no older (in terms of SemVer)
+            // than the latest release
+            ($0.reference?.semVer?.isPreRelease ?? false)
+                && ($0.reference?.semVer ?? SemVer(0, 0, 0)
+                        >= release?.reference?.semVer ?? SemVer(0, 0, 0))
+        }
+        let defaultBranch = defaultBranchVersion()
+        return (release, preRelease, defaultBranch)
+    }
+
+    func defaultBranchVersion() -> Version? {
+        guard
+            let versions = $versions.value,
+            let repositories = $repositories.value,
+            let repo = repositories.first,
+            let defaultBranch = repo.defaultBranch
+        else { return nil }
+        return versions.first(where: { v in
+            guard let ref = v.reference else { return false }
+            switch ref {
+                case .branch(let b) where b == defaultBranch:
+                    return true
+                default:
+                    return false
+            }
+        })
+    }
 }
