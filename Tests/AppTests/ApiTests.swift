@@ -353,6 +353,11 @@ class ApiTests: AppTestCase {
                        owner: "foo").save(on: app.db).wait()
         try Version(package: p, reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p, reference: .tag(.init(1, 2, 3))).save(on: app.db).wait()
+        // re-load repository relationship (required for updateLatestVersions)
+        try p.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: p).wait()
+
         let owner = "foo"
         let repo = "bar"
         let dto: Build.PostTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))

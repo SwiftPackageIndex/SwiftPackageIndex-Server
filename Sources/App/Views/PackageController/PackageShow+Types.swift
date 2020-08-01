@@ -74,20 +74,22 @@ extension PackageShow.Model {
 
     struct Reference: Equatable {
         var name: String
-        var kind: Kind
-        
-        enum Kind: String {
-            case beta
-            case branch
-            case stable
-        }
-        
+        var kind: App.Version.Kind
+
         var node: Node<HTML.BodyContext> {
             .span(
-                .class("\(kind)"),
-                .i(.class("icon \(kind)")),
+                .class(cssClass),
+                .i(.class("icon \(cssClass)")),
                 .text(name)
             )
+        }
+
+        var cssClass: String {
+            switch kind {
+                case .defaultBranch: return "branch"
+                case .preRelease: return "beta"
+                case .release: return "stable"
+            }
         }
     }
     
@@ -100,7 +102,7 @@ extension PackageShow.Model {
             self.results = results
         }
         
-        init(namedResult: NamedBuildResults<T>, kind: Reference.Kind) {
+        init(namedResult: NamedBuildResults<T>, kind: App.Version.Kind) {
             self.references = [.init(name: namedResult.referenceName, kind: kind)]
             self.results = namedResult.results
         }

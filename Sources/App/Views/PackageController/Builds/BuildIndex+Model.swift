@@ -15,12 +15,11 @@ extension BuildIndex {
                   let owner = package.repository?.owner,
                   let repositoryName = package.repository?.name else { return nil }
 
-            let (stable, beta, latest) = package.releases()
-            let buildGroups = [
-                stable.flatMap { BuildGroup(version: $0, kind: .stable) },
-                beta.flatMap { BuildGroup(version: $0, kind: .beta) },
-                latest.flatMap { BuildGroup(version: $0, kind: .latest) }
-            ].compactMap { $0 }
+            let buildGroups = [App.Version.Kind.release, .preRelease, .defaultBranch]
+                .map { ($0, package.latestVersion(for: $0)) }
+                .compactMap { (kind, version) in
+                    version.flatMap { BuildGroup(version: $0, kind: kind) }
+                }
 
             self.init(owner: owner,
                       repositoryName: repositoryName,
@@ -45,25 +44,19 @@ extension BuildIndex {
 extension BuildIndex.Model {
     struct BuildGroup {
         var name: String
-        var kind: Kind
+        var kind: App.Version.Kind
         var builds: [BuildInfo]
 
-        init?(version: Version, kind: Kind) {
+        init?(version: Version, kind: App.Version.Kind) {
             guard let name = version.reference?.description else { return nil }
             self.init(name: name, kind: kind, builds: version.builds.compactMap(BuildInfo.init))
         }
 
-        internal init(name: String, kind: Kind, builds: [BuildInfo]) {
+        internal init(name: String, kind: App.Version.Kind, builds: [BuildInfo]) {
             self.name = name
             self.kind = kind
             self.builds = builds
         }
-    }
-
-    enum Kind {
-        case stable
-        case beta
-        case latest
     }
 }
 
@@ -132,12 +125,12 @@ extension BuildIndex.Model {
         var column: ColumnIndex
         var value: Value?
 
-        init(_ column: String, _ kind: Kind, _ id: App.Build.Id, _ status: Build.Status) {
+        init(_ column: String, _ kind: App.Version.Kind, _ id: App.Build.Id, _ status: Build.Status) {
             self.column = .init(label: column, kind: kind)
             self.value = .init(id: id, status: status)
         }
 
-        init(_ column: String, _ kind: Kind) {
+        init(_ column: String, _ kind: App.Version.Kind) {
             self.column = .init(label: column, kind: kind)
         }
 
@@ -166,15 +159,15 @@ extension BuildIndex.Model {
 
     struct ColumnIndex: Equatable {
         var label: String
-        var kind: Kind
+        var kind: App.Version.Kind
         var node: Node<HTML.BodyContext> {
             let cssClass: String
             switch kind {
-                case .beta:
+                case .preRelease:
                     cssClass = "beta"
-                case .latest:
+                case .defaultBranch:
                     cssClass = "branch"
-                case .stable:
+                case .release:
                     cssClass = "stable"
             }
             return .div(.span(.class(cssClass), .i(.class("icon \(cssClass)")), .text(label)))

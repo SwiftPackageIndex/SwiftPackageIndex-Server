@@ -363,11 +363,11 @@ func updateLatestVersions(on database: Database,
     package
         .$versions.load(on: database)
         .flatMap {
-            let (stable, beta, latest) = package.releases()
-            stable.map { $0.latest = .release }
-            beta.map { $0.latest = .preRelease }
-            latest.map { $0.latest = .defaultBranch }
-            return [stable, beta, latest].compactMap { $0?.save(on: database) }
+            let (release, preRelease, defaultBranch) = package.findSignificantReleases()
+            release.map { $0.latest = .release }
+            preRelease.map { $0.latest = .preRelease }
+            defaultBranch.map { $0.latest = .defaultBranch }
+            return [release, preRelease, defaultBranch].compactMap { $0?.save(on: database) }
                 .flatten(on: database.eventLoop)
                 .map { package }
         }

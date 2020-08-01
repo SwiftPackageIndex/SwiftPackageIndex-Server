@@ -55,9 +55,13 @@ class PackageShowModelTests: AppTestCase {
                   swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
-        // reload via query to ensure relationships are loaded
+        // re-load repository relationship (required for updateLatestVersions)
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+        // reload via query to ensure pkg is in the same state it would normally be
         pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
-        
+
         // MUT
         let m = PackageShow.Model(package: pkg)
         
@@ -226,9 +230,9 @@ class PackageShowModelTests: AppTestCase {
             
             // validate
             XCTAssertEqual(res, [
-                .init(references: [.init(name: "1.2.3", kind: .stable)], results: result1),
-                .init(references: [.init(name: "2.0.0-b1", kind: .beta)], results: result2),
-                .init(references: [.init(name: "main", kind: .branch)], results: result3),
+                .init(references: [.init(name: "1.2.3", kind: .release)], results: result1),
+                .init(references: [.init(name: "2.0.0-b1", kind: .preRelease)], results: result2),
+                .init(references: [.init(name: "main", kind: .defaultBranch)], results: result3),
             ])
         }
         
@@ -245,9 +249,9 @@ class PackageShowModelTests: AppTestCase {
             
             // validate
             XCTAssertEqual(res, [
-                .init(references: [.init(name: "1.2.3", kind: .stable),
-                                   .init(name: "main", kind: .branch)], results: result1),
-                .init(references: [.init(name: "2.0.0-b1", kind: .beta)], results: result2),
+                .init(references: [.init(name: "1.2.3", kind: .release),
+                                   .init(name: "main", kind: .defaultBranch)], results: result1),
+                .init(references: [.init(name: "2.0.0-b1", kind: .preRelease)], results: result2),
             ])
         }
     }

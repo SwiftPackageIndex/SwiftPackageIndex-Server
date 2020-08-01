@@ -30,6 +30,11 @@ class PackageControllerTests: AppTestCase {
         try repository.save(on: app.db).wait()
         try version.save(on: app.db).wait()
         try product.save(on: app.db).wait()
+
+        // re-load repository relationship (required for updateLatestVersions)
+        try package.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: package).wait()
     }
 
     func test_show_owner_repository() throws {

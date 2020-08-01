@@ -109,7 +109,7 @@ final class PackageTests: AppTestCase {
         }
     }
     
-    func test_defaultVersion() throws {
+    func test_findDefaultBranchVersion() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
@@ -126,13 +126,13 @@ final class PackageTests: AppTestCase {
             .wait()
         
         // MUT
-        let version = pkg.defaultVersion()
+        let version = pkg.findDefaultBranchVersion()
         
         // validation
         XCTAssertEqual(version?.reference, .branch("default"))
     }
     
-    func test_defaultVersion_eagerLoading() throws {
+    func test_findDefaultBranchVersion_eagerLoading() throws {
         // Ensure failure to eager load doesn't trigger a fatalError
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -144,7 +144,7 @@ final class PackageTests: AppTestCase {
         
         do {  // no eager loading
             XCTAssertNil(pkg.$versions.value)
-            XCTAssertNil(pkg.defaultVersion())
+            XCTAssertNil(pkg.findDefaultBranchVersion())
         }
         
         do {  // load eagerly
@@ -153,7 +153,7 @@ final class PackageTests: AppTestCase {
                                         .with(\.$versions)
                                         .first().wait())
             XCTAssertNotNil(pkg.$versions.value)
-            XCTAssertEqual(pkg.defaultVersion(), version)
+            XCTAssertEqual(pkg.findDefaultBranchVersion(), version)
         }
     }
     
@@ -215,11 +215,11 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(3, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
-        // re-load pkg with relationships
-        try pkg.$repositories.load(on: app.db)
-            .flatMap { pkg.$versions.load(on: self.app.db) }
-            .wait()
-        
+        // re-load repository relationship
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+
         // MUT
         let info = pkg.releaseInfo()
         
@@ -240,11 +240,11 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(2, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
-        // re-load pkg with relationships
-        try pkg.$repositories.load(on: app.db)
-            .flatMap { pkg.$versions.load(on: self.app.db) }
-            .wait()
-        
+        // re-load repository relationship
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+
         // MUT
         let info = pkg.releaseInfo()
         
@@ -290,11 +290,11 @@ final class PackageTests: AppTestCase {
                         swiftVersions: ["5", "5.2"].asSwiftVersions),
         ]
         try versions.create(on: app.db).wait()
-        // re-load pkg with relationships
-        try pkg.$repositories.load(on: app.db)
-            .flatMap { pkg.$versions.load(on: self.app.db) }
-            .wait()
-        
+        // re-load repository relationship
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+
         // MUT
         let lpInfo = pkg.languagePlatformInfo()
         
@@ -353,10 +353,10 @@ final class PackageTests: AppTestCase {
         try (0..<20).forEach {
             try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
         }
-        // re-load pkg with relationships
-        try pkg.$repositories.load(on: app.db)
-            .flatMap { pkg.$versions.load(on: self.app.db) }
-            .wait()
+        // re-load repository relationship
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
         
         // MUT
         XCTAssertEqual(pkg.computeScore(), 67)
@@ -470,6 +470,11 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
+        // re-load repository relationship (required for updateLatestVersions)
+        try p.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        // add builds
         try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
@@ -500,6 +505,11 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
+        // re-load repository relationship (required for updateLatestVersions)
+        try p.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        // add builds
         try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()

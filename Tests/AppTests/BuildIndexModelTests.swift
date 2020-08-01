@@ -52,9 +52,9 @@ class BuildIndexModelTests: AppTestCase {
                                           repositoryName: "bar",
                                           packageName: "bar",
                                           buildGroups: [
-                                            .init(name: "1.2.3", kind: .stable, builds: stable),
-                                            .init(name: "2.0.0-b1", kind: .beta, builds: []),
-                                            .init(name: "main", kind: .latest, builds: latest),
+                                            .init(name: "1.2.3", kind: .release, builds: stable),
+                                            .init(name: "2.0.0-b1", kind: .preRelease, builds: []),
+                                            .init(name: "main", kind: .defaultBranch, builds: latest),
                                           ])
 
         // MUT
@@ -102,8 +102,8 @@ class BuildIndexModelTests: AppTestCase {
                                           repositoryName: "bar",
                                           packageName: "bar",
                                           buildGroups: [
-                                            .init(name: "1.2.3", kind: .stable, builds: stable),
-                                            .init(name: "main", kind: .latest, builds: latest),
+                                            .init(name: "1.2.3", kind: .release, builds: stable),
+                                            .init(name: "main", kind: .defaultBranch, builds: latest),
                                           ])
 
         // MUT
@@ -137,19 +137,19 @@ class BuildIndexModelTests: AppTestCase {
 
     func test_BuildCell() throws {
         let id = UUID()
-        XCTAssertEqual(BuildCell("1.2.3", .stable, id, .ok).node.render(indentedBy: .spaces(2)), """
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok).node.render(indentedBy: .spaces(2)), """
                         <div class="succeeded">
                           <i class="icon matrix_succeeded"></i>
                           <a href="/builds/\(id.uuidString)">View Build Log</a>
                         </div>
                         """)
-        XCTAssertEqual(BuildCell("1.2.3", .stable, id, .failed).node.render(indentedBy: .spaces(2)), """
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .failed).node.render(indentedBy: .spaces(2)), """
                         <div class="failed">
                           <i class="icon matrix_failed"></i>
                           <a href="/builds/\(id.uuidString)">View Build Log</a>
                         </div>
                         """)
-        XCTAssertEqual(BuildCell("1.2.3", .stable).node.render(indentedBy: .spaces(2)), """
+        XCTAssertEqual(BuildCell("1.2.3", .release).node.render(indentedBy: .spaces(2)), """
                         <div class="unknown">
                           <i class="icon matrix_unknown"></i>
                         </div>
@@ -160,9 +160,9 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let bi = BuildItem(index: .init(swiftVersion: .v5_3, platform: .ios),
-                           values: [.init("1.2.3", .stable, id, .ok),
-                                    .init("2.0.0-b1", .beta),
-                                    .init("develop", .latest, id, .failed)])
+                           values: [.init("1.2.3", .release, id, .ok),
+                                    .init("2.0.0-b1", .preRelease),
+                                    .init("develop", .defaultBranch, id, .failed)])
 
         // MUT
         let columnLabels = bi.columnLabels
