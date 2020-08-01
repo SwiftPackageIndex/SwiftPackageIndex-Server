@@ -6,9 +6,13 @@ enum Reference: Equatable, Hashable {
     case tag(SemVer, _ tagName: String)
     
     static func tag(_ semVer: SemVer) -> Self {
-        return .tag(semVer, "\(semVer)")
+        .tag(semVer, "\(semVer)")
     }
-    
+
+    static func tag(_ major: Int, _ minor: Int, _ patch: Int, _ preRelease: String = "", _ build: String = "") -> Self {
+        .tag(SemVer(major, minor, patch, preRelease, build))
+    }
+
     var isBranch: Bool {
         switch self {
             case .branch: return true
@@ -35,8 +39,6 @@ extension Reference: Codable {
     private struct Tag: Codable {
         var semVer: SemVer
         var tagName: String
-        
-        var asReference: Reference { .tag(semVer, tagName) }
     }
     
     init(from decoder: Decoder) throws {
@@ -46,7 +48,7 @@ extension Reference: Codable {
             return
         }
         if let value = try? container.decode(Tag.self, forKey: .tag) {
-            self = value.asReference
+            self = .tag(value.semVer, value.tagName)
             return
         }
         throw DecodingError.dataCorrupted(

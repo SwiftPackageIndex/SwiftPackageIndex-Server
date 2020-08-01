@@ -37,8 +37,8 @@ class ApiTests: AppTestCase {
                        defaultBranch: "main",
                        name: "name 2",
                        owner: "owner 2").save(on: app.db).wait()
-        try Version(package: p1, reference: .branch("main"), packageName: "Foo").save(on: app.db).wait()
-        try Version(package: p2, reference: .branch("main"), packageName: "Bar").save(on: app.db).wait()
+        try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
+        try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
         
         // MUT

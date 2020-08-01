@@ -21,7 +21,7 @@ class SitemapTests: AppTestCase {
                                           name: $0.url, owner: "foo") }
             .save(on: app.db)
             .wait()
-        try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
+        try packages.map { try Version(package: $0, packageName: "foo", reference: .branch("default")) }
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
@@ -63,7 +63,7 @@ class SitemapTests: AppTestCase {
                                           name: $0.url, owner: "foo") }
             .save(on: app.db)
             .wait()
-        try packages.map { try Version(package: $0, reference: .branch("default"), packageName: "foo") }
+        try packages.map { try Version(package: $0, packageName: "foo", reference: .branch("default")) }
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()

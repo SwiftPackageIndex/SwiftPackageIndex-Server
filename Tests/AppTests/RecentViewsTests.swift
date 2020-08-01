@@ -56,9 +56,9 @@ class RecentViewsTests: AppTestCase {
                            name: "1",
                            owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
-                        reference: .tag(.init(1, 2, 3)),
+                        commitDate: Date(timeIntervalSince1970: 0),
                         packageName: "1",
-                        commitDate: Date(timeIntervalSince1970: 0)).save(on: app.db).wait()
+                        reference: .tag(.init(1, 2, 3))).save(on: app.db).wait()
         }
         do {  // 2nd package is ineligible, because it has a branch reference
             let pkg = Package(id: UUID(), url: "2")
@@ -69,9 +69,9 @@ class RecentViewsTests: AppTestCase {
                            name: "2",
                            owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
-                        reference: .branch("default"),
+                        commitDate: Date(timeIntervalSince1970: 0),
                         packageName: "2",
-                        commitDate: Date(timeIntervalSince1970: 0)).save(on: app.db).wait()
+                        reference: .branch("default")).save(on: app.db).wait()
         }
         do {  // 3rd package is ineligible, because it has no package name
             let pkg = Package(id: UUID(), url: "3")
@@ -82,8 +82,8 @@ class RecentViewsTests: AppTestCase {
                            name: "3",
                            owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
-                        reference: .branch("default"),
-                        commitDate: Date(timeIntervalSince1970: 0)).save(on: app.db).wait()
+                        commitDate: Date(timeIntervalSince1970: 0),
+                        reference: .branch("default")).save(on: app.db).wait()
         }
         do {  // 4th package is ineligible, because it has no reference
             let pkg = Package(id: UUID(), url: "4")
@@ -94,8 +94,8 @@ class RecentViewsTests: AppTestCase {
                            name: "4",
                            owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
-                        packageName: "4",
-                        commitDate: Date(timeIntervalSince1970: 0)).save(on: app.db).wait()
+                        commitDate: Date(timeIntervalSince1970: 0),
+                        packageName: "4").save(on: app.db).wait()
         }
         do {  // 5th package is eligible - should come before 1st because of more recent commit date
             let pkg = Package(id: UUID(), url: "5")
@@ -106,9 +106,9 @@ class RecentViewsTests: AppTestCase {
                            name: "5",
                            owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
-                        reference: .tag(.init(2, 0, 0)),
+                        commitDate: Date(timeIntervalSince1970: 1),
                         packageName: "5",
-                        commitDate: Date(timeIntervalSince1970: 1)).save(on: app.db).wait()
+                        reference: .tag(.init(2, 0, 0))).save(on: app.db).wait()
         }
         
         // make sure to refresh the materialized view
@@ -181,11 +181,11 @@ class RecentViewsTests: AppTestCase {
                        name: "bar",
                        owner: "foo").create(on: app.db).wait()
         try Version(package: pkg,
-                    packageName: "pkg-bar",
-                    commitDate: Date(timeIntervalSince1970: 0)).save(on: app.db).wait()
+                    commitDate: Date(timeIntervalSince1970: 0),
+                    packageName: "pkg-bar").save(on: app.db).wait()
         try Version(package: pkg,
-                    packageName: "pkg-bar-updated",
-                    commitDate: Date(timeIntervalSince1970: 1)).save(on: app.db).wait()
+                    commitDate: Date(timeIntervalSince1970: 1),
+                    packageName: "pkg-bar-updated").save(on: app.db).wait()
         // make sure to refresh the materialized view
         try RecentPackage.refresh(on: app.db).wait()
         
@@ -206,13 +206,13 @@ class RecentViewsTests: AppTestCase {
                        name: "bar",
                        owner: "foo").create(on: app.db).wait()
         try Version(package: pkg,
-                    reference: .tag(.init(1, 0, 0)),
+                    commitDate: Date(timeIntervalSince1970: 0),
                     packageName: "pkg-bar",
-                    commitDate: Date(timeIntervalSince1970: 0)).save(on: app.db).wait()
+                    reference: .tag(.init(1, 0, 0))).save(on: app.db).wait()
         try Version(package: pkg,
-                    reference: .tag(.init(1, 0, 1)),
+                    commitDate: Date(timeIntervalSince1970: 1),
                     packageName: "pkg-bar-updated",
-                    commitDate: Date(timeIntervalSince1970: 1)).save(on: app.db).wait()
+                    reference: .tag(.init(1, 0, 1))).save(on: app.db).wait()
         // make sure to refresh the materialized view
         try RecentRelease.refresh(on: app.db).wait()
         

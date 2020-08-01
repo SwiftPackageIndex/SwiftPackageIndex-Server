@@ -93,15 +93,18 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg1.status, .ok)
         XCTAssertEqual(pkg1.processingStage, .analysis)
         XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1", "foo-1"])
-        XCTAssertEqual(pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.reference?.description),
-                       ["main", "1.0.0", "1.1.1"])
+        let sortedVersions1 = pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        XCTAssertEqual(sortedVersions1.map(\.reference?.description), ["main", "1.0.0", "1.1.1"])
+        XCTAssertEqual(sortedVersions1.map(\.latest), [.defaultBranch, nil, .release])
+
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
         XCTAssertEqual(pkg2.processingStage, .analysis)
         XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2", "foo-2"])
-        XCTAssertEqual(pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! }).map(\.reference?.description),
-                       ["main", "2.0.0", "2.1.0"])
-        
+        let sortedVersions2 = pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        XCTAssertEqual(sortedVersions2.map(\.reference?.description), ["main", "2.0.0", "2.1.0"])
+        XCTAssertEqual(sortedVersions2.map(\.latest), [.defaultBranch, nil, .release])
+
         // validate products (each version has 2 products)
         let products = try Product.query(on: app.db).sort(\.$name).all().wait()
         XCTAssertEqual(products.count, 6)
@@ -117,7 +120,72 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try RecentPackage.fetch(on: app.db).wait().count, 2)
         XCTAssertEqual(try RecentRelease.fetch(on: app.db).wait().count, 2)
     }
-    
+
+    func test_analyze_version_update() throws {
+        // Ensure that new incoming versions update the latest properties and
+        // move versions in case commits change. Tests both default branch commits
+        // changing as well as a tag being moved to a different commit.
+        // setup
+        let pkgId = UUID()
+        let pkg = Package(id: pkgId, url: "1".asGithubUrl.url, processingStage: .ingestion)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "foo").save(on: app.db).wait()
+        // add existing versions (to be reconciled)
+        try Version(package: pkg,
+                    commit: "commit0",
+                    latest: .defaultBranch,
+                    packageName: "foo-1",
+                    reference: .branch("main")).save(on: app.db).wait()
+        try Version(package: pkg,
+                    commit: "commit0",
+                    latest: .release,
+                    packageName: "foo-1",
+                    reference: .tag(1, 0, 0)).save(on: app.db).wait()
+
+        Current.fileManager.fileExists = { _ in true }
+        Current.shell.run = { cmd, path in
+            if cmd.string == "git tag" {
+                return ["1.0.0", "1.1.1"].joined(separator: "\n")
+            }
+            if cmd.string.hasSuffix("package dump-package") {
+                return #"{ "name": "foo-1", "products": [{"name":"p1","type":{"executable": null}}] }"#
+            }
+
+            // New Git.revisionInfo (per ref - default branch & tags)
+            // main branch has moved from commit0 -> commit3 (timestamp 3)
+            // 1.0.0 has been re-tagged (!) from commit0 -> commit1 (timestamp 1)
+            // 1.1.1 has been added at commit2 (timestamp 2)
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "main""# { return "commit3-3" }
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.0.0""# { return "commit1-1" }
+            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.1.1""# { return "commit2-2" }
+
+            // Git.commitCount
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+
+            // Git.firstCommitDate
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+
+            // Git.lastCommitDate
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "2" }
+
+            return ""
+        }
+
+        // MUT
+        try analyze(application: app, limit: 10).wait()
+
+        // validate versions
+        let p = try XCTUnwrap(Package.find(pkgId, on: app.db).wait())
+        try p.$versions.load(on: app.db).wait()
+        let versions = p.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        XCTAssertEqual(versions.map(\.reference?.description), ["main", "1.0.0", "1.1.1"])
+        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, nil, .release])
+        XCTAssertEqual(versions.map(\.commit), ["commit3", "commit1", "commit2"])
+    }
+
     func test_package_status() throws {
         // Ensure packages record success/error status
         // setup
@@ -469,7 +537,7 @@ class AnalyzerTests: AppTestCase {
     func test_updateProducts() throws {
         // setup
         let p = Package(id: UUID(), url: "1")
-        let v = try Version(id: UUID(), package: p, reference: .tag(.init(1, 0, 0)), packageName: "1")
+        let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
         let m = Manifest(name: "1", products: [.init(name: "p1", type: .library),
                                                .init(name: "p2", type: .executable)])
         try p.save(on: app.db).wait()
@@ -517,7 +585,31 @@ class AnalyzerTests: AppTestCase {
         let p = try XCTUnwrap(products.first)
         XCTAssertEqual(p.name, "p1")
     }
-    
+
+    func test_updateLatestVersions() throws {
+        // setup
+        var pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try Version(package: pkg, packageName: "foo", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: pkg, packageName: "foo", reference: .tag(1, 2, 3))
+            .save(on: app.db).wait()
+        try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
+            .save(on: app.db).wait()
+        // load repositories (this will have happened already at the point where
+        // updateLatestVersions is being used and therefore it doesn't reload it)
+        try pkg.$repositories.load(on: app.db).wait()
+
+        // MUT
+        pkg = try updateLatestVersions(on: app.db, package: pkg).wait()
+
+        // validate
+        let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        XCTAssertEqual(versions.map(\.reference?.description), ["main", "1.2.3", "2.0.0-rc1"])
+        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])
+    }
+
     func test_updatePackage() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)

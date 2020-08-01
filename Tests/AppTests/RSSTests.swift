@@ -79,9 +79,9 @@ class RSSTests: AppTestCase {
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg, summary: "Summary", name: "pkg-\($0)", owner: "owner-\($0)").create(on: app.db).wait()
             try Version(package: pkg,
-                        reference: .tag(.init($0, 0, 0), "\($0).0.0"),
+                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
-                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)))
+                        reference: .tag(.init($0, 0, 0), "\($0).0.0"))
                 .save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
@@ -120,9 +120,9 @@ class RSSTests: AppTestCase {
                            owner: "owner-\($0)")
                 .create(on: app.db).wait()
             try Version(package: pkg,
-                        reference: .tag(.init(major, minor, patch)),
+                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
-                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)))
+                        reference: .tag(.init(major, minor, patch)))
                 .save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
@@ -155,9 +155,9 @@ class RSSTests: AppTestCase {
                            owner: "owner-\($0)")
                 .create(on: app.db).wait()
             try Version(package: pkg,
-                        reference: .tag(.init(major, minor, patch)),
+                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
-                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)))
+                        reference: .tag(.init(major, minor, patch)))
                 .save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
@@ -190,9 +190,9 @@ class RSSTests: AppTestCase {
                            owner: "owner-\($0)")
                 .create(on: app.db).wait()
             try Version(package: pkg,
-                        reference: .tag(.init(major, minor, patch)),
+                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
-                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)))
+                        reference: .tag(.init(major, minor, patch)))
                 .save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
@@ -226,9 +226,9 @@ class RSSTests: AppTestCase {
                            owner: "owner-\($0)")
                 .create(on: app.db).wait()
             try Version(package: pkg,
-                        reference: .tag(.init(major, minor, patch, pre)),
+                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
-                        commitDate: Date(timeIntervalSince1970: TimeInterval($0)))
+                        reference: .tag(.init(major, minor, patch, pre)))
                 .save(on: app.db).wait()
         }
         // make sure to refresh the materialized view

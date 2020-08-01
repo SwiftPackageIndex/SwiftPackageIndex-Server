@@ -28,7 +28,9 @@ extension Package {
             .first()
             .unwrap(or: Abort(.notFound))
     }
-    
+
+    // FIXME: inline into Analyzer.updateLatestVersions and use latest property instead
+    @available(*, deprecated)
     func defaultVersion() -> Version? {
         guard
             let versions = $versions.value,
@@ -103,7 +105,9 @@ extension Package {
             executables: version.products.filter(\.isExecutable).count
         )
     }
-    
+
+    // FIXME: inline into Analyzer.updateLatestVersions and use latest property instead
+    @available(*, deprecated)
     func releases() -> (stable: Version?, beta: Version?, latest: Version?) {
         guard let versions = $versions.value else { return (nil, nil, nil) }
         let releases = versions

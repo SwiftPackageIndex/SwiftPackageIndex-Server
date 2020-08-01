@@ -76,6 +76,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 013 - add build command
         app.migrations.add(UpdateBuildAddBuildCommand())
     }
+    do {  // Migration 014 - add latest
+        app.migrations.add(UpdateVersionAddLatest())
+    }
     
     app.commands.use(ReconcilerCommand(), as: "reconcile")
     app.commands.use(IngestorCommand(), as: "ingest")

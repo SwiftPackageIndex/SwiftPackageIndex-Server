@@ -36,7 +36,10 @@ final class Version: Model, Content {
     
     @Field(key: "package_name")
     var packageName: String?
-    
+
+    @Field(key: "latest")
+    var latest: Kind?
+
     @Field(key: "reference")
     var reference: Reference?
     
@@ -58,20 +61,28 @@ final class Version: Model, Content {
     
     init(id: Id? = nil,
          package: Package,
-         reference: Reference? = nil,
-         packageName: String? = nil,
          commit: CommitHash? = nil,
          commitDate: Date? = nil,
+         latest: Kind? = nil,
+         packageName: String? = nil,
+         reference: Reference? = nil,
          supportedPlatforms: [Platform] = [],
          swiftVersions: [SwiftVersion] = []) throws {
         self.id = id
         self.$package.id = try package.requireID()
-        self.reference = reference
-        self.packageName = packageName
         self.commit = commit
         self.commitDate = commitDate
+        self.latest = latest
+        self.packageName = packageName
+        self.reference = reference
         self.supportedPlatforms = supportedPlatforms
         self.swiftVersions = swiftVersions
+    }
+
+    enum Kind: String, Codable {
+        case defaultBranch = "default_branch"
+        case preRelease = "pre_release"
+        case release
     }
 }
 

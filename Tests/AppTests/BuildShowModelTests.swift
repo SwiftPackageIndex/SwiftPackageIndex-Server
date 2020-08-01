@@ -27,7 +27,7 @@ class BuildShowModelTests: AppTestCase {
                        owner: "foo",
                        stars: 17,
                        forks: 42).save(on: app.db).wait()
-        let v = try Version(id: UUID(), package: pkg, reference: .branch("main"), packageName: "Bar")
+        let v = try Version(id: UUID(), package: pkg, packageName: "Bar", reference: .branch("main"))
         try v.save(on: app.db).wait()
         let buildId = UUID()
         let build = try Build(id: buildId, version: v, platform: .ios, status: .ok, swiftVersion: .init(5, 3, 0))

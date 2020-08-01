@@ -119,15 +119,15 @@ class VersionDiffTests: AppTestCase {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         let saved: [Version] = [
-            try .init(package: pkg, reference: .branch("main"), commit: "hash1"),
-            try .init(package: pkg, reference: .tag(.init(1, 2, 3)), commit: "hash2"),
+            try .init(package: pkg, commit: "hash1", reference: .branch("main")),
+            try .init(package: pkg, commit: "hash2", reference: .tag(.init(1, 2, 3))),
         ]
         
         // MUT
         let res = Version.diff(local: saved, incoming: [
-            try .init(package: pkg, reference: .branch("main"), commit: "hash3"),
-            try .init(package: pkg, reference: .tag(.init(1, 2, 3)), commit: "hash2"),
-            try .init(package: pkg, reference: .tag(.init(2, 0, 0)), commit: "hash4"),
+            try .init(package: pkg, commit: "hash3", reference: .branch("main")),
+            try .init(package: pkg, commit: "hash2", reference: .tag(.init(1, 2, 3))),
+            try .init(package: pkg, commit: "hash4", reference: .tag(.init(2, 0, 0))),
         ])
         
         // validate

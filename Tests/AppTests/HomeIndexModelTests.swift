@@ -14,9 +14,9 @@ class HomeIndexModelTests: AppTestCase {
                        name: "1",
                        owner: "foo").save(on: app.db).wait()
         try App.Version(package: pkg,
-                        reference: .tag(.init(1, 2, 3)),
+                        commitDate: Date(timeIntervalSince1970: 0),
                         packageName: "Package",
-                        commitDate: Date(timeIntervalSince1970: 0)).save(on: app.db).wait()
+                        reference: .tag(.init(1, 2, 3))).save(on: app.db).wait()
         try RecentPackage.refresh(on: app.db).wait()
         try RecentRelease.refresh(on: app.db).wait()
         
