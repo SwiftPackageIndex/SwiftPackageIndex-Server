@@ -88,6 +88,49 @@ extension Package {
 
 
 extension Package {
+
+    /// Helper to find the up to three significant versions of a package: latest release, latest pre-release, and latest default branch version.
+    /// - Returns: Named tuple of versions
+    func findSignificantReleases() -> (release: Version?, preRelease: Version?, defaultBranch: Version?) {
+        guard let versions = $versions.value else { return (nil, nil, nil) }
+        let releases = versions
+            .filter { $0.reference?.semVer != nil }
+            .sorted { $0.reference!.semVer! < $1.reference!.semVer! }
+        let release = releases.reversed().first { $0.reference?.semVer?.isStable ?? false }
+        let preRelease = releases.reversed().first {
+            // pick first version that is a prerelease *and* no older (in terms of SemVer)
+            // than the latest release
+            ($0.reference?.semVer?.isPreRelease ?? false)
+                && ($0.reference?.semVer ?? SemVer(0, 0, 0)
+                        >= release?.reference?.semVer ?? SemVer(0, 0, 0))
+        }
+        let defaultBranch = findDefaultBranchVersion()
+        return (release, preRelease, defaultBranch)
+    }
+
+    /// Helper to find the version for the default branch.
+    /// - Returns: version or nil
+    func findDefaultBranchVersion() -> Version? {
+        guard
+            let versions = $versions.value,
+            let repositories = $repositories.value,
+            let repo = repositories.first,
+            let defaultBranch = repo.defaultBranch
+        else { return nil }
+        return versions.first(where: { v in
+            guard let ref = v.reference else { return false }
+            switch ref {
+                case .branch(let b) where b == defaultBranch:
+                    return true
+                default:
+                    return false
+            }
+        })
+    }
+}
+
+
+extension Package {
     /// Cache directory basename, i.e. this is intended to be appended to
     /// the path of a directory where all checkouts are cached.
     var cacheDirectoryName: String? {
