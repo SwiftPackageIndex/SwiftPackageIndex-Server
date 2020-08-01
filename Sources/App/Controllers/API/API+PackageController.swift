@@ -44,10 +44,8 @@ extension API {
             let dto = try req.content.decode(Build.PostTriggerDTO.self)
             return Package.query(on: req.db, owner: owner, repository: repository)
                 .flatMap { pkg in
-                    [pkg.latestVersion(for: .release),
-                     pkg.latestVersion(for: .preRelease),
-                     pkg.latestVersion(for: .defaultBranch)]
-                        .compactMap { $0?.id }
+                    [App.Version.Kind.release, .preRelease, .defaultBranch]
+                        .compactMap { pkg.latestVersion(for: $0)?.id }
                         .map {
                             Build.trigger(database: req.db,
                                           client: req.client,
