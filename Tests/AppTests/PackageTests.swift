@@ -109,7 +109,7 @@ final class PackageTests: AppTestCase {
         }
     }
     
-    func test_defaultVersion() throws {
+    func test_findDefaultBranchVersion() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
@@ -126,13 +126,13 @@ final class PackageTests: AppTestCase {
             .wait()
         
         // MUT
-        let version = pkg.defaultVersion()
+        let version = pkg.findDefaultBranchVersion()
         
         // validation
         XCTAssertEqual(version?.reference, .branch("default"))
     }
     
-    func test_defaultVersion_eagerLoading() throws {
+    func test_findDefaultBranchVersion_eagerLoading() throws {
         // Ensure failure to eager load doesn't trigger a fatalError
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -144,7 +144,7 @@ final class PackageTests: AppTestCase {
         
         do {  // no eager loading
             XCTAssertNil(pkg.$versions.value)
-            XCTAssertNil(pkg.defaultVersion())
+            XCTAssertNil(pkg.findDefaultBranchVersion())
         }
         
         do {  // load eagerly
@@ -153,7 +153,7 @@ final class PackageTests: AppTestCase {
                                         .with(\.$versions)
                                         .first().wait())
             XCTAssertNotNil(pkg.$versions.value)
-            XCTAssertEqual(pkg.defaultVersion(), version)
+            XCTAssertEqual(pkg.findDefaultBranchVersion(), version)
         }
     }
     
