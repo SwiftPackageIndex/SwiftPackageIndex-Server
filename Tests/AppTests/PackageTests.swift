@@ -215,11 +215,11 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(3, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
-        // re-load pkg with relationships
-        try pkg.$repositories.load(on: app.db)
-            .flatMap { pkg.$versions.load(on: self.app.db) }
-            .wait()
-        
+        // re-load repository relationship
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+
         // MUT
         let info = pkg.releaseInfo()
         
@@ -240,11 +240,11 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(2, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
-        // re-load pkg with relationships
-        try pkg.$repositories.load(on: app.db)
-            .flatMap { pkg.$versions.load(on: self.app.db) }
-            .wait()
-        
+        // re-load repository relationship
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+
         // MUT
         let info = pkg.releaseInfo()
         
@@ -290,11 +290,11 @@ final class PackageTests: AppTestCase {
                         swiftVersions: ["5", "5.2"].asSwiftVersions),
         ]
         try versions.create(on: app.db).wait()
-        // re-load pkg with relationships
-        try pkg.$repositories.load(on: app.db)
-            .flatMap { pkg.$versions.load(on: self.app.db) }
-            .wait()
-        
+        // re-load repository relationship
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+
         // MUT
         let lpInfo = pkg.languagePlatformInfo()
         
@@ -353,10 +353,10 @@ final class PackageTests: AppTestCase {
         try (0..<20).forEach {
             try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
         }
-        // re-load pkg with relationships
-        try pkg.$repositories.load(on: app.db)
-            .flatMap { pkg.$versions.load(on: self.app.db) }
-            .wait()
+        // re-load repository relationship
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
         
         // MUT
         XCTAssertEqual(pkg.computeScore(), 67)

@@ -44,7 +44,7 @@ enum Score {
 extension Package {
     func computeScore() -> Int {
         guard
-            let defaultVersion = defaultVersion(),
+            let defaultVersion = latestVersion(for: .defaultBranch),
             let versions = $versions.value,
             let r = repository,
             let starsCount = r.stars

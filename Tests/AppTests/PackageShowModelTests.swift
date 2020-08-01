@@ -55,9 +55,13 @@ class PackageShowModelTests: AppTestCase {
                   swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
-        // reload via query to ensure relationships are loaded
+        // re-load repository relationship (required for updateLatestVersions)
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+        // reload via query to ensure pkg is in the same state it would normally be
         pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
-        
+
         // MUT
         let m = PackageShow.Model(package: pkg)
         

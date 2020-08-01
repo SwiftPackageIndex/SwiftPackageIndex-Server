@@ -29,27 +29,12 @@ extension Package {
             .unwrap(or: Abort(.notFound))
     }
 
-    // FIXME: inline into Analyzer.updateLatestVersions and use latest property instead
-    @available(*, deprecated)
-    func defaultVersion() -> Version? {
-        guard
-            let versions = $versions.value,
-            let repositories = $repositories.value,
-            let repo = repositories.first,
-            let defaultBranch = repo.defaultBranch
-        else { return nil }
-        return versions.first(where: { v in
-            guard let ref = v.reference else { return false }
-            switch ref {
-                case .branch(let b) where b == defaultBranch:
-                    return true
-                default:
-                    return false
-            }
-        })
+    func latestVersion(for kind: Version.Kind) -> Version? {
+        guard let versions = $versions.value else { return nil }
+        return versions.first { $0.latest == kind }
     }
-    
-    func name() -> String? { defaultVersion()?.packageName }
+
+    func name() -> String? { latestVersion(for: .defaultBranch)?.packageName }
     
     func authors() -> [Link]? {
         // TODO: fill in
@@ -99,7 +84,7 @@ extension Package {
     }
     
     func productCounts() -> PackageShow.Model.ProductCounts? {
-        guard let version = defaultVersion() else { return nil }
+        guard let version = latestVersion(for: .defaultBranch) else { return nil }
         return .init(
             libraries: version.products.filter(\.isLibrary).count,
             executables: version.products.filter(\.isExecutable).count
@@ -121,7 +106,7 @@ extension Package {
                 && ($0.reference?.semVer ?? SemVer(0, 0, 0)
                         >= stable?.reference?.semVer ?? SemVer(0, 0, 0))
         }
-        let latest = defaultVersion()
+        let latest = latestVersion(for: .defaultBranch)
         return (stable, beta, latest)
     }
     

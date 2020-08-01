@@ -32,6 +32,10 @@ class BuildShowModelTests: AppTestCase {
         let buildId = UUID()
         let build = try Build(id: buildId, version: v, platform: .ios, status: .ok, swiftVersion: .init(5, 3, 0))
         try build.save(on: app.db).wait()
+        // re-load repository relationship (required for updateLatestVersions)
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
 
         // MUT
         let m = try Build.query(on: app.db, buildId: buildId)
