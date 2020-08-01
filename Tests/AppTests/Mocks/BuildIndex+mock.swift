@@ -18,7 +18,7 @@ extension BuildIndex.Model {
             buildGroups: [
                 .init(
                     name: "1.2.3",
-                    kind: .stable,
+                    kind: .release,
                     builds: [
                         .init(id: Self.id, swiftVersion: .init(5, 2, 4), platform: .macosXcodebuild,    status: .ok),
                         .init(id: Self.id, swiftVersion: .init(5, 2, 4), platform: .macosSpm,           status: .ok),
@@ -48,7 +48,7 @@ extension BuildIndex.Model {
                 ),
                 .init(
                     name: "main",
-                    kind: .latest,
+                    kind: .defaultBranch,
                     builds: [
                         .init(id: Self.id, swiftVersion: .init(5, 2, 4), platform: .macosXcodebuild,    status: .ok),
                         .init(id: Self.id, swiftVersion: .init(5, 2, 4), platform: .macosSpm,           status: .ok),
@@ -78,7 +78,7 @@ extension BuildIndex.Model {
                 ),
                 .init(
                     name: "2.0.0-b1",
-                    kind: .beta,
+                    kind: .preRelease,
                     builds: [
                         .init(id: Self.id, swiftVersion: .init(5, 2, 4), platform: .macosXcodebuild,    status: .ok),
                         .init(id: Self.id, swiftVersion: .init(5, 2, 4), platform: .macosSpm,           status: .ok),
