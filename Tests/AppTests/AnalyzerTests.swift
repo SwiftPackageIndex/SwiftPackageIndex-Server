@@ -744,7 +744,8 @@ class AnalyzerTests: AppTestCase {
         // Duplicate "latest release" versions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/577
         // setup
-        var pkg = Package(id: UUID(), url: "1")
+        let pkgId = UUID()
+        var pkg = Package(id: pkgId, url: "1")
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         // existing "latest release" version
@@ -761,9 +762,13 @@ class AnalyzerTests: AppTestCase {
         pkg = try updateLatestVersions(on: app.db, package: pkg).wait()
 
         // validate
-        let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-        XCTAssertEqual(versions.map(\.reference?.description), ["1.2.3", "1.3.0"])
-        XCTAssertEqual(versions.map(\.latest), [nil, .release])
+        do {  // refetch package to ensure changes are persisted
+            let pkg = try XCTUnwrap(Package.find(pkgId, on: app.db).wait())
+            try pkg.$versions.load(on: app.db).wait()
+            let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+            XCTAssertEqual(versions.map(\.reference?.description), ["1.2.3", "1.3.0"])
+            XCTAssertEqual(versions.map(\.latest), [nil, .release])
+        }
     }
 }
 
