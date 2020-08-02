@@ -363,6 +363,9 @@ func updateLatestVersions(on database: Database,
     package
         .$versions.load(on: database)
         .flatMap {
+            package.versions
+                .filter { $0.latest != nil }
+                .forEach { $0.latest = nil }
             let (release, preRelease, defaultBranch) = package.findSignificantReleases()
             release.map { $0.latest = .release }
             preRelease.map { $0.latest = .preRelease }
