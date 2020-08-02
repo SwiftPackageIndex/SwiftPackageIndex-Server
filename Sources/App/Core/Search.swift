@@ -122,31 +122,6 @@ enum Search {
 }
 
 
-private func concat(_ args: SQLExpression...) -> SQLFunction {
-    SQLFunction("concat", args: args)
-}
-
-
-private func coalesce(_ args: SQLExpression...) -> SQLFunction {
-    SQLFunction("coalesce", args: args)
-}
-
-
-private func lower(_ arg: SQLExpression) -> SQLFunction {
-    SQLFunction("lower", args: arg)
-}
-
-
-private func isNotNull(_ column: SQLIdentifier) -> SQLBinaryExpression {
-    SQLBinaryExpression(left: column, op: SQLBinaryOperator.isNot, right: SQLRaw("NULL"))
-}
-
-
-private func eq(_ lhs: SQLExpression, _ rhs: SQLExpression) -> SQLBinaryExpression {
-    SQLBinaryExpression(left: lhs, op: SQLBinaryOperator.equal, right: rhs)
-}
-
-
 private extension SQLSelectBuilder {
     // sas 2020-06-05: workaround `direction: SQLExpression` signature in SQLKit
     // (should be SQLDirection)
