@@ -10,14 +10,8 @@ services:
   - docker:stable-dind
 
 
-before_script: |
-  retries=3
-  unil docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY ; do
-    [[ $retries -eq 0 ]] && echo "docker login failed" && exit 1
-    sleep 5
-    echo Retrying ...
-    echo $((retries--)) retries left
-  done
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 
     
 stages:
