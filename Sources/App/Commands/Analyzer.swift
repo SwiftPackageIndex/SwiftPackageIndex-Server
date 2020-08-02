@@ -363,14 +363,27 @@ func updateLatestVersions(on database: Database,
     package
         .$versions.load(on: database)
         .flatMap {
-            package.versions
-                .filter { $0.latest != nil }
-                .forEach { $0.latest = nil }
+            // find previous markers
+            let previous = package.versions.filter { $0.latest != nil }
+
+            // find new significant releases
             let (release, preRelease, defaultBranch) = package.findSignificantReleases()
             release.map { $0.latest = .release }
             preRelease.map { $0.latest = .preRelease }
             defaultBranch.map { $0.latest = .defaultBranch }
-            return [release, preRelease, defaultBranch].compactMap { $0?.save(on: database) }
+            let updates = [release, preRelease, defaultBranch].compactMap { $0 }
+
+            // reset versions that aren't being updated
+            let resets = previous
+                .filter { !updates.map(\.id).contains($0.id) }
+                .map { version -> Version in
+                    version.latest = nil
+                    return version
+                }
+
+            // save changes
+            return (updates + resets)
+                .map { $0.save(on: database) }
                 .flatten(on: database.eventLoop)
                 .map { package }
         }
