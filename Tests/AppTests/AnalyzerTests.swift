@@ -739,6 +739,32 @@ class AnalyzerTests: AppTestCase {
             XCTAssertEqual(m.name, "VisualEffects")
         }
     }
+
+    func test_issue_577() throws {
+        // Duplicate "latest release" versions
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/577
+        // setup
+        var pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        // existing "latest release" version
+        try Version(package: pkg, latest: .release, packageName: "foo", reference: .tag(1, 2, 3))
+            .save(on: app.db).wait()
+        // new, not yet considered release version
+        try Version(package: pkg, packageName: "foo", reference: .tag(1, 3, 0))
+            .save(on: app.db).wait()
+        // load repositories (this will have happened already at the point where
+        // updateLatestVersions is being used and therefore it doesn't reload it)
+        try pkg.$repositories.load(on: app.db).wait()
+
+        // MUT
+        pkg = try updateLatestVersions(on: app.db, package: pkg).wait()
+
+        // validate
+        let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        XCTAssertEqual(versions.map(\.reference?.description), ["1.2.3", "1.3.0"])
+        XCTAssertEqual(versions.map(\.latest), [nil, .release])
+    }
 }
 
 
