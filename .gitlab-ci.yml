@@ -11,7 +11,9 @@ services:
 
 
 before_script:
-  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  # clumsy retry because `before_script` doesn't support more complex syntax
+  - login="docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY"
+  - $login || sleep 3 && $login || sleep 3 && login
 
     
 stages:
@@ -33,7 +35,14 @@ build:
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
     echo 'let appVersion = "'${VERSION}'"' > ./Sources/App/Core/AppVersion.swift
     docker build -t $REGISTRY_IMAGE:$VERSION .
-    docker push $REGISTRY_IMAGE:$VERSION
+    
+    retries=3
+    until docker push $REGISTRY_IMAGE:$VERSION ; do
+      [[ $retries -eq 0 ]] && echo "docker push failed" && exit 1
+      sleep 5
+      echo Retrying ...
+      echo $((retries--)) retries left
+    done
 
 
 .deploy-common: &deploy-common
