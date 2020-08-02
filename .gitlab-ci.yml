@@ -11,7 +11,9 @@ services:
 
 
 before_script:
-  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  # clumsy retry because `before_script` doesn't support more complex syntax
+  - login="docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY"
+  - $login || sleep 3 && $login || sleep 3 && login
 
     
 stages:
