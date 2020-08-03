@@ -7,17 +7,40 @@ class BuildTriggerTests: AppTestCase {
 
     func test_fetchBuildCandidates() throws {
         // setup
-        let p = try savePackage(on: app.db, "1")
-        let v = try Version(package: p, latest: .defaultBranch)
-        try v.save(on: app.db).wait()
-        try Build.Platform.allActive.forEach { platform in
-            try SwiftVersion.allActive.forEach { swiftVersion in
-                try Build(id: UUID(),
-                          version: v,
-                          platform: platform,
-                          status: .ok,
-                          swiftVersion: swiftVersion)
-                    .save(on: app.db).wait()
+        let pkgIdComplete = UUID()
+        let pkgIdIncomplete = UUID()
+        do {  // save package with all builds
+            let p = Package(id: pkgIdComplete, url: "1")
+            try p.save(on: app.db).wait()
+            let v = try Version(package: p, latest: .defaultBranch)
+            try v.save(on: app.db).wait()
+            try Build.Platform.allActive.forEach { platform in
+                try SwiftVersion.allActive.forEach { swiftVersion in
+                    try Build(id: UUID(),
+                              version: v,
+                              platform: platform,
+                              status: .ok,
+                              swiftVersion: swiftVersion)
+                        .save(on: app.db).wait()
+                }
+            }
+        }
+        do {  // save package with partially completed builds
+            let p = Package(id: pkgIdIncomplete, url: "2")
+            try p.save(on: app.db).wait()
+            let v = try Version(package: p, latest: .defaultBranch)
+            try v.save(on: app.db).wait()
+            try Build.Platform.allActive
+                .dropFirst() // skip one platform to create a build gap
+                .forEach { platform in
+                try SwiftVersion.allActive.forEach { swiftVersion in
+                    try Build(id: UUID(),
+                              version: v,
+                              platform: platform,
+                              status: .ok,
+                              swiftVersion: swiftVersion)
+                        .save(on: app.db).wait()
+                }
             }
         }
 
@@ -25,7 +48,7 @@ class BuildTriggerTests: AppTestCase {
         let ids = try fetchBuildCandidates(app.db, limit: 10).wait()
 
         // validate
-        XCTAssertEqual(ids, [])
+        XCTAssertEqual(ids, [pkgIdIncomplete])
     }
 
 }
