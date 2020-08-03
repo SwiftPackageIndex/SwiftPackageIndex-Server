@@ -81,7 +81,7 @@ public func configure(_ app: Application) throws {
     }
     
     app.commands.use(AnalyzerCommand(), as: "analyze")
-    app.commands.use(BuildTriggerCommand(), as: "build")
+    app.commands.use(BuildTriggerCommand(), as: "trigger-builds")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
     app.commands.use(IngestorCommand(), as: "ingest")
     app.commands.use(ReconcilerCommand(), as: "reconcile")
