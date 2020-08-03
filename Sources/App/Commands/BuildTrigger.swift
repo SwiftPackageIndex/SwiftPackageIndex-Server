@@ -94,7 +94,7 @@ func fetchBuildCandidates(_ database: Database,
 }
 
 
-struct BuildPair: Equatable {
+struct BuildPair: Equatable, Hashable {
     var platform: Build.Platform
     var swiftVersion: SwiftVersion
 
@@ -106,6 +106,21 @@ struct BuildPair: Equatable {
 
 
 func findMissingBuilds(_ database: Database,
-                       packageId: Package.Id) -> EventLoopFuture<[BuildPair]> {
-    database.eventLoop.future([])
+                       packageId: Package.Id) -> EventLoopFuture<[Set<BuildPair>]> {
+    let versions = Version.query(on: database)
+        .with(\.$builds)
+        .filter(\.$package.$id == packageId)
+        .filter(\.$latest != nil)
+        .all()
+
+    let allPairs = Build.Platform.allActive.flatMap { p in
+        SwiftVersion.allActive.map { s in
+            BuildPair(p, s)
+        }
+    }
+
+    return versions.mapEach { v -> Set<BuildPair> in
+        let existing = v.builds.map { BuildPair($0.platform, $0.swiftVersion) }
+        return Set(allPairs).subtracting(Set(existing))
+    }
 }

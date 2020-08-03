@@ -77,6 +77,8 @@ class BuildTriggerTests: AppTestCase {
         let res = try findMissingBuilds(app.db, packageId: pkgId).wait()
 
         let droppedPlatform = try XCTUnwrap(Build.Platform.allActive.first)
-//        XCTAssertEqual(res, SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
+        XCTAssertEqual(res, [
+            Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
+        ])
     }
 }
