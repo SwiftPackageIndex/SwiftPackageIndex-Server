@@ -31,35 +31,44 @@ struct BuildTriggerCommand: Command {
 
 
 func triggerBuilds(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
-    triggerBuilds(application: application, packages: [id])
+    triggerBuilds(on: application.db, client: application.client, packages: [id])
 }
 
 
 func triggerBuilds(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
     fetchBuildCandidates(application.db, limit: limit)
-        .flatMap { triggerBuilds(application: application, packages: $0) }
+        .flatMap { triggerBuilds(on: application.db, client: application.client, packages: $0) }
 }
 
 
-func triggerBuilds(application: Application, packages: [Package.Id]) -> EventLoopFuture<Void> {
+func triggerBuilds(on database: Database,
+                   client: Client,
+                   packages: [Package.Id]) -> EventLoopFuture<Void> {
     packages.map {
-        findMissingBuilds(application.db, packageId: $0)
+        findMissingBuilds(database, packageId: $0)
             .flatMap { triggers in
                 triggers.map { trigger -> EventLoopFuture<Void> in
-                    trigger.pairs.map {
-                        Build.trigger(database: application.db,
-                                      client: application.client,
-                                      platform: $0.platform,
-                                      swiftVersion: $0.swiftVersion,
+                    trigger.pairs.map { pair in
+                        Build.trigger(database: database,
+                                      client: client,
+                                      platform: pair.platform,
+                                      swiftVersion: pair.swiftVersion,
                                       versionId: trigger.versionId)
+                            .flatMap { _ in
+                                Build(versionId: trigger.versionId,
+                                      platform: pair.platform,
+                                      status: .pending,
+                                      swiftVersion: pair.swiftVersion)
+                                    .create(on: database)
+                            }
                             .transform(to: ())
                     }
-                    .flatten(on: application.db.eventLoop)
+                    .flatten(on: database.eventLoop)
                 }
-                .flatten(on: application.db.eventLoop)
+                .flatten(on: database.eventLoop)
             }
     }
-    .flatten(on: application.db.eventLoop)
+    .flatten(on: database.eventLoop)
 }
 
 
