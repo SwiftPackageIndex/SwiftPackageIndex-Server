@@ -69,10 +69,10 @@ class ApiTests: AppTestCase {
         let versionId = try XCTUnwrap(v.id)
         
         do {  // MUT - initial insert
-            let dto: Build.PostCreateDTO = .init(buildCommand: "xcodebuild -scheme Foo",
-                                                 platform: .macosXcodebuild,
-                                                 status: .failed,
-                                                 swiftVersion: .init(5, 2, 0))
+            let dto: API.PostCreateBuildDTO = .init(buildCommand: "xcodebuild -scheme Foo",
+                                                    platform: .macosXcodebuild,
+                                                    status: .failed,
+                                                    swiftVersion: .init(5, 2, 0))
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try app.test(
                 .POST,
@@ -95,9 +95,9 @@ class ApiTests: AppTestCase {
         }
         
         do {  // MUT - update (upsert)
-            let dto: Build.PostCreateDTO = .init(platform: .macosXcodebuild,
-                                                 status: .ok,
-                                                 swiftVersion: .init(5, 2, 0))
+            let dto: API.PostCreateBuildDTO = .init(platform: .macosXcodebuild,
+                                                    status: .ok,
+                                                    swiftVersion: .init(5, 2, 0))
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try app.test(
                 .POST,
@@ -131,10 +131,10 @@ class ApiTests: AppTestCase {
 
         do {  // 90k is ok
             let payload = String.init(repeating: "*", count: 90_000)
-            let dto: Build.PostCreateDTO = .init(logs: payload,
-                                                 platform: .macosXcodebuild,
-                                                 status: .ok,
-                                                 swiftVersion: .init(5, 2, 0))
+            let dto: API.PostCreateBuildDTO = .init(logs: payload,
+                                                    platform: .macosXcodebuild,
+                                                    status: .ok,
+                                                    swiftVersion: .init(5, 2, 0))
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             // testable(method: .running) is required to force the same code path
             // as production code
@@ -153,10 +153,10 @@ class ApiTests: AppTestCase {
 
         do {  // 100k isn't
             let payload = String.init(repeating: "*", count: 100_000)
-            let dto: Build.PostCreateDTO = .init(logs: payload,
-                                                 platform: .macosXcodebuild,
-                                                 status: .ok,
-                                                 swiftVersion: .init(5, 2, 0))
+            let dto: API.PostCreateBuildDTO = .init(logs: payload,
+                                                    platform: .macosXcodebuild,
+                                                    status: .ok,
+                                                    swiftVersion: .init(5, 2, 0))
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             let _app = try app.testable(method: .running)
             try _app.test(
@@ -180,11 +180,11 @@ class ApiTests: AppTestCase {
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
 
-        let dto: Build.PostCreateDTO = .init(logs: "logs",
-                                             logUrl: "log url",
-                                             platform: .macosXcodebuild,
-                                             status: .failed,
-                                             swiftVersion: .init(5, 2, 0))
+        let dto: API.PostCreateBuildDTO = .init(logs: "logs",
+                                                logUrl: "log url",
+                                                platform: .macosXcodebuild,
+                                                status: .failed,
+                                                swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
         try app.test(
             .POST,
@@ -212,9 +212,9 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: Build.PostCreateDTO = .init(platform: .macosXcodebuild,
-                                             status: .ok,
-                                             swiftVersion: .init(5, 2, 0))
+        let dto: API.PostCreateBuildDTO = .init(platform: .macosXcodebuild,
+                                                status: .ok,
+                                                swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
         
         // MUT - no auth header
@@ -248,9 +248,9 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: Build.PostCreateDTO = .init(platform: .macosXcodebuild,
-                                             status: .ok,
-                                             swiftVersion: .init(5, 2, 0))
+        let dto: API.PostCreateBuildDTO = .init(platform: .macosXcodebuild,
+                                                status: .ok,
+                                                swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
         
         // MUT - no auth header
@@ -285,7 +285,7 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3, "beta1")))
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: Build.PostTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
+        let dto: API.PostBuildTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
         
         // we're testing the exact Gitlab trigger post request in detail in
@@ -315,7 +315,7 @@ class ApiTests: AppTestCase {
         let v = try Version(package: p)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
-        let dto: Build.PostTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
+        let dto: API.PostBuildTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
         
         // MUT - no auth header
@@ -360,7 +360,7 @@ class ApiTests: AppTestCase {
 
         let owner = "foo"
         let repo = "bar"
-        let dto: Build.PostTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
+        let dto: API.PostBuildTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
         
         // we're testing the exact Gitlab trigger post request in detail in
@@ -394,7 +394,7 @@ class ApiTests: AppTestCase {
         try v.save(on: app.db).wait()
         let owner = "owner"
         let repo = "repo"
-        let dto: Build.PostTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
+        let dto: API.PostBuildTriggerDTO = .init(platform: .macosXcodebuild, swiftVersion: .init(5, 2, 4))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
         
         var requestsSent = 0

@@ -64,7 +64,7 @@ final class Build: Model, Content {
         self.swiftVersion = swiftVersion
     }
     
-    convenience init(_ dto: PostCreateDTO, _ version: Version) throws {
+    convenience init(_ dto: API.PostCreateBuildDTO, _ version: Version) throws {
         try self.init(version: version,
                       buildCommand: dto.buildCommand,
                       logs: dto.logs,
@@ -81,23 +81,6 @@ extension Build {
     enum Status: String, Codable {
         case ok
         case failed
-    }
-}
-
-
-extension Build {
-    struct PostTriggerDTO: Codable {
-        var platform: Platform
-        var swiftVersion: SwiftVersion
-    }
-    
-    struct PostCreateDTO: Codable {
-        var buildCommand: String?
-        var logs: String?
-        var logUrl: String?
-        var platform: Platform
-        var status: Status
-        var swiftVersion: SwiftVersion
     }
 }
 
