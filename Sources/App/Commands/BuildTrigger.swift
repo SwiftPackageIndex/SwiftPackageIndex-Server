@@ -68,8 +68,8 @@ func fetchBuildCandidates(_ database: Database,
     let latest = SQLIdentifier("latest")
     let updatedAt = SQLIdentifier("updated_at")
 
-    let swiftVersions = SwiftVersionCompatibility.all
-    let platforms: [Build.Platform] = [.ios, .macosSpm, .macosXcodebuild, .tvos, .watchos]
+    let swiftVersions = SwiftVersion.allActive
+    let platforms = Build.Platform.allActive
     let expectedBuildCount = swiftVersions.count * platforms.count
 
     let buildUnderCount = SQLBinaryExpression(left: count(SQLRaw("*")),

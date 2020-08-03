@@ -175,7 +175,7 @@ extension BuildIndex.Model {
     }
 
     struct RowIndex: Hashable {
-        var swiftVersion: SwiftVersionCompatibility
+        var swiftVersion: SwiftVersion
         var platform: Build.Platform
 
         init?(_ build: BuildInfo) {
@@ -183,18 +183,15 @@ extension BuildIndex.Model {
             self.init(swiftVersion: swiftVersion, platform: build.platform)
         }
 
-        internal init(swiftVersion: SwiftVersionCompatibility, platform: Build.Platform) {
+        internal init(swiftVersion: SwiftVersion, platform: Build.Platform) {
             self.swiftVersion = swiftVersion
             self.platform = platform
         }
 
         static var all: [RowIndex] {
-            let versions: [SwiftVersionCompatibility] = [.v5_3, .v5_2, .v5_1, .v5_0, .v4_2]
-            let platforms: [Build.Platform] = [.ios,
-                                               .macosXcodebuild, .macosSpm,
-                                               .tvos,
-                                               .watchos]
-            let rows: [(SwiftVersionCompatibility, Build.Platform)] = versions.reduce([]) { rows, version in
+            let versions = SwiftVersion.allActive.reversed()
+            let platforms = Build.Platform.allActive
+            let rows: [(SwiftVersion, Build.Platform)] = versions.reduce([]) { rows, version in
                 rows + platforms.map { (version, $0) }
             }
             return rows.map(RowIndex.init(swiftVersion:platform:))
