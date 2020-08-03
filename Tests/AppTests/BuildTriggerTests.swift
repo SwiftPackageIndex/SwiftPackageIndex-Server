@@ -54,10 +54,11 @@ class BuildTriggerTests: AppTestCase {
     func test_findMissingBuilds() throws {
         // setup
         let pkgId = UUID()
+        let versionId = UUID()
         do {  // save package with partially completed builds
             let p = Package(id: pkgId, url: "2")
             try p.save(on: app.db).wait()
-            let v = try Version(package: p, latest: .defaultBranch)
+            let v = try Version(id: versionId, package: p, latest: .defaultBranch)
             try v.save(on: app.db).wait()
             try Build.Platform.allActive
                 .dropFirst() // skip one platform to create a build gap
@@ -75,10 +76,8 @@ class BuildTriggerTests: AppTestCase {
 
         // MUT
         let res = try findMissingBuilds(app.db, packageId: pkgId).wait()
-
         let droppedPlatform = try XCTUnwrap(Build.Platform.allActive.first)
-        XCTAssertEqual(res, [
-            Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
-        ])
+        let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
+        XCTAssertEqual(res, [.init(versionId, expectedPairs)])
     }
 }
