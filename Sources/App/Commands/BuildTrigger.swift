@@ -3,7 +3,7 @@ import SQLKit
 import Vapor
 
 
-struct BuilderCommand: Command {
+struct BuildTriggerCommand: Command {
     let defaultLimit = 1
 
     struct Signature: CommandSignature {
