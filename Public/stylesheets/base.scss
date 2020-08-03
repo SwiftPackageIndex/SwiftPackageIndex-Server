@@ -125,6 +125,10 @@ button:focus {
     margin-right: 7px;
   }
 
+  &.grey {
+    background-color: var(--lozenge-grey-background);
+  }
+
   &.green {
     background-color: var(--lozenge-green-background);
   }

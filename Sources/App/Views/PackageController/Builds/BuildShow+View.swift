@@ -83,7 +83,6 @@ private extension Build.Status {
         switch self {
             case .ok: return "green"
             case .failed: return "red"
-            // FIXME: what class to use?
             case .pending: return "grey"
         }
     }
