@@ -92,3 +92,20 @@ func fetchBuildCandidates(_ database: Database,
         .all(decoding: Row.self)
         .mapEach(\.packageId)
 }
+
+
+struct BuildPair: Equatable {
+    var platform: Build.Platform
+    var swiftVersion: SwiftVersion
+
+    init(_ platform: Build.Platform, _ swiftVersion: SwiftVersion) {
+        self.platform = platform
+        self.swiftVersion = swiftVersion
+    }
+}
+
+
+func findMissingBuilds(_ database: Database,
+                       packageId: Package.Id) -> EventLoopFuture<[BuildPair]> {
+    database.eventLoop.future([])
+}
