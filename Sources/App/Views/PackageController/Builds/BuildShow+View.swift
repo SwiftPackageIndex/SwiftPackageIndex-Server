@@ -92,7 +92,6 @@ private extension Build.Status {
         switch self {
             case .ok: return "matrix_succeeded"
             case .failed: return "matrix_failed"
-            // FIXME: what icon to use?
             case .pending: return "matrix_pending"
         }
     }
