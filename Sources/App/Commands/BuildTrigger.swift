@@ -42,10 +42,24 @@ func triggerBuilds(application: Application, limit: Int) throws -> EventLoopFutu
 
 
 func triggerBuilds(application: Application, packages: [Package.Id]) -> EventLoopFuture<Void> {
-    packages.forEach {
-        print("id: \($0)")
+    packages.map {
+        findMissingBuilds(application.db, packageId: $0)
+            .flatMap { triggers in
+                triggers.map { trigger -> EventLoopFuture<Void> in
+                    trigger.pairs.map {
+                        Build.trigger(database: application.db,
+                                      client: application.client,
+                                      platform: $0.platform,
+                                      swiftVersion: $0.swiftVersion,
+                                      versionId: trigger.versionId)
+                            .transform(to: ())
+                    }
+                    .flatten(on: application.db.eventLoop)
+                }
+                .flatten(on: application.db.eventLoop)
+            }
     }
-    return application.eventLoopGroup.next().future()
+    .flatten(on: application.db.eventLoop)
 }
 
 

@@ -80,4 +80,12 @@ class BuildTriggerTests: AppTestCase {
         let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
         XCTAssertEqual(res, [.init(versionId, expectedPairs)])
     }
+
+    func test_triggerBuilds() throws {
+        XCTFail("implement")
+        // ensure Gitlab requests go out
+        // ensure the Build stubs are created to prevent re-selection
+        // ensure re-selection is empty
+    }
+
 }
