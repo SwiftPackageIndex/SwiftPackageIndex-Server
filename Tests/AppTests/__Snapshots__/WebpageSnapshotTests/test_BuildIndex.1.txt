@@ -374,8 +374,8 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                  <div class="pending">
+                    <i class="icon matrix_pending"></i>
                   </div>
                   <div class="succeeded">
                     <i class="icon matrix_succeeded"></i>
