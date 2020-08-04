@@ -64,4 +64,33 @@ class GitlabBuilderTests: XCTestCase {
                                            versionID: versionID).wait()
         XCTAssertTrue(called)
     }
+
+    func test_getStatusCount() throws {
+        Current.gitlabPipelineToken = { "pipeline token" }
+
+        var page = 1
+        let client = MockClient { req, res in
+            XCTAssertEqual(req.url.string, "https://gitlab.com/api/v4/projects/19564054/pipelines?status=pending&page=\(page)&per_page=20")
+            res.status = .ok
+            let pending = #"{"id": 1, "status": "pending"}"#
+            switch page {
+                case 1:
+                    let list = Array(repeating: pending, count: 20).joined(separator: ", ")
+                    res.body = makeBody("[\(list)]")
+                case 2:
+                    let list = Array(repeating: pending, count: 10).joined(separator: ", ")
+                    res.body = makeBody("[\(list)]")
+                default:
+                    XCTFail("unexpected page: \(page)")
+            }
+            page += 1
+        }
+
+        let res = try Gitlab.Builder.getStatusCount(client: client,
+                                                    status: .pending,
+                                                    pageSize: 20,
+                                                    maxPageCount: 3).wait()
+        XCTAssertEqual(res, 30)
+    }
+
 }

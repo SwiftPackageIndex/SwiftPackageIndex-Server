@@ -8,8 +8,11 @@ struct AppEnvironment {
     var fetchPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
     var fetchMetadata: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Metadata>
     var fileManager: FileManager
+    var getStatusCount: (_ client: Client,
+                         _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
     var githubToken: () -> String?
     var gitlabPipelineToken: () -> String?
+    var gitlabPipelineLimit: () -> Int
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>
     var rollbarToken: () -> String?
     var rollbarLogLevel: () -> AppError.Level
@@ -24,8 +27,20 @@ extension AppEnvironment {
         fetchPackageList: liveFetchPackageList,
         fetchMetadata: Github.fetchMetadata(client:package:),
         fileManager: .live,
+        getStatusCount: { client, status in
+            Gitlab.Builder.getStatusCount(
+                client: client,
+                status: status,
+                page: 1,
+                pageSize: 100,
+                maxPageCount: 3)
+        },
         githubToken: { Environment.get("GITHUB_TOKEN") },
-        gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN")},
+        gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN") },
+        gitlabPipelineLimit: {
+            Environment.get("GITLAB_PIPELINE_LIMIT").flatMap(Int.init)
+            ?? Constants.defaultGitlabPipelineLimit
+        },
         reportError: AppError.report,
         rollbarToken: { Environment.get("ROLLBAR_TOKEN") },
         rollbarLogLevel: {

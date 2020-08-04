@@ -2,45 +2,153 @@ import Vapor
 
 
 enum Gitlab {
-    
+
+    static let baseURL = "https://gitlab.com/api/v4"
+
     enum Error: LocalizedError {
         case missingToken
+        case requestFailed(HTTPStatus, URI)
     }
-    
-    enum Builder {
-        
-        static let branch = "main"
-        static let projectId = 19564054
-        static var projectURL: String { "https://gitlab.com/api/v4/projects/\(projectId)" }
-        
-        static func postTrigger(client: Client,
-                                cloneURL: String,
-                                platform: Build.Platform,
-                                reference: Reference,
-                                swiftVersion: SwiftVersion,
-                                versionID: Version.Id) -> EventLoopFuture<ClientResponse> {
-            guard let pipelineToken = Current.gitlabPipelineToken(),
-                  let builderToken = Current.builderToken()
-            else { return client.eventLoop.future(error: Error.missingToken) }
-            
-            let uri: URI = .init(string: "\(projectURL)/trigger/pipeline")
-            let req = client
-                .post(uri) { req in
-                    let data: [String: String] = [
-                        "token": pipelineToken,
-                        "ref": branch,
-                        "variables[API_BASEURL]": SiteURL.apiBaseURL,
-                        "variables[BUILD_PLATFORM]": platform.rawValue,
-                        "variables[BUILDER_TOKEN]": builderToken,
-                        "variables[CLONE_URL]": cloneURL,
-                        "variables[REFERENCE]": "\(reference)",
-                        "variables[SWIFT_VERSION]": "\(swiftVersion.major).\(swiftVersion.minor).\(swiftVersion.patch)",
-                        "variables[VERSION_ID]": versionID.uuidString,
-                    ]
-                    try req.query.encode(data)
-                }
-            return req
-        }
-        
-    }
+
+    static let decoder: JSONDecoder = {
+        let d = JSONDecoder()
+        d.keyDecodingStrategy = .convertFromSnakeCase
+        d.dateDecodingStrategy = .formatted(DateFormatter.iso8601Full)
+        return d
+    }()
+
 }
+
+
+// MARK: - Build specific constants
+
+
+extension Gitlab {
+
+    enum Builder {
+        /// swiftpackageindex-builder project id
+        static let projectId = 19564054
+        static var projectURL: String { "\(Gitlab.baseURL)/projects/\(projectId)" }
+    }
+
+}
+
+
+// MARK: - Builder pipeline triggers
+
+
+extension Gitlab.Builder {
+
+    static let branch = "main"
+
+    static func postTrigger(client: Client,
+                            cloneURL: String,
+                            platform: Build.Platform,
+                            reference: Reference,
+                            swiftVersion: SwiftVersion,
+                            versionID: Version.Id) -> EventLoopFuture<ClientResponse> {
+        guard let pipelineToken = Current.gitlabPipelineToken(),
+              let builderToken = Current.builderToken()
+        else { return client.eventLoop.future(error: Gitlab.Error.missingToken) }
+
+        let uri: URI = .init(string: "\(projectURL)/trigger/pipeline")
+        let req = client
+            .post(uri) { req in
+                let data: [String: String] = [
+                    "token": pipelineToken,
+                    "ref": branch,
+                    "variables[API_BASEURL]": SiteURL.apiBaseURL,
+                    "variables[BUILD_PLATFORM]": platform.rawValue,
+                    "variables[BUILDER_TOKEN]": builderToken,
+                    "variables[CLONE_URL]": cloneURL,
+                    "variables[REFERENCE]": "\(reference)",
+                    "variables[SWIFT_VERSION]": "\(swiftVersion.major).\(swiftVersion.minor).\(swiftVersion.patch)",
+                    "variables[VERSION_ID]": versionID.uuidString,
+                ]
+                try req.query.encode(data)
+            }
+        return req
+    }
+
+}
+
+
+// MARK: - Builder pipeline queries
+
+
+extension Gitlab.Builder {
+
+    enum Status: String, Decodable {
+        case canceled
+        case created
+        case failed
+        case manual
+        case pending
+        case running
+        case skipped
+        case success
+    }
+
+    struct Pipeline: Decodable {
+        var id: Int
+        var status: Status
+    }
+
+    // https://docs.gitlab.com/ee/api/pipelines.html
+    static func fetchPipelines(client: Client,
+                               status: Status,
+                               page: Int,
+                               pageSize: Int = 20) -> EventLoopFuture<[Pipeline]> {
+        guard let pipelineToken = Current.gitlabPipelineToken()
+        else { return client.eventLoop.future(error: Gitlab.Error.missingToken) }
+
+        let uri: URI = .init(string: "\(projectURL)/pipelines?status=\(status)&page=\(page)&per_page=\(pageSize)")
+        return client
+            .get(uri, headers: HTTPHeaders([("Authorization", "Bearer \(pipelineToken)")]))
+            .flatMap { response -> EventLoopFuture<[Pipeline]> in
+                guard response.status == .ok else {
+                    return client.eventLoop.future(error: Gitlab.Error.requestFailed(response.status, uri))
+                }
+                do {
+                    let res = try response.content.decode([Pipeline].self, using: Gitlab.decoder)
+                    return client.eventLoop.future(res)
+                } catch {
+                    return client.eventLoop.future(error: error)
+                }
+            }
+    }
+
+    static func getStatusCount(client: Client,
+                               status: Status,
+                               page: Int = 1,
+                               pageSize: Int = 20,
+                               maxPageCount: Int = 5) -> EventLoopFuture<Int> {
+        fetchPipelines(client: client, status: status, page: page, pageSize: pageSize)
+            .map(\.count)
+            .flatMap { count -> EventLoopFuture<Int> in
+                if count == pageSize && page < maxPageCount {
+                    return getStatusCount(client: client,
+                                          status: status,
+                                          page: page + 1,
+                                          pageSize: pageSize,
+                                          maxPageCount: maxPageCount)
+                        .map { count + $0 }
+                } else {
+                    return client.eventLoop.future(count)
+                }
+            }
+    }
+
+}
+
+
+private extension DateFormatter {
+    static let iso8601Full: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+        formatter.calendar = Calendar(identifier: .iso8601)
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter
+    }()
+}
+

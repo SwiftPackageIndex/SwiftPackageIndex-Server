@@ -15,35 +15,61 @@ struct BuildTriggerCommand: Command {
 
     var help: String { "Trigger package builds" }
 
+    enum Parameter {
+        case limit(Int)
+        case id(UUID)
+    }
+
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
         let id = signature.id.flatMap(UUID.init(uuidString:))
 
+        let parameter: Parameter
         if let id = id {
             context.console.info("Triggering builds (id: \(id)) ...")
-            try triggerBuilds(application: context.application, id: id).wait()
+            parameter = .id(id)
         } else {
             context.console.info("Triggering builds (limit: \(limit)) ...")
-            try triggerBuilds(application: context.application, limit: limit).wait()
+            parameter = .limit(limit)
         }
+        try triggerBuilds(on: context.application.db,
+                          client: context.application.client,
+                          logger: context.application.logger,
+                          parameter: parameter).wait()
     }
-}
-
-
-func triggerBuilds(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
-    triggerBuilds(on: application.db, client: application.client, packages: [id])
-}
-
-
-func triggerBuilds(application: Application, limit: Int) throws -> EventLoopFuture<Void> {
-    fetchBuildCandidates(application.db, limit: limit)
-        .flatMap { triggerBuilds(on: application.db, client: application.client, packages: $0) }
 }
 
 
 func triggerBuilds(on database: Database,
                    client: Client,
-                   packages: [Package.Id]) -> EventLoopFuture<Void> {
+                   logger: Logger,
+                   parameter: BuildTriggerCommand.Parameter) -> EventLoopFuture<Void> {
+    Current.getStatusCount(client, .pending)
+        .flatMap { count -> EventLoopFuture<Void> in
+            // check if we have capacity to schedule more builds
+            if count >= Current.gitlabPipelineLimit() {
+                logger.info("too many pending pipelines (\(count))")
+                return database.eventLoop.future()
+            } else {
+                switch parameter {
+                    case .limit(let limit):
+                        return fetchBuildCandidates(database, limit: limit)
+                             .flatMap { triggerBuildsUnchecked(on: database,
+                                                               client: client,
+                                                               packages: $0) }
+                    case .id(let id):
+                        return triggerBuildsUnchecked(on: database,
+                                                      client: client,
+                                                      packages: [id])
+                }
+            }
+        }
+}
+
+
+func triggerBuildsUnchecked(on database: Database,
+                            client: Client,
+                            packages: [Package.Id]) -> EventLoopFuture<Void> {
     packages.map {
         findMissingBuilds(database, packageId: $0)
             .flatMap { triggers in
