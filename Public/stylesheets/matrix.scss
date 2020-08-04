@@ -118,6 +118,7 @@ ul.matrix {
       font-size: 20px;
     }
 
+    .pending,
     .unknown {
       background-color: var(--matrix-result-unknown-background);
       color: var(--matrix-result-unknown-text);
