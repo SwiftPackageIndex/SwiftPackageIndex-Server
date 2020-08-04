@@ -52,7 +52,7 @@ class GitlabBuilderTests: XCTestCase {
             // validate
             let swiftVersion = (try? req.query.decode([String: String].self))
                 .flatMap { $0["variables[SWIFT_VERSION]"] }
-            XCTAssertEqual(swiftVersion, "5.0.0")
+            XCTAssertEqual(swiftVersion, "5.0.3")
         }
 
         // MUT
