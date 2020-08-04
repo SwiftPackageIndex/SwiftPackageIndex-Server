@@ -83,7 +83,7 @@ private extension Build.Status {
         switch self {
             case .ok: return "green"
             case .failed: return "red"
-            // FIXME: what class to use?
+            // We should never have pending builds visible on this page, so the CSS class here will never be used.
             case .pending: return "grey"
         }
     }
