@@ -141,7 +141,7 @@ class BuildTriggerTests: AppTestCase {
     }
 
 
-    func test_triggerBuilds_pipeline_limit() throws {
+    func test_triggerBuilds_checked() throws {
         // Ensure we respect the pipeline limit when triggering builds
         // setup
         Current.builderToken = { "builder token" }
