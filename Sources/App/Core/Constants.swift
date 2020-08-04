@@ -9,6 +9,7 @@ import Vapor
 
 
 enum Constants {
+    static let defaultAllowBuildTriggering = true
     static let defaultGitlabPipelineLimit = 200
     
     static let githubComPrefix = "https://github.com/"

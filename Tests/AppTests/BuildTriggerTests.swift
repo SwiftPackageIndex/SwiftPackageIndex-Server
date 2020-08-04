@@ -119,7 +119,10 @@ class BuildTriggerTests: AppTestCase {
         }
 
         // MUT
-        try triggerBuildsUnchecked(on: app.db, client: client, packages: [pkgId]).wait()
+        try triggerBuildsUnchecked(on: app.db,
+                                   client: client,
+                                   logger: app.logger,
+                                   packages: [pkgId]).wait()
 
         // validate
         // ensure Gitlab requests go out
@@ -203,4 +206,59 @@ class BuildTriggerTests: AppTestCase {
             XCTAssertEqual(v?.builds.count, 25)
         }
     }
+
+    func test_override_switch() throws {
+        // Ensure don't trigger if the override is off
+        // setup
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+
+        do {  // confirm that the off switch prevents triggers
+            Current.allowBuildTriggers = { false }
+
+            var triggerCount = 0
+            let client = MockClient { _, _ in triggerCount += 1 }
+
+            let pkgId = UUID()
+            let versionId = UUID()
+            let p = Package(id: pkgId, url: "1")
+            try p.save(on: app.db).wait()
+            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              parameter: .id(pkgId)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 0)
+        }
+
+        do {  // flipping the switch to on should allow triggers to proceed
+            Current.allowBuildTriggers = { true }
+
+            var triggerCount = 0
+            let client = MockClient { _, _ in triggerCount += 1 }
+
+            let pkgId = UUID()
+            let versionId = UUID()
+            let p = Package(id: pkgId, url: "2")
+            try p.save(on: app.db).wait()
+            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              parameter: .id(pkgId)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 25)
+        }
+    }
+
 }
