@@ -119,7 +119,10 @@ class BuildTriggerTests: AppTestCase {
         }
 
         // MUT
-        try triggerBuildsUnchecked(on: app.db, client: client, packages: [pkgId]).wait()
+        try triggerBuildsUnchecked(on: app.db,
+                                   client: client,
+                                   logger: app.logger,
+                                   packages: [pkgId]).wait()
 
         // validate
         // ensure Gitlab requests go out

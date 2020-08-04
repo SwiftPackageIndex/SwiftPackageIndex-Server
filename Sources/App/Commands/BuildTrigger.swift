@@ -60,10 +60,12 @@ func triggerBuilds(on database: Database,
                         return fetchBuildCandidates(database, limit: limit)
                              .flatMap { triggerBuildsUnchecked(on: database,
                                                                client: client,
+                                                               logger: logger,
                                                                packages: $0) }
                     case .id(let id):
                         return triggerBuildsUnchecked(on: database,
                                                       client: client,
+                                                      logger: logger,
                                                       packages: [id])
                 }
             }
@@ -73,12 +75,14 @@ func triggerBuilds(on database: Database,
 
 func triggerBuildsUnchecked(on database: Database,
                             client: Client,
+                            logger: Logger,
                             packages: [Package.Id]) -> EventLoopFuture<Void> {
     packages.map {
         findMissingBuilds(database, packageId: $0)
             .flatMap { triggers in
                 triggers.map { trigger -> EventLoopFuture<Void> in
-                    trigger.pairs.map { pair in
+                    logger.info("Triggering \(trigger.pairs.count) builds for version id: \(trigger.versionId)")
+                    return trigger.pairs.map { pair in
                         Build.trigger(database: database,
                                       client: client,
                                       platform: pair.platform,
