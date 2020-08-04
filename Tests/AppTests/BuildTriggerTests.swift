@@ -82,7 +82,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(res, [.init(versionId, expectedPairs)])
     }
 
-    func test_triggerBuilds() throws {
+    func test_triggerBuildsUnchecked() throws {
         // setup
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
@@ -119,7 +119,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         // MUT
-        try triggerBuilds(on: app.db, client: client, packages: [pkgId]).wait()
+        try triggerBuildsUnchecked(on: app.db, client: client, packages: [pkgId]).wait()
 
         // validate
         // ensure Gitlab requests go out
@@ -163,7 +163,10 @@ class BuildTriggerTests: AppTestCase {
                 .save(on: app.db).wait()
 
             // MUT
-            try triggerBuilds(on: app.db, client: client, packages: [pkgId]).wait()
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              parameter: .id(pkgId)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 0)
@@ -187,7 +190,10 @@ class BuildTriggerTests: AppTestCase {
                 .save(on: app.db).wait()
 
             // MUT
-            try triggerBuilds(on: app.db, client: client, packages: [pkgId]).wait()
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              parameter: .id(pkgId)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 25)
