@@ -129,7 +129,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(queries.map { $0["variables[BUILD_PLATFORM]"] },
                        Array(repeating: "ios", count: 5))
         XCTAssertEqual(queries.compactMap { $0["variables[SWIFT_VERSION]"] }.sorted(),
-                       SwiftVersion.allActive.map { "\($0)" })
+                       SwiftVersion.allActive.map { "\($0.major).\($0.minor).\($0.patch)" })
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
