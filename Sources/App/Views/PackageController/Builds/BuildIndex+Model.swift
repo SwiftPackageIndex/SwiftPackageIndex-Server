@@ -146,6 +146,9 @@ extension BuildIndex.Model {
                                 .i(.class("icon matrix_failed")),
                                 .a(.href(SiteURL.builds(.value(value.id)).relativeURL()),
                                    .text("View Build Log")))
+                case let .some(value) where value.status == .pending:
+                    return .div(.class("pending"),
+                                .i(.class("icon matrix_pending")))
                 case .some, .none:
                     return .div(.class("unknown"), .i(.class("icon matrix_unknown")))
             }

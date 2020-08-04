@@ -20,7 +20,7 @@ extension BuildIndex.Model {
                     name: "1.2.3",
                     kind: .release,
                     builds: [
-                        .init(id: Self.id, swiftVersion: .init(5, 2, 4), platform: .macosXcodebuild,    status: .ok),
+                        .init(id: Self.id, swiftVersion: .init(5, 2, 4), platform: .macosXcodebuild,    status: .pending),
                         .init(id: Self.id, swiftVersion: .init(5, 2, 4), platform: .macosSpm,           status: .ok),
                         .init(id: Self.id, swiftVersion: .init(5, 2, 4), platform: .macosXcodebuildArm, status: .ok),
                         .init(id: Self.id, swiftVersion: .init(5, 2, 4), platform: .macosSpmArm,        status: .ok),
