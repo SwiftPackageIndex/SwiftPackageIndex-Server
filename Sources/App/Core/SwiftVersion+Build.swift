@@ -1,8 +1,8 @@
 extension SwiftVersion {
-    static let v4_2: Self = .init(4, 2, 0)
-    static let v5_0: Self = .init(5, 0, 0)
-    static let v5_1: Self = .init(5, 1, 0)
-    static let v5_2: Self = .init(5, 2, 0)
+    static let v4_2: Self = .init(4, 2, 3)
+    static let v5_0: Self = .init(5, 0, 3)
+    static let v5_1: Self = .init(5, 1, 5)
+    static let v5_2: Self = .init(5, 2, 4)
     static let v5_3: Self = .init(5, 3, 0)
 
     /// Currently supported swift versions for building
