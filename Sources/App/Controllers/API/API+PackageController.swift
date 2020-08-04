@@ -41,7 +41,7 @@ extension API {
             else {
                 return req.eventLoop.future(error: Abort(.notFound))
             }
-            let dto = try req.content.decode(Build.PostTriggerDTO.self)
+            let dto = try req.content.decode(PostBuildTriggerDTO.self)
             return Package.query(on: req.db, owner: owner, repository: repository)
                 .flatMap { pkg in
                     [App.Version.Kind.release, .preRelease, .defaultBranch]

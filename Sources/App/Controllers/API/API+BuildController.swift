@@ -6,7 +6,7 @@ extension API {
     
     struct BuildController {
         func create(req: Request) throws -> EventLoopFuture<Build> {
-            let dto = try req.content.decode(Build.PostCreateDTO.self)
+            let dto = try req.content.decode(PostCreateBuildDTO.self)
             return App.Version.find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
                 .flatMapThrowing { try Build(dto, $0) }
@@ -18,7 +18,7 @@ extension API {
                   let versionId = UUID(uuidString: id) else {
                 return req.eventLoop.future(error: Abort(.badRequest))
             }
-            let dto = try req.content.decode(Build.PostTriggerDTO.self)
+            let dto = try req.content.decode(PostBuildTriggerDTO.self)
             return Build.trigger(database: req.db,
                                  client: req.client,
                                  platform: dto.platform,

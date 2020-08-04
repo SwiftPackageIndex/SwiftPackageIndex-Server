@@ -75,6 +75,7 @@ private extension Build.Status {
         switch self {
             case .ok: return "Build Succeeded"
             case .failed: return "Build Failed"
+            case .pending: return "Build Pending"
         }
     }
 
@@ -82,6 +83,8 @@ private extension Build.Status {
         switch self {
             case .ok: return "green"
             case .failed: return "red"
+            // We should never have pending builds visible on this page, so the CSS class here will never be used.
+            case .pending: return "grey"
         }
     }
 
@@ -89,6 +92,7 @@ private extension Build.Status {
         switch self {
             case .ok: return "matrix_succeeded"
             case .failed: return "matrix_failed"
+            case .pending: return "matrix_pending"
         }
     }
 }

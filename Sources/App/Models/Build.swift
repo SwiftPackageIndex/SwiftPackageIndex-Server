@@ -47,15 +47,15 @@ final class Build: Model, Content {
     init() { }
     
     init(id: Id? = nil,
-         version: Version,
+         versionId: Version.Id,
          buildCommand: String? = nil,
          logs: String? = nil,
          logUrl: String? = nil,
          platform: Platform,
          status: Status,
-         swiftVersion: SwiftVersion) throws {
+         swiftVersion: SwiftVersion) {
         self.id = id
-        self.$version.id = try version.requireID()
+        self.$version.id = versionId
         self.buildCommand = buildCommand
         self.logs = logs
         self.logUrl = logUrl
@@ -63,8 +63,26 @@ final class Build: Model, Content {
         self.status = status
         self.swiftVersion = swiftVersion
     }
-    
-    convenience init(_ dto: PostCreateDTO, _ version: Version) throws {
+
+    convenience init(id: Id? = nil,
+         version: Version,
+         buildCommand: String? = nil,
+         logs: String? = nil,
+         logUrl: String? = nil,
+         platform: Platform,
+         status: Status,
+         swiftVersion: SwiftVersion) throws {
+        self.init(id: id,
+                  versionId: try version.requireID(),
+                  buildCommand: buildCommand,
+                  logs: logs,
+                  logUrl: logUrl,
+                  platform: platform,
+                  status: status,
+                  swiftVersion: swiftVersion)
+    }
+
+    convenience init(_ dto: API.PostCreateBuildDTO, _ version: Version) throws {
         try self.init(version: version,
                       buildCommand: dto.buildCommand,
                       logs: dto.logs,
@@ -81,76 +99,7 @@ extension Build {
     enum Status: String, Codable {
         case ok
         case failed
-    }
-    
-    enum Platform: String, Codable, Equatable {
-        case ios
-        case macosSpmArm        = "macos-spm-arm"
-        case macosXcodebuildArm = "macos-xcodebuild-arm"
-        case macosSpm           = "macos-spm"
-        case macosXcodebuild    = "macos-xcodebuild"
-        case tvos
-        case watchos
-        case linux
-
-        var name: String {
-            switch self {
-                case .ios:
-                    return "iOS"
-                case .macosSpmArm:
-                    return "macOS - SPM - ARM"
-                case .macosXcodebuildArm:
-                    return "macOS - xcodebuild - ARM"
-                case .macosSpm:
-                    return "macOS - SPM"
-                case .macosXcodebuild:
-                    return "macOS - xcodebuild"
-                case .tvos:
-                    return "tvOS"
-                case .watchos:
-                    return "watchOS"
-                case .linux:
-                    return "Linux"
-            }
-        }
-
-        var displayName: String {
-            switch self {
-                case .ios:
-                    return "iOS"
-                case .macosSpmArm:
-                    return "macOS (SPM,ARM)"
-                case .macosXcodebuildArm:
-                    return "macOS (Xcode,ARM)"
-                case .macosSpm:
-                    return "macOS (SPM)"
-                case .macosXcodebuild:
-                    return "macOS (Xcode)"
-                case .tvos:
-                    return "tvOS"
-                case .watchos:
-                    return "watchOS"
-                case .linux:
-                    return "Linux"
-            }
-        }
-    }
-}
-
-
-extension Build {
-    struct PostTriggerDTO: Codable {
-        var platform: Platform
-        var swiftVersion: SwiftVersion
-    }
-    
-    struct PostCreateDTO: Codable {
-        var buildCommand: String?
-        var logs: String?
-        var logUrl: String?
-        var platform: Platform
-        var status: Status
-        var swiftVersion: SwiftVersion
+        case pending
     }
 }
 

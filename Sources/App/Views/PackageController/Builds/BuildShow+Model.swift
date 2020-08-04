@@ -36,7 +36,7 @@ extension BuildShow {
         var logs: String
         var platform: App.Build.Platform
         var status: App.Build.Status
-        var swiftVersion: SwiftVersionCompatibility
+        var swiftVersion: SwiftVersion
 
         init?(_ build: App.Build) {
             guard let swiftVersion = build.swiftVersion.compatibility else { return nil }
@@ -51,7 +51,7 @@ extension BuildShow {
                       logs: String,
                       platform: App.Build.Platform,
                       status: App.Build.Status,
-                      swiftVersion: SwiftVersionCompatibility) {
+                      swiftVersion: SwiftVersion) {
             self.buildCommand = buildCommand
             self.logs = logs
             self.platform = platform

@@ -1,7 +1,7 @@
 import Vapor
 
 
-struct SwiftVersion: Content, Equatable {
+struct SwiftVersion: Content, Equatable, Hashable {
     var major: Int
     var minor: Int
     var patch: Int
