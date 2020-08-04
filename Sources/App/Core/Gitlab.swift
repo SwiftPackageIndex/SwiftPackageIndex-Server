@@ -34,7 +34,7 @@ enum Gitlab {
                         "variables[BUILDER_TOKEN]": builderToken,
                         "variables[CLONE_URL]": cloneURL,
                         "variables[REFERENCE]": "\(reference)",
-                        "variables[SWIFT_VERSION]": "\(swiftVersion)",
+                        "variables[SWIFT_VERSION]": "\(swiftVersion.major).\(swiftVersion.minor).\(swiftVersion.patch)",
                         "variables[VERSION_ID]": versionID.uuidString,
                     ]
                     try req.query.encode(data)
