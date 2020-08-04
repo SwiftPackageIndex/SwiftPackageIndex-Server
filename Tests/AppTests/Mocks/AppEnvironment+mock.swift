@@ -5,6 +5,7 @@ import Vapor
 
 extension AppEnvironment {
     static let mock: Self = .init(
+        allowBuildTriggers: { true },
         builderToken: { nil },
         date: Date.init,
         fetchPackageList: { _ in

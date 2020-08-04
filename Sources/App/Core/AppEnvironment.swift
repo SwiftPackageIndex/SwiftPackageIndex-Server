@@ -3,6 +3,7 @@ import Vapor
 
 
 struct AppEnvironment {
+    var allowBuildTriggers: () -> Bool
     var builderToken: () -> String?
     var date: () -> Date
     var fetchPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
@@ -22,6 +23,17 @@ struct AppEnvironment {
 
 extension AppEnvironment {
     static let live: Self = .init(
+        allowBuildTriggers: {
+            Environment.get("ALLOW_BUILD_TRIGGERS")
+                .flatMap { value -> Bool? in
+                    switch value {
+                        case "1": return true
+                        case "0": return false
+                        default: return Bool(value.lowercased())
+                    }
+                }
+                ?? Constants.defaultAllowBuildTriggering
+        },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         date: Date.init,
         fetchPackageList: liveFetchPackageList,

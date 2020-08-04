@@ -44,7 +44,11 @@ func triggerBuilds(on database: Database,
                    client: Client,
                    logger: Logger,
                    parameter: BuildTriggerCommand.Parameter) -> EventLoopFuture<Void> {
-    Current.getStatusCount(client, .pending)
+    guard Current.allowBuildTriggers() else {
+        logger.info("Build trigger override switch OFF - no builds are being triggered")
+        return database.eventLoop.future()
+    }
+    return Current.getStatusCount(client, .pending)
         .flatMap { count -> EventLoopFuture<Void> in
             // check if we have capacity to schedule more builds
             if count >= Current.gitlabPipelineLimit() {
