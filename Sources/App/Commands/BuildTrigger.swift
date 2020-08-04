@@ -44,31 +44,41 @@ func triggerBuilds(application: Application, limit: Int) throws -> EventLoopFutu
 func triggerBuilds(on database: Database,
                    client: Client,
                    packages: [Package.Id]) -> EventLoopFuture<Void> {
-    packages.map {
-        findMissingBuilds(database, packageId: $0)
-            .flatMap { triggers in
-                triggers.map { trigger -> EventLoopFuture<Void> in
-                    trigger.pairs.map { pair in
-                        Build.trigger(database: database,
-                                      client: client,
-                                      platform: pair.platform,
-                                      swiftVersion: pair.swiftVersion,
-                                      versionId: trigger.versionId)
-                            .flatMap { _ in
-                                Build(versionId: trigger.versionId,
-                                      platform: pair.platform,
-                                      status: .pending,
-                                      swiftVersion: pair.swiftVersion)
-                                    .create(on: database)
+    Current.getStatusCount(client, .pending)
+        .flatMap { count -> EventLoopFuture<Void> in
+            // check if we have capacity to schedule more builds
+            if count >= Current.gitlabPipelineLimit() {
+                print("too many pending pipelines (\(count))")
+                return database.eventLoop.future()
+            } else {
+                // schedule builds
+                return packages.map {
+                    findMissingBuilds(database, packageId: $0)
+                        .flatMap { triggers in
+                            triggers.map { trigger -> EventLoopFuture<Void> in
+                                trigger.pairs.map { pair in
+                                    Build.trigger(database: database,
+                                                  client: client,
+                                                  platform: pair.platform,
+                                                  swiftVersion: pair.swiftVersion,
+                                                  versionId: trigger.versionId)
+                                        .flatMap { _ in
+                                            Build(versionId: trigger.versionId,
+                                                  platform: pair.platform,
+                                                  status: .pending,
+                                                  swiftVersion: pair.swiftVersion)
+                                                .create(on: database)
+                                        }
+                                        .transform(to: ())
+                                }
+                                .flatten(on: database.eventLoop)
                             }
-                            .transform(to: ())
-                    }
-                    .flatten(on: database.eventLoop)
+                            .flatten(on: database.eventLoop)
+                        }
                 }
                 .flatten(on: database.eventLoop)
             }
-    }
-    .flatten(on: database.eventLoop)
+        }
 }
 
 
