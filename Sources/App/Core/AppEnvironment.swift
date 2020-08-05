@@ -12,6 +12,7 @@ struct AppEnvironment {
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
     var githubToken: () -> String?
+    var gitlabApiToken: () -> String?
     var gitlabPipelineToken: () -> String?
     var gitlabPipelineLimit: () -> Int
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>
@@ -48,6 +49,7 @@ extension AppEnvironment {
                 maxPageCount: 3)
         },
         githubToken: { Environment.get("GITHUB_TOKEN") },
+        gitlabApiToken: { Environment.get("GITLAB_API_TOKEN") },
         gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN") },
         gitlabPipelineLimit: {
             Environment.get("GITLAB_PIPELINE_LIMIT").flatMap(Int.init)

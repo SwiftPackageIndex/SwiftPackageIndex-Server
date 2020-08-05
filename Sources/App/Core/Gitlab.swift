@@ -99,12 +99,12 @@ extension Gitlab.Builder {
                                status: Status,
                                page: Int,
                                pageSize: Int = 20) -> EventLoopFuture<[Pipeline]> {
-        guard let pipelineToken = Current.gitlabPipelineToken()
+        guard let apiToken = Current.gitlabApiToken()
         else { return client.eventLoop.future(error: Gitlab.Error.missingToken) }
 
         let uri: URI = .init(string: "\(projectURL)/pipelines?status=\(status)&page=\(page)&per_page=\(pageSize)")
         return client
-            .get(uri, headers: HTTPHeaders([("Authorization", "Bearer \(pipelineToken)")]))
+            .get(uri, headers: HTTPHeaders([("Authorization", "Bearer \(apiToken)")]))
             .flatMap { response -> EventLoopFuture<[Pipeline]> in
                 guard response.status == .ok else {
                     return client.eventLoop.future(error: Gitlab.Error.requestFailed(response.status, uri))
