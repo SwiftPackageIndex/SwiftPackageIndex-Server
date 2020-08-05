@@ -29,10 +29,10 @@ extension AppEnvironment {
         allowBuildTriggers: {
             Environment.get("ALLOW_BUILD_TRIGGERS")
                 .flatMap { value -> Bool? in
-                    switch value {
-                        case "1": return true
-                        case "0": return false
-                        default: return Bool(value.lowercased())
+                    switch value.lowercased() {
+                        case "1", "yes", "true": return true
+                        case "0", "no", "false": return false
+                        default: return Bool(value)
                     }
                 }
                 ?? Constants.defaultAllowBuildTriggering
