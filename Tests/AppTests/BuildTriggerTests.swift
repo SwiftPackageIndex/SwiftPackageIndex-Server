@@ -261,4 +261,60 @@ class BuildTriggerTests: AppTestCase {
         }
     }
 
+    func test_downscaling() throws {
+        // Test build trigger downscaling behaviour
+        // setup
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+        Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate
+
+        do {  // confirm that bad luck prevents triggers
+            Current.random = { _ in 0.051 }  // rolling a 0.051 ... so close!
+
+            var triggerCount = 0
+            let client = MockClient { _, _ in triggerCount += 1 }
+
+            let pkgId = UUID()
+            let versionId = UUID()
+            let p = Package(id: pkgId, url: "1")
+            try p.save(on: app.db).wait()
+            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              parameter: .id(pkgId)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 0)
+        }
+
+        do {  // if we get lucky however...
+            Current.random = { _ in 0.05 }  // rolling a 0.05 gets you in
+
+            var triggerCount = 0
+            let client = MockClient { _, _ in triggerCount += 1 }
+
+            let pkgId = UUID()
+            let versionId = UUID()
+            let p = Package(id: pkgId, url: "2")
+            try p.save(on: app.db).wait()
+            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              parameter: .id(pkgId)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 25)
+        }
+
+    }
+
 }
