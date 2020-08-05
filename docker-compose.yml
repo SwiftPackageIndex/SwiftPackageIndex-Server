@@ -70,6 +70,17 @@ services:
     ]
     restart: always
 
+  trigger_builds:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    depends_on:
+      - migrate
+    entrypoint: ["/bin/bash"]
+    command: ["-c", "--",
+      "trap : TERM INT; while true; do ./Run trigger-builds --env ${ENV} --limit ${BUILD_TRIGGER_LIMIT:-1}; sleep ${BUILD_TRIGGER_SLEEP:-60}; done"
+    ]
+    restart: always
+  
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
