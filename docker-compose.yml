@@ -8,6 +8,8 @@ x-shared: &shared
   environment:
     # set these variables via the environment or a `.env` file, which
     # docker-compose reads and uses to populate variables
+    ALLOW_BUILD_TRIGGERS: ${ALLOW_BUILD_TRIGGERS}
+    BUILD_TRIGGER_DOWNSCALING: ${BUILD_TRIGGER_DOWNSCALING}
     BUILDER_TOKEN: ${BUILDER_TOKEN}
     CHECKOUTS_DIR: ${CHECKOUTS_DIR}
     DATABASE_HOST: ${DATABASE_HOST}
@@ -70,6 +72,17 @@ services:
     ]
     restart: always
 
+  trigger_builds:
+    image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
+    <<: *shared
+    depends_on:
+      - migrate
+    entrypoint: ["/bin/bash"]
+    command: ["-c", "--",
+      "trap : TERM INT; while true; do ./Run trigger-builds --env ${ENV} --limit ${BUILD_TRIGGER_LIMIT:-1}; sleep ${BUILD_TRIGGER_SLEEP:-60}; done"
+    ]
+    restart: always
+  
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared

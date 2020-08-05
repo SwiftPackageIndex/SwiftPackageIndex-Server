@@ -7,6 +7,7 @@ extension AppEnvironment {
     static let mock: Self = .init(
         allowBuildTriggers: { true },
         builderToken: { nil },
+        buildTriggerDownscaling: { 1.0 },
         date: Date.init,
         fetchPackageList: { _ in
             .just(value: ["https://github.com/finestructure/Gala",
@@ -19,6 +20,7 @@ extension AppEnvironment {
         gitlabApiToken: { nil },
         gitlabPipelineToken: { nil },
         gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
+        random: Double.random,
         reportError: { _, _, _ in .just(value: ()) },
         rollbarToken: { nil },
         rollbarLogLevel: { .critical },

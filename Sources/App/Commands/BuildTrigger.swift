@@ -48,6 +48,10 @@ func triggerBuilds(on database: Database,
         logger.info("Build trigger override switch OFF - no builds are being triggered")
         return database.eventLoop.future()
     }
+    guard Current.random(0...1) <= Current.buildTriggerDownscaling() else {
+        logger.info("Build trigger downscaling in effect - skipping builds")
+        return database.eventLoop.future()
+    }
     return Current.getStatusCount(client, .pending)
         .flatMap { count -> EventLoopFuture<Void> in
             // check if we have capacity to schedule more builds

@@ -5,6 +5,7 @@ import Vapor
 struct AppEnvironment {
     var allowBuildTriggers: () -> Bool
     var builderToken: () -> String?
+    var buildTriggerDownscaling: () -> Double
     var date: () -> Date
     var fetchPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
     var fetchMetadata: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Metadata>
@@ -15,6 +16,7 @@ struct AppEnvironment {
     var gitlabApiToken: () -> String?
     var gitlabPipelineToken: () -> String?
     var gitlabPipelineLimit: () -> Int
+    var random: (_ range: ClosedRange<Double>) -> Double
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>
     var rollbarToken: () -> String?
     var rollbarLogLevel: () -> AppError.Level
@@ -27,15 +29,20 @@ extension AppEnvironment {
         allowBuildTriggers: {
             Environment.get("ALLOW_BUILD_TRIGGERS")
                 .flatMap { value -> Bool? in
-                    switch value {
-                        case "1": return true
-                        case "0": return false
-                        default: return Bool(value.lowercased())
+                    switch value.lowercased() {
+                        case "1", "yes", "true": return true
+                        case "0", "no", "false": return false
+                        default: return Bool(value)
                     }
                 }
                 ?? Constants.defaultAllowBuildTriggering
         },
         builderToken: { Environment.get("BUILDER_TOKEN") },
+        buildTriggerDownscaling: {
+            Environment.get("BUILD_TRIGGER_DOWNSCALING")
+                .flatMap(Double.init)
+                ?? 1.0
+        },
         date: Date.init,
         fetchPackageList: liveFetchPackageList,
         fetchMetadata: Github.fetchMetadata(client:package:),
@@ -55,6 +62,7 @@ extension AppEnvironment {
             Environment.get("GITLAB_PIPELINE_LIMIT").flatMap(Int.init)
             ?? Constants.defaultGitlabPipelineLimit
         },
+        random: Double.random,
         reportError: AppError.report,
         rollbarToken: { Environment.get("ROLLBAR_TOKEN") },
         rollbarLogLevel: {
