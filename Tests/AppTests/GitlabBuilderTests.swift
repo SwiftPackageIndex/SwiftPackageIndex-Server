@@ -66,7 +66,8 @@ class GitlabBuilderTests: XCTestCase {
     }
 
     func test_getStatusCount() throws {
-        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.gitlabApiToken = { "api token" }
+        Current.gitlabPipelineToken = { nil }
 
         var page = 1
         let client = MockClient { req, res in
