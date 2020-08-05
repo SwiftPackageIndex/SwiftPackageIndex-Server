@@ -8,6 +8,8 @@ x-shared: &shared
   environment:
     # set these variables via the environment or a `.env` file, which
     # docker-compose reads and uses to populate variables
+    ALLOW_BUILD_TRIGGERS: ${ALLOW_BUILD_TRIGGERS}
+    BUILD_TRIGGER_DOWNSCALING: ${BUILD_TRIGGER_DOWNSCALING}
     BUILDER_TOKEN: ${BUILDER_TOKEN}
     CHECKOUTS_DIR: ${CHECKOUTS_DIR}
     DATABASE_HOST: ${DATABASE_HOST}
