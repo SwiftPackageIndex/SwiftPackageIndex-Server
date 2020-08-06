@@ -74,6 +74,7 @@ func triggerBuilds(on database: Database,
                 }
             }
         }
+        .flatMap { trimBuilds(on: database) }
 }
 
 
@@ -197,4 +198,22 @@ func findMissingBuilds(_ database: Database,
         let pairs = Set(allPairs).subtracting(Set(existing))
         return BuildTriggerInfo(versionId, pairs)
     }
+}
+
+
+func trimBuilds(on database: Database) -> EventLoopFuture<Void> {
+    guard let db = database as? SQLDatabase else {
+        fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+    }
+    return db.raw("""
+        delete
+        from builds b
+        using versions v
+        where b.version_id = v.id
+        and (
+            v.latest is null
+            or
+            (b.status = 'pending' and b.created_at < now() - interval '\(bind: Constants.trimBuildsGracePeriod) hours')
+        )
+        """).run()
 }
