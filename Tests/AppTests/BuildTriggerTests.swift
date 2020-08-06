@@ -351,7 +351,7 @@ class BuildTriggerTests: AppTestCase {
 
             // make old builds "old" by resetting "created_at"
             try [deleteId1, keepBuildId2].forEach { id in
-                let sql = "update builds set created_at = created_at - interval '24 hours' where id = '\(id.uuidString)'"
+                let sql = "update builds set created_at = created_at - interval '4 hours' where id = '\(id.uuidString)'"
                 try (app.db as! SQLDatabase).raw(.init(sql)).run().wait()
             }
         }

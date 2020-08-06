@@ -201,7 +201,6 @@ func findMissingBuilds(_ database: Database,
 
 
 func trimBuilds(on database: Database) -> EventLoopFuture<Void> {
-    let cutoff: Int = 24
     guard let db = database as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
@@ -213,7 +212,7 @@ func trimBuilds(on database: Database) -> EventLoopFuture<Void> {
         and (
             v.latest is null
             or
-            (b.status = 'pending' and b.created_at < now() - interval '\(bind: cutoff) hours')
+            (b.status = 'pending' and b.created_at < now() - interval '\(bind: Constants.trimBuildsGracePeriod) hours')
         )
         """).run()
 }
