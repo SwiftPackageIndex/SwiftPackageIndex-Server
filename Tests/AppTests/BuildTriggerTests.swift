@@ -1,5 +1,6 @@
 @testable import App
 
+import SQLKit
 import Vapor
 import XCTest
 
@@ -315,6 +316,70 @@ class BuildTriggerTests: AppTestCase {
             XCTAssertEqual(triggerCount, 25)
         }
 
+    }
+
+    func test_trimBuilds() throws {
+        // setup
+        let pkgId = UUID()
+        // save package with all builds
+        let p = Package(id: pkgId, url: "1")
+        try p.save(on: app.db).wait()
+        // v1 is a significant version, only old pending builds should be deleted
+        let v1 = try Version(package: p, latest: .defaultBranch)
+        try v1.save(on: app.db).wait()
+        // v2 is not a significant version - all its builds should be deleted
+        let v2 = try Version(package: p)
+        try v2.save(on: app.db).wait()
+
+        let deleteId1 = UUID()
+        let keepBuildId1 = UUID()
+        let keepBuildId2 = UUID()
+
+        do {  // v1 builds
+            // old pending build (delete)
+            try Build(id: deleteId1,
+                      version: v1, platform: .ios, status: .pending, swiftVersion: .v5_1)
+                .save(on: app.db).wait()
+            // new pending build (keep)
+            try Build(id: keepBuildId1,
+                      version: v1, platform: .ios, status: .pending, swiftVersion: .v5_2)
+                .save(on: app.db).wait()
+            // old non-pending build (keep)
+            try Build(id: keepBuildId2,
+                      version: v1, platform: .ios, status: .ok, swiftVersion: .v5_3)
+                .save(on: app.db).wait()
+
+            // make old builds "old" by resetting "created_at"
+            try [deleteId1, keepBuildId2].forEach { id in
+                let sql = "update builds set created_at = created_at - interval '24 hours' where id = '\(id.uuidString)'"
+                try (app.db as! SQLDatabase).raw(.init(sql)).run().wait()
+            }
+        }
+
+        do {  // v2 builds (should all be deleted)
+            // old pending build
+            try Build(id: UUID(),
+                      version: v2, platform: .ios, status: .pending, swiftVersion: .v5_1)
+                .save(on: app.db).wait()
+            // new pending build
+            try Build(id: UUID(),
+                      version: v2, platform: .ios, status: .pending, swiftVersion: .v5_2)
+                .save(on: app.db).wait()
+            // old non-pending build
+            try Build(id: UUID(),
+                      version: v2, platform: .ios, status: .ok, swiftVersion: .v5_3)
+                .save(on: app.db).wait()
+        }
+
+        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 6)
+
+        // MUT
+        _ = try trimBuilds(on: app.db).wait()
+
+        // validate
+        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 2)
+        XCTAssertEqual(try Build.query(on: app.db).all().wait().map(\.id),
+                       [keepBuildId1, keepBuildId2])
     }
 
 }

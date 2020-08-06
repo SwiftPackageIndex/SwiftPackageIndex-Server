@@ -198,3 +198,22 @@ func findMissingBuilds(_ database: Database,
         return BuildTriggerInfo(versionId, pairs)
     }
 }
+
+
+func trimBuilds(on database: Database) -> EventLoopFuture<Void> {
+    let cutoff: Int = 24
+    guard let db = database as? SQLDatabase else {
+        fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+    }
+    return db.raw("""
+        delete
+        from builds b
+        using versions v
+        where b.version_id = v.id
+        and (
+            v.latest is null
+            or
+            (b.status = 'pending' and b.created_at < now() - interval '\(bind: cutoff) hours')
+        )
+        """).run()
+}
