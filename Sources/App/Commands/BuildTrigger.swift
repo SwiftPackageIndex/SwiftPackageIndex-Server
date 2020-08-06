@@ -74,6 +74,7 @@ func triggerBuilds(on database: Database,
                 }
             }
         }
+        .flatMap { trimBuilds(on: database) }
 }
 
 

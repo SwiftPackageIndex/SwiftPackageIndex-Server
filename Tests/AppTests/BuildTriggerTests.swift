@@ -208,6 +208,36 @@ class BuildTriggerTests: AppTestCase {
         }
     }
 
+    func test_triggerBuilds_trimming() throws {
+        // Ensure we trim builds as part of triggering
+        // setup
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+        Current.gitlabPipelineLimit = { 300 }
+
+        let client = MockClient { _, _ in }
+
+        let pkgId = UUID()
+        let versionId = UUID()
+        let p = Package(id: pkgId, url: "2")
+        try p.save(on: app.db).wait()
+        let v = try Version(id: versionId, package: p, latest: nil, reference: .branch("main"))
+        try v.save(on: app.db).wait()
+        try Build(id: UUID(), version: v, platform: .ios, status: .pending, swiftVersion: .v5_1)
+            .save(on: app.db).wait()
+        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+
+        // MUT
+        try triggerBuilds(on: app.db,
+                          client: client,
+                          logger: app.logger,
+                          parameter: .id(pkgId)).wait()
+
+        // validate
+        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+    }
+
     func test_override_switch() throws {
         // Ensure don't trigger if the override is off
         // setup
