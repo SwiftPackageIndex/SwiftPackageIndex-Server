@@ -155,7 +155,8 @@ extension Build {
                 // ... find the existing build
                 return Build.query(on: database)
                     .filter(\.$platform == self.platform)
-                    .filter(\.$swiftVersion == self.swiftVersion)
+                    .filter(.sql(raw: "(swift_version->'major')::int = \(self.swiftVersion.major)"))
+                    .filter(.sql(raw: "(swift_version->'minor')::int = \(self.swiftVersion.minor)"))
                     .filter(\.$version.$id == self.$version.id)
                     .all()
                     // ... delete it
