@@ -79,6 +79,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 014 - add latest
         app.migrations.add(UpdateVersionAddLatest())
     }
+    do {  // Migration 015 -
+        app.migrations.add(UpdateBuildUniqueIndex1())
+    }
     
     app.commands.use(AnalyzerCommand(), as: "analyze")
     app.commands.use(BuildTriggerCommand(), as: "trigger-builds")

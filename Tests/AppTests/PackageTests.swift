@@ -411,7 +411,6 @@ final class PackageTests: AppTestCase {
         try makeBuild(.failed, .macosXcodebuild, .init(5, 0, 1))
         // 5.1 - no data - unknown
         // 5.2 - ok
-        try makeBuild(.failed, .macosXcodebuild, .init(5, 2, 0))
         try makeBuild(.ok, .macosXcodebuild, .init(5, 2, 2))
         // 5.3 - ok
         try makeBuild(.failed, .ios, .init(5, 3, 0))

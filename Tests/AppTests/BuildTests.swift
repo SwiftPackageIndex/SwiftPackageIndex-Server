@@ -162,7 +162,8 @@ class BuildTests: AppTestCase {
             XCTAssertEqual(b.status, .ok)
             XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
         }
-        
+
+        // MUT
         // next insert is update
         try Build(version: v,
                   platform: .linux,
@@ -177,6 +178,23 @@ class BuildTests: AppTestCase {
             XCTAssertEqual(b.platform, .linux)
             XCTAssertEqual(b.status, .failed)
             XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+        }
+
+        // MUT
+        // insert with different patch version updates as well
+        try Build(version: v,
+                  platform: .linux,
+                  status: .failed,
+                  swiftVersion: .init(5, 2, 4))
+            .upsert(on: app.db).wait()
+
+        // validate
+        do {
+            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+            let b = try XCTUnwrap(try Build.query(on: app.db).first().wait())
+            XCTAssertEqual(b.platform, .linux)
+            XCTAssertEqual(b.status, .failed)
+            XCTAssertEqual(b.swiftVersion, .init(5, 2, 4))
         }
     }
 
