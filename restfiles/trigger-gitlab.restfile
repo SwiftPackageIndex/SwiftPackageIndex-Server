@@ -13,14 +13,12 @@ requests:
                 token: ${pipeline_token}
                 ref: main
                 variables[API_BASEURL]: https://staging.swiftpackageindex.com
-                variables[BUILD_TOOL]: xcodebuild
+                variables[BUILD_PLATFORM]: linux
                 variables[BUILDER_TOKEN]: ${builder_token}
-                variables[CLONE_URL]: https://github.com/tadija/AECoreDataUI.git
-                variables[PLATFORM_NAME]: ios
-                variables[PLATFORM_VERSION]: ''
-                variables[REFERENCE]: "4.1.2"
+                variables[CLONE_URL]: https://github.com/finestructure/Rester.git
+                variables[REFERENCE]: "0.8.0"
                 variables[SWIFT_VERSION]: 5.2.4
-                variables[VERSION_ID]: bb6d68ec-7b16-4b81-a7e8-0a8576556be7
+                variables[VERSION_ID]: 213e104e-5c58-4564-acf6-8cbc6dea50d2
         validation:
             status: 201
         log: json

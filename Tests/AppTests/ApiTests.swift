@@ -88,6 +88,7 @@ class ApiTests: AppTestCase {
                 let dto = try JSONDecoder().decode(DTO.self, from: res.body)
                 let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
                 XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
+                XCTAssertEqual(b.platform, .macosXcodebuild)
                 XCTAssertEqual(b.status, .failed)
                 XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
@@ -112,6 +113,7 @@ class ApiTests: AppTestCase {
                 }
                 let dto = try JSONDecoder().decode(DTO.self, from: res.body)
                 let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                XCTAssertEqual(b.platform, .macosXcodebuild)
                 XCTAssertEqual(b.status, .ok)
                 XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
