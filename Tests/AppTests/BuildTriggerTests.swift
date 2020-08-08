@@ -202,7 +202,7 @@ class BuildTriggerTests: AppTestCase {
         // ensure the Build stubs are created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
         try v?.$builds.load(on: app.db).wait()
-        XCTAssertEqual(v?.builds.count, 25)
+        XCTAssertEqual(v?.builds.count, 30)
 
         // ensure re-selection is empty
         XCTAssertEqual(try fetchBuildCandidates(app.db, limit: 10).wait(), [])
@@ -264,11 +264,11 @@ class BuildTriggerTests: AppTestCase {
                               parameter: .id(pkgId)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 25)
+            XCTAssertEqual(triggerCount, 30)
             // ensure builds are now in progress
             let v = try Version.find(versionId, on: app.db).wait()
             try v?.$builds.load(on: app.db).wait()
-            XCTAssertEqual(v?.builds.count, 25)
+            XCTAssertEqual(v?.builds.count, 30)
         }
     }
 
@@ -352,7 +352,7 @@ class BuildTriggerTests: AppTestCase {
                               parameter: .id(pkgId)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 25)
+            XCTAssertEqual(triggerCount, 30)
         }
     }
 
@@ -407,7 +407,7 @@ class BuildTriggerTests: AppTestCase {
                               parameter: .id(pkgId)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 25)
+            XCTAssertEqual(triggerCount, 30)
         }
 
     }
