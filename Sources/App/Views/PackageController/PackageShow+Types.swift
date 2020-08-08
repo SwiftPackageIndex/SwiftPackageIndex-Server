@@ -48,6 +48,7 @@ extension PackageShow.Model {
     
     enum PlatformCompatibility: BuildResultParameter {
         case ios
+        case linux
         case macos
         case tvos
         case watchos
@@ -56,6 +57,8 @@ extension PackageShow.Model {
             switch self {
                 case .ios:
                     return "iOS"
+                case .linux:
+                    return "Linux"
                 case .macos:
                     return "macOS"
                 case .tvos:
@@ -149,22 +152,24 @@ extension PackageShow.Model {
 
     struct PlatformResults: Equatable {
         var ios: BuildResult<PlatformCompatibility>
+        var linux: BuildResult<PlatformCompatibility>
         var macos: BuildResult<PlatformCompatibility>
         var tvos: BuildResult<PlatformCompatibility>
         var watchos: BuildResult<PlatformCompatibility>
-        // TODO: var linux: BuildResult<Platform>
 
         init(iosStatus: BuildStatus,
+             linuxStatus: BuildStatus,
              macosStatus: BuildStatus,
              tvosStatus: BuildStatus,
              watchosStatus: BuildStatus) {
             self.ios = .init(parameter: .ios, status: iosStatus)
+            self.linux = .init(parameter: .linux, status: linuxStatus)
             self.macos = .init(parameter: .macos, status: macosStatus)
             self.tvos = .init(parameter: .tvos, status: tvosStatus)
             self.watchos = .init(parameter: .watchos, status: watchosStatus)
         }
 
-        var cells: [BuildResult<PlatformCompatibility>] { [ios, macos, tvos, watchos] }
+        var cells: [BuildResult<PlatformCompatibility>] { [ios, macos, linux, tvos, watchos] }
     }
 
     enum BuildStatus: String, Equatable {
