@@ -83,6 +83,69 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(res, [.init(versionId, expectedPairs)])
     }
 
+    func test_triggerBuildsUnchecked_supported() throws {
+        // Explicitly test the full range of all currently triggered platforms and swift versions
+        // setup
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+
+        let queue = DispatchQueue(label: "serial")
+        var queries = [[String: String]]()
+        let client = MockClient { req, res in
+            queue.sync {
+                guard let query = try? req.query.decode([String: String].self) else { return }
+                queries.append(query)
+            }
+        }
+
+        let pkgId = UUID()
+        let versionId = UUID()
+        do {  // save package with partially completed builds
+            let p = Package(id: pkgId, url: "2")
+            try p.save(on: app.db).wait()
+            let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+            try v.save(on: app.db).wait()
+        }
+
+        // MUT
+        try triggerBuildsUnchecked(on: app.db,
+                                   client: client,
+                                   logger: app.logger,
+                                   packages: [pkgId]).wait()
+
+        // validate
+        // ensure Gitlab requests go out
+        XCTAssertEqual(queries.count, 25)
+        XCTAssertEqual(queries.map { $0["variables[VERSION_ID]"] },
+                       Array(repeating: versionId.uuidString, count: 25))
+        let buildPlatforms = queries.compactMap { $0["variables[BUILD_PLATFORM]"] }
+        XCTAssertEqual(Dictionary(grouping: buildPlatforms, by: { $0 })
+                        .mapValues(\.count),
+                       ["ios": 5,
+                        "macos-spm": 5,
+                        "macos-xcodebuild": 5,
+                        "watchos": 5,
+                        "tvos": 5])
+        let swiftVersions = queries.compactMap { $0["variables[SWIFT_VERSION]"] }
+        XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
+                        .mapValues(\.count),
+                       ["4.2.3": 5,
+                        "5.0.3": 5,
+                        "5.1.5": 5,
+                        "5.2.4": 5,
+                        "5.3.0": 5])
+
+        // ensure the Build stubs are created to prevent re-selection
+        let v = try Version.find(versionId, on: app.db).wait()
+        try v?.$builds.load(on: app.db).wait()
+        XCTAssertEqual(v?.builds.count, 25)
+
+        // ensure re-selection is empty
+        XCTAssertEqual(try fetchBuildCandidates(app.db, limit: 10).wait(), [])
+    }
+
+
     func test_triggerBuildsUnchecked() throws {
         // setup
         Current.builderToken = { "builder token" }
