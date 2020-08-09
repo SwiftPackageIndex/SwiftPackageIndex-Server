@@ -58,3 +58,15 @@ extension Build {
         }
     }
 }
+
+
+extension Build.Platform: Comparable {
+    static func < (lhs: Build.Platform, rhs: Build.Platform) -> Bool {
+        switch (allActive.firstIndex(of: lhs), allActive.firstIndex(of: rhs)) {
+            case let (.some(idx1), .some(idx2)):
+                return idx1 < idx2
+            default:
+                return lhs.rawValue < rhs.rawValue
+        }
+    }
+}

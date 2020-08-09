@@ -105,46 +105,6 @@
                 <div>
                   <div>
                     <strong>5.3</strong> / 
-                    <strong>Linux</strong>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
-                  </div>
-                  <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
-                  </div>
-                  <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
-                  </div>
-                </div>
-                <div class="result">
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
-                    <strong>5.3</strong> / 
                     <strong>macOS (SPM)</strong>
                   </div>
                 </div>
@@ -186,6 +146,46 @@
                   <div>
                     <strong>5.3</strong> / 
                     <strong>macOS (Xcode)</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>
+                    <span class="stable">
+                      <i class="icon stable"></i>1.2.3
+                    </span>
+                  </div>
+                  <div>
+                    <span class="branch">
+                      <i class="icon branch"></i>main
+                    </span>
+                  </div>
+                  <div>
+                    <span class="beta">
+                      <i class="icon beta"></i>2.0.0-b1
+                    </span>
+                  </div>
+                </div>
+                <div class="result">
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <strong>5.3</strong> / 
+                    <strong>Linux</strong>
                   </div>
                 </div>
               </div>
@@ -339,46 +339,6 @@
                   <div class="succeeded">
                     <i class="icon matrix_succeeded"></i>
                     <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
-                    <strong>5.2</strong> / 
-                    <strong>Linux</strong>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
-                  </div>
-                  <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
-                  </div>
-                  <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
-                  </div>
-                </div>
-                <div class="result">
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
                   </div>
                 </div>
               </div>
@@ -473,6 +433,46 @@
                 <div>
                   <div>
                     <strong>5.2</strong> / 
+                    <strong>Linux</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>
+                    <span class="stable">
+                      <i class="icon stable"></i>1.2.3
+                    </span>
+                  </div>
+                  <div>
+                    <span class="branch">
+                      <i class="icon branch"></i>main
+                    </span>
+                  </div>
+                  <div>
+                    <span class="beta">
+                      <i class="icon beta"></i>2.0.0-b1
+                    </span>
+                  </div>
+                </div>
+                <div class="result">
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <strong>5.2</strong> / 
                     <strong>tvOS</strong>
                   </div>
                 </div>
@@ -599,46 +599,6 @@
                 <div>
                   <div>
                     <strong>5.1</strong> / 
-                    <strong>Linux</strong>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
-                  </div>
-                  <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
-                  </div>
-                  <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
-                  </div>
-                </div>
-                <div class="result">
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
-                    <strong>5.1</strong> / 
                     <strong>macOS (SPM)</strong>
                   </div>
                 </div>
@@ -716,6 +676,46 @@
                   <div class="succeeded">
                     <i class="icon matrix_succeeded"></i>
                     <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <strong>5.1</strong> / 
+                    <strong>Linux</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>
+                    <span class="stable">
+                      <i class="icon stable"></i>1.2.3
+                    </span>
+                  </div>
+                  <div>
+                    <span class="branch">
+                      <i class="icon branch"></i>main
+                    </span>
+                  </div>
+                  <div>
+                    <span class="beta">
+                      <i class="icon beta"></i>2.0.0-b1
+                    </span>
+                  </div>
+                </div>
+                <div class="result">
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
                   </div>
                 </div>
               </div>
@@ -851,46 +851,6 @@
                 <div>
                   <div>
                     <strong>5.0</strong> / 
-                    <strong>Linux</strong>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
-                  </div>
-                  <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
-                  </div>
-                  <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
-                  </div>
-                </div>
-                <div class="result">
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
-                    <strong>5.0</strong> / 
                     <strong>macOS (SPM)</strong>
                   </div>
                 </div>
@@ -968,6 +928,46 @@
                   <div class="failed">
                     <i class="icon matrix_failed"></i>
                     <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <strong>5.0</strong> / 
+                    <strong>Linux</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>
+                    <span class="stable">
+                      <i class="icon stable"></i>1.2.3
+                    </span>
+                  </div>
+                  <div>
+                    <span class="branch">
+                      <i class="icon branch"></i>main
+                    </span>
+                  </div>
+                  <div>
+                    <span class="beta">
+                      <i class="icon beta"></i>2.0.0-b1
+                    </span>
+                  </div>
+                </div>
+                <div class="result">
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
                   </div>
                 </div>
               </div>
@@ -1103,46 +1103,6 @@
                 <div>
                   <div>
                     <strong>4.2</strong> / 
-                    <strong>Linux</strong>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
-                  </div>
-                  <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
-                  </div>
-                  <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
-                  </div>
-                </div>
-                <div class="result">
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
-                    <strong>4.2</strong> / 
                     <strong>macOS (SPM)</strong>
                   </div>
                 </div>
@@ -1220,6 +1180,46 @@
                   <div class="failed">
                     <i class="icon matrix_failed"></i>
                     <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <strong>4.2</strong> / 
+                    <strong>Linux</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>
+                    <span class="stable">
+                      <i class="icon stable"></i>1.2.3
+                    </span>
+                  </div>
+                  <div>
+                    <span class="branch">
+                      <i class="icon branch"></i>main
+                    </span>
+                  </div>
+                  <div>
+                    <span class="beta">
+                      <i class="icon beta"></i>2.0.0-b1
+                    </span>
+                  </div>
+                </div>
+                <div class="result">
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
                   </div>
                 </div>
               </div>
