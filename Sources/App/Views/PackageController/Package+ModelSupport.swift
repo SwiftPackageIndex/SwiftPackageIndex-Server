@@ -200,6 +200,7 @@ extension Package {
               let referenceName = version.reference?.description else { return nil }
         // For each reported platform pick appropriate build matches
         let ios = builds.filter { $0.platform.isCompatible(with: .ios) }
+        let linux = builds.filter { $0.platform.isCompatible(with: .linux) }
         let macos = builds.filter { $0.platform.isCompatible(with: .macos) }
         let tvos = builds.filter { $0.platform.isCompatible(with: .tvos) }
         let watchos = builds.filter { $0.platform.isCompatible(with: .watchos) }
@@ -207,6 +208,7 @@ extension Package {
         return
             .init(referenceName: referenceName,
                   results: .init(iosStatus: ios.buildStatus,
+                                 linuxStatus: linux.buildStatus,
                                  macosStatus: macos.buildStatus,
                                  tvosStatus: tvos.buildStatus,
                                  watchosStatus: watchos.buildStatus)
