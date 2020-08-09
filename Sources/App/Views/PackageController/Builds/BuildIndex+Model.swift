@@ -203,7 +203,7 @@ extension BuildIndex.Model {
         // sort descriptor to sort indexes by swift version desc, platform name asc
         static let versionPlatform: (RowIndex, RowIndex) -> Bool = { lhs, rhs in
             if lhs.swiftVersion != rhs.swiftVersion { return lhs.swiftVersion > rhs.swiftVersion }
-            return lhs.platform.rawValue < rhs.platform.rawValue
+            return lhs.platform < rhs.platform
         }
     }
 
