@@ -164,12 +164,12 @@ struct BuildPair: Equatable, Hashable {
     }
 
     static let all: [Self] = {
-        Build.Platform.allActive.flatMap { p in
-            SwiftVersion.allActive.compactMap { s in
+        Build.Platform.allActive.flatMap { platform in
+            SwiftVersion.allActive.compactMap { swiftVersoin in
                 // skip invalid combinations
                 // ARM builds require Swift 5.3 or higher
-                guard !p.isArm || s >= .init(5, 3, 0) else { return nil }
-                return BuildPair(p, s)
+                guard !platform.isArm || swiftVersoin >= .init(5, 3, 0) else { return nil }
+                return BuildPair(platform, swiftVersoin)
             }
         }
     }()
