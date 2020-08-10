@@ -167,16 +167,8 @@ struct BuildPair: Equatable, Hashable {
         Build.Platform.allActive.flatMap { p in
             SwiftVersion.allActive.compactMap { s in
                 // skip invalid combinations
-                if p == .macosSpmArm || p == .macosXcodebuildArm {
-                    // ARM builds require Swift 5.3 or higher
-                    // We don't have an "is compatible with x or higher", hence
-                    // the successive exclusion of the lower versions. These will
-                    // start dropping off as we add newer versions.
-                    if s.isCompatible(with: .v4_2) { return nil }
-                    if s.isCompatible(with: .v5_0) { return nil }
-                    if s.isCompatible(with: .v5_1) { return nil }
-                    if s.isCompatible(with: .v5_2) { return nil }
-                }
+                // ARM builds require Swift 5.3 or higher
+                guard !p.isArm || s >= .init(5, 3, 0) else { return nil }
                 return BuildPair(p, s)
             }
         }

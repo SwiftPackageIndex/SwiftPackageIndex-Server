@@ -56,6 +56,15 @@ extension Build {
         static var allActive: [Self] {
             [.ios, .macosSpm, .macosXcodebuild, .macosSpmArm, .macosXcodebuildArm, .linux, .tvos, .watchos]
         }
+
+        var isArm: Bool {
+            switch self {
+                case .macosSpmArm, .macosXcodebuildArm:
+                    return true
+                case .ios, .linux, .macosSpm, .macosXcodebuild, .tvos, .watchos:
+                    return false
+            }
+        }
     }
 }
 
