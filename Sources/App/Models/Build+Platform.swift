@@ -54,7 +54,7 @@ extension Build {
 
         /// Currently supported build platforms
         static var allActive: [Self] {
-            [.ios, .macosSpm, .macosXcodebuild, .linux, .tvos, .watchos]
+            [.ios, .macosSpm, .macosSpmArm, .macosXcodebuild, .macosXcodebuildArm, .linux, .tvos, .watchos]
         }
     }
 }
