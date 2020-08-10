@@ -36,9 +36,9 @@ extension Build {
                 case .ios:
                     return "iOS"
                 case .macosSpmArm:
-                    return "macOS (SPM,ARM)"
+                    return "macOS (SPM, ARM)"
                 case .macosXcodebuildArm:
-                    return "macOS (Xcode,ARM)"
+                    return "macOS (Xcode, ARM)"
                 case .macosSpm:
                     return "macOS (SPM)"
                 case .macosXcodebuild:
@@ -54,7 +54,7 @@ extension Build {
 
         /// Currently supported build platforms
         static var allActive: [Self] {
-            [.ios, .macosSpm, .macosSpmArm, .macosXcodebuild, .macosXcodebuildArm, .linux, .tvos, .watchos]
+            [.ios, .macosSpm, .macosXcodebuild, .macosSpmArm, .macosXcodebuildArm, .linux, .tvos, .watchos]
         }
     }
 }
