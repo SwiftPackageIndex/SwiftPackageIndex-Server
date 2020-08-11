@@ -130,9 +130,7 @@ func fetchBuildCandidates(_ database: Database,
     let latest = SQLIdentifier("latest")
     let updatedAt = SQLIdentifier("updated_at")
 
-    let swiftVersions = SwiftVersion.allActive
-    let platforms = Build.Platform.allActive
-    let expectedBuildCount = swiftVersions.count * platforms.count
+    let expectedBuildCount = BuildPair.all.count
 
     let buildUnderCount = SQLBinaryExpression(left: count(SQLRaw("*")),
                                               op: SQLBinaryOperator.lessThan,
@@ -164,6 +162,17 @@ struct BuildPair: Equatable, Hashable {
         self.platform = platform
         self.swiftVersion = swiftVersion
     }
+
+    static let all: [Self] = {
+        Build.Platform.allActive.flatMap { platform in
+            SwiftVersion.allActive.compactMap { swiftVersion in
+                // skip invalid combinations
+                // ARM builds require Swift 5.3 or higher
+                guard !platform.isArm || swiftVersion >= .init(5, 3, 0) else { return nil }
+                return BuildPair(platform, swiftVersion)
+            }
+        }
+    }()
 }
 
 
@@ -186,16 +195,10 @@ func findMissingBuilds(_ database: Database,
         .filter(\.$latest != nil)
         .all()
 
-    let allPairs = Build.Platform.allActive.flatMap { p in
-        SwiftVersion.allActive.map { s in
-            BuildPair(p, s)
-        }
-    }
-
     return versions.mapEachCompact { v in
         guard let versionId = v.id else { return nil }
         let existing = v.builds.map { BuildPair($0.platform, $0.swiftVersion) }
-        let pairs = Set(allPairs).subtracting(Set(existing))
+        let pairs = Set(BuildPair.all).subtracting(Set(existing))
         return BuildTriggerInfo(versionId, pairs)
     }
 }

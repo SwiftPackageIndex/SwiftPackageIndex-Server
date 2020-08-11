@@ -228,6 +228,7 @@
                 <div class="column_label">
                   <div>iOS</div>
                   <div>macOS</div>
+                  <div>macOS / ARM</div>
                   <div>Linux</div>
                   <div>tvOS</div>
                   <div>watchOS</div>
@@ -237,6 +238,9 @@
                     <i class="icon matrix_compatible"></i>
                   </div>
                   <div class="unknown" title="No build information available for macOS">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for macOS / ARM">
                     <i class="icon matrix_unknown"></i>
                   </div>
                   <div class="unknown" title="No build information available for Linux">
@@ -265,6 +269,7 @@
                 <div class="column_label">
                   <div>iOS</div>
                   <div>macOS</div>
+                  <div>macOS / ARM</div>
                   <div>Linux</div>
                   <div>tvOS</div>
                   <div>watchOS</div>
@@ -274,6 +279,9 @@
                     <i class="icon matrix_compatible"></i>
                   </div>
                   <div class="compatible" title="Built successfully with macOS">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with macOS / ARM">
                     <i class="icon matrix_compatible"></i>
                   </div>
                   <div class="compatible" title="Built successfully with Linux">
@@ -302,6 +310,7 @@
                 <div class="column_label">
                   <div>iOS</div>
                   <div>macOS</div>
+                  <div>macOS / ARM</div>
                   <div>Linux</div>
                   <div>tvOS</div>
                   <div>watchOS</div>
@@ -311,6 +320,9 @@
                     <i class="icon matrix_compatible"></i>
                   </div>
                   <div class="compatible" title="Built successfully with macOS">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with macOS / ARM">
                     <i class="icon matrix_compatible"></i>
                   </div>
                   <div class="compatible" title="Built successfully with Linux">

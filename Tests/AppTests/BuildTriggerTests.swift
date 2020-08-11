@@ -16,15 +16,13 @@ class BuildTriggerTests: AppTestCase {
             try p.save(on: app.db).wait()
             let v = try Version(package: p, latest: .defaultBranch)
             try v.save(on: app.db).wait()
-            try Build.Platform.allActive.forEach { platform in
-                try SwiftVersion.allActive.forEach { swiftVersion in
-                    try Build(id: UUID(),
-                              version: v,
-                              platform: platform,
-                              status: .ok,
-                              swiftVersion: swiftVersion)
-                        .save(on: app.db).wait()
-                }
+            try BuildPair.all.forEach { pair in
+                try Build(id: UUID(),
+                          version: v,
+                          platform: pair.platform,
+                          status: .ok,
+                          swiftVersion: pair.swiftVersion)
+                    .save(on: app.db).wait()
             }
         }
         do {  // save package with partially completed builds
@@ -32,18 +30,16 @@ class BuildTriggerTests: AppTestCase {
             try p.save(on: app.db).wait()
             let v = try Version(package: p, latest: .defaultBranch)
             try v.save(on: app.db).wait()
-            try Build.Platform.allActive
+            try BuildPair.all
                 .dropFirst() // skip one platform to create a build gap
-                .forEach { platform in
-                try SwiftVersion.allActive.forEach { swiftVersion in
+                .forEach { pair in
                     try Build(id: UUID(),
                               version: v,
-                              platform: platform,
+                              platform: pair.platform,
                               status: .ok,
-                              swiftVersion: swiftVersion)
+                              swiftVersion: pair.swiftVersion)
                         .save(on: app.db).wait()
                 }
-            }
         }
 
         // MUT
@@ -116,15 +112,17 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         // ensure Gitlab requests go out
-        XCTAssertEqual(queries.count, 30)
+        XCTAssertEqual(queries.count, 32)
         XCTAssertEqual(queries.map { $0["variables[VERSION_ID]"] },
-                       Array(repeating: versionId.uuidString, count: 30))
+                       Array(repeating: versionId.uuidString, count: 32))
         let buildPlatforms = queries.compactMap { $0["variables[BUILD_PLATFORM]"] }
         XCTAssertEqual(Dictionary(grouping: buildPlatforms, by: { $0 })
                         .mapValues(\.count),
                        ["ios": 5,
                         "macos-spm": 5,
+                        "macos-spm-arm": 1,
                         "macos-xcodebuild": 5,
+                        "macos-xcodebuild-arm": 1,
                         "linux": 5,
                         "watchos": 5,
                         "tvos": 5])
@@ -135,12 +133,12 @@ class BuildTriggerTests: AppTestCase {
                         "5.0.3": 6,
                         "5.1.5": 6,
                         "5.2.4": 6,
-                        "5.3.0": 6])
+                        "5.3.0": 8])
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
         try v?.$builds.load(on: app.db).wait()
-        XCTAssertEqual(v?.builds.count, 30)
+        XCTAssertEqual(v?.builds.count, 32)
 
         // ensure re-selection is empty
         XCTAssertEqual(try fetchBuildCandidates(app.db, limit: 10).wait(), [])
@@ -169,18 +167,16 @@ class BuildTriggerTests: AppTestCase {
             try p.save(on: app.db).wait()
             let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
             try v.save(on: app.db).wait()
-            try Build.Platform.allActive
-                .dropFirst() // skip one platform to create a build gap
-                .forEach { platform in
-                try SwiftVersion.allActive.forEach { swiftVersion in
+            try BuildPair.all
+                .dropFirst() // skip one pair to create a build gap
+                .forEach { pair in
                     try Build(id: UUID(),
                               version: v,
-                              platform: platform,
+                              platform: pair.platform,
                               status: .ok,
-                              swiftVersion: swiftVersion)
+                              swiftVersion: pair.swiftVersion)
                         .save(on: app.db).wait()
                 }
-            }
         }
 
         // MUT
@@ -191,18 +187,15 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         // ensure Gitlab requests go out
-        XCTAssertEqual(queries.count, 5)
-        XCTAssertEqual(queries.map { $0["variables[VERSION_ID]"] },
-                       Array(repeating: versionId.uuidString, count: 5))
-        XCTAssertEqual(queries.map { $0["variables[BUILD_PLATFORM]"] },
-                       Array(repeating: "ios", count: 5))
-        XCTAssertEqual(queries.compactMap { $0["variables[SWIFT_VERSION]"] }.sorted(),
-                       SwiftVersion.allActive.map { "\($0.major).\($0.minor).\($0.patch)" })
+        XCTAssertEqual(queries.count, 1)
+        XCTAssertEqual(queries.map { $0["variables[VERSION_ID]"] }, [versionId.uuidString])
+        XCTAssertEqual(queries.map { $0["variables[BUILD_PLATFORM]"] }, ["ios"])
+        XCTAssertEqual(queries.map { $0["variables[SWIFT_VERSION]"] }, ["4.2.3"])
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
         try v?.$builds.load(on: app.db).wait()
-        XCTAssertEqual(v?.builds.count, 30)
+        XCTAssertEqual(v?.builds.count, 32)
 
         // ensure re-selection is empty
         XCTAssertEqual(try fetchBuildCandidates(app.db, limit: 10).wait(), [])
@@ -264,11 +257,11 @@ class BuildTriggerTests: AppTestCase {
                               parameter: .id(pkgId)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 30)
+            XCTAssertEqual(triggerCount, 32)
             // ensure builds are now in progress
             let v = try Version.find(versionId, on: app.db).wait()
             try v?.$builds.load(on: app.db).wait()
-            XCTAssertEqual(v?.builds.count, 30)
+            XCTAssertEqual(v?.builds.count, 32)
         }
     }
 
@@ -352,7 +345,7 @@ class BuildTriggerTests: AppTestCase {
                               parameter: .id(pkgId)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 30)
+            XCTAssertEqual(triggerCount, 32)
         }
     }
 
@@ -407,7 +400,7 @@ class BuildTriggerTests: AppTestCase {
                               parameter: .id(pkgId)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 30)
+            XCTAssertEqual(triggerCount, 32)
         }
 
     }

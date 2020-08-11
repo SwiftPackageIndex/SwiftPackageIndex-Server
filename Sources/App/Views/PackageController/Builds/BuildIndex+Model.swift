@@ -192,12 +192,13 @@ extension BuildIndex.Model {
         }
 
         static var all: [RowIndex] {
-            let versions = SwiftVersion.allActive.reversed()
-            let platforms = Build.Platform.allActive
-            let rows: [(SwiftVersion, Build.Platform)] = versions.reduce([]) { rows, version in
-                rows + platforms.map { (version, $0) }
-            }
-            return rows.map(RowIndex.init(swiftVersion:platform:))
+            BuildPair.all
+                .sorted {
+                    $0.swiftVersion != $1.swiftVersion
+                        ? $0.swiftVersion > $1.swiftVersion
+                        : $0.platform < $0.platform
+                }
+                .map { RowIndex(swiftVersion: $0.swiftVersion, platform: $0.platform) }
         }
 
         // sort descriptor to sort indexes by swift version desc, platform name asc

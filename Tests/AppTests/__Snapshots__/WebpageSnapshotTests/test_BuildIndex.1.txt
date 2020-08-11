@@ -185,6 +185,86 @@
                 <div>
                   <div>
                     <strong>5.3</strong> / 
+                    <strong>macOS (SPM, ARM)</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>
+                    <span class="stable">
+                      <i class="icon stable"></i>1.2.3
+                    </span>
+                  </div>
+                  <div>
+                    <span class="branch">
+                      <i class="icon branch"></i>main
+                    </span>
+                  </div>
+                  <div>
+                    <span class="beta">
+                      <i class="icon beta"></i>2.0.0-b1
+                    </span>
+                  </div>
+                </div>
+                <div class="result">
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <strong>5.3</strong> / 
+                    <strong>macOS (Xcode, ARM)</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>
+                    <span class="stable">
+                      <i class="icon stable"></i>1.2.3
+                    </span>
+                  </div>
+                  <div>
+                    <span class="branch">
+                      <i class="icon branch"></i>main
+                    </span>
+                  </div>
+                  <div>
+                    <span class="beta">
+                      <i class="icon beta"></i>2.0.0-b1
+                    </span>
+                  </div>
+                </div>
+                <div class="result">
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <strong>5.3</strong> / 
                     <strong>Linux</strong>
                   </div>
                 </div>
