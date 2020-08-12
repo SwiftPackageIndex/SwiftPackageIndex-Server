@@ -95,6 +95,9 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.api(.packages(.key, .key, .triggerBuilds))
                         .pathComponents.map(\.description),
                        ["api", "packages", ":owner", ":repository", "trigger-builds"])
+        XCTAssertEqual(SiteURL.api(.packages(.key, .key, .badge))
+                        .pathComponents.map(\.description),
+                       ["api", "packages", ":owner", ":repository", "badge"])
     }
     
     func test_apiBaseURL() throws {
