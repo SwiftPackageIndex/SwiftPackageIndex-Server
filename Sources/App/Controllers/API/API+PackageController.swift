@@ -88,12 +88,23 @@ extension API {
         }
 
 
-        func badge(req: Request) throws -> EventLoopFuture<Shield> {
-            req.eventLoop.future(Shield(schemaVersion: 1,
-                                        label: "foo",
-                                        message: "bar",
-                                        color: "blue",
-                                        cacheSeconds: 6*3600))
+        func badge(req: Request) throws -> EventLoopFuture<Package.Badge> {
+            guard
+                let owner = req.parameters.get("owner"),
+                let repository = req.parameters.get("repository")
+            else {
+                return req.eventLoop.future(error: Abort(.notFound))
+            }
+            guard
+                let badgeType = req.query[String.self, at: "type"]
+                    .flatMap(Package.BadgeType.init(rawValue:))
+            else {
+                return req.eventLoop.future(error: Abort(.badRequest,
+                                                         reason: "missing or invalid type parameter"))
+            }
+
+            return Package.query(on: req.db, owner: owner, repository: repository)
+                .map { $0.badge(badgeType: badgeType) }
         }
 
     }
@@ -110,16 +121,5 @@ extension API.PackageController {
             var status: String
             var rows: Int
         }
-    }
-}
-
-
-extension API.PackageController {
-    struct Shield: Content, Equatable {
-        var schemaVersion: Int
-        var label: String
-        var message: String
-        var color: String
-        var cacheSeconds: Int
     }
 }
