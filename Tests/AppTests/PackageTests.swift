@@ -533,6 +533,16 @@ final class PackageTests: AppTestCase {
         XCTAssertNil(res?.latest)
     }
 
+    func test_badgeMessage_swiftVersions() throws {
+        XCTAssertEqual(_badgeMessage(swiftVersions: [.v4_2, .v5_2, .v5_1]),
+                       "5.2 | 5.1 | 4.2")
+    }
+
+    func test_badgeMessage_platforms() throws {
+        XCTAssertEqual(_badgeMessage(platforms: [.linux, .ios, .macosXcodebuild, .macosSpm]),
+                       "iOS | macOS | Linux")
+    }
+
     func test_swiftVersionCompatibility() throws {
         // setup
         let p = try savePackage(on: app.db, "1")

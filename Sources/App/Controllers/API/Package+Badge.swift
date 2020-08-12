@@ -98,27 +98,45 @@ extension Package {
 }
 
 
-private func _badgeMessage(platforms: [Build.Platform]) -> String {
-    platforms.map {
-        switch $0 {
-            case .ios:
-                return "iOS"
-            case .macosSpm, .macosXcodebuild, .macosSpmArm, .macosXcodebuildArm:
-                return "macOS"
-            case .tvos:
-                return "tvOS"
-            case .watchos:
-                return "watchOS"
-            case .linux:
-                return "Linux"
+func _badgeMessage(platforms: [Build.Platform]) -> String {
+    struct Value: Hashable {
+        var index: Int
+        var value: String
+        init(_ index: Int, _ value: String) {
+            self.index = index
+            self.value = value
         }
     }
+    return Array(
+        Set(
+            platforms
+                .map { p -> Value in
+                    switch p {
+                        case .ios:
+                            return .init(0, "iOS")
+                        case .macosSpm, .macosXcodebuild, .macosSpmArm, .macosXcodebuildArm:
+                            return .init(1, "macOS")
+                        case .linux:
+                            return .init(2, "Linux")
+                        case .tvos:
+                            return .init(3, "tvOS")
+                        case .watchos:
+                            return .init(4, "watchOS")
+                    }
+                }
+        )
+    )
+    .sorted {
+        $0.index < $1.index
+    }
+    .map { $0.value }
     .joined(separator: " | ")
 }
 
 
-private func _badgeMessage(swiftVersions: [SwiftVersion]) -> String {
-    swiftVersions.map(\.displayName)
-        .reversed()
+func _badgeMessage(swiftVersions: [SwiftVersion]) -> String {
+    swiftVersions
+        .map(\.displayName)
+        .sorted { $0 > $1 }
         .joined(separator: " | ")
 }
