@@ -444,7 +444,7 @@ class ApiTests: AppTestCase {
             try $0.$builds.load(on: app.db).wait()
         }
 
-        // MUT - no auth header
+        // MUT - swift versions
         try app.test(
             .GET,
             "api/packages/\(owner)/\(repo)/badge?type=swift-versions") { res in
@@ -455,6 +455,21 @@ class ApiTests: AppTestCase {
                            Package.Badge(schemaVersion: 1,
                                          label: "Swift Compatibility",
                                          message: "5.3 | 5.2",
+                                         color: "blue",
+                                         cacheSeconds: 6*3600))
+        }
+
+        // MUT - platforms
+        try app.test(
+            .GET,
+            "api/packages/\(owner)/\(repo)/badge?type=platforms") { res in
+            // validation
+            XCTAssertEqual(res.status, .ok)
+
+            XCTAssertEqual(try res.content.decode(Package.Badge.self),
+                           Package.Badge(schemaVersion: 1,
+                                         label: "Platform Compatibility",
+                                         message: "macOS | Linux",
                                          color: "blue",
                                          cacheSeconds: 6*3600))
         }
