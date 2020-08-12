@@ -59,6 +59,7 @@
             <strong>72</strong> completed builds for 
             <a href="/foo/foobar">foobar</a>.
           </p>
+          <h3>5.3</h3>
           <ul class="matrix">
             <li class="row">
               <div class="row_label">
@@ -380,6 +381,9 @@
                 </div>
               </div>
             </li>
+          </ul>
+          <h3>5.2</h3>
+          <ul class="matrix">
             <li class="row">
               <div class="row_label">
                 <div>
@@ -631,6 +635,9 @@
                 </div>
               </div>
             </li>
+          </ul>
+          <h3>5.1</h3>
+          <ul class="matrix">
             <li class="row">
               <div class="row_label">
                 <div>
@@ -883,6 +890,9 @@
                 </div>
               </div>
             </li>
+          </ul>
+          <h3>5.0</h3>
+          <ul class="matrix">
             <li class="row">
               <div class="row_label">
                 <div>
@@ -1135,6 +1145,9 @@
                 </div>
               </div>
             </li>
+          </ul>
+          <h3>4.2</h3>
+          <ul class="matrix">
             <li class="row">
               <div class="row_label">
                 <div>

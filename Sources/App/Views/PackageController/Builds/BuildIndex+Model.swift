@@ -113,11 +113,10 @@ extension BuildIndex.Model {
             }
         }
 
-        var buildItems: [BuildItem] {
-            RowIndex.all.sorted(by: RowIndex.versionPlatform)
-                .map { index in
-                    BuildItem(index: index, values: values[index] ?? [])
-                }
+        subscript(swiftVersion: SwiftVersion) -> [BuildItem] {
+            RowIndex.all.filter { $0.swiftVersion.isCompatible(with: swiftVersion) }
+                .sorted(by: { $0.platform < $1.platform })
+                .map { BuildItem(index: $0, values: values[$0] ?? []) }
         }
     }
 
@@ -199,12 +198,6 @@ extension BuildIndex.Model {
                         : $0.platform < $0.platform
                 }
                 .map { RowIndex(swiftVersion: $0.swiftVersion, platform: $0.platform) }
-        }
-
-        // sort descriptor to sort indexes by swift version desc, platform name asc
-        static let versionPlatform: (RowIndex, RowIndex) -> Bool = { lhs, rhs in
-            if lhs.swiftVersion != rhs.swiftVersion { return lhs.swiftVersion > rhs.swiftVersion }
-            return lhs.platform < rhs.platform
         }
     }
 
