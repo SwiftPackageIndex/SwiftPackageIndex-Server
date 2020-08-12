@@ -86,6 +86,16 @@ extension API {
                     return req.eventLoop.makeFailedFuture(Abort(.notFound))
             }
         }
+
+
+        func badge(req: Request) throws -> EventLoopFuture<Shield> {
+            req.eventLoop.future(Shield(schemaVersion: 1,
+                                        label: "foo",
+                                        message: "bar",
+                                        color: "blue",
+                                        cacheSeconds: 6*3600))
+        }
+
     }
 }
 
@@ -103,3 +113,13 @@ extension API.PackageController {
     }
 }
 
+
+extension API.PackageController {
+    struct Shield: Content, Equatable {
+        var schemaVersion: Int
+        var label: String
+        var message: String
+        var color: String
+        var cacheSeconds: Int
+    }
+}

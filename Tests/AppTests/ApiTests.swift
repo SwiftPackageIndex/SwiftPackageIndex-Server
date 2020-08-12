@@ -416,4 +416,32 @@ class ApiTests: AppTestCase {
         }
     }
 
+    func test_get_shield() throws {
+        // setup
+        let owner = "owner"
+        let repo = "repo"
+        let p = try savePackage(on: app.db, "1")
+        try Repository(package: p,
+                       defaultBranch: "main",
+                       license: .mit,
+                       name: repo,
+                       owner: owner).save(on: app.db).wait()
+
+        // MUT - no auth header
+        try app.test(
+            .GET,
+            "api/packages/\(owner)/\(repo)/badge?type=swift-compatibility") { res in
+            // validation
+            XCTAssertEqual(res.status, .ok)
+
+            XCTAssertEqual(try res.content.decode(API.PackageController.Shield.self),
+                           API.PackageController.Shield(schemaVersion: 1,
+                                                        label: "Swift Compatibility",
+                                                        message: "5.3 | 5.2",
+                                                        color: "blue",
+                                                        cacheSeconds: 6*3600))
+        }
+
+    }
+
 }
