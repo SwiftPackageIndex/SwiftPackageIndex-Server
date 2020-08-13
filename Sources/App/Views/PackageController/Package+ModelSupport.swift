@@ -242,8 +242,7 @@ private extension Build.Platform {
             case .watchos:
                 return other == .watchos
             case .linux:
-                // currently unsupported
-                return false
+                return other == .linux
         }
     }
 }

@@ -416,4 +416,64 @@ class ApiTests: AppTestCase {
         }
     }
 
+    func test_get_shield() throws {
+        // setup
+        let owner = "owner"
+        let repo = "repo"
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
+        try v.save(on: app.db).wait()
+        try Repository(package: p,
+                       defaultBranch: "main",
+                       license: .mit,
+                       name: repo,
+                       owner: owner).save(on: app.db).wait()
+        // re-load repository relationship (required for updateLatestVersions)
+        try p.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        // add builds
+        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+        try p.$versions.load(on: app.db).wait()
+        try p.versions.forEach {
+            try $0.$builds.load(on: app.db).wait()
+        }
+
+        // MUT - swift versions
+        try app.test(
+            .GET,
+            "api/packages/\(owner)/\(repo)/badge?type=swift-versions") { res in
+            // validation
+            XCTAssertEqual(res.status, .ok)
+
+            XCTAssertEqual(try res.content.decode(Package.Badge.self),
+                           Package.Badge(schemaVersion: 1,
+                                         label: "Swift Compatibility",
+                                         message: "5.3 | 5.2",
+                                         color: "blue",
+                                         cacheSeconds: 6*3600))
+        }
+
+        // MUT - platforms
+        try app.test(
+            .GET,
+            "api/packages/\(owner)/\(repo)/badge?type=platforms") { res in
+            // validation
+            XCTAssertEqual(res.status, .ok)
+
+            XCTAssertEqual(try res.content.decode(Package.Badge.self),
+                           Package.Badge(schemaVersion: 1,
+                                         label: "Platform Compatibility",
+                                         message: "macOS | Linux",
+                                         color: "blue",
+                                         cacheSeconds: 6*3600))
+        }
+
+    }
+
 }

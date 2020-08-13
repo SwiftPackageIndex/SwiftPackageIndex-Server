@@ -533,6 +533,78 @@ final class PackageTests: AppTestCase {
         XCTAssertNil(res?.latest)
     }
 
+    func test_badgeMessage_swiftVersions() throws {
+        XCTAssertEqual(_badgeMessage(swiftVersions: [.v4_2, .v5_2, .v5_1]),
+                       "5.2 | 5.1 | 4.2")
+    }
+
+    func test_badgeMessage_platforms() throws {
+        XCTAssertEqual(_badgeMessage(platforms: [.linux, .ios, .macosXcodebuild, .macosSpm]),
+                       "iOS | macOS | Linux")
+    }
+
+    func test_swiftVersionCompatibility() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
+        try v.save(on: app.db).wait()
+        // re-load repository relationship (required for updateLatestVersions)
+        try p.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        // add builds
+        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 0, 2))
+            .save(on: app.db)
+            .wait()
+        try p.$versions.load(on: app.db).wait()
+        try p.versions.forEach {
+            try $0.$builds.load(on: app.db).wait()
+        }
+
+        // MUT
+        let res = p.swiftVersionCompatibility()
+
+        // validate
+        XCTAssertEqual(res.sorted(), [.v5_2, .v5_3])
+    }
+
+    func test_platformCompatibility() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
+        try v.save(on: app.db).wait()
+        // re-load repository relationship (required for updateLatestVersions)
+        try p.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        // add builds
+        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 0, 2))
+            .save(on: app.db)
+            .wait()
+        try p.$versions.load(on: app.db).wait()
+        try p.versions.forEach {
+            try $0.$builds.load(on: app.db).wait()
+        }
+
+        // MUT
+        let res = p.platformCompatibility()
+
+        // validate
+        XCTAssertEqual(res.sorted(), [.macosXcodebuild, .linux])
+    }
+
 }
 
 

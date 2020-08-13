@@ -53,6 +53,7 @@ enum Api: Resourceable {
     }
     
     enum PackagesPathComponents: String, Resourceable {
+        case badge
         case triggerBuilds = "trigger-builds"
     }
     

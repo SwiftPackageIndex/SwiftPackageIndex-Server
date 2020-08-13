@@ -86,6 +86,27 @@ extension API {
                     return req.eventLoop.makeFailedFuture(Abort(.notFound))
             }
         }
+
+
+        func badge(req: Request) throws -> EventLoopFuture<Package.Badge> {
+            guard
+                let owner = req.parameters.get("owner"),
+                let repository = req.parameters.get("repository")
+            else {
+                return req.eventLoop.future(error: Abort(.notFound))
+            }
+            guard
+                let badgeType = req.query[String.self, at: "type"]
+                    .flatMap(Package.BadgeType.init(rawValue:))
+            else {
+                return req.eventLoop.future(error: Abort(.badRequest,
+                                                         reason: "missing or invalid type parameter"))
+            }
+
+            return Package.query(on: req.db, owner: owner, repository: repository)
+                .map { $0.badge(badgeType: badgeType) }
+        }
+
     }
 }
 
@@ -102,4 +123,3 @@ extension API.PackageController {
         }
     }
 }
-
