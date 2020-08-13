@@ -24,10 +24,15 @@ enum BuildIndex {
                     ),
                     .text(".")
                 ),
-                .ul(
-                    .class("matrix"),
-                    .group(model.buildMatrix.buildItems.map(\.node))
-                )
+                .forEach(SwiftVersion.allActive.reversed()) { swiftVersion in
+                    .group(
+                        .h3(.text(swiftVersion.displayName)),
+                        .ul(
+                            .class("matrix"),
+                            .group(model.buildMatrix[swiftVersion].map(\.node))
+                        )
+                    )
+                }
             )
         }
 
