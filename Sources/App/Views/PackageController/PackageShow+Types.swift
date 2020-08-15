@@ -63,7 +63,7 @@ extension PackageShow.Model {
                 case .macos:
                     return "macOS"
                 case .macosArm:
-                    return "macOS / ARM"
+                    return "macOS"
                 case .tvos:
                     return "tvOS"
                 case .watchos:
@@ -74,7 +74,14 @@ extension PackageShow.Model {
         var longDisplayName: String { displayName }
 
         var note: String? {
-            nil
+            switch self {
+                case .macos:
+                    return "intel"
+                case .macosArm:
+                    return "ARM"
+                case .ios, .linux, .tvos, .watchos:
+                    return nil
+            }
         }
     }
 
