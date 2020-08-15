@@ -42,6 +42,9 @@
               <a href="/add-a-package">Add a Package</a>
             </li>
             <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
+            <li>
               <a href="/faq">FAQ</a>
             </li>
             <li>
@@ -1408,6 +1411,9 @@
       <div class="inner">
         <nav>
           <ul>
+            <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
             <li>
               <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a>
             </li>
