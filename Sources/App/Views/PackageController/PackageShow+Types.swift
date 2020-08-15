@@ -71,7 +71,16 @@ extension PackageShow.Model {
             }
         }
 
-        var longDisplayName: String { displayName }
+        var longDisplayName: String {
+            switch self {
+                case .macos:
+                    return "\(displayName) (intel)"
+                case .macosArm:
+                    return "\(displayName) (ARM)"
+                case .ios, .linux, .tvos, .watchos:
+                    return displayName
+            }
+        }
 
         var note: String? {
             switch self {
