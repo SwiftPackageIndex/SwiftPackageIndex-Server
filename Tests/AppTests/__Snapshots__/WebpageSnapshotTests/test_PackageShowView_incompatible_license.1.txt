@@ -228,7 +228,7 @@
                 <div class="column_label">
                   <div>iOS</div>
                   <div>macOS
-                    <small>(intel)</small>
+                    <small>(Intel)</small>
                   </div>
                   <div>macOS
                     <small>(ARM)</small>
@@ -241,7 +241,7 @@
                   <div class="compatible" title="Built successfully with iOS">
                     <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="unknown" title="No build information available for macOS (intel)">
+                  <div class="unknown" title="No build information available for macOS (Intel)">
                     <i class="icon matrix_unknown"></i>
                   </div>
                   <div class="unknown" title="No build information available for macOS (ARM)">
@@ -273,7 +273,7 @@
                 <div class="column_label">
                   <div>iOS</div>
                   <div>macOS
-                    <small>(intel)</small>
+                    <small>(Intel)</small>
                   </div>
                   <div>macOS
                     <small>(ARM)</small>
@@ -286,7 +286,7 @@
                   <div class="compatible" title="Built successfully with iOS">
                     <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="compatible" title="Built successfully with macOS (intel)">
+                  <div class="compatible" title="Built successfully with macOS (Intel)">
                     <i class="icon matrix_compatible"></i>
                   </div>
                   <div class="compatible" title="Built successfully with macOS (ARM)">
@@ -318,7 +318,7 @@
                 <div class="column_label">
                   <div>iOS</div>
                   <div>macOS
-                    <small>(intel)</small>
+                    <small>(Intel)</small>
                   </div>
                   <div>macOS
                     <small>(ARM)</small>
@@ -331,7 +331,7 @@
                   <div class="compatible" title="Built successfully with iOS">
                     <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="compatible" title="Built successfully with macOS (intel)">
+                  <div class="compatible" title="Built successfully with macOS (Intel)">
                     <i class="icon matrix_compatible"></i>
                   </div>
                   <div class="compatible" title="Built successfully with macOS (ARM)">
