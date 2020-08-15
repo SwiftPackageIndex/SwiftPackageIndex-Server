@@ -74,7 +74,7 @@ extension PackageShow.Model {
         var longDisplayName: String {
             switch self {
                 case .macos:
-                    return "\(displayName) (intel)"
+                    return "\(displayName) (Intel)"
                 case .macosArm:
                     return "\(displayName) (ARM)"
                 case .ios, .linux, .tvos, .watchos:
@@ -85,7 +85,7 @@ extension PackageShow.Model {
         var note: String? {
             switch self {
                 case .macos:
-                    return "intel"
+                    return "Intel"
                 case .macosArm:
                     return "ARM"
                 case .ios, .linux, .tvos, .watchos:
