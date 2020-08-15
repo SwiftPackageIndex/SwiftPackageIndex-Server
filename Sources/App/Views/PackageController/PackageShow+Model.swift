@@ -399,6 +399,22 @@ extension PackageShow.Model {
         )
     }
 
+
+    func badgeURL(for type: Package.BadgeType) -> String {
+        let cs = CharacterSet.urlHostAllowed.subtracting(.init(charactersIn: "=:"))
+        let url = SiteURL.api(.packages(.value(repositoryOwner), .value(repositoryName), .badge)).absoluteURL(parameters: ["type": type.rawValue])
+        let escaped = url.addingPercentEncoding(withAllowedCharacters: cs)
+            ?? url
+        return "https://img.shields.io/endpoint?url=\(escaped)"
+    }
+
+
+    func badgeMarkdown(for type: Package.BadgeType) -> String {
+        let spiPackageURL = SiteURL.package(.value(repositoryName), .value(repositoryOwner), .none)
+            .absoluteURL()
+        return "[![](\(badgeURL(for: type)))](\(spiPackageURL))"
+    }
+
 }
 
 

@@ -416,7 +416,7 @@ class ApiTests: AppTestCase {
         }
     }
 
-    func test_get_shield() throws {
+    func test_get_badge() throws {
         // setup
         let owner = "owner"
         let repo = "repo"
