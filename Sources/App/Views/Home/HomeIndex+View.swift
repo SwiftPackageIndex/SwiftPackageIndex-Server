@@ -80,6 +80,12 @@ enum HomeIndex {
                 ),
                 .li(
                     .a(
+                        .href("https://blog.swiftpackageindex.com"),
+                        "Blog"
+                    )
+                ),
+                .li(
+                    .a(
                         .href(SiteURL.faq.relativeURL()),
                         "FAQ"
                     )

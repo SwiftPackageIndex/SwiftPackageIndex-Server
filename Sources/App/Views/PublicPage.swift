@@ -228,6 +228,12 @@ class PublicPage {
             ),
             .li(
                 .a(
+                    .href("https://blog.swiftpackageindex.com"),
+                    "Blog"
+                )
+            ),
+            .li(
+                .a(
                     .href(SiteURL.faq.relativeURL()),
                     "FAQ"
                 )
@@ -286,6 +292,12 @@ class PublicPage {
             .div(.class("inner"),
                  .nav(
                     .ul(
+                        .li(
+                            .a(
+                                .href("https://blog.swiftpackageindex.com"),
+                                "Blog"
+                            )
+                        ),
                         .li(
                             .a(
                                 .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),

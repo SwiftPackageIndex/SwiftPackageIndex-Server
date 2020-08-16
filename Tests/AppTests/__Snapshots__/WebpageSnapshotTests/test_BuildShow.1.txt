@@ -42,6 +42,9 @@
               <a href="/add-a-package">Add a Package</a>
             </li>
             <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
+            <li>
               <a href="/faq">FAQ</a>
             </li>
             <li>
@@ -185,6 +188,9 @@ CompileSwift normal x86_64 /Users/spi/builds/zsxYGgdt/0/finestructure/swiftpacka
       <div class="inner">
         <nav>
           <ul>
+            <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
             <li>
               <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a>
             </li>
