@@ -255,7 +255,29 @@ class PackageShowModelTests: AppTestCase {
             ])
         }
     }
-    
+
+    func test_badgeURL() throws {
+        // Test badge url
+        Current.siteURL = { "https://spi.com" }
+        let model = PackageShow.Model.mock
+
+        XCTAssertEqual(model.badgeURL(for: .swiftVersions),
+                       "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2FAlamofire%2FAlamofire%2Fbadge%3Ftype%3Dswift-versions")
+        XCTAssertEqual(model.badgeURL(for: .platforms),
+                       "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2FAlamofire%2FAlamofire%2Fbadge%3Ftype%3Dplatforms")
+    }
+
+    func test_badgeMarkdown() throws {
+        // Test badge markdown structure
+        Current.siteURL = { "https://spi.com" }
+        let model = PackageShow.Model.mock
+
+        let badgeURL = model.badgeURL(for: .swiftVersions)
+        let packageURL = "https://spi.com/Alamofire/Alamofire"
+        XCTAssertEqual(model.badgeMarkdown(for: .swiftVersions),
+                       "[![](\(badgeURL))](\(packageURL))")
+    }
+
 }
 
 

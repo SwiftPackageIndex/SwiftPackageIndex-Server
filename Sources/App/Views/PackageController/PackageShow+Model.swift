@@ -350,11 +350,22 @@ extension PackageShow.Model {
                 .class("matrix"),
                 .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
             ),
-            .p(
+            .div(
                 .class("right"),
-                .a(
-                    .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
-                    "Full build results"
+                .div(
+                    .id(
+                        // TODO: remove check when we go live
+                        ((try? Environment.detect()) ?? .development) == .production
+                            ? "ignored"
+                            : "swift_version_badge"),
+                    .text(badgeMarkdown(for: .swiftVersions)),
+                    .attribute(named: "hidden")
+                ),
+                .div(
+                    .a(
+                        .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
+                        "Full build results"
+                    )
                 )
             )
         )
@@ -369,11 +380,22 @@ extension PackageShow.Model {
                 .class("matrix"),
                 .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
             ),
-            .p(
+            .div(
                 .class("right"),
-                .a(
-                    .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
-                    "Full build results"
+                .div(
+                    .id(
+                        // TODO: remove check when we go live
+                        ((try? Environment.detect()) ?? .development) == .production
+                            ? "ignored"
+                            : "platform_badge"),
+                    .text(badgeMarkdown(for: .platforms)),
+                    .attribute(named: "hidden")
+                ),
+                .div(
+                    .a(
+                        .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
+                        "Full build results"
+                    )
                 )
             )
         )
@@ -397,6 +419,22 @@ extension PackageShow.Model {
                 )
             )
         )
+    }
+
+
+    func badgeURL(for type: Package.BadgeType) -> String {
+        let cs = CharacterSet.urlHostAllowed.subtracting(.init(charactersIn: "=:"))
+        let url = SiteURL.api(.packages(.value(repositoryOwner), .value(repositoryName), .badge)).absoluteURL(parameters: ["type": type.rawValue])
+        let escaped = url.addingPercentEncoding(withAllowedCharacters: cs)
+            ?? url
+        return "https://img.shields.io/endpoint?url=\(escaped)"
+    }
+
+
+    func badgeMarkdown(for type: Package.BadgeType) -> String {
+        let spiPackageURL = SiteURL.package(.value(repositoryName), .value(repositoryOwner), .none)
+            .absoluteURL()
+        return "[![](\(badgeURL(for: type)))](\(spiPackageURL))"
     }
 
 }
