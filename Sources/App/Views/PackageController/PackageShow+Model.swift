@@ -350,20 +350,22 @@ extension PackageShow.Model {
                 .class("matrix"),
                 .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
             ),
-            .p(
-                .id(
-                    // TODO: remove check when we go live
-                    ((try? Environment.detect()) ?? .development) == .production
-                        ? "ignored"
-                        : "swift_version_badge"),
-                .text(badgeMarkdown(for: .swiftVersions)),
-                .attribute(named: "hidden")
-            ),
-            .p(
+            .div(
                 .class("right"),
-                .a(
-                    .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
-                    "Full build results"
+                .div(
+                    .id(
+                        // TODO: remove check when we go live
+                        ((try? Environment.detect()) ?? .development) == .production
+                            ? "ignored"
+                            : "swift_version_badge"),
+                    .text(badgeMarkdown(for: .swiftVersions)),
+                    .attribute(named: "hidden")
+                ),
+                .div(
+                    .a(
+                        .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
+                        "Full build results"
+                    )
                 )
             )
         )
@@ -378,21 +380,22 @@ extension PackageShow.Model {
                 .class("matrix"),
                 .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
             ),
-            .p(
-                .id(
-                    // TODO: remove check when we go live
-                    ((try? Environment.detect()) ?? .development) == .production
-                        ? "ignored"
-                        : "platform_badge"),
-                .text(badgeMarkdown(for: .platforms)),
-                .attribute(named: "hidden")
-            ),
-            .p(
+            .div(
                 .class("right"),
+                .div(
+                    .id(
+                        // TODO: remove check when we go live
+                        ((try? Environment.detect()) ?? .development) == .production
+                            ? "ignored"
+                            : "platform_badge"),
+                    .text(badgeMarkdown(for: .platforms)),
+                    .attribute(named: "hidden")
+                ),
                 .a(
                     .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
                     "Full build results"
-                )
+                ),
+                .text(" ")
             )
         )
     }
