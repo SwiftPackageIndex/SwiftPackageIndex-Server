@@ -211,9 +211,7 @@ extension BuildIndex.Model {
                 .div(
                     .class("row_label"),
                     .div(
-                        .div(.strong(.text(index.swiftVersion.displayName)),
-                             .text(" / "),
-                             .strong(.text(index.platform.displayName)))
+                        .div(.strong(.text(index.platform.displayName)))
                     )
                 ),
                 .div(

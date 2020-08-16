@@ -208,9 +208,12 @@
               </div>
             </li>
           </ul>
-          <p class="right">
-            <a href="/Alamofire/Alamofire/builds">Full build results</a>
-          </p>
+          <div class="right">
+            <div id="swift_version_badge" hidden>[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2FAlamofire%2FAlamofire%2Fbadge%3Ftype%3Dswift-versions)](http://localhost:8080/Alamofire/Alamofire)</div>
+            <div>
+              <a href="/Alamofire/Alamofire/builds">Full build results</a>
+            </div>
+          </div>
         </section>
         <section>
           <h3>Platform Compatibility</h3>
@@ -351,9 +354,12 @@
               </div>
             </li>
           </ul>
-          <p class="right">
-            <a href="/Alamofire/Alamofire/builds">Full build results</a>
-          </p>
+          <div class="right">
+            <div id="platform_badge" hidden>[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2FAlamofire%2FAlamofire%2Fbadge%3Ftype%3Dplatforms)](http://localhost:8080/Alamofire/Alamofire)</div>
+            <div>
+              <a href="/Alamofire/Alamofire/builds">Full build results</a>
+            </div>
+          </div>
         </section>
       </div>
     </main>
