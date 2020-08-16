@@ -391,11 +391,12 @@ extension PackageShow.Model {
                     .text(badgeMarkdown(for: .platforms)),
                     .attribute(named: "hidden")
                 ),
-                .a(
-                    .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
-                    "Full build results"
-                ),
-                .text(" ")
+                .div(
+                    .a(
+                        .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
+                        "Full build results"
+                    )
+                )
             )
         )
     }
