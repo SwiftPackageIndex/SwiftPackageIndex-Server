@@ -10,9 +10,10 @@ class BuildTriggerTests: AppTestCase {
     func test_fetchBuildCandidates() throws {
         // setup
         let pkgIdComplete = UUID()
-        let pkgIdIncomplete = UUID()
+        let pkgIdIncomplete1 = UUID()
+        let pkgIdIncomplete2 = UUID()
         do {  // save package with all builds
-            let p = Package(id: pkgIdComplete, url: "1")
+            let p = Package(id: pkgIdComplete, url: pkgIdComplete.uuidString.url)
             try p.save(on: app.db).wait()
             let v = try Version(package: p, latest: .defaultBranch)
             try v.save(on: app.db).wait()
@@ -25,28 +26,31 @@ class BuildTriggerTests: AppTestCase {
                     .save(on: app.db).wait()
             }
         }
-        do {  // save package with partially completed builds
-            let p = Package(id: pkgIdIncomplete, url: "2")
+        // save two packages with partially completed builds
+        try [pkgIdIncomplete1, pkgIdIncomplete2].forEach { id in
+            let p = Package(id: id, url: id.uuidString.url)
             try p.save(on: app.db).wait()
-            let v = try Version(package: p, latest: .defaultBranch)
-            try v.save(on: app.db).wait()
-            try BuildPair.all
-                .dropFirst() // skip one platform to create a build gap
-                .forEach { pair in
-                    try Build(id: UUID(),
-                              version: v,
-                              platform: pair.platform,
-                              status: .ok,
-                              swiftVersion: pair.swiftVersion)
-                        .save(on: app.db).wait()
-                }
+            try [Version.Kind.defaultBranch, .release].forEach { kind in
+                let v = try Version(package: p, latest: kind)
+                try v.save(on: app.db).wait()
+                try BuildPair.all
+                    .dropFirst() // skip one platform to create a build gap
+                    .forEach { pair in
+                        try Build(id: UUID(),
+                                  version: v,
+                                  platform: pair.platform,
+                                  status: .ok,
+                                  swiftVersion: pair.swiftVersion)
+                            .save(on: app.db).wait()
+                    }
+            }
         }
 
         // MUT
         let ids = try fetchBuildCandidates(app.db, limit: 10).wait()
 
         // validate
-        XCTAssertEqual(ids, [pkgIdIncomplete])
+        XCTAssertEqual(ids, [pkgIdIncomplete1, pkgIdIncomplete2])
     }
 
     func test_findMissingBuilds() throws {
