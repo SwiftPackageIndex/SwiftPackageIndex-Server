@@ -215,7 +215,7 @@ class BuildIndexModelTests: AppTestCase {
             .class("row"),
             .div(
                 .class("row_label"),
-                .div(.div(.strong("5.3"), .text(" / "), .strong("iOS")))
+                .div(.div(.strong("iOS")))
             ),
             .div(
                 .class("row_values"),
