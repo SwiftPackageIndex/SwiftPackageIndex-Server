@@ -125,30 +125,21 @@ func fetchBuildCandidates(_ database: Database,
         }
     }
 
-    let versions = SQLIdentifier("versions")
-    let packageId = SQLIdentifier("package_id")
-    let latest = SQLIdentifier("latest")
-    let updatedAt = SQLIdentifier("updated_at")
-
     let expectedBuildCount = BuildPair.all.count
 
-    let buildUnderCount = SQLBinaryExpression(left: count(SQLRaw("*")),
-                                              op: SQLBinaryOperator.lessThan,
-                                              right: SQLLiteral.numeric("\(expectedBuildCount)"))
-
-    let query = db
-        .select()
-        .column(packageId)
-        .from(versions)
-        .join("builds", method: .left, on: "builds.version_id=versions.id")
-        .where(isNotNull(latest))
-        .groupBy(packageId)
-        .groupBy(latest)
-        .groupBy(SQLColumn(updatedAt, table: versions))
-        .having(buildUnderCount)
-        .orderBy(SQLColumn(updatedAt, table: versions))
-        .limit(limit)
-    return query
+    return db.raw("""
+            SELECT package_id, min(updated_at) FROM (
+                SELECT v.package_id, v.latest, MIN(v.updated_at) updated_at
+                FROM versions v
+                LEFT JOIN builds b ON b.version_id = v.id
+                WHERE v.latest IS NOT NULL
+                GROUP BY v.package_id, v.latest
+                HAVING COUNT(*) < \(bind: expectedBuildCount)
+            ) AS t
+            GROUP BY package_id
+            ORDER BY MIN(updated_at)
+            LIMIT \(bind: limit)
+            """)
         .all(decoding: Row.self)
         .mapEach(\.packageId)
 }
