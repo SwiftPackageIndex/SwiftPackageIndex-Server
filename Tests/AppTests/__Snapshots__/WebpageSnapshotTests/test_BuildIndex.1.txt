@@ -59,13 +59,13 @@
             <strong>72</strong> completed builds for 
             <a href="/foo/foobar">foobar</a>.
           </p>
-          <h3>5.3</h3>
+          <hr></hr>
+          <h3>Swift 5.3</h3>
           <ul class="matrix">
             <li class="row">
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.3</strong> / 
                     <strong>iOS</strong>
                   </div>
                 </div>
@@ -105,7 +105,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.3</strong> / 
                     <strong>macOS (SPM)</strong>
                   </div>
                 </div>
@@ -145,7 +144,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.3</strong> / 
                     <strong>macOS (Xcode)</strong>
                   </div>
                 </div>
@@ -185,7 +183,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.3</strong> / 
                     <strong>macOS (SPM, ARM)</strong>
                   </div>
                 </div>
@@ -225,7 +222,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.3</strong> / 
                     <strong>macOS (Xcode, ARM)</strong>
                   </div>
                 </div>
@@ -265,7 +261,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.3</strong> / 
                     <strong>Linux</strong>
                   </div>
                 </div>
@@ -305,7 +300,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.3</strong> / 
                     <strong>tvOS</strong>
                   </div>
                 </div>
@@ -345,7 +339,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.3</strong> / 
                     <strong>watchOS</strong>
                   </div>
                 </div>
@@ -382,13 +375,13 @@
               </div>
             </li>
           </ul>
-          <h3>5.2</h3>
+          <hr></hr>
+          <h3>Swift 5.2</h3>
           <ul class="matrix">
             <li class="row">
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.2</strong> / 
                     <strong>iOS</strong>
                   </div>
                 </div>
@@ -431,7 +424,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.2</strong> / 
                     <strong>macOS (SPM)</strong>
                   </div>
                 </div>
@@ -474,7 +466,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.2</strong> / 
                     <strong>macOS (Xcode)</strong>
                   </div>
                 </div>
@@ -516,7 +507,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.2</strong> / 
                     <strong>Linux</strong>
                   </div>
                 </div>
@@ -556,7 +546,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.2</strong> / 
                     <strong>tvOS</strong>
                   </div>
                 </div>
@@ -599,7 +588,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.2</strong> / 
                     <strong>watchOS</strong>
                   </div>
                 </div>
@@ -636,13 +624,13 @@
               </div>
             </li>
           </ul>
-          <h3>5.1</h3>
+          <hr></hr>
+          <h3>Swift 5.1</h3>
           <ul class="matrix">
             <li class="row">
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.1</strong> / 
                     <strong>iOS</strong>
                   </div>
                 </div>
@@ -685,7 +673,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.1</strong> / 
                     <strong>macOS (SPM)</strong>
                   </div>
                 </div>
@@ -728,7 +715,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.1</strong> / 
                     <strong>macOS (Xcode)</strong>
                   </div>
                 </div>
@@ -771,7 +757,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.1</strong> / 
                     <strong>Linux</strong>
                   </div>
                 </div>
@@ -811,7 +796,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.1</strong> / 
                     <strong>tvOS</strong>
                   </div>
                 </div>
@@ -854,7 +838,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.1</strong> / 
                     <strong>watchOS</strong>
                   </div>
                 </div>
@@ -891,13 +874,13 @@
               </div>
             </li>
           </ul>
-          <h3>5.0</h3>
+          <hr></hr>
+          <h3>Swift 5.0</h3>
           <ul class="matrix">
             <li class="row">
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.0</strong> / 
                     <strong>iOS</strong>
                   </div>
                 </div>
@@ -940,7 +923,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.0</strong> / 
                     <strong>macOS (SPM)</strong>
                   </div>
                 </div>
@@ -983,7 +965,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.0</strong> / 
                     <strong>macOS (Xcode)</strong>
                   </div>
                 </div>
@@ -1026,7 +1007,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.0</strong> / 
                     <strong>Linux</strong>
                   </div>
                 </div>
@@ -1066,7 +1046,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.0</strong> / 
                     <strong>tvOS</strong>
                   </div>
                 </div>
@@ -1109,7 +1088,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>5.0</strong> / 
                     <strong>watchOS</strong>
                   </div>
                 </div>
@@ -1146,13 +1124,13 @@
               </div>
             </li>
           </ul>
-          <h3>4.2</h3>
+          <hr></hr>
+          <h3>Swift 4.2</h3>
           <ul class="matrix">
             <li class="row">
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>4.2</strong> / 
                     <strong>iOS</strong>
                   </div>
                 </div>
@@ -1195,7 +1173,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>4.2</strong> / 
                     <strong>macOS (SPM)</strong>
                   </div>
                 </div>
@@ -1238,7 +1215,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>4.2</strong> / 
                     <strong>macOS (Xcode)</strong>
                   </div>
                 </div>
@@ -1281,7 +1257,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>4.2</strong> / 
                     <strong>Linux</strong>
                   </div>
                 </div>
@@ -1321,7 +1296,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>4.2</strong> / 
                     <strong>tvOS</strong>
                   </div>
                 </div>
@@ -1364,7 +1338,6 @@
               <div class="row_label">
                 <div>
                   <div>
-                    <strong>4.2</strong> / 
                     <strong>watchOS</strong>
                   </div>
                 </div>
