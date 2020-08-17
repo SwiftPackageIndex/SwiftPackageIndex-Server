@@ -272,7 +272,7 @@ class BuildTriggerTests: AppTestCase {
             Current.getStatusCount = { _, _ in
                 .just(value: 299 + triggerCount) }
 
-            let pkgIds = (1...4).map { _ in UUID() }
+            let pkgIds = [UUID(), UUID()]
             try pkgIds.forEach { id in
                 let p = Package(id: id, url: id.uuidString.url)
                 try p.save(on: app.db).wait()
