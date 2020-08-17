@@ -52,60 +52,85 @@ func triggerBuilds(on database: Database,
         logger.info("Build trigger downscaling in effect - skipping builds")
         return database.eventLoop.future()
     }
-    return Current.getStatusCount(client, .pending)
-        .flatMap { count -> EventLoopFuture<Void> in
-            // check if we have capacity to schedule more builds
-            if count >= Current.gitlabPipelineLimit() {
-                logger.info("too many pending pipelines (\(count))")
-                return database.eventLoop.future()
-            } else {
-                switch parameter {
-                    case .limit(let limit):
-                        return fetchBuildCandidates(database, limit: limit)
-                             .flatMap { triggerBuildsUnchecked(on: database,
-                                                               client: client,
-                                                               logger: logger,
-                                                               packages: $0) }
-                    case .id(let id):
-                        return triggerBuildsUnchecked(on: database,
-                                                      client: client,
-                                                      logger: logger,
-                                                      packages: [id])
-                }
-            }
-        }
+    let ops: EventLoopFuture<Void>
+    switch parameter {
+        case .limit(let limit):
+            ops = fetchBuildCandidates(database, limit: limit)
+                .flatMap { triggerBuilds(on: database,
+                                         client: client,
+                                         logger: logger,
+                                         packages: $0) }
+        case .id(let id):
+            ops = triggerBuilds(on: database,
+                                client: client,
+                                logger: logger,
+                                packages: [id])
+    }
+    return ops
         .flatMap { trimBuilds(on: database) }
 }
 
 
+func triggerBuilds(on database: Database,
+                   client: Client,
+                   logger: Logger,
+                   packages: [Package.Id]) -> EventLoopFuture<Void> {
+    Current.getStatusCount(client, .pending)
+        .flatMap { pendingJobs in
+            var newJobs = 0
+            return packages.map { pkgId in
+                // check if we have capacity to schedule more builds before querying for candidates
+                guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
+                    logger.info("too many pending pipelines (\(pendingJobs))")
+                    return database.eventLoop.future()
+                }
+                return findMissingBuilds(database, packageId: pkgId)
+                    .flatMap { triggers in
+                        guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
+                            logger.info("too many pending pipelines (\(pendingJobs))")
+                            return database.eventLoop.future()
+                        }
+                        newJobs += triggers.count
+                        return triggerBuildsUnchecked(on: database,
+                                                      client: client,
+                                                      logger: logger,
+                                                      triggers: triggers) }
+            }
+            .flatten(on: database.eventLoop)
+    }
+}
+
+
+
+/// Trigger builds without checking the pipeline limit. This is the low level trigger function.
+/// - Parameters:
+///   - database: `Database` handle used for database access
+///   - client: `Client` used for http request
+///   - logger: `Logger` used for logging
+///   - triggers: trigger information for builds to trigger
+/// - Returns: `EventLoopFuture<Void>` future
 func triggerBuildsUnchecked(on database: Database,
                             client: Client,
                             logger: Logger,
-                            packages: [Package.Id]) -> EventLoopFuture<Void> {
-    packages.map {
-        findMissingBuilds(database, packageId: $0)
-            .flatMap { triggers in
-                triggers.map { trigger -> EventLoopFuture<Void> in
-                    logger.info("Triggering \(trigger.pairs.count) builds for version id: \(trigger.versionId)")
-                    return trigger.pairs.map { pair in
-                        Build.trigger(database: database,
-                                      client: client,
-                                      platform: pair.platform,
-                                      swiftVersion: pair.swiftVersion,
-                                      versionId: trigger.versionId)
-                            .flatMap { _ in
-                                Build(versionId: trigger.versionId,
-                                      platform: pair.platform,
-                                      status: .pending,
-                                      swiftVersion: pair.swiftVersion)
-                                    .create(on: database)
-                            }
-                            .transform(to: ())
-                    }
-                    .flatten(on: database.eventLoop)
+                            triggers: [BuildTriggerInfo]) -> EventLoopFuture<Void> {
+    triggers.map { trigger -> EventLoopFuture<Void> in
+        logger.info("Triggering \(trigger.pairs.count) builds for version id: \(trigger.versionId)")
+        return trigger.pairs.map { pair in
+            Build.trigger(database: database,
+                          client: client,
+                          platform: pair.platform,
+                          swiftVersion: pair.swiftVersion,
+                          versionId: trigger.versionId)
+                .flatMap { _ in
+                    Build(versionId: trigger.versionId,
+                          platform: pair.platform,
+                          status: .pending,
+                          swiftVersion: pair.swiftVersion)
+                        .create(on: database)
                 }
-                .flatten(on: database.eventLoop)
-            }
+                .transform(to: ())
+        }
+        .flatten(on: database.eventLoop)
     }
     .flatten(on: database.eventLoop)
 }

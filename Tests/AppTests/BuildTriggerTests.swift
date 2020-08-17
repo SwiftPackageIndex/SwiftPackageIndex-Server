@@ -107,12 +107,13 @@ class BuildTriggerTests: AppTestCase {
             let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
             try v.save(on: app.db).wait()
         }
+        let triggers = try findMissingBuilds(app.db, packageId: pkgId).wait()
 
         // MUT
         try triggerBuildsUnchecked(on: app.db,
                                    client: client,
                                    logger: app.logger,
-                                   packages: [pkgId]).wait()
+                                   triggers: triggers).wait()
 
         // validate
         // ensure Gitlab requests go out
@@ -164,30 +165,20 @@ class BuildTriggerTests: AppTestCase {
             }
         }
 
-        let pkgId = UUID()
         let versionId = UUID()
         do {  // save package with partially completed builds
-            let p = Package(id: pkgId, url: "2")
+            let p = Package(id: UUID(), url: "2")
             try p.save(on: app.db).wait()
             let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
             try v.save(on: app.db).wait()
-            try BuildPair.all
-                .dropFirst() // skip one pair to create a build gap
-                .forEach { pair in
-                    try Build(id: UUID(),
-                              version: v,
-                              platform: pair.platform,
-                              status: .ok,
-                              swiftVersion: pair.swiftVersion)
-                        .save(on: app.db).wait()
-                }
         }
+        let triggers = [BuildTriggerInfo(versionId, [BuildPair(.ios, .v4_2)])]
 
         // MUT
         try triggerBuildsUnchecked(on: app.db,
                                    client: client,
                                    logger: app.logger,
-                                   packages: [pkgId]).wait()
+                                   triggers: triggers).wait()
 
         // validate
         // ensure Gitlab requests go out
@@ -196,13 +187,11 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(queries.map { $0["variables[BUILD_PLATFORM]"] }, ["ios"])
         XCTAssertEqual(queries.map { $0["variables[SWIFT_VERSION]"] }, ["4.2.3"])
 
-        // ensure the Build stubs are created to prevent re-selection
+        // ensure the Build stubs is created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
         try v?.$builds.load(on: app.db).wait()
-        XCTAssertEqual(v?.builds.count, 32)
-
-        // ensure re-selection is empty
-        XCTAssertEqual(try fetchBuildCandidates(app.db, limit: 10).wait(), [])
+        XCTAssertEqual(v?.builds.count, 1)
+        XCTAssertEqual(v?.builds.map(\.status), [.pending])
     }
 
 
@@ -266,6 +255,41 @@ class BuildTriggerTests: AppTestCase {
             let v = try Version.find(versionId, on: app.db).wait()
             try v?.$builds.load(on: app.db).wait()
             XCTAssertEqual(v?.builds.count, 32)
+        }
+    }
+
+    func test_triggerBuilds_multiplePackages() throws {
+        // Ensure we respect the pipeline limit when triggering builds for multiple package ids
+        // setup
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+        Current.gitlabPipelineLimit = { 300 }
+
+        do {  // we are just below capacity and allow more builds to be triggered
+              // -- but ensure the threshold is checked per package id
+            var triggerCount = 0
+            let client = MockClient { _, _ in
+                triggerCount += 1 }
+            Current.getStatusCount = { _, _ in
+                .just(value: 299 + triggerCount) }
+
+            let pkgIds = (1...4).map { _ in UUID() }
+            try pkgIds.forEach { id in
+                let p = Package(id: id, url: id.uuidString.url)
+                try p.save(on: app.db).wait()
+                try Version(id: UUID(), package: p, latest: .defaultBranch, reference: .branch("main"))
+                    .save(on: app.db).wait()
+            }
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              parameter: .limit(4)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 32)
         }
     }
 
