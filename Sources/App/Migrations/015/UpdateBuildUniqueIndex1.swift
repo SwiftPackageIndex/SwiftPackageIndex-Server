@@ -11,7 +11,7 @@ struct UpdateBuildUniqueIndex1: Migration {
         }
 
         return db.raw("""
-            CREATE UNIQUE INDEX "\(newIndexName)"
+            CREATE UNIQUE INDEX "\(raw: newIndexName)"
             ON builds (
                 version_id,
                 platform,
@@ -35,7 +35,7 @@ struct UpdateBuildUniqueIndex1: Migration {
             .unique(on: "version_id", "platform", "swift_version")
             .update()
             .flatMap {
-                db.raw(#"DROP INDEX "\#(self.newIndexName)""#).run()
+                db.raw(#"DROP INDEX "\#(raw: self.newIndexName)""#).run()
             }
     }
 }

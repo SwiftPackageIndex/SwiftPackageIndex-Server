@@ -30,7 +30,7 @@ extension RecentRelease {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("REFRESH MATERIALIZED VIEW \(Self.schema)").run()
+        return db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
     }
     
     static func filterReleases(_ releases: [RecentRelease], by filter: Filter) -> [RecentRelease] {
@@ -52,7 +52,7 @@ extension RecentRelease {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
         
-        return db.raw("SELECT * FROM \(Self.schema) ORDER BY released_at DESC LIMIT \(bind: limit)")
+        return db.raw("SELECT * FROM \(raw: Self.schema) ORDER BY released_at DESC LIMIT \(bind: limit)")
             .all(decoding: RecentRelease.self)
             .map { filterReleases($0, by: filter) }
     }
