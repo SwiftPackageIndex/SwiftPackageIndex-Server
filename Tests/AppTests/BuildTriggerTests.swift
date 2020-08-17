@@ -264,31 +264,26 @@ class BuildTriggerTests: AppTestCase {
         Current.siteURL = { "http://example.com" }
         Current.gitlabPipelineLimit = { 300 }
 
-        do {  // we are just below capacity and allow more builds to be triggered
-              // -- but ensure the threshold is checked per package id
-            var triggerCount = 0
-            let client = MockClient { _, _ in
-                triggerCount += 1 }
-            Current.getStatusCount = { _, _ in
-                .just(value: 299 + triggerCount) }
+        var triggerCount = 0
+        let client = MockClient { _, _ in triggerCount += 1 }
+        Current.getStatusCount = { _, _ in .just(value: 299 + triggerCount) }
 
-            let pkgIds = [UUID(), UUID()]
-            try pkgIds.forEach { id in
-                let p = Package(id: id, url: id.uuidString.url)
-                try p.save(on: app.db).wait()
-                try Version(id: UUID(), package: p, latest: .defaultBranch, reference: .branch("main"))
-                    .save(on: app.db).wait()
-            }
-
-            // MUT
-            try triggerBuilds(on: app.db,
-                              client: client,
-                              logger: app.logger,
-                              parameter: .limit(4)).wait()
-
-            // validate - only the first batch must be allowed to trigger
-            XCTAssertEqual(triggerCount, 32)
+        let pkgIds = [UUID(), UUID()]
+        try pkgIds.forEach { id in
+            let p = Package(id: id, url: id.uuidString.url)
+            try p.save(on: app.db).wait()
+            try Version(id: UUID(), package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
         }
+
+        // MUT
+        try triggerBuilds(on: app.db,
+                          client: client,
+                          logger: app.logger,
+                          parameter: .limit(4)).wait()
+
+        // validate - only the first batch must be allowed to trigger
+        XCTAssertEqual(triggerCount, 32)
     }
 
     func test_triggerBuilds_trimming() throws {
