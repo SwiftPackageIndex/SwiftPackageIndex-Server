@@ -40,10 +40,47 @@ struct BuildTriggerCommand: Command {
 }
 
 
+/// High level build trigger function that either triggers builds for a given set of package ids
+/// or fetches a number of package ids via `fetchBuildCandidates` and triggers those.
+/// - Parameters:
+///   - database: `Database` handle used for database access
+///   - client: `Client` used for http request
+///   - logger: `Logger` used for logging
+///   - parameter: `BuildTriggerCommand.Parameter` holding either a list of package ids
+///   or a fetch limit for candidate selection.
+/// - Returns: `EventLoopFuture<Void>` future
 func triggerBuilds(on database: Database,
                    client: Client,
                    logger: Logger,
                    parameter: BuildTriggerCommand.Parameter) -> EventLoopFuture<Void> {
+    switch parameter {
+        case .limit(let limit):
+            return fetchBuildCandidates(database, limit: limit)
+                .flatMap { triggerBuilds(on: database,
+                                         client: client,
+                                         logger: logger,
+                                         packages: $0) }
+        case .id(let id):
+            return triggerBuilds(on: database,
+                                 client: client,
+                                 logger: logger,
+                                 packages: [id])
+    }
+}
+
+
+/// Main build trigger function for a set of package ids. Respects the global override switch, the downscaling factor, and
+/// checks against current pipeline limit.
+/// - Parameters:
+///   - database: `Database` handle used for database access
+///   - client: `Client` used for http request
+///   - logger: `Logger` used for logging
+///   - packages: list of `Package.Id`s to trigger
+/// - Returns: `EventLoopFuture<Void>` future
+func triggerBuilds(on database: Database,
+                   client: Client,
+                   logger: Logger,
+                   packages: [Package.Id]) -> EventLoopFuture<Void> {
     guard Current.allowBuildTriggers() else {
         logger.info("Build trigger override switch OFF - no builds are being triggered")
         return database.eventLoop.future()
@@ -52,34 +89,12 @@ func triggerBuilds(on database: Database,
         logger.info("Build trigger downscaling in effect - skipping builds")
         return database.eventLoop.future()
     }
-    let ops: EventLoopFuture<Void>
-    switch parameter {
-        case .limit(let limit):
-            ops = fetchBuildCandidates(database, limit: limit)
-                .flatMap { triggerBuilds(on: database,
-                                         client: client,
-                                         logger: logger,
-                                         packages: $0) }
-        case .id(let id):
-            ops = triggerBuilds(on: database,
-                                client: client,
-                                logger: logger,
-                                packages: [id])
-    }
-    return ops
-        .flatMap { trimBuilds(on: database) }
-}
 
-
-func triggerBuilds(on database: Database,
-                   client: Client,
-                   logger: Logger,
-                   packages: [Package.Id]) -> EventLoopFuture<Void> {
-    Current.getStatusCount(client, .pending)
+    return Current.getStatusCount(client, .pending)
         .flatMap { pendingJobs in
             var newJobs = 0
             return packages.map { pkgId in
-                // check if we have capacity to schedule more builds before querying for candidates
+                // check if we have capacity to schedule more builds before querying for builds
                 guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
                     logger.info("too many pending pipelines (\(pendingJobs))")
                     return database.eventLoop.future()
@@ -97,7 +112,8 @@ func triggerBuilds(on database: Database,
                                                       triggers: triggers) }
             }
             .flatten(on: database.eventLoop)
-    }
+        }
+        .flatMap { trimBuilds(on: database) }
 }
 
 

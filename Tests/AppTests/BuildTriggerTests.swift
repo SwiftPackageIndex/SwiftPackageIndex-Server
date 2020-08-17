@@ -83,6 +83,50 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(res, [.init(versionId, expectedPairs)])
     }
 
+    func test_triggerBuildsUnchecked() throws {
+        // setup
+        Current.builderToken = { "builder token" }
+        Current.gitlabPipelineToken = { "pipeline token" }
+        Current.siteURL = { "http://example.com" }
+
+        let queue = DispatchQueue(label: "serial")
+        var queries = [[String: String]]()
+        let client = MockClient { req, res in
+            queue.sync {
+                guard let query = try? req.query.decode([String: String].self) else { return }
+                queries.append(query)
+            }
+        }
+
+        let versionId = UUID()
+        do {  // save package with partially completed builds
+            let p = Package(id: UUID(), url: "2")
+            try p.save(on: app.db).wait()
+            let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+            try v.save(on: app.db).wait()
+        }
+        let triggers = [BuildTriggerInfo(versionId, [BuildPair(.ios, .v4_2)])]
+
+        // MUT
+        try triggerBuildsUnchecked(on: app.db,
+                                   client: client,
+                                   logger: app.logger,
+                                   triggers: triggers).wait()
+
+        // validate
+        // ensure Gitlab requests go out
+        XCTAssertEqual(queries.count, 1)
+        XCTAssertEqual(queries.map { $0["variables[VERSION_ID]"] }, [versionId.uuidString])
+        XCTAssertEqual(queries.map { $0["variables[BUILD_PLATFORM]"] }, ["ios"])
+        XCTAssertEqual(queries.map { $0["variables[SWIFT_VERSION]"] }, ["4.2.3"])
+
+        // ensure the Build stubs is created to prevent re-selection
+        let v = try Version.find(versionId, on: app.db).wait()
+        try v?.$builds.load(on: app.db).wait()
+        XCTAssertEqual(v?.builds.count, 1)
+        XCTAssertEqual(v?.builds.map(\.status), [.pending])
+    }
+
     func test_triggerBuildsUnchecked_supported() throws {
         // Explicitly test the full range of all currently triggered platforms and swift versions
         // setup
@@ -148,52 +192,6 @@ class BuildTriggerTests: AppTestCase {
         // ensure re-selection is empty
         XCTAssertEqual(try fetchBuildCandidates(app.db, limit: 10).wait(), [])
     }
-
-
-    func test_triggerBuildsUnchecked() throws {
-        // setup
-        Current.builderToken = { "builder token" }
-        Current.gitlabPipelineToken = { "pipeline token" }
-        Current.siteURL = { "http://example.com" }
-
-        let queue = DispatchQueue(label: "serial")
-        var queries = [[String: String]]()
-        let client = MockClient { req, res in
-            queue.sync {
-                guard let query = try? req.query.decode([String: String].self) else { return }
-                queries.append(query)
-            }
-        }
-
-        let versionId = UUID()
-        do {  // save package with partially completed builds
-            let p = Package(id: UUID(), url: "2")
-            try p.save(on: app.db).wait()
-            let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
-            try v.save(on: app.db).wait()
-        }
-        let triggers = [BuildTriggerInfo(versionId, [BuildPair(.ios, .v4_2)])]
-
-        // MUT
-        try triggerBuildsUnchecked(on: app.db,
-                                   client: client,
-                                   logger: app.logger,
-                                   triggers: triggers).wait()
-
-        // validate
-        // ensure Gitlab requests go out
-        XCTAssertEqual(queries.count, 1)
-        XCTAssertEqual(queries.map { $0["variables[VERSION_ID]"] }, [versionId.uuidString])
-        XCTAssertEqual(queries.map { $0["variables[BUILD_PLATFORM]"] }, ["ios"])
-        XCTAssertEqual(queries.map { $0["variables[SWIFT_VERSION]"] }, ["4.2.3"])
-
-        // ensure the Build stubs is created to prevent re-selection
-        let v = try Version.find(versionId, on: app.db).wait()
-        try v?.$builds.load(on: app.db).wait()
-        XCTAssertEqual(v?.builds.count, 1)
-        XCTAssertEqual(v?.builds.map(\.status), [.pending])
-    }
-
 
     func test_triggerBuilds_checked() throws {
         // Ensure we respect the pipeline limit when triggering builds
@@ -288,7 +286,7 @@ class BuildTriggerTests: AppTestCase {
                               logger: app.logger,
                               parameter: .limit(4)).wait()
 
-            // validate
+            // validate - only the first batch must be allowed to trigger
             XCTAssertEqual(triggerCount, 32)
         }
     }
