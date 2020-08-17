@@ -30,8 +30,6 @@ extension SiteURL {
     
     var changefreq: SiteMapChangeFrequency {
         switch self {
-            case .admin:
-                return .weekly
             case .api:
                 return .weekly
             case .builds:

@@ -33,11 +33,6 @@ func routes(_ app: Application) throws {
     let buildController = BuildController()
     app.get(SiteURL.builds(.key).pathComponents, use: buildController.show)
 
-    do {  // admin
-        // sas: 2020-06-01: disable admin page until we have an auth mechanism
-        //  app.get(Root.admin.pathComponents) { req in PublicPage.admin() }
-    }
-    
     do {  // api
 
         // public routes
