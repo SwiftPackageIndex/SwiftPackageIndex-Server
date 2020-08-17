@@ -15,8 +15,4 @@ extension String {
         }
         return self
     }
-    
-    func contained(in characterSet: CharacterSet) -> Bool {
-        unicodeScalars.allSatisfy({ characterSet.contains($0) })
-    }
 }
