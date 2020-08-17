@@ -15,6 +15,8 @@ class GitlabBuilderTests: XCTestCase {
         let client = MockClient { req, res in
             called = true
             // validate
+            XCTAssert(req.url.query?.contains("variables%5BREFERENCE%5D=1.2.3") ?? false,
+                      "expected to find percent encoded variables")
             XCTAssertEqual(try? req.query.decode([String: String].self),
                            .some([
                             "token": "pipeline token",
