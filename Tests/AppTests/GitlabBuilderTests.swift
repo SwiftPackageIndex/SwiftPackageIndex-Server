@@ -1,10 +1,29 @@
 @testable import App
 
+import Vapor
 import XCTest
 
 
 class GitlabBuilderTests: XCTestCase {
-    
+
+    func test_variables_encoding() throws {
+        // Ensure the POST variables are encoded correctly
+        // setup
+        let app = try setup(.testing)
+        defer { app.shutdown() }
+        let req = Request(application: app, on: app.eventLoopGroup.next())
+        let dto = Gitlab.Builder.PostDTO(token: "token",
+                                         ref: "ref",
+                                         variables: ["FOO": "bar"])
+
+        // MUT
+        try req.query.encode(dto)
+
+        // validate
+        XCTAssertEqual(req.url.query?.split(separator: "&").sorted(),
+                       ["ref=ref", "token=token", "variables[FOO]=bar"])
+    }
+
     func test_post_trigger() throws {
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
@@ -15,8 +34,6 @@ class GitlabBuilderTests: XCTestCase {
         let client = MockClient { req, res in
             called = true
             // validate
-            XCTAssert(req.url.query?.contains("variables%5BREFERENCE%5D=1.2.3") ?? false,
-                      "expected to find percent encoded variables")
             XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
                            Gitlab.Builder.PostDTO(
                             token: "pipeline token",
