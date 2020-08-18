@@ -65,6 +65,24 @@
         }
       },
       {
+        "package": "jwt",
+        "repositoryURL": "https://github.com/vapor/jwt.git",
+        "state": {
+          "branch": null,
+          "revision": "46eddb526fa70fd9d765a3bdffac73b2be487cfc",
+          "version": "4.0.0"
+        }
+      },
+      {
+        "package": "jwt-kit",
+        "repositoryURL": "https://github.com/vapor/jwt-kit.git",
+        "state": {
+          "branch": null,
+          "revision": "3e631a209cd25f78ba5b6187c527f6c1d8c66732",
+          "version": "4.0.1"
+        }
+      },
+      {
         "package": "Plot",
         "repositoryURL": "https://github.com/JohnSundell/Plot.git",
         "state": {
