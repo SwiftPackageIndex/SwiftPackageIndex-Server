@@ -70,6 +70,12 @@ extension Gitlab.Builder {
         return req
     }
 
+    struct PostDTO: Codable, Equatable {
+        var token: String
+        var ref: String
+        var variables: [String: String]
+    }
+
 }
 
 

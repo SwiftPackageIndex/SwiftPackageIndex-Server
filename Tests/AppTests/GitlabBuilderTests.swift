@@ -17,18 +17,19 @@ class GitlabBuilderTests: XCTestCase {
             // validate
             XCTAssert(req.url.query?.contains("variables%5BREFERENCE%5D=1.2.3") ?? false,
                       "expected to find percent encoded variables")
-            XCTAssertEqual(try? req.query.decode([String: String].self),
-                           .some([
-                            "token": "pipeline token",
-                            "ref": "main",
-                            "variables[API_BASEURL]": "http://example.com/api",
-                            "variables[BUILD_PLATFORM]": "macos-spm",
-                            "variables[BUILDER_TOKEN]": "builder token",
-                            "variables[CLONE_URL]": "https://github.com/daveverwer/LeftPad.git",
-                            "variables[REFERENCE]": "1.2.3",
-                            "variables[SWIFT_VERSION]": "5.2.4",
-                            "variables[VERSION_ID]": versionID.uuidString,
-                           ]))
+            XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
+                           Gitlab.Builder.PostDTO(
+                            token: "pipeline token",
+                            ref: "main",
+                            variables: [
+                                "API_BASEURL": "http://example.com/api",
+                                "BUILD_PLATFORM": "macos-spm",
+                                "BUILDER_TOKEN": "builder token",
+                                "CLONE_URL": "https://github.com/daveverwer/LeftPad.git",
+                                "REFERENCE": "1.2.3",
+                                "SWIFT_VERSION": "5.2.4",
+                                "VERSION_ID": versionID.uuidString,
+                            ]))
         }
         
         // MUT
@@ -52,8 +53,8 @@ class GitlabBuilderTests: XCTestCase {
         let client = MockClient { req, res in
             called = true
             // validate
-            let swiftVersion = (try? req.query.decode([String: String].self))
-                .flatMap { $0["variables[SWIFT_VERSION]"] }
+            let swiftVersion = (try? req.query.decode(Gitlab.Builder.PostDTO.self))
+                .flatMap { $0.variables["SWIFT_VERSION"] }
             XCTAssertEqual(swiftVersion, "5.0.3")
         }
 
