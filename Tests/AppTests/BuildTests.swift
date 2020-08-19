@@ -275,4 +275,36 @@ class BuildTests: AppTestCase {
         XCTAssertEqual(builds.map(\.platform), [.ios])
     }
 
+    func test_delete_by_packageId_versionKind() throws {
+        // setup
+        let pkgId1 = UUID()
+        let pkg1 = Package(id: pkgId1, url: "1")
+        try pkg1.save(on: app.db).wait()
+        let pkgId2 = UUID()
+        let pkg2 = Package(id: pkgId2, url: "2")
+        try pkg2.save(on: app.db).wait()
+
+        let v1 = try Version(package: pkg1)
+        try v1.save(on: app.db).wait()
+        let v2 = try Version(package: pkg2, latest: .defaultBranch)
+        try v2.save(on: app.db).wait()
+        let v3 = try Version(package: pkg2, latest: .release)
+        try v3.save(on: app.db).wait()
+
+        // save different platforms as an easy way to check the correct one has been deleted
+        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v5_2)
+            .save(on: app.db).wait()
+        try Build(version: v2, platform: .linux, status: .ok, swiftVersion: .v5_2)
+            .save(on: app.db).wait()
+        try Build(version: v3, platform: .tvos, status: .ok, swiftVersion: .v5_2)
+            .save(on: app.db).wait()
+
+        // MUT
+        try Build.delete(on: app.db, packageId: pkgId2, versionKind: .defaultBranch).wait()
+
+        // validate
+        let builds = try Build.query(on: app.db).all().wait()
+        XCTAssertEqual(builds.map(\.platform), [.ios, .tvos])
+    }
+
 }
