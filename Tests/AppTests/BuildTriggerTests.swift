@@ -218,7 +218,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId)).wait()
+                              parameter: .id(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 0)
@@ -245,7 +245,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId)).wait()
+                              parameter: .id(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 32)
@@ -254,6 +254,34 @@ class BuildTriggerTests: AppTestCase {
             try v?.$builds.load(on: app.db).wait()
             XCTAssertEqual(v?.builds.count, 32)
         }
+
+        do {  // third run: we are at capacity and using the `force` flag
+            Current.getStatusCount = { _, _ in .just(value: 300) }
+
+            var triggerCount = 0
+            let client = MockClient { _, _ in triggerCount += 1 }
+
+            let pkgId = UUID()
+            let versionId = UUID()
+            let p = Package(id: pkgId, url: "3")
+            try p.save(on: app.db).wait()
+            try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
+                .save(on: app.db).wait()
+
+            // MUT
+            try triggerBuilds(on: app.db,
+                              client: client,
+                              logger: app.logger,
+                              parameter: .id(pkgId, force: true)).wait()
+
+            // validate
+            XCTAssertEqual(triggerCount, 32)
+            // ensure builds are now in progress
+            let v = try Version.find(versionId, on: app.db).wait()
+            try v?.$builds.load(on: app.db).wait()
+            XCTAssertEqual(v?.builds.count, 32)
+        }
+
     }
 
     func test_triggerBuilds_multiplePackages() throws {
@@ -310,7 +338,7 @@ class BuildTriggerTests: AppTestCase {
         try triggerBuilds(on: app.db,
                           client: client,
                           logger: app.logger,
-                          parameter: .id(pkgId)).wait()
+                          parameter: .id(pkgId, force: false)).wait()
 
         // validate
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
@@ -340,7 +368,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId)).wait()
+                              parameter: .id(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 0)
@@ -363,7 +391,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId)).wait()
+                              parameter: .id(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 32)
@@ -395,7 +423,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId)).wait()
+                              parameter: .id(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 0)
@@ -418,7 +446,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId)).wait()
+                              parameter: .id(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 32)
