@@ -12,7 +12,7 @@ struct TriggerBuildsCommand: Command {
         @Flag(name: "force", short: "f", help: "override pipeline capacity check and downscaling (--id only)")
         var force: Bool
         @Option(name: "id")
-        var id: String?
+        var id: UUID?
     }
 
     var help: String { "Trigger package builds" }
@@ -24,11 +24,10 @@ struct TriggerBuildsCommand: Command {
 
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
-        let id = signature.id.flatMap(UUID.init(uuidString:))
         let force = signature.force
 
         let parameter: Parameter
-        if let id = id {
+        if let id = signature.id {
             context.console.info("Triggering builds (id: \(id)) ...")
             parameter = .id(id, force: force)
         } else {

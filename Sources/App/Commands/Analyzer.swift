@@ -10,15 +10,14 @@ struct AnalyzeCommand: Command {
         @Option(name: "limit", short: "l")
         var limit: Int?
         @Option(name: "id")
-        var id: String?
+        var id: UUID?
     }
     
     var help: String { "Run package analysis (fetching git repository and inspecting content)" }
     
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
-        let id = signature.id.flatMap(UUID.init(uuidString:))
-        if let id = id {
+        if let id = signature.id {
             context.console.info("Analyzing (id: \(id)) ...")
             try analyze(application: context.application, id: id).wait()
         } else {
