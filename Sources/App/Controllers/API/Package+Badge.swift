@@ -99,6 +99,7 @@ extension Package {
 
 
 func _badgeMessage(platforms: [Build.Platform]) -> String {
+    guard !platforms.isEmpty else { return "unavailable" }
     struct Value: Hashable {
         var index: Int
         var value: String
@@ -135,7 +136,8 @@ func _badgeMessage(platforms: [Build.Platform]) -> String {
 
 
 func _badgeMessage(swiftVersions: [SwiftVersion]) -> String {
-    swiftVersions
+    guard !swiftVersions.isEmpty else { return "unavailable" }
+    return swiftVersions
         .map(\.displayName)
         .sorted { $0 > $1 }
         .joined(separator: " | ")
