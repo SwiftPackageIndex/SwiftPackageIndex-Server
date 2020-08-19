@@ -3,7 +3,7 @@ import SQLKit
 import Vapor
 
 
-struct BuildTriggerCommand: Command {
+struct TriggerBuildsCommand: Command {
     let defaultLimit = 1
 
     struct Signature: CommandSignature {
@@ -58,7 +58,7 @@ struct BuildTriggerCommand: Command {
 func triggerBuilds(on database: Database,
                    client: Client,
                    logger: Logger,
-                   parameter: BuildTriggerCommand.Parameter) -> EventLoopFuture<Void> {
+                   parameter: TriggerBuildsCommand.Parameter) -> EventLoopFuture<Void> {
     switch parameter {
         case .limit(let limit):
             return fetchBuildCandidates(database, limit: limit)
