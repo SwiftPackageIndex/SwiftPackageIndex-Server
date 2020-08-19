@@ -9,6 +9,8 @@ struct BuildTriggerCommand: Command {
     struct Signature: CommandSignature {
         @Option(name: "limit", short: "l")
         var limit: Int?
+        @Flag(name: "force", short: "f", help: "override pipeline capacity check and downscaling (--id only)")
+        var force: Bool
         @Option(name: "id")
         var id: String?
     }
@@ -17,18 +19,22 @@ struct BuildTriggerCommand: Command {
 
     enum Parameter {
         case limit(Int)
-        case id(UUID)
+        case id(UUID, force: Bool)
     }
 
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
         let id = signature.id.flatMap(UUID.init(uuidString:))
+        let force = signature.force
 
         let parameter: Parameter
         if let id = id {
             context.console.info("Triggering builds (id: \(id)) ...")
-            parameter = .id(id)
+            parameter = .id(id, force: force)
         } else {
+            if force {
+                context.console.warning("--force has no effect when used with --limit")
+            }
             context.console.info("Triggering builds (limit: \(limit)) ...")
             parameter = .limit(limit)
         }
@@ -60,11 +66,12 @@ func triggerBuilds(on database: Database,
                                          client: client,
                                          logger: logger,
                                          packages: $0) }
-        case .id(let id):
+        case let .id(id, force):
             return triggerBuilds(on: database,
                                  client: client,
                                  logger: logger,
-                                 packages: [id])
+                                 packages: [id],
+                                 force: force)
     }
 }
 
@@ -76,15 +83,26 @@ func triggerBuilds(on database: Database,
 ///   - client: `Client` used for http request
 ///   - logger: `Logger` used for logging
 ///   - packages: list of `Package.Id`s to trigger
+///   - force: do not check pipeline capacity and ignore downscaling
 /// - Returns: `EventLoopFuture<Void>` future
 func triggerBuilds(on database: Database,
                    client: Client,
                    logger: Logger,
-                   packages: [Package.Id]) -> EventLoopFuture<Void> {
+                   packages: [Package.Id],
+                   force: Bool = false) -> EventLoopFuture<Void> {
     guard Current.allowBuildTriggers() else {
         logger.info("Build trigger override switch OFF - no builds are being triggered")
         return database.eventLoop.future()
     }
+
+    guard !force else {
+        return packages.map {
+            findMissingBuilds(database, packageId: $0).flatMap {
+                triggerBuildsUnchecked(on: database, client: client, logger: logger, triggers: $0) }
+        }
+        .flatten(on: database.eventLoop)
+    }
+
     guard Current.random(0...1) <= Current.buildTriggerDownscaling() else {
         logger.info("Build trigger downscaling in effect - skipping builds")
         return database.eventLoop.future()
