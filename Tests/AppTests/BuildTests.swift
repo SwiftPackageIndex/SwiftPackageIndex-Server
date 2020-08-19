@@ -239,9 +239,10 @@ class BuildTests: AppTestCase {
             .save(on: app.db).wait()
 
         // MUT
-        try Build.delete(on: app.db, versionId: vid2).wait()
+        let count = try Build.delete(on: app.db, versionId: vid2).wait()
 
         // validate
+        XCTAssertEqual(count, 1)
         let builds = try Build.query(on: app.db).all().wait()
         XCTAssertEqual(builds.map(\.$version.id), [vid1])
     }
@@ -268,9 +269,10 @@ class BuildTests: AppTestCase {
 
 
         // MUT
-        try Build.delete(on: app.db, packageId: pkgId2).wait()
+        let count = try Build.delete(on: app.db, packageId: pkgId2).wait()
 
         // validate
+        XCTAssertEqual(count, 1)
         let builds = try Build.query(on: app.db).all().wait()
         XCTAssertEqual(builds.map(\.platform), [.ios])
     }
@@ -300,9 +302,10 @@ class BuildTests: AppTestCase {
             .save(on: app.db).wait()
 
         // MUT
-        try Build.delete(on: app.db, packageId: pkgId2, versionKind: .defaultBranch).wait()
+        let count = try Build.delete(on: app.db, packageId: pkgId2, versionKind: .defaultBranch).wait()
 
         // validate
+        XCTAssertEqual(count, 1)
         let builds = try Build.query(on: app.db).all().wait()
         XCTAssertEqual(builds.map(\.platform), [.ios, .tvos])
     }
