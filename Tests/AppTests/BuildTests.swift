@@ -223,4 +223,26 @@ class BuildTests: AppTestCase {
         XCTAssertFalse([mkBuild(.failed), mkBuild(.failed)].anySucceeded)
     }
 
+    func test_delete_by_versionId() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        let v1id = UUID()
+        let v1 = try Version(id: v1id, package: pkg)
+        try v1.save(on: app.db).wait()
+        let v2id = UUID()
+        let v2 = try Version(id: v2id, package: pkg)
+        try v2.save(on: app.db).wait()
+        try Build(version: v1, platform: .ios, status: .ok, swiftVersion: .v5_2)
+            .save(on: app.db).wait()
+        try Build(version: v2, platform: .ios, status: .ok, swiftVersion: .v5_2)
+            .save(on: app.db).wait()
+
+        // MUT
+        try Build.delete(on: app.db, versionId: v2id).wait()
+
+        // validate
+        let builds = try Build.query(on: app.db).all().wait()
+        XCTAssertEqual(builds.map(\.$version.id), [v1id])
+    }
+
 }

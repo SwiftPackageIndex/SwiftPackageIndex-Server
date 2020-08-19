@@ -168,6 +168,18 @@ extension Build {
 }
 
 
+// MARK: - Deletion
+
+extension Build {
+    static func delete(on database: Database, versionId: Version.Id) -> EventLoopFuture<Void> {
+        Build.query(on: database)
+            .filter(\.$version.$id == versionId)
+            .delete()
+    }
+}
+
+
+// MARK: - Array extension
 
 extension Array where Element == Build {
     var noneSucceeded: Bool {
