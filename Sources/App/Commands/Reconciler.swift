@@ -2,7 +2,7 @@ import Fluent
 import Vapor
 
 
-struct ReconcilerCommand: Command {
+struct ReconcileCommand: Command {
     struct Signature: CommandSignature { }
     
     var help: String { "Reconcile package list with server" }

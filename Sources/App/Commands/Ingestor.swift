@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 
-struct IngestorCommand: Command {
+struct IngestCommand: Command {
     let defaultLimit = 1
     
     struct Signature: CommandSignature {

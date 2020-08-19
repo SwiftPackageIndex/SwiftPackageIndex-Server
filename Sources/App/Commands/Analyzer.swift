@@ -3,7 +3,7 @@ import Vapor
 import ShellOut
 
 
-struct AnalyzerCommand: Command {
+struct AnalyzeCommand: Command {
     let defaultLimit = 1
     
     struct Signature: CommandSignature {
