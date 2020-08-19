@@ -65,11 +65,17 @@ enum Api: Resourceable {
 }
 
 
+enum Docs: String, Resourceable {
+    case builds
+}
+
+
 enum SiteURL: Resourceable {
     
     case admin
     case api(Api)
     case builds(_ id: Parameter<UUID>)
+    case docs(Docs)
     case faq
     case addAPackage
     case home
@@ -94,6 +100,9 @@ enum SiteURL: Resourceable {
 
             case .builds(.key):
                 fatalError("invalid path: \(self)")
+
+            case let .docs(next):
+                return "docs/\(next.path)"
 
             case .faq:
                 return "faq"
@@ -140,14 +149,17 @@ enum SiteURL: Resourceable {
             case .admin, .faq, .addAPackage, .home, .privacy, .rssPackages, .rssReleases, .siteMap:
                 return [.init(stringLiteral: path)]
                 
-            case let .api(res):
-                return ["api"] + res.pathComponents
+            case let .api(next):
+                return ["api"] + next.pathComponents
 
             case .builds(.key):
                 return ["builds", ":id"]
 
             case .builds(.value):
                 fatalError("pathComponents must not be called with a value parameter")
+
+            case let .docs(next):
+                return ["docs"] + next.pathComponents
 
             case .package(.key, .key, .none):
                 return [":owner", ":repository"]
