@@ -16,6 +16,7 @@ description: Frequently Asked Questions about the Swift Package Index
 * [Can I contribute?](#contributing)
 * [Is there an API?](#api)
 * [Why are package versions missing?](#missing-versions)
+* [How does the build system work?](#build-system)
 
 ---
 
@@ -175,3 +176,9 @@ A good way to check what the latest semantic version release of a package is is 
   <source srcset="/images/add-package-in-xcode~dark.png" media="(prefers-color-scheme: dark)">
   <img src="/images/add-package-in-xcode~light.png" alt="Adding a package in Xcode">
 </picture>
+
+---
+
+<h3 id="build-system">How does the build system work?</h3>
+
+The SPI Build System builds packages for various swift version and platforms. You can find out more in the [Build System FAQ](docs/builds).

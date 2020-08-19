@@ -14,8 +14,6 @@ class MarkdownPage: PublicPage {
     let html: String?
     
     init(path: String, _ markdownFilename: String) {
-        assert(markdownFilename.split(separator: "/").count < 2, "Filename should not include path separators.")
-        
         let pathToMarkdownFile = Current.fileManager.workingDirectory()
             .appending("Resources/Markdown/")
             .appending(markdownFilename)
