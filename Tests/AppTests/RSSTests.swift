@@ -97,11 +97,11 @@ class RSSTests: AppTestCase {
     
     func test_recentPackages_route() throws {
         // Test request handler
-        try app.test(.GET, "packages.rss") { res in
+        try app.test(.GET, "packages.rss", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
-        }
+        })
     }
     
     func test_recentReleases_route_all() throws {
@@ -129,14 +129,14 @@ class RSSTests: AppTestCase {
         try RecentRelease.refresh(on: app.db).wait()
         
         // MUT
-        try app.test(.GET, "releases.rss") { res in
+        try app.test(.GET, "releases.rss", afterResponse:  { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
             // validation
             assertSnapshot(matching: String(decoding: res.body.readableBytesView, as: UTF8.self),
                            as: .init(pathExtension: "xml", diffing: .lines))
-        }
+        })
     }
     
     func test_recentReleases_route_major() throws {
@@ -164,14 +164,14 @@ class RSSTests: AppTestCase {
         try RecentRelease.refresh(on: app.db).wait()
         
         // MUT
-        try app.test(.GET, "releases.rss?major=true") { res in
+        try app.test(.GET, "releases.rss?major=true", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
             // validation
             assertSnapshot(matching: String(decoding: res.body.readableBytesView, as: UTF8.self),
                            as: .init(pathExtension: "xml", diffing: .lines))
-        }
+        })
     }
     
     func test_recentReleases_route_majorMinor() throws {
@@ -199,14 +199,14 @@ class RSSTests: AppTestCase {
         try RecentRelease.refresh(on: app.db).wait()
         
         // MUT
-        try app.test(.GET, "releases.rss?major=true&minor=true") { res in
+        try app.test(.GET, "releases.rss?major=true&minor=true", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
             // validation
             assertSnapshot(matching: String(decoding: res.body.readableBytesView, as: UTF8.self),
                            as: .init(pathExtension: "xml", diffing: .lines))
-        }
+        })
     }
     
     func test_recentReleases_route_preRelease() throws {
@@ -235,14 +235,14 @@ class RSSTests: AppTestCase {
         try RecentRelease.refresh(on: app.db).wait()
         
         // MUT
-        try app.test(.GET, "releases.rss?pre=true") { res in
+        try app.test(.GET, "releases.rss?pre=true", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "application", subType: "rss+xml")))
             // validation
             assertSnapshot(matching: String(decoding: res.body.readableBytesView, as: UTF8.self),
                            as: .init(pathExtension: "xml", diffing: .lines))
-        }
+        })
     }
     
 }
