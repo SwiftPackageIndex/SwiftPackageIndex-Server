@@ -54,20 +54,27 @@ extension Gitlab.Builder {
         let uri: URI = .init(string: "\(projectURL)/trigger/pipeline")
         let req = client
             .post(uri) { req in
-                let data: [String: String] = [
-                    "token": pipelineToken,
-                    "ref": branch,
-                    "variables[API_BASEURL]": SiteURL.apiBaseURL,
-                    "variables[BUILD_PLATFORM]": platform.rawValue,
-                    "variables[BUILDER_TOKEN]": builderToken,
-                    "variables[CLONE_URL]": cloneURL,
-                    "variables[REFERENCE]": "\(reference)",
-                    "variables[SWIFT_VERSION]": "\(swiftVersion.major).\(swiftVersion.minor).\(swiftVersion.patch)",
-                    "variables[VERSION_ID]": versionID.uuidString,
-                ]
+                let data = PostDTO(
+                    token: pipelineToken,
+                    ref: branch,
+                    variables: [
+                        "API_BASEURL": SiteURL.apiBaseURL,
+                        "BUILD_PLATFORM": platform.rawValue,
+                        "BUILDER_TOKEN": builderToken,
+                        "CLONE_URL": cloneURL,
+                        "REFERENCE": "\(reference)",
+                        "SWIFT_VERSION": "\(swiftVersion.major).\(swiftVersion.minor).\(swiftVersion.patch)",
+                        "VERSION_ID": versionID.uuidString
+                    ])
                 try req.query.encode(data)
             }
         return req
+    }
+
+    struct PostDTO: Codable, Equatable {
+        var token: String
+        var ref: String
+        var variables: [String: String]
     }
 
 }

@@ -90,10 +90,10 @@ class BuildTriggerTests: AppTestCase {
         Current.siteURL = { "http://example.com" }
 
         let queue = DispatchQueue(label: "serial")
-        var queries = [[String: String]]()
+        var queries = [Gitlab.Builder.PostDTO]()
         let client = MockClient { req, res in
             queue.sync {
-                guard let query = try? req.query.decode([String: String].self) else { return }
+                guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.append(query)
             }
         }
@@ -116,9 +116,9 @@ class BuildTriggerTests: AppTestCase {
         // validate
         // ensure Gitlab requests go out
         XCTAssertEqual(queries.count, 1)
-        XCTAssertEqual(queries.map { $0["variables[VERSION_ID]"] }, [versionId.uuidString])
-        XCTAssertEqual(queries.map { $0["variables[BUILD_PLATFORM]"] }, ["ios"])
-        XCTAssertEqual(queries.map { $0["variables[SWIFT_VERSION]"] }, ["4.2.3"])
+        XCTAssertEqual(queries.map { $0.variables["VERSION_ID"] }, [versionId.uuidString])
+        XCTAssertEqual(queries.map { $0.variables["BUILD_PLATFORM"] }, ["ios"])
+        XCTAssertEqual(queries.map { $0.variables["SWIFT_VERSION"] }, ["4.2.3"])
 
         // ensure the Build stubs is created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
@@ -135,10 +135,10 @@ class BuildTriggerTests: AppTestCase {
         Current.siteURL = { "http://example.com" }
 
         let queue = DispatchQueue(label: "serial")
-        var queries = [[String: String]]()
+        var queries = [Gitlab.Builder.PostDTO]()
         let client = MockClient { req, res in
             queue.sync {
-                guard let query = try? req.query.decode([String: String].self) else { return }
+                guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.append(query)
             }
         }
@@ -162,9 +162,9 @@ class BuildTriggerTests: AppTestCase {
         // validate
         // ensure Gitlab requests go out
         XCTAssertEqual(queries.count, 32)
-        XCTAssertEqual(queries.map { $0["variables[VERSION_ID]"] },
+        XCTAssertEqual(queries.map { $0.variables["VERSION_ID"] },
                        Array(repeating: versionId.uuidString, count: 32))
-        let buildPlatforms = queries.compactMap { $0["variables[BUILD_PLATFORM]"] }
+        let buildPlatforms = queries.compactMap { $0.variables["BUILD_PLATFORM"] }
         XCTAssertEqual(Dictionary(grouping: buildPlatforms, by: { $0 })
                         .mapValues(\.count),
                        ["ios": 5,
@@ -175,7 +175,7 @@ class BuildTriggerTests: AppTestCase {
                         "linux": 5,
                         "watchos": 5,
                         "tvos": 5])
-        let swiftVersions = queries.compactMap { $0["variables[SWIFT_VERSION]"] }
+        let swiftVersions = queries.compactMap { $0.variables["SWIFT_VERSION"] }
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
                        ["4.2.3": 6,

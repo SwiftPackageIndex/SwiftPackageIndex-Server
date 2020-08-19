@@ -117,7 +117,7 @@ enum Search {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("REFRESH MATERIALIZED VIEW \(Self.schema)").run()
+        return db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
     }
 }
 

@@ -1,10 +1,29 @@
 @testable import App
 
+import Vapor
 import XCTest
 
 
 class GitlabBuilderTests: XCTestCase {
-    
+
+    func test_variables_encoding() throws {
+        // Ensure the POST variables are encoded correctly
+        // setup
+        let app = try setup(.testing)
+        defer { app.shutdown() }
+        let req = Request(application: app, on: app.eventLoopGroup.next())
+        let dto = Gitlab.Builder.PostDTO(token: "token",
+                                         ref: "ref",
+                                         variables: ["FOO": "bar"])
+
+        // MUT
+        try req.query.encode(dto)
+
+        // validate
+        XCTAssertEqual(req.url.query?.split(separator: "&").sorted(),
+                       ["ref=ref", "token=token", "variables[FOO]=bar"])
+    }
+
     func test_post_trigger() throws {
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
@@ -15,18 +34,19 @@ class GitlabBuilderTests: XCTestCase {
         let client = MockClient { req, res in
             called = true
             // validate
-            XCTAssertEqual(try? req.query.decode([String: String].self),
-                           .some([
-                            "token": "pipeline token",
-                            "ref": "main",
-                            "variables[API_BASEURL]": "http://example.com/api",
-                            "variables[BUILD_PLATFORM]": "macos-spm",
-                            "variables[BUILDER_TOKEN]": "builder token",
-                            "variables[CLONE_URL]": "https://github.com/daveverwer/LeftPad.git",
-                            "variables[REFERENCE]": "1.2.3",
-                            "variables[SWIFT_VERSION]": "5.2.4",
-                            "variables[VERSION_ID]": versionID.uuidString,
-                           ]))
+            XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
+                           Gitlab.Builder.PostDTO(
+                            token: "pipeline token",
+                            ref: "main",
+                            variables: [
+                                "API_BASEURL": "http://example.com/api",
+                                "BUILD_PLATFORM": "macos-spm",
+                                "BUILDER_TOKEN": "builder token",
+                                "CLONE_URL": "https://github.com/daveverwer/LeftPad.git",
+                                "REFERENCE": "1.2.3",
+                                "SWIFT_VERSION": "5.2.4",
+                                "VERSION_ID": versionID.uuidString,
+                            ]))
         }
         
         // MUT
@@ -50,8 +70,8 @@ class GitlabBuilderTests: XCTestCase {
         let client = MockClient { req, res in
             called = true
             // validate
-            let swiftVersion = (try? req.query.decode([String: String].self))
-                .flatMap { $0["variables[SWIFT_VERSION]"] }
+            let swiftVersion = (try? req.query.decode(Gitlab.Builder.PostDTO.self))
+                .flatMap { $0.variables["SWIFT_VERSION"] }
             XCTAssertEqual(swiftVersion, "5.0.3")
         }
 

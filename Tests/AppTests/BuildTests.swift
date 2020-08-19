@@ -113,18 +113,19 @@ class BuildTests: AppTestCase {
             called = true
             res.status = .created
             // validate request data
-            XCTAssertEqual(try? req.query.decode([String: String].self),
-                           .some([
-                            "token": "pipeline token",
-                            "ref": "main",
-                            "variables[API_BASEURL]": "http://example.com/api",
-                            "variables[BUILD_PLATFORM]": "macos-xcodebuild",
-                            "variables[BUILDER_TOKEN]": "builder token",
-                            "variables[CLONE_URL]": "1",
-                            "variables[REFERENCE]": "main",
-                            "variables[SWIFT_VERSION]": "5.2.4",
-                            "variables[VERSION_ID]": versionID.uuidString,
-                           ]))
+            XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
+                           Gitlab.Builder.PostDTO(
+                            token: "pipeline token",
+                            ref: "main",
+                            variables: [
+                                "API_BASEURL": "http://example.com/api",
+                                "BUILD_PLATFORM": "macos-xcodebuild",
+                                "BUILDER_TOKEN": "builder token",
+                                "CLONE_URL": "1",
+                                "REFERENCE": "main",
+                                "SWIFT_VERSION": "5.2.4",
+                                "VERSION_ID": versionID.uuidString,
+                            ]))
         }
         
         // MUT

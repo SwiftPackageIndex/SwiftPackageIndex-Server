@@ -52,7 +52,7 @@ func _resetDb(_ app: Application) throws {
     }
     
     for table in tables {
-        try db.raw("TRUNCATE TABLE \(table) CASCADE").run().wait()
+        try db.raw("TRUNCATE TABLE \(raw: table) CASCADE").run().wait()
     }
 }
 
