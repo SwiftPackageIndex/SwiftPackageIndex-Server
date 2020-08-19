@@ -26,9 +26,9 @@ class BuildIndexModelTests: AppTestCase {
         XCTAssertNil(m)
     }
 
-    func test_buildCount() throws {
+    func test_completedBuildCount() throws {
         let m = BuildIndex.Model.mock
-        XCTAssertEqual(m.buildCount, 72)
+        XCTAssertEqual(m.completedBuildCount, 71)  // 72 total with one pending
     }
 
     func test_packageURL() throws {

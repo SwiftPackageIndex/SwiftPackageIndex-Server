@@ -16,8 +16,8 @@ enum BuildIndex {
             .div(
                 .h2("Build Results"),
                 .p(
-                    .strong("\(model.buildCount)"),
-                    .text(" completed \("build".pluralized(for: model.buildCount)) for "),
+                    .strong("\(model.completedBuildCount)"),
+                    .text(" completed \("build".pluralized(for: model.completedBuildCount)) for "),
                     .a(
                         .href(model.packageURL),
                         .text(model.packageName)

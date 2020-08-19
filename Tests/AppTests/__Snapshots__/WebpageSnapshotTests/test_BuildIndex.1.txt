@@ -59,7 +59,7 @@
         <div>
           <h2>Build Results</h2>
           <p>
-            <strong>72</strong> completed builds for 
+            <strong>71</strong> completed builds for 
             <a href="/foo/foobar">foobar</a>.
           </p>
           <hr></hr>

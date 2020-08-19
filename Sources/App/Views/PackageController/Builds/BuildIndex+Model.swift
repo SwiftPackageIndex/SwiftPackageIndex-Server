@@ -6,7 +6,7 @@ extension BuildIndex {
         var owner: String
         var repositoryName: String
         var packageName: String
-        var buildCount: Int
+        var completedBuildCount: Int
         var buildMatrix: BuildMatrix
 
         init?(package: Package) {
@@ -34,7 +34,7 @@ extension BuildIndex {
             self.owner = owner
             self.repositoryName = repositoryName
             self.packageName = packageName
-            self.buildCount = buildGroups.reduce(0) { $0 + $1.builds.count }
+            self.completedBuildCount = buildGroups.reduce(0) { $0 + $1.builds.filter(\.completed).count }
             buildMatrix = .init(buildGroups: buildGroups)
         }
     }
@@ -67,6 +67,8 @@ extension BuildIndex.Model {
         var platform: App.Build.Platform
         var status: App.Build.Status
         var swiftVersion: App.SwiftVersion
+
+        var completed: Bool { status != .pending }
 
         init?(_ build: App.Build) {
             guard let id = build.id else { return nil }
