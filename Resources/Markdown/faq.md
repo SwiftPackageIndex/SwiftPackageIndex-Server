@@ -11,7 +11,6 @@ description: Frequently Asked Questions about the Swift Package Index
 * [What happened to the SwiftPM Library?](#swiftpm-library)
 * [How does the Swift Package Index work?](#how-does-it-work)
 * [What about the GitHub Package Registry?](#package-registry)
-* [How do I define Language and Platform information?](#language-and-platforms)
 * [What do the license colours mean?](#license-problems)
 * [Can I contribute?](#contributing)
 * [Is there an API?](#api)
@@ -59,64 +58,6 @@ Packages are also polled for changes every few hours, so the information you see
 <h3 id="package-registry">What about the GitHub Package Registry?</h3>
 
 We’re excited to see the GitHub Package Registry gain support for the Swift packages. There’s [a proposal under discussion](https://forums.swift.org/t/swift-package-registry-service/37219) for the Swift Package Manager support to support package registries formally, but a package registry is not a package search engine like this site is. If the Swift project accepts the proposal, this site will support and index the GitHub Package Registry, and any other significant implementation of a package registry as they become available.
-
----
-
-<h3 id="language-and-platforms">How do I define Language and Platform information?</h3>
-
-The more metadata the Swift Package Index knows about your package, the better we can present it to people looking for packages. However, we need package authors to inform us of what platforms and languages their packages require, and support.
-
-Are you a package author? Does your package listing currently look like this?
-
-<picture>
-  <source srcset="/images/language-and-platforms-no-metadata~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/language-and-platforms-no-metadata~light.png" alt="Missing language and platform metadata">
-</picture>
-
-Read on to learn how to specify this information in your `Package.swift` manifest.
-
-#### Providing Swift language version metadata
-
-Define the versions of Swift that your package is compatible with by setting the [`swiftLanguageVersions`](https://developer.apple.com/documentation/swift_packages/package/3197887-swiftlanguageversions) property in your package manifest, `Package.swift`. This property is an array of [`SwiftVersion`](https://developer.apple.com/documentation/swift_packages/swiftversion) enums:
-
-```swift
-swiftLanguageVersions: [.v4, .v4_2, .v5]
-```
-
-`SwiftVersion` does not define *all* versions of Swift, only significant versions. For example, if your package supports Swift 5, 5.1, and 5.2 then your `swiftLanguageVersions` should look like this:
-
-```swift
-swiftLanguageVersions: [.v5]
-```
-
-Once you push an updated `Package.swift` to your project's hosted repository, the Swift Package Index will re-scan and pick up your new metadata within a few hours. After the update, your listing will look something like this:
-
-<picture>
-  <source srcset="/images/language-and-platforms-language-only~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/language-and-platforms-language-only~light.png" alt="Swift language metadata">
-</picture>
-
-**Note:** Be careful not to mix up `swiftLanguageVersions` with the `swift-tools-version` comment at the top of your `Package.swift` file. `swiftLanguageVersions` defines the version(s) of Swift your package supports, and `swift-tools-version` determines what version of Swift is required to parse the `Package.swift` file. The Swift Package Index *only* parses the `swiftLanguageVersions` metadata.
-
-#### Providing platform compatibility metadata
-
-Define the Apple platforms (iOS, macOS, watchOS, or tvOS) that your package is compatible with by setting the [`platforms`](https://developer.apple.com/documentation/swift_packages/package/3197886-platforms) property in your package manifest. This property is an array of [`SupportedPlatform`](https://developer.apple.com/documentation/swift_packages/supportedplatform) enums:
-
-```swift
-platforms: [.macOS(.v10_12),
-            .iOS(.v10),
-            .tvOS(.v10),
-            .watchOS(.v3)]
-```
-
-Push an updated `Package.swift` and the Swift Package Index will automatically update within a few hours. Once it updates, your listing will look like this:
-
-<picture>
-  <source srcset="/images/language-and-platforms-full-metadata~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/language-and-platforms-full-metadata~light.png" alt="Swift language and platform metadata">
-</picture>
-
-**Note:** Unfortunately, `Package.swift` does not currently support platform metadata to indicate whether a package is compatible with Linux. If this ever changes, the Swift Package Index will support it.
 
 ---
 
