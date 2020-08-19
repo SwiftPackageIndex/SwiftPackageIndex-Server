@@ -259,14 +259,14 @@ func trimBuilds(on database: Database) -> EventLoopFuture<Void> {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
     return db.raw("""
-        delete
-        from builds b
-        using versions v
-        where b.version_id = v.id
-        and (
+        DELETE
+        FROM builds b
+        USING versions v
+        WHERE b.version_id = v.id
+        AND (
             v.latest is null
-            or
-            (b.status = 'pending' and b.created_at < now() - interval '\(bind: Constants.trimBuildsGracePeriod) hours')
+            OR
+            (b.status = 'pending' AND b.created_at < NOW() - INTERVAL '\(bind: Constants.trimBuildsGracePeriod) hours')
         )
         """).run()
 }
