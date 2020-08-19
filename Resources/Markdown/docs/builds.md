@@ -3,62 +3,51 @@ page-title: Builds FAQ
 description: Frequently Asked Questions about the Build System
 ---
 
-## The SPI Build System FAQ
+## The Swift Package Index Build System
 
-* [Why doesn’t my package show any builds?](#no-builds)
+* [What is the Build System?](#build-system)
+* [Why does a package show missing or incomplete compatibility?](#no-builds)
 * [What revision is the default branch built for?](#what-revision)
-* [How is my package being built?](#built-how)
-* [When was it last built?](#last-built)
-* [How long until builds are done after a new release/commit on default branch?](#how-long)
-* [How can I hide failing builds for platforms I don’t support?](#hide-failing-builds)
-* [The build is shown as failed but I know my package supports this platform, what do I do to fix it?](#fix-false-negative)
-* [The build shows an error that doesn’t seem to have anything to do with a build error. How can I fix this?](#unrelated-error)
-* [I’ve fixed a build, how do I trigger a re-run?](#trigger-rebuild)
+* [How are packages built?](#built-how)
+* [When was a package last built?](#last-built)
+* [Is it possible to hide failing builds for unsupported platforms?](#hide-failing-builds)
+* [If a build is showing failed incorrectly, how can I fix it?](#fix-false-negative)
+* [If a build is showing an error that seems unrelated to the build, how can I fix it?](#unrelated-error)
 
-<h3 id="no-builds">Why doesn’t my package show any builds?</h3>
+<h3 id="build-system">What is the Build System?</h3>
 
-The Swift Package Index picks up new default branch revisions and releases automatically. However, it can take a little while for it to do so. New builds should appear within a few hours after a revision change.
+A Swift package manifest includes support for declaring [Swift version support](https://developer.apple.com/documentation/swift_packages/package/3197887-swiftlanguageversions) and [platform support](https://developer.apple.com/documentation/swift_packages/package/3197886-platforms). There are a few problems with relying on this data, so the Swift Package Index takes a different approach. What better way to determine compatibility with a specific version of Swift on a particular platform than to build it?
 
-If you see a little clock symbol, your builds are on their way in the build queue and should appear shortly.
+The Swift Package Index build system is a mechanism that keeps a package page always up to date with real-world build results targeting various Swift versions across multiple platforms, including Linux.
+
+<h3 id="no-builds">Why does a package show missing or incomplete compatibility?</h3>
+
+The Swift Package Index will pick up new default branch revisions and releases automatically. It can take a little while for build results to become available after a commit or new version release though, so if the compatibility matrix shows a clock symbol then builds are still pending, and results are on their way!
 
 <h3 id="what-revision">What revision is the default branch built for?</h3>
 
-The Swift Package Index does not currently display which default branch revision has been built. If your default branch revision changed more than a few hours ago it is very likely the revision that has been built. It is best to rely on (pre-)releases to for precise Swift version and platform compatibility.
+The Swift Package Index does not currently display which revision the default branch tracks. If a default branch revision changed more than a few hours ago, everything should be up to date. If there looks to be a problem with a build not updating after several hours, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new).
 
-<h3 id="built-how">How is my package being built?</h3>
+<h3 id="built-how">How are packages built?</h3>
 
-We run `xcodebuild` and/or `swift build` (as applicable) for the platform and the specified Swift versions.
+The build system runs either `xcodebuild` or `swift build` depending on the platform and specified Swift versions.
 
-For `xcodebuild` we apply some heuristics to find the correct scheme to build. If your package contains a single scheme (as reported by `xcodebuild -list`) we will build that scheme.
+When running `xcodebuild`, we apply some heuristics to find the correct scheme to build. If a package contains a single scheme (as reported by `xcodebuild -list`), the build system will use that scheme. If `xcodebuild -list` reports multiple schemes, the build system will choose the one ending in `-Package`. Otherwise, it will try removing any Xcode project and workspace files and rely on SPM’s scheme discovery to autogenerate a package scheme.
 
-If `xcodebuild -list` reports multiple schemes, we build the one ending in `-Package`. Otherwise we try removing existing Xcode project and workspace files and rely on SPM’s scheme discovery to autogenerate a package scheme for building.
+<h3 id="last-built">When was a package last built?</h3>
 
-<h3 id="last-built">When was it last built?</h3>
+The Swift Package Index does not currently display the date/time of the last build for a package, but everything is typically up to date a few hours after a revision or version release.
 
-The Swift Package Index does not currently display when a revision has been built. You can assume this to have happened a few hours after a revision change.
+<h3 id="hide-failing-builds">Is it possible to hide failing builds for unsupported platforms?</h3>
 
-<h3 id="how-long">How long until builds are done after a new release/commit on default branch?</h3>
+Not currently. However, by using grey rather than red for the compatibility matrix, we aim to show this is a lack of platform or Swift version support rather than a failure per se. On the build details page, we show statuses with red crosses to make it easier for the package maintainer to find and inspect what may be genuine problems.
 
-New revisions are typically built within a few hours.
+<h3 id="fix-false-negative">If a build is showing failed incorrectly, how can I fix it?</h3>
 
-<h3 id="hide-failing-builds">How can I hide failing builds for platforms I don’t support?</h3>
+As a package author, you might think that a package should be compatible with a platform or Swift version, where the Swift Package Index shows it as incompatible. First, please try to replicate the build locally with the build command that the build system uses. The build details page shows the full build command which will help reveal if there is some issue with the package set up or our way of discovering the build scheme.
 
-This is currently not possible. By displaying a grey cross in the compatibility matrix we aim to show this is a lack of platform or Swift version support and not a failure per se. However, on the build details page we show these with red crosses to make it easier for the package maintainer to find and inspect what may be genuine build problems.
+If you can fix the problem, great! Fix the issue, push the change, and we will re-process your builds. If the problem is more serious, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new) so we can improve the build system.
 
-<h3 id="fix-false-negative">The build is shown as failed but I know my package supports this platform, what do I do to fix it?</h3>
+<h3 id="unrelated-error">If a build is showing an error that seems unrelated to the build, how can I fix it?</h3>
 
-First, please try to replicate the build locally with the build command we show on the build details page. This may help reveal if there is some issue with the package set up or our way of discovering the build scheme.
-
-If this is something you can correct, great! Simply make the change and we will re-process your builds.
-
-If this is not possible, please get in touch so we can improve our build command and make it work with your package.
-
-<h3 id="unrelated-error">The build shows an error that doesn’t seem to have anything to do with a build error. How can I fix this?</h3>
-
-In some cases we may have encountered build issues unrelated to your package. Please confirm using the build command we show on the build page whether you can build your package successfully for a given Swift version and platform.
-
-If this succeeds, please let us know so we can remove the faulty builds and schedule a rebuild.
-
-<h3 id="trigger-rebuild">I’ve fixed a build, how do I trigger a re-run?</h3>
-
-Simply commit a change to your default branch or make a new (pre-)release. In a few hours the Swift Package Index will revisit your package and rebuilt the new revision.
+In some cases, we may have encountered build issues unrelated to your package. Please confirm using the build command shown on the build details page that you can build your package successfully for a given Swift version and platform. If this succeeds, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new) so we can remove the faulty builds and schedule a rebuild.
