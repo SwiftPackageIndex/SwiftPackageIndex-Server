@@ -2,22 +2,21 @@ import Vapor
 import Fluent
 
 
-struct IngestorCommand: Command {
+struct IngestCommand: Command {
     let defaultLimit = 1
     
     struct Signature: CommandSignature {
         @Option(name: "limit", short: "l")
         var limit: Int?
         @Option(name: "id")
-        var id: String?
+        var id: UUID?
     }
     
     var help: String { "Run package ingestion (fetching repository metadata)" }
     
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
-        let id = signature.id.flatMap(UUID.init(uuidString:))
-        if let id = id {
+        if let id = signature.id {
             context.console.info("Ingesting (id: \(id)) ...")
             try ingest(application: context.application,
                        database: context.application.db,

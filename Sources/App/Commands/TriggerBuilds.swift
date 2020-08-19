@@ -3,7 +3,7 @@ import SQLKit
 import Vapor
 
 
-struct BuildTriggerCommand: Command {
+struct TriggerBuildsCommand: Command {
     let defaultLimit = 1
 
     struct Signature: CommandSignature {
@@ -12,7 +12,7 @@ struct BuildTriggerCommand: Command {
         @Flag(name: "force", short: "f", help: "override pipeline capacity check and downscaling (--id only)")
         var force: Bool
         @Option(name: "id")
-        var id: String?
+        var id: UUID?
     }
 
     var help: String { "Trigger package builds" }
@@ -24,11 +24,10 @@ struct BuildTriggerCommand: Command {
 
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
-        let id = signature.id.flatMap(UUID.init(uuidString:))
         let force = signature.force
 
         let parameter: Parameter
-        if let id = id {
+        if let id = signature.id {
             context.console.info("Triggering builds (id: \(id)) ...")
             parameter = .id(id, force: force)
         } else {
@@ -58,7 +57,7 @@ struct BuildTriggerCommand: Command {
 func triggerBuilds(on database: Database,
                    client: Client,
                    logger: Logger,
-                   parameter: BuildTriggerCommand.Parameter) -> EventLoopFuture<Void> {
+                   parameter: TriggerBuildsCommand.Parameter) -> EventLoopFuture<Void> {
     switch parameter {
         case .limit(let limit):
             return fetchBuildCandidates(database, limit: limit)
@@ -259,14 +258,14 @@ func trimBuilds(on database: Database) -> EventLoopFuture<Void> {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
     return db.raw("""
-        delete
-        from builds b
-        using versions v
-        where b.version_id = v.id
-        and (
+        DELETE
+        FROM builds b
+        USING versions v
+        WHERE b.version_id = v.id
+        AND (
             v.latest is null
-            or
-            (b.status = 'pending' and b.created_at < now() - interval '\(bind: Constants.trimBuildsGracePeriod) hours')
+            OR
+            (b.status = 'pending' AND b.created_at < NOW() - INTERVAL '\(bind: Constants.trimBuildsGracePeriod) hours')
         )
         """).run()
 }

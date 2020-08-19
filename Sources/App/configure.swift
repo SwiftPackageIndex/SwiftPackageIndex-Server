@@ -83,11 +83,12 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateBuildUniqueIndex1())
     }
     
-    app.commands.use(AnalyzerCommand(), as: "analyze")
-    app.commands.use(BuildTriggerCommand(), as: "trigger-builds")
+    app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
-    app.commands.use(IngestorCommand(), as: "ingest")
-    app.commands.use(ReconcilerCommand(), as: "reconcile")
+    app.commands.use(DeleteBuildsCommand(), as: "delete-builds")
+    app.commands.use(IngestCommand(), as: "ingest")
+    app.commands.use(ReconcileCommand(), as: "reconcile")
+    app.commands.use(TriggerBuildsCommand(), as: "trigger-builds")
     
     // register routes
     try routes(app)

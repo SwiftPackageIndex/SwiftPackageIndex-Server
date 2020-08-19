@@ -168,6 +168,62 @@ extension Build {
 }
 
 
+// MARK: - Deletion
+
+extension Build {
+    static func delete(on database: Database, versionId: Version.Id) -> EventLoopFuture<Int> {
+        delete(on: database, deleteSQL: """
+            DELETE
+            FROM builds b
+            USING versions v
+            WHERE b.version_id = v.id
+              AND v.id = \(bind: versionId)
+            RETURNING b.id
+            """)
+    }
+
+    static func delete(on database: Database,
+                       packageId: Package.Id) -> EventLoopFuture<Int> {
+        delete(on: database, deleteSQL: """
+            DELETE
+            FROM builds b
+            USING versions v, packages p
+            WHERE b.version_id = v.id
+              AND v.package_id = p.id
+              AND p.id = \(bind: packageId)
+            RETURNING b.id
+            """)
+    }
+
+    static func delete(on database: Database,
+                       packageId: Package.Id,
+                       versionKind: Version.Kind) -> EventLoopFuture<Int> {
+        delete(on: database, deleteSQL: """
+            DELETE
+            FROM builds b
+            USING versions v, packages p
+            WHERE b.version_id = v.id
+              AND v.package_id = p.id
+              AND p.id = \(bind: packageId)
+              AND v.latest = \(bind: versionKind.rawValue)
+            RETURNING b.id
+            """)
+    }
+
+    static func delete(on database: Database,
+                       deleteSQL: SQLQueryString) -> EventLoopFuture<Int> {
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+        return db.raw(deleteSQL)
+            .all()
+            .map { $0.count }
+    }
+
+}
+
+
+// MARK: - Array extension
 
 extension Array where Element == Build {
     var noneSucceeded: Bool {
