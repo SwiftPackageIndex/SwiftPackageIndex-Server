@@ -11,11 +11,11 @@ description: Frequently Asked Questions about the Swift Package Index
 * [What happened to the SwiftPM Library?](#swiftpm-library)
 * [How does the Swift Package Index work?](#how-does-it-work)
 * [What about the GitHub Package Registry?](#package-registry)
+* [How is the Swift language and platform support calculated?](#language-and-platforms)
 * [What do the license colours mean?](#license-problems)
 * [Can I contribute?](#contributing)
 * [Is there an API?](#api)
 * [Why are package versions missing?](#missing-versions)
-* [How does the build system work?](#build-system)
 
 ---
 
@@ -58,6 +58,20 @@ Packages are also polled for changes every few hours, so the information you see
 <h3 id="package-registry">What about the GitHub Package Registry?</h3>
 
 We’re excited to see the GitHub Package Registry gain support for the Swift packages. There’s [a proposal under discussion](https://forums.swift.org/t/swift-package-registry-service/37219) for the Swift Package Manager support to support package registries formally, but a package registry is not a package search engine like this site is. If the Swift project accepts the proposal, this site will support and index the GitHub Package Registry, and any other significant implementation of a package registry as they become available.
+
+---
+
+<h3 id="language-and-platforms">How is the Swift language and platform support calculated?</h3>
+
+The Swift Package Index includes build information which is not able to be derived from the package manifest. Including full coverage of both Swift version compatibility, and platform compatibility, including Linux!
+
+<picture>
+  <source srcset="/images/languages-and-platforms~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/languages-and-platforms~light.png" alt="Language and Platform information on a package page">
+</picture>
+
+
+To determine what versions of Swift a package supports, and what platforms it is compatible with, the Swift Package Index runs real-world builds using several Swift compilers targeting several different platforms. You can learn more about how we do this in the [Swift Package Index Build System FAQ](/docs/builds).
 
 ---
 
@@ -117,9 +131,3 @@ A good way to check what the latest semantic version release of a package is is 
   <source srcset="/images/add-package-in-xcode~dark.png" media="(prefers-color-scheme: dark)">
   <img src="/images/add-package-in-xcode~light.png" alt="Adding a package in Xcode">
 </picture>
-
----
-
-<h3 id="build-system">How does the build system work?</h3>
-
-The SPI Build System builds packages for various swift version and platforms. You can find out more in the [Build System FAQ](docs/builds).

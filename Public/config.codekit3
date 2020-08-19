@@ -63,6 +63,28 @@
 		"oT": 1,
 		"q": 100
 		},
+	"/images/languages-and-platforms~dark.png": {
+		"ft": 32768,
+		"iS": 63176,
+		"oA": 0,
+		"oAP": "/deploy/images/languages-and-platforms~dark.png",
+		"oF": 0,
+		"oIPL": 0,
+		"opt": 1,
+		"oT": 1,
+		"q": 100
+		},
+	"/images/languages-and-platforms~light.png": {
+		"ft": 32768,
+		"iS": 59196,
+		"oA": 0,
+		"oAP": "/deploy/images/languages-and-platforms~light.png",
+		"oF": 0,
+		"oIPL": 0,
+		"opt": 1,
+		"oT": 1,
+		"q": 100
+		},
 	"/images/logo-simple.png": {
 		"ft": 32768,
 		"iS": 10086,
