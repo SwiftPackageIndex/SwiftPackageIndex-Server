@@ -6,19 +6,19 @@ import XCTVapor
 class ApiTests: AppTestCase {
     
     func test_version() throws {
-        try app.test(.GET, "api/version") { res in
+        try app.test(.GET, "api/version", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(try res.content.decode(API.Version.self),
                            API.Version(version: "dev - will be overriden in release builds"))
-        }
+        })
     }
     
     func test_search_noQuery() throws {
-        try app.test(.GET, "api/search") { res in
+        try app.test(.GET, "api/search", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(try res.content.decode(Search.Result.self),
                            .init(hasMoreResults: false, results: []))
-        }
+        })
     }
     
     func test_search_basic_param() throws {
@@ -42,7 +42,7 @@ class ApiTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        try app.test(.GET, "api/search?query=foo%20bar") { res in
+        try app.test(.GET, "api/search?query=foo%20bar", afterResponse: { res in
             // validation
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(
@@ -57,7 +57,7 @@ class ApiTests: AppTestCase {
                               summary: "foo bar package"),
                       ])
             )
-        }
+        })
     }
     
     func test_post_build() throws {
@@ -78,21 +78,21 @@ class ApiTests: AppTestCase {
                 .POST,
                 "api/versions/\(versionId)/builds",
                 headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
-                body: body
-            ) { res in
-                // validation
-                XCTAssertEqual(res.status, .ok)
-                struct DTO: Decodable {
-                    var id: Build.Id?
-                }
-                let dto = try JSONDecoder().decode(DTO.self, from: res.body)
-                let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
-                XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
-                XCTAssertEqual(b.platform, .macosXcodebuild)
-                XCTAssertEqual(b.status, .failed)
-                XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
-                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
-            }
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .ok)
+                    struct DTO: Decodable {
+                        var id: Build.Id?
+                    }
+                    let dto = try JSONDecoder().decode(DTO.self, from: res.body)
+                    let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                    XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
+                    XCTAssertEqual(b.platform, .macosXcodebuild)
+                    XCTAssertEqual(b.status, .failed)
+                    XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+                })
         }
         
         do {  // MUT - update (upsert)
@@ -104,20 +104,20 @@ class ApiTests: AppTestCase {
                 .POST,
                 "api/versions/\(versionId)/builds",
                 headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
-                body: body
-            ) { res in
-                // validation
-                XCTAssertEqual(res.status, .ok)
-                struct DTO: Decodable {
-                    var id: Build.Id?
-                }
-                let dto = try JSONDecoder().decode(DTO.self, from: res.body)
-                let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
-                XCTAssertEqual(b.platform, .macosXcodebuild)
-                XCTAssertEqual(b.status, .ok)
-                XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
-                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
-            }
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .ok)
+                    struct DTO: Decodable {
+                        var id: Build.Id?
+                    }
+                    let dto = try JSONDecoder().decode(DTO.self, from: res.body)
+                    let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                    XCTAssertEqual(b.platform, .macosXcodebuild)
+                    XCTAssertEqual(b.status, .ok)
+                    XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+                    XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+                })
         }
 
     }
@@ -146,11 +146,11 @@ class ApiTests: AppTestCase {
                 .POST,
                 "api/versions/\(versionId)/builds",
                 headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
-                body: body
-            ) { res in
-                // validation
-                XCTAssertEqual(res.status, .ok)
-            }
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .ok)
+                })
         }
 
         do {  // 100k isn't
@@ -165,11 +165,11 @@ class ApiTests: AppTestCase {
                 .POST,
                 "api/versions/\(versionId)/builds",
                 headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
-                body: body
-            ) { res in
-                // validation
-                XCTAssertEqual(res.status, .payloadTooLarge)
-            }
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    XCTAssertEqual(res.status, .payloadTooLarge)
+                })
         }
     }
 
@@ -192,18 +192,18 @@ class ApiTests: AppTestCase {
             .POST,
             "api/versions/\(versionId)/builds",
             headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
-            body: body
-        ) { res in
-            // validation
-            XCTAssertEqual(res.status, .ok)
-            struct DTO: Decodable {
-                var id: Build.Id?
-            }
-            let dto = try JSONDecoder().decode(DTO.self, from: res.body)
-            let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
-            XCTAssertEqual(b.logs, "logs")
-            XCTAssertEqual(b.logUrl, "log url")
-        }
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                struct DTO: Decodable {
+                    var id: Build.Id?
+                }
+                let dto = try JSONDecoder().decode(DTO.self, from: res.body)
+                let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                XCTAssertEqual(b.logs, "logs")
+                XCTAssertEqual(b.logUrl, "log url")
+            })
     }
 
     func test_post_build_unauthenticated() throws {
@@ -224,22 +224,24 @@ class ApiTests: AppTestCase {
             .POST,
             "api/versions/\(versionId)/builds",
             headers: .init([("Content-Type", "application/json")]),
-            body: body) { res in
-            // validation
-            XCTAssertEqual(res.status, .unauthorized)
-            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
-        }
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+            })
         
         // MUT - wrong token
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
             headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer wrong")]),
-            body: body) { res in
-            // validation
-            XCTAssertEqual(res.status, .unauthorized)
-            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
-        }
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+            })
     }
     
     func test_post_build_unauthenticated_without_server_token() throws {
@@ -260,22 +262,24 @@ class ApiTests: AppTestCase {
             .POST,
             "api/versions/\(versionId)/builds",
             headers: .init([("Content-Type", "application/json")]),
-            body: body) { res in
-            // validation
-            XCTAssertEqual(res.status, .unauthorized)
-            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
-        }
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+            })
         
         // MUT - with auth header
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
             headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer token")]),
-            body: body) { res in
-            // validation
-            XCTAssertEqual(res.status, .unauthorized)
-            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
-        }
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+            })
     }
     
     func test_post_build_trigger() throws {
@@ -302,11 +306,12 @@ class ApiTests: AppTestCase {
             .POST,
             "api/versions/\(versionId)/trigger-build",
             headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
-            body: body) { res in
-            // validation
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertTrue(requestSent)
-        }
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertTrue(requestSent)
+            })
     }
     
     func test_post_build_trigger_protected() throws {
@@ -325,20 +330,22 @@ class ApiTests: AppTestCase {
             .POST,
             "api/versions/\(versionId)/trigger-build",
             headers: .init([("Content-Type", "application/json")]),
-            body: body) { res in
-            // validation
-            XCTAssertEqual(res.status, .unauthorized)
-        }
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+            })
         
         // MUT - wrong token
         try app.test(
             .POST,
             "api/versions/\(versionId)/trigger-build",
             headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer wrong")]),
-            body: body) { res in
-            // validation
-            XCTAssertEqual(res.status, .unauthorized)
-        }
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+            })
     }
     
     func test_post_build_trigger_package_name() throws {
@@ -378,11 +385,12 @@ class ApiTests: AppTestCase {
             .POST,
             "api/packages/\(owner)/\(repo)/trigger-builds",
             headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
-            body: body) { res in
-            // validation
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(requestsSent, 2)
-        }
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(requestsSent, 2)
+            })
     }
     
     func test_post_build_trigger_package_name_protected() throws {
@@ -409,11 +417,12 @@ class ApiTests: AppTestCase {
             .POST,
             "api/packages/\(owner)/\(repo)/trigger-builds",
             headers: .init([("Content-Type", "application/json")]),
-            body: body) { res in
-            // validation
-            XCTAssertEqual(res.status, .unauthorized)
-            XCTAssertEqual(requestsSent, 0)
-        }
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .unauthorized)
+                XCTAssertEqual(requestsSent, 0)
+            })
     }
 
     func test_get_badge() throws {
@@ -447,32 +456,34 @@ class ApiTests: AppTestCase {
         // MUT - swift versions
         try app.test(
             .GET,
-            "api/packages/\(owner)/\(repo)/badge?type=swift-versions") { res in
-            // validation
-            XCTAssertEqual(res.status, .ok)
+            "api/packages/\(owner)/\(repo)/badge?type=swift-versions",
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .ok)
 
-            XCTAssertEqual(try res.content.decode(Package.Badge.self),
-                           Package.Badge(schemaVersion: 1,
-                                         label: "Swift Compatibility",
-                                         message: "5.3 | 5.2",
-                                         color: "blue",
-                                         cacheSeconds: 6*3600))
-        }
+                XCTAssertEqual(try res.content.decode(Package.Badge.self),
+                               Package.Badge(schemaVersion: 1,
+                                             label: "Swift Compatibility",
+                                             message: "5.3 | 5.2",
+                                             color: "blue",
+                                             cacheSeconds: 6*3600))
+            })
 
         // MUT - platforms
         try app.test(
             .GET,
-            "api/packages/\(owner)/\(repo)/badge?type=platforms") { res in
-            // validation
-            XCTAssertEqual(res.status, .ok)
+            "api/packages/\(owner)/\(repo)/badge?type=platforms",
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .ok)
 
-            XCTAssertEqual(try res.content.decode(Package.Badge.self),
-                           Package.Badge(schemaVersion: 1,
-                                         label: "Platform Compatibility",
-                                         message: "macOS | Linux",
-                                         color: "blue",
-                                         cacheSeconds: 6*3600))
-        }
+                XCTAssertEqual(try res.content.decode(Package.Badge.self),
+                               Package.Badge(schemaVersion: 1,
+                                             label: "Platform Compatibility",
+                                             message: "macOS | Linux",
+                                             color: "blue",
+                                             cacheSeconds: 6*3600))
+            })
 
     }
 

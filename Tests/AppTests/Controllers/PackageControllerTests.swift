@@ -38,9 +38,9 @@ class PackageControllerTests: AppTestCase {
     }
 
     func test_show_owner_repository() throws {
-        try app.test(.GET, "/owner/package") { response in
+        try app.test(.GET, "/owner/package", afterResponse: { response in
             XCTAssertEqual(response.status, .ok)
-        }
+        })
     }
     
 }
