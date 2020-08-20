@@ -13,7 +13,8 @@ extension BuildShow.Model {
                              swiftVersion: .v5_2),
             packageName: "Bar",
             repositoryOwner: "foo",
-            repositoryName: "bar"
+            repositoryName: "bar",
+            versionId: UUID("cafecafe-cafe-cafe-cafe-cafecafecafe")!
         )
     }
 }

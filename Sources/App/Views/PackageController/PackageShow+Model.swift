@@ -6,6 +6,7 @@ import Vapor
 extension PackageShow {
     
     struct Model: Equatable {
+        var packageId: Package.Id
         var repositoryOwner: String
         var repositoryName: String
         var activity: Activity?
@@ -23,7 +24,8 @@ extension PackageShow {
         var url: String
         var score: Int?
         
-        internal init(repositoryOwner: String,
+        internal init(packageId: Package.Id,
+                      repositoryOwner: String,
                       repositoryName: String,
                       activity: Activity? = nil,
                       authors: [Link]? = nil,
@@ -35,10 +37,11 @@ extension PackageShow {
                       products: ProductCounts? = nil,
                       releases: ReleaseInfo,
                       stars: Int? = nil,
-                      summary: String,
+                      summary: String?,
                       title: String,
                       url: String,
                       score: Int? = nil) {
+            self.packageId = packageId
             self.repositoryOwner = repositoryOwner
             self.repositoryName = repositoryName
             self.activity = activity
@@ -64,25 +67,30 @@ extension PackageShow {
             guard
                 let repository = package.repository,
                 let repositoryOwner = repository.owner,
-                let repositoryName = repository.name
+                let repositoryName = repository.name,
+                let packageId = package.id
             else { return nil }
 
-            self.repositoryOwner = repositoryOwner
-            self.repositoryName = repositoryName
-            self.activity = package.activity()
-            self.authors = package.authors()
-            self.swiftVersionBuildInfo = package.swiftVersionBuildInfo()
-            self.platformBuildInfo = package.platformBuildInfo()
-            self.history = package.history()
-            self.languagePlatforms = package.languagePlatformInfo()
-            self.license = package.repository?.license ?? .none
-            self.products = package.productCounts()
-            self.releases = package.releaseInfo()
-            self.stars = package.repository?.stars
-            self.summary = package.repository?.summary
-            self.title = title
-            self.url = package.url
-            self.score = package.score
+            self.init(
+                packageId: packageId,
+                repositoryOwner: repositoryOwner,
+                repositoryName: repositoryName,
+                activity: package.activity(),
+                authors: package.authors(),
+                swiftVersionBuildInfo: package.swiftVersionBuildInfo(),
+                platformBuildInfo: package.platformBuildInfo(),
+                history: package.history(),
+                languagePlatforms: package.languagePlatformInfo(),
+                license: package.repository?.license ?? .none,
+                products: package.productCounts(),
+                releases: package.releaseInfo(),
+                stars: package.repository?.stars,
+                summary: package.repository?.summary,
+                title: title,
+                url: package.url,
+                score: package.score
+            )
+
         }
     }
     

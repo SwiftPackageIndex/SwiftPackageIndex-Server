@@ -33,6 +33,7 @@ enum PackageShow {
                 .div(
                     .class("split"),
                     .div(
+                        .comment(model.packageId.uuidString),
                         .comment(model.score.map(String.init) ?? "unknown"),
                         .h2(.text(model.title)),
                         .element(named: "small", nodes: [ // TODO: Fix after Plot update
