@@ -14,7 +14,8 @@ extension BuildShow {
                 let repositoryOwner = repository.owner,
                 let repositoryName = repository.name,
                 let buildInfo = BuildInfo(build),
-                let versionId = build.version.id
+                let version = build.$version.value,
+                let versionId = version.id
             else { return nil }
             self.init(buildInfo: buildInfo,
                       packageName: packageName,
