@@ -432,7 +432,7 @@ extension PackageShow.Model {
 
 
     func badgeMarkdown(for type: Package.BadgeType) -> String {
-        let spiPackageURL = SiteURL.package(.value(repositoryName), .value(repositoryOwner), .none)
+        let spiPackageURL = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none)
             .absoluteURL()
         return "[![](\(badgeURL(for: type)))](\(spiPackageURL))"
     }

@@ -262,9 +262,9 @@ class PackageShowModelTests: AppTestCase {
         let model = PackageShow.Model.mock
 
         XCTAssertEqual(model.badgeURL(for: .swiftVersions),
-                       "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2FAlamofire%2FAlamofire%2Fbadge%3Ftype%3Dswift-versions")
+                       "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2FAlamo%2FAlamofire%2Fbadge%3Ftype%3Dswift-versions")
         XCTAssertEqual(model.badgeURL(for: .platforms),
-                       "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2FAlamofire%2FAlamofire%2Fbadge%3Ftype%3Dplatforms")
+                       "https://img.shields.io/endpoint?url=https%3A%2F%2Fspi.com%2Fapi%2Fpackages%2FAlamo%2FAlamofire%2Fbadge%3Ftype%3Dplatforms")
     }
 
     func test_badgeMarkdown() throws {
@@ -273,7 +273,7 @@ class PackageShowModelTests: AppTestCase {
         let model = PackageShow.Model.mock
 
         let badgeURL = model.badgeURL(for: .swiftVersions)
-        let packageURL = "https://spi.com/Alamofire/Alamofire"
+        let packageURL = "https://spi.com/Alamo/Alamofire"
         XCTAssertEqual(model.badgeMarkdown(for: .swiftVersions),
                        "[![](\(badgeURL))](\(packageURL))")
     }
