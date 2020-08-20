@@ -6,7 +6,7 @@ import Foundation
 extension PackageShow.Model {
     static var mock: PackageShow.Model {
         .init(
-            repositoryOwner: "Alamofire",
+            repositoryOwner: "Alamo",
             repositoryName: "Alamofire",
             activity: .init(
                 openIssuesCount: 27,
