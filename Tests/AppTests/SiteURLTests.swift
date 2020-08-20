@@ -116,4 +116,10 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.builds(.value(id)).path, "builds/\(id.uuidString)")
         XCTAssertEqual(SiteURL.builds(.key).pathComponents.map(\.description), ["builds", ":id"])
     }
+
+    func test_docs() throws {
+        XCTAssertEqual(SiteURL.docs(.builds).path, "docs/builds")
+        XCTAssertEqual(SiteURL.docs(.builds).pathComponents.map(\.description), ["docs", "builds"])
+    }
+
 }

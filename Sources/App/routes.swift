@@ -21,7 +21,11 @@ func routes(_ app: Application) throws {
     app.get(SiteURL.addAPackage.pathComponents) { req in
         MarkdownPage(path: req.url.path, "add-a-package.md").document()
     }
-    
+
+    app.get(SiteURL.docs(.builds).pathComponents) { req in
+        MarkdownPage(path: req.url.path, "docs/builds.md").document()
+    }
+
     let packageController = PackageController()
     app.get(SiteURL.package(.key, .key, .none).pathComponents, use: packageController.show)
     app.get(SiteURL.package(.key, .key, .builds).pathComponents, use: packageController.builds)

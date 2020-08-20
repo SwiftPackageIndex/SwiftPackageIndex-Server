@@ -63,68 +63,24 @@
 		"oT": 1,
 		"q": 100
 		},
-	"/images/language-and-platforms-full-metadata~dark.png": {
+	"/images/languages-and-platforms~dark.png": {
 		"ft": 32768,
-		"iS": 41605,
+		"iS": 63176,
 		"oA": 0,
-		"oAP": "/deploy/images/language-and-platforms-full-metadata~dark.png",
+		"oAP": "/deploy/images/languages-and-platforms~dark.png",
 		"oF": 0,
 		"oIPL": 0,
 		"opt": 1,
 		"oT": 1,
 		"q": 100
 		},
-	"/images/language-and-platforms-full-metadata~light.png": {
+	"/images/languages-and-platforms~light.png": {
 		"ft": 32768,
-		"iS": 41155,
+		"iS": 59196,
 		"oA": 0,
-		"oAP": "/deploy/images/language-and-platforms-full-metadata~light.png",
-		"oF": 0,
-		"oIPL": 1,
-		"opt": 1,
-		"oT": 1,
-		"q": 100
-		},
-	"/images/language-and-platforms-language-only~dark.png": {
-		"ft": 32768,
-		"iS": 28843,
-		"oA": 0,
-		"oAP": "/deploy/images/language-and-platforms-language-only~dark.png",
+		"oAP": "/deploy/images/languages-and-platforms~light.png",
 		"oF": 0,
 		"oIPL": 0,
-		"opt": 1,
-		"oT": 1,
-		"q": 100
-		},
-	"/images/language-and-platforms-language-only~light.png": {
-		"ft": 32768,
-		"iS": 29934,
-		"oA": 0,
-		"oAP": "/deploy/images/language-and-platforms-language-only~light.png",
-		"oF": 0,
-		"oIPL": 1,
-		"opt": 1,
-		"oT": 1,
-		"q": 100
-		},
-	"/images/language-and-platforms-no-metadata~dark.png": {
-		"ft": 32768,
-		"iS": 47434,
-		"oA": 0,
-		"oAP": "/deploy/images/language-and-platforms-no-metadata~dark.png",
-		"oF": 0,
-		"oIPL": 0,
-		"opt": 1,
-		"oT": 1,
-		"q": 100
-		},
-	"/images/language-and-platforms-no-metadata~light.png": {
-		"ft": 32768,
-		"iS": 39176,
-		"oA": 0,
-		"oAP": "/deploy/images/language-and-platforms-no-metadata~light.png",
-		"oF": 0,
-		"oIPL": 1,
 		"opt": 1,
 		"oT": 1,
 		"q": 100
@@ -503,7 +459,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 618219830.32112706
+	"lastBuiltDate": 619557831.60827601
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,

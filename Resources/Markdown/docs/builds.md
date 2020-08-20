@@ -1,0 +1,53 @@
+---
+page-title: Builds FAQ
+description: Frequently Asked Questions about the Build System
+---
+
+## The Swift Package Index Build System
+
+* [What is the Build System?](#build-system)
+* [Why does a package show missing or incomplete compatibility?](#no-builds)
+* [What revision is the default branch built for?](#what-revision)
+* [How are packages built?](#built-how)
+* [When was a package last built?](#last-built)
+* [Is it possible to hide failing builds for unsupported platforms?](#hide-failing-builds)
+* [If a build is showing failed incorrectly, how can I fix it?](#fix-false-negative)
+* [If a build is showing an error that seems unrelated to the build, how can I fix it?](#unrelated-error)
+
+<h3 id="build-system">What is the Build System?</h3>
+
+A Swift package manifest includes support for declaring [Swift version support](https://developer.apple.com/documentation/swift_packages/package/3197887-swiftlanguageversions) and [platform support](https://developer.apple.com/documentation/swift_packages/package/3197886-platforms). There are a few problems with relying on this data, so the Swift Package Index takes a different approach. What better way to determine compatibility with a specific version of Swift on a particular platform than to build it?
+
+The Swift Package Index build system is a mechanism that keeps a package page always up to date with real-world build results targeting various Swift versions across multiple platforms, including Linux.
+
+<h3 id="no-builds">Why does a package show missing or incomplete compatibility?</h3>
+
+The Swift Package Index will pick up new default branch revisions and releases automatically. It can take a little while for build results to become available after a commit or new version release though, so if the compatibility matrix shows a clock symbol then builds are still pending, and results are on their way!
+
+<h3 id="what-revision">What revision is the default branch built for?</h3>
+
+The Swift Package Index does not currently display which revision the default branch tracks. If a default branch revision changed more than a few hours ago, everything should be up to date. If there looks to be a problem with a build not updating after several hours, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new).
+
+<h3 id="built-how">How are packages built?</h3>
+
+The build system runs either `xcodebuild` or `swift build` depending on the platform and specified Swift versions.
+
+When running `xcodebuild`, we apply some heuristics to find the correct scheme to build. If a package contains a single scheme (as reported by `xcodebuild -list`), the build system will use that scheme. If `xcodebuild -list` reports multiple schemes, the build system will choose the one ending in `-Package`. Otherwise, it will try removing any Xcode project and workspace files and rely on SPM’s scheme discovery to autogenerate a package scheme.
+
+<h3 id="last-built">When was a package last built?</h3>
+
+The Swift Package Index does not currently display the date/time of the last build for a package, but everything is typically up to date a few hours after a revision or version release.
+
+<h3 id="hide-failing-builds">Is it possible to hide failing builds for unsupported platforms?</h3>
+
+Not currently. However, by using grey rather than red for the compatibility matrix, we aim to show this is a lack of platform or Swift version support rather than a failure per se. On the build details page, we show statuses with red crosses to make it easier for the package maintainer to find and inspect what may be genuine problems.
+
+<h3 id="fix-false-negative">If a build is showing failed incorrectly, how can I fix it?</h3>
+
+As a package author, you might think that a package should be compatible with a platform or Swift version, where the Swift Package Index shows it as incompatible. First, please try to replicate the build locally with the build command that the build system uses. The build details page shows the full build command which will help reveal if there is some issue with the package set up or our way of discovering the build scheme.
+
+If you can fix the problem, great! Fix the issue, push the change, and we will re-process your builds. If the problem is more serious, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new) so we can improve the build system.
+
+<h3 id="unrelated-error">If a build is showing an error that seems unrelated to the build, how can I fix it?</h3>
+
+In some cases, we may have encountered build issues unrelated to your package. Please confirm using the build command shown on the build details page that you can build your package successfully for a given Swift version and platform. If this succeeds, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new) so we can remove the faulty builds and schedule a rebuild.
