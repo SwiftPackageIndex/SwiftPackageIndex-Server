@@ -5,6 +5,7 @@ extension BuildShow {
         var repositoryName: String
         var repositoryOwner: String
         var buildInfo: BuildInfo
+        var versionId: Version.Id
 
         init?(build: App.Build) {
             guard
@@ -12,22 +13,26 @@ extension BuildShow {
                 let repository = build.version.package.repository,
                 let repositoryOwner = repository.owner,
                 let repositoryName = repository.name,
-                let buildInfo = BuildInfo(build)
+                let buildInfo = BuildInfo(build),
+                let versionId = build.version.id
             else { return nil }
             self.init(buildInfo: buildInfo,
                       packageName: packageName,
                       repositoryOwner: repositoryOwner,
-                      repositoryName: repositoryName)
+                      repositoryName: repositoryName,
+                      versionId: versionId)
         }
 
         internal init(buildInfo: BuildInfo,
                       packageName: String,
                       repositoryOwner: String,
-                      repositoryName: String) {
+                      repositoryName: String,
+                      versionId: Version.Id) {
             self.buildInfo = buildInfo
             self.packageName = packageName
             self.repositoryOwner = repositoryOwner
             self.repositoryName = repositoryName
+            self.versionId = versionId
         }
     }
 

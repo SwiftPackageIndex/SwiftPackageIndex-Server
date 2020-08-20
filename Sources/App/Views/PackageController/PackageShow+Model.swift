@@ -67,11 +67,12 @@ extension PackageShow {
             guard
                 let repository = package.repository,
                 let repositoryOwner = repository.owner,
-                let repositoryName = repository.name
+                let repositoryName = repository.name,
+                let packageId = package.id
             else { return nil }
 
             self.init(
-                packageId: package.id!,
+                packageId: packageId,
                 repositoryOwner: repositoryOwner,
                 repositoryName: repositoryName,
                 activity: package.activity(),

@@ -16,6 +16,7 @@ enum BuildShow {
             .div(
                 .div(
                     .class("split"),
+                    .comment(model.versionId.uuidString),
                     .h2("Build Information"),
                     .div(
                         .class("lozenge \(model.buildInfo.status.cssClass)"),
