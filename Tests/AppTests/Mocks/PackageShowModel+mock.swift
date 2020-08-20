@@ -6,6 +6,7 @@ import Foundation
 extension PackageShow.Model {
     static var mock: PackageShow.Model {
         .init(
+            packageId: UUID("cafecafe-cafe-cafe-cafe-cafecafecafe")!,
             repositoryOwner: "Alamo",
             repositoryName: "Alamofire",
             activity: .init(
