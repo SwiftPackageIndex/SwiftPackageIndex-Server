@@ -116,6 +116,7 @@ func triggerBuilds(on database: Database,
                     logger.info("too many pending pipelines (\(pendingJobs))")
                     return database.eventLoop.future()
                 }
+                logger.info("Finding missing builds for package id: \(pkgId)")
                 return findMissingBuilds(database, packageId: pkgId)
                     .flatMap { triggers in
                         guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
