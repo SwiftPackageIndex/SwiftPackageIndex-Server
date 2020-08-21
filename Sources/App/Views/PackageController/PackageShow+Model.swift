@@ -361,11 +361,7 @@ extension PackageShow.Model {
             .div(
                 .class("right"),
                 .div(
-                    .id(
-                        // TODO: remove check when we go live
-                        ((try? Environment.detect()) ?? .development) == .production
-                            ? "ignored"
-                            : "swift_version_badge"),
+                    .id("swift_version_badge"),
                     .text(badgeMarkdown(for: .swiftVersions)),
                     .attribute(named: "hidden")
                 ),
@@ -391,11 +387,7 @@ extension PackageShow.Model {
             .div(
                 .class("right"),
                 .div(
-                    .id(
-                        // TODO: remove check when we go live
-                        ((try? Environment.detect()) ?? .development) == .production
-                            ? "ignored"
-                            : "platform_badge"),
+                    .id("platform_badge"),
                     .text(badgeMarkdown(for: .platforms)),
                     .attribute(named: "hidden")
                 ),
