@@ -233,4 +233,12 @@ extension Array where Element == Build {
     var anySucceeded: Bool {
         !noneSucceeded
     }
+
+    var nonePending: Bool {
+        allSatisfy { $0.status != .pending }
+    }
+    
+    var anyPending: Bool {
+        !nonePending
+    }
 }

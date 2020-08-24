@@ -220,10 +220,14 @@ extension Package {
 }
 
 
-private extension Array where Element == Build {
+extension Array where Element == Build {
     var buildStatus: PackageShow.Model.BuildStatus {
         guard !isEmpty else { return .unknown }
-        return anySucceeded ? .compatible : .incompatible
+        if anySucceeded {
+            return .compatible
+        } else {
+            return anyPending ? .unknown : .incompatible
+        }
     }
 }
 

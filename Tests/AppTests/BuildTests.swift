@@ -224,6 +224,52 @@ class BuildTests: AppTestCase {
         XCTAssertFalse([mkBuild(.failed), mkBuild(.failed)].anySucceeded)
     }
 
+    func test_nonePending() throws {
+        // setup
+        let pkg = Package(id: UUID(), url: "1")
+        let v = try Version(id: UUID(), package: pkg)
+        let p = Build.Platform.ios
+        let sv = SwiftVersion.init(5, 2, 0)
+        func mkBuild(_ status: Build.Status) -> Build {
+            return try! Build(version: v, platform: p, status: status, swiftVersion: sv)
+        }
+        // MUT & verification
+        XCTAssertTrue([mkBuild(.ok), mkBuild(.failed)].nonePending)
+        XCTAssertFalse([mkBuild(.ok), mkBuild(.pending)].nonePending)
+    }
+
+    func test_anyPending() throws {
+        // setup
+        let pkg = Package(id: UUID(), url: "1")
+        let v = try Version(id: UUID(), package: pkg)
+        let p = Build.Platform.ios
+        let sv = SwiftVersion.init(5, 2, 0)
+        func mkBuild(_ status: Build.Status) -> Build {
+            return try! Build(version: v, platform: p, status: status, swiftVersion: sv)
+        }
+        // MUT & verification
+        XCTAssertTrue([mkBuild(.ok), mkBuild(.pending)].anyPending)
+        XCTAssertFalse([mkBuild(.ok), mkBuild(.failed)].anyPending)
+    }
+
+    func test_buildStatus() throws {
+        // Test build status aggregation, in particular see
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/666
+        // setup
+        let pkg = Package(id: UUID(), url: "1")
+        let v = try Version(id: UUID(), package: pkg)
+        let p = Build.Platform.ios
+        let sv = SwiftVersion.init(5, 2, 0)
+        func mkBuild(_ status: Build.Status) -> Build {
+            return try! Build(version: v, platform: p, status: status, swiftVersion: sv)
+        }
+        // MUT & verification
+        XCTAssertEqual([mkBuild(.ok), mkBuild(.failed)].buildStatus, .compatible)
+        XCTAssertEqual([mkBuild(.pending), mkBuild(.pending)].buildStatus, .unknown)
+        XCTAssertEqual([mkBuild(.failed), mkBuild(.pending)].buildStatus, .unknown)
+        XCTAssertEqual([mkBuild(.ok), mkBuild(.pending)].buildStatus, .compatible)
+    }
+
     func test_delete_by_versionId() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
