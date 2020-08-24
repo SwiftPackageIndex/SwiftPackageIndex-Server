@@ -25,21 +25,22 @@ struct TriggerBuildsCommand: Command {
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
         let force = signature.force
+        let logger = context.application.logger
 
         let parameter: Parameter
         if let id = signature.id {
-            context.console.info("Triggering builds (id: \(id)) ...")
+            logger.info("Triggering builds (id: \(id)) ...")
             parameter = .id(id, force: force)
         } else {
             if force {
-                context.console.warning("--force has no effect when used with --limit")
+                logger.warning("--force has no effect when used with --limit")
             }
-            context.console.info("Triggering builds (limit: \(limit)) ...")
+            logger.info("Triggering builds (limit: \(limit)) ...")
             parameter = .limit(limit)
         }
         try triggerBuilds(on: context.application.db,
                           client: context.application.client,
-                          logger: context.application.logger,
+                          logger: logger,
                           parameter: parameter).wait()
     }
 }
@@ -116,6 +117,7 @@ func triggerBuilds(on database: Database,
                     logger.info("too many pending pipelines (\(pendingJobs))")
                     return database.eventLoop.future()
                 }
+                logger.info("Finding missing builds for package id: \(pkgId)")
                 return findMissingBuilds(database, packageId: pkgId)
                     .flatMap { triggers in
                         guard pendingJobs + newJobs < Current.gitlabPipelineLimit() else {
