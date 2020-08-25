@@ -9,6 +9,7 @@ description: Frequently Asked Questions about the Build System
 * [Why does a package show missing or incomplete compatibility?](#no-builds)
 * [What revision is the default branch built for?](#what-revision)
 * [How are packages built?](#built-how)
+* [How does the build system build with different Swift versions?](#swift-versions)
 * [When was a package last built?](#last-built)
 * [Is it possible to hide failing builds for unsupported platforms?](#hide-failing-builds)
 * [If a build is showing failed incorrectly, how can I fix it?](#fix-false-negative)
@@ -33,6 +34,18 @@ The Swift Package Index does not currently display which revision the default br
 The build system runs either `xcodebuild` or `swift build` depending on the platform and specified Swift versions.
 
 When running `xcodebuild`, we apply some heuristics to find the correct scheme to build. If a package contains a single scheme (as reported by `xcodebuild -list`), the build system will use that scheme. If `xcodebuild -list` reports multiple schemes, the build system will choose the one ending in `-Package`. Otherwise, it will try removing any Xcode project and workspace files and rely on SPM’s scheme discovery to autogenerate a package scheme.
+
+<h3 id="swift-versions">How does the build system build with different Swift versions?</h3>
+
+The build system aims to reproduce a real-world environment for building packages as much as possible. Ideally, if the Swift Package Index says it's compatible with Swift 5.1 and your project uses Swift 5.1, it should work. The most real-world way for us to build is to use multiple different versions of Xcode to process each package. We use the latest available version of Xcode that shipped with the release of Swift that we want to compile with as default.
+
+* Swift 4.2 builds with Xcode 10.1.
+* Swift 5.0 builds with Xcode 10.3.
+* Swift 5.1 builds with Xcode 11.3.1.
+* Swift 5.2 builds with Xcode 11.6.
+* Swift 5.3 (beta) builds with Xcode 12 (beta).
+
+The build system uses the `DEVELOPER_DIR` environment variable to switch versions of Xcode. This applies to both `xcodebuild` and `swift build` commands.
 
 <h3 id="last-built">When was a package last built?</h3>
 
