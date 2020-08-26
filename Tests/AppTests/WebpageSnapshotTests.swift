@@ -37,7 +37,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page: () -> HTML = { PublicPage.admin() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -57,7 +57,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -76,7 +76,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { PackageShow.View(path: "", model: .mock).document() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -98,7 +98,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { PackageShow.View(path: "", model: model).document() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -119,7 +119,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { PackageShow.View(path: "", model: model).document() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -140,7 +140,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { PackageShow.View(path: "", model: model).document() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -164,7 +164,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { PackageShow.View(path: "", model: model).document() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -187,7 +187,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { PackageShow.View(path: "", model: model).document() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -212,7 +212,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { PackageShow.View(path: "", model: model).document() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -237,7 +237,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { PackageShow.View(path: "", model: model).document() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -257,7 +257,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { ErrorPage.View(path: "", model: model).document() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -276,7 +276,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { MarkdownPage(path: "", "privacy.md").document() }
         
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -295,7 +295,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { BuildIndex.View(path: "", model: .mock).document() }
 
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page, as: .html)
 
@@ -314,7 +314,7 @@ class WebpageSnapshotTests: XCTestCase {
         let page = { BuildShow.View(path: "", model: .mock).document() }
 
         let recordSnapshotForThisTest = false
-        SnapshotTesting.record = recordSnapshotForThisTest || recordSnapshotForAllTests
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
 
         assertSnapshot(matching: page, as: .html)
 
