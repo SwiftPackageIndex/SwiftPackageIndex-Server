@@ -8,7 +8,7 @@ class RSSTests: AppTestCase {
     
     override func setUpWithError() throws {
         try super.setUpWithError()
-        SnapshotTesting.record = false
+        SnapshotTesting.isRecording = false
     }
     
     func test_render_item() throws {
