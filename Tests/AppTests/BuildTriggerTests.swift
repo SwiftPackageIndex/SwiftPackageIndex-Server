@@ -407,7 +407,7 @@ class BuildTriggerTests: AppTestCase {
         Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate
 
         do {  // confirm that bad luck prevents triggers
-            Current.random = { _ in 0.051 }  // rolling a 0.051 ... so close!
+            Current.random = { _ in 0.05 }  // rolling a 0.05 ... so close!
 
             var triggerCount = 0
             let client = MockClient { _, _ in triggerCount += 1 }
@@ -430,7 +430,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         do {  // if we get lucky however...
-            Current.random = { _ in 0.05 }  // rolling a 0.05 gets you in
+            Current.random = { _ in 0.049 }  // rolling a 0.05 gets you in
 
             var triggerCount = 0
             let client = MockClient { _, _ in triggerCount += 1 }
