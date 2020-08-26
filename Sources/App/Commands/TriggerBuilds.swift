@@ -103,7 +103,7 @@ func triggerBuilds(on database: Database,
         .flatten(on: database.eventLoop)
     }
 
-    guard Current.random(0...1) <= Current.buildTriggerDownscaling() else {
+    guard Current.random(0...1) < Current.buildTriggerDownscaling() else {
         logger.info("Build trigger downscaling in effect - skipping builds")
         return database.eventLoop.future()
     }
