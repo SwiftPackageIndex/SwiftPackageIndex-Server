@@ -126,7 +126,7 @@ smoke-test:
 .backup-common: &backup-common
   stage: build
   tags:
-    - ceres
+    - spi-prod
   script: |
     TARFILE=spi_${ENV}_$(date +%Y-%m-%d).tgz
     ./scripts/db_backup.sh $TARFILE
