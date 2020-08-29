@@ -127,6 +127,7 @@ smoke-test:
   stage: build
   tags:
     - spi-prod
+    - db-backup
   script: |
     TARFILE=spi_${ENV}_$(date +%Y-%m-%d).tgz
     ./scripts/db_backup.sh $TARFILE
