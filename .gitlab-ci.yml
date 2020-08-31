@@ -126,12 +126,8 @@ smoke-test:
 .backup-common: &backup-common
   stage: build
   tags:
-    - spi-prod
-    - db-backup
+    - spi-prod-backup
   script: |
-    echo $PWD
-    whoami
-    which docker
     TARFILE=spi_${ENV}_$(date +%Y-%m-%d).tgz
     ./scripts/db_backup.sh $TARFILE
     ./scripts/convert_to_db_dump.sh $TARFILE
