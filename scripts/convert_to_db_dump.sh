@@ -9,11 +9,15 @@ DUMPFILE=$(basename $TARFILE).dump
 [[ -n $DB_BACKUP_DIR ]]      || (echo "DB_BACKUP_DIR not set" && exit 1)
 [[ -n $ENV ]]                || (echo "ENV not set" && exit 1)
 
-tar xvfz $TARFILE
+echo "Unpacking ..."
+
+tar xfz $TARFILE
+
+echo "Launching backup db ..."
 
 docker run --rm --name backup-db -d -v "$PWD/db_data:/var/lib/postgresql/data" -p 9432:5432 postgres:12.1-alpine
 
-echo "Exporting ..."
+echo "Exporting to $DUMPFILE ..."
 
 RETRIES=20
 until env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -Fc -h localhost -p 9432 -U spi_${ENV} spi_${ENV} > $DUMPFILE || [ $RETRIES -eq 0 ]; do
