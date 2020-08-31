@@ -179,61 +179,38 @@ class WebpageSnapshotTests: XCTestCase {
         #endif
     }
     
-    func test_PackageShowView_no_lpInfo() throws {
-        // Test display when there is no L&P info at all
-        // no author or activity info
+    func test_PackageShowView_single_row_tables() throws {
+        // Test display when all three significant version collapse to a single row
         var model = PackageShow.Model.mock
-        model.languagePlatforms = .init(stable: nil, beta: nil, latest: nil)
-        let page = { PackageShow.View(path: "", model: model).document() }
-        
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
-        
-        assertSnapshot(matching: page, as: .html)
-        
-        #if os(macOS)
-        if !isRunningInCI {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
+        do {
+            let compatible = PackageShow.Model.SwiftVersionResults(
+                status4_2: .compatible,
+                status5_0: .compatible,
+                status5_1: .compatible,
+                status5_2: .compatible,
+                status5_3: .compatible
+            )
+            model.swiftVersionBuildInfo = .init(
+                stable: .init(referenceName: "5.2.5", results: compatible),
+                beta: .init(referenceName: "6.0.0-b1", results: compatible),
+                latest: .init(referenceName: "main", results: compatible)
+            )
         }
-        #endif
-    }
-    
-    func test_PackageShowView_no_platforms() throws {
-        // Test display when there is no platform info
-        // see: https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/195#issue-424606548
-        var model = PackageShow.Model.mock
-        model.languagePlatforms.stable?.platforms = []
-        model.languagePlatforms.beta?.platforms = []
-        model.languagePlatforms.latest?.platforms = []
-        let page = { PackageShow.View(path: "", model: model).document() }
-        
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
-        
-        assertSnapshot(matching: page, as: .html)
-        
-        #if os(macOS)
-        if !isRunningInCI {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
+        do {
+            let compatible = PackageShow.Model.PlatformResults(
+                iosStatus: .compatible,
+                linuxStatus: .compatible,
+                macosStatus: .compatible,
+                macosArmStatus: .compatible,
+                tvosStatus: .compatible,
+                watchosStatus: .compatible
+            )
+            model.platformBuildInfo = .init(
+                stable: .init(referenceName: "5.2.5", results: compatible),
+                beta: .init(referenceName: "6.0.0-b1", results: compatible),
+                latest: .init(referenceName: "main", results: compatible)
+            )
         }
-        #endif
-    }
-    
-    func test_PackageShowView_no_versions() throws {
-        // Test display when there is no version info
-        // see: https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/195#issue-424606548
-        var model = PackageShow.Model.mock
-        model.languagePlatforms.stable?.swiftVersions = []
-        model.languagePlatforms.beta?.swiftVersions = []
-        model.languagePlatforms.latest?.swiftVersions = []
         let page = { PackageShow.View(path: "", model: model).document() }
         
         let recordSnapshotForThisTest = false

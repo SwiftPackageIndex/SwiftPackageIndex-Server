@@ -127,51 +127,13 @@
                 <div>
                   <div>
                     <span class="stable">
-                      <i class="icon stable"></i>5.2.3
-                    </span> and 
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>5.3
-                    <small>(beta)</small>
-                  </div>
-                  <div>5.2
-                    <small>(latest)</small>
-                  </div>
-                  <div>5.1</div>
-                  <div>5.0</div>
-                  <div>4.2</div>
-                </div>
-                <div class="result">
-                  <div class="compatible" title="Built successfully with Swift 5.3">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with Swift 5.2">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for Swift 5.1">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="incompatible" title="Build failed with Swift 5.0">
-                    <i class="icon matrix_incompatible"></i>
-                  </div>
-                  <div class="incompatible" title="Build failed with Swift 4.2">
-                    <i class="icon matrix_incompatible"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
+                      <i class="icon stable"></i>5.2.5
+                    </span>, 
                     <span class="beta">
                       <i class="icon beta"></i>6.0.0-b1
+                    </span>, and 
+                    <span class="branch">
+                      <i class="icon branch"></i>main
                     </span>
                   </div>
                 </div>
@@ -201,8 +163,8 @@
                   <div class="compatible" title="Built successfully with Swift 5.0">
                     <i class="icon matrix_compatible"></i>
                   </div>
-                  <div class="incompatible" title="Build failed with Swift 4.2">
-                    <i class="icon matrix_incompatible"></i>
+                  <div class="compatible" title="Built successfully with Swift 4.2">
+                    <i class="icon matrix_compatible"></i>
                   </div>
                 </div>
               </div>
@@ -223,95 +185,11 @@
                 <div>
                   <div>
                     <span class="stable">
-                      <i class="icon stable"></i>5.2.3
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>iOS</div>
-                  <div>macOS
-                    <small>(Intel)</small>
-                  </div>
-                  <div>macOS
-                    <small>(ARM)</small>
-                  </div>
-                  <div>Linux</div>
-                  <div>tvOS</div>
-                  <div>watchOS</div>
-                </div>
-                <div class="result">
-                  <div class="compatible" title="Built successfully with iOS">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for macOS (Intel)">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for macOS (ARM)">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for Linux">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for tvOS">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for watchOS">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
+                      <i class="icon stable"></i>5.2.5
+                    </span>, 
                     <span class="beta">
                       <i class="icon beta"></i>6.0.0-b1
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>iOS</div>
-                  <div>macOS
-                    <small>(Intel)</small>
-                  </div>
-                  <div>macOS
-                    <small>(ARM)</small>
-                  </div>
-                  <div>Linux</div>
-                  <div>tvOS</div>
-                  <div>watchOS</div>
-                </div>
-                <div class="result">
-                  <div class="compatible" title="Built successfully with iOS">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with macOS (Intel)">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with macOS (ARM)">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with Linux">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with tvOS">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for watchOS">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
+                    </span>, and 
                     <span class="branch">
                       <i class="icon branch"></i>main
                     </span>
