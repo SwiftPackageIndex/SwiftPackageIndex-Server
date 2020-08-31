@@ -13,7 +13,7 @@ services:
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 
-    
+
 stages:
   - build
   - deploy
@@ -126,15 +126,11 @@ smoke-test:
 .backup-common: &backup-common
   stage: build
   tags:
-    - ceres
+    - spi-prod-backup
   script: |
-    FILENAME=spi_prod_$(date "+%Y-%m-%dT%H:%M:%S").dump
-    echo Backing up database to file ${FILENAME}
-    echo Note: This requires the appropriate SSH tunnel to be active on the runner
-    env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -Fc -h localhost -p 7432 -U spi_prod spi_prod > ${FILENAME}
-    echo "Moving backup file to ${DB_BACKUP_DIR}"
-    mv ${FILENAME} ${DB_BACKUP_DIR}
-
+    TARFILE=spi_${ENV}_$(date +%Y-%m-%d).tgz
+    ./scripts/db_backup.sh $TARFILE
+    ./scripts/convert_to_db_dump.sh $TARFILE
 
 db-backup (scheduled):  # PROD: auto-backup on schedule
   rules:
