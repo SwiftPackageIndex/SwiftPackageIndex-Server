@@ -10,6 +10,10 @@ services:
   - docker:stable-dind
 
 
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+
+
 stages:
   - build
   - deploy
@@ -25,8 +29,6 @@ build:
   stage: build
   tags:
     - ceres
-  before_script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
   script: |
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
     echo 'let appVersion = "'${VERSION}'"' > ./Sources/App/Core/AppVersion.swift
@@ -44,8 +46,6 @@ build:
 .deploy-common: &deploy-common
   stage: deploy
   image: docker/compose:1.25.5
-  before_script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
   script: |
     set -eu
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
