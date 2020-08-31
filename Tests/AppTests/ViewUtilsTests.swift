@@ -22,4 +22,26 @@ class ViewUtilsTests: XCTestCase {
         XCTAssertEqual("library".pluralized(for: 1, plural: "libraries"), "library")
         XCTAssertEqual("library".pluralized(for: 2, plural: "libraries"), "libraries")
     }
+
+    func test_listPhrase() throws {
+        // test listing 2 and 3 values
+        XCTAssertEqual(listPhrase(nodes: ["A", "B"]).render(),
+                       "A and B")
+        XCTAssertEqual(listPhrase(nodes: ["A", "B", "C"]).render(),
+                       "A, B, and C")
+        // test opening
+        XCTAssertEqual(listPhrase(opening: "Versions ", nodes: ["A", "B", "C"]).render(),
+                       "Versions A, B, and C")
+        // test closing
+        XCTAssertEqual(listPhrase(nodes: ["A", "B", "C"], closing: ".").render(),
+                       "A, B, and C.")
+        // test empty list substitution
+        XCTAssertEqual(listPhrase(nodes: [], ifEmpty: "none").render(),
+                       "none")
+        // test conjunction
+        XCTAssertEqual(listPhrase(nodes: ["A", "B"], conjunction: " or ").render(),
+                       "A or B")
+        XCTAssertEqual(listPhrase(nodes: ["A", "B", "C"], conjunction: " or ").render(),
+                       "A, B, or C")
+    }
 }

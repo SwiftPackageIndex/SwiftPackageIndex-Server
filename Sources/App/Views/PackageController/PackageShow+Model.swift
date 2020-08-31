@@ -101,10 +101,10 @@ extension PackageShow.Model {
     func authorsClause() -> Node<HTML.BodyContext>? {
         guard let authors = authors else { return nil }
         let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
-        return .group(Self.listPhrase(opening: "By ",
-                                      nodes: nodes,
-                                      ifNoValues: "-",
-                                      closing: "."))
+        return .group(listPhrase(opening: "By ",
+                                 nodes: nodes,
+                                 ifEmpty: "-",
+                                 closing: "."))
     }
     
     func historyClause() -> Node<HTML.BodyContext>? {
@@ -145,10 +145,12 @@ extension PackageShow.Model {
         .compactMap { $0 }
         
         return .group(
-            Self.listPhrase(opening: .text("There is ".pluralized(for: activity.openIssuesCount,
-                                                                  plural: "There are ")),
-                            nodes: openItems, closing: ". ") +
-                Self.listPhrase(opening: "The ", nodes: lastClosed, conjunction: " and the ", closing: ".")
+            listPhrase(
+                opening: .text("There is ".pluralized(for: activity.openIssuesCount,
+                                                      plural: "There are ")),
+                nodes: openItems,
+                closing: ". ") +
+                listPhrase(opening: "The ", nodes: lastClosed, conjunction: " and the ", closing: ".")
         )
     }
     
@@ -290,8 +292,8 @@ extension PackageShow.Model {
         
         return .group([
             .p(
-                .group(Self.listPhrase(opening: .text("Version".pluralized(for: keypaths.count) + " "),
-                                       nodes: nodes)),
+                .group(listPhrase(opening: .text("Version".pluralized(for: keypaths.count) + " "),
+                                  nodes: nodes)),
                 " \("supports".pluralized(for: keypaths.count, plural: "support")):"
             ),
             .ul(
@@ -308,7 +310,7 @@ extension PackageShow.Model {
     
     static func versionsClause(_ versions: [String]) -> [Node<HTML.BodyContext>] {
         let nodes = versions.map { Node<HTML.BodyContext>.strong(.text($0)) }
-        return Self.listPhrase(opening: "Swift ", nodes: nodes)
+        return listPhrase(opening: "Swift ", nodes: nodes)
     }
     
     static func platformsClause(_ platforms: [Platform]) -> [Node<HTML.BodyContext>] {
@@ -316,7 +318,7 @@ extension PackageShow.Model {
             .sorted(by: { $0.ordinal < $1.ordinal })
             .map { "\($0)+" }
             .map { Node<HTML.BodyContext>.strong(.text($0)) }
-        return Self.listPhrase(opening: "", nodes: nodes, closing: ".")
+        return listPhrase(opening: "", nodes: nodes, closing: ".")
     }
     
     static func groupBuildInfo<T>(_ buildInfo: BuildInfo<T>) -> [BuildStatusRow<T>] {
@@ -441,35 +443,6 @@ extension PackageShow.Model {
 
 
 // MARK: - General helpers
-
-extension PackageShow.Model {
-    
-    static func listPhrase(opening: Node<HTML.BodyContext>,
-                           nodes: [Node<HTML.BodyContext>],
-                           ifNoValues: Node<HTML.BodyContext>? = nil,
-                           conjunction: Node<HTML.BodyContext> = " and ",
-                           closing: Node<HTML.BodyContext> = "") -> [Node<HTML.BodyContext>] {
-        switch nodes.count {
-            case 0:
-                return ifNoValues.map { [$0] } ?? []
-            case 1:
-                return [opening, nodes[0], closing]
-            case 2:
-                return [opening, nodes[0], conjunction, nodes[1], closing]
-            default:
-                let start: [Node<HTML.BodyContext>]
-                    = [opening, nodes.first!]
-                let middle: [[Node<HTML.BodyContext>]] = nodes[1..<(nodes.count - 1)].map {
-                    [", ", $0]
-                }
-                let end: [Node<HTML.BodyContext>] =
-                    [", and ", nodes.last!, closing]
-                return middle.reduce(start) { $0 + $1 } + end
-        }
-    }
-    
-}
-
 
 extension Platform {
     var ordinal: Int {

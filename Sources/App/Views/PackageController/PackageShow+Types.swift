@@ -135,7 +135,9 @@ extension PackageShow.Model {
                 .class("row_label"),
                 .div( // Note: It may look like there is a completely useless div here, but it's needed. I promise.
                     .div(
-                        .group(references.map(\.node).joined(separator: .text(" and ")))
+                        .group(
+                            listPhrase(nodes: references.map(\.node))
+                        )
                     )
                 )
             )
