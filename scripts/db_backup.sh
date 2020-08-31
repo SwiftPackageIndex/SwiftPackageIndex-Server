@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+set -u
 
 TARFILE=$1
 
@@ -14,3 +14,6 @@ docker run --rm \
     tar cfz $TARFILE /db_data
 
 echo "done."
+
+# don't let tar errors or warnings bubble up
+exit 0
