@@ -19,10 +19,10 @@ docker run --rm --name backup-db -d -v "$PWD/db_data:/var/lib/postgresql/data" -
 
 echo "Exporting to $DUMPFILE ..."
 
-RETRIES=20
+RETRIES=30
 until env PGPASSWORD=${DATABASE_PASSWORD} pg_dump --no-owner -Fc -h localhost -p 9432 -U spi_${ENV} spi_${ENV} > $DUMPFILE || [ $RETRIES -eq 0 ]; do
     echo "Waiting for postgres server, $((RETRIES-=1)) remaining attempts..."
-    sleep 2
+    sleep 5
 done
 
 echo "Moving file"
