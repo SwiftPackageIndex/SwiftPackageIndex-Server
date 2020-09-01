@@ -1,4 +1,4 @@
-▿ 32 elements
+▿ 33 elements
   ▿ 'git checkout "1.0.0" --quiet' at path: '.../github.com-foo-1'
     - command: "git checkout \"1.0.0\" --quiet"
     - path: ".../github.com-foo-1"
@@ -85,6 +85,9 @@
     - path: ".../github.com-foo-2"
   ▿ 'git tag' at path: '.../github.com-foo-2'
     - command: "git tag"
+    - path: ".../github.com-foo-2"
+  ▿ 'git tag | xargs git tag -d' at path: '.../github.com-foo-2'
+    - command: "git tag | xargs git tag -d"
     - path: ".../github.com-foo-2"
   ▿ 'swift package dump-package' at path: '.../github.com-foo-2'
     - command: "swift package dump-package"
