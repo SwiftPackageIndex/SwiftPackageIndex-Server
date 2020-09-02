@@ -287,15 +287,7 @@ class AnalyzerTests: AppTestCase {
         _ = try pullOrClone(application: app, package: pkg).wait()
         
         // validate
-        XCTAssertEqual(commands, [
-            #"rm "-f" ".../github.com-foo-1/.git/HEAD.lock""#,
-            #"rm "-f" ".../github.com-foo-1/.git/index.lock""#,
-            #"git reset --hard"#,
-            #"git clean -fdx"#,
-            #"git fetch --tags"#,
-            #"git checkout "main" --quiet"#,
-            #"git reset "origin/main" --hard"#,
-        ])
+        assertSnapshot(matching: commands, as: .dump)
     }
     
     func test_pullOrClone_continueOnError() throws {
