@@ -135,25 +135,26 @@ func refreshCheckout(application: Application, package: Package) -> EventLoopFut
         )
     }
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
-        if Current.fileManager.fileExists(atPath: cacheDir) {
-            // attempt to fetch - if anything goes wrong we delete the directory
-            // fall back to cloning
-            do {
-                try fetch(logger: application.logger,
-                          cacheDir: cacheDir,
-                          branch: package.repository?.defaultBranch ?? "master",
-                          url: package.url)
-            } catch {
-                application.logger.info("fetch failed: \(error.localizedDescription)")
-                application.logger.info("removing directory")
-                try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
-                try clone(logger: application.logger, cacheDir: cacheDir, url: package.url)
-            }
-        } else {
+        guard Current.fileManager.fileExists(atPath: cacheDir) else {
+            try clone(logger: application.logger, cacheDir: cacheDir, url: package.url)
+            return
+        }
+
+        // attempt to fetch - if anything goes wrong we delete the directory
+        // and fall back to cloning
+        do {
+            try fetch(logger: application.logger,
+                      cacheDir: cacheDir,
+                      branch: package.repository?.defaultBranch ?? "master",
+                      url: package.url)
+        } catch {
+            application.logger.info("fetch failed: \(error.localizedDescription)")
+            application.logger.info("removing directory")
+            try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
             try clone(logger: application.logger, cacheDir: cacheDir, url: package.url)
         }
-        return package
     }
+    .map { package }
 }
 
 
