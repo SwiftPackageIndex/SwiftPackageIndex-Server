@@ -770,6 +770,34 @@ class AnalyzerTests: AppTestCase {
             XCTAssertEqual(versions.map(\.latest), [nil, .release])
         }
     }
+
+    func test_issue_693() throws {
+        // Handle moved tags
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
+        // setup
+        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try pkg.$repositories.load(on: app.db).wait()
+        let queue = DispatchQueue(label: "serial")
+        Current.fileManager.fileExists = { _ in true }
+        var commands = [String]()
+        Current.shell.run = { cmd, _ in
+            queue.sync {
+                // mask variable checkout
+                let checkoutDir = Current.fileManager.checkoutsDirectory()
+                commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+            }
+            if cmd.string.hasPrefix("git fetch") { throw TestError.simulatedFetchError }
+            return ""
+        }
+
+        // MUT
+        _ = try pullOrClone(application: app, package: pkg).wait()
+
+        // validate
+        assertSnapshot(matching: commands, as: .dump)
+    }
+
 }
 
 
@@ -783,4 +811,10 @@ struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
         if lhs.command < rhs.command { return true }
         return lhs.path < rhs.path
     }
+}
+
+
+private enum TestError: Error {
+    case simulatedFetchError
+    case unknownCommand
 }
