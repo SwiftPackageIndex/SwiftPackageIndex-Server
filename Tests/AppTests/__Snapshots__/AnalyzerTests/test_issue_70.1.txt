@@ -1,8 +1,7 @@
-▿ 8 elements
+▿ 7 elements
   - "rm \"-f\" \".../github.com-foo-1/.git/HEAD.lock\""
   - "rm \"-f\" \".../github.com-foo-1/.git/index.lock\""
   - "git reset --hard"
-  - "git tag | xargs git tag -d"
   - "git clean -fdx"
   - "git fetch"
   - "git checkout \"master\" --quiet"
