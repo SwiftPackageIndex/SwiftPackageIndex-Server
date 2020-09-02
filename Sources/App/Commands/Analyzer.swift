@@ -101,6 +101,33 @@ func refreshCheckout(application: Application, packages: [Package]) -> EventLoop
 }
 
 
+func clone(logger: Logger, cacheDir: String, url: String) throws {
+    logger.info("cloning \(url) to \(cacheDir)")
+    try Current.shell.run(command: .gitClone(url: URL(string: url)!, to: cacheDir),
+                          at: Current.fileManager.checkoutsDirectory())
+}
+
+
+func fetch(logger: Logger, cacheDir: String, branch: String, url: String) throws {
+    logger.info("pulling \(url) in \(cacheDir)")
+    // clean up stray lock files that might have remained from aborted commands
+    try ["HEAD.lock", "index.lock"].forEach { fileName in
+        let filePath = cacheDir + "/.git/\(fileName)"
+        if Current.fileManager.fileExists(atPath: filePath) {
+            logger.info("Removing stale \(fileName) at path: \(filePath)")
+            try Current.shell.run(command: .removeFile(from: filePath))
+        }
+    }
+    // git reset --hard to deal with stray .DS_Store files on macOS
+    try Current.shell.run(command: .init(string: "git reset --hard"), at: cacheDir)
+    try Current.shell.run(command: .init(string: "git clean -fdx"), at: cacheDir)
+    try Current.shell.run(command: .init(string: "git fetch --tags"), at: cacheDir)
+    try Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
+    try Current.shell.run(command: .init(string: #"git reset "origin/\#(branch)" --hard"#),
+                          at: cacheDir)
+}
+
+
 func refreshCheckout(application: Application, package: Package) -> EventLoopFuture<Package> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return application.eventLoopGroup.next().makeFailedFuture(
@@ -109,35 +136,21 @@ func refreshCheckout(application: Application, package: Package) -> EventLoopFut
     }
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         if Current.fileManager.fileExists(atPath: cacheDir) {
-            do {  // attempt to fetch - if anything goes wrong we delete the directory and clone
-                application.logger.info("pulling \(package.url) in \(cacheDir)")
-                // clean up stray lock files that might have remained from aborted commands
-                try ["HEAD.lock", "index.lock"].forEach { fileName in
-                    let filePath = cacheDir + "/.git/\(fileName)"
-                    if Current.fileManager.fileExists(atPath: filePath) {
-                        application.logger.info("Removing stale \(fileName) at path: \(filePath)")
-                        try Current.shell.run(command: .removeFile(from: filePath))
-                    }
-                }
-                // git reset --hard to deal with stray .DS_Store files on macOS
-                try Current.shell.run(command: .init(string: "git reset --hard"), at: cacheDir)
-                try Current.shell.run(command: .init(string: "git clean -fdx"), at: cacheDir)
-                try Current.shell.run(command: .init(string: "git fetch --tags"), at: cacheDir)
-                let branch = package.repository?.defaultBranch ?? "master"
-                try Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
-                try Current.shell.run(command: .init(string: #"git reset "origin/\#(branch)" --hard"#),
-                                      at: cacheDir)
+            // attempt to fetch - if anything goes wrong we delete the directory
+            // fall back to cloning
+            do {
+                try fetch(logger: application.logger,
+                          cacheDir: cacheDir,
+                          branch: package.repository?.defaultBranch ?? "master",
+                          url: package.url)
             } catch {
-                application.logger.info("checkout failed: \(error.localizedDescription)")
-                application.logger.info("removing directory and re-cloning")
+                application.logger.info("fetch failed: \(error.localizedDescription)")
+                application.logger.info("removing directory")
                 try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
-                try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: cacheDir),
-                                      at: Current.fileManager.checkoutsDirectory())
+                try clone(logger: application.logger, cacheDir: cacheDir, url: package.url)
             }
         } else {
-            application.logger.info("cloning \(package.url) to \(cacheDir)")
-            try Current.shell.run(command: .gitClone(url: URL(string: package.url)!, to: cacheDir),
-                                  at: Current.fileManager.checkoutsDirectory())
+            try clone(logger: application.logger, cacheDir: cacheDir, url: package.url)
         }
         return package
     }
