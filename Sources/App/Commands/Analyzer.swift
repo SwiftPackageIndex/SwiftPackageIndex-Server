@@ -109,21 +109,21 @@ func pullOrClone(application: Application, package: Package) -> EventLoopFuture<
     }
     return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
         if Current.fileManager.fileExists(atPath: cacheDir) {
-            application.logger.info("pulling \(package.url) in \(cacheDir)")
-            // clean up stray lock files that might have remained from aborted commands
-            try ["HEAD.lock", "index.lock"].forEach { fileName in
-                let filePath = cacheDir + "/.git/\(fileName)"
-                if Current.fileManager.fileExists(atPath: filePath) {
-                    application.logger.info("Removing stale \(fileName) at path: \(filePath)")
-                    try Current.shell.run(command: .removeFile(from: filePath))
+            do {  // attempt to fetch - if anything goes wrong we delete the directory and clone
+                application.logger.info("pulling \(package.url) in \(cacheDir)")
+                // clean up stray lock files that might have remained from aborted commands
+                try ["HEAD.lock", "index.lock"].forEach { fileName in
+                    let filePath = cacheDir + "/.git/\(fileName)"
+                    if Current.fileManager.fileExists(atPath: filePath) {
+                        application.logger.info("Removing stale \(fileName) at path: \(filePath)")
+                        try Current.shell.run(command: .removeFile(from: filePath))
+                    }
                 }
-            }
-            // git reset --hard to deal with stray .DS_Store files on macOS
-            try Current.shell.run(command: .init(string: "git reset --hard"), at: cacheDir)
-            try Current.shell.run(command: .init(string: "git clean -fdx"), at: cacheDir)
-            try Current.shell.run(command: .init(string: "git fetch"), at: cacheDir)
-            let branch = package.repository?.defaultBranch ?? "master"
-            do {
+                // git reset --hard to deal with stray .DS_Store files on macOS
+                try Current.shell.run(command: .init(string: "git reset --hard"), at: cacheDir)
+                try Current.shell.run(command: .init(string: "git clean -fdx"), at: cacheDir)
+                try Current.shell.run(command: .init(string: "git fetch --tags"), at: cacheDir)
+                let branch = package.repository?.defaultBranch ?? "master"
                 try Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
                 try Current.shell.run(command: .init(string: #"git reset "origin/\#(branch)" --hard"#),
                                       at: cacheDir)
