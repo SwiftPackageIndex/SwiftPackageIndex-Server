@@ -702,7 +702,7 @@ class AnalyzerTests: AppTestCase {
                 commands.append(c)
             }
             if cmd.string.hasPrefix("git checkout") {
-                throw TestError.unknownCommand
+                throw TestError.simulatedCheckoutError
             }
             return ""
         }
@@ -807,6 +807,7 @@ struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
 
 
 private enum TestError: Error {
+    case simulatedCheckoutError
     case simulatedFetchError
     case unknownCommand
 }
