@@ -56,8 +56,8 @@
   ▿ 'swift package dump-package' at path: '.../github.com-foo-1'
     - command: "swift package dump-package"
     - path: ".../github.com-foo-1"
-  ▿ 'git fetch' at path: '.../github.com-foo-2'
-    - command: "git fetch"
+  ▿ 'git fetch --tags' at path: '.../github.com-foo-2'
+    - command: "git fetch --tags"
     - path: ".../github.com-foo-2"
   ▿ 'git log --max-parents=0 -n1 --format=format:"%ct"' at path: '.../github.com-foo-2'
     - command: "git log --max-parents=0 -n1 --format=format:\"%ct\""

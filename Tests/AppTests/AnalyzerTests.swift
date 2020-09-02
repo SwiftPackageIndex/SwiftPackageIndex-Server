@@ -292,7 +292,7 @@ class AnalyzerTests: AppTestCase {
             #"rm "-f" ".../github.com-foo-1/.git/index.lock""#,
             #"git reset --hard"#,
             #"git clean -fdx"#,
-            #"git fetch"#,
+            #"git fetch --tags"#,
             #"git checkout "main" --quiet"#,
             #"git reset "origin/main" --hard"#,
         ])
