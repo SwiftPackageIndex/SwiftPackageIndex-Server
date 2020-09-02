@@ -64,7 +64,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
     }
     
     let checkouts = packages
-        .flatMap { pullOrClone(application: application, packages: $0) }
+        .flatMap { refreshCheckout(application: application, packages: $0) }
         .flatMap { updateRepositories(application: application, checkouts: $0) }
     
     let versionUpdates = checkouts.flatMap { checkouts in
@@ -95,13 +95,13 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
 }
 
 
-func pullOrClone(application: Application, packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = packages.map { pullOrClone(application: application, package: $0) }
+func refreshCheckout(application: Application, packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = packages.map { refreshCheckout(application: application, package: $0) }
     return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
 }
 
 
-func pullOrClone(application: Application, package: Package) -> EventLoopFuture<Package> {
+func refreshCheckout(application: Application, package: Package) -> EventLoopFuture<Package> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return application.eventLoopGroup.next().makeFailedFuture(
             AppError.invalidPackageCachePath(package.id, package.url)

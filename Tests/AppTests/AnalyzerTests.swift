@@ -266,7 +266,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
     }
     
-    func test_pullOrClone() throws {
+    func test_refreshCheckout() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
@@ -284,20 +284,20 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        _ = try pullOrClone(application: app, package: pkg).wait()
+        _ = try refreshCheckout(application: app, package: pkg).wait()
         
         // validate
         assertSnapshot(matching: commands, as: .dump)
     }
     
-    func test_pullOrClone_continueOnError() throws {
+    func test_refreshCheckout_continueOnError() throws {
         // Test that processing continues on if a url in invalid
         // setup - first URL is not a valid url
         try savePackages(on: app.db, ["1", "2".asGithubUrl].asURLs, processingStage: .ingestion)
         let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
         
         // MUT
-        let res = try pkgs.flatMap { pullOrClone(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckout(application: self.app, packages: $0) }.wait()
         
         // validation
         XCTAssertEqual(res.count, 2)
@@ -675,7 +675,7 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        let res = try pkgs.flatMap { pullOrClone(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckout(application: self.app, packages: $0) }.wait()
         
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
@@ -708,7 +708,7 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = try pkgs.flatMap { pullOrClone(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckout(application: self.app, packages: $0) }.wait()
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
@@ -784,7 +784,7 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        _ = try pullOrClone(application: app, package: pkg).wait()
+        _ = try refreshCheckout(application: app, package: pkg).wait()
 
         // validate
         assertSnapshot(matching: commands, as: .dump)
