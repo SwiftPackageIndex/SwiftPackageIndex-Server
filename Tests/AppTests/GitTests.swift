@@ -102,7 +102,7 @@ class GitTests: XCTestCase {
 }
 
 
-enum TestError: Error {
+private enum TestError: Error {
     case unknownCommand
 }
 

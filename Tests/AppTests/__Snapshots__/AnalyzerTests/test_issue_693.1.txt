@@ -4,5 +4,5 @@
   - "git reset --hard"
   - "git clean -fdx"
   - "git fetch --tags"
-  - "git checkout \"master\" --quiet"
-  - "git reset \"origin/master\" --hard"
+  - "rm \"-r\" \"-f\" \".../github.com-foo-1\""
+  - "git clone https://github.com/foo/1 \".../github.com-foo-1\" --quiet"

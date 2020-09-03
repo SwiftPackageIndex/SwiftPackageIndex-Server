@@ -266,7 +266,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
     }
     
-    func test_pullOrClone() throws {
+    func test_refreshCheckout() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
@@ -284,28 +284,20 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        _ = try pullOrClone(application: app, package: pkg).wait()
+        _ = try refreshCheckout(application: app, package: pkg).wait()
         
         // validate
-        XCTAssertEqual(commands, [
-            #"rm "-f" ".../github.com-foo-1/.git/HEAD.lock""#,
-            #"rm "-f" ".../github.com-foo-1/.git/index.lock""#,
-            #"git reset --hard"#,
-            #"git clean -fdx"#,
-            #"git fetch"#,
-            #"git checkout "main" --quiet"#,
-            #"git reset "origin/main" --hard"#,
-        ])
+        assertSnapshot(matching: commands, as: .dump)
     }
     
-    func test_pullOrClone_continueOnError() throws {
+    func test_refreshCheckout_continueOnError() throws {
         // Test that processing continues on if a url in invalid
         // setup - first URL is not a valid url
         try savePackages(on: app.db, ["1", "2".asGithubUrl].asURLs, processingStage: .ingestion)
         let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
         
         // MUT
-        let res = try pkgs.flatMap { pullOrClone(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckout(application: self.app, packages: $0) }.wait()
         
         // validation
         XCTAssertEqual(res.count, 2)
@@ -683,7 +675,7 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        let res = try pkgs.flatMap { pullOrClone(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckout(application: self.app, packages: $0) }.wait()
         
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
@@ -710,13 +702,13 @@ class AnalyzerTests: AppTestCase {
                 commands.append(c)
             }
             if cmd.string.hasPrefix("git checkout") {
-                throw TestError.unknownCommand
+                throw TestError.simulatedCheckoutError
             }
             return ""
         }
 
         // MUT
-        let res = try pkgs.flatMap { pullOrClone(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckout(application: self.app, packages: $0) }.wait()
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
@@ -770,6 +762,34 @@ class AnalyzerTests: AppTestCase {
             XCTAssertEqual(versions.map(\.latest), [nil, .release])
         }
     }
+
+    func test_issue_693() throws {
+        // Handle moved tags
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
+        // setup
+        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try pkg.$repositories.load(on: app.db).wait()
+        let queue = DispatchQueue(label: "serial")
+        Current.fileManager.fileExists = { _ in true }
+        var commands = [String]()
+        Current.shell.run = { cmd, _ in
+            queue.sync {
+                // mask variable checkout
+                let checkoutDir = Current.fileManager.checkoutsDirectory()
+                commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+            }
+            if cmd.string.hasPrefix("git fetch") { throw TestError.simulatedFetchError }
+            return ""
+        }
+
+        // MUT
+        _ = try refreshCheckout(application: app, package: pkg).wait()
+
+        // validate
+        assertSnapshot(matching: commands, as: .dump)
+    }
+
 }
 
 
@@ -783,4 +803,11 @@ struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
         if lhs.command < rhs.command { return true }
         return lhs.path < rhs.path
     }
+}
+
+
+private enum TestError: Error {
+    case simulatedCheckoutError
+    case simulatedFetchError
+    case unknownCommand
 }
