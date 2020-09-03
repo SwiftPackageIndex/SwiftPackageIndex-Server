@@ -39,13 +39,18 @@ extension SemVer: LosslessStringConvertible {
 
 
 extension SemVer: Comparable {
-    static func < (lhs: SemVer, rhs: SemVer) -> Bool {
+    static func < (lhs: Self, rhs: Self) -> Bool {
         if lhs.major != rhs.major { return lhs.major < rhs.major }
         if lhs.minor != rhs.minor { return lhs.minor < rhs.minor }
         if lhs.patch != rhs.patch { return lhs.patch < rhs.patch }
-        // Not entirely sure how much sense it makes to compare the pre and build values
-        // but it's probably better than just ignoring them
-        if lhs.preRelease != rhs.preRelease { return lhs.preRelease < rhs.preRelease }
+        if lhs.preRelease != rhs.preRelease {
+            // Ensure stable versions sort after their betas ...
+            if lhs.isStable { return false }
+            if rhs.isStable { return true }
+            // ... otherwise sort by preRelease
+            return lhs.preRelease < rhs.preRelease
+        }
+        // ... and build
         return lhs.build < rhs.build
     }
 }

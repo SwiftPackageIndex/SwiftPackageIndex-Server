@@ -202,7 +202,135 @@ final class PackageTests: AppTestCase {
         // validate
         XCTAssertEqual(p.id, pkg.id)
     }
-    
+
+    func test_findRelease() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let versions: [Version] = [
+            try .init(package: p, reference: .tag(2, 0, 0)),
+            try .init(package: p, reference: .tag(1, 2, 3)),
+            try .init(package: p, reference: .tag(1, 5, 0)),
+            try .init(package: p, reference: .tag(2, 0, 0, "b1")),
+        ]
+
+        // MUT & validation
+        XCTAssertEqual(Package.findRelease(versions)?.reference, .tag(2, 0, 0))
+    }
+
+    func test_findPreRelease() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+
+        // MUT & validation
+        XCTAssertEqual(
+            Package.findPreRelease([
+                try .init(package: p, reference: .tag(3, 0, 0, "b1")),
+                try .init(package: p, reference: .tag(1, 2, 3)),
+                try .init(package: p, reference: .tag(2, 0, 0)),
+            ],
+            after: .tag(2, 0, 0))?.reference,
+            .tag(3, 0, 0, "b1")
+        )
+        // ensure a beta doesn't come after its release
+        XCTAssertEqual(
+            Package.findPreRelease([
+                try .init(package: p, reference: .tag(3, 0, 0)),
+                try .init(package: p, reference: .tag(3, 0, 0, "b1")),
+                try .init(package: p, reference: .tag(1, 2, 3)),
+                try .init(package: p, reference: .tag(2, 0, 0)),
+            ],
+            after: .tag(3, 0, 0))?.reference,
+            nil
+        )
+    }
+
+    func test_findSignificantReleases_old_beta() throws {
+        // Test to ensure outdated betas aren't picked up as latest versions
+        // setup
+        let pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try Version(package: pkg, packageName: "foo", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0))
+            .save(on: app.db).wait()
+        try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
+            .save(on: app.db).wait()
+        // load repositories (this will have happened already at the point where
+        // updateLatestVersions is being used and therefore it doesn't reload it)
+        try pkg.$repositories.load(on: app.db).wait()
+        try pkg.$versions.load(on: app.db).wait()
+
+        // MUT
+        let (release, preRelease, defaultBranch) = pkg.findSignificantReleases()
+
+        // validate
+        XCTAssertEqual(release?.reference, .tag(2, 0, 0))
+        XCTAssertEqual(preRelease, nil)
+        XCTAssertEqual(defaultBranch?.reference, .branch("main"))
+    }
+
+    func test_updateLatestVersions() throws {
+        // setup
+        var pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try Version(package: pkg, packageName: "foo", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: pkg, packageName: "foo", reference: .tag(1, 2, 3))
+            .save(on: app.db).wait()
+        try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
+            .save(on: app.db).wait()
+        // load repositories (this will have happened already at the point where
+        // updateLatestVersions is being used and therefore it doesn't reload it)
+        try pkg.$repositories.load(on: app.db).wait()
+
+        // MUT
+        pkg = try updateLatestVersions(on: app.db, package: pkg).wait()
+
+        // validate
+        let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        XCTAssertEqual(versions.map(\.reference?.description), ["main", "1.2.3", "2.0.0-rc1"])
+        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])
+    }
+
+    func test_updateLatestVersions_old_beta() throws {
+        // Test to ensure outdated betas aren't picked up as latest versions
+        // and that faulty db content (outdated beta marked as latest pre-release)
+        // is correctly reset.
+        // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/188
+        // setup
+        var pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try Version(package: pkg,
+                    latest: .defaultBranch,
+                    packageName: "foo",
+                    reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    latest: .release,
+                    packageName: "foo",
+                    reference: .tag(2, 0, 0))
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    latest: .preRelease,  // this should have been nil - ensure it's reset
+                    packageName: "foo",
+                    reference: .tag(2, 0, 0, "rc1"))
+            .save(on: app.db).wait()
+        // load repositories (this will have happened already at the point where
+        // updateLatestVersions is being used and therefore it doesn't reload it)
+        try pkg.$repositories.load(on: app.db).wait()
+
+        // MUT
+        pkg = try updateLatestVersions(on: app.db, package: pkg).wait()
+
+        // validate
+        let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        XCTAssertEqual(versions.map(\.reference?.description), ["main", "2.0.0", "2.0.0-rc1"])
+        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, nil])
+    }
+
     func test_releaseInfo() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")

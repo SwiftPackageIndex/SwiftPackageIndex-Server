@@ -89,21 +89,32 @@ extension Package {
 
 extension Package {
 
-    /// Helper to find the up to three significant versions of a package: latest release, latest pre-release, and latest default branch version.
-    /// - Returns: Named tuple of versions
-    func findSignificantReleases() -> (release: Version?, preRelease: Version?, defaultBranch: Version?) {
-        guard let versions = $versions.value else { return (nil, nil, nil) }
-        let releases = versions
+    static func findRelease(_ versions: [Version]) -> Version? {
+        versions
             .filter { $0.reference?.semVer != nil }
-            .sorted { $0.reference!.semVer! < $1.reference!.semVer! }
-        let release = releases.reversed().first { $0.reference?.semVer?.isStable ?? false }
-        let preRelease = releases.reversed().first {
+            .sorted { $0.reference!.semVer! > $1.reference!.semVer! }
+            .first { $0.reference?.semVer?.isStable ?? false }
+    }
+
+    static func findPreRelease(_ versions: [Version], after release: Reference?) -> Version? {
+        versions
+            .filter { $0.reference?.semVer != nil }
+            .sorted { $0.reference!.semVer! > $1.reference!.semVer! }
+            .first {
             // pick first version that is a prerelease *and* no older (in terms of SemVer)
             // than the latest release
             ($0.reference?.semVer?.isPreRelease ?? false)
                 && ($0.reference?.semVer ?? SemVer(0, 0, 0)
-                        >= release?.reference?.semVer ?? SemVer(0, 0, 0))
-        }
+                        >= release?.semVer ?? SemVer(0, 0, 0))
+            }
+    }
+
+    /// Helper to find the up to three significant versions of a package: latest release, latest pre-release, and latest default branch version.
+    /// - Returns: Named tuple of versions
+    func findSignificantReleases() -> (release: Version?, preRelease: Version?, defaultBranch: Version?) {
+        guard let versions = $versions.value else { return (nil, nil, nil) }
+        let release = Package.findRelease(versions)
+        let preRelease = Package.findPreRelease(versions, after: release?.reference)
         let defaultBranch = findDefaultBranchVersion()
         return (release, preRelease, defaultBranch)
     }
