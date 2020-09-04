@@ -16,6 +16,7 @@ let package = Package(
         .package(url: "https://github.com/JohnSundell/ShellOut.git", from: "2.0.0"),
         .package(name: "SnapshotTesting",
                  url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
+        .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
     ],
     targets: [
         .target(name: "App", dependencies: [
@@ -24,13 +25,13 @@ let package = Package(
             .product(name: "Vapor", package: "vapor"),
             "Plot",
             "Ink",
+            "SemanticVersion",
             "ShellOut"
         ]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [
             .target(name: "App"),
             .product(name: "XCTVapor", package: "vapor"),
-            "ShellOut",
             "SnapshotTesting"
         ])
     ],

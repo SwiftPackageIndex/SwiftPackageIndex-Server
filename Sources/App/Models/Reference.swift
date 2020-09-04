@@ -1,16 +1,17 @@
 import Foundation
+import SemanticVersion
 
 
 enum Reference: Equatable, Hashable {
     case branch(String)
-    case tag(SemVer, _ tagName: String)
+    case tag(SemanticVersion, _ tagName: String)
     
-    static func tag(_ semVer: SemVer) -> Self {
+    static func tag(_ semVer: SemanticVersion) -> Self {
         .tag(semVer, "\(semVer)")
     }
 
     static func tag(_ major: Int, _ minor: Int, _ patch: Int, _ preRelease: String = "", _ build: String = "") -> Self {
-        .tag(SemVer(major, minor, patch, preRelease, build))
+        .tag(SemanticVersion(major, minor, patch, preRelease, build))
     }
 
     var isBranch: Bool {
@@ -22,7 +23,7 @@ enum Reference: Equatable, Hashable {
     
     var isTag: Bool { !isBranch }
     
-    var semVer: SemVer? {
+    var semVer: SemanticVersion? {
         switch self {
             case .branch:
                 return nil
@@ -37,7 +38,7 @@ enum Reference: Equatable, Hashable {
 
 extension Reference: Codable {
     private struct Tag: Codable {
-        var semVer: SemVer
+        var semVer: SemanticVersion
         var tagName: String
     }
     

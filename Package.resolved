@@ -101,6 +101,15 @@
         }
       },
       {
+        "package": "SemanticVersion",
+        "repositoryURL": "https://github.com/SwiftPackageIndex/SemanticVersion",
+        "state": {
+          "branch": null,
+          "revision": "a302bf0c6ffba6d9c4a1eab0c2ff32d23ccc23cf",
+          "version": "0.3.0"
+        }
+      },
+      {
         "package": "ShellOut",
         "repositoryURL": "https://github.com/JohnSundell/ShellOut.git",
         "state": {

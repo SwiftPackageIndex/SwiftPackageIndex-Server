@@ -1,5 +1,6 @@
 import Fluent
 import Foundation
+import SemanticVersion
 import SQLKit
 
 
@@ -36,7 +37,7 @@ extension RecentRelease {
     static func filterReleases(_ releases: [RecentRelease], by filter: Filter) -> [RecentRelease] {
         if filter == .all { return releases }
         return releases.filter { recent in
-            guard let version = SemVer(recent.version) else { return false }
+            guard let version = SemanticVersion(recent.version) else { return false }
             if filter.contains(.major) && version.isMajorRelease { return true }
             if filter.contains(.minor) && version.isMinorRelease { return true }
             if filter.contains(.patch) && version.isPatchRelease { return true }

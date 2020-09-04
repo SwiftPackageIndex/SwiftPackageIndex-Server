@@ -1,4 +1,5 @@
 import Fluent
+import SemanticVersion
 import Vapor
 
 
@@ -104,8 +105,8 @@ extension Package {
             // pick first version that is a prerelease *and* no older (in terms of SemVer)
             // than the latest release
             ($0.reference?.semVer?.isPreRelease ?? false)
-                && ($0.reference?.semVer ?? SemVer(0, 0, 0)
-                        >= release?.semVer ?? SemVer(0, 0, 0))
+                && ($0.reference?.semVer ?? SemanticVersion(0, 0, 0)
+                        >= release?.semVer ?? SemanticVersion(0, 0, 0))
             }
     }
 

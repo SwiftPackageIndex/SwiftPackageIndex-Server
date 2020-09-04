@@ -1,4 +1,5 @@
 import Foundation
+import SemanticVersion
 import ShellOut
 
 
@@ -45,7 +46,7 @@ enum Git {
         let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
         return tags.split(separator: "\n")
             .map(String.init)
-            .compactMap { tag in SemVer(tag).map { ($0, tag) } }
+            .compactMap { tag in SemanticVersion(tag).map { ($0, tag) } }
             .map { Reference.tag($0, $1) }
     }
     
