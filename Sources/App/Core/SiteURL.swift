@@ -72,7 +72,6 @@ enum Docs: String, Resourceable {
 
 enum SiteURL: Resourceable {
     
-    case admin
     case api(Api)
     case builds(_ id: Parameter<UUID>)
     case docs(Docs)
@@ -89,9 +88,6 @@ enum SiteURL: Resourceable {
     
     var path: String {
         switch self {
-            case .admin:
-                return "admin"
-                
             case let .api(next):
                 return "api/\(next.path)"
 
@@ -146,7 +142,7 @@ enum SiteURL: Resourceable {
     
     var pathComponents: [PathComponent] {
         switch self {
-            case .admin, .faq, .addAPackage, .home, .privacy, .rssPackages, .rssReleases, .siteMap:
+            case .faq, .addAPackage, .home, .privacy, .rssPackages, .rssReleases, .siteMap:
                 return [.init(stringLiteral: path)]
                 
             case let .api(next):
