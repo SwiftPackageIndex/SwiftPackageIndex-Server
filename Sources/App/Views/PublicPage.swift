@@ -24,6 +24,7 @@ class PublicPage {
     /// - Returns: A <head> element.
     final func head() -> Node<HTML.DocumentContext> {
         .head(
+            metaNoIndex(),
             .viewport(.accordingToDevice, initialScale: 1),
             .meta(.charset(.utf8)),
             .siteName("The Swift Package Index"),
@@ -83,6 +84,17 @@ class PublicPage {
         )
     }
     
+    /// For non-production environments, if a search engine requests the page, tell it not to index it.
+    /// - Returns: Either nothing, or a <meta> element telling search engines not to index this content.
+    final func metaNoIndex() -> Node<HTML.HeadContext> {
+        let environment = (try? Environment.detect()) ?? .development
+        return .if(environment != .production,
+                   .meta(
+                    .name("robots"),
+                    .content("noindex")
+                   ))
+    }
+
     /// The Google Tag Manager code to be inserted into the <head> element.
     /// - Returns: A <script> containing the Google Tag Manager template code.
     final func analyticsHead() -> Node<HTML.HeadContext> {
