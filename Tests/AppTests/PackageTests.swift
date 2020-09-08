@@ -238,7 +238,7 @@ final class PackageTests: AppTestCase {
                 try .init(package: p, commitDate: t(3), reference: .tag(3, 0, 0)),
                 try .init(package: p, commitDate: t(2), reference: .tag(3, 0, 0, "b1")),
                 try .init(package: p, commitDate: t(0), reference: .tag(1, 2, 3)),
-                try .init(package: p,commitDate: t(1), reference: .tag(2, 0, 0)),
+                try .init(package: p, commitDate: t(1), reference: .tag(2, 0, 0)),
             ],
             after: .tag(3, 0, 0))?.reference,
             nil
