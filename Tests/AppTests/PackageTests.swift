@@ -244,6 +244,26 @@ final class PackageTests: AppTestCase {
         )
     }
 
+    func test_findPreRelease_double_digit_build() throws {
+        // Test pre-release sorting of betas with double digit build numbers,
+        // e.g. 2.0.0-b11 should come after 2.0.0-b9
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/706
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
+
+        // MUT & validation
+        XCTAssertEqual(
+            Package.findPreRelease([
+                try .init(package: p, commitDate: t(0), reference: .tag(2, 0, 0, "b9")),
+                try .init(package: p, commitDate: t(1), reference: .tag(2, 0, 0, "b10")),
+                try .init(package: p, commitDate: t(2), reference: .tag(2, 0, 0, "b11")),
+            ],
+            after: nil)?.reference,
+            .tag(2, 0, 0, "b11")
+        )
+    }
+
     func test_findSignificantReleases_old_beta() throws {
         // Test to ensure outdated betas aren't picked up as latest versions
         // setup

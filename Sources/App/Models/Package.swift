@@ -102,11 +102,11 @@ extension Package {
             .filter { $0.reference?.semVer != nil }
             .sorted { $0.reference!.semVer! > $1.reference!.semVer! }
             .first {
-            // pick first version that is a prerelease *and* no older (in terms of SemVer)
-            // than the latest release
-            ($0.reference?.semVer?.isPreRelease ?? false)
-                && ($0.reference?.semVer ?? SemanticVersion(0, 0, 0)
-                        >= release?.semVer ?? SemanticVersion(0, 0, 0))
+                // pick first version that is a prerelease *and* no older (in terms of SemVer)
+                // than the latest release
+                ($0.reference?.semVer?.isPreRelease ?? false)
+                    && ($0.reference?.semVer ?? SemanticVersion(0, 0, 0)
+                            >= release?.semVer ?? SemanticVersion(0, 0, 0))
             }
     }
 
