@@ -100,13 +100,14 @@ extension Package {
     static func findPreRelease(_ versions: [Version], after release: Reference?) -> Version? {
         versions
             .filter { $0.reference?.semVer != nil }
-            .sorted { $0.reference!.semVer! > $1.reference!.semVer! }
+            .filter { $0.commitDate != nil }
+            .sorted { $0.commitDate! > $1.commitDate! }
             .first {
-            // pick first version that is a prerelease *and* no older (in terms of SemVer)
-            // than the latest release
-            ($0.reference?.semVer?.isPreRelease ?? false)
-                && ($0.reference?.semVer ?? SemanticVersion(0, 0, 0)
-                        >= release?.semVer ?? SemanticVersion(0, 0, 0))
+                // pick first version that is a prerelease *and* no older (in terms of SemVer)
+                // than the latest release
+                ($0.reference?.semVer?.isPreRelease ?? false)
+                    && ($0.reference?.semVer ?? SemanticVersion(0, 0, 0)
+                            >= release?.semVer ?? SemanticVersion(0, 0, 0))
             }
     }
 

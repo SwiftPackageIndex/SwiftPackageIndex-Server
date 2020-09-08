@@ -220,13 +220,14 @@ final class PackageTests: AppTestCase {
     func test_findPreRelease() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
+        func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
 
         // MUT & validation
         XCTAssertEqual(
             Package.findPreRelease([
-                try .init(package: p, reference: .tag(3, 0, 0, "b1")),
-                try .init(package: p, reference: .tag(1, 2, 3)),
-                try .init(package: p, reference: .tag(2, 0, 0)),
+                try .init(package: p, commitDate: t(2), reference: .tag(3, 0, 0, "b1")),
+                try .init(package: p, commitDate: t(0), reference: .tag(1, 2, 3)),
+                try .init(package: p, commitDate: t(1), reference: .tag(2, 0, 0)),
             ],
             after: .tag(2, 0, 0))?.reference,
             .tag(3, 0, 0, "b1")
@@ -234,13 +235,33 @@ final class PackageTests: AppTestCase {
         // ensure a beta doesn't come after its release
         XCTAssertEqual(
             Package.findPreRelease([
-                try .init(package: p, reference: .tag(3, 0, 0)),
-                try .init(package: p, reference: .tag(3, 0, 0, "b1")),
-                try .init(package: p, reference: .tag(1, 2, 3)),
-                try .init(package: p, reference: .tag(2, 0, 0)),
+                try .init(package: p, commitDate: t(3), reference: .tag(3, 0, 0)),
+                try .init(package: p, commitDate: t(2), reference: .tag(3, 0, 0, "b1")),
+                try .init(package: p, commitDate: t(0), reference: .tag(1, 2, 3)),
+                try .init(package: p, commitDate: t(1), reference: .tag(2, 0, 0)),
             ],
             after: .tag(3, 0, 0))?.reference,
             nil
+        )
+    }
+
+    func test_findPreRelease_double_digit_build() throws {
+        // Test pre-release sorting of betas with double digit build numbers,
+        // e.g. 2.0.0-b11 should come after 2.0.0-b9
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/706
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
+
+        // MUT & validation
+        XCTAssertEqual(
+            Package.findPreRelease([
+                try .init(package: p, commitDate: t(0), reference: .tag(2, 0, 0, "b9")),
+                try .init(package: p, commitDate: t(1), reference: .tag(2, 0, 0, "b10")),
+                try .init(package: p, commitDate: t(2), reference: .tag(2, 0, 0, "b11")),
+            ],
+            after: nil)?.reference,
+            .tag(2, 0, 0, "b11")
         )
     }
 
@@ -272,14 +293,15 @@ final class PackageTests: AppTestCase {
 
     func test_updateLatestVersions() throws {
         // setup
+        func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
         var pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        try Version(package: pkg, packageName: "foo", reference: .branch("main"))
+        try Version(package: pkg, commitDate: t(2), packageName: "foo", reference: .branch("main"))
             .save(on: app.db).wait()
-        try Version(package: pkg, packageName: "foo", reference: .tag(1, 2, 3))
+        try Version(package: pkg, commitDate: t(0), packageName: "foo", reference: .tag(1, 2, 3))
             .save(on: app.db).wait()
-        try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
+        try Version(package: pkg, commitDate: t(1), packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
             .save(on: app.db).wait()
         // load repositories (this will have happened already at the point where
         // updateLatestVersions is being used and therefore it doesn't reload it)
