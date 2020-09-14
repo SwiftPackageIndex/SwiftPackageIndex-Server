@@ -28,6 +28,11 @@ struct AnalyzeCommand: Command {
 }
 
 
+/// Analyse a given `Package`, identified by its `Id`.
+/// - Parameters:
+///   - application: `Application` object for database, client, and logger access
+///   - id: package id
+/// - Returns: future
 func analyze(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
     let packages = Package.query(on: application.db)
         .with(\.$repositories)
@@ -39,6 +44,11 @@ func analyze(application: Application, id: Package.Id) -> EventLoopFuture<Void> 
 }
 
 
+/// Analyse a number of `Package`s, selected from a candidate list with a given limit.
+/// - Parameters:
+///   - application: `Application` object for database, client, and logger access
+///   - limit: number of `Package`s to select from the candidate list
+/// - Returns: future
 func analyze(application: Application, limit: Int) -> EventLoopFuture<Void> {
     let packages = Package.fetchCandidates(application.db, for: .analysis, limit: limit)
     return analyze(application: application, packages: packages)
