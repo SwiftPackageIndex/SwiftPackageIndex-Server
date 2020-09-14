@@ -33,8 +33,8 @@ struct IngestCommand: Command {
 /// Ingest given `Package` identified by its `Id`.
 /// - Parameters:
 ///   - application: `Application` object for database, client, and logger access
-///   - id: <#id description#>
-/// - Returns: <#description#>
+///   - id: package id
+/// - Returns: future
 func ingest(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
     let packages = Package.query(on: application.db)
         .with(\.$repositories)
@@ -46,15 +46,25 @@ func ingest(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
 }
 
 
+/// Ingest a number of `Package`s, selected from a candidate list with a given limit.
+/// - Parameters:
+///   - application: `Application` object for database, client, and logger access
+///   - limit: number of `Package`s to select from the candidate list
+/// - Returns: future
 func ingest(application: Application, limit: Int) -> EventLoopFuture<Void> {
     let packages = Package.fetchCandidates(application.db, for: .ingestion, limit: limit)
     return ingest(application: application, packages: packages)
 }
 
 
+/// Main ingestion function. Fetched package metadata from hosting provider and updates `Repositoy` and `Package`s.
+/// - Parameters:
+///   - application: `Application` object for database, client, and logger access
+///   - packages: packages to be ingested
+/// - Returns: future
 func ingest(application: Application, packages: EventLoopFuture<[Package]>) -> EventLoopFuture<Void> {
     let metadata = packages.flatMap { fetchMetadata(client: application.client, packages: $0) }
-    let updates = metadata.flatMap { updateRespositories(on: application.db, metadata: $0) }
+    let updates = metadata.flatMap { updateRepositories(on: application.db, metadata: $0) }
     return updates.flatMap { updatePackage(application: application, results: $0, stage: .ingestion) }
 }
 
@@ -62,13 +72,23 @@ func ingest(application: Application, packages: EventLoopFuture<[Package]>) -> E
 typealias PackageMetadata = (Package, Github.Metadata)
 
 
+/// Fetch package metadata from hosting provider for a set of packages.
+/// - Parameters:
+///   - client: `Client` object to make HTTP requests.
+///   - packages: packages to ingest
+/// - Returns: results future
 func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
     let ops = packages.map { pkg in Current.fetchMetadata(client, pkg).map { (pkg, $0) } }
     return EventLoopFuture.whenAllComplete(ops, on: client.eventLoop)
 }
 
 
-func updateRespositories(on database: Database, metadata: [Result<(Package, Github.Metadata), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+/// Update `Repository`s with metadata.
+/// - Parameters:
+///   - database: `Database` object
+///   - metadata: result tuples of `(Package, Metadata)`
+/// - Returns: results future
+func updateRepositories(on database: Database, metadata: [Result<(Package, Github.Metadata), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = metadata.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success((pkg, md)):
@@ -82,6 +102,12 @@ func updateRespositories(on database: Database, metadata: [Result<(Package, Gith
 }
 
 
+/// Insert of update `Repository` of given `Package` with given `Github.Metadata`.
+/// - Parameters:
+///   - database: `Database` object
+///   - package: package to update
+///   - metadata: `Github.Metadata` with data for update
+/// - Returns: future
 func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github.Metadata) -> EventLoopFuture<Void> {
     guard let pkgId = try? package.requireID() else {
         return database.eventLoop.makeFailedFuture(AppError.genericError(nil, "package id not found"))
