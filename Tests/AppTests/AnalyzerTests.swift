@@ -297,7 +297,7 @@ class AnalyzerTests: AppTestCase {
         let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
         
         // MUT
-        let res = try pkgs.flatMap { refreshCheckout(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckouts(application: self.app, packages: $0) }.wait()
         
         // validation
         XCTAssertEqual(res.count, 2)
@@ -339,7 +339,7 @@ class AnalyzerTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         _ = try pkg.$repositories.get(on: app.db).wait()
-        let checkouts: [Result<Package, Error>] = [
+        let packages: [Result<Package, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success(pkg)
@@ -347,7 +347,7 @@ class AnalyzerTests: AppTestCase {
         
         // MUT
         let results: [Result<Package, Error>] =
-            try updateRepositories(application: app, checkouts: checkouts).wait()
+            try updateRepositories(application: app, packages: packages).wait()
         
         // validate
         XCTAssertEqual(results.count, 2)
@@ -402,7 +402,7 @@ class AnalyzerTests: AppTestCase {
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        let checkouts: [Result<Package, Error>] = [
+        let packages: [Result<Package, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success(pkg)
@@ -413,7 +413,7 @@ class AnalyzerTests: AppTestCase {
                                             logger: app.logger,
                                             threadPool: app.threadPool,
                                             transaction: app.db,
-                                            checkouts: checkouts).wait()
+                                            packages: packages).wait()
         
         // validate
         XCTAssertEqual(results.count, 2)
@@ -526,7 +526,7 @@ class AnalyzerTests: AppTestCase {
                        Platform.Name.allCases.map(\.rawValue).sorted())
     }
     
-    func test_updateProducts() throws {
+    func test_createProducts() throws {
         // setup
         let p = Package(id: UUID(), url: "1")
         let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
@@ -536,7 +536,7 @@ class AnalyzerTests: AppTestCase {
         try v.save(on: app.db).wait()
         
         // MUT
-        try updateProducts(on: app.db, version: v, manifest: m).wait()
+        try createProducts(on: app.db, version: v, manifest: m).wait()
         
         // validation
         let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
@@ -554,14 +554,14 @@ class AnalyzerTests: AppTestCase {
                                 products: [.init(name: "p1", type: .library)],
                                 swiftLanguageVersions: ["1", "2", "3.0.0"])
         
-        let results: [Result<(Package, [(Version, Manifest)]), Error>] = [
+        let packages: [Result<(Package, [(Version, Manifest)]), Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.noValidVersions(nil, "some url")),
             .success((pkg, [(version, manifest)]))
         ]
         
         // MUT
-        let res = try updateVersionsAndProducts(on: app.db, results: results).wait()
+        let res = try updateVersionsAndProducts(on: app.db, packages: packages).wait()
         
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
@@ -651,7 +651,7 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        let res = try pkgs.flatMap { refreshCheckout(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckouts(application: self.app, packages: $0) }.wait()
         
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
@@ -684,7 +684,7 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = try pkgs.flatMap { refreshCheckout(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckouts(application: self.app, packages: $0) }.wait()
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
@@ -703,7 +703,7 @@ class AnalyzerTests: AppTestCase {
                 .appendingPathComponent("VisualEffects-Package-swift").path
             let fname = tempDir.appending("/Package.swift")
             try ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
-            let m = try dumpPackage(at: tempDir, versionId: nil)
+            let m = try dumpPackage(at: tempDir)
             XCTAssertEqual(m.name, "VisualEffects")
         }
     }

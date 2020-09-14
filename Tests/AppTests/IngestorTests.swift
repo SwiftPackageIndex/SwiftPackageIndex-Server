@@ -17,7 +17,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
         
         // MUT
-        try ingest(application: app, database: app.db, limit: 10).wait()
+        try ingest(application: app, limit: 10).wait()
         
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -99,7 +99,7 @@ class IngestorTests: AppTestCase {
         ]
         
         // MUT
-        let res = try updateRespositories(on: app.db, metadata: metadata).wait()
+        let res = try updateRepositories(on: app.db, metadata: metadata).wait()
         
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
@@ -168,7 +168,7 @@ class IngestorTests: AppTestCase {
         let packages = try savePackages(on: app.db, testUrls, processingStage: .reconciliation)
         
         // MUT
-        try ingest(application: app, database: app.db, limit: testUrls.count).wait()
+        try ingest(application: app, limit: testUrls.count).wait()
         
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -207,7 +207,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
         
         // MUT
-        try ingest(application: app, database: app.db, limit: 10).wait()
+        try ingest(application: app, limit: 10).wait()
         
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -256,7 +256,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
         
         // MUT
-        try ingest(application: app, database: app.db, limit: 10).wait()
+        try ingest(application: app, limit: 10).wait()
         
         // validate repositories (single element pointing to first package)
         let repos = try Repository.query(on: app.db).all().wait()

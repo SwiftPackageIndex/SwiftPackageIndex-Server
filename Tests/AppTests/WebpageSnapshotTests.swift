@@ -24,6 +24,7 @@ let recordSnapshotForAllTests = false
 class WebpageSnapshotTests: XCTestCase {
     
     override func setUpWithError() throws {
+        try XCTSkipIf((Environment.get("SKIP_SNAPSHOTS") ?? "false") == "true")
         Current.date = { Date(timeIntervalSince1970: 0) }
         TempWebRoot.cleanup()
     }
