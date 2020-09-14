@@ -45,6 +45,11 @@ func analyze(application: Application, limit: Int) -> EventLoopFuture<Void> {
 }
 
 
+/// Main analysis function. Updates repostory checkouts, runs package dump, reconciles versions and updates packages.
+/// - Parameters:
+///   - application: `Application` object for database, client, and logger access
+///   - packages: packages to be analysed
+/// - Returns: future
 func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> EventLoopFuture<Void> {
     // get or create directory
     let checkoutDir = Current.fileManager.checkoutsDirectory()
@@ -63,21 +68,21 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
         }
     }
     
-    let checkouts = packages
-        .flatMap { refreshCheckout(application: application, packages: $0) }
-        .flatMap { updateRepositories(application: application, checkouts: $0) }
+    let packageUpdates = packages
+        .flatMap { refreshCheckouts(application: application, packages: $0) }
+        .flatMap { updateRepositories(application: application, packages: $0) }
     
-    let versionUpdates = checkouts.flatMap { checkouts in
+    let versionUpdates = packageUpdates.flatMap { packages in
         application.db.transaction { tx -> EventLoopFuture<[Result<Package, Error>]> in
             let versions = reconcileVersions(client: application.client,
                                              logger: application.logger,
                                              threadPool: application.threadPool,
                                              transaction: tx,
-                                             checkouts: checkouts)
+                                             packages: packages)
             return versions
                 .map { getManifests(logger: application.logger, versions: $0) }
-                .flatMap { updateVersionsAndProducts(on: tx, results: $0) }
-                .flatMap { updateLatestVersions(on: tx, results: $0) }
+                .flatMap { updateVersionsAndProducts(on: tx, packages: $0) }
+                .flatMap { updateLatestVersions(on: tx, packages: $0) }
         }
     }
     
@@ -95,12 +100,23 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
 }
 
 
-func refreshCheckout(application: Application, packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
+/// Refresh git checkouts (working copies) for a list of packages.
+/// - Parameters:
+///   - application: `Application` object for database, client, and logger access
+///   - packages: list of `Packages`
+/// - Returns: future with `Result`s
+func refreshCheckouts(application: Application, packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = packages.map { refreshCheckout(application: application, package: $0) }
     return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
 }
 
 
+/// Run `git clone` for a given url in a given directory.
+/// - Parameters:
+///   - logger: `Logger` object
+///   - cacheDir: checkout directory
+///   - url: url to clone from
+/// - Throws: Shell errors
 func clone(logger: Logger, cacheDir: String, url: String) throws {
     logger.info("cloning \(url) to \(cacheDir)")
     try Current.shell.run(command: .gitClone(url: URL(string: url)!, to: cacheDir),
@@ -108,6 +124,13 @@ func clone(logger: Logger, cacheDir: String, url: String) throws {
 }
 
 
+/// Run `git fetch` and a set of supporting git commands (in order to allow the fetch to succeed more reliably).
+/// - Parameters:
+///   - logger: `Logger` object
+///   - cacheDir: checkout directory
+///   - branch: branch to check out
+///   - url: url to fetch from
+/// - Throws: Shell errors
 func fetch(logger: Logger, cacheDir: String, branch: String, url: String) throws {
     logger.info("pulling \(url) in \(cacheDir)")
     // clean up stray lock files that might have remained from aborted commands
@@ -128,6 +151,11 @@ func fetch(logger: Logger, cacheDir: String, branch: String, url: String) throws
 }
 
 
+/// Refresh git checkout (working copy) for a given package.
+/// - Parameters:
+///   - application: `Application` object
+///   - package: `Package` to refresh
+/// - Returns: future
 func refreshCheckout(application: Application, package: Package) -> EventLoopFuture<Package> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return application.eventLoopGroup.next().makeFailedFuture(
@@ -158,10 +186,15 @@ func refreshCheckout(application: Application, package: Package) -> EventLoopFut
 }
 
 
+/// Update the `Repository`s of a given set of `Package`s with git repository data (commit count, first commit date, etc).
+/// - Parameters:
+///   - application: `Application` object
+///   - packages: `Package`s to update
+/// - Returns: results future
 func updateRepositories(application: Application,
-                        checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = checkouts.map { checkout -> EventLoopFuture<Package> in
-        let updatedPackage = checkout.flatMap(updateRepository(package:))
+                        packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = packages.map { result -> EventLoopFuture<Package> in
+        let updatedPackage = result.flatMap(updateRepository(package:))
         switch updatedPackage {
             case .success(let pkg):
                 return pkg.repositories.update(on: application.db).transform(to: pkg)
@@ -173,6 +206,9 @@ func updateRepositories(application: Application,
 }
 
 
+/// Update the `Repository` of a given `Package` with git repository data (commit count, first commit date, etc).
+/// - Parameter package: `Package` to update
+/// - Returns: result future
 func updateRepository(package: Package) -> Result<Package, Error> {
     guard let repo = package.repository else {
         return .failure(AppError.genericError(package.id, "updateRepository: no repository"))
@@ -190,13 +226,21 @@ func updateRepository(package: Package) -> Result<Package, Error> {
 }
 
 
+/// Reconcile versions for a set of `Package`s. This will add new versions and delete versions that have been removed based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
+/// - Parameters:
+///   - client: `Client` object (for Rollbar error reporting)
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
+///   - transaction: database transaction
+///   - packages: `Package`s to reconcile
+/// - Returns: results future
 func reconcileVersions(client: Client,
                        logger: Logger,
                        threadPool: NIOThreadPool,
                        transaction: Database,
-                       checkouts: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
-    let ops = checkouts.map { checkout -> EventLoopFuture<(Package, [Version])> in
-        switch checkout {
+                       packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+    let ops = packages.map { result -> EventLoopFuture<(Package, [Version])> in
+        switch result {
             case .success(let pkg):
                 return reconcileVersions(client: client,
                                          logger: logger,
@@ -212,6 +256,14 @@ func reconcileVersions(client: Client,
 }
 
 
+/// Reconcile versions for a given `Package`. This will add new versions and delete versions that have been removed based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
+/// - Parameters:
+///   - client: `Client` object (for Rollbar error reporting)
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
+///   - transaction: database transaction
+///   - package: `Package` to reconcile
+/// - Returns: future with array of inserted `Version`s
 func reconcileVersions(client: Client,
                        logger: Logger,
                        threadPool: NIOThreadPool,
@@ -262,6 +314,11 @@ func reconcileVersions(client: Client,
 }
 
 
+/// Get the package manifests for a set of `Package`s.
+/// - Parameters:
+///   - logger: `Logger` object
+///   - versions: `Result` containing the `Package` and the set of `Verion`s to analyse
+/// - Returns: results future including the `Manifest`s
 func getManifests(logger: Logger,
                   versions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
     versions.map { result -> Result<(Package, [(Version, Manifest)]), Error> in
@@ -280,11 +337,16 @@ func getManifests(logger: Logger,
 }
 
 
-func dumpPackage(at path: String, versionId: Version.Id?) throws -> Manifest {
+/// Run `swift package dump-package` for a package at the given path.
+/// - Parameters:
+///   - path: path to the pacakge
+/// - Throws: Shell errors or AppError.invalidRevision if there is no Package.swift file
+/// - Returns: `Manifest` data
+func dumpPackage(at path: String) throws -> Manifest {
     guard Current.fileManager.fileExists(atPath: path + "/Package.swift") else {
         // It's important to check for Package.swift - otherwise `dump-package` will go
         // up the tree through parent directories to find one
-        throw AppError.invalidRevision(versionId, "no Package.swift")
+        throw AppError.invalidRevision(nil, "no Package.swift")
     }
     let swiftCommand = Current.fileManager.fileExists("/swift-5.3/usr/bin/swift")
         ? "/swift-5.3/usr/bin/swift"
@@ -295,6 +357,11 @@ func dumpPackage(at path: String, versionId: Version.Id?) throws -> Manifest {
 }
 
 
+/// Get `Manifest` for a given `Package` at version `Version`.
+/// - Parameters:
+///   - package: `Package` to analyse
+///   - version: `Version` to check out
+/// - Returns: `Result` with `Manifest` data
 func getManifest(package: Package, version: Version) -> Result<(Version, Manifest), Error> {
     Result {
         // check out version in cache directory
@@ -304,23 +371,33 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
         guard let reference = version.reference else {
             throw AppError.invalidRevision(version.id, nil)
         }
+
         try Current.shell.run(command: .gitCheckout(branch: reference.description), at: cacheDir)
 
-        let manifest = try dumpPackage(at: cacheDir, versionId: version.id)
-
-        return (version, manifest)
+        do {
+            let manifest = try dumpPackage(at: cacheDir)
+            return (version, manifest)
+        } catch let AppError.invalidRevision(_, msg) {
+            // re-package error to attach version.id
+            throw AppError.invalidRevision(version.id, msg)
+        }
     }
 }
 
 
+/// Persist version and product changes to the database.
+/// - Parameters:
+///   - database: `Database` object
+///   - results: packages to save
+/// - Returns: results future
 func updateVersionsAndProducts(on database: Database,
-                               results: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = results.map { result -> EventLoopFuture<Package> in
+                               packages: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = packages.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success((pkg, versionsAndManifests)):
                 let updates = versionsAndManifests.map { version, manifest in
                     updateVersion(on: database, version: version, manifest: manifest)
-                        .flatMap { updateProducts(on: database, version: version, manifest: manifest)}
+                        .flatMap { createProducts(on: database, version: version, manifest: manifest)}
                 }
                 return EventLoopFuture
                     .andAllComplete(updates, on: database.eventLoop)
@@ -334,6 +411,12 @@ func updateVersionsAndProducts(on database: Database,
 }
 
 
+/// Persist version changes to the database.
+/// - Parameters:
+///   - database: `Database` object
+///   - version: version to update
+///   - manifest: `Manifest` data
+/// - Returns: future
 func updateVersion(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
     version.packageName = manifest.name
     version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
@@ -342,7 +425,13 @@ func updateVersion(on database: Database, version: Version, manifest: Manifest) 
 }
 
 
-func updateProducts(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
+/// Create and persist `Product`s for a given `Version` according to the given `Manifest`.
+/// - Parameters:
+///   - database: `Database` object
+///   - version: version to update
+///   - manifest: `Manifest` data
+/// - Returns: future
+func createProducts(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
     let products = manifest.products.compactMap { p -> Product? in
         let type: Product.`Type`
         switch p.type {
@@ -357,9 +446,14 @@ func updateProducts(on database: Database, version: Version, manifest: Manifest)
 }
 
 
+/// Update the significant versions (stable, beta, latest) for a set of `Package`s.
+/// - Parameters:
+///   - database: `Database` object
+///   - packages: packages to update
+/// - Returns: results future
 func updateLatestVersions(on database: Database,
-                          results: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = results.map { result -> EventLoopFuture<Package> in
+                          packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = packages.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success(pkg):
                 return updateLatestVersions(on: database, package: pkg)
@@ -371,6 +465,11 @@ func updateLatestVersions(on database: Database,
 }
 
 
+/// Update the significant versions (stable, beta, latest) for a given `Package`.
+/// - Parameters:
+///   - database: `Database` object
+///   - package: package to update
+/// - Returns: `Package` future
 func updateLatestVersions(on database: Database,
                           package: Package) -> EventLoopFuture<Package> {
     package
