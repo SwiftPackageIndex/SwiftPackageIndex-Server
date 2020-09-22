@@ -79,10 +79,13 @@ public func configure(_ app: Application) throws {
     do {  // Migration 014 - add latest
         app.migrations.add(UpdateVersionAddLatest())
     }
-    do {  // Migration 015 -
+    do {  // Migration 015 - add unique index to builds
         app.migrations.add(UpdateBuildUniqueIndex1())
     }
-    
+    do {  // Migration 016 - add job_url field to builds
+        app.migrations.add(UpdateBuildAddJobUrl())
+    }
+
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
     app.commands.use(DeleteBuildsCommand(), as: "delete-builds")

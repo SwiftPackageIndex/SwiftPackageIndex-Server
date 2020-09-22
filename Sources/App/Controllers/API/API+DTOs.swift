@@ -6,6 +6,7 @@ extension API {
 
     struct PostCreateBuildDTO: Codable {
         var buildCommand: String?
+        var jobUrl: String?
         var logs: String?
         var logUrl: String?
         var platform: Build.Platform

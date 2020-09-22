@@ -29,6 +29,9 @@ final class Build: Model, Content {
     @Field(key: "build_command")
     var buildCommand: String?
 
+    @Field(key: "job_url")
+    var jobUrl: String?
+
     @Field(key: "logs")
     var logs: String?
 
@@ -49,6 +52,7 @@ final class Build: Model, Content {
     init(id: Id? = nil,
          versionId: Version.Id,
          buildCommand: String? = nil,
+         jobUrl: String? = nil,
          logs: String? = nil,
          logUrl: String? = nil,
          platform: Platform,
@@ -57,6 +61,7 @@ final class Build: Model, Content {
         self.id = id
         self.$version.id = versionId
         self.buildCommand = buildCommand
+        self.jobUrl = jobUrl
         self.logs = logs
         self.logUrl = logUrl
         self.platform = platform
@@ -67,6 +72,7 @@ final class Build: Model, Content {
     convenience init(id: Id? = nil,
          version: Version,
          buildCommand: String? = nil,
+         jobUrl: String? = nil,
          logs: String? = nil,
          logUrl: String? = nil,
          platform: Platform,
@@ -75,6 +81,7 @@ final class Build: Model, Content {
         self.init(id: id,
                   versionId: try version.requireID(),
                   buildCommand: buildCommand,
+                  jobUrl: jobUrl,
                   logs: logs,
                   logUrl: logUrl,
                   platform: platform,
@@ -85,6 +92,7 @@ final class Build: Model, Content {
     convenience init(_ dto: API.PostCreateBuildDTO, _ version: Version) throws {
         try self.init(version: version,
                       buildCommand: dto.buildCommand,
+                      jobUrl: dto.jobUrl,
                       logs: dto.logs,
                       logUrl: dto.logUrl,
                       platform: dto.platform,
