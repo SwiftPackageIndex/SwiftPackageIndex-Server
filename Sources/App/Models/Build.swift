@@ -32,6 +32,7 @@ final class Build: Model, Content {
     @Field(key: "job_url")
     var jobUrl: String?
 
+    @available(*, deprecated)
     @Field(key: "logs")
     var logs: String?
 
