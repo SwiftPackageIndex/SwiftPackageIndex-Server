@@ -119,6 +119,24 @@
         }
       },
       {
+        "package": "soto",
+        "repositoryURL": "https://github.com/soto-project/soto.git",
+        "state": {
+          "branch": null,
+          "revision": "05b0cb685dea6aefdfcd335d2eaff61eff84f058",
+          "version": "5.0.0-beta.1"
+        }
+      },
+      {
+        "package": "soto-core",
+        "repositoryURL": "https://github.com/soto-project/soto-core.git",
+        "state": {
+          "branch": null,
+          "revision": "c1e7f1873163f614a66697cead9b7afc4bd4c043",
+          "version": "5.0.0-beta.1"
+        }
+      },
+      {
         "package": "sql-kit",
         "repositoryURL": "https://github.com/vapor/sql-kit.git",
         "state": {
