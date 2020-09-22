@@ -8,8 +8,9 @@ struct IngestCommand: Command {
     struct Signature: CommandSignature {
         @Option(name: "limit", short: "l")
         var limit: Int?
-        @Option(name: "id")
-        var id: UUID?
+
+        @Option(name: "id", help: "package id")
+        var id: Package.Id?
     }
     
     var help: String { "Run package ingestion (fetching repository metadata)" }

@@ -17,6 +17,7 @@ let package = Package(
         .package(name: "SnapshotTesting",
                  url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
+        .package(url: "https://github.com/soto-project/soto.git", from: "5.0.0-alpha"),
     ],
     targets: [
         .target(name: "App", dependencies: [
@@ -26,7 +27,8 @@ let package = Package(
             "Plot",
             "Ink",
             "SemanticVersion",
-            "ShellOut"
+            "ShellOut",
+            .product(name: "SotoS3", package: "soto"),
         ]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [
