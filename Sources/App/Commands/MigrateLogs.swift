@@ -46,10 +46,12 @@ func migrateLogs(application: Application, limit: Int) -> EventLoopFuture<Void> 
 
 func migrateLogs(application: Application, builds: [Build]) -> EventLoopFuture<Void> {
     builds.map { build in
+        application.console.info("Fetching logs for build \(build.id!) ...")
         guard let logs = build.logs else {
             return application.eventLoopGroup.future()
         }
         let key = LogStore.Key()
+        application.console.info("Saving logs to \(key.url) ...")
         return LogStore.save(logs: logs, key: key)
             .map { key.url }
             .flatMap {
@@ -62,8 +64,10 @@ func migrateLogs(application: Application, builds: [Build]) -> EventLoopFuture<V
 
 
 func fetchMigrationCandidates(application: Application, limit: Int) -> EventLoopFuture<[Build]> {
-    // FIXME: implement
-    application.eventLoopGroup.future([])
+    Build.query(on: application.db)
+        .filter(\.$logUrl, .custom("like"), "https://gitlab.com%")
+        .limit(limit)
+        .all()
 }
 
 
