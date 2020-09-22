@@ -70,6 +70,7 @@ class ApiTests: AppTestCase {
         
         do {  // MUT - initial insert
             let dto: API.PostCreateBuildDTO = .init(buildCommand: "xcodebuild -scheme Foo",
+                                                    jobUrl: "https://example.com/jobs/1",
                                                     platform: .macosXcodebuild,
                                                     status: .failed,
                                                     swiftVersion: .init(5, 2, 0))
@@ -88,6 +89,7 @@ class ApiTests: AppTestCase {
                     let dto = try JSONDecoder().decode(DTO.self, from: res.body)
                     let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
                     XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
+                    XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
                     XCTAssertEqual(b.platform, .macosXcodebuild)
                     XCTAssertEqual(b.status, .failed)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))

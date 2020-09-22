@@ -14,6 +14,7 @@ class BuildTests: AppTestCase {
         try v.save(on: app.db).wait()
         let b = try Build(version: v,
                           buildCommand: #"xcrun xcodebuild -scheme "Foo""#,
+                          jobUrl: "https://example.com/jobs/1",
                           logs: "logs",
                           logUrl: "https://example.com/logs/1",
                           platform: .linux,
@@ -26,6 +27,7 @@ class BuildTests: AppTestCase {
         do {  // validate
             let b = try XCTUnwrap(Build.find(b.id, on: app.db).wait())
             XCTAssertEqual(b.buildCommand, #"xcrun xcodebuild -scheme "Foo""#)
+            XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
             XCTAssertEqual(b.logs, "logs")
             XCTAssertEqual(b.logUrl, "https://example.com/logs/1")
             XCTAssertEqual(b.platform, .linux)
