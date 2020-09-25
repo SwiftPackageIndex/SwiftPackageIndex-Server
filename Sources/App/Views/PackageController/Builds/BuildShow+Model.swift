@@ -46,8 +46,8 @@ extension BuildShow {
 
         init?(build: App.Build, logs: String?) {
             guard let swiftVersion = build.swiftVersion.compatibility else { return nil }
-            self.init(buildCommand: build.buildCommand ?? "build command unavailable",
-                      logs: logs ?? "no logs recorded",
+            self.init(buildCommand: build.buildCommand ?? "Build command unavailable",
+                      logs: logs ?? build.status.logsUnavailableDescription,
                       platform: build.platform,
                       status: build.status,
                       swiftVersion: swiftVersion)
@@ -78,6 +78,20 @@ extension BuildShow {
             }
         }
 
+    }
+}
+
+
+private extension Build.Status {
+    var logsUnavailableDescription: String {
+        switch self {
+            case .ok:
+                return "Build SUCCEEDED (detailed logs unavailable)"
+            case .failed:
+                return "Build FAILED (detailed logs unavailable)"
+            case .pending:
+                return "Build PENDING"
+        }
     }
 }
 
