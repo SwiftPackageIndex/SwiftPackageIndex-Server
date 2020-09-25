@@ -232,6 +232,21 @@ extension Build {
 }
 
 
+// MARK: Fetch build logs
+
+extension Build {
+
+    static func fetchLogs(client: Client, logUrl: String?) -> EventLoopFuture<String?> {
+        guard let logUrl = logUrl else {
+            return client.eventLoop.future(nil)
+        }
+        return client.get(URI(string: logUrl))
+            .map { $0.body?.asString() }
+    }
+
+}
+
+
 // MARK: - Array extension
 
 extension Array where Element == Build {

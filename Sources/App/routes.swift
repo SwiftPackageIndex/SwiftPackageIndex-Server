@@ -31,8 +31,7 @@ func routes(_ app: Application) throws {
     app.get(SiteURL.package(.key, .key, .builds).pathComponents, use: packageController.builds)
 
     let buildController = BuildController()
-    app.get(SiteURL.builds(.key).pathComponents, use: buildController._show)
-    app.get(SiteURL.builds(.key).pathComponents + ["s3"], use: buildController.showS3)
+    app.get(SiteURL.builds(.key).pathComponents, use: buildController.show)
 
     do {  // api
 

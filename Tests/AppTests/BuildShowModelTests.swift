@@ -39,7 +39,11 @@ class BuildShowModelTests: AppTestCase {
 
         // MUT
         let m = try Build.query(on: app.db, buildId: buildId)
-            .map(BuildShow.Model.init(build:))
+            .flatMap { build in
+                Build.fetchLogs(client: self.app.client, logUrl: build.logUrl)
+                    .map { (build, $0) }
+            }
+            .map(BuildShow.Model.init(build:logs:))
             .wait()
 
         // validate

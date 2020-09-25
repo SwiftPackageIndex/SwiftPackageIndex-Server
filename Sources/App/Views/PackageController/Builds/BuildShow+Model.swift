@@ -7,24 +7,6 @@ extension BuildShow {
         var buildInfo: BuildInfo
         var versionId: Version.Id
 
-        @available(*, deprecated)
-        init?(build: App.Build) {
-            guard
-                let packageName = build.version.package.name(),
-                let repository = build.version.package.repository,
-                let repositoryOwner = repository.owner,
-                let repositoryName = repository.name,
-                let buildInfo = BuildInfo(build),
-                let version = build.$version.value,
-                let versionId = version.id
-            else { return nil }
-            self.init(buildInfo: buildInfo,
-                      packageName: packageName,
-                      repositoryOwner: repositoryOwner,
-                      repositoryName: repositoryName,
-                      versionId: versionId)
-        }
-
         init?(build: App.Build, logs: String?) {
             guard
                 let packageName = build.version.package.name(),
@@ -61,16 +43,6 @@ extension BuildShow {
         var platform: App.Build.Platform
         var status: App.Build.Status
         var swiftVersion: SwiftVersion
-
-        @available(*, deprecated)
-        init?(_ build: App.Build) {
-            guard let swiftVersion = build.swiftVersion.compatibility else { return nil }
-            self.init(buildCommand: build.buildCommand ?? "build command unavailable",
-                      logs: build.logs ?? "no logs recorded",
-                      platform: build.platform,
-                      status: build.status,
-                      swiftVersion: swiftVersion)
-        }
 
         init?(build: App.Build, logs: String?) {
             guard let swiftVersion = build.swiftVersion.compatibility else { return nil }
