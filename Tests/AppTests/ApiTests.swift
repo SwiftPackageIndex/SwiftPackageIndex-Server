@@ -71,6 +71,7 @@ class ApiTests: AppTestCase {
         do {  // MUT - initial insert
             let dto: API.PostCreateBuildDTO = .init(buildCommand: "xcodebuild -scheme Foo",
                                                     jobUrl: "https://example.com/jobs/1",
+                                                    logUrl: "log url",
                                                     platform: .macosXcodebuild,
                                                     status: .failed,
                                                     swiftVersion: .init(5, 2, 0))
@@ -90,6 +91,7 @@ class ApiTests: AppTestCase {
                     let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
                     XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
                     XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
+                    XCTAssertEqual(b.logUrl, "log url")
                     XCTAssertEqual(b.platform, .macosXcodebuild)
                     XCTAssertEqual(b.status, .failed)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
@@ -122,90 +124,6 @@ class ApiTests: AppTestCase {
                 })
         }
 
-    }
-
-    func test_post_build_contentSize() throws {
-        // Ensure large payloads are rejected
-        // setup
-        Current.builderToken = { "secr3t" }
-        let p = try savePackage(on: app.db, "1")
-        let v = try Version(package: p)
-        try v.save(on: app.db).wait()
-        let versionId = try XCTUnwrap(v.id)
-
-        do {  // 90k is ok
-            let payload = String.init(repeating: "*", count: 90_000)
-            let dto: API.PostCreateBuildDTO = .init(logs: payload,
-                                                    platform: .macosXcodebuild,
-                                                    status: .ok,
-                                                    swiftVersion: .init(5, 2, 0))
-            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-            // testable(method: .running) is required to force the same code path
-            // as production code
-            // https://discordapp.com/channels/431917998102675485/444937269808332801/732945565268312106
-            let _app = try app.testable(method: .running)
-            try _app.test(
-                .POST,
-                "api/versions/\(versionId)/builds",
-                headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
-                body: body,
-                afterResponse: { res in
-                    // validation
-                    XCTAssertEqual(res.status, .ok)
-                })
-        }
-
-        do {  // 100k isn't
-            let payload = String.init(repeating: "*", count: 100_000)
-            let dto: API.PostCreateBuildDTO = .init(logs: payload,
-                                                    platform: .macosXcodebuild,
-                                                    status: .ok,
-                                                    swiftVersion: .init(5, 2, 0))
-            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-            let _app = try app.testable(method: .running)
-            try _app.test(
-                .POST,
-                "api/versions/\(versionId)/builds",
-                headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
-                body: body,
-                afterResponse: { res in
-                    // validation
-                    XCTAssertEqual(res.status, .payloadTooLarge)
-                })
-        }
-    }
-
-    func test_post_build_logs_basic() throws {
-        // Tests storing logs and log_url
-        // setup
-        Current.builderToken = { "secr3t" }
-        let p = try savePackage(on: app.db, "1")
-        let v = try Version(package: p)
-        try v.save(on: app.db).wait()
-        let versionId = try XCTUnwrap(v.id)
-
-        let dto: API.PostCreateBuildDTO = .init(logs: "logs",
-                                                logUrl: "log url",
-                                                platform: .macosXcodebuild,
-                                                status: .failed,
-                                                swiftVersion: .init(5, 2, 0))
-        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-        try app.test(
-            .POST,
-            "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
-            body: body,
-            afterResponse: { res in
-                // validation
-                XCTAssertEqual(res.status, .ok)
-                struct DTO: Decodable {
-                    var id: Build.Id?
-                }
-                let dto = try JSONDecoder().decode(DTO.self, from: res.body)
-                let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
-                XCTAssertEqual(b.logs, "logs")
-                XCTAssertEqual(b.logUrl, "log url")
-            })
     }
 
     func test_post_build_unauthenticated() throws {
