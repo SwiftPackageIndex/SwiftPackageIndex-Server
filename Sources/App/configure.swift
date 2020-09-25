@@ -92,7 +92,6 @@ public func configure(_ app: Application) throws {
     app.commands.use(IngestCommand(), as: "ingest")
     app.commands.use(ReconcileCommand(), as: "reconcile")
     app.commands.use(TriggerBuildsCommand(), as: "trigger-builds")
-    app.commands.use(MigrateLogsCommand(), as: "migrate-logs")
     
     // register routes
     try routes(app)
