@@ -32,6 +32,7 @@ final class Build: Model, Content {
     @Field(key: "job_url")
     var jobUrl: String?
 
+    @available(*, deprecated)
     @Field(key: "logs")
     var logs: String?
 
@@ -226,6 +227,21 @@ extension Build {
         return db.raw(deleteSQL)
             .all()
             .map { $0.count }
+    }
+
+}
+
+
+// MARK: Fetch build logs
+
+extension Build {
+
+    static func fetchLogs(client: Client, logUrl: String?) -> EventLoopFuture<String?> {
+        guard let logUrl = logUrl else {
+            return client.eventLoop.future(nil)
+        }
+        return client.get(URI(string: logUrl))
+            .map { $0.body?.asString() }
     }
 
 }

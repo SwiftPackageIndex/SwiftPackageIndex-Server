@@ -7,13 +7,13 @@ extension BuildShow {
         var buildInfo: BuildInfo
         var versionId: Version.Id
 
-        init?(build: App.Build) {
+        init?(build: App.Build, logs: String?) {
             guard
                 let packageName = build.version.package.name(),
                 let repository = build.version.package.repository,
                 let repositoryOwner = repository.owner,
                 let repositoryName = repository.name,
-                let buildInfo = BuildInfo(build),
+                let buildInfo = BuildInfo(build: build, logs: logs),
                 let version = build.$version.value,
                 let versionId = version.id
             else { return nil }
@@ -44,10 +44,10 @@ extension BuildShow {
         var status: App.Build.Status
         var swiftVersion: SwiftVersion
 
-        init?(_ build: App.Build) {
+        init?(build: App.Build, logs: String?) {
             guard let swiftVersion = build.swiftVersion.compatibility else { return nil }
-            self.init(buildCommand: build.buildCommand ?? "build command unavailable",
-                      logs: build.logs ?? "no logs recorded",
+            self.init(buildCommand: build.buildCommand ?? "Build command unavailable",
+                      logs: logs ?? build.status.logsUnavailableDescription,
                       platform: build.platform,
                       status: build.status,
                       swiftVersion: swiftVersion)
@@ -78,6 +78,20 @@ extension BuildShow {
             }
         }
 
+    }
+}
+
+
+private extension Build.Status {
+    var logsUnavailableDescription: String {
+        switch self {
+            case .ok:
+                return "This build succeeded, but detailed logs are not available. Logs are only retained for a few months after a build, and they may have expired, or the request to fetch them may have failed."
+            case .failed:
+                return "This build failed, but detailed logs are not available. Logs are only retained for a few months after a build, and they may have expired, or the request to fetch them may have failed."
+            case .pending:
+                return "This build is pending execution, and logs are not yet available."
+        }
     }
 }
 

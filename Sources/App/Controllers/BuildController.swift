@@ -11,7 +11,11 @@ struct BuildController {
         else { return req.eventLoop.future(error: Abort(.notFound)) }
 
         return Build.query(on: req.db, buildId: buildId)
-            .map(BuildShow.Model.init(build:))
+            .flatMap { build in
+                Build.fetchLogs(client: req.client, logUrl: build.logUrl)
+                    .map { (build, $0) }
+            }
+            .map(BuildShow.Model.init(build:logs:))
             .unwrap(or: Abort(.notFound))
             .map {
                 BuildShow.View(path: req.url.path, model: $0).document()
