@@ -86,11 +86,11 @@ private extension Build.Status {
     var logsUnavailableDescription: String {
         switch self {
             case .ok:
-                return "Build SUCCEEDED (detailed logs unavailable)"
+                return "This build succeeded, but detailed logs are not available. Logs are only retained for a few months after a build, and they may have expired, or the request to fetch them may have failed."
             case .failed:
-                return "Build FAILED (detailed logs unavailable)"
+                return "This build failed, but detailed logs are not available. Logs are only retained for a few months after a build, and they may have expired, or the request to fetch them may have failed."
             case .pending:
-                return "Build PENDING"
+                return "This build is pending execution, and logs are not yet available."
         }
     }
 }
