@@ -185,65 +185,85 @@ extension Github {
 
     struct _Metadata: Decodable, Equatable {
         static let query = GraphQLQuery(query: """
-                    query {
-                      repository(name: "alamofire", owner: "alamofire") {
-                        createdAt
-                        defaultBranchRef {
-                          name
-                        }
-                        description
-                        forkCount
-                        isArchived
-                        isFork
-                        issues(states: OPEN) {
-                          totalCount
-                        }
-                        licenseInfo {
-                          name
-                          key
-                          url
-                        }
-                        name
-                        owner {
-                          login
-                        }
-                        pullRequests(states: OPEN) {
-                          totalCount
-                        }
-                        stargazerCount
-                      }
-                      rateLimit {
-                        remaining
-                      }
+            {
+              repository(name: "alamofire", owner: "alamofire") {
+                closedIssues: issues(states: CLOSED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                  edges {
+                    node {
+                      closedAt
                     }
-                    """)
+                  }
+                }
+                createdAt
+                defaultBranchRef {
+                  name
+                }
+                description
+                forkCount
+                isArchived
+                isFork
+                licenseInfo {
+                  name
+                  key
+                  url
+                }
+                name
+                openIssues: issues(states: OPEN) {
+                  totalCount
+                }
+                owner {
+                  login
+                }
+                pullRequests(states: OPEN) {
+                  totalCount
+                }
+                stargazerCount
+              }
+              rateLimit {
+                remaining
+              }
+            }
+            """)
         var repository: Repository
         var rateLimit: RateLimit
 
         struct Repository: Decodable, Equatable {
+            var closedIssues: ClosedIssues
             var createdAt: Date
             var defaultBranchRef: DefaultBranchRef
             var description: String
             var forkCount: Int
             var isArchived: Bool
             var isFork: Bool
-            var issues: Issues
             var licenseInfo: LicenseInfo
             var name: String
+            var openIssues: OpenIssues
             var owner: Owner
             var pullRequests: PullRequests
             var stargazerCount: Int
+            // derived properties
+            var lastIssueClosedAt: Date? { closedIssues.edges.last?.node.closedAt }
         }
         struct DefaultBranchRef: Decodable, Equatable {
             var name: String
         }
-        struct Issues: Decodable, Equatable {
-            var totalCount: Int
+        struct ClosedIssues: Decodable, Equatable {
+            var edges: [Edge]
+            struct Edge: Decodable, Equatable {
+                var node: Node
+
+                struct Node: Decodable, Equatable {
+                    var closedAt: Date
+                }
+            }
         }
         struct LicenseInfo: Decodable, Equatable {
             var name: String
             var key: String
             var url: String
+        }
+        struct OpenIssues: Decodable, Equatable {
+            var totalCount: Int
         }
         struct Owner: Decodable, Equatable {
             var login: String

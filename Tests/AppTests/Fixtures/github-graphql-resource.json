@@ -1,6 +1,15 @@
 {
   "data": {
     "repository": {
+      "closedIssues": {
+        "edges": [
+          {
+            "node": {
+              "closedAt": "2020-09-28T00:22:04Z"
+            }
+          }
+        ]
+      },
       "createdAt": "2014-07-31T05:56:19Z",
       "defaultBranchRef": {
         "name": "master"
@@ -9,15 +18,15 @@
       "forkCount": 6384,
       "isArchived": false,
       "isFork": false,
-      "issues": {
-        "totalCount": 32
-      },
       "licenseInfo": {
         "name": "MIT License",
         "key": "mit",
         "url": "http://choosealicense.com/licenses/mit/"
       },
       "name": "Alamofire",
+      "openIssues": {
+        "totalCount": 32
+      },
       "owner": {
         "login": "Alamofire"
       },
@@ -27,7 +36,7 @@
       "stargazerCount": 34400
     },
     "rateLimit": {
-      "remaining": 4986
+      "remaining": 4973
     }
   }
 }
