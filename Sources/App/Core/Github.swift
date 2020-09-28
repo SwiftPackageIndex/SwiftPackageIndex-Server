@@ -50,6 +50,17 @@ enum Github {
         case missingToken
         case invalidURI(Package.Id?, _ url: String)
         case requestFailed(HTTPStatus, URI)
+
+        var errorDescription: String? {
+            switch self {
+                case .missingToken:
+                    return "missing Github API token"
+                case let .invalidURI(id, url):
+                    return "invalid URL: \(url) (id: \(id?.uuidString ?? "nil"))"
+                case let .requestFailed(statusCode, uri):
+                    return "request failed with status code '\(statusCode)' (uri: \(uri))"
+            }
+        }
     }
     
     static var decoder: JSONDecoder = {
@@ -180,64 +191,71 @@ extension Github {
         return client.post(Self.graphQLApiUri, headers: headers) { req in
             try req.content.encode(query)
         }
-        .flatMapThrowing { try $0.content.decode(T.self, using: decoder) }
+        .flatMapThrowing { response in
+            guard response.status == .ok else {
+                throw Error.requestFailed(response.status, Self.graphQLApiUri)
+            }
+            return try response.content.decode(T.self, using: decoder)
+        }
     }
 
     struct _Metadata: Decodable, Equatable {
-        static let query = GraphQLQuery(query: """
-            {
-              repository(name: "alamofire", owner: "alamofire") {
-                closedIssues: issues(states: CLOSED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
-                  edges {
-                    node {
-                      closedAt
+        static func query(owner: String, repository: String) -> GraphQLQuery {
+            GraphQLQuery(query: """
+                {
+                  repository(name: "\(repository)", owner: "\(owner)") {
+                    closedIssues: issues(states: CLOSED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                      edges {
+                        node {
+                          closedAt
+                        }
+                      }
                     }
+                    closedPullRequests: pullRequests(states: CLOSED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                      edges {
+                        node {
+                          closedAt
+                        }
+                      }
+                    }
+                    createdAt
+                    defaultBranchRef {
+                      name
+                    }
+                    description
+                    forkCount
+                    isArchived
+                    isFork
+                    licenseInfo {
+                      name
+                      key
+                      url
+                    }
+                    mergedPullRequests: pullRequests(states: MERGED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                      edges {
+                        node {
+                          closedAt
+                        }
+                      }
+                    }
+                    name
+                    openIssues: issues(states: OPEN) {
+                      totalCount
+                    }
+                    openPullRequests: pullRequests(states: OPEN) {
+                      totalCount
+                    }
+                    owner {
+                      login
+                    }
+                    stargazerCount
+                  }
+                  rateLimit {
+                    remaining
                   }
                 }
-                closedPullRequests: pullRequests(states: CLOSED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
-                  edges {
-                    node {
-                      closedAt
-                    }
-                  }
-                }
-                createdAt
-                defaultBranchRef {
-                  name
-                }
-                description
-                forkCount
-                isArchived
-                isFork
-                licenseInfo {
-                  name
-                  key
-                  url
-                }
-                mergedPullRequests: pullRequests(states: MERGED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
-                  edges {
-                    node {
-                      closedAt
-                    }
-                  }
-                }
-                name
-                openIssues: issues(states: OPEN) {
-                  totalCount
-                }
-                openPullRequests: pullRequests(states: OPEN) {
-                  totalCount
-                }
-                owner {
-                  login
-                }
-                stargazerCount
-              }
-              rateLimit {
-                remaining
-              }
-            }
-            """)
+                """)
+        }
         var repository: Repository
         var rateLimit: RateLimit
 
@@ -306,11 +324,13 @@ extension Github {
         }
     }
 
-    static func fetchMetadata(client: Client) -> EventLoopFuture<_Metadata> {
+    static func fetchMetadata(client: Client, owner: String, repository: String) -> EventLoopFuture<_Metadata> {
         struct Response: Decodable, Equatable {
             var data: _Metadata
         }
-        return fetchResource(Response.self, client: client, query: _Metadata.query)
+        return fetchResource(Response.self,
+                             client: client,
+                             query: _Metadata.query(owner: owner, repository: repository))
             .map(\.data)
     }
 

@@ -297,7 +297,9 @@ class GithubTests: AppTestCase {
             resp.body = makeBody(data)
         }
 
-        let res = try Github.fetchMetadata(client: client).wait()
+        let res = try Github.fetchMetadata(client: client,
+                                           owner: "alamofire",
+                                           repository: "alamofire").wait()
         XCTAssertEqual(res.repository.closedPullRequests.edges.first!.node.closedAt,
                        Date(timeIntervalSince1970: 1597345808.0))  // "2020-08-13T19:10:08Z"
         XCTAssertEqual(res.repository.createdAt,
@@ -315,6 +317,22 @@ class GithubTests: AppTestCase {
         // merged date is latest - expect that one to be reported back
         XCTAssertEqual(res.repository.lastPullRequestClosedAt,
                        Date(timeIntervalSince1970: 1600713705.0))  // "2020-09-21T18:41:45Z"
+    }
+
+    func test_fetchGraphQL_error() throws {
+        Current.githubToken = { "secr3t" }
+        let client = MockClient { _, resp in
+            resp.status = .badRequest
+        }
+
+        XCTAssertThrowsError(
+            try Github.fetchMetadata(client: client,
+                                               owner: "alamofire",
+                                               repository: "alamofire").wait()
+        ) {
+            XCTAssertEqual($0.localizedDescription,
+                           "request failed with status code 'badRequest' (uri: https://api.github.com/graphql)")
+        }
     }
 
 }
