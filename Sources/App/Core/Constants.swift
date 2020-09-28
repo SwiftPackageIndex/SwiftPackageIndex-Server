@@ -11,6 +11,7 @@ import Vapor
 enum Constants {
     static let defaultAllowBuildTriggering = true
     static let defaultGitlabPipelineLimit = 200
+    static let defaultHideStagingBanner = false
     
     static let githubComPrefix = "https://github.com/"
     static let gitSuffix = ".git"

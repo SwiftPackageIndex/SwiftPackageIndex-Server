@@ -16,6 +16,7 @@ struct AppEnvironment {
     var gitlabApiToken: () -> String?
     var gitlabPipelineToken: () -> String?
     var gitlabPipelineLimit: () -> Int
+    var hideStagingBanner: () -> Bool
     var random: (_ range: ClosedRange<Double>) -> Double
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>
     var rollbarToken: () -> String?
@@ -28,13 +29,7 @@ extension AppEnvironment {
     static let live: Self = .init(
         allowBuildTriggers: {
             Environment.get("ALLOW_BUILD_TRIGGERS")
-                .flatMap { value -> Bool? in
-                    switch value.lowercased() {
-                        case "1", "yes", "true": return true
-                        case "0", "no", "false": return false
-                        default: return Bool(value)
-                    }
-                }
+                .flatMap(\.asBool)
                 ?? Constants.defaultAllowBuildTriggering
         },
         builderToken: { Environment.get("BUILDER_TOKEN") },
@@ -61,6 +56,10 @@ extension AppEnvironment {
         gitlabPipelineLimit: {
             Environment.get("GITLAB_PIPELINE_LIMIT").flatMap(Int.init)
             ?? Constants.defaultGitlabPipelineLimit
+        },
+        hideStagingBanner: {
+            Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
+                ?? Constants.defaultHideStagingBanner
         },
         random: Double.random,
         reportError: AppError.report,
