@@ -298,15 +298,23 @@ class GithubTests: AppTestCase {
         }
 
         let res = try Github.fetchMetadata(client: client).wait()
+        XCTAssertEqual(res.repository.closedPullRequests.edges.first!.node.closedAt,
+                       Date(timeIntervalSince1970: 1597345808.0))  // "2020-08-13T19:10:08Z"
         XCTAssertEqual(res.repository.createdAt,
                        Date(timeIntervalSince1970: 1406786179.0))  // "2014-07-31T05:56:19Z"
         XCTAssertEqual(res.repository.forkCount, 6384)
+        XCTAssertEqual(res.repository.mergedPullRequests.edges.first!.node.closedAt,
+                       Date(timeIntervalSince1970: 1600713705.0))  // "2020-09-21T18:41:45Z"
         XCTAssertEqual(res.repository.name, "Alamofire")
         XCTAssertEqual(res.repository.openIssues.totalCount, 32)
-        XCTAssertEqual(res.rateLimit.remaining, 4973)
+        XCTAssertEqual(res.repository.openPullRequests.totalCount, 7)
+        XCTAssertEqual(res.rateLimit.remaining, 4981)
         // derived properties
         XCTAssertEqual(res.repository.lastIssueClosedAt,
                        Date(timeIntervalSince1970: 1601252524.0))  // "2020-09-28T00:22:04Z"
+        // merged date is latest - expect that one to be reported back
+        XCTAssertEqual(res.repository.lastPullRequestClosedAt,
+                       Date(timeIntervalSince1970: 1600713705.0))  // "2020-09-21T18:41:45Z"
     }
 
 }

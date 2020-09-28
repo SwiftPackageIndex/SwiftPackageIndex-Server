@@ -10,6 +10,15 @@
           }
         ]
       },
+      "closedPullRequests": {
+        "edges": [
+          {
+            "node": {
+              "closedAt": "2020-08-13T19:10:08Z"
+            }
+          }
+        ]
+      },
       "createdAt": "2014-07-31T05:56:19Z",
       "defaultBranchRef": {
         "name": "master"
@@ -23,20 +32,29 @@
         "key": "mit",
         "url": "http://choosealicense.com/licenses/mit/"
       },
+      "mergedPullRequests": {
+        "edges": [
+          {
+            "node": {
+              "closedAt": "2020-09-21T18:41:45Z"
+            }
+          }
+        ]
+      },
       "name": "Alamofire",
       "openIssues": {
         "totalCount": 32
       },
+      "openPullRequests": {
+        "totalCount": 7
+      },
       "owner": {
         "login": "Alamofire"
-      },
-      "pullRequests": {
-        "totalCount": 7
       },
       "stargazerCount": 34400
     },
     "rateLimit": {
-      "remaining": 4973
+      "remaining": 4981
     }
   }
 }

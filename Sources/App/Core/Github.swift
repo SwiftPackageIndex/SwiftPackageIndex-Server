@@ -194,6 +194,13 @@ extension Github {
                     }
                   }
                 }
+                closedPullRequests: pullRequests(states: CLOSED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                  edges {
+                    node {
+                      closedAt
+                    }
+                  }
+                }
                 createdAt
                 defaultBranchRef {
                   name
@@ -207,15 +214,22 @@ extension Github {
                   key
                   url
                 }
+                mergedPullRequests: pullRequests(states: MERGED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                  edges {
+                    node {
+                      closedAt
+                    }
+                  }
+                }
                 name
                 openIssues: issues(states: OPEN) {
                   totalCount
                 }
+                openPullRequests: pullRequests(states: OPEN) {
+                  totalCount
+                }
                 owner {
                   login
-                }
-                pullRequests(states: OPEN) {
-                  totalCount
                 }
                 stargazerCount
               }
@@ -228,7 +242,8 @@ extension Github {
         var rateLimit: RateLimit
 
         struct Repository: Decodable, Equatable {
-            var closedIssues: ClosedIssues
+            var closedIssues: NodeEdges
+            var closedPullRequests: NodeEdges
             var createdAt: Date
             var defaultBranchRef: DefaultBranchRef
             var description: String
@@ -236,18 +251,30 @@ extension Github {
             var isArchived: Bool
             var isFork: Bool
             var licenseInfo: LicenseInfo
+            var mergedPullRequests: NodeEdges
             var name: String
             var openIssues: OpenIssues
+            var openPullRequests: OpenPullRequests
             var owner: Owner
-            var pullRequests: PullRequests
             var stargazerCount: Int
             // derived properties
-            var lastIssueClosedAt: Date? { closedIssues.edges.last?.node.closedAt }
+            var lastIssueClosedAt: Date? { closedIssues.edges.first?.node.closedAt }
+            var lastPullRequestClosedAt: Date? {
+                switch (
+                    closedPullRequests.edges.first?.node.closedAt,
+                    mergedPullRequests.edges.first?.node.closedAt) {
+                    case (.none, .none):
+                        return nil
+                    case (.some(let value), .none):
+                        return value
+                    case (.none, .some(let value)):
+                        return value
+                    case let (.some(lhs), .some(rhs)):
+                        return max(lhs, rhs)
+                }
+            }
         }
-        struct DefaultBranchRef: Decodable, Equatable {
-            var name: String
-        }
-        struct ClosedIssues: Decodable, Equatable {
+        struct NodeEdges: Decodable, Equatable {
             var edges: [Edge]
             struct Edge: Decodable, Equatable {
                 var node: Node
@@ -256,6 +283,9 @@ extension Github {
                     var closedAt: Date
                 }
             }
+        }
+        struct DefaultBranchRef: Decodable, Equatable {
+            var name: String
         }
         struct LicenseInfo: Decodable, Equatable {
             var name: String
@@ -268,7 +298,7 @@ extension Github {
         struct Owner: Decodable, Equatable {
             var login: String
         }
-        struct PullRequests: Decodable, Equatable {
+        struct OpenPullRequests: Decodable, Equatable {
             var totalCount: Int
         }
         struct RateLimit: Decodable, Equatable {
