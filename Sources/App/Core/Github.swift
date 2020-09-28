@@ -47,8 +47,9 @@ enum Github {
     }
     
     enum Error: LocalizedError {
-        case requestFailed(HTTPStatus, URI)
+        case missingToken
         case invalidURI(Package.Id?, _ url: String)
+        case requestFailed(HTTPStatus, URI)
     }
     
     static var decoder: JSONDecoder = {
@@ -172,7 +173,7 @@ extension Github {
 
     static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, query: GraphQLQuery) -> EventLoopFuture<T> {
         guard let token = Current.githubToken() else {
-            return client.eventLoop.future(error: AppError.genericError(nil, "Github Token not set"))
+            return client.eventLoop.future(error: Error.missingToken)
         }
         let headers = HTTPHeaders([("User-Agent", "SPI-Server"),
                                    ("Authorization", "Bearer \(token)")])
