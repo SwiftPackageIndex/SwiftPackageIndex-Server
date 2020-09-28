@@ -268,4 +268,26 @@ class GithubTests: AppTestCase {
             }
         }
     }
+
+    func test_fetchGraphQL_basic() throws {
+        Current.githubToken = { "secr3t" }
+        let client = MockClient { _, resp in
+            resp.status = .ok
+            resp.body = makeBody("{\"data\":{\"viewer\":{\"login\":\"finestructure\"}}}")
+            resp.headers = HTTPHeaders([("Content-Type", "application/json")])
+        }
+        struct Response: Decodable, Equatable {
+            var data: Data
+            struct Data: Decodable, Equatable {
+                var viewer: Viewer
+            }
+            struct Viewer: Decodable, Equatable {
+                var login: String
+            }
+        }
+        let q = Github.GraphQLQuery(query: "query { viewer { login } }")
+        let res = try Github.fetchResource(Response.self, client: client, query: q).wait()
+        XCTAssertEqual(res, Response(data: .init(viewer: .init(login: "finestructure"))))
+    }
+
 }

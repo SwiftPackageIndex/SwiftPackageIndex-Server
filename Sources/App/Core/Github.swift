@@ -158,3 +158,27 @@ enum Github {
         }
     }
 }
+
+
+// MARK: - GraphQL
+
+extension Github {
+
+    static let graphQLApiUri = URI(string: "https://api.github.com/graphql")
+
+    struct GraphQLQuery: Content {
+        var query: String
+    }
+
+    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, query: GraphQLQuery) -> EventLoopFuture<T> {
+        guard let token = Current.githubToken() else {
+            return client.eventLoop.future(error: AppError.genericError(nil, "Github Token not set"))
+        }
+        let headers = HTTPHeaders([("User-Agent", "SPI-Server"),
+                                   ("Authorization", "Bearer \(token)")])
+        return client.post(Self.graphQLApiUri, headers: headers) { req in
+            try req.content.encode(query)
+        }
+        .flatMapThrowing { try $0.content.decode(T.self) }
+    }
+}
