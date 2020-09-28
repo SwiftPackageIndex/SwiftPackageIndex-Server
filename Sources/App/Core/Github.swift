@@ -179,6 +179,86 @@ extension Github {
         return client.post(Self.graphQLApiUri, headers: headers) { req in
             try req.content.encode(query)
         }
-        .flatMapThrowing { try $0.content.decode(T.self) }
+        .flatMapThrowing { try $0.content.decode(T.self, using: decoder) }
     }
+
+    struct _Metadata: Decodable, Equatable {
+        static let query = GraphQLQuery(query: """
+                    query {
+                      repository(name: "alamofire", owner: "alamofire") {
+                        createdAt
+                        defaultBranchRef {
+                          name
+                        }
+                        description
+                        isArchived
+                        isFork
+                        issues(states: OPEN) {
+                          totalCount
+                        }
+                        licenseInfo {
+                          name
+                          key
+                          url
+                        }
+                        name
+                        owner {
+                          login
+                        }
+                        pullRequests(states: OPEN) {
+                          totalCount
+                        }
+                        stargazerCount
+                      }
+                      rateLimit {
+                        remaining
+                      }
+                    }
+                    """)
+        var repository: Repository
+        var rateLimit: RateLimit
+
+        struct Repository: Decodable, Equatable {
+            var createdAt: Date
+            var defaultBranchRef: DefaultBranchRef
+            var description: String
+            var isArchived: Bool
+            var isFork: Bool
+            var issues: Issues
+            var licenseInfo: LicenseInfo
+            var name: String
+            var owner: Owner
+            var pullRequests: PullRequests
+            var stargazerCount: Int
+        }
+        struct DefaultBranchRef: Decodable, Equatable {
+            var name: String
+        }
+        struct Issues: Decodable, Equatable {
+            var totalCount: Int
+        }
+        struct LicenseInfo: Decodable, Equatable {
+            var name: String
+            var key: String
+            var url: String
+        }
+        struct Owner: Decodable, Equatable {
+            var login: String
+        }
+        struct PullRequests: Decodable, Equatable {
+            var totalCount: Int
+        }
+        struct RateLimit: Decodable, Equatable {
+            var remaining: Int
+        }
+    }
+
+    static func fetchMetadata(client: Client) -> EventLoopFuture<_Metadata> {
+        struct Response: Decodable, Equatable {
+            var data: _Metadata
+        }
+        return fetchResource(Response.self, client: client, query: _Metadata.query)
+            .map(\.data)
+    }
+
 }

@@ -1,0 +1,32 @@
+{
+  "data": {
+    "repository": {
+      "createdAt": "2014-07-31T05:56:19Z",
+      "defaultBranchRef": {
+        "name": "master"
+      },
+      "description": "Elegant HTTP Networking in Swift",
+      "isArchived": false,
+      "isFork": false,
+      "issues": {
+        "totalCount": 32
+      },
+      "licenseInfo": {
+        "name": "MIT License",
+        "key": "mit",
+        "url": "http://choosealicense.com/licenses/mit/"
+      },
+      "name": "Alamofire",
+      "owner": {
+        "login": "Alamofire"
+      },
+      "pullRequests": {
+        "totalCount": 7
+      },
+      "stargazerCount": 34400
+    },
+    "rateLimit": {
+      "remaining": 4988
+    }
+  }
+}

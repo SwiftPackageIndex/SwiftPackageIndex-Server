@@ -274,7 +274,6 @@ class GithubTests: AppTestCase {
         let client = MockClient { _, resp in
             resp.status = .ok
             resp.body = makeBody("{\"data\":{\"viewer\":{\"login\":\"finestructure\"}}}")
-            resp.headers = HTTPHeaders([("Content-Type", "application/json")])
         }
         struct Response: Decodable, Equatable {
             var data: Data
@@ -288,6 +287,21 @@ class GithubTests: AppTestCase {
         let q = Github.GraphQLQuery(query: "query { viewer { login } }")
         let res = try Github.fetchResource(Response.self, client: client, query: q).wait()
         XCTAssertEqual(res, Response(data: .init(viewer: .init(login: "finestructure"))))
+    }
+
+    func test_fetchGraphQL_full() throws {
+        Current.githubToken = { "secr3t" }
+        let data = try XCTUnwrap(try loadData(for: "github-graphql-resource.json"))
+        let client = MockClient { _, resp in
+            resp.status = .ok
+            resp.body = makeBody(data)
+        }
+
+        let res = try Github.fetchMetadata(client: client).wait()
+        XCTAssertEqual(res.repository.createdAt,
+                       Date(timeIntervalSince1970: 1406786179.0))  // "2014-07-31T05:56:19Z"
+        XCTAssertEqual(res.repository.name, "Alamofire")
+        XCTAssertEqual(res.rateLimit.remaining, 4988)
     }
 
 }
