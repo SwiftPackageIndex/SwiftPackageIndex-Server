@@ -192,6 +192,7 @@ extension Github {
                           name
                         }
                         description
+                        forkCount
                         isArchived
                         isFork
                         issues(states: OPEN) {
@@ -223,6 +224,7 @@ extension Github {
             var createdAt: Date
             var defaultBranchRef: DefaultBranchRef
             var description: String
+            var forkCount: Int
             var isArchived: Bool
             var isFork: Bool
             var issues: Issues

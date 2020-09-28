@@ -6,6 +6,7 @@
         "name": "master"
       },
       "description": "Elegant HTTP Networking in Swift",
+      "forkCount": 6384,
       "isArchived": false,
       "isFork": false,
       "issues": {
@@ -26,7 +27,7 @@
       "stargazerCount": 34400
     },
     "rateLimit": {
-      "remaining": 4988
+      "remaining": 4986
     }
   }
 }

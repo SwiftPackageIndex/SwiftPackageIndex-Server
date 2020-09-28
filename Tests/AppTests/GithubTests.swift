@@ -300,8 +300,9 @@ class GithubTests: AppTestCase {
         let res = try Github.fetchMetadata(client: client).wait()
         XCTAssertEqual(res.repository.createdAt,
                        Date(timeIntervalSince1970: 1406786179.0))  // "2014-07-31T05:56:19Z"
+        XCTAssertEqual(res.repository.forkCount, 6384)
         XCTAssertEqual(res.repository.name, "Alamofire")
-        XCTAssertEqual(res.rateLimit.remaining, 4988)
+        XCTAssertEqual(res.rateLimit.remaining, 4986)
     }
 
 }
