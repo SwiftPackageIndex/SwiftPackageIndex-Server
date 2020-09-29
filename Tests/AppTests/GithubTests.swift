@@ -335,4 +335,45 @@ class GithubTests: AppTestCase {
         }
     }
 
+    // FIXME: temporary to test transition
+    func test_compare() throws {
+        try XCTSkipIf(isRunningInCI)
+        Current.githubToken = { Environment.get("LIVE_GITHUB_TOKEN") }
+
+        let packages = [
+            ("Alamofire", "Alamofire"),
+            ("SnapKit", "SnapKit"),
+            ("SwiftyJSON", "SwiftyJSON"),
+            ("mxcl", "PromiseKit"),
+            ("danielgindi", "Charts"),
+            ("Juanpe", "SkeletonView"),
+            ("WenchaoD", "FSPagerView"),
+            ("Quick", "Quick"),
+            ("tristanhimmelman", "ObjectMapper"),
+            ("marcosgriselli", "ViewAnimator")
+        ]
+
+        for (owner, name) in packages {
+            let pkg = Package(url: "https://github.com/\(owner)/\(name)".url)
+
+            let current = try Github.fetchMetadata(client: app.client, package: pkg).wait()
+            let new = try Github.fetchMetadata(client: app.client, owner: owner, repository: name).wait()
+
+            XCTAssertEqual(current.repo.defaultBranch, new.repository.defaultBranch, name)
+            XCTAssertEqual(current.repo.forksCount, new.repository.forkCount, name)
+            XCTAssertEqual(current.issues.first { $0.pullRequest == nil }?.closedAt,
+                           new.repository.lastIssueClosedAt, name)
+            // NB: old impl is wrong
+            XCTAssertEqual(current.issues.first { $0.pullRequest != nil }?.closedAt,
+                           new.repository.lastPullRequestClosedAt, name)
+            XCTAssertEqual(current.repo.license?.key, new.repository.licenseInfo.key, name)
+            XCTAssertEqual(current.repo.name, new.repository.name, name)
+            let currentOpenIssues = current.repo.openIssues - current.openPullRequests.count
+            XCTAssertEqual(currentOpenIssues, new.repository.openIssues.totalCount, name)
+            XCTAssertEqual(current.openPullRequests.count, new.repository.openPullRequests.totalCount, name)
+            XCTAssertEqual(current.repo.owner?.login, new.repository.owner.login, name)
+            XCTAssertEqual(current.repo.stargazersCount, new.repository.stargazerCount, name)
+            XCTAssertEqual(current.repo.description, new.repository.description, name)
+        }
+    }
 }

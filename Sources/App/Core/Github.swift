@@ -201,6 +201,7 @@ extension Github {
 
     struct _Metadata: Decodable, Equatable {
         static func query(owner: String, repository: String) -> GraphQLQuery {
+            // Go to https://developer.github.com/v4/explorer/ to run query manually
             GraphQLQuery(query: """
                 {
                   repository(name: "\(repository)", owner: "\(owner)") {
@@ -276,6 +277,7 @@ extension Github {
             var owner: Owner
             var stargazerCount: Int
             // derived properties
+            var defaultBranch: String { defaultBranchRef.name }
             var lastIssueClosedAt: Date? { closedIssues.edges.first?.node.closedAt }
             var lastPullRequestClosedAt: Date? {
                 switch (
