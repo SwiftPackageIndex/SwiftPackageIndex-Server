@@ -100,6 +100,7 @@ class PipelineTests: AppTestCase {
         // Test pipeline pick-up end to end
         // setup
         let urls = ["1", "2", "3"].asGithubUrls
+        Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
         Current.fetchPackageList = { _ in .just(value: urls.asURLs) }
         Current.shell.run = { cmd, path in
             if cmd.string == "/swift-5.3/usr/bin/swift package dump-package" {
