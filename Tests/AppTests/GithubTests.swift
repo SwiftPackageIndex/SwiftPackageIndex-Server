@@ -269,6 +269,25 @@ class GithubTests: AppTestCase {
         }
     }
 
+    func test_parseOwnerName() throws {
+        do {
+            let res = try Github.parseOwnerName(url: "https://github.com/foo/bar")
+            XCTAssertEqual(res.owner, "foo")
+            XCTAssertEqual(res.name, "bar")
+        }
+        do {
+            let res = try Github.parseOwnerName(url: "https://github.com/foo/bar.git")
+            XCTAssertEqual(res.owner, "foo")
+            XCTAssertEqual(res.name, "bar")
+        }
+        XCTAssertThrowsError(
+            try Github.parseOwnerName(url: "https://github.com/foo/bar/baz")
+        ) { error in
+            XCTAssertEqual(error.localizedDescription,
+                           "invalid URL: https://github.com/foo/bar/baz (id: nil)")
+        }
+    }
+
     func test_fetchGraphQL_basic() throws {
         Current.githubToken = { "secr3t" }
         let client = MockClient { _, resp in

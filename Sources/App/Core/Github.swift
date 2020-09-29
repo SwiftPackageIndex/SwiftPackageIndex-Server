@@ -182,6 +182,16 @@ extension Github {
         var query: String
     }
 
+    static func parseOwnerName(url: String) throws -> (owner: String, name: String) {
+        let parts = url
+            .droppingGithubComPrefix
+            .droppingGitExtension
+            .split(separator: "/")
+            .map(String.init)
+        guard parts.count == 2 else { throw Error.invalidURI(nil, url) }
+        return (owner: parts[0], name: parts[1])
+    }
+
     static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, query: GraphQLQuery) -> EventLoopFuture<T> {
         guard let token = Current.githubToken() else {
             return client.eventLoop.future(error: Error.missingToken)
