@@ -113,25 +113,23 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
     guard let pkgId = try? package.requireID() else {
         return database.eventLoop.makeFailedFuture(AppError.genericError(nil, "package id not found"))
     }
-    
+
     return Repository.query(on: database)
         .filter(\.$package.$id == pkgId)
         .first()
         .flatMap { repo -> EventLoopFuture<Void> in
             let repo = repo ?? Repository(packageId: pkgId)
-            repo.defaultBranch = metadata.repo.defaultBranch
-            repo.forks = metadata.repo.forksCount
-            repo.lastIssueClosedAt = metadata.issues.first { $0.pullRequest == nil }?.closedAt
-            repo.lastPullRequestClosedAt = metadata.issues.first { $0.pullRequest != nil }?.closedAt
-            repo.license = .init(from: metadata.repo.license)
-            repo.name = metadata.repo.name
-            // Github counts PRs as issues, that's why we need to subtract our open PR count
-            // to get open "issues issues", excluding "PR issues"
-            repo.openIssues = metadata.repo.openIssues - metadata.openPullRequests.count
-            repo.openPullRequests = metadata.openPullRequests.count
-            repo.owner = metadata.repo.owner?.login
-            repo.stars = metadata.repo.stargazersCount
-            repo.summary = metadata.repo.description
+            repo.defaultBranch = metadata.repository.defaultBranch
+            repo.forks = metadata.repository.forkCount
+            repo.lastIssueClosedAt = metadata.repository.lastIssueClosedAt
+            repo.lastPullRequestClosedAt = metadata.repository.lastPullRequestClosedAt
+            repo.license = .init(from: metadata.repository.licenseInfo)
+            repo.name = metadata.repository.name
+            repo.openIssues = metadata.repository.openIssues.totalCount
+            repo.openPullRequests = metadata.repository.openPullRequests.totalCount
+            repo.owner = metadata.repository.owner.login
+            repo.stars = metadata.repository.stargazerCount
+            repo.summary = metadata.repository.description
             // TODO: find and assign parent repo
             return repo.save(on: database)
         }
