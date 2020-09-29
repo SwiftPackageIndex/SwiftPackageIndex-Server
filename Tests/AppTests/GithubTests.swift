@@ -101,7 +101,7 @@ class GithubTests: AppTestCase {
         let client = MockClient { _, resp in
             resp.status = .ok
         }
-        XCTAssertThrowsError(try Github.new_fetchMetadata(client: client, package: pkg).wait()) {
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
             guard case Github.Error.invalidURI = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
                 return
@@ -119,7 +119,7 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        XCTAssertThrowsError(try Github.new_fetchMetadata(client: client, package: pkg).wait()) {
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
             // validation
             guard case DecodingError.dataCorrupted = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
@@ -138,7 +138,7 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        XCTAssertThrowsError(try Github.new_fetchMetadata(client: client, package: pkg).wait()) {
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
             // validation
             guard case Github.Error.requestFailed(.tooManyRequests) = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
@@ -196,7 +196,7 @@ class GithubTests: AppTestCase {
         }
         
         // MUT
-        XCTAssertThrowsError(try Github.new_fetchMetadata(client: client, package: pkg).wait()) {
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
             // validation
             XCTAssertNotNil(reportedError)
             XCTAssertEqual(reportedLevel, .critical)

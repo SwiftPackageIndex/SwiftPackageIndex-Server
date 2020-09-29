@@ -101,7 +101,7 @@ extension Github {
             .map(\.data)
     }
 
-    static func new_fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {
+    static func fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {
         do {
             let (owner, name) = try parseOwnerName(url: package.url)
             return fetchMetadata(client: client, owner: owner, repository: name)

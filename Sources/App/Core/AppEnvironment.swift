@@ -45,7 +45,7 @@ extension AppEnvironment {
         },
         date: Date.init,
         fetchPackageList: liveFetchPackageList,
-        fetchMetadata: Github.new_fetchMetadata(client:package:),
+        fetchMetadata: Github.fetchMetadata(client:package:),
         fileManager: .live,
         getStatusCount: { client, status in
             Gitlab.Builder.getStatusCount(
