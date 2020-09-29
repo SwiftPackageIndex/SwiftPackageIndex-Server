@@ -8,7 +8,7 @@ struct AppEnvironment {
     var buildTriggerDownscaling: () -> Double
     var date: () -> Date
     var fetchPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
-    var fetchMetadata: (_ client: Client, _ package: Package) -> EventLoopFuture<Github._Metadata>
+    var fetchMetadata: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Metadata>
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>

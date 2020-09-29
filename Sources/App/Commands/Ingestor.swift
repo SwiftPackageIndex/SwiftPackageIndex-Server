@@ -70,7 +70,7 @@ func ingest(application: Application, packages: EventLoopFuture<[Package]>) -> E
 }
 
 
-typealias PackageMetadata = (Package, Github._Metadata)
+typealias PackageMetadata = (Package, Github.Metadata)
 
 
 /// Fetch package metadata from hosting provider for a set of packages.
@@ -78,7 +78,7 @@ typealias PackageMetadata = (Package, Github._Metadata)
 ///   - client: `Client` object to make HTTP requests.
 ///   - packages: packages to ingest
 /// - Returns: results future
-func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Result<(Package, Github._Metadata), Error>]> {
+func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
     let ops = packages.map { pkg in Current.fetchMetadata(client, pkg).map { (pkg, $0) } }
     return EventLoopFuture.whenAllComplete(ops, on: client.eventLoop)
 }
@@ -89,7 +89,7 @@ func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Resu
 ///   - database: `Database` object
 ///   - metadata: result tuples of `(Package, Metadata)`
 /// - Returns: results future
-func updateRepositories(on database: Database, metadata: [Result<(Package, Github._Metadata), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+func updateRepositories(on database: Database, metadata: [Result<(Package, Github.Metadata), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = metadata.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success((pkg, md)):
@@ -109,7 +109,7 @@ func updateRepositories(on database: Database, metadata: [Result<(Package, Githu
 ///   - package: package to update
 ///   - metadata: `Github.Metadata` with data for update
 /// - Returns: future
-func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github._Metadata) -> EventLoopFuture<Void> {
+func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github.Metadata) -> EventLoopFuture<Void> {
     guard let pkgId = try? package.requireID() else {
         return database.eventLoop.makeFailedFuture(AppError.genericError(nil, "package id not found"))
     }

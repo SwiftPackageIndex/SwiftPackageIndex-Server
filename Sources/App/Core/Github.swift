@@ -90,18 +90,18 @@ extension Github {
             return try response.content.decode(T.self, using: decoder)
         }
     }
-    
-    static func fetchMetadata(client: Client, owner: String, repository: String) -> EventLoopFuture<_Metadata> {
+
+    static func fetchMetadata(client: Client, owner: String, repository: String) -> EventLoopFuture<Metadata> {
         struct Response: Decodable, Equatable {
-            var data: _Metadata
+            var data: Metadata
         }
         return fetchResource(Response.self,
                              client: client,
-                             query: _Metadata.query(owner: owner, repository: repository))
+                             query: Metadata.query(owner: owner, repository: repository))
             .map(\.data)
     }
 
-    static func new_fetchMetadata(client: Client, package: Package) -> EventLoopFuture<_Metadata> {
+    static func new_fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {
         do {
             let (owner, name) = try parseOwnerName(url: package.url)
             return fetchMetadata(client: client, owner: owner, repository: name)
@@ -115,7 +115,7 @@ extension Github {
 
 extension Github {
 
-    struct _Metadata: Decodable, Equatable {
+    struct Metadata: Decodable, Equatable {
         static func query(owner: String, repository: String) -> GraphQLQuery {
             // Go to https://developer.github.com/v4/explorer/ to run query manually
             GraphQLQuery(query: """

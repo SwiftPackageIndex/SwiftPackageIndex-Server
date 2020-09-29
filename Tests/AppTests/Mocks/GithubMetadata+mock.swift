@@ -3,7 +3,7 @@
 import Foundation
 
 
-extension Github._Metadata {
+extension Github.Metadata {
     static let mock: Self = .init(defaultBranch: "main",
                                   forks: 1,
                                   issuesClosedAtDates: [],

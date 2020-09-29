@@ -66,7 +66,7 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(repos.map(\.summary), [.some("This is package https://github.com/foo/bar")])
         }
         do {  // test update - run the same package again, with different metadata
-            var md = Github._Metadata.mock(for: pkg)
+            var md = Github.Metadata.mock(for: pkg)
             md.repository.description = "New description"
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: md).wait()
             let repos = try Repository.query(on: app.db).all().wait()
@@ -77,7 +77,7 @@ class IngestorTests: AppTestCase {
     func test_updateRepositories() throws {
         // setup
         let pkg = try savePackage(on: app.db, "2")
-        let metadata: [Result<(Package, Github._Metadata), Error>] = [
+        let metadata: [Result<(Package, Github.Metadata), Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
             .success((pkg, .init(defaultBranch: "main",
                                  forks: 1,
@@ -185,7 +185,7 @@ class IngestorTests: AppTestCase {
         // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
         let packages = try savePackages(on: app.db, testUrls100)
         let req = packages
-            .map { ($0, Github._Metadata.mock(for: $0)) }
+            .map { ($0, Github.Metadata.mock(for: $0)) }
             .map { insertOrUpdateRepository(on: self.app.db, for: $0.0, metadata: $0.1) }
             .flatten(on: app.db.eventLoop)
         
@@ -239,7 +239,7 @@ class IngestorTests: AppTestCase {
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         // Return identical metadata for both packages, same as a for instance a redirected
         // package would after a rename / ownership change
-        Current.fetchMetadata = { _, _ in .just(value: Github._Metadata.init(
+        Current.fetchMetadata = { _, _ in .just(value: Github.Metadata.init(
                                                     defaultBranch: "main",
                                                     forks: 0,
                                                     issuesClosedAtDates: [],
