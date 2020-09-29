@@ -70,7 +70,7 @@ func ingest(application: Application, packages: EventLoopFuture<[Package]>) -> E
 }
 
 
-typealias PackageMetadata = (Package, Github.Metadata)
+typealias PackageMetadata = (Package, Github._Metadata)
 
 
 /// Fetch package metadata from hosting provider for a set of packages.
@@ -78,7 +78,7 @@ typealias PackageMetadata = (Package, Github.Metadata)
 ///   - client: `Client` object to make HTTP requests.
 ///   - packages: packages to ingest
 /// - Returns: results future
-func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
+func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Result<(Package, Github._Metadata), Error>]> {
     let ops = packages.map { pkg in Current.fetchMetadata(client, pkg).map { (pkg, $0) } }
     return EventLoopFuture.whenAllComplete(ops, on: client.eventLoop)
 }
@@ -89,7 +89,7 @@ func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Resu
 ///   - database: `Database` object
 ///   - metadata: result tuples of `(Package, Metadata)`
 /// - Returns: results future
-func updateRepositories(on database: Database, metadata: [Result<(Package, Github.Metadata), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+func updateRepositories(on database: Database, metadata: [Result<(Package, Github._Metadata), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = metadata.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success((pkg, md)):
@@ -109,29 +109,27 @@ func updateRepositories(on database: Database, metadata: [Result<(Package, Githu
 ///   - package: package to update
 ///   - metadata: `Github.Metadata` with data for update
 /// - Returns: future
-func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github.Metadata) -> EventLoopFuture<Void> {
+func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github._Metadata) -> EventLoopFuture<Void> {
     guard let pkgId = try? package.requireID() else {
         return database.eventLoop.makeFailedFuture(AppError.genericError(nil, "package id not found"))
     }
-    
+
     return Repository.query(on: database)
         .filter(\.$package.$id == pkgId)
         .first()
         .flatMap { repo -> EventLoopFuture<Void> in
             let repo = repo ?? Repository(packageId: pkgId)
-            repo.defaultBranch = metadata.repo.defaultBranch
-            repo.forks = metadata.repo.forksCount
-            repo.lastIssueClosedAt = metadata.issues.first { $0.pullRequest == nil }?.closedAt
-            repo.lastPullRequestClosedAt = metadata.issues.first { $0.pullRequest != nil }?.closedAt
-            repo.license = .init(from: metadata.repo.license)
-            repo.name = metadata.repo.name
-            // Github counts PRs as issues, that's why we need to subtract our open PR count
-            // to get open "issues issues", excluding "PR issues"
-            repo.openIssues = metadata.repo.openIssues - metadata.openPullRequests.count
-            repo.openPullRequests = metadata.openPullRequests.count
-            repo.owner = metadata.repo.owner?.login
-            repo.stars = metadata.repo.stargazersCount
-            repo.summary = metadata.repo.description
+            repo.defaultBranch = metadata.repository.defaultBranch
+            repo.forks = metadata.repository.forkCount
+            repo.lastIssueClosedAt = metadata.repository.lastIssueClosedAt
+            repo.lastPullRequestClosedAt = metadata.repository.lastPullRequestClosedAt
+            repo.license = .init(from: metadata.repository.licenseInfo)
+            repo.name = metadata.repository.name
+            repo.openIssues = metadata.repository.openIssues.totalCount
+            repo.openPullRequests = metadata.repository.openPullRequests.totalCount
+            repo.owner = metadata.repository.owner.login
+            repo.stars = metadata.repository.stargazerCount
+            repo.summary = metadata.repository.description
             // TODO: find and assign parent repo
             return repo.save(on: database)
         }

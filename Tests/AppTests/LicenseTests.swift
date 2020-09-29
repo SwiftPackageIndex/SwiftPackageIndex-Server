@@ -8,7 +8,15 @@ class LicenseTests: XCTestCase {
         XCTAssertEqual(License(from: Github.License(key: "mit")), .mit)
         XCTAssertEqual(License(from: Github.License(key: "agpl-3.0")), .agpl_3_0)
         XCTAssertEqual(License(from: Github.License(key: "other")), .other)
-        XCTAssertEqual(License(from: .none), .none)
+        do {
+            let none: Github.License? = nil
+            XCTAssertEqual(License(from: none), .none)
+        }
+        do {
+            // FIXME: clean up after removing Github.License
+            let none: Github._Metadata.LicenseInfo? = nil
+            XCTAssertEqual(License(from: none), .none)
+        }
     }
     
     func test_init_from_dto_unknown() throws {

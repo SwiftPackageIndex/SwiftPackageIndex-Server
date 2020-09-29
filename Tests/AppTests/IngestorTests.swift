@@ -65,8 +65,8 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(repos.map(\.summary), [.some("This is package foo")])
         }
         do {  // test update - run the same package again, with different metadata
-            var md = Github.Metadata.mock(for: pkg)
-            md.repo.description = "New description"
+            var md = Github._Metadata.mock(for: pkg)
+            md.repository.description = "New description"
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: md).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])
@@ -76,26 +76,27 @@ class IngestorTests: AppTestCase {
     func test_updateRepositories() throws {
         // setup
         let pkg = try savePackage(on: app.db, "2")
-        let metadata: [Result<(Package, Github.Metadata), Error>] = [
+        let metadata: [Result<(Package, Github._Metadata), Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-            .success((pkg, .init(
-                        issues: [
-                            .init(closedAt: Date(timeIntervalSince1970: 0), pullRequest: nil),
-                            .init(closedAt: Date(timeIntervalSince1970: 1), pullRequest: .init(url: "1")),
-                            .init(closedAt: Date(timeIntervalSince1970: 2), pullRequest: nil),
-                        ],
-                        openPullRequests: [
-                            .init(url: "2"),
-                            .init(url: "3"),
-                        ],
-                        repo: .init(defaultBranch: "main",
-                                    description: "package desc",
-                                    forksCount: 1,
-                                    license: .init(key: "mit"),
-                                    name: "bar",
-                                    openIssues: 3,
-                                    owner: .init(login: "foo"),
-                                    stargazersCount: 2))))
+            .success((pkg, .init(defaultBranch: "main",
+                                 forks: 1,
+                                 issuesClosedAtDates: [
+                                    Date(timeIntervalSince1970: 0),
+                                    Date(timeIntervalSince1970: 2),
+                                    Date(timeIntervalSince1970: 1),
+                                 ],
+                                 license: .mit,
+                                 openIssues: 1,
+                                 openPullRequests: 2,
+                                 owner: "foo",
+                                 pullRequestsClosedAtDates: [
+                                    Date(timeIntervalSince1970: 1),
+                                    Date(timeIntervalSince1970: 3),
+                                    Date(timeIntervalSince1970: 2),
+                                 ],
+                                 name: "bar",
+                                 stars: 2,
+                                 summary: "package desc")))
         ]
         
         // MUT
@@ -110,8 +111,8 @@ class IngestorTests: AppTestCase {
         )
         XCTAssertEqual(repo.defaultBranch, "main")
         XCTAssertEqual(repo.forks, 1)
-        XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 0))
-        XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 1))
+        XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 2))
+        XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 3))
         XCTAssertEqual(repo.license, .mit)
         XCTAssertEqual(repo.openIssues, 1)
         XCTAssertEqual(repo.openPullRequests, 2)
@@ -182,7 +183,7 @@ class IngestorTests: AppTestCase {
         // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
         let packages = try savePackages(on: app.db, testUrls100)
         let req = packages
-            .map { ($0, Github.Metadata.mock(for: $0)) }
+            .map { ($0, Github._Metadata.mock(for: $0)) }
             .map { insertOrUpdateRepository(on: self.app.db, for: $0.0, metadata: $0.1) }
             .flatten(on: app.db.eventLoop)
         
@@ -234,16 +235,18 @@ class IngestorTests: AppTestCase {
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         // Return identical metadata for both packages, same as a for instance a redirected
         // package would after a rename / ownership change
-        Current.fetchMetadata = { _, _ in .just(value: Github.Metadata(
-                                                    issues: [],
-                                                    openPullRequests: [],
-                                                    repo: .init(defaultBranch: "main",
-                                                                description: "desc",
-                                                                forksCount: 0,
-                                                                name: "package name",
-                                                                openIssues: 0,
-                                                                owner: .some(.init(login: "owner")),
-                                                                stargazersCount: 0)))
+        Current.fetchMetadata = { _, _ in .just(value: Github._Metadata.init(
+                                                    defaultBranch: "main",
+                                                    forks: 0,
+                                                    issuesClosedAtDates: [],
+                                                    license: .mit,
+                                                    openIssues: 0,
+                                                    openPullRequests: 0,
+                                                    owner: "owner",
+                                                    pullRequestsClosedAtDates: [],
+                                                    name: "name",
+                                                    stars: 0,
+                                                    summary: "desc"))
         }
         var reportedLevel: AppError.Level? = nil
         var reportedError: String? = nil

@@ -296,8 +296,9 @@ extension Github {
             }
             var lastPullRequestClosedAt: Date? {
                 switch (
-                    closedPullRequests.edges.first?.node.closedAt,
-                    mergedPullRequests.edges.first?.node.closedAt) {
+                    closedPullRequests.edges.map(\.node.closedAt).sorted().last,
+                    mergedPullRequests.edges.map(\.node.closedAt).sorted().last
+                ) {
                     case (.none, .none):
                         return nil
                     case (.some(let value), .none):
@@ -317,6 +318,11 @@ extension Github {
                 struct Node: Decodable, Equatable {
                     var closedAt: Date
                 }
+            }
+            init(closedAtDates: [Date]) {
+                self.edges = closedAtDates
+                    .map(NodeEdges.Edge.Node.init(closedAt:))
+                    .map(NodeEdges.Edge.init(node:))
             }
         }
         struct DefaultBranchRef: Decodable, Equatable {
