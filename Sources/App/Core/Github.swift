@@ -36,7 +36,17 @@ enum Github {
         }
         return false
     }
-    
+
+    static func parseOwnerName(url: String) throws -> (owner: String, name: String) {
+        let parts = url
+            .droppingGithubComPrefix
+            .droppingGitExtension
+            .split(separator: "/")
+            .map(String.init)
+        guard parts.count == 2 else { throw Error.invalidURI(nil, url) }
+        return (owner: parts[0], name: parts[1])
+    }
+
 }
 
 
@@ -48,16 +58,6 @@ extension Github {
 
     struct GraphQLQuery: Content {
         var query: String
-    }
-
-    static func parseOwnerName(url: String) throws -> (owner: String, name: String) {
-        let parts = url
-            .droppingGithubComPrefix
-            .droppingGitExtension
-            .split(separator: "/")
-            .map(String.init)
-        guard parts.count == 2 else { throw Error.invalidURI(nil, url) }
-        return (owner: parts[0], name: parts[1])
     }
 
     static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, query: GraphQLQuery) -> EventLoopFuture<T> {
@@ -90,6 +90,30 @@ extension Github {
             return try response.content.decode(T.self, using: decoder)
         }
     }
+    
+    static func fetchMetadata(client: Client, owner: String, repository: String) -> EventLoopFuture<_Metadata> {
+        struct Response: Decodable, Equatable {
+            var data: _Metadata
+        }
+        return fetchResource(Response.self,
+                             client: client,
+                             query: _Metadata.query(owner: owner, repository: repository))
+            .map(\.data)
+    }
+
+    static func new_fetchMetadata(client: Client, package: Package) -> EventLoopFuture<_Metadata> {
+        do {
+            let (owner, name) = try parseOwnerName(url: package.url)
+            return fetchMetadata(client: client, owner: owner, repository: name)
+        } catch {
+            return client.eventLoop.future(error: error)
+        }
+    }
+
+}
+
+
+extension Github {
 
     struct _Metadata: Decodable, Equatable {
         static func query(owner: String, repository: String) -> GraphQLQuery {
@@ -229,25 +253,6 @@ extension Github {
         }
         struct RateLimit: Decodable, Equatable {
             var remaining: Int
-        }
-    }
-
-    static func fetchMetadata(client: Client, owner: String, repository: String) -> EventLoopFuture<_Metadata> {
-        struct Response: Decodable, Equatable {
-            var data: _Metadata
-        }
-        return fetchResource(Response.self,
-                             client: client,
-                             query: _Metadata.query(owner: owner, repository: repository))
-            .map(\.data)
-    }
-
-    static func new_fetchMetadata(client: Client, package: Package) -> EventLoopFuture<_Metadata> {
-        do {
-            let (owner, name) = try parseOwnerName(url: package.url)
-            return fetchMetadata(client: client, owner: owner, repository: name)
-        } catch {
-            return client.eventLoop.future(error: error)
         }
     }
 
