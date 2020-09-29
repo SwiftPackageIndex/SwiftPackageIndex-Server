@@ -49,15 +49,16 @@ extension Github._Metadata {
                                   summary: "desc")
 
     static func mock(for package: Package) -> Self {
-        .init(defaultBranch: "main",
+        let (owner, name) = try! Github.parseOwnerName(url: package.url)
+        return .init(defaultBranch: "main",
               forks: package.url.count,
               issuesClosedAtDates: [],
               license: .mit,
               openIssues: 3,
               openPullRequests: 0,
-              owner: "packageOwner",
+              owner: owner,
               pullRequestsClosedAtDates: [],
-              name: "packageName",
+              name: name,
               stars: package.url.count + 1,
               summary: "This is package " + package.url)
     }

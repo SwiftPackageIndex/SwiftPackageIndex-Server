@@ -42,9 +42,10 @@ class IngestorTests: AppTestCase {
     
     func test_fetchMetadata() throws {
         // setup
-        let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
+        let packages = try savePackages(on: app.db, ["https://github.com/foo/1",
+                                                     "https://github.com/foo/2"])
         Current.fetchMetadata = { _, pkg in
-            if pkg.url == "1" {
+            if pkg.url == "https://github.com/foo/1" {
                 return .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
             }
             return .just(value: .mock(for: pkg))
@@ -58,11 +59,11 @@ class IngestorTests: AppTestCase {
     }
     
     func test_insertOrUpdateRepository() throws {
-        let pkg = try savePackage(on: app.db, "foo")
+        let pkg = try savePackage(on: app.db, "https://github.com/foo/bar")
         do {  // test insert
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: .mock(for: pkg)).wait()
             let repos = try Repository.query(on: app.db).all().wait()
-            XCTAssertEqual(repos.map(\.summary), [.some("This is package foo")])
+            XCTAssertEqual(repos.map(\.summary), [.some("This is package https://github.com/foo/bar")])
         }
         do {  // test update - run the same package again, with different metadata
             var md = Github._Metadata.mock(for: pkg)
@@ -124,7 +125,8 @@ class IngestorTests: AppTestCase {
     
     func test_updatePackage() throws {
         // setup
-        let pkgs = try savePackages(on: app.db, ["1", "2"])
+        let pkgs = try savePackages(on: app.db, ["https://github.com/foo/1",
+                                                 "https://github.com/foo/2"])
         let results: [Result<Package, Error>] = [
             .failure(AppError.metadataRequestFailed(try pkgs[0].requireID(), .badRequest, "1")),
             .success(pkgs[1])
@@ -145,8 +147,8 @@ class IngestorTests: AppTestCase {
         // Ensure newly ingested packages are passed on with status = new to fast-track
         // them into analysis
         let pkgs = [
-            Package(id: UUID(), url: "1", status: .ok, processingStage: .reconciliation),
-            Package(id: UUID(), url: "2", status: .new, processingStage: .reconciliation)
+            Package(id: UUID(), url: "https://github.com/foo/1", status: .ok, processingStage: .reconciliation),
+            Package(id: UUID(), url: "https://github.com/foo/2", status: .new, processingStage: .reconciliation)
         ]
         try pkgs.save(on: app.db).wait()
         let results: [Result<Package, Error>] = [ .success(pkgs[0]), .success(pkgs[1])]
@@ -197,10 +199,12 @@ class IngestorTests: AppTestCase {
     
     func test_ingest_badMetadata() throws {
         // setup
-        let urls = ["1", "2", "3"]
+        let urls = ["https://github.com/foo/1",
+                    "https://github.com/foo/2",
+                    "https://github.com/foo/3"]
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         Current.fetchMetadata = { _, pkg in
-            if pkg.url == "2" {
+            if pkg.url == "https://github.com/foo/2" {
                 return .just(error: AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2")))
             }
             return .just(value: .mock(for: pkg))
@@ -214,9 +218,9 @@ class IngestorTests: AppTestCase {
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.count, 2)
         XCTAssertEqual(repos.map(\.summary),
-                       [.some("This is package 1"), .some("This is package 3")])
+                       [.some("This is package https://github.com/foo/1"), .some("This is package https://github.com/foo/3")])
         (try Package.query(on: app.db).all().wait()).forEach {
-            if $0.url == "2" {
+            if $0.url == "https://github.com/foo/2" {
                 XCTAssertEqual($0.status, .metadataRequestFailed)
             } else {
                 XCTAssertEqual($0.status, .new)
@@ -231,7 +235,7 @@ class IngestorTests: AppTestCase {
         //   - don't create repository records
         //   - report critical error up to Rollbar
         // setup
-        let urls = ["1".asGithubUrl, "2".asGithubUrl]
+        let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         // Return identical metadata for both packages, same as a for instance a redirected
         // package would after a rename / ownership change
