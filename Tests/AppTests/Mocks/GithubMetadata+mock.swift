@@ -3,38 +3,6 @@
 import Foundation
 
 
-extension Github.Metadata {
-    static let mock: Self = .init(
-        issues: [],
-        openPullRequests: [],
-        repo: .init(defaultBranch: "main",
-                    description: "desc",
-                    forksCount: 1,
-                    license: .init(key: "mit"),
-                    openIssues: 3,
-                    parent: nil,
-                    stargazersCount: 2
-        )
-    )
-    
-    static func mock(for package: Package) -> Self {
-        // populate with some mock data derived from the package
-        .init(
-            issues: [],
-            openPullRequests: [],
-            repo: .init(defaultBranch: "main",
-                        description: "This is package " + package.url,
-                        forksCount: package.url.count,
-                        license: .init(key: "mit"),
-                        openIssues: 3,
-                        parent: nil,
-                        stargazersCount: package.url.count + 1
-            )
-        )
-    }
-}
-
-
 extension Github._Metadata {
     static let mock: Self = .init(defaultBranch: "main",
                                   forks: 1,
@@ -83,7 +51,7 @@ extension Github._Metadata {
                               forkCount: forks,
                               isArchived: false,
                               isFork: false,
-                              licenseInfo: .init(name: license.fullName, key: license.rawValue, url: ""),
+                              licenseInfo: .init(name: license.fullName, key: license.rawValue),
                               mergedPullRequests: .init(closedAtDates: []),
                               name: name,
                               openIssues: .init(totalCount: openIssues),

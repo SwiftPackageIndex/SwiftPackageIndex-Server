@@ -135,14 +135,6 @@ enum License: String, Codable, Equatable {
 }
 
 extension License {
-    init(from dto: Github.License?) {
-        if let key = dto?.key {
-            self = License(rawValue: key) ?? .other
-        } else {
-            self = .none
-        }
-    }
-
     init(from dto: Github._Metadata.LicenseInfo?) {
         if let key = dto?.key {
             self = License(rawValue: key) ?? .other
