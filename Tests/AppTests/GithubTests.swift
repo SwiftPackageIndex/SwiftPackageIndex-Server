@@ -319,6 +319,18 @@ class GithubTests: AppTestCase {
                        Date(timeIntervalSince1970: 1600713705.0))  // "2020-09-21T18:41:45Z"
     }
 
+    // FIXME: temporary
+    func test_fetchGraphQL_full_live() throws {
+        Current.githubToken = { Environment.get("LIVE_GITHUB_TOKEN") }
+
+        let res = try Github.fetchMetadata(client: app.client,
+                                           owner: "SwiftyJSON",
+                                           repository: "SwiftyJSON").wait()
+        XCTAssertEqual(res.repository.lastIssueClosedAt,
+                       Date(timeIntervalSince1970: 1591605021.0))  // "2020-06-08 08:30:21 +0000"
+        XCTAssertEqual(res.repository.name, "SwiftyJSON")
+    }
+
     func test_fetchGraphQL_error() throws {
         Current.githubToken = { "secr3t" }
         let client = MockClient { _, resp in

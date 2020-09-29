@@ -205,7 +205,7 @@ extension Github {
             GraphQLQuery(query: """
                 {
                   repository(name: "\(repository)", owner: "\(owner)") {
-                    closedIssues: issues(states: CLOSED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                    closedIssues: issues(states: CLOSED, first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
                       edges {
                         node {
                           closedAt
@@ -278,7 +278,12 @@ extension Github {
             var stargazerCount: Int
             // derived properties
             var defaultBranch: String { defaultBranchRef.name }
-            var lastIssueClosedAt: Date? { closedIssues.edges.first?.node.closedAt }
+            var lastIssueClosedAt: Date? {
+                closedIssues.edges
+                    .map(\.node.closedAt)
+                    .sorted()
+                    .last
+            }
             var lastPullRequestClosedAt: Date? {
                 switch (
                     closedPullRequests.edges.first?.node.closedAt,
