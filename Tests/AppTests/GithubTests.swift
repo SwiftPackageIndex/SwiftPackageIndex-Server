@@ -321,6 +321,7 @@ class GithubTests: AppTestCase {
 
     // FIXME: temporary
     func test_fetchGraphQL_full_live() throws {
+        try XCTSkipIf(isRunningInCI)
         Current.githubToken = { Environment.get("LIVE_GITHUB_TOKEN") }
 
         let res = try Github.fetchMetadata(client: app.client,
