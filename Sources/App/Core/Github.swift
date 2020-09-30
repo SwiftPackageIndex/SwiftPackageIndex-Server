@@ -131,7 +131,6 @@ extension Github {
                         closedAt
                       }
                     }
-                    createdAt
                     defaultBranchRef {
                       name
                     }
@@ -169,8 +168,7 @@ extension Github {
         struct Repository: Decodable, Equatable {
             var closedIssues: IssueNodes
             var closedPullRequests: IssueNodes
-            var createdAt: Date
-            var defaultBranchRef: DefaultBranchRef
+            var defaultBranchRef: DefaultBranchRef?
             var description: String?
             var forkCount: Int
             var isArchived: Bool
@@ -183,7 +181,7 @@ extension Github {
             var owner: Owner
             var stargazerCount: Int
             // derived properties
-            var defaultBranch: String { defaultBranchRef.name }
+            var defaultBranch: String? { defaultBranchRef?.name }
             var lastIssueClosedAt: Date? {
                 closedIssues.nodes
                     .map(\.closedAt)

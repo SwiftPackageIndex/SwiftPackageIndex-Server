@@ -45,7 +45,6 @@ extension Github.Metadata {
         self = .init(
             repository: .init(closedIssues: .init(closedAtDates: issuesClosedAtDates),
                               closedPullRequests: .init(closedAtDates: pullRequestsClosedAtDates),
-                              createdAt: Date(),
                               defaultBranchRef: .init(name: defaultBranch),
                               description: summary,
                               forkCount: forks,

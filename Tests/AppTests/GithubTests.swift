@@ -80,8 +80,6 @@ class GithubTests: AppTestCase {
         // validation
         XCTAssertEqual(res.repository?.closedPullRequests.nodes.first!.closedAt,
                        Date(timeIntervalSince1970: 1597345808.0))  // "2020-08-13T19:10:08Z"
-        XCTAssertEqual(res.repository?.createdAt,
-                       Date(timeIntervalSince1970: 1406786179.0))  // "2014-07-31T05:56:19Z"
         XCTAssertEqual(res.repository?.forkCount, 6384)
         XCTAssertEqual(res.repository?.mergedPullRequests.nodes.first!.closedAt,
                        Date(timeIntervalSince1970: 1600713705.0))  // "2020-09-21T18:41:45Z"
