@@ -173,7 +173,7 @@ extension Github {
                 }
                 """)
         }
-        var repository: Repository
+        var repository: Repository?
         var rateLimit: RateLimit
 
         struct Repository: Decodable, Equatable {
@@ -181,7 +181,7 @@ extension Github {
             var closedPullRequests: NodeEdges
             var createdAt: Date
             var defaultBranchRef: DefaultBranchRef
-            var description: String
+            var description: String?
             var forkCount: Int
             var isArchived: Bool
             var isFork: Bool

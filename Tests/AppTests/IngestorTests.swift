@@ -67,7 +67,7 @@ class IngestorTests: AppTestCase {
         }
         do {  // test update - run the same package again, with different metadata
             var md = Github.Metadata.mock(for: pkg)
-            md.repository.description = "New description"
+            md.repository?.description = "New description"
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: md).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])

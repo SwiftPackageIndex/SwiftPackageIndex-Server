@@ -119,18 +119,20 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
         .first()
         .flatMap { repo -> EventLoopFuture<Void> in
             let repo = repo ?? Repository(packageId: pkgId)
-            repo.defaultBranch = metadata.repository.defaultBranch
-            repo.forks = metadata.repository.forkCount
-            repo.lastIssueClosedAt = metadata.repository.lastIssueClosedAt
-            repo.lastPullRequestClosedAt = metadata.repository.lastPullRequestClosedAt
-            repo.license = .init(from: metadata.repository.licenseInfo)
-            repo.name = metadata.repository.name
-            repo.openIssues = metadata.repository.openIssues.totalCount
-            repo.openPullRequests = metadata.repository.openPullRequests.totalCount
-            repo.owner = metadata.repository.owner.login
-            repo.stars = metadata.repository.stargazerCount
-            repo.summary = metadata.repository.description
-            // TODO: find and assign parent repo
+            if let repository = metadata.repository {
+                repo.defaultBranch = repository.defaultBranch
+                repo.forks = repository.forkCount
+                repo.lastIssueClosedAt = repository.lastIssueClosedAt
+                repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
+                repo.license = .init(from: repository.licenseInfo)
+                repo.name = repository.name
+                repo.openIssues = repository.openIssues.totalCount
+                repo.openPullRequests = repository.openPullRequests.totalCount
+                repo.owner = repository.owner.login
+                repo.stars = repository.stargazerCount
+                repo.summary = repository.description
+                // TODO: find and assign parent repo
+            }
             return repo.save(on: database)
         }
 }
