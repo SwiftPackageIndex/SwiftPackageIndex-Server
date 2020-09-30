@@ -122,17 +122,13 @@ extension Github {
                 {
                   repository(name: "\(repository)", owner: "\(owner)") {
                     closedIssues: issues(states: CLOSED, first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
-                      edges {
-                        node {
-                          closedAt
-                        }
+                      nodes {
+                        closedAt
                       }
                     }
                     closedPullRequests: pullRequests(states: CLOSED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
-                      edges {
-                        node {
-                          closedAt
-                        }
+                      nodes {
+                        closedAt
                       }
                     }
                     createdAt
@@ -149,10 +145,8 @@ extension Github {
                       url
                     }
                     mergedPullRequests: pullRequests(states: MERGED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
-                      edges {
-                        node {
-                          closedAt
-                        }
+                      nodes {
+                        closedAt
                       }
                     }
                     name
@@ -177,8 +171,8 @@ extension Github {
         var rateLimit: RateLimit
 
         struct Repository: Decodable, Equatable {
-            var closedIssues: NodeEdges
-            var closedPullRequests: NodeEdges
+            var closedIssues: IssueNodes
+            var closedPullRequests: IssueNodes
             var createdAt: Date
             var defaultBranchRef: DefaultBranchRef
             var description: String?
@@ -186,7 +180,7 @@ extension Github {
             var isArchived: Bool
             var isFork: Bool
             var licenseInfo: LicenseInfo?
-            var mergedPullRequests: NodeEdges
+            var mergedPullRequests: IssueNodes
             var name: String
             var openIssues: OpenIssues
             var openPullRequests: OpenPullRequests
@@ -195,15 +189,15 @@ extension Github {
             // derived properties
             var defaultBranch: String { defaultBranchRef.name }
             var lastIssueClosedAt: Date? {
-                closedIssues.edges
-                    .map(\.node.closedAt)
+                closedIssues.nodes
+                    .map(\.closedAt)
                     .sorted()
                     .last
             }
             var lastPullRequestClosedAt: Date? {
                 switch (
-                    closedPullRequests.edges.map(\.node.closedAt).sorted().last,
-                    mergedPullRequests.edges.map(\.node.closedAt).sorted().last
+                    closedPullRequests.nodes.map(\.closedAt).sorted().last,
+                    mergedPullRequests.nodes.map(\.closedAt).sorted().last
                 ) {
                     case (.none, .none):
                         return nil
@@ -216,19 +210,15 @@ extension Github {
                 }
             }
         }
-        struct NodeEdges: Decodable, Equatable {
-            var edges: [Edge]
-            struct Edge: Decodable, Equatable {
-                var node: Node
+        struct IssueNodes: Decodable, Equatable {
+            var nodes: [IssueNode]
 
-                struct Node: Decodable, Equatable {
-                    var closedAt: Date
-                }
+            struct IssueNode: Decodable, Equatable {
+                var closedAt: Date
             }
             init(closedAtDates: [Date]) {
-                self.edges = closedAtDates
-                    .map(NodeEdges.Edge.Node.init(closedAt:))
-                    .map(NodeEdges.Edge.init(node:))
+                self.nodes = closedAtDates
+                    .map(IssueNode.init(closedAt:))
             }
         }
         struct DefaultBranchRef: Decodable, Equatable {
