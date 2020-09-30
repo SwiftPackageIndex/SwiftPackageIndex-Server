@@ -40,7 +40,14 @@ class GithubTests: AppTestCase {
             let data = """
                 {"data":{"repository":null,"rateLimit":{"remaining":4986}},"errors":[{"type":"NOT_FOUND","path":["repository"],"locations":[{"line":2,"column":3}],"message":"Could not resolve to a Repository with the name 'IBM-Swift/kitura-mustachetemplateengine'."}]}
             """
-            _ = try Github.decoder.decode(Response.self, from: Data(data.utf8))
+            XCTAssertThrowsError(
+                _ = try Github.decoder.decode(Response.self, from: Data(data.utf8))
+            ) {
+                guard ($0 as? DecodingError) != nil else {
+                    XCTFail("unexpected error: \($0.localizedDescription)")
+                    return
+                }
+            }
         }
     }
 
@@ -78,22 +85,22 @@ class GithubTests: AppTestCase {
                                            repository: "alamofire").wait()
 
         // validation
-        XCTAssertEqual(res.repository?.closedPullRequests.edges.first!.node.closedAt,
+        XCTAssertEqual(res.repository.closedPullRequests.edges.first!.node.closedAt,
                        Date(timeIntervalSince1970: 1597345808.0))  // "2020-08-13T19:10:08Z"
-        XCTAssertEqual(res.repository?.createdAt,
+        XCTAssertEqual(res.repository.createdAt,
                        Date(timeIntervalSince1970: 1406786179.0))  // "2014-07-31T05:56:19Z"
-        XCTAssertEqual(res.repository?.forkCount, 6384)
-        XCTAssertEqual(res.repository?.mergedPullRequests.edges.first!.node.closedAt,
+        XCTAssertEqual(res.repository.forkCount, 6384)
+        XCTAssertEqual(res.repository.mergedPullRequests.edges.first!.node.closedAt,
                        Date(timeIntervalSince1970: 1600713705.0))  // "2020-09-21T18:41:45Z"
-        XCTAssertEqual(res.repository?.name, "Alamofire")
-        XCTAssertEqual(res.repository?.openIssues.totalCount, 32)
-        XCTAssertEqual(res.repository?.openPullRequests.totalCount, 7)
+        XCTAssertEqual(res.repository.name, "Alamofire")
+        XCTAssertEqual(res.repository.openIssues.totalCount, 32)
+        XCTAssertEqual(res.repository.openPullRequests.totalCount, 7)
         XCTAssertEqual(res.rateLimit.remaining, 4981)
         // derived properties
-        XCTAssertEqual(res.repository?.lastIssueClosedAt,
+        XCTAssertEqual(res.repository.lastIssueClosedAt,
                        Date(timeIntervalSince1970: 1601252524.0))  // "2020-09-28T00:22:04Z"
         // merged date is latest - expect that one to be reported back
-        XCTAssertEqual(res.repository?.lastPullRequestClosedAt,
+        XCTAssertEqual(res.repository.lastPullRequestClosedAt,
                        Date(timeIntervalSince1970: 1600713705.0))  // "2020-09-21T18:41:45Z"
     }
 

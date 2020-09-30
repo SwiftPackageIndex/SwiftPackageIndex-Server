@@ -173,7 +173,7 @@ extension Github {
                 }
                 """)
         }
-        var repository: Repository?
+        var repository: Repository
         var rateLimit: RateLimit
 
         struct Repository: Decodable, Equatable {
