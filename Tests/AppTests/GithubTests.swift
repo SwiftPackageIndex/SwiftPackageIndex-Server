@@ -88,7 +88,6 @@ class GithubTests: AppTestCase {
         XCTAssertEqual(res.repository?.name, "Alamofire")
         XCTAssertEqual(res.repository?.openIssues.totalCount, 32)
         XCTAssertEqual(res.repository?.openPullRequests.totalCount, 7)
-        XCTAssertEqual(res.rateLimit.remaining, 4981)
         // derived properties
         XCTAssertEqual(res.repository?.lastIssueClosedAt,
                        Date(timeIntervalSince1970: 1601252524.0))  // "2020-09-28T00:22:04Z"

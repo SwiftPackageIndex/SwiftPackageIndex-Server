@@ -57,8 +57,7 @@ extension Github.Metadata {
                               openIssues: .init(totalCount: openIssues),
                               openPullRequests: .init(totalCount: openPullRequests),
                               owner: .init(login: owner),
-                              stargazerCount: stars),
-            rateLimit: .init(remaining: 5000)
+                              stargazerCount: stars)
         )
     }
 }

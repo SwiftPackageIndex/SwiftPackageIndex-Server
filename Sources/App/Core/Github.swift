@@ -161,14 +161,10 @@ extension Github {
                     }
                     stargazerCount
                   }
-                  rateLimit {
-                    remaining
-                  }
                 }
                 """)
         }
         var repository: Repository?
-        var rateLimit: RateLimit
 
         struct Repository: Decodable, Equatable {
             var closedIssues: IssueNodes
@@ -240,9 +236,6 @@ extension Github {
         }
         struct OpenPullRequests: Decodable, Equatable {
             var totalCount: Int
-        }
-        struct RateLimit: Decodable, Equatable {
-            var remaining: Int
         }
     }
 
