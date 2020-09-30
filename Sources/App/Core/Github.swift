@@ -185,7 +185,7 @@ extension Github {
             var forkCount: Int
             var isArchived: Bool
             var isFork: Bool
-            var licenseInfo: LicenseInfo
+            var licenseInfo: LicenseInfo?
             var mergedPullRequests: NodeEdges
             var name: String
             var openIssues: OpenIssues

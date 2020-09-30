@@ -25,6 +25,17 @@ class GithubTests: AppTestCase {
         }
     }
 
+    func test_decode_Metadata_null() throws {
+        // Ensure missing values don't trip up decoding
+        let data = """
+        {"data":{"repository":{"closedIssues":{"edges":[]},"closedPullRequests":{"edges":[]},"createdAt":"2019-04-23T09:26:22Z","defaultBranchRef":{"name":"master"},"description":"Porting CRToast in Swift, with some new features","forkCount":0,"isArchived":false,"isFork":false,"licenseInfo":null,"mergedPullRequests":{"edges":[]},"name":"CRToastSwift","openIssues":{"totalCount":0},"openPullRequests":{"totalCount":0},"owner":{"login":"krugazor"},"stargazerCount":3},"rateLimit":{"remaining":4753}}}
+        """
+        struct Response: Decodable {
+            var data: Github.Metadata
+        }
+        _ = try Github.decoder.decode(Response.self, from: Data(data.utf8))
+    }
+
     func test_fetchResource() throws {
         Current.githubToken = { "secr3t" }
         let client = MockClient { _, resp in
