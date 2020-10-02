@@ -7,7 +7,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: finestructure/spi-base:0.1.0
+      image: finestructure/spi-base:0.2.0
     services:
       postgres:
         image: postgres:12.1-alpine
