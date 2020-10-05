@@ -31,11 +31,33 @@ class BuildTests: AppTestCase {
             XCTAssertEqual(b.logs, "logs")
             XCTAssertEqual(b.logUrl, "https://example.com/logs/1")
             XCTAssertEqual(b.platform, .linux)
-            XCTAssertEqual(b.$version.id, v.id)
             XCTAssertEqual(b.status, .ok)
+            XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+            XCTAssertEqual(b.$version.id, v.id)
         }
     }
     
+    func test_save_invalid_byte_sequence() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        let v = try Version(package: pkg)
+        try v.save(on: app.db).wait()
+        let b = try Build(version: v,
+                          buildCommand: #"xcrun xcodebuild -scheme "Foo""#,
+                          logs: "\0",
+                          platform: .linux,
+                          status: .ok,
+                          swiftVersion: .init(5, 2, 0))
+
+        // MUT
+        try b.save(on: app.db).wait()
+
+        do {  // validate
+            let b = try XCTUnwrap(Build.find(b.id, on: app.db).wait())
+            XCTAssertEqual(b.logs, "")
+        }
+    }
+
     func test_delete_cascade() throws {
         // Ensure deleting a version also deletes the builds
         // setup

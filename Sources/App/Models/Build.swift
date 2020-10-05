@@ -63,7 +63,7 @@ final class Build: Model, Content {
         self.$version.id = versionId
         self.buildCommand = buildCommand
         self.jobUrl = jobUrl
-        self.logs = logs
+        self.logs = logs?.replacingOccurrences(of: "\0", with: "")
         self.logUrl = logUrl
         self.platform = platform
         self.status = status
