@@ -31,8 +31,9 @@ class BuildTests: AppTestCase {
             XCTAssertEqual(b.logs, "logs")
             XCTAssertEqual(b.logUrl, "https://example.com/logs/1")
             XCTAssertEqual(b.platform, .linux)
-            XCTAssertEqual(b.$version.id, v.id)
             XCTAssertEqual(b.status, .ok)
+            XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+            XCTAssertEqual(b.$version.id, v.id)
         }
     }
     
@@ -53,11 +54,7 @@ class BuildTests: AppTestCase {
 
         do {  // validate
             let b = try XCTUnwrap(Build.find(b.id, on: app.db).wait())
-            XCTAssertEqual(b.buildCommand, #"xcrun xcodebuild -scheme "Foo""#)
             XCTAssertEqual(b.logs, "")
-            XCTAssertEqual(b.platform, .linux)
-            XCTAssertEqual(b.$version.id, v.id)
-            XCTAssertEqual(b.status, .ok)
         }
     }
 
