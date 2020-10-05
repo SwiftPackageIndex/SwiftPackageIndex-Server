@@ -42,9 +42,10 @@ class IngestorTests: AppTestCase {
     
     func test_fetchMetadata() throws {
         // setup
-        let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
+        let packages = try savePackages(on: app.db, ["https://github.com/foo/1",
+                                                     "https://github.com/foo/2"])
         Current.fetchMetadata = { _, pkg in
-            if pkg.url == "1" {
+            if pkg.url == "https://github.com/foo/1" {
                 return .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
             }
             return .just(value: .mock(for: pkg))
@@ -58,15 +59,15 @@ class IngestorTests: AppTestCase {
     }
     
     func test_insertOrUpdateRepository() throws {
-        let pkg = try savePackage(on: app.db, "foo")
+        let pkg = try savePackage(on: app.db, "https://github.com/foo/bar")
         do {  // test insert
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: .mock(for: pkg)).wait()
             let repos = try Repository.query(on: app.db).all().wait()
-            XCTAssertEqual(repos.map(\.summary), [.some("This is package foo")])
+            XCTAssertEqual(repos.map(\.summary), [.some("This is package https://github.com/foo/bar")])
         }
         do {  // test update - run the same package again, with different metadata
             var md = Github.Metadata.mock(for: pkg)
-            md.repo.description = "New description"
+            md.repository?.description = "New description"
             try insertOrUpdateRepository(on: app.db, for: pkg, metadata: md).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])
@@ -78,24 +79,25 @@ class IngestorTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "2")
         let metadata: [Result<(Package, Github.Metadata), Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-            .success((pkg, .init(
-                        issues: [
-                            .init(closedAt: Date(timeIntervalSince1970: 0), pullRequest: nil),
-                            .init(closedAt: Date(timeIntervalSince1970: 1), pullRequest: .init(url: "1")),
-                            .init(closedAt: Date(timeIntervalSince1970: 2), pullRequest: nil),
-                        ],
-                        openPullRequests: [
-                            .init(url: "2"),
-                            .init(url: "3"),
-                        ],
-                        repo: .init(defaultBranch: "main",
-                                    description: "package desc",
-                                    forksCount: 1,
-                                    license: .init(key: "mit"),
-                                    name: "bar",
-                                    openIssues: 3,
-                                    owner: .init(login: "foo"),
-                                    stargazersCount: 2))))
+            .success((pkg, .init(defaultBranch: "main",
+                                 forks: 1,
+                                 issuesClosedAtDates: [
+                                    Date(timeIntervalSince1970: 0),
+                                    Date(timeIntervalSince1970: 2),
+                                    Date(timeIntervalSince1970: 1),
+                                 ],
+                                 license: .mit,
+                                 openIssues: 1,
+                                 openPullRequests: 2,
+                                 owner: "foo",
+                                 pullRequestsClosedAtDates: [
+                                    Date(timeIntervalSince1970: 1),
+                                    Date(timeIntervalSince1970: 3),
+                                    Date(timeIntervalSince1970: 2),
+                                 ],
+                                 name: "bar",
+                                 stars: 2,
+                                 summary: "package desc")))
         ]
         
         // MUT
@@ -110,8 +112,8 @@ class IngestorTests: AppTestCase {
         )
         XCTAssertEqual(repo.defaultBranch, "main")
         XCTAssertEqual(repo.forks, 1)
-        XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 0))
-        XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 1))
+        XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 2))
+        XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 3))
         XCTAssertEqual(repo.license, .mit)
         XCTAssertEqual(repo.openIssues, 1)
         XCTAssertEqual(repo.openPullRequests, 2)
@@ -123,7 +125,8 @@ class IngestorTests: AppTestCase {
     
     func test_updatePackage() throws {
         // setup
-        let pkgs = try savePackages(on: app.db, ["1", "2"])
+        let pkgs = try savePackages(on: app.db, ["https://github.com/foo/1",
+                                                 "https://github.com/foo/2"])
         let results: [Result<Package, Error>] = [
             .failure(AppError.metadataRequestFailed(try pkgs[0].requireID(), .badRequest, "1")),
             .success(pkgs[1])
@@ -144,8 +147,8 @@ class IngestorTests: AppTestCase {
         // Ensure newly ingested packages are passed on with status = new to fast-track
         // them into analysis
         let pkgs = [
-            Package(id: UUID(), url: "1", status: .ok, processingStage: .reconciliation),
-            Package(id: UUID(), url: "2", status: .new, processingStage: .reconciliation)
+            Package(id: UUID(), url: "https://github.com/foo/1", status: .ok, processingStage: .reconciliation),
+            Package(id: UUID(), url: "https://github.com/foo/2", status: .new, processingStage: .reconciliation)
         ]
         try pkgs.save(on: app.db).wait()
         let results: [Result<Package, Error>] = [ .success(pkgs[0]), .success(pkgs[1])]
@@ -196,10 +199,12 @@ class IngestorTests: AppTestCase {
     
     func test_ingest_badMetadata() throws {
         // setup
-        let urls = ["1", "2", "3"]
+        let urls = ["https://github.com/foo/1",
+                    "https://github.com/foo/2",
+                    "https://github.com/foo/3"]
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         Current.fetchMetadata = { _, pkg in
-            if pkg.url == "2" {
+            if pkg.url == "https://github.com/foo/2" {
                 return .just(error: AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2")))
             }
             return .just(value: .mock(for: pkg))
@@ -213,9 +218,9 @@ class IngestorTests: AppTestCase {
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.count, 2)
         XCTAssertEqual(repos.map(\.summary),
-                       [.some("This is package 1"), .some("This is package 3")])
+                       [.some("This is package https://github.com/foo/1"), .some("This is package https://github.com/foo/3")])
         (try Package.query(on: app.db).all().wait()).forEach {
-            if $0.url == "2" {
+            if $0.url == "https://github.com/foo/2" {
                 XCTAssertEqual($0.status, .metadataRequestFailed)
             } else {
                 XCTAssertEqual($0.status, .new)
@@ -230,20 +235,22 @@ class IngestorTests: AppTestCase {
         //   - don't create repository records
         //   - report critical error up to Rollbar
         // setup
-        let urls = ["1".asGithubUrl, "2".asGithubUrl]
+        let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         // Return identical metadata for both packages, same as a for instance a redirected
         // package would after a rename / ownership change
-        Current.fetchMetadata = { _, _ in .just(value: Github.Metadata(
-                                                    issues: [],
-                                                    openPullRequests: [],
-                                                    repo: .init(defaultBranch: "main",
-                                                                description: "desc",
-                                                                forksCount: 0,
-                                                                name: "package name",
-                                                                openIssues: 0,
-                                                                owner: .some(.init(login: "owner")),
-                                                                stargazersCount: 0)))
+        Current.fetchMetadata = { _, _ in .just(value: Github.Metadata.init(
+                                                    defaultBranch: "main",
+                                                    forks: 0,
+                                                    issuesClosedAtDates: [],
+                                                    license: .mit,
+                                                    openIssues: 0,
+                                                    openPullRequests: 0,
+                                                    owner: "owner",
+                                                    pullRequestsClosedAtDates: [],
+                                                    name: "name",
+                                                    stars: 0,
+                                                    summary: "desc"))
         }
         var reportedLevel: AppError.Level? = nil
         var reportedError: String? = nil
