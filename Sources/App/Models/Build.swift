@@ -161,6 +161,12 @@ extension Build {
                       error.code == .uniqueViolation else {
                     return database.eventLoop.future(error: $0)
                 }
+                // We can't avoid the "duplicate key" error message leaking out to the console
+                // so what we do is also log an explainer that it's not a real error.
+                // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/737
+                // Use print so it's not affected by log levels (just like the underlying Postgres
+                // error isn't)
+                print(#"DISREGARD the above error message about duplicate key violation of constraint "uq:builds.version_id+builds.platform+builds.swift_version+v2" - it is being handled and the error is logged over-eagerly by a subsystem"#)
                 // ... find the existing build
                 return Build.query(on: database)
                     .filter(\.$platform == self.platform)
