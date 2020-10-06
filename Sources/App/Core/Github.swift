@@ -126,7 +126,7 @@ extension Github {
                         closedAt
                       }
                     }
-                    closedPullRequests: pullRequests(states: CLOSED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                    closedPullRequests: pullRequests(states: CLOSED, first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
                       nodes {
                         closedAt
                       }
@@ -143,7 +143,7 @@ extension Github {
                       key
                       url
                     }
-                    mergedPullRequests: pullRequests(states: MERGED, first: 1, orderBy: {field: UPDATED_AT, direction: DESC}) {
+                    mergedPullRequests: pullRequests(states: MERGED, first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
                       nodes {
                         closedAt
                       }
@@ -183,25 +183,10 @@ extension Github {
             // derived properties
             var defaultBranch: String? { defaultBranchRef?.name }
             var lastIssueClosedAt: Date? {
-                closedIssues.nodes
-                    .map(\.closedAt)
-                    .sorted()
-                    .last
+                closedIssues.nodes.map(\.closedAt).sorted().last
             }
             var lastPullRequestClosedAt: Date? {
-                switch (
-                    closedPullRequests.nodes.map(\.closedAt).sorted().last,
-                    mergedPullRequests.nodes.map(\.closedAt).sorted().last
-                ) {
-                    case (.none, .none):
-                        return nil
-                    case (.some(let value), .none):
-                        return value
-                    case (.none, .some(let value)):
-                        return value
-                    case let (.some(lhs), .some(rhs)):
-                        return max(lhs, rhs)
-                }
+                (closedPullRequests.nodes + mergedPullRequests.nodes).map(\.closedAt).sorted().last
             }
         }
         struct IssueNodes: Decodable, Equatable {

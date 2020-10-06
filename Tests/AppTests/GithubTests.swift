@@ -71,6 +71,7 @@ class GithubTests: AppTestCase {
             resp.status = .ok
             resp.body = makeBody(data)
         }
+        let iso8601 = ISO8601DateFormatter()
 
         // MUT
         let res = try Github.fetchMetadata(client: client,
@@ -78,20 +79,23 @@ class GithubTests: AppTestCase {
                                            repository: "alamofire").wait()
 
         // validation
+        XCTAssertEqual(res.repository?.closedIssues.nodes.first!.closedAt,
+                       iso8601.date(from: "2020-10-01T19:22:33Z"))
         XCTAssertEqual(res.repository?.closedPullRequests.nodes.first!.closedAt,
-                       Date(timeIntervalSince1970: 1597345808.0))  // "2020-08-13T19:10:08Z"
-        XCTAssertEqual(res.repository?.forkCount, 6384)
+                       iso8601.date(from: "2020-08-13T19:10:08Z"))
+        XCTAssertEqual(res.repository?.forkCount, 6400)
         XCTAssertEqual(res.repository?.mergedPullRequests.nodes.first!.closedAt,
-                       Date(timeIntervalSince1970: 1600713705.0))  // "2020-09-21T18:41:45Z"
+                       iso8601.date(from: "2017-10-30T01:43:44Z"))
         XCTAssertEqual(res.repository?.name, "Alamofire")
-        XCTAssertEqual(res.repository?.openIssues.totalCount, 32)
+        XCTAssertEqual(res.repository?.openIssues.totalCount, 30)
         XCTAssertEqual(res.repository?.openPullRequests.totalCount, 7)
+        XCTAssertEqual(res.repository?.stargazerCount, 34434)
         // derived properties
         XCTAssertEqual(res.repository?.lastIssueClosedAt,
-                       Date(timeIntervalSince1970: 1601252524.0))  // "2020-09-28T00:22:04Z"
+                       iso8601.date(from: "2020-10-03T21:41:25Z"))
         // merged date is latest - expect that one to be reported back
         XCTAssertEqual(res.repository?.lastPullRequestClosedAt,
-                       Date(timeIntervalSince1970: 1600713705.0))  // "2020-09-21T18:41:45Z"
+                       iso8601.date(from: "2020-10-05T00:19:43Z"))
     }
 
     func test_fetchMetadata_badRequest() throws {
