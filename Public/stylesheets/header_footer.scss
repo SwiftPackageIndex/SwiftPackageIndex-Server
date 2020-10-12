@@ -84,11 +84,18 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    p {
+      margin: 3px 0;
+
+      a {
+        font-size: 13px;
+      }
+    }
   }
 
   small a {
-    font-size: 10px;
-    font-weight: normal;
+    font-size: 12px;
   }
 
   ul {
