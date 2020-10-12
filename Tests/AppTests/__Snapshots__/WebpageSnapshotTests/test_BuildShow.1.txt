@@ -202,8 +202,11 @@ CompileSwift normal x86_64 /Users/spi/builds/zsxYGgdt/0/finestructure/swiftpacka
               <a href="https://twitter.com/swiftpackages">Twitter</a>
             </li>
           </ul>
-          <small>
-            <a href="https://macstadium.com/">Kindly hosted by MacStadium</a>
+          <p>
+            <a href="https://github.com/sponsors/SwiftPackageIndex">Please consider supporting this project</a>
+          </p>
+          <small>Kindly hosted by
+            <a href="https://macstadium.com/">MacStadium</a>
           </small>
         </nav>
       </div>
