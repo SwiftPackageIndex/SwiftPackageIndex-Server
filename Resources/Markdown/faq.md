@@ -8,12 +8,13 @@ description: Frequently Asked Questions about the Swift Package Index
 * [What is the Swift Package Index?](#what-is-the-spi)
 * [What is the Swift Package Manager?](#what-is-the-spm)
 * [Who built the Swift Package Index?](#creators)
+* [Can I support the Swift Package Index?](#support)
 * [What happened to the SwiftPM Library?](#swiftpm-library)
 * [How does the Swift Package Index work?](#how-does-it-work)
 * [What about the GitHub Package Registry?](#package-registry)
 * [How is the Swift language and platform support calculated?](#language-and-platforms)
 * [What do the license colours mean?](#license-problems)
-* [Can I contribute?](#contributing)
+* [Can I contribute to the Swift Package Index?](#contributing)
 * [Is there an API?](#api)
 * [Why are package versions missing?](#missing-versions)
 
@@ -38,6 +39,12 @@ To find out more about the Swift Package Manager, there's [documentation on the 
 <h3 id="creators">Who built the Swift Package Index?</h3>
 
 Thanks for asking! It was built by [Dave Verwer](https://daveverwer.com) and [Sven A. Schmidt](https://finestructure.co/). You can also see a [full list of contributors](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/graphs/contributors).
+
+---
+
+<h3 id="support">Can I support the Swift Package Index?</h3>
+
+We'd love to have your support. Thank you! You can read more about [how we are funding this project](https://blog.swiftpackageindex.com/posts/funding-the-future-of-the-swift-package-index/) and [support it via GitHub sponsors](https://github.com/sponsors/SwiftPackageIndex). 
 
 ---
 
@@ -107,7 +114,7 @@ If you are considering shipping your app to the App Store, you should be aware t
 
 ---
 
-<h3 id="contributing">Can I contribute?</h3>
+<h3 id="contributing">Can I contribute to the Swift Package Index?</h3>
 
 Absolutely. The Swift Package Index is [open-source](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server), and we’d love it if you wanted to help us make it better. Please see the [guide to contributing](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/CONTRIBUTING.md) for more information.
 
