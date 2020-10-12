@@ -329,10 +329,17 @@ class PublicPage {
                             )
                         )
                     ),
+                    .p(
+                        .a(
+                            .href("https://github.com/sponsors/SwiftPackageIndex"),
+                            "Please consider supporting this project"
+                        )
+                    ),
                     .element(named: "small", nodes: [ // TODO: Fix after Plot update
+                        .text("Kindly hosted by"),
                         .a(
                             .href("https://macstadium.com/"),
-                            "Kindly hosted by MacStadium"
+                            "MacStadium"
                         )
                     ])
                  )
