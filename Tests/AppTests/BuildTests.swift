@@ -15,7 +15,6 @@ class BuildTests: AppTestCase {
         let b = try Build(version: v,
                           buildCommand: #"xcrun xcodebuild -scheme "Foo""#,
                           jobUrl: "https://example.com/jobs/1",
-                          logs: "logs",
                           logUrl: "https://example.com/logs/1",
                           platform: .linux,
                           status: .ok,
@@ -28,7 +27,6 @@ class BuildTests: AppTestCase {
             let b = try XCTUnwrap(Build.find(b.id, on: app.db).wait())
             XCTAssertEqual(b.buildCommand, #"xcrun xcodebuild -scheme "Foo""#)
             XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
-            XCTAssertEqual(b.logs, "logs")
             XCTAssertEqual(b.logUrl, "https://example.com/logs/1")
             XCTAssertEqual(b.platform, .linux)
             XCTAssertEqual(b.status, .ok)
@@ -37,27 +35,6 @@ class BuildTests: AppTestCase {
         }
     }
     
-    func test_save_invalid_byte_sequence() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1")
-        let v = try Version(package: pkg)
-        try v.save(on: app.db).wait()
-        let b = try Build(version: v,
-                          buildCommand: #"xcrun xcodebuild -scheme "Foo""#,
-                          logs: "\0",
-                          platform: .linux,
-                          status: .ok,
-                          swiftVersion: .init(5, 2, 0))
-
-        // MUT
-        try b.save(on: app.db).wait()
-
-        do {  // validate
-            let b = try XCTUnwrap(Build.find(b.id, on: app.db).wait())
-            XCTAssertEqual(b.logs, "")
-        }
-    }
-
     func test_delete_cascade() throws {
         // Ensure deleting a version also deletes the builds
         // setup

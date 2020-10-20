@@ -32,10 +32,6 @@ final class Build: Model, Content {
     @Field(key: "job_url")
     var jobUrl: String?
 
-    @available(*, deprecated)
-    @Field(key: "logs")
-    var logs: String?
-
     @Field(key: "log_url")
     var logUrl: String?
 
@@ -54,7 +50,6 @@ final class Build: Model, Content {
          versionId: Version.Id,
          buildCommand: String? = nil,
          jobUrl: String? = nil,
-         logs: String? = nil,
          logUrl: String? = nil,
          platform: Platform,
          status: Status,
@@ -63,7 +58,6 @@ final class Build: Model, Content {
         self.$version.id = versionId
         self.buildCommand = buildCommand
         self.jobUrl = jobUrl
-        self.logs = logs?.replacingOccurrences(of: "\0", with: "")
         self.logUrl = logUrl
         self.platform = platform
         self.status = status
@@ -74,7 +68,6 @@ final class Build: Model, Content {
          version: Version,
          buildCommand: String? = nil,
          jobUrl: String? = nil,
-         logs: String? = nil,
          logUrl: String? = nil,
          platform: Platform,
          status: Status,
@@ -83,7 +76,6 @@ final class Build: Model, Content {
                   versionId: try version.requireID(),
                   buildCommand: buildCommand,
                   jobUrl: jobUrl,
-                  logs: logs,
                   logUrl: logUrl,
                   platform: platform,
                   status: status,
@@ -94,7 +86,6 @@ final class Build: Model, Content {
         try self.init(version: version,
                       buildCommand: dto.buildCommand,
                       jobUrl: dto.jobUrl,
-                      logs: dto.logs,
                       logUrl: dto.logUrl,
                       platform: dto.platform,
                       status: dto.status,

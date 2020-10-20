@@ -85,6 +85,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 016 - add job_url field to builds
         app.migrations.add(UpdateBuildAddJobUrl())
     }
+    do {  // Migration 017 - remove logs field from builds
+        app.migrations.add(UpdateBuildRemoveLogs())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
