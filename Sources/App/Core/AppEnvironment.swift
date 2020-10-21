@@ -8,6 +8,7 @@ struct AppEnvironment {
     var buildTriggerDownscaling: () -> Double
     var date: () -> Date
     var fetchPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
+    var fetchLicense: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.License>
     var fetchMetadata: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Metadata>
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
@@ -45,6 +46,7 @@ extension AppEnvironment {
         },
         date: Date.init,
         fetchPackageList: liveFetchPackageList,
+        fetchLicense: Github.fetchLicense(client:package:),
         fetchMetadata: Github.fetchMetadata(client:package:),
         fileManager: .live,
         getStatusCount: { client, status in
