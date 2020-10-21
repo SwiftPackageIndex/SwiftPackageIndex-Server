@@ -65,8 +65,8 @@
             </small>
           </div>
           <a href="/faq#license-problems">
-            <div class="lozenge red" title="No License">
-              <i class="icon warning"></i>No License
+            <div class="lozenge red" title="Unknown License">
+              <i class="icon warning"></i>Unknown License
             </div>
           </a>
         </div>

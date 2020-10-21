@@ -95,7 +95,7 @@ class WebpageSnapshotTests: XCTestCase {
     
     func test_PackageShowView_unknown_license() throws {
         var model = PackageShow.Model.mock
-        model.license = License.none
+        model.license = License.other
         let page = { PackageShow.View(path: "", model: model).document() }
         
         let recordSnapshotForThisTest = false
