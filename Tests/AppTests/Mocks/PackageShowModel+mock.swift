@@ -87,6 +87,7 @@ extension PackageShow.Model {
                     swiftVersions: ["5.2"],
                     platforms: [.ios("13.0"), .macos("10.15"), .watchos("6.0"), .tvos("13.0")])),
             license: .mit,
+            licenseUrl: nil,
             products: .init(libraries: 3, executables: 1),
             releases: .init(stable: .init(date: "12 days ago",
                                           link: .init(label: "5.2.0",
