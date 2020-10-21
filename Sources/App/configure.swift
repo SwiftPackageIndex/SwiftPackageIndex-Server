@@ -88,6 +88,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 017 - remove logs field from builds
         app.migrations.add(UpdateBuildRemoveLogs())
     }
+    do {  // Migration 018 - add license_url to repositories
+        app.migrations.add(UpdateRepositoryAddLicenseUrl())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

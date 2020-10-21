@@ -22,6 +22,7 @@ final class RepositoryTests: AppTestCase {
                                   lastPullRequestClosedAt: Date(timeIntervalSince1970: 3),
                                   defaultBranch: "branch",
                                   license: .mit,
+                                  licenseUrl: "https://github.com/foo/bar/blob/main/LICENSE",
                                   openIssues: 3,
                                   openPullRequests: 4,
                                   stars: 42,
@@ -44,6 +45,7 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(r.lastPullRequestClosedAt, Date(timeIntervalSince1970: 3))
             XCTAssertEqual(r.defaultBranch, "branch")
             XCTAssertEqual(r.license, .mit)
+            XCTAssertEqual(r.licenseUrl, "https://github.com/foo/bar/blob/main/LICENSE")
             XCTAssertEqual(r.openIssues, 3)
             XCTAssertEqual(r.openPullRequests, 4)
             XCTAssertEqual(r.stars, 42)
