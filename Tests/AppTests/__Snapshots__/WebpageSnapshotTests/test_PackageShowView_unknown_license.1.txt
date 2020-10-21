@@ -64,8 +64,8 @@
               <a id="package_url" href="https://github.com/PSPDFKit/PSPDFKit-SP.git">https://github.com/PSPDFKit/PSPDFKit-SP.git</a>
             </small>
           </div>
-          <a href="/faq#license-problems">
-            <div class="lozenge red" title="Unknown License">
+          <a href="https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE">
+            <div class="lozenge orange" title="Unknown License">
               <i class="icon warning"></i>Unknown License
             </div>
           </a>
