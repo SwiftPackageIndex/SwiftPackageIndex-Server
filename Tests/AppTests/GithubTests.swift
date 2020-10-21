@@ -227,4 +227,27 @@ class GithubTests: AppTestCase {
         }
     }
 
+    func test_apiUri() throws {
+        let pkg = Package(url: "https://github.com/PSPDFKit/PSPDFKit-SP")
+        let uri = try Github.apiUri(for: pkg, resource: .license)
+        XCTAssertEqual(uri.string, "https://api.github.com/repos/PSPDFKit/PSPDFKit-SP/license")
+    }
+
+    func test_fetchLicense() throws {
+        // setup
+        Current.githubToken = { "secr3t" }
+        let pkg = Package(url: "https://github.com/PSPDFKit/PSPDFKit-SP")
+        let data = try XCTUnwrap(try loadData(for: "github-license-response.json"))
+        let client = MockClient { _, resp in
+            resp.status = .ok
+            resp.body = makeBody(data)
+        }
+        let uri = try Github.apiUri(for: pkg, resource: .license)
+
+        // MUT
+        let res = try Github.fetchResource(Github.License.self, client: client, uri: uri).wait()
+
+        // validate
+        XCTAssertEqual(res.htmlUrl, "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE")
+    }
 }
