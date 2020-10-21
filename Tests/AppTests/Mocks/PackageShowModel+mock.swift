@@ -109,6 +109,7 @@ extension PackageShow.Model {
     static var unknownLicenseMock: PackageShow.Model {
         var mock = Self.mock
         mock.license = .other
+        mock.licenseUrl = "https://github.com/foo/bar/blob/main/LICENSE"
         mock.repositoryOwner = "PSPDFKit"
         mock.repositoryName = "PSPDFKit-SP"
         mock.title = "PSPDFKit"
