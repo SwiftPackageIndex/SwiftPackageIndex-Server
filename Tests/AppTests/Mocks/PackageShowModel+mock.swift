@@ -104,4 +104,14 @@ extension PackageShow.Model {
             score: 10
         )
     }
+
+    static var unknownLicenseMock: PackageShow.Model {
+        var mock = Self.mock
+        mock.license = .other
+        mock.repositoryOwner = "PSPDFKit"
+        mock.repositoryName = "PSPDFKit-SP"
+        mock.title = "PSPDFKit"
+        mock.url = "https://github.com/PSPDFKit/PSPDFKit-SP.git"
+        return mock
+    }
 }
