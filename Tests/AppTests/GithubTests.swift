@@ -242,10 +242,9 @@ class GithubTests: AppTestCase {
             resp.status = .ok
             resp.body = makeBody(data)
         }
-        let uri = try Github.apiUri(for: pkg, resource: .license)
 
         // MUT
-        let res = try Github.fetchResource(Github.License.self, client: client, uri: uri).wait()
+        let res = try Github.fetchLicense(client: client, package: pkg).wait()
 
         // validate
         XCTAssertEqual(res.htmlUrl, "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE")

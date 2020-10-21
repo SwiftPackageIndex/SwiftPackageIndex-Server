@@ -107,6 +107,15 @@ extension Github {
         return request
     }
 
+    static func fetchLicense(client: Client, package: Package) -> EventLoopFuture<License> {
+        do {
+            let uri = try Github.apiUri(for: package, resource: .license)
+            return Github.fetchResource(Github.License.self, client: client, uri: uri)
+        } catch {
+            return client.eventLoop.future(error: error)
+        }
+    }
+
 }
 
 
