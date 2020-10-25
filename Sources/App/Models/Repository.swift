@@ -54,7 +54,10 @@ final class Repository: Model, Content {
     
     @Field(key: "license")
     var license: License
-    
+
+    @Field(key: "license_url")
+    var licenseUrl: String?
+
     @Field(key: "name")
     var name: String?
     
@@ -88,6 +91,7 @@ final class Repository: Model, Content {
          lastPullRequestClosedAt: Date? = nil,
          defaultBranch: String? = nil,
          license: License = .none,
+         licenseUrl: String? = nil,
          name: String? = nil,
          openIssues: Int? = nil,
          openPullRequests: Int? = nil,
@@ -106,6 +110,7 @@ final class Repository: Model, Content {
         self.lastPullRequestClosedAt = lastPullRequestClosedAt
         self.defaultBranch = defaultBranch
         self.license = license
+        self.licenseUrl = licenseUrl
         self.name = name
         self.openIssues = openIssues
         self.openPullRequests = openPullRequests

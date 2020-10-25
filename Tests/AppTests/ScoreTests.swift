@@ -7,7 +7,7 @@ class ScoreTests: XCTestCase {
     
     func test_computeScore() throws {
         XCTAssertEqual(Score.compute(.init(supportsLatestSwiftVersion: false,
-                                           licenseKind: .noneOrUnknown,
+                                           licenseKind: .none,
                                            releaseCount: 0,
                                            likeCount: 0)),
                        0)

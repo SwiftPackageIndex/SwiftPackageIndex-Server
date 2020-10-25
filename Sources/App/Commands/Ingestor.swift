@@ -70,16 +70,19 @@ func ingest(application: Application, packages: EventLoopFuture<[Package]>) -> E
 }
 
 
-typealias PackageMetadata = (Package, Github.Metadata)
-
-
 /// Fetch package metadata from hosting provider for a set of packages.
 /// - Parameters:
 ///   - client: `Client` object to make HTTP requests.
 ///   - packages: packages to ingest
 /// - Returns: results future
-func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Result<(Package, Github.Metadata), Error>]> {
-    let ops = packages.map { pkg in Current.fetchMetadata(client, pkg).map { (pkg, $0) } }
+func fetchMetadata(
+    client: Client, packages: [Package]
+) -> EventLoopFuture<[Result<(Package, Github.Metadata, Github.License), Error>]> {
+    let ops = packages.map { pkg in
+        Current.fetchMetadata(client, pkg)
+            .and(Current.fetchLicense(client, pkg))
+            .map { (pkg, $0, $1) }
+    }
     return EventLoopFuture.whenAllComplete(ops, on: client.eventLoop)
 }
 
@@ -89,11 +92,17 @@ func fetchMetadata(client: Client, packages: [Package]) -> EventLoopFuture<[Resu
 ///   - database: `Database` object
 ///   - metadata: result tuples of `(Package, Metadata)`
 /// - Returns: results future
-func updateRepositories(on database: Database, metadata: [Result<(Package, Github.Metadata), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
+func updateRepositories(
+    on database: Database,
+    metadata: [Result<(Package, Github.Metadata, Github.License), Error>]
+) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = metadata.map { result -> EventLoopFuture<Package> in
         switch result {
-            case let .success((pkg, md)):
-                return insertOrUpdateRepository(on: database, for: pkg, metadata: md)
+            case let .success((pkg, metadata, licenseInfo)):
+                return insertOrUpdateRepository(on: database,
+                                                for: pkg,
+                                                metadata: metadata,
+                                                licenseInfo: licenseInfo)
                     .map { pkg }
             case let .failure(error):
                 return database.eventLoop.future(error: error)
@@ -109,7 +118,10 @@ func updateRepositories(on database: Database, metadata: [Result<(Package, Githu
 ///   - package: package to update
 ///   - metadata: `Github.Metadata` with data for update
 /// - Returns: future
-func insertOrUpdateRepository(on database: Database, for package: Package, metadata: Github.Metadata) -> EventLoopFuture<Void> {
+func insertOrUpdateRepository(on database: Database,
+                              for package: Package,
+                              metadata: Github.Metadata,
+                              licenseInfo: Github.License) -> EventLoopFuture<Void> {
     guard let pkgId = try? package.requireID() else {
         return database.eventLoop.future(error: AppError.genericError(nil, "package id not found"))
     }
@@ -128,6 +140,7 @@ func insertOrUpdateRepository(on database: Database, for package: Package, metad
             repo.lastIssueClosedAt = repository.lastIssueClosedAt
             repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
             repo.license = .init(from: repository.licenseInfo)
+            repo.licenseUrl = licenseInfo.htmlUrl
             repo.name = repository.name
             repo.openIssues = repository.openIssues.totalCount
             repo.openPullRequests = repository.openPullRequests.totalCount

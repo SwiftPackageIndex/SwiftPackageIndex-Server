@@ -100,7 +100,17 @@ enum PackageShow {
                         .i(.class("icon osi")),
                         .text(model.license.shortName)
                     )
-                case .noneOrUnknown,
+                case .other:
+                    return .a(
+                        .href(model.licenseUrl ?? SiteURL.faq.relativeURL(anchor: "license-problems")),
+                        .div(
+                            .class("lozenge \(model.license.licenseKind.cssClass)"),
+                            .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                            .i(.class("icon warning")),
+                            .text(model.license.shortName)
+                        )
+                    )
+                case .none,
                      .incompatibleWithAppStore:
                     return .a(
                         .href(SiteURL.faq.relativeURL(anchor: "license-problems")),
@@ -121,8 +131,8 @@ enum PackageShow {
 private extension License.Kind {
     var cssClass: String {
         switch self {
-            case .noneOrUnknown: return "red"
-            case .incompatibleWithAppStore: return "orange"
+            case .none: return "red"
+            case .incompatibleWithAppStore, .other: return "orange"
             case .compatibleWithAppStore: return "green"
         }
     }

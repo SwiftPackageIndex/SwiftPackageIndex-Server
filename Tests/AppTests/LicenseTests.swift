@@ -33,8 +33,8 @@ class LicenseTests: XCTestCase {
     func test_isCompatibleWithAppStore() throws {
         XCTAssertEqual(License.mit.licenseKind, .compatibleWithAppStore)
         XCTAssertEqual(License.agpl_3_0.licenseKind, .incompatibleWithAppStore)
-        XCTAssertEqual(License.other.licenseKind, .noneOrUnknown)
-        XCTAssertEqual(License.none.licenseKind, .noneOrUnknown)
+        XCTAssertEqual(License.other.licenseKind, .other)
+        XCTAssertEqual(License.none.licenseKind, .none)
     }
     
 }

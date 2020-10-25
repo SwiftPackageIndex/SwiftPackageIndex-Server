@@ -1,0 +1,25 @@
+{
+  "name": "LICENSE",
+  "path": "LICENSE",
+  "sha": "e1f2e72bf58ff3cb39e9aa96bf67f92887da6a6b",
+  "size": 209,
+  "url": "https://api.github.com/repos/PSPDFKit/PSPDFKit-SP/contents/LICENSE?ref=master",
+  "html_url": "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE",
+  "git_url": "https://api.github.com/repos/PSPDFKit/PSPDFKit-SP/git/blobs/e1f2e72bf58ff3cb39e9aa96bf67f92887da6a6b",
+  "download_url": "https://raw.githubusercontent.com/PSPDFKit/PSPDFKit-SP/master/LICENSE",
+  "type": "file",
+  "content": "QWxsIGl0ZW1zIGFuZCBzb3VyY2UgY29kZSBDb3B5cmlnaHQgwqkgMjAxMC0y\nMDIwIFBTUERGS2l0IEdtYkguCgpQU1BERktpdCBpcyBhIGNvbW1lcmNpYWwg\ncHJvZHVjdCBhbmQgcmVxdWlyZXMgYSBsaWNlbnNlIHRvIGJlIHVzZWQuCgpT\nZWUgaHR0cHM6Ly9wc3BkZmtpdC5jb20vbGVnYWwvTGljZW5zZS5wZGYgaWYg\neW91IGFyZSBldmFsdWF0aW5nIHRoZSBkZW1vLgo=\n",
+  "encoding": "base64",
+  "_links": {
+    "self": "https://api.github.com/repos/PSPDFKit/PSPDFKit-SP/contents/LICENSE?ref=master",
+    "git": "https://api.github.com/repos/PSPDFKit/PSPDFKit-SP/git/blobs/e1f2e72bf58ff3cb39e9aa96bf67f92887da6a6b",
+    "html": "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE"
+  },
+  "license": {
+    "key": "other",
+    "name": "Other",
+    "spdx_id": "NOASSERTION",
+    "url": null,
+    "node_id": "MDc6TGljZW5zZTA="
+  }
+}

@@ -61,14 +61,20 @@ class IngestorTests: AppTestCase {
     func test_insertOrUpdateRepository() throws {
         let pkg = try savePackage(on: app.db, "https://github.com/foo/bar")
         do {  // test insert
-            try insertOrUpdateRepository(on: app.db, for: pkg, metadata: .mock(for: pkg)).wait()
+            try insertOrUpdateRepository(on: app.db,
+                                         for: pkg,
+                                         metadata: .mock(for: pkg),
+                                         licenseInfo: .init(htmlUrl: "")).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("This is package https://github.com/foo/bar")])
         }
         do {  // test update - run the same package again, with different metadata
             var md = Github.Metadata.mock(for: pkg)
             md.repository?.description = "New description"
-            try insertOrUpdateRepository(on: app.db, for: pkg, metadata: md).wait()
+            try insertOrUpdateRepository(on: app.db,
+                                         for: pkg,
+                                         metadata: md,
+                                         licenseInfo: .init(htmlUrl: "")).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])
         }
@@ -77,27 +83,29 @@ class IngestorTests: AppTestCase {
     func test_updateRepositories() throws {
         // setup
         let pkg = try savePackage(on: app.db, "2")
-        let metadata: [Result<(Package, Github.Metadata), Error>] = [
+        let metadata: [Result<(Package, Github.Metadata, Github.License), Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-            .success((pkg, .init(defaultBranch: "main",
-                                 forks: 1,
-                                 issuesClosedAtDates: [
-                                    Date(timeIntervalSince1970: 0),
-                                    Date(timeIntervalSince1970: 2),
-                                    Date(timeIntervalSince1970: 1),
-                                 ],
-                                 license: .mit,
-                                 openIssues: 1,
-                                 openPullRequests: 2,
-                                 owner: "foo",
-                                 pullRequestsClosedAtDates: [
-                                    Date(timeIntervalSince1970: 1),
-                                    Date(timeIntervalSince1970: 3),
-                                    Date(timeIntervalSince1970: 2),
-                                 ],
-                                 name: "bar",
-                                 stars: 2,
-                                 summary: "package desc")))
+            .success((pkg,
+                      .init(defaultBranch: "main",
+                            forks: 1,
+                            issuesClosedAtDates: [
+                                Date(timeIntervalSince1970: 0),
+                                Date(timeIntervalSince1970: 2),
+                                Date(timeIntervalSince1970: 1),
+                            ],
+                            license: .mit,
+                            openIssues: 1,
+                            openPullRequests: 2,
+                            owner: "foo",
+                            pullRequestsClosedAtDates: [
+                                Date(timeIntervalSince1970: 1),
+                                Date(timeIntervalSince1970: 3),
+                                Date(timeIntervalSince1970: 2),
+                            ],
+                            name: "bar",
+                            stars: 2,
+                            summary: "package desc"),
+                      licenseInfo: .init(htmlUrl: "license url")))
         ]
         
         // MUT
@@ -115,6 +123,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 2))
         XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 3))
         XCTAssertEqual(repo.license, .mit)
+        XCTAssertEqual(repo.licenseUrl, "license url")
         XCTAssertEqual(repo.openIssues, 1)
         XCTAssertEqual(repo.openPullRequests, 2)
         XCTAssertEqual(repo.owner, "foo")
@@ -186,7 +195,10 @@ class IngestorTests: AppTestCase {
         let packages = try savePackages(on: app.db, testUrls100)
         let req = packages
             .map { ($0, Github.Metadata.mock(for: $0)) }
-            .map { insertOrUpdateRepository(on: self.app.db, for: $0.0, metadata: $0.1) }
+            .map { insertOrUpdateRepository(on: self.app.db,
+                                            for: $0.0,
+                                            metadata: $0.1,
+                                            licenseInfo: .init(htmlUrl: "")) }
             .flatten(on: app.db.eventLoop)
         
         try req.wait()

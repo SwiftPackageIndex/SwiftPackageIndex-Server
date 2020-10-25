@@ -47,6 +47,75 @@ enum Github {
         return (owner: parts[0], name: parts[1])
     }
 
+    static func headers(with token: String) -> HTTPHeaders {
+        // Set User-Agent or we get a 403
+        // https://developer.github.com/v3/#user-agent-required
+        HTTPHeaders([("User-Agent", "SPI-Server"),
+                     ("Authorization", "Bearer \(token)")])
+    }
+
+}
+
+// MARK: - REST API
+
+extension Github {
+
+    enum Resource: String {
+        case license
+    }
+
+    static func apiUri(for package: Package,
+                       resource: Resource,
+                       query: [String: String] = [:]) throws -> URI {
+        guard package.url.hasPrefix(Constants.githubComPrefix) else { throw AppError.invalidPackageUrl(package.id, package.url) }
+        let queryString = query.queryString()
+        let trunk = package.url
+            .droppingGithubComPrefix
+            .droppingGitExtension
+        switch resource {
+            case .license:
+                return URI(string: "https://api.github.com/repos/\(trunk)/\(resource.rawValue)\(queryString)")
+        }
+    }
+
+    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) -> EventLoopFuture<T> {
+        guard let token = Current.githubToken() else {
+            return client.eventLoop.future(error: Error.missingToken)
+        }
+        let request = client
+            .get(uri, headers: headers(with: token))
+            .flatMap { response -> EventLoopFuture<T> in
+                guard !isRateLimited(response) else {
+                    return Current
+                        .reportError(client,
+                                     .critical,
+                                     AppError.metadataRequestFailed(nil, .tooManyRequests, uri))
+                        .flatMap {
+                            client.eventLoop.future(error: Error.requestFailed(.tooManyRequests))
+                        }
+                }
+                guard response.status == .ok else {
+                    return client.eventLoop.future(error: Error.requestFailed(response.status))
+                }
+                do {
+                    let res = try response.content.decode(T.self, using: decoder)
+                    return client.eventLoop.future(res)
+                } catch {
+                    return client.eventLoop.future(error: error)
+                }
+            }
+        return request
+    }
+
+    static func fetchLicense(client: Client, package: Package) -> EventLoopFuture<License> {
+        do {
+            let uri = try Github.apiUri(for: package, resource: .license)
+            return Github.fetchResource(Github.License.self, client: client, uri: uri)
+        } catch {
+            return client.eventLoop.future(error: error)
+        }
+    }
+
 }
 
 
@@ -64,9 +133,7 @@ extension Github {
         guard let token = Current.githubToken() else {
             return client.eventLoop.future(error: Error.missingToken)
         }
-        let headers = HTTPHeaders([("User-Agent", "SPI-Server"),
-                                   ("Authorization", "Bearer \(token)")])
-        return client.post(Self.graphQLApiUri, headers: headers) { req in
+        return client.post(Self.graphQLApiUri, headers: headers(with: token)) { req in
             try req.content.encode(query)
         }
         .flatMap { response -> EventLoopFuture<ClientResponse> in
@@ -113,7 +180,13 @@ extension Github {
 }
 
 
+// MARK: - Data transfer objects (DTOs)
+
 extension Github {
+
+    struct License: Decodable, Equatable {
+        var htmlUrl: String
+    }
 
     struct Metadata: Decodable, Equatable {
         static func query(owner: String, repository: String) -> GraphQLQuery {

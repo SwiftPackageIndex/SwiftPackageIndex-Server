@@ -114,8 +114,10 @@ enum License: String, Codable, Equatable {
     
     var licenseKind: Kind {
         switch self {
-            case .other,
-                 .none: return .noneOrUnknown
+            case .other:
+                return .other
+            case .none:
+                return .none
             case .agpl_3_0,
                  .gpl,
                  .gpl_2_0,
@@ -128,7 +130,8 @@ enum License: String, Codable, Equatable {
     }
     
     enum Kind: String {
-        case noneOrUnknown = "none"
+        case none
+        case other
         case incompatibleWithAppStore = "incompatible"
         case compatibleWithAppStore = "compatible"
     }

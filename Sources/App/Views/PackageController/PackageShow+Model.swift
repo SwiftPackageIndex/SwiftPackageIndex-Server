@@ -16,6 +16,7 @@ extension PackageShow {
         var history: History?
         var languagePlatforms: LanguagePlatformInfo
         var license: License
+        var licenseUrl: String?
         var products: ProductCounts?
         var releases: ReleaseInfo
         var stars: Int?
@@ -34,6 +35,7 @@ extension PackageShow {
                       history: History? = nil,
                       languagePlatforms: LanguagePlatformInfo,
                       license: License,
+                      licenseUrl: String? = nil,
                       products: ProductCounts? = nil,
                       releases: ReleaseInfo,
                       stars: Int? = nil,
@@ -82,6 +84,7 @@ extension PackageShow {
                 history: package.history(),
                 languagePlatforms: package.languagePlatformInfo(),
                 license: package.repository?.license ?? .none,
+                licenseUrl: package.repository?.licenseUrl,
                 products: package.productCounts(),
                 releases: package.releaseInfo(),
                 stars: package.repository?.stars,

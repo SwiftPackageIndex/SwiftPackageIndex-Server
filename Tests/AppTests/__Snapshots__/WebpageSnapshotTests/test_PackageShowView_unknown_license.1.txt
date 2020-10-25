@@ -8,12 +8,12 @@
     <link rel="canonical" href="http://localhost:8080/"/>
     <meta name="twitter:url" content="http://localhost:8080/"/>
     <meta name="og:url" content="http://localhost:8080/"/>
-    <title>Alamofire &ndash; Swift Package Index</title>
-    <meta name="twitter:title" content="Alamofire &ndash; Swift Package Index"/>
-    <meta name="og:title" content="Alamofire &ndash; Swift Package Index"/>
-    <meta name="description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
-    <meta name="twitter:description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
-    <meta name="og:description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
+    <title>PSPDFKit &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="PSPDFKit &ndash; Swift Package Index"/>
+    <meta name="og:title" content="PSPDFKit &ndash; Swift Package Index"/>
+    <meta name="description" content="PSPDFKit on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicul…"/>
+    <meta name="twitter:description" content="PSPDFKit on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicul…"/>
+    <meta name="og:description" content="PSPDFKit on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicul…"/>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
@@ -59,14 +59,14 @@
       <div class="inner">
         <div class="split">
           <div><!--CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE--><!--10-->
-            <h2>Alamofire</h2>
+            <h2>PSPDFKit</h2>
             <small>
-              <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
+              <a id="package_url" href="https://github.com/PSPDFKit/PSPDFKit-SP.git">https://github.com/PSPDFKit/PSPDFKit-SP.git</a>
             </small>
           </div>
-          <a href="/faq#license-problems">
-            <div class="lozenge red" title="No License">
-              <i class="icon warning"></i>No License
+          <a href="https://github.com/foo/bar/blob/main/LICENSE">
+            <div class="lozenge orange" title="Unknown License">
+              <i class="icon warning"></i>Unknown License
             </div>
           </a>
         </div>
@@ -89,7 +89,7 @@
               <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and 
               <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.
             </li>
-            <li class="icon products">Alamofire contains 
+            <li class="icon products">PSPDFKit contains 
               <strong>3 libraries</strong> and 
               <strong>1 executable</strong>.
             </li>
@@ -212,9 +212,9 @@
             </li>
           </ul>
           <div class="right">
-            <div id="swift_version_badge" hidden>[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2FAlamo%2FAlamofire%2Fbadge%3Ftype%3Dswift-versions)](http://localhost:8080/Alamo/Alamofire)</div>
+            <div id="swift_version_badge" hidden>[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2FPSPDFKit%2FPSPDFKit-SP%2Fbadge%3Ftype%3Dswift-versions)](http://localhost:8080/PSPDFKit/PSPDFKit-SP)</div>
             <div>
-              <a href="/Alamo/Alamofire/builds">Full build results</a>
+              <a href="/PSPDFKit/PSPDFKit-SP/builds">Full build results</a>
             </div>
           </div>
         </section>
@@ -358,9 +358,9 @@
             </li>
           </ul>
           <div class="right">
-            <div id="platform_badge" hidden>[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2FAlamo%2FAlamofire%2Fbadge%3Ftype%3Dplatforms)](http://localhost:8080/Alamo/Alamofire)</div>
+            <div id="platform_badge" hidden>[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2FPSPDFKit%2FPSPDFKit-SP%2Fbadge%3Ftype%3Dplatforms)](http://localhost:8080/PSPDFKit/PSPDFKit-SP)</div>
             <div>
-              <a href="/Alamo/Alamofire/builds">Full build results</a>
+              <a href="/PSPDFKit/PSPDFKit-SP/builds">Full build results</a>
             </div>
           </div>
         </section>
