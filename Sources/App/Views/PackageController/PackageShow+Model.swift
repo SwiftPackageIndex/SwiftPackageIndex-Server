@@ -53,6 +53,7 @@ extension PackageShow {
             self.history = history
             self.languagePlatforms = languagePlatforms
             self.license = license
+            self.licenseUrl = licenseUrl
             self.products = products
             self.releases = releases
             self.stars = stars
