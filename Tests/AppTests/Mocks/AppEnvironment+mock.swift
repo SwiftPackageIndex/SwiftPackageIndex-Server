@@ -21,6 +21,7 @@ extension AppEnvironment {
         gitlabApiToken: { nil },
         gitlabPipelineToken: { nil },
         gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
+        hideStagingBanner: { false },
         random: Double.random,
         reportError: { _, _, _ in .just(value: ()) },
         rollbarToken: { nil },

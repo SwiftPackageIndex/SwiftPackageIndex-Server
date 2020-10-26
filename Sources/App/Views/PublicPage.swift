@@ -195,6 +195,7 @@ class PublicPage {
     /// A stagig banner, which only appears on the staging/development server.
     /// - Returns: Either a <div> element, or nothing.
     final func stagingBanner() -> Node<HTML.BodyContext> {
+        guard !Current.hideStagingBanner() else { return .text("") }
         let environment = (try? Environment.detect()) ?? .development
         if environment == .development {
             return .div(
