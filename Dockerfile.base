@@ -1,7 +1,7 @@
 # Build:
-# docker build -t finestructure/spi-base:0.1.0 -f Dockerfile.base .
-# docker push finestructure/spi-base:0.1.0
-FROM swift:5.2.4-bionic
+# docker build -t finestructure/spi-base:x.y.z -f Dockerfile.base .
+# docker push finestructure/spi-base:x.y.z
+FROM swift:5.3-bionic
 # FROM ubuntu:18.04  # fails (missing system libxml2.so.2)
 # FROM vapor/ubuntu:18.04  # fails with invalid linker name in argument '-fuse-ld=gold'
 
@@ -9,8 +9,10 @@ FROM swift:5.2.4-bionic
 RUN apt-get update && apt-get install -y git curl
 
 # install swift toolchain so we can run `swift package dump-package`
-WORKDIR /
-RUN curl https://swift.org/builds/swift-5.3-branch/ubuntu1804/swift-5.3-DEVELOPMENT-SNAPSHOT-2020-07-04-a/swift-5.3-DEVELOPMENT-SNAPSHOT-2020-07-04-a-ubuntu18.04.tar.gz -o toolchain.tgz \
-    && tar xvfz toolchain.tgz \
-    && rm toolchain.tgz
-RUN ln -s /swift-5.3-DEVELOPMENT-SNAPSHOT-2020-07-04-a-ubuntu18.04 /swift-5.3
+# (enable this whenever we need to support an upcoming Swift version before updating the
+# base image's swift version)
+# WORKDIR /
+# RUN curl https://swift.org/builds/swift-5.3-branch/ubuntu1804/swift-5.3-DEVELOPMENT-SNAPSHOT-2020-07-04-a/swift-5.3-DEVELOPMENT-SNAPSHOT-2020-07-04-a-ubuntu18.04.tar.gz -o toolchain.tgz \
+#     && tar xvfz toolchain.tgz \
+#     && rm toolchain.tgz
+# RUN ln -s /swift-5.3-DEVELOPMENT-SNAPSHOT-2020-07-04-a-ubuntu18.04 /swift-5.3
