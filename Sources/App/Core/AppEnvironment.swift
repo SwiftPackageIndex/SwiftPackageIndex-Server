@@ -27,7 +27,7 @@ struct AppEnvironment {
 }
 
 extension AppEnvironment {
-    static let live: Self = .init(
+    static let live: Self = AppEnvironment(
         allowBuildTriggers: {
             Environment.get("ALLOW_BUILD_TRIGGERS")
                 .flatMap(\.asBool)
