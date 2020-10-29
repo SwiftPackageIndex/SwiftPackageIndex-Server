@@ -247,6 +247,20 @@ class GithubTests: AppTestCase {
         let res = try Github.fetchLicense(client: client, package: pkg).wait()
 
         // validate
-        XCTAssertEqual(res.htmlUrl, "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE")
+        XCTAssertEqual(res?.htmlUrl, "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE")
+    }
+
+    func test_fetchLicense_notFound() throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
+        // setup
+        Current.githubToken = { "secr3t" }
+        let pkg = Package(url: "https://github.com/foo/bar")
+        let client = MockClient { _, resp in resp.status = .notFound }
+
+        // MUT
+        let res = try Github.fetchLicense(client: client, package: pkg).wait()
+
+        // validate
+        XCTAssertEqual(res, nil)
     }
 }
