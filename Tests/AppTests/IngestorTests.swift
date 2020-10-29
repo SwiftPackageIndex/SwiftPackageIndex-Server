@@ -50,12 +50,15 @@ class IngestorTests: AppTestCase {
             }
             return .just(value: .mock(for: pkg))
         }
-        
+        Current.fetchLicense = { _, _ in .just(value: Github.License(htmlUrl: "license")) }
+
         // MUT
         let res = try fetchMetadata(client: app.client, packages: packages).wait()
         
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
+        let license = try XCTUnwrap(res.last?.get().2)
+        XCTAssertEqual(license, .init(htmlUrl: "license"))
     }
     
     func test_insertOrUpdateRepository() throws {
