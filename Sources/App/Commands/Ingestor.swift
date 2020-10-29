@@ -77,7 +77,7 @@ func ingest(application: Application, packages: EventLoopFuture<[Package]>) -> E
 /// - Returns: results future
 func fetchMetadata(
     client: Client, packages: [Package]
-) -> EventLoopFuture<[Result<(Package, Github.Metadata, Github.License), Error>]> {
+) -> EventLoopFuture<[Result<(Package, Github.Metadata, Github.License?), Error>]> {
     let ops = packages.map { pkg in
         Current.fetchMetadata(client, pkg)
             .and(Current.fetchLicense(client, pkg))
@@ -94,7 +94,7 @@ func fetchMetadata(
 /// - Returns: results future
 func updateRepositories(
     on database: Database,
-    metadata: [Result<(Package, Github.Metadata, Github.License), Error>]
+    metadata: [Result<(Package, Github.Metadata, Github.License?), Error>]
 ) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = metadata.map { result -> EventLoopFuture<Package> in
         switch result {
@@ -121,7 +121,7 @@ func updateRepositories(
 func insertOrUpdateRepository(on database: Database,
                               for package: Package,
                               metadata: Github.Metadata,
-                              licenseInfo: Github.License) -> EventLoopFuture<Void> {
+                              licenseInfo: Github.License?) -> EventLoopFuture<Void> {
     guard let pkgId = try? package.requireID() else {
         return database.eventLoop.future(error: AppError.genericError(nil, "package id not found"))
     }
@@ -140,7 +140,7 @@ func insertOrUpdateRepository(on database: Database,
             repo.lastIssueClosedAt = repository.lastIssueClosedAt
             repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
             repo.license = .init(from: repository.licenseInfo)
-            repo.licenseUrl = licenseInfo.htmlUrl
+            repo.licenseUrl = licenseInfo?.htmlUrl
             repo.name = repository.name
             repo.openIssues = repository.openIssues.totalCount
             repo.openPullRequests = repository.openPullRequests.totalCount

@@ -50,12 +50,15 @@ class IngestorTests: AppTestCase {
             }
             return .just(value: .mock(for: pkg))
         }
-        
+        Current.fetchLicense = { _, _ in .just(value: Github.License(htmlUrl: "license")) }
+
         // MUT
         let res = try fetchMetadata(client: app.client, packages: packages).wait()
         
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
+        let license = try XCTUnwrap(res.last?.get().2)
+        XCTAssertEqual(license, .init(htmlUrl: "license"))
     }
     
     func test_insertOrUpdateRepository() throws {
@@ -83,7 +86,7 @@ class IngestorTests: AppTestCase {
     func test_updateRepositories() throws {
         // setup
         let pkg = try savePackage(on: app.db, "2")
-        let metadata: [Result<(Package, Github.Metadata, Github.License), Error>] = [
+        let metadata: [Result<(Package, Github.Metadata, Github.License?), Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
             .success((pkg,
                       .init(defaultBranch: "main",
@@ -296,7 +299,26 @@ class IngestorTests: AppTestCase {
         XCTAssert(reportedError?.contains("duplicate key value violates unique constraint") ?? false)
     }
     
-    
+    func test_issue_761_no_license() throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
+        // setup
+        let packages = try savePackages(on: app.db, ["https://github.com/foo/1"])
+        // use mock for metadata request which we're not interested in ...
+        Current.fetchMetadata = { _, _ in .just(value: Github.Metadata()) }
+        // and live fetch request for fetchLicense, whose behaviour we want to test ...
+        Current.fetchLicense = Github.fetchLicense(client:package:)
+        // and simulate its underlying request returning a 404 (by making all requests
+        // return a 404, but it's the only one we're sending)
+        let client = MockClient { _, resp in resp.status = .notFound }
+
+        // MUT
+        let res = try fetchMetadata(client: client, packages: packages).wait()
+
+        // validate
+        XCTAssertEqual(res.map(\.isSuccess), [true], "future must be in success state")
+        let license = try XCTUnwrap(res.first?.get()).2
+        XCTAssertEqual(license, nil)
+    }
 }
 
 
