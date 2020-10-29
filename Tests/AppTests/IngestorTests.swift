@@ -296,7 +296,19 @@ class IngestorTests: AppTestCase {
         XCTAssert(reportedError?.contains("duplicate key value violates unique constraint") ?? false)
     }
     
-    
+    func test_issue_761_no_license() throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
+        // setup
+        let packages = try savePackages(on: app.db, ["https://github.com/foo/1"])
+        Current.fetchMetadata = { _, _ in .just(value: Github.Metadata()) }
+        Current.fetchLicense = { _, _ in .just(error: Github.Error.requestFailed(.notFound)) }
+
+        // MUT
+        let res = try fetchMetadata(client: app.client, packages: packages).wait()
+
+        // validate
+        XCTAssertEqual(res.map(\.isSuccess), [true])
+    }
 }
 
 
