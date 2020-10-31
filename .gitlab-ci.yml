@@ -129,13 +129,14 @@ smoke-test:
     - spi-prod-backup
   script: |
     TARFILE=spi_${ENV}_$(date +%Y-%m-%d).tgz
-    ./scripts/db_backup.sh $TARFILE
+    DUMPFILE=$(basename $TARFILE .tgz).dump
+    ./scripts/db_backup.sh $TARFILE $DUMPFILE
     ./scripts/convert_to_db_dump.sh $TARFILE
     # copy file to S3
     S3_BACKUP_DIR=/Users/spi/Desktop/spi-db-backups
     # mount s3fs just in case (ignoring errors when it's already mounted)
     s3fs spi-db-backups ${S3_BACKUP_DIR} -o passwd_file=/Users/spi/.passwd-s3fs || true
-    cp $TARFILE ${S3_BACKUP_DIR}/
+    cp $DUMPFILE ${S3_BACKUP_DIR}/
 
 db-backup (scheduled):  # PROD: auto-backup on schedule
   rules:

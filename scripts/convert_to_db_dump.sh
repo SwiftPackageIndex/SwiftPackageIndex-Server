@@ -3,7 +3,7 @@
 set -eu
 
 TARFILE=$1
-DUMPFILE=$(basename $TARFILE .tgz).dump
+DUMPFILE=$2
 PG_IMAGE=postgres:12.1-alpine
 
 [[ -n $DATABASE_PASSWORD ]]  || (echo "DATABASE_PASSWORD not set" && exit 1)
