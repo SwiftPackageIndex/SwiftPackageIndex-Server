@@ -62,6 +62,7 @@ extension Github {
 
     enum Resource: String {
         case license
+        case readme
     }
 
     static func apiUri(for package: Package,
@@ -73,7 +74,7 @@ extension Github {
             .droppingGithubComPrefix
             .droppingGitExtension
         switch resource {
-            case .license:
+            case .license, .readme:
                 return URI(string: "https://api.github.com/repos/\(trunk)/\(resource.rawValue)\(queryString)")
         }
     }
@@ -112,6 +113,17 @@ extension Github {
             let uri = try Github.apiUri(for: package, resource: .license)
             return Github.fetchResource(Github.License.self, client: client, uri: uri)
                 .map { license -> License? in license }
+                .recover { _ in nil }
+        } catch {
+            return client.eventLoop.future(error: error)
+        }
+    }
+
+    static func fetchReadme(client: Client, package: Package) -> EventLoopFuture<Readme?> {
+        do {
+            let uri = try Github.apiUri(for: package, resource: .readme)
+            return Github.fetchResource(Github.Readme.self, client: client, uri: uri)
+                .map { readme -> Readme? in readme }
                 .recover { _ in nil }
         } catch {
             return client.eventLoop.future(error: error)
@@ -187,6 +199,10 @@ extension Github {
 extension Github {
 
     struct License: Decodable, Equatable {
+        var htmlUrl: String
+    }
+
+    struct Readme: Decodable, Equatable {
         var htmlUrl: String
     }
 
