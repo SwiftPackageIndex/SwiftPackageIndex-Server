@@ -10,6 +10,7 @@ struct AppEnvironment {
     var fetchPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
     var fetchLicense: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.License?>
     var fetchMetadata: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Metadata>
+    var fetchReadme: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Readme?>
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
@@ -43,6 +44,7 @@ extension AppEnvironment {
         fetchPackageList: liveFetchPackageList,
         fetchLicense: Github.fetchLicense(client:package:),
         fetchMetadata: Github.fetchMetadata(client:package:),
+        fetchReadme: Github.fetchReadme(client:package:),
         fileManager: .live,
         getStatusCount: { client, status in
             Gitlab.Builder.getStatusCount(
