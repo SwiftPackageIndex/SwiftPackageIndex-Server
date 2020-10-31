@@ -42,7 +42,8 @@ enum PackageShow {
                                 .href(model.url),
                                 .text(model.url)
                             )
-                        ])
+                        ]),
+                        arenaButton()
                     ),
                     licenseLozenge()
                 ),
@@ -123,7 +124,15 @@ enum PackageShow {
                     )
             }
         }
-        
+
+        func arenaButton() -> Node<HTML.BodyContext> {
+            let environment = (try? Environment.detect()) ?? .development
+            return .if(environment != .production,
+                       .a(.href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
+                          "🏟")
+            )
+        }
+
     }
 }
 
