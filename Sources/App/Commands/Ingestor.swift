@@ -77,11 +77,12 @@ func ingest(application: Application, packages: EventLoopFuture<[Package]>) -> E
 /// - Returns: results future
 func fetchMetadata(
     client: Client, packages: [Package]
-) -> EventLoopFuture<[Result<(Package, Github.Metadata, Github.License?), Error>]> {
+) -> EventLoopFuture<[Result<(Package, Github.Metadata, Github.License?, Github.Readme?), Error>]> {
     let ops = packages.map { pkg in
         Current.fetchMetadata(client, pkg)
             .and(Current.fetchLicense(client, pkg))
-            .map { (pkg, $0, $1) }
+            .and(Current.fetchReadme(client, pkg))
+            .map { (pkg, $0.0, $0.1, $1) }
     }
     return EventLoopFuture.whenAllComplete(ops, on: client.eventLoop)
 }
@@ -94,15 +95,16 @@ func fetchMetadata(
 /// - Returns: results future
 func updateRepositories(
     on database: Database,
-    metadata: [Result<(Package, Github.Metadata, Github.License?), Error>]
+    metadata: [Result<(Package, Github.Metadata, Github.License?, Github.Readme?), Error>]
 ) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = metadata.map { result -> EventLoopFuture<Package> in
         switch result {
-            case let .success((pkg, metadata, licenseInfo)):
+            case let .success((pkg, metadata, licenseInfo, readmeInfo)):
                 return insertOrUpdateRepository(on: database,
                                                 for: pkg,
                                                 metadata: metadata,
-                                                licenseInfo: licenseInfo)
+                                                licenseInfo: licenseInfo,
+                                                readmeInfo: readmeInfo)
                     .map { pkg }
             case let .failure(error):
                 return database.eventLoop.future(error: error)
@@ -121,7 +123,8 @@ func updateRepositories(
 func insertOrUpdateRepository(on database: Database,
                               for package: Package,
                               metadata: Github.Metadata,
-                              licenseInfo: Github.License?) -> EventLoopFuture<Void> {
+                              licenseInfo: Github.License?,
+                              readmeInfo: Github.Readme?) -> EventLoopFuture<Void> {
     guard let pkgId = try? package.requireID() else {
         return database.eventLoop.future(error: AppError.genericError(nil, "package id not found"))
     }
@@ -145,6 +148,7 @@ func insertOrUpdateRepository(on database: Database,
             repo.openIssues = repository.openIssues.totalCount
             repo.openPullRequests = repository.openPullRequests.totalCount
             repo.owner = repository.owner.login
+            repo.readmeUrl = readmeInfo?.htmlUrl
             repo.stars = repository.stargazerCount
             repo.summary = repository.description
             // TODO: find and assign parent repo
