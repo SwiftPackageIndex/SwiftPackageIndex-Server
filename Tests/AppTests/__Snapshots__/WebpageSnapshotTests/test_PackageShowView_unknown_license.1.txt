@@ -63,6 +63,7 @@
             <small>
               <a id="package_url" href="https://github.com/PSPDFKit/PSPDFKit-SP.git">https://github.com/PSPDFKit/PSPDFKit-SP.git</a>
             </small>
+            <a href="slide://open?dependencies=PSPDFKit/PSPDFKit-SP">🏟</a>
           </div>
           <a href="https://github.com/foo/bar/blob/main/LICENSE">
             <div class="lozenge orange" title="Unknown License">
