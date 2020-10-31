@@ -25,6 +25,7 @@ final class RepositoryTests: AppTestCase {
                                   licenseUrl: "https://github.com/foo/bar/blob/main/LICENSE",
                                   openIssues: 3,
                                   openPullRequests: 4,
+                                  readmeUrl: "https://github.com/foo/bar/blob/main/README.md",
                                   stars: 42,
                                   forks: 17,
                                   forkedFrom: nil)
@@ -48,6 +49,7 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(r.licenseUrl, "https://github.com/foo/bar/blob/main/LICENSE")
             XCTAssertEqual(r.openIssues, 3)
             XCTAssertEqual(r.openPullRequests, 4)
+            XCTAssertEqual(r.readmeUrl, "https://github.com/foo/bar/blob/main/README.md")
             XCTAssertEqual(r.stars, 42)
             XCTAssertEqual(r.forks, 17)
             XCTAssertEqual(r.forkedFrom, nil)
