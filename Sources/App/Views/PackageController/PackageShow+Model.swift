@@ -18,6 +18,7 @@ extension PackageShow {
         var license: License
         var licenseUrl: String?
         var products: ProductCounts?
+        var readmeUrl: String?
         var releases: ReleaseInfo
         var stars: Int?
         var summary: String?
@@ -37,6 +38,7 @@ extension PackageShow {
                       license: License,
                       licenseUrl: String? = nil,
                       products: ProductCounts? = nil,
+                      readmeUrl: String? = nil,
                       releases: ReleaseInfo,
                       stars: Int? = nil,
                       summary: String?,
@@ -55,6 +57,7 @@ extension PackageShow {
             self.license = license
             self.licenseUrl = licenseUrl
             self.products = products
+            self.readmeUrl = readmeUrl
             self.releases = releases
             self.stars = stars
             self.summary = summary
@@ -87,6 +90,7 @@ extension PackageShow {
                 license: package.repository?.license ?? .none,
                 licenseUrl: package.repository?.licenseUrl,
                 products: package.productCounts(),
+                readmeUrl: package.repository?.readmeUrl,
                 releases: package.releaseInfo(),
                 stars: package.repository?.stars,
                 summary: package.repository?.summary,

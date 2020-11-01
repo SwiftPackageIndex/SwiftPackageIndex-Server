@@ -89,6 +89,7 @@ extension PackageShow.Model {
             license: .mit,
             licenseUrl: nil,
             products: .init(libraries: 3, executables: 1),
+            readmeUrl: "https://github.com/Alamofire/Alamofire/blob/main/README.md",
             releases: .init(stable: .init(date: "12 days ago",
                                           link: .init(label: "5.2.0",
                                                       url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0")),

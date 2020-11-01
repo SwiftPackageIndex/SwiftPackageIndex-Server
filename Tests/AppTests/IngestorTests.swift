@@ -67,7 +67,8 @@ class IngestorTests: AppTestCase {
             try insertOrUpdateRepository(on: app.db,
                                          for: pkg,
                                          metadata: .mock(for: pkg),
-                                         licenseInfo: .init(htmlUrl: "")).wait()
+                                         licenseInfo: .init(htmlUrl: ""),
+                                         readmeInfo: .init(htmlUrl: "")).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("This is package https://github.com/foo/bar")])
         }
@@ -77,7 +78,8 @@ class IngestorTests: AppTestCase {
             try insertOrUpdateRepository(on: app.db,
                                          for: pkg,
                                          metadata: md,
-                                         licenseInfo: .init(htmlUrl: "")).wait()
+                                         licenseInfo: .init(htmlUrl: ""),
+                                         readmeInfo: .init(htmlUrl: "")).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])
         }
@@ -86,7 +88,8 @@ class IngestorTests: AppTestCase {
     func test_updateRepositories() throws {
         // setup
         let pkg = try savePackage(on: app.db, "2")
-        let metadata: [Result<(Package, Github.Metadata, Github.License?), Error>] = [
+        let metadata: [Result<(Package, Github.Metadata, Github.License?, Github.Readme?),
+                              Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
             .success((pkg,
                       .init(defaultBranch: "main",
@@ -108,7 +111,8 @@ class IngestorTests: AppTestCase {
                             name: "bar",
                             stars: 2,
                             summary: "package desc"),
-                      licenseInfo: .init(htmlUrl: "license url")))
+                      licenseInfo: .init(htmlUrl: "license url"),
+                      readmeInfo: .init(htmlUrl: "readme url")))
         ]
         
         // MUT
@@ -130,6 +134,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.openIssues, 1)
         XCTAssertEqual(repo.openPullRequests, 2)
         XCTAssertEqual(repo.owner, "foo")
+        XCTAssertEqual(repo.readmeUrl, "readme url")
         XCTAssertEqual(repo.name, "bar")
         XCTAssertEqual(repo.stars, 2)
         XCTAssertEqual(repo.summary, "package desc")
@@ -201,7 +206,8 @@ class IngestorTests: AppTestCase {
             .map { insertOrUpdateRepository(on: self.app.db,
                                             for: $0.0,
                                             metadata: $0.1,
-                                            licenseInfo: .init(htmlUrl: "")) }
+                                            licenseInfo: .init(htmlUrl: ""),
+                                            readmeInfo: .init(htmlUrl: "")) }
             .flatten(on: app.db.eventLoop)
         
         try req.wait()

@@ -70,6 +70,9 @@ final class Repository: Model, Content {
     @Field(key: "owner")
     var owner: String?
     
+    @Field(key: "readme_url")
+    var readmeUrl: String?
+
     @Field(key: "stars")
     var stars: Int?
     
@@ -96,6 +99,7 @@ final class Repository: Model, Content {
          openIssues: Int? = nil,
          openPullRequests: Int? = nil,
          owner: String? = nil,
+         readmeUrl: String? = nil,
          stars: Int? = nil,
          forks: Int? = nil,
          forkedFrom: Repository? = nil) throws {
@@ -115,6 +119,7 @@ final class Repository: Model, Content {
         self.openIssues = openIssues
         self.openPullRequests = openPullRequests
         self.owner = owner
+        self.readmeUrl = readmeUrl
         self.stars = stars
         self.forks = forks
         if let forkId = forkedFrom?.id {

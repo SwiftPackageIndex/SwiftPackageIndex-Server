@@ -228,9 +228,11 @@ class GithubTests: AppTestCase {
     }
 
     func test_apiUri() throws {
-        let pkg = Package(url: "https://github.com/PSPDFKit/PSPDFKit-SP")
-        let uri = try Github.apiUri(for: pkg, resource: .license)
-        XCTAssertEqual(uri.string, "https://api.github.com/repos/PSPDFKit/PSPDFKit-SP/license")
+        let pkg = Package(url: "https://github.com/foo/bar")
+        XCTAssertEqual(try Github.apiUri(for: pkg, resource: .license).string,
+                       "https://api.github.com/repos/foo/bar/license")
+        XCTAssertEqual(try Github.apiUri(for: pkg, resource: .readme).string,
+                       "https://api.github.com/repos/foo/bar/readme")
     }
 
     func test_fetchLicense() throws {
@@ -263,4 +265,35 @@ class GithubTests: AppTestCase {
         // validate
         XCTAssertEqual(res, nil)
     }
+
+    func test_fetchReadme() throws {
+        // setup
+        Current.githubToken = { "secr3t" }
+        let pkg = Package(url: "https://github.com/daveverwer/leftpad")
+        let data = try XCTUnwrap(try loadData(for: "github-readme-response.json"))
+        let client = MockClient { _, resp in
+            resp.status = .ok
+            resp.body = makeBody(data)
+        }
+
+        // MUT
+        let res = try Github.fetchReadme(client: client, package: pkg).wait()
+
+        // validate
+        XCTAssertEqual(res?.htmlUrl, "https://github.com/daveverwer/LeftPad/blob/master/README.md")
+    }
+
+    func test_fetchReadme_notFound() throws {
+        // setup
+        Current.githubToken = { "secr3t" }
+        let pkg = Package(url: "https://github.com/daveverwer/leftpad")
+        let client = MockClient { _, resp in resp.status = .notFound }
+
+        // MUT
+        let res = try Github.fetchReadme(client: client, package: pkg).wait()
+
+        // validate
+        XCTAssertEqual(res?.htmlUrl, nil)
+    }
+
 }
