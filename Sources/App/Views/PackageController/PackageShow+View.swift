@@ -147,6 +147,7 @@ enum PackageShow {
 
         func licenseMetadata() -> Node<HTML.BodyContext> {
             return .div(
+                .class("license"),
                 .unwrap(model.licenseUrl, { licenseUrl in
                     .a(
                         .href(licenseUrl),
