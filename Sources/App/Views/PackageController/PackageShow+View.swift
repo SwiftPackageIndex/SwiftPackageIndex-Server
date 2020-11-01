@@ -44,7 +44,7 @@ enum PackageShow {
                             )
                         ])
                     ),
-                    licenseLozenge()
+                    licenseMetadata()
                 ),
                 .hr(),
                 .p(
@@ -101,27 +101,57 @@ enum PackageShow {
                         .text(model.license.shortName)
                     )
                 case .other:
-                    return .a(
-                        .href(model.licenseUrl ?? SiteURL.faq.relativeURL(anchor: "license-problems")),
-                        .div(
-                            .class("lozenge \(model.license.licenseKind.cssClass)"),
-                            .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                            .i(.class("icon warning")),
-                            .text(model.license.shortName)
-                        )
+                    return .div(
+                        .class("lozenge \(model.license.licenseKind.cssClass)"),
+                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                        .i(.class("icon warning")),
+                        .text(model.license.shortName)
                     )
                 case .none,
                      .incompatibleWithAppStore:
-                    return .a(
-                        .href(SiteURL.faq.relativeURL(anchor: "license-problems")),
-                        .div(
-                            .class("lozenge \(model.license.licenseKind.cssClass)"),
-                            .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                            .i(.class("icon warning")),
-                            .text(model.license.shortName)
-                        )
+                    return .div(
+                        .class("lozenge \(model.license.licenseKind.cssClass)"),
+                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                        .i(.class("icon warning")),
+                        .text(model.license.shortName)
                     )
             }
+        }
+
+        func licenseLozengeANCHOR() -> Node<HTML.AnchorContext> {
+            switch model.license.licenseKind {
+                case .compatibleWithAppStore:
+                    return .div(
+                        .class("lozenge green"),
+                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                        .i(.class("icon osi")),
+                        .text(model.license.shortName)
+                    )
+                case .other:
+                    return .div(
+                        .class("lozenge \(model.license.licenseKind.cssClass)"),
+                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                        .i(.class("icon warning")),
+                        .text(model.license.shortName)
+                    )
+                case .none,
+                     .incompatibleWithAppStore:
+                    return .div(
+                        .class("lozenge \(model.license.licenseKind.cssClass)"),
+                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                        .i(.class("icon warning")),
+                        .text(model.license.shortName)
+                    )
+            }
+        }
+
+        func licenseMetadata() -> Node<HTML.BodyContext> {
+            return .unwrap(model.licenseUrl, { licenseUrl in
+                .a(
+                    .href(licenseUrl),
+                    licenseLozengeANCHOR()
+                )
+            }, else: licenseLozenge())
         }
         
     }
