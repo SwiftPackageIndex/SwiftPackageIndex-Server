@@ -131,7 +131,7 @@ smoke-test:
     TARFILE=spi_${ENV}_$(date +%Y-%m-%d).tgz
     DUMPFILE=$(basename $TARFILE .tgz).dump
     ./scripts/db_backup.sh $TARFILE $DUMPFILE
-    ./scripts/convert_to_db_dump.sh $TARFILE
+    ./scripts/convert_to_db_dump.sh $TARFILE $DUMPFILE
     # copy file to S3
     S3_BACKUP_DIR=/Users/spi/Desktop/spi-db-backups
     # mount s3fs just in case (ignoring errors when it's already mounted)
