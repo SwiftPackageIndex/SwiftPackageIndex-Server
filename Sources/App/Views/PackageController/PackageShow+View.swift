@@ -146,12 +146,18 @@ enum PackageShow {
         }
 
         func licenseMetadata() -> Node<HTML.BodyContext> {
-            return .unwrap(model.licenseUrl, { licenseUrl in
+            return .div(
+                .unwrap(model.licenseUrl, { licenseUrl in
+                    .a(
+                        .href(licenseUrl),
+                        licenseLozengeANCHOR()
+                    )
+                }, else: licenseLozenge()),
                 .a(
-                    .href(licenseUrl),
-                    licenseLozengeANCHOR()
+                    .href(SiteURL.faq.relativeURL(anchor: "license-problems")),
+                    .i(.class("icon question"))
                 )
-            }, else: licenseLozenge())
+            )
         }
         
     }
