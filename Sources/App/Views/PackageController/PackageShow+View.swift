@@ -118,40 +118,13 @@ enum PackageShow {
             }
         }
 
-        func licenseLozengeANCHOR() -> Node<HTML.AnchorContext> {
-            switch model.license.licenseKind {
-                case .compatibleWithAppStore:
-                    return .div(
-                        .class("lozenge green"),
-                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                        .i(.class("icon osi")),
-                        .text(model.license.shortName)
-                    )
-                case .other:
-                    return .div(
-                        .class("lozenge \(model.license.licenseKind.cssClass)"),
-                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                        .i(.class("icon warning")),
-                        .text(model.license.shortName)
-                    )
-                case .none,
-                     .incompatibleWithAppStore:
-                    return .div(
-                        .class("lozenge \(model.license.licenseKind.cssClass)"),
-                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                        .i(.class("icon warning")),
-                        .text(model.license.shortName)
-                    )
-            }
-        }
-
         func licenseMetadata() -> Node<HTML.BodyContext> {
             return .div(
                 .class("license"),
                 .unwrap(model.licenseUrl, { licenseUrl in
                     .a(
-                        .href(licenseUrl),
-                        licenseLozengeANCHOR()
+                        href: licenseUrl,
+                        licenseLozenge()
                     )
                 }, else: licenseLozenge()),
                 .a(
