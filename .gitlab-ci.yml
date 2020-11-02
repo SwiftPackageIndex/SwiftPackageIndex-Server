@@ -136,7 +136,7 @@ smoke-test:
     S3_BACKUP_DIR=/Users/spi/Desktop/spi-db-backups
     # mount s3fs just in case (ignoring errors when it's already mounted)
     s3fs spi-db-backups ${S3_BACKUP_DIR} -o passwd_file=/Users/spi/.passwd-s3fs || true
-    cp $DUMPFILE ${S3_BACKUP_DIR}/
+    cp $DB_BACKUP_DIR/$DUMPFILE ${S3_BACKUP_DIR}/
 
 db-backup (scheduled):  # PROD: auto-backup on schedule
   rules:
