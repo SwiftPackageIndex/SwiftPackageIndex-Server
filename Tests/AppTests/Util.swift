@@ -108,7 +108,7 @@ class MockClient: Client {
     }
     
     var eventLoop: EventLoop {
-        return EmbeddedEventLoop()
+        EmbeddedEventLoop()
     }
     
     func delegating(to eventLoop: EventLoop) -> Client {

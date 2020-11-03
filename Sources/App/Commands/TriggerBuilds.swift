@@ -163,7 +163,6 @@ func triggerBuildsUnchecked(on database: Database,
                           swiftVersion: pair.swiftVersion)
                         .create(on: database)
                 }
-                .transform(to: ())
         }
         .flatten(on: database.eventLoop)
     }
