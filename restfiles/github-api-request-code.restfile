@@ -1,0 +1,15 @@
+# Input variables (i.e. run with env ...)
+# - client_id
+
+requests:
+    request code:
+        url: https://github.com/login/device/code
+        method: POST
+        headers:
+            Accept: application/json
+        body:
+            json:
+                client_id: ${client_id}
+        validation:
+            status: 200
+        log: json

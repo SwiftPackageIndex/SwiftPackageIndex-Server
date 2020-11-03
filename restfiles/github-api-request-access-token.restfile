@@ -1,0 +1,18 @@
+# Input variables (i.e. run with env ...)
+# - client_id
+# - device_code (from github-api-request-code.restfile response)
+
+requests:
+    request access token:
+        url: https://github.com/login/oauth/access_token
+        method: POST
+        headers:
+            Accept: application/json
+        body:
+            json:
+                client_id: ${client_id}
+                device_code: ${device_code}
+                grant_type: urn:ietf:params:oauth:grant-type:device_code
+        validation:
+            status: 200
+        log: json
