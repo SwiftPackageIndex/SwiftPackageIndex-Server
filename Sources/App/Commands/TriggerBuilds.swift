@@ -148,7 +148,7 @@ func triggerBuildsUnchecked(on database: Database,
                             client: Client,
                             logger: Logger,
                             triggers: [BuildTriggerInfo]) -> EventLoopFuture<Void> {
-    triggers.map { trigger -> EventLoopFuture<Void> in
+    triggers.flatMap { trigger -> [EventLoopFuture<Void>] in
         logger.info("Triggering \(trigger.pairs.count) builds for version id: \(trigger.versionId)")
         return trigger.pairs.map { pair in
             Build.trigger(database: database,
@@ -164,7 +164,6 @@ func triggerBuildsUnchecked(on database: Database,
                         .create(on: database)
                 }
         }
-        .flatten(on: database.eventLoop)
     }
     .flatten(on: database.eventLoop)
 }
