@@ -11,9 +11,6 @@ import XCTest
 private var _schemaCreated = false
 
 func setup(_ environment: Environment, resetDb: Bool = true) throws -> Application {
-    // Always start with a baseline mock environment to avoid hitting live resources
-    Current = .mock
-    
     let app = Application(.testing)
     app.logger.logLevel = Environment.get("LOG_LEVEL").flatMap(Logger.Level.init(rawValue:)) ?? .warning
     try configure(app)
@@ -23,6 +20,10 @@ func setup(_ environment: Environment, resetDb: Bool = true) throws -> Applicati
         _schemaCreated = true
     }
     if resetDb { try _resetDb(app) }
+
+    // Always start with a baseline mock environment to avoid hitting live resources
+    Current = .mock(eventLoop: app.eventLoopGroup.next())
+
     return app
 }
 
@@ -99,6 +100,7 @@ func fetch(id: Package.Id?, on db: Database, file: StaticString = #file, line: U
 
 
 class MockClient: Client {
+    let eventLoopGroup: EventLoopGroup
     var updateResponse: (ClientRequest, inout ClientResponse) -> Void
     
     func send(_ request: ClientRequest) -> EventLoopFuture<ClientResponse> {
@@ -108,7 +110,7 @@ class MockClient: Client {
     }
     
     var eventLoop: EventLoop {
-        EmbeddedEventLoop()
+        eventLoopGroup.next()
     }
     
     func delegating(to eventLoop: EventLoop) -> Client {
@@ -116,6 +118,7 @@ class MockClient: Client {
     }
     
     init(_ updateResponse: @escaping (ClientRequest, inout ClientResponse) -> Void) {
+        self.eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
         self.updateResponse = updateResponse
     }
 }

@@ -202,7 +202,7 @@ class BuildTriggerTests: AppTestCase {
         Current.gitlabPipelineLimit = { 300 }
 
         do {  // fist run: we are at capacity and should not be triggering more builds
-            Current.getStatusCount = { _, _ in .just(value: 300) }
+            Current.getStatusCount = { _, _ in self.future(300) }
 
             var triggerCount = 0
             let client = MockClient { _, _ in triggerCount += 1 }
@@ -229,7 +229,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         do {  // second run: we are just below capacity and allow more builds to be triggered
-            Current.getStatusCount = { _, _ in .just(value: 299) }
+            Current.getStatusCount = { _, _ in self.future(299) }
 
             var triggerCount = 0
             let client = MockClient { _, _ in triggerCount += 1 }
@@ -256,7 +256,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         do {  // third run: we are at capacity and using the `force` flag
-            Current.getStatusCount = { _, _ in .just(value: 300) }
+            Current.getStatusCount = { _, _ in self.future(300) }
 
             var triggerCount = 0
             let client = MockClient { _, _ in triggerCount += 1 }
@@ -294,7 +294,7 @@ class BuildTriggerTests: AppTestCase {
 
         var triggerCount = 0
         let client = MockClient { _, _ in triggerCount += 1 }
-        Current.getStatusCount = { _, _ in .just(value: 299 + triggerCount) }
+        Current.getStatusCount = { _, _ in self.future(299 + triggerCount) }
 
         let pkgIds = [UUID(), UUID()]
         try pkgIds.forEach { id in
