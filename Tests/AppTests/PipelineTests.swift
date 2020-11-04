@@ -100,8 +100,8 @@ class PipelineTests: AppTestCase {
         // Test pipeline pick-up end to end
         // setup
         let urls = ["1", "2", "3"].asGithubUrls
-        Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
-        Current.fetchPackageList = { _ in .just(value: urls.asURLs) }
+        Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
+        Current.fetchPackageList = { _ in self.future(urls.asURLs) }
         Current.shell.run = { cmd, path in
             if cmd.string == "/swift-5.3/usr/bin/swift package dump-package" {
                 return #"{ "name": "Mock", "products": [] }"#
@@ -144,7 +144,7 @@ class PipelineTests: AppTestCase {
         }
         
         // Now we've got a new package and a deletion
-        Current.fetchPackageList = { _ in .just(value: ["1", "3", "4"].asGithubUrls.asURLs) }
+        Current.fetchPackageList = { _ in self.future(["1", "3", "4"].asGithubUrls.asURLs) }
         
         // MUT - reconcile again
         try reconcile(client: app.client, database: app.db).wait()
