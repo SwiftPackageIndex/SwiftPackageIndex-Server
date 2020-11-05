@@ -130,6 +130,7 @@ extension Build {
             guard let reference = $0.reference else {
                 return database.eventLoop.future(error: Abort(.internalServerError))
             }
+            AppMetrics.buildTriggerTotal?.inc(1, .init(platform, swiftVersion))
             return Gitlab.Builder.postTrigger(client: client,
                                               cloneURL: $0.package.url,
                                               platform: platform,

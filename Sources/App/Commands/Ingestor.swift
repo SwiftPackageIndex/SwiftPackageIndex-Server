@@ -135,11 +135,11 @@ func insertOrUpdateRepository(on database: Database,
         .filter(\.$package.$id == pkgId)
         .first()
         .flatMap { repo -> EventLoopFuture<Void> in
-            let repo = repo ?? Repository(packageId: pkgId)
             guard let repository = metadata.repository else {
                 return database.eventLoop.future(
                     error: AppError.genericError(pkgId, "repository is nil for package \(package.url)"))
             }
+            let repo = repo ?? Repository(packageId: pkgId)
             repo.defaultBranch = repository.defaultBranch
             repo.forks = repository.forkCount
             repo.lastIssueClosedAt = repository.lastIssueClosedAt

@@ -3,8 +3,8 @@ import Vapor
 
 extension ByteBuffer {
 
-    func asString() -> String? {
-        getString(at: readerIndex, length: readableBytes)
+    func asString() -> String {
+        String(decoding: readableBytesView, as: UTF8.self)
     }
 
 }
