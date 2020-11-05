@@ -63,6 +63,7 @@
             <small>
               <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
             </small>
+            <a href="slide://open?dependencies=Alamo/Alamofire">🏟</a>
           </div>
           <a href="/faq#license-problems">
             <div class="lozenge orange" title="GNU General Public License v3.0">
