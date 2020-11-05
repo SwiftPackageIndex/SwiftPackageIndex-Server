@@ -37,13 +37,15 @@ struct IngestCommand: Command {
 ///   - id: package id
 /// - Returns: future
 func ingest(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
-    let packages = Package.query(on: application.db)
+    Package.query(on: application.db)
         .with(\.$repositories)
         .filter(\.$id == id)
         .first()
         .unwrap(or: Abort(.notFound))
         .map { [$0] }
-    return ingest(application: application, packages: packages)
+        .flatMap { packages in
+            ingest(application: application, packages: packages)
+        }
 }
 
 
@@ -53,8 +55,8 @@ func ingest(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
 ///   - limit: number of `Package`s to select from the candidate list
 /// - Returns: future
 func ingest(application: Application, limit: Int) -> EventLoopFuture<Void> {
-    let packages = Package.fetchCandidates(application.db, for: .ingestion, limit: limit)
-    return ingest(application: application, packages: packages)
+    Package.fetchCandidates(application.db, for: .ingestion, limit: limit)
+        .flatMap { ingest(application: application, packages: $0) }
 }
 
 
@@ -63,8 +65,8 @@ func ingest(application: Application, limit: Int) -> EventLoopFuture<Void> {
 ///   - application: `Application` object for database, client, and logger access
 ///   - packages: packages to be ingested
 /// - Returns: future
-func ingest(application: Application, packages: EventLoopFuture<[Package]>) -> EventLoopFuture<Void> {
-    let metadata = packages.flatMap { fetchMetadata(client: application.client, packages: $0) }
+func ingest(application: Application, packages: [Package]) -> EventLoopFuture<Void> {
+    let metadata = fetchMetadata(client: application.client, packages: packages)
     let updates = metadata.flatMap { updateRepositories(on: application.db, metadata: $0) }
     return updates.flatMap { updatePackage(application: application, results: $0, stage: .ingestion) }
 }
