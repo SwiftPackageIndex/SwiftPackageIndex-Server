@@ -27,11 +27,7 @@ class MetricsTests: AppTestCase {
             XCTAssertEqual(res.status, .ok)
             let content = res.body.asString()
             XCTAssertTrue(content.contains(
-                """
-                # TYPE spi_build_trigger_total counter
-                spi_build_trigger_total 0
-                spi_build_trigger_total{swiftVersion="5.3", platform="macos-spm"} 1
-                """
+                #"spi_build_trigger_total{swiftVersion="5.3", platform="macos-spm"}"#
             ), "was:\n\(content)")
         })
     }
