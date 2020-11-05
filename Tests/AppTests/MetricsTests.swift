@@ -1,6 +1,5 @@
 @testable import App
 
-import SnapshotTesting
 import XCTest
 
 
@@ -26,7 +25,13 @@ class MetricsTests: AppTestCase {
         try app.test(.GET, "metrics", afterResponse: { res in
             // validation
             XCTAssertEqual(res.status, .ok)
-            assertSnapshot(matching: res.body.asString(), as: .lines)
+            XCTAssertTrue(res.body.asString().contains(
+                """
+                # TYPE spi_build_trigger_total counter
+                spi_build_trigger_total 0
+                spi_build_trigger_total{swiftVersion="5.3", platform="macos-spm"} 1
+                """
+            ))
         })
     }
 

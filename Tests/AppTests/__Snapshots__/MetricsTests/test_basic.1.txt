@@ -1,3 +1,0 @@
-# TYPE spi_build_trigger_total counter
-spi_build_trigger_total 0
-spi_build_trigger_total{swiftVersion="5.3", platform="macos-spm"} 1
