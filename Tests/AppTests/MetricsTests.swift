@@ -25,13 +25,14 @@ class MetricsTests: AppTestCase {
         try app.test(.GET, "metrics", afterResponse: { res in
             // validation
             XCTAssertEqual(res.status, .ok)
-            XCTAssertTrue(res.body.asString().contains(
+            let content = res.body.asString()
+            XCTAssertTrue(content.contains(
                 """
                 # TYPE spi_build_trigger_total counter
                 spi_build_trigger_total 0
                 spi_build_trigger_total{swiftVersion="5.3", platform="macos-spm"} 1
                 """
-            ))
+            ), "was:\n\(content)")
         })
     }
 
