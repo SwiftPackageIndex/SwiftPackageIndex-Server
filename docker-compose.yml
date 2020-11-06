@@ -115,7 +115,7 @@ services:
     restart: always
 
   grafana:
-    image: grafana/grafana:7.0.0
+    image: grafana/grafana:7.3.1
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_USERS_ALLOW_SIGN_UP: 'false'
@@ -135,7 +135,19 @@ services:
     command: -config.file=/promtail.yaml
     restart: always
 
+  prometheus:
+    image: prom/prometheus:v2.22.1
+    volumes:
+      - ./infrastructure/config/prometheus.yml:/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/prometheus.yml'
+
+  pushgateway:
+    image: prom/pushgateway:v1.3.0
+
 volumes:
   db_data:
   checkouts:
   grafana_data:
+  prometheus_data:
