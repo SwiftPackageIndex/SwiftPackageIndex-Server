@@ -12,6 +12,7 @@ extension SwiftVersion {
 
     var xcodeVersion: String? {
         // Match with https://gitlab.com/finestructure/swiftpackageindex-builder/-/blob/main/Sources/BuilderCore/ArgumentTypes.swift#L36
+        // NB: this is used for display purposes and not critical for compiler selection
         switch self {
             case .v4_2:
                 return "Xcode 10.1"
@@ -22,7 +23,7 @@ extension SwiftVersion {
             case .v5_2:
                 return "Xcode 11.6"
             case .v5_3:
-                return "Xcode 12 beta"
+                return "Xcode 12.2"
             default:
                 return nil
         }
