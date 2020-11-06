@@ -9,6 +9,6 @@ extension SwiftVersion: BuildResultParameter {
         return nil
     }
 
-    var isLatest: Bool { isCompatible(with: .v5_2) }
-    var isBeta: Bool { isCompatible(with: .v5_3) }
+    var isLatest: Bool { isCompatible(with: .v5_3) }
+    var isBeta: Bool { false }
 }
