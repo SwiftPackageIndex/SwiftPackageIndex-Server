@@ -141,12 +141,8 @@
               </div>
               <div class="row_values">
                 <div class="column_label">
-                  <div>5.3
-                    <small>(beta)</small>
-                  </div>
-                  <div>5.2
-                    <small>(latest)</small>
-                  </div>
+                  <div>5.3</div>
+                  <div>5.2</div>
                   <div>5.1</div>
                   <div>5.0</div>
                   <div>4.2</div>
@@ -182,12 +178,8 @@
               </div>
               <div class="row_values">
                 <div class="column_label">
-                  <div>5.3
-                    <small>(beta)</small>
-                  </div>
-                  <div>5.2
-                    <small>(latest)</small>
-                  </div>
+                  <div>5.3</div>
+                  <div>5.2</div>
                   <div>5.1</div>
                   <div>5.0</div>
                   <div>4.2</div>
