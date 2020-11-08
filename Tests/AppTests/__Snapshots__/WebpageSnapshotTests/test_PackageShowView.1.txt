@@ -63,6 +63,7 @@
             <small>
               <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
             </small>
+            <a href="slide://open?dependencies=Alamo/Alamofire">🏟</a>
           </div>
           <div class="lozenge green" title="MIT License">
             <i class="icon osi"></i>MIT
@@ -138,12 +139,8 @@
               </div>
               <div class="row_values">
                 <div class="column_label">
-                  <div>5.3
-                    <small>(beta)</small>
-                  </div>
-                  <div>5.2
-                    <small>(latest)</small>
-                  </div>
+                  <div>5.3</div>
+                  <div>5.2</div>
                   <div>5.1</div>
                   <div>5.0</div>
                   <div>4.2</div>
@@ -179,12 +176,8 @@
               </div>
               <div class="row_values">
                 <div class="column_label">
-                  <div>5.3
-                    <small>(beta)</small>
-                  </div>
-                  <div>5.2
-                    <small>(latest)</small>
-                  </div>
+                  <div>5.3</div>
+                  <div>5.2</div>
                   <div>5.1</div>
                   <div>5.0</div>
                   <div>4.2</div>

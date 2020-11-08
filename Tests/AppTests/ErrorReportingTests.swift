@@ -26,14 +26,14 @@ class ErrorReportingTests: AppTestCase {
     func test_Ingestor_error_reporting() throws {
         // setup
         try savePackages(on: app.db, ["1", "2"], processingStage: .reconciliation)
-        Current.fetchMetadata = { _, pkg in .just(error: AppError.invalidPackageUrl(nil, "foo")) }
+        Current.fetchMetadata = { _, pkg in self.future(error: AppError.invalidPackageUrl(nil, "foo")) }
         
         var reportedLevel: AppError.Level? = nil
         var reportedError: AppError? = nil
         Current.reportError = { _, level, error in
             reportedLevel = level
             reportedError = error as? AppError
-            return .just(value: ())
+            return self.future(())
         }
         
         // MUT
@@ -60,7 +60,7 @@ class ErrorReportingTests: AppTestCase {
         Current.reportError = { _, level, error in
             reportedLevel = level
             reportedError = error
-            return .just(value: ())
+            return self.future(())
         }
         
         // MUT

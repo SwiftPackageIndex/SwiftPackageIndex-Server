@@ -12,7 +12,7 @@ class IngestorTests: AppTestCase {
         let urls = ["https://github.com/finestructure/Gala",
                     "https://github.com/finestructure/Rester",
                     "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"]
-        Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
+        Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         let lastUpdate = Date()
         
@@ -46,11 +46,11 @@ class IngestorTests: AppTestCase {
                                                      "https://github.com/foo/2"])
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "https://github.com/foo/1" {
-                return .just(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
+                return self.future(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
             }
-            return .just(value: .mock(for: pkg))
+            return self.future(.mock(for: pkg))
         }
-        Current.fetchLicense = { _, _ in .just(value: Github.License(htmlUrl: "license")) }
+        Current.fetchLicense = { _, _ in self.future(Github.License(htmlUrl: "license")) }
 
         // MUT
         let res = try fetchMetadata(client: app.client, packages: packages).wait()
@@ -184,7 +184,7 @@ class IngestorTests: AppTestCase {
     func test_partial_save_issue() throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
-        Current.fetchMetadata = { _, pkg in .just(value: .mock(for: pkg)) }
+        Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
         let packages = try savePackages(on: app.db, testUrls, processingStage: .reconciliation)
         
         // MUT
@@ -226,9 +226,9 @@ class IngestorTests: AppTestCase {
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "https://github.com/foo/2" {
-                return .just(error: AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2")))
+                return self.future(error: AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2")))
             }
-            return .just(value: .mock(for: pkg))
+            return self.future(.mock(for: pkg))
         }
         let lastUpdate = Date()
         
@@ -260,7 +260,7 @@ class IngestorTests: AppTestCase {
         let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         // Return identical metadata for both packages, same as a for instance a redirected
         // package would after a rename / ownership change
-        Current.fetchMetadata = { _, _ in .just(value: Github.Metadata.init(
+        Current.fetchMetadata = { _, _ in self.future(Github.Metadata.init(
                                                     defaultBranch: "main",
                                                     forks: 0,
                                                     issuesClosedAtDates: [],
@@ -279,7 +279,7 @@ class IngestorTests: AppTestCase {
             // Errors seen here go to Rollbar
             reportedLevel = level
             reportedError = error.localizedDescription
-            return .just(value: ())
+            return self.future(())
         }
         let lastUpdate = Date()
         
@@ -310,7 +310,7 @@ class IngestorTests: AppTestCase {
         // setup
         let packages = try savePackages(on: app.db, ["https://github.com/foo/1"])
         // use mock for metadata request which we're not interested in ...
-        Current.fetchMetadata = { _, _ in .just(value: Github.Metadata()) }
+        Current.fetchMetadata = { _, _ in self.future(Github.Metadata()) }
         // and live fetch request for fetchLicense, whose behaviour we want to test ...
         Current.fetchLicense = Github.fetchLicense(client:package:)
         // and simulate its underlying request returning a 404 (by making all requests
