@@ -51,8 +51,16 @@ enum AppMetrics {
         counter("spi_analyze_versions_deleted_total", EmptyLabels.self)
     }
 
-    static var buildCreateTotal: PromCounter<Int, Labels.Build>? {
-        counter("spi_build_create_total", Labels.Build.self)
+    static var buildCandidatesTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_build_candidates_total", EmptyLabels.self)
+    }
+
+    static var buildPendingJobsTotal: PromCounter<Int, Labels.Build>? {
+        counter("spi_build_pending_jobs_total", Labels.Build.self)
+    }
+
+    static var buildReportTotal: PromCounter<Int, Labels.Build>? {
+        counter("spi_build_report_total", Labels.Build.self)
     }
 
     static var buildTriggerTotal: PromCounter<Int, Labels.Build>? {

@@ -25,7 +25,7 @@ struct AnalyzeCommand: Command {
             try analyze(application: context.application, limit: limit).wait()
         }
         try AppMetrics.push(client: context.application.client,
-                            jobName: "spi-analyze").wait()
+                            jobName: "analyze").wait()
     }
 }
 

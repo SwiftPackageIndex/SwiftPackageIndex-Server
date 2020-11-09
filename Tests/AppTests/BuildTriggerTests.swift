@@ -47,7 +47,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         // MUT
-        let ids = try fetchBuildCandidates(app.db, limit: 10).wait()
+        let ids = try fetchBuildCandidates(app.db).wait()
 
         // validate
         XCTAssertEqual(ids, [pkgIdIncomplete1, pkgIdIncomplete2])
@@ -190,7 +190,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(v?.builds.count, 32)
 
         // ensure re-selection is empty
-        XCTAssertEqual(try fetchBuildCandidates(app.db, limit: 10).wait(), [])
+        XCTAssertEqual(try fetchBuildCandidates(app.db).wait(), [])
     }
 
     func test_triggerBuilds_checked() throws {

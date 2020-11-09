@@ -27,7 +27,7 @@ struct IngestCommand: Command {
                 .wait()
         }
         try AppMetrics.push(client: context.application.client,
-                            jobName: "spi-ingest").wait()
+                            jobName: "ingest").wait()
     }
 }
 

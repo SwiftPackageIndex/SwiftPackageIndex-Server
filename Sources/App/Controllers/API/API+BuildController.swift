@@ -11,7 +11,7 @@ extension API {
                 .unwrap(or: Abort(.notFound))
                 .flatMapThrowing { try Build(dto, $0) }
                 .flatMap { build in
-                    AppMetrics.buildCreateTotal?.inc(1, .init(build.platform, build.swiftVersion))
+                    AppMetrics.buildReportTotal?.inc(1, .init(build.platform, build.swiftVersion))
                     return build.upsert(on: req.db).transform(to: build)
                 }
         }
