@@ -142,9 +142,11 @@ services:
       - prometheus_data:/prometheus
     command:
       - '--config.file=/prometheus.yml'
+    restart: always
 
   pushgateway:
     image: prom/pushgateway:v1.3.0
+    restart: always
 
 volumes:
   db_data:
