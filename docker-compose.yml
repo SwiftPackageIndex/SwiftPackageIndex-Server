@@ -123,6 +123,8 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     restart: always
+    ports:
+      - 3000:3000
 
   loki:
     image: grafana/loki:1.5.0
