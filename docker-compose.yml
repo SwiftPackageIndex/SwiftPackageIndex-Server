@@ -93,8 +93,6 @@ services:
     depends_on:
       - db
     command: ["migrate", "--yes"]
-    deploy:
-      replicas: 0
 
   db:
     image: postgres:12.1-alpine
@@ -139,9 +137,8 @@ services:
     restart: always
 
   prometheus:
-    image: prom/prometheus:v2.22.1
+    build: ./infrastructure/prometheus
     volumes:
-      - ./infrastructure/config/prometheus.yml:/prometheus.yml
       - prometheus_data:/prometheus
     command:
       - '--config.file=/prometheus.yml'

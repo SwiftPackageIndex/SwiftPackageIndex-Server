@@ -70,7 +70,7 @@ build:
     env VERSION=$VERSION docker-compose run migrate
 
     echo Deploying with SITE_URL: ${SITE_URL} ...
-    env VERSION=$VERSION docker-compose up -d
+    env VERSION=$VERSION docker-compose up --build -d
     if [[ $? == 0 ]]; then
       rollbar succeeded
     else
