@@ -26,8 +26,9 @@ struct IngestCommand: Command {
             try ingest(application: context.application, limit: limit)
                 .wait()
         }
+        try AppMetrics.push(client: context.application.client,
+                            jobName: "spi-ingest").wait()
     }
-    
 }
 
 
@@ -66,6 +67,7 @@ func ingest(application: Application, limit: Int) -> EventLoopFuture<Void> {
 ///   - packages: packages to be ingested
 /// - Returns: future
 func ingest(application: Application, packages: [Package]) -> EventLoopFuture<Void> {
+    AppMetrics.ingestCandidatesTotal?.inc(packages.count)
     let metadata = fetchMetadata(client: application.client, packages: packages)
     let updates = metadata.flatMap { updateRepositories(on: application.db, metadata: $0) }
     return updates.flatMap { updatePackage(application: application, results: $0, stage: .ingestion) }
@@ -102,6 +104,7 @@ func updateRepositories(
     let ops = metadata.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success((pkg, metadata, licenseInfo, readmeInfo)):
+                AppMetrics.ingestMetadataSuccessTotal?.inc()
                 return insertOrUpdateRepository(on: database,
                                                 for: pkg,
                                                 metadata: metadata,
@@ -109,6 +112,7 @@ func updateRepositories(
                                                 readmeInfo: readmeInfo)
                     .map { pkg }
             case let .failure(error):
+                AppMetrics.ingestMetadataFailureTotal?.inc()
                 return database.eventLoop.future(error: error)
         }
     }
