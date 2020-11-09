@@ -15,11 +15,10 @@ class MetricsTests: AppTestCase {
             try p.save(on: app.db).wait()
             try Version(id: versionId, package: p, reference: .branch("main")).save(on: app.db).wait()
         }
-        _ = try Build.trigger(database: app.db,
-                              client: app.client,
-                              platform: .macosSpm,
-                              swiftVersion: .v5_3,
-                              versionId: versionId).wait()
+        try triggerBuildsUnchecked(on: app.db,
+                               client: app.client,
+                               logger: app.logger,
+                               triggers: [.init(versionId, [.init(.macosSpm, .v5_3)])]).wait()
 
         // MUT
         try app.test(.GET, "metrics", afterResponse: { res in
