@@ -104,7 +104,7 @@ extension AppMetrics {
 
 extension AppMetrics {
 
-    /// Push collected metrics to push gateway. This is the delivary mechansim for processing commands, which do not expose
+    /// Push collected metrics to push gateway. This is the delivery mechansim for processing commands, which do not expose
     /// a `/metrics` endpoint that could be scraped. Instead, they push to a gateway that is configured as a Prometheus
     /// scrape target.
     /// - Parameter client: client for POST request
