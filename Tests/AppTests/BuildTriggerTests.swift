@@ -510,9 +510,10 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 6)
 
         // MUT
-        _ = try trimBuilds(on: app.db).wait()
+        let deleteCount = try trimBuilds(on: app.db).wait()
 
         // validate
+        XCTAssertEqual(deleteCount, 4)
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 2)
         XCTAssertEqual(try Build.query(on: app.db).all().wait().map(\.id),
                        [keepBuildId1, keepBuildId2])

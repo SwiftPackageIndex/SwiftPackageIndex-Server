@@ -140,6 +140,9 @@ func triggerBuilds(on database: Database,
             .flatten(on: database.eventLoop)
         }
         .flatMap { trimBuilds(on: database) }
+        .map {
+            AppMetrics.buildTrimTotal?.inc($0)
+        }
 }
 
 
@@ -259,10 +262,15 @@ func findMissingBuilds(_ database: Database,
 }
 
 
-func trimBuilds(on database: Database) -> EventLoopFuture<Void> {
+func trimBuilds(on database: Database) -> EventLoopFuture<Int> {
     guard let db = database as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
+
+    struct Row: Decodable {
+        var id: Build.Id
+    }
+
     return db.raw("""
         DELETE
         FROM builds b
@@ -273,5 +281,8 @@ func trimBuilds(on database: Database) -> EventLoopFuture<Void> {
             OR
             (b.status = 'pending' AND b.created_at < NOW() - INTERVAL '\(bind: Constants.trimBuildsGracePeriod) hours')
         )
-        """).run()
+        RETURNING b.id
+        """)
+        .all(decoding: Row.self)
+        .map { $0.count }
 }

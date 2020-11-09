@@ -67,6 +67,10 @@ enum AppMetrics {
         counter("spi_build_trigger_total", Labels.Build.self)
     }
 
+    static var buildTrimTotal: PromCounter<Int, Labels.Build>? {
+        counter("spi_build_trim_total", Labels.Build.self)
+    }
+
     static var ingestCandidatesTotal: PromCounter<Int, EmptyLabels>? {
         counter("spi_ingest_candidates_total", EmptyLabels.self)
     }
