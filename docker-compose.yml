@@ -130,7 +130,7 @@ services:
     restart: always
 
   promtail:
-    image: finestructure/spi-promtail:1.5.0
+    build: ./infrastructure/promtail
     volumes:
       - /var/lib/docker/containers:/var/log
     command: -config.file=/promtail.yaml
