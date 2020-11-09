@@ -67,7 +67,7 @@ func ingest(application: Application, limit: Int) -> EventLoopFuture<Void> {
 ///   - packages: packages to be ingested
 /// - Returns: future
 func ingest(application: Application, packages: [Package]) -> EventLoopFuture<Void> {
-    AppMetrics.ingestCandidatesTotal?.inc(packages.count)
+    AppMetrics.ingestCandidatesCount?.inc(packages.count)
     let metadata = fetchMetadata(client: application.client, packages: packages)
     let updates = metadata.flatMap { updateRepositories(on: application.db, metadata: $0) }
     return updates.flatMap { updatePackage(application: application, results: $0, stage: .ingestion) }

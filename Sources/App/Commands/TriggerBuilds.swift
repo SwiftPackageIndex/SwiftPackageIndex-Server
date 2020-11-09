@@ -65,7 +65,7 @@ func triggerBuilds(on database: Database,
         case .limit(let limit):
             return fetchBuildCandidates(database)
                 .map { candidates in
-                    AppMetrics.buildCandidatesTotal?.inc(candidates.count)
+                    AppMetrics.buildCandidatesCount?.inc(candidates.count)
                     return Array(candidates.prefix(limit))
                 }
                 .flatMap { triggerBuilds(on: database,
@@ -116,7 +116,7 @@ func triggerBuilds(on database: Database,
 
     return Current.getStatusCount(client, .pending)
         .flatMap { pendingJobs in
-            AppMetrics.buildPendingJobsTotal?.inc(pendingJobs)
+            AppMetrics.buildPendingJobsCount?.inc(pendingJobs)
             var newJobs = 0
             return packages.map { pkgId in
                 // check if we have capacity to schedule more builds before querying for builds

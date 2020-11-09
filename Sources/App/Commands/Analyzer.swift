@@ -65,7 +65,7 @@ func analyze(application: Application, limit: Int) -> EventLoopFuture<Void> {
 ///   - packages: packages to be analysed
 /// - Returns: future
 func analyze(application: Application, packages: [Package]) -> EventLoopFuture<Void> {
-    AppMetrics.analyzeCandidatesTotal?.inc(packages.count)
+    AppMetrics.analyzeCandidatesCount?.inc(packages.count)
     // get or create directory
     let checkoutDir = Current.fileManager.checkoutsDirectory()
     application.logger.info("Checkout directory: \(checkoutDir)")

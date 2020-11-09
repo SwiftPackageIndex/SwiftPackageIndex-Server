@@ -31,8 +31,8 @@ enum AppMetrics {
         }
     }
 
-    static var analyzeCandidatesTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_analyze_candidates_total", EmptyLabels.self)
+    static var analyzeCandidatesCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_analyze_candidates_count", EmptyLabels.self)
     }
 
     static var analyzeUpdateRepositorySuccessTotal: PromCounter<Int, EmptyLabels>? {
@@ -51,12 +51,12 @@ enum AppMetrics {
         counter("spi_analyze_versions_deleted_total", EmptyLabels.self)
     }
 
-    static var buildCandidatesTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_build_candidates_total", EmptyLabels.self)
+    static var buildCandidatesCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_build_candidates_count", EmptyLabels.self)
     }
 
-    static var buildPendingJobsTotal: PromCounter<Int, Labels.Build>? {
-        counter("spi_build_pending_jobs_total", Labels.Build.self)
+    static var buildPendingJobsCount: PromGauge<Int, Labels.Build>? {
+        gauge("spi_build_pending_jobs_count", Labels.Build.self)
     }
 
     static var buildReportTotal: PromCounter<Int, Labels.Build>? {
@@ -71,8 +71,8 @@ enum AppMetrics {
         counter("spi_build_trim_total", Labels.Build.self)
     }
 
-    static var ingestCandidatesTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_ingest_candidates_total", EmptyLabels.self)
+    static var ingestCandidatesCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_ingest_candidates_count", EmptyLabels.self)
     }
 
     static var ingestMetadataSuccessTotal: PromCounter<Int, EmptyLabels>? {
@@ -92,6 +92,11 @@ extension AppMetrics {
     static func counter<U: MetricLabels>(_ name: String, _ labels: U.Type) -> PromCounter<Int, U>? {
         try? MetricsSystem.prometheus()
             .createCounter(forType: Int.self, named: name, withLabelType: labels)
+    }
+
+    static func gauge<U: MetricLabels>(_ name: String, _ labels: U.Type) -> PromGauge<Int, U>? {
+        try? MetricsSystem.prometheus()
+            .createGauge(forType: Int.self, named: name, withLabelType: labels)
     }
 
 }
