@@ -24,6 +24,8 @@ struct AnalyzeCommand: Command {
             context.console.info("Analyzing (limit: \(limit)) ...")
             try analyze(application: context.application, limit: limit).wait()
         }
+        try AppMetrics.push(client: context.application.client,
+                            jobName: "spi-analyze").wait()
     }
 }
 
@@ -63,6 +65,7 @@ func analyze(application: Application, limit: Int) -> EventLoopFuture<Void> {
 ///   - packages: packages to be analysed
 /// - Returns: future
 func analyze(application: Application, packages: [Package]) -> EventLoopFuture<Void> {
+    AppMetrics.analyzeCandidatesTotal?.inc(packages.count)
     // get or create directory
     let checkoutDir = Current.fileManager.checkoutsDirectory()
     application.logger.info("Checkout directory: \(checkoutDir)")
@@ -208,8 +211,10 @@ func updateRepositories(application: Application,
         let updatedPackage = result.flatMap(updateRepository(package:))
         switch updatedPackage {
             case .success(let pkg):
+                AppMetrics.analyzeUpdateRepositorySuccessTotal?.inc()
                 return pkg.repositories.update(on: application.db).transform(to: pkg)
             case .failure(let error):
+                AppMetrics.analyzeUpdateRepositoryFailureTotal?.inc()
                 return application.eventLoopGroup.future(error: error)
         }
     }
@@ -320,6 +325,8 @@ func reconcileVersions(client: Client,
             let delta = Version.diff(local: saved, incoming: incoming)
             let delete = delta.toDelete.delete(on: transaction)
             let insert = delta.toAdd.create(on: transaction).transform(to: delta.toAdd)
+            AppMetrics.analyzeVersionsAddedTotal?.inc(delta.toAdd.count)
+            AppMetrics.analyzeVersionsDeletedTotal?.inc(delta.toDelete.count)
             return delete.flatMap { insert }
         }
 }

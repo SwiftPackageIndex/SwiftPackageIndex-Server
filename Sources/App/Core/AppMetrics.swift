@@ -31,6 +31,26 @@ enum AppMetrics {
         }
     }
 
+    static var analyzeCandidatesTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_analyze_candidates_total", EmptyLabels.self)
+    }
+
+    static var analyzeUpdateRepositorySuccessTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_analyze_update_repository_success_total", EmptyLabels.self)
+    }
+
+    static var analyzeUpdateRepositoryFailureTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_analyze_update_repository_failure_total", EmptyLabels.self)
+    }
+
+    static var analyzeVersionsAddedTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_analyze_versions_added_total", EmptyLabels.self)
+    }
+
+    static var analyzeVersionsDeletedTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_analyze_versions_deleted_total", EmptyLabels.self)
+    }
+
     static var buildCreateTotal: PromCounter<Int, Labels.Build>? {
         counter("spi_build_create_total", Labels.Build.self)
     }
