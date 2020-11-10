@@ -58,6 +58,9 @@ enum AppMetrics {
     static var buildPendingJobsCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_build_pending_jobs_count", EmptyLabels.self)
     }
+
+    static var buildRunningJobsCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_build_running_jobs_count", EmptyLabels.self)
     }
 
     static var buildReportTotal: PromCounter<Int, Labels.Build>? {
