@@ -25,6 +25,7 @@ extension AppEnvironment {
             gitlabPipelineToken: { nil },
             gitlabPipelineLimit: { Constants.defaultGitlabPipelineLimit },
             hideStagingBanner: { false },
+            metricsPushGatewayUrl: { "http://pushgateway:9091" },
             random: Double.random,
             reportError: { _, _, _ in eventLoop.future(()) },
             rollbarToken: { nil },

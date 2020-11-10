@@ -25,6 +25,7 @@ x-shared: &shared
     GITLAB_PIPELINE_TOKEN: ${GITLAB_PIPELINE_TOKEN}
     HIDE_STAGING_BANNER: ${HIDE_STAGING_BANNER}
     LOG_LEVEL: ${LOG_LEVEL}
+    METRICS_PUSHGATEWAY_URL: ${METRICS_PUSHGATEWAY_URL}
     ROLLBAR_TOKEN: ${ROLLBAR_TOKEN}
     SITE_URL: ${SITE_URL}
   volumes:
@@ -92,8 +93,6 @@ services:
     depends_on:
       - db
     command: ["migrate", "--yes"]
-    deploy:
-      replicas: 0
 
   db:
     image: postgres:12.1-alpine
@@ -115,13 +114,15 @@ services:
     restart: always
 
   grafana:
-    image: grafana/grafana:7.0.0
+    image: grafana/grafana:7.3.1
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_USERS_ALLOW_SIGN_UP: 'false'
     volumes:
       - grafana_data:/var/lib/grafana
     restart: always
+    ports:
+      - 3000:3000
 
   loki:
     image: grafana/loki:1.5.0
@@ -129,13 +130,26 @@ services:
     restart: always
 
   promtail:
-    image: finestructure/spi-promtail:1.5.0
+    build: ./infrastructure/promtail
     volumes:
       - /var/lib/docker/containers:/var/log
     command: -config.file=/promtail.yaml
+    restart: always
+
+  prometheus:
+    build: ./infrastructure/prometheus
+    volumes:
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/prometheus.yml'
+    restart: always
+
+  pushgateway:
+    image: prom/pushgateway:v1.3.0
     restart: always
 
 volumes:
   db_data:
   checkouts:
   grafana_data:
+  prometheus_data:

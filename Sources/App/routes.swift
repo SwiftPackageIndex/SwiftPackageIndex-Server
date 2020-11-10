@@ -1,5 +1,7 @@
 import Fluent
+import Metrics
 import Plot
+import Prometheus
 import Vapor
 
 
@@ -87,6 +89,14 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.siteMap.pathComponents) { req in
             SiteMap.fetchPackages(req.db)
                 .map(SiteURL.siteMap)
+        }
+    }
+
+    do {  // Metrics
+        app.get("metrics") { req -> EventLoopFuture<String> in
+            let promise = req.eventLoop.makePromise(of: String.self)
+            try MetricsSystem.prometheus().collect(into: promise)
+            return promise.futureResult
         }
     }
 }

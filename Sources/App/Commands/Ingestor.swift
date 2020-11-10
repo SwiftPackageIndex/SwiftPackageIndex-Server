@@ -26,8 +26,9 @@ struct IngestCommand: Command {
             try ingest(application: context.application, limit: limit)
                 .wait()
         }
+        try AppMetrics.push(client: context.application.client,
+                            jobName: "ingest").wait()
     }
-    
 }
 
 
@@ -37,13 +38,15 @@ struct IngestCommand: Command {
 ///   - id: package id
 /// - Returns: future
 func ingest(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
-    let packages = Package.query(on: application.db)
+    Package.query(on: application.db)
         .with(\.$repositories)
         .filter(\.$id == id)
         .first()
         .unwrap(or: Abort(.notFound))
         .map { [$0] }
-    return ingest(application: application, packages: packages)
+        .flatMap { packages in
+            ingest(application: application, packages: packages)
+        }
 }
 
 
@@ -53,8 +56,8 @@ func ingest(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
 ///   - limit: number of `Package`s to select from the candidate list
 /// - Returns: future
 func ingest(application: Application, limit: Int) -> EventLoopFuture<Void> {
-    let packages = Package.fetchCandidates(application.db, for: .ingestion, limit: limit)
-    return ingest(application: application, packages: packages)
+    Package.fetchCandidates(application.db, for: .ingestion, limit: limit)
+        .flatMap { ingest(application: application, packages: $0) }
 }
 
 
@@ -63,8 +66,9 @@ func ingest(application: Application, limit: Int) -> EventLoopFuture<Void> {
 ///   - application: `Application` object for database, client, and logger access
 ///   - packages: packages to be ingested
 /// - Returns: future
-func ingest(application: Application, packages: EventLoopFuture<[Package]>) -> EventLoopFuture<Void> {
-    let metadata = packages.flatMap { fetchMetadata(client: application.client, packages: $0) }
+func ingest(application: Application, packages: [Package]) -> EventLoopFuture<Void> {
+    AppMetrics.ingestCandidatesCount?.set(packages.count)
+    let metadata = fetchMetadata(client: application.client, packages: packages)
     let updates = metadata.flatMap { updateRepositories(on: application.db, metadata: $0) }
     return updates.flatMap { updatePackage(application: application, results: $0, stage: .ingestion) }
 }
@@ -100,6 +104,7 @@ func updateRepositories(
     let ops = metadata.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success((pkg, metadata, licenseInfo, readmeInfo)):
+                AppMetrics.ingestMetadataSuccessTotal?.inc()
                 return insertOrUpdateRepository(on: database,
                                                 for: pkg,
                                                 metadata: metadata,
@@ -107,6 +112,7 @@ func updateRepositories(
                                                 readmeInfo: readmeInfo)
                     .map { pkg }
             case let .failure(error):
+                AppMetrics.ingestMetadataFailureTotal?.inc()
                 return database.eventLoop.future(error: error)
         }
     }
@@ -133,11 +139,11 @@ func insertOrUpdateRepository(on database: Database,
         .filter(\.$package.$id == pkgId)
         .first()
         .flatMap { repo -> EventLoopFuture<Void> in
-            let repo = repo ?? Repository(packageId: pkgId)
             guard let repository = metadata.repository else {
                 return database.eventLoop.future(
                     error: AppError.genericError(pkgId, "repository is nil for package \(package.url)"))
             }
+            let repo = repo ?? Repository(packageId: pkgId)
             repo.defaultBranch = repository.defaultBranch
             repo.forks = repository.forkCount
             repo.lastIssueClosedAt = repository.lastIssueClosedAt

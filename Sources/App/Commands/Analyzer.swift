@@ -24,6 +24,8 @@ struct AnalyzeCommand: Command {
             context.console.info("Analyzing (limit: \(limit)) ...")
             try analyze(application: context.application, limit: limit).wait()
         }
+        try AppMetrics.push(client: context.application.client,
+                            jobName: "analyze").wait()
     }
 }
 
@@ -34,13 +36,15 @@ struct AnalyzeCommand: Command {
 ///   - id: package id
 /// - Returns: future
 func analyze(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
-    let packages = Package.query(on: application.db)
+    Package.query(on: application.db)
         .with(\.$repositories)
         .filter(\.$id == id)
         .first()
         .unwrap(or: Abort(.notFound))
         .map { [$0] }
-    return analyze(application: application, packages: packages)
+        .flatMap {
+            analyze(application: application, packages: $0)
+        }
 }
 
 
@@ -50,8 +54,8 @@ func analyze(application: Application, id: Package.Id) -> EventLoopFuture<Void> 
 ///   - limit: number of `Package`s to select from the candidate list
 /// - Returns: future
 func analyze(application: Application, limit: Int) -> EventLoopFuture<Void> {
-    let packages = Package.fetchCandidates(application.db, for: .analysis, limit: limit)
-    return analyze(application: application, packages: packages)
+    Package.fetchCandidates(application.db, for: .analysis, limit: limit)
+        .flatMap { analyze(application: application, packages: $0) }
 }
 
 
@@ -60,7 +64,8 @@ func analyze(application: Application, limit: Int) -> EventLoopFuture<Void> {
 ///   - application: `Application` object for database, client, and logger access
 ///   - packages: packages to be analysed
 /// - Returns: future
-func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> EventLoopFuture<Void> {
+func analyze(application: Application, packages: [Package]) -> EventLoopFuture<Void> {
+    AppMetrics.analyzeCandidatesCount?.set(packages.count)
     // get or create directory
     let checkoutDir = Current.fileManager.checkoutsDirectory()
     application.logger.info("Checkout directory: \(checkoutDir)")
@@ -78,8 +83,7 @@ func analyze(application: Application, packages: EventLoopFuture<[Package]>) -> 
         }
     }
     
-    let packageUpdates = packages
-        .flatMap { refreshCheckouts(application: application, packages: $0) }
+    let packageUpdates = refreshCheckouts(application: application, packages: packages)
         .flatMap { updateRepositories(application: application, packages: $0) }
     
     let versionUpdates = packageUpdates.flatMap { packages in
@@ -207,8 +211,10 @@ func updateRepositories(application: Application,
         let updatedPackage = result.flatMap(updateRepository(package:))
         switch updatedPackage {
             case .success(let pkg):
+                AppMetrics.analyzeUpdateRepositorySuccessTotal?.inc()
                 return pkg.repositories.update(on: application.db).transform(to: pkg)
             case .failure(let error):
+                AppMetrics.analyzeUpdateRepositoryFailureTotal?.inc()
                 return application.eventLoopGroup.future(error: error)
         }
     }
@@ -319,6 +325,8 @@ func reconcileVersions(client: Client,
             let delta = Version.diff(local: saved, incoming: incoming)
             let delete = delta.toDelete.delete(on: transaction)
             let insert = delta.toAdd.create(on: transaction).transform(to: delta.toAdd)
+            AppMetrics.analyzeVersionsAddedTotal?.inc(delta.toAdd.count)
+            AppMetrics.analyzeVersionsDeletedTotal?.inc(delta.toDelete.count)
             return delete.flatMap { insert }
         }
 }

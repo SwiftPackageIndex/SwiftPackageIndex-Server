@@ -19,6 +19,7 @@ struct AppEnvironment {
     var gitlabPipelineToken: () -> String?
     var gitlabPipelineLimit: () -> Int
     var hideStagingBanner: () -> Bool
+    var metricsPushGatewayUrl: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>
     var rollbarToken: () -> String?
@@ -52,7 +53,7 @@ extension AppEnvironment {
                 status: status,
                 page: 1,
                 pageSize: 100,
-                maxPageCount: 3)
+                maxPageCount: 5)
         },
         githubToken: { Environment.get("GITHUB_TOKEN") },
         gitlabApiToken: { Environment.get("GITLAB_API_TOKEN") },
@@ -65,6 +66,7 @@ extension AppEnvironment {
             Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
                 ?? Constants.defaultHideStagingBanner
         },
+        metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         random: Double.random,
         reportError: AppError.report,
         rollbarToken: { Environment.get("ROLLBAR_TOKEN") },
