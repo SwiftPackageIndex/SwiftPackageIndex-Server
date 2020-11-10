@@ -53,7 +53,7 @@ extension AppEnvironment {
                 status: status,
                 page: 1,
                 pageSize: 100,
-                maxPageCount: 3)
+                maxPageCount: 5)
         },
         githubToken: { Environment.get("GITHUB_TOKEN") },
         gitlabApiToken: { Environment.get("GITLAB_API_TOKEN") },
