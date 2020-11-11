@@ -115,8 +115,10 @@ func triggerBuilds(on database: Database,
     }
 
     return Current.getStatusCount(client, .pending)
-        .flatMap { pendingJobs in
+        .and(Current.getStatusCount(client, .running))
+        .flatMap { (pendingJobs, runningJobs) in
             AppMetrics.buildPendingJobsCount?.set(pendingJobs)
+            AppMetrics.buildRunningJobsCount?.set(runningJobs)
             var newJobs = 0
             return packages.map { pkgId in
                 // check if we have capacity to schedule more builds before querying for builds
