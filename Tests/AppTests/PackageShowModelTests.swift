@@ -27,7 +27,7 @@ class PackageShowModelTests: AppTestCase {
         pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
         
         // MUT
-        let m = PackageShow.Model(package: pkg)
+        let m = PackageShow.Model(package: pkg, readme: "This is the README")
         
         // validate
         XCTAssertNil(m)
@@ -63,7 +63,7 @@ class PackageShowModelTests: AppTestCase {
         pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let m = PackageShow.Model(package: pkg)
+        let m = PackageShow.Model(package: pkg, readme: "This is the README")
         
         // validate
         XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)

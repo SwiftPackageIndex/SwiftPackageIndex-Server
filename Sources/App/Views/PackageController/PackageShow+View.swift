@@ -88,7 +88,11 @@ enum PackageShow {
                 .group(
                     model.swiftVersionCompatibilitySection(),
                     model.platformCompatibilitySection()
-                )
+                ),
+                .hr(),
+                .unwrap(model.readme) { readme in
+                    .text(readme)
+                }
             )
         }
         
