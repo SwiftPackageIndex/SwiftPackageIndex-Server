@@ -97,6 +97,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 020 - add tools_version to versions
         app.migrations.add(UpdateVersionAddToolsVersion())
     }
+    do {  // Migration 021 - add url to versions
+        app.migrations.add(UpdateVersionAddUrl())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
