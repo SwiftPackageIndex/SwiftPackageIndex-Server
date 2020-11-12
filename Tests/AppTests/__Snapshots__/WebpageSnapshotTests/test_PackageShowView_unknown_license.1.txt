@@ -357,6 +357,10 @@
             </div>
           </div>
         </section>
+        <div>
+          <h2>Readme</h2>
+          <hr/><p>This is the README</p>
+        </div>
       </div>
     </main>
     <footer>

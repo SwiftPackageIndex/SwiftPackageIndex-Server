@@ -1,3 +1,4 @@
+import Ink
 import Vapor
 import Plot
 
@@ -88,7 +89,8 @@ enum PackageShow {
                 .group(
                     model.swiftVersionCompatibilitySection(),
                     model.platformCompatibilitySection()
-                )
+                ),
+                readmeSection()
             )
         }
         
@@ -130,6 +132,17 @@ enum PackageShow {
             return .if(environment != .production,
                        .a(.href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
                           "🏟")
+            )
+        }
+
+        func readmeSection() -> Node<HTML.BodyContext> {
+            let environment = (try? Environment.detect()) ?? .development
+            guard environment == .development,
+                  let readme = model.readme else { return .empty }
+            return .div(
+                .h2("Readme"),
+                .hr(),
+                .raw(MarkdownParser().parse(readme).html)
             )
         }
 
