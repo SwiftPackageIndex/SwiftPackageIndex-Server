@@ -40,7 +40,7 @@ struct PackageController {
 }
 
 
-func fetchReadme(client: Client, package: Package) -> EventLoopFuture<String?> {
+private func fetchReadme(client: Client, package: Package) -> EventLoopFuture<String?> {
     guard let url = package.repository?.readmeUrl.map(URI.init(string:))
     else { return client.eventLoop.future(nil) }
     return client.get(url)
