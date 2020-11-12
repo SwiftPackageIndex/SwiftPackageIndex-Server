@@ -65,12 +65,6 @@ extension RecentPackage {
             .link(link),
             .pubDate(createdAt, timeZone: .utc),
             .description(
-                .p(
-                    .a(
-                        .href(link),
-                        .text(packageName)
-                    )
-                ),
                 .p(.text(packageSummary ?? "")),
                 .element(named: "small", nodes: [
                     .a(
@@ -95,13 +89,6 @@ extension RecentRelease {
             .link(link),
             .pubDate(releasedAt, timeZone: .utc),
             .description(
-                .p(
-                    .a(
-                        .href(link),
-                        .text(packageName)
-                    ),
-                    .element(named: "small", text: " – \(version)")
-                ),
                 .p(.text(packageSummary ?? "")),
                 .element(named: "small", nodes: [
                     .a(
