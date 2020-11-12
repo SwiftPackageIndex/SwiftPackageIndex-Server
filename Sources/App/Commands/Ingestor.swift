@@ -154,7 +154,7 @@ func insertOrUpdateRepository(on database: Database,
             repo.openIssues = repository.openIssues.totalCount
             repo.openPullRequests = repository.openPullRequests.totalCount
             repo.owner = repository.owner.login
-            repo.readmeUrl = readmeInfo?.htmlUrl
+            repo.readmeUrl = readmeInfo?.downloadUrl
             repo.stars = repository.stargazerCount
             repo.summary = repository.description
             // TODO: find and assign parent repo

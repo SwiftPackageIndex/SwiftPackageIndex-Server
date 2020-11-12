@@ -68,7 +68,7 @@ class IngestorTests: AppTestCase {
                                          for: pkg,
                                          metadata: .mock(for: pkg),
                                          licenseInfo: .init(htmlUrl: ""),
-                                         readmeInfo: .init(htmlUrl: "")).wait()
+                                         readmeInfo: .init(downloadUrl: "")).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("This is package https://github.com/foo/bar")])
         }
@@ -79,7 +79,7 @@ class IngestorTests: AppTestCase {
                                          for: pkg,
                                          metadata: md,
                                          licenseInfo: .init(htmlUrl: ""),
-                                         readmeInfo: .init(htmlUrl: "")).wait()
+                                         readmeInfo: .init(downloadUrl: "")).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])
         }
@@ -112,7 +112,7 @@ class IngestorTests: AppTestCase {
                             stars: 2,
                             summary: "package desc"),
                       licenseInfo: .init(htmlUrl: "license url"),
-                      readmeInfo: .init(htmlUrl: "readme url")))
+                      readmeInfo: .init(downloadUrl: "readme url")))
         ]
         
         // MUT
@@ -207,7 +207,7 @@ class IngestorTests: AppTestCase {
                                             for: $0.0,
                                             metadata: $0.1,
                                             licenseInfo: .init(htmlUrl: ""),
-                                            readmeInfo: .init(htmlUrl: "")) }
+                                            readmeInfo: .init(downloadUrl: "")) }
             .flatten(on: app.db.eventLoop)
         
         try req.wait()
