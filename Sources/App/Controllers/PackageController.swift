@@ -13,7 +13,11 @@ struct PackageController {
         }
         return Package.query(on: req.db, owner: owner, repository: repository)
             .flatMap { package in
-                fetchReadme(client: req.client, package: package).map{ (package, $0) }
+                // FIXME: temporary, for performance testing
+                if req.query[Int.self, at: "readme"] == 0 {
+                    return req.eventLoop.future((package, nil))
+                }
+                return fetchReadme(client: req.client, package: package).map{ (package, $0) }
             }
             .map(PackageShow.Model.init(package:readme:))
             .unwrap(or: Abort(.notFound))
