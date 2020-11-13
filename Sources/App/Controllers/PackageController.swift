@@ -14,10 +14,12 @@ struct PackageController {
         return Package.query(on: req.db, owner: owner, repository: repository)
             .flatMap { package in
                 // FIXME: temporary, for performance testing
-                if req.query[Int.self, at: "readme"] == 0 {
-                    return req.eventLoop.future((package, nil))
+                if let environment = try? Environment.detect(),
+                   environment == .development,
+                   (req.query[Int.self, at: "readme"] ?? 1) == 1 {
+                    return fetchReadme(client: req.client, package: package).map{ (package, $0) }
                 }
-                return fetchReadme(client: req.client, package: package).map{ (package, $0) }
+                return req.eventLoop.future((package, nil))
             }
             .map(PackageShow.Model.init(package:readme:))
             .unwrap(or: Abort(.notFound))
