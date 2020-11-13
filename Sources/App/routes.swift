@@ -32,6 +32,9 @@ func routes(_ app: Application) throws {
     app.get(SiteURL.package(.key, .key, .none).pathComponents, use: packageController.show)
     app.get(SiteURL.package(.key, .key, .builds).pathComponents, use: packageController.builds)
 
+    let authorController = AuthorController()
+    app.get(SiteURL.author(.key).pathComponents, use: authorController.show)
+
     let buildController = BuildController()
     app.get(SiteURL.builds(.key).pathComponents, use: buildController.show)
 

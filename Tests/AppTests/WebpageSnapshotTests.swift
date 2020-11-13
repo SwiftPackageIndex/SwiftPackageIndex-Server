@@ -284,5 +284,24 @@ class WebpageSnapshotTests: XCTestCase {
         }
         #endif
     }
+    
+    func test_AuthorShow() throws {
+        let page = { AuthorShow.View(path: "", model: .mock).document() }
+        
+        let recordSnapshotForThisTest = false
+        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
+
+        assertSnapshot(matching: page, as: .html)
+
+        #if os(macOS)
+        if !isRunningInCI {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
 
 }
