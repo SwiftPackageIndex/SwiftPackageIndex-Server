@@ -97,7 +97,8 @@ public func configure(_ app: Application) throws {
     do {  // Migration 020 - add tools_version to versions
         app.migrations.add(UpdateVersionAddToolsVersion())
     }
-    do {  // Migration 021 - add url to versions
+    do {  // Migration 021 - add release_url to recent_releases and url to versions
+        app.migrations.add(UpdateRecentReleases5())
         app.migrations.add(UpdateVersionAddUrl())
     }
 

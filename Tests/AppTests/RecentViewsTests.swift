@@ -58,7 +58,8 @@ class RecentViewsTests: AppTestCase {
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: 0),
                         packageName: "1",
-                        reference: .tag(.init(1, 2, 3))).save(on: app.db).wait()
+                        reference: .tag(.init(1, 2, 3)),
+                        url: "1/release/1.2.3").save(on: app.db).wait()
         }
         do {  // 2nd package is ineligible, because it has a branch reference
             let pkg = Package(id: UUID(), url: "2")
@@ -71,7 +72,8 @@ class RecentViewsTests: AppTestCase {
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: 0),
                         packageName: "2",
-                        reference: .branch("default")).save(on: app.db).wait()
+                        reference: .branch("default"),
+                        url: "2/branch/default").save(on: app.db).wait()
         }
         do {  // 3rd package is ineligible, because it has no package name
             let pkg = Package(id: UUID(), url: "3")
@@ -83,7 +85,8 @@ class RecentViewsTests: AppTestCase {
                            owner: "foo").create(on: app.db).wait()
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: 0),
-                        reference: .branch("default")).save(on: app.db).wait()
+                        reference: .branch("default"),
+                        url: "2/branch/default").save(on: app.db).wait()
         }
         do {  // 4th package is ineligible, because it has no reference
             let pkg = Package(id: UUID(), url: "4")
@@ -108,7 +111,8 @@ class RecentViewsTests: AppTestCase {
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: 1),
                         packageName: "5",
-                        reference: .tag(.init(2, 0, 0))).save(on: app.db).wait()
+                        reference: .tag(.init(2, 0, 0)),
+                        url: "5/release/2.0.0").save(on: app.db).wait()
         }
         
         // make sure to refresh the materialized view
@@ -121,6 +125,7 @@ class RecentViewsTests: AppTestCase {
         XCTAssertEqual(res.map(\.packageName), ["5", "1"])
         XCTAssertEqual(res.map(\.version), ["2.0.0", "1.2.3"])
         XCTAssertEqual(res.map(\.packageSummary), ["pkg 5", "pkg 1"])
+        XCTAssertEqual(res.map(\.releaseUrl), ["5/release/2.0.0", "1/release/1.2.3"])
     }
     
     func test_recentReleases_Filter() throws {
@@ -145,7 +150,8 @@ class RecentViewsTests: AppTestCase {
                                  packageName: "",
                                  packageSummary: nil,
                                  version: "\(major).\(minor).\(patch)\(pre)",
-                                 releasedAt: Date())
+                                 releasedAt: Date(),
+                                 releaseUrl: "release url")
         }
         
         // MUT
