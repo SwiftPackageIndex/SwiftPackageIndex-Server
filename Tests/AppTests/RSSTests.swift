@@ -81,7 +81,8 @@ class RSSTests: AppTestCase {
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
-                        reference: .tag(.init($0, 0, 0), "\($0).0.0"))
+                        reference: .tag(.init($0, 0, 0), "\($0).0.0"),
+                        url: "https://example.com/release-url")
                 .save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
@@ -122,7 +123,8 @@ class RSSTests: AppTestCase {
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
-                        reference: .tag(.init(major, minor, patch)))
+                        reference: .tag(.init(major, minor, patch)),
+                        url: "https://example.com/release-url")
                 .save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
@@ -157,7 +159,8 @@ class RSSTests: AppTestCase {
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
-                        reference: .tag(.init(major, minor, patch)))
+                        reference: .tag(.init(major, minor, patch)),
+                        url: "https://example.com/release-url")
                 .save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
@@ -192,7 +195,8 @@ class RSSTests: AppTestCase {
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
-                        reference: .tag(.init(major, minor, patch)))
+                        reference: .tag(.init(major, minor, patch)),
+                        url: "https://example.com/release-url")
                 .save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
@@ -228,7 +232,8 @@ class RSSTests: AppTestCase {
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
-                        reference: .tag(.init(major, minor, patch, pre)))
+                        reference: .tag(.init(major, minor, patch, pre)),
+                        url: "https://example.com/release-url")
                 .save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
