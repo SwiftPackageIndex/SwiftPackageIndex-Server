@@ -100,4 +100,22 @@ Set up the required environment variables in an `.env` file and run
 env VERSION=0.4.5 docker-compose up -d
 ```
 
-where the `VERSION` variable references a tag name or a git sha.
+where the `VERSION` variable references a tag name or a git sha. You can either rely on docker pulling a previously built image from the registry or build and tag the current version locally:
+
+```
+$ make docker-build
+No VERSION provided, defaulting to d64a881019662aced6fa0a3748b754dffa9fad29
+docker build -t registry.gitlab.com/finestructure/swiftpackageindex:d64a881019662aced6fa0a3748b754dffa9fad29 .
+Sending build context to Docker daemon  536.1MB
+...
+```
+
+Use the logged `VERSION` for the `docker-compose` command.
+
+Note that this will launch quite a number of services defined in `docker-compose.yml`, including the services that continuously process packages. In order to limit this to just the Vapor app and the database, run
+
+```
+env VERSION=... docker-compose up -d app db
+```
+
+If you already have a database running on the host that you want to connect to from the app container, use `DATABASE_HOST=172.17.0.1` as the database host. `172.17.0.1` should be the host's IP address for docker services in general.

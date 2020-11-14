@@ -15,6 +15,7 @@ let package = Package(
         .package(url: "https://github.com/JohnSundell/Ink.git",
                  .revision("928ffcfa5edb2f53e3008e95ad2d575821bb1733")),  // TODO: temporary pin for Swift 5.3/Linux compatibility
         .package(url: "https://github.com/JohnSundell/ShellOut.git", from: "2.0.0"),
+        .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
         .package(name: "SnapshotTesting",
                  url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
@@ -27,7 +28,8 @@ let package = Package(
             "Plot",
             "Ink",
             "SemanticVersion",
-            "ShellOut"
+            "ShellOut",
+            "SwiftPrometheus"
         ]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [

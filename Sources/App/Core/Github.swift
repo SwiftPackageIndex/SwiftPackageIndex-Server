@@ -203,7 +203,7 @@ extension Github {
     }
 
     struct Readme: Decodable, Equatable {
-        var htmlUrl: String
+        var downloadUrl: String
     }
 
     struct Metadata: Decodable, Equatable {

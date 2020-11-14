@@ -75,10 +75,3 @@ class ErrorMiddlewareTests: AppTestCase {
     }
     
 }
-
-
-extension ByteBuffer {
-    func asString() -> String {
-        String(decoding: readableBytesView, as: UTF8.self)
-    }
-}

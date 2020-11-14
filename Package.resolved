@@ -218,6 +218,15 @@
         }
       },
       {
+        "package": "SwiftPrometheus",
+        "repositoryURL": "https://github.com/MrLotU/SwiftPrometheus.git",
+        "state": {
+          "branch": null,
+          "revision": "fa3d278e1475c1a4274da0a3abafa35daa3dab6b",
+          "version": "1.0.0-alpha.7"
+        }
+      },
+      {
         "package": "vapor",
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {

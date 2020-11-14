@@ -42,6 +42,8 @@ struct TriggerBuildsCommand: Command {
                           client: context.application.client,
                           logger: logger,
                           parameter: parameter).wait()
+        try AppMetrics.push(client: context.application.client,
+                            jobName: "trigger-builds").wait()
     }
 }
 
@@ -61,7 +63,11 @@ func triggerBuilds(on database: Database,
                    parameter: TriggerBuildsCommand.Parameter) -> EventLoopFuture<Void> {
     switch parameter {
         case .limit(let limit):
-            return fetchBuildCandidates(database, limit: limit)
+            return fetchBuildCandidates(database)
+                .map { candidates in
+                    AppMetrics.buildCandidatesCount?.set(candidates.count)
+                    return Array(candidates.prefix(limit))
+                }
                 .flatMap { triggerBuilds(on: database,
                                          client: client,
                                          logger: logger,
@@ -109,7 +115,10 @@ func triggerBuilds(on database: Database,
     }
 
     return Current.getStatusCount(client, .pending)
-        .flatMap { pendingJobs in
+        .and(Current.getStatusCount(client, .running))
+        .flatMap { (pendingJobs, runningJobs) in
+            AppMetrics.buildPendingJobsCount?.set(pendingJobs)
+            AppMetrics.buildRunningJobsCount?.set(runningJobs)
             var newJobs = 0
             return packages.map { pkgId in
                 // check if we have capacity to schedule more builds before querying for builds
@@ -133,6 +142,9 @@ func triggerBuilds(on database: Database,
             .flatten(on: database.eventLoop)
         }
         .flatMap { trimBuilds(on: database) }
+        .map {
+            AppMetrics.buildTrimTotal?.inc($0)
+        }
 }
 
 
@@ -151,7 +163,8 @@ func triggerBuildsUnchecked(on database: Database,
     triggers.flatMap { trigger -> [EventLoopFuture<Void>] in
         logger.info("Triggering \(trigger.pairs.count) builds for version id: \(trigger.versionId)")
         return trigger.pairs.map { pair in
-            Build.trigger(database: database,
+            AppMetrics.buildTriggerTotal?.inc(1, .init(pair.platform, pair.swiftVersion))
+            return Build.trigger(database: database,
                           client: client,
                           platform: pair.platform,
                           swiftVersion: pair.swiftVersion,
@@ -169,8 +182,7 @@ func triggerBuildsUnchecked(on database: Database,
 }
 
 
-func fetchBuildCandidates(_ database: Database,
-                          limit: Int) -> EventLoopFuture<[Package.Id]> {
+func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]> {
     guard let db = database as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
@@ -196,7 +208,6 @@ func fetchBuildCandidates(_ database: Database,
             ) AS t
             GROUP BY package_id
             ORDER BY MIN(updated_at)
-            LIMIT \(bind: limit)
             """)
         .all(decoding: Row.self)
         .mapEach(\.packageId)
@@ -253,10 +264,15 @@ func findMissingBuilds(_ database: Database,
 }
 
 
-func trimBuilds(on database: Database) -> EventLoopFuture<Void> {
+func trimBuilds(on database: Database) -> EventLoopFuture<Int> {
     guard let db = database as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
+
+    struct Row: Decodable {
+        var id: Build.Id
+    }
+
     return db.raw("""
         DELETE
         FROM builds b
@@ -267,5 +283,8 @@ func trimBuilds(on database: Database) -> EventLoopFuture<Void> {
             OR
             (b.status = 'pending' AND b.created_at < NOW() - INTERVAL '\(bind: Constants.trimBuildsGracePeriod) hours')
         )
-        """).run()
+        RETURNING b.id
+        """)
+        .all(decoding: Row.self)
+        .map { $0.count }
 }

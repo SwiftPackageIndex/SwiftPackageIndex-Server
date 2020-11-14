@@ -18,7 +18,7 @@ extension PackageShow {
         var license: License
         var licenseUrl: String?
         var products: ProductCounts?
-        var readmeUrl: String?
+        var readme: String?
         var releases: ReleaseInfo
         var stars: Int?
         var summary: String?
@@ -38,7 +38,7 @@ extension PackageShow {
                       license: License,
                       licenseUrl: String? = nil,
                       products: ProductCounts? = nil,
-                      readmeUrl: String? = nil,
+                      readme: String? = nil,
                       releases: ReleaseInfo,
                       stars: Int? = nil,
                       summary: String?,
@@ -57,7 +57,7 @@ extension PackageShow {
             self.license = license
             self.licenseUrl = licenseUrl
             self.products = products
-            self.readmeUrl = readmeUrl
+            self.readme = readme
             self.releases = releases
             self.stars = stars
             self.summary = summary
@@ -66,7 +66,7 @@ extension PackageShow {
             self.score = score
         }
         
-        init?(package: Package) {
+        init?(package: Package, readme: String?) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             guard let title = package.name() else { return nil }
 
@@ -90,7 +90,7 @@ extension PackageShow {
                 license: package.repository?.license ?? .none,
                 licenseUrl: package.repository?.licenseUrl,
                 products: package.productCounts(),
-                readmeUrl: package.repository?.readmeUrl,
+                readme: readme,
                 releases: package.releaseInfo(),
                 stars: package.repository?.stars,
                 summary: package.repository?.summary,

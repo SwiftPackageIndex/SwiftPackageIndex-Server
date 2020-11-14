@@ -280,7 +280,7 @@ class GithubTests: AppTestCase {
         let res = try Github.fetchReadme(client: client, package: pkg).wait()
 
         // validate
-        XCTAssertEqual(res?.htmlUrl, "https://github.com/daveverwer/LeftPad/blob/master/README.md")
+        XCTAssertEqual(res?.downloadUrl, "https://raw.githubusercontent.com/daveverwer/LeftPad/master/README.md")
     }
 
     func test_fetchReadme_notFound() throws {
@@ -293,7 +293,7 @@ class GithubTests: AppTestCase {
         let res = try Github.fetchReadme(client: client, package: pkg).wait()
 
         // validate
-        XCTAssertEqual(res?.htmlUrl, nil)
+        XCTAssertEqual(res?.downloadUrl, nil)
     }
 
 }
