@@ -97,6 +97,18 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
                 .map { getManifests(logger: application.logger, versions: $0) }
                 .flatMap { updateVersionsAndProducts(on: tx, packages: $0) }
                 .flatMap { updateLatestVersions(on: tx, packages: $0) }
+                .flatMap { input in
+                    let ops: [EventLoopFuture<Void>] = input.compactMap {
+                        guard let package = try? $0.get() else {
+                            return nil
+                        }
+                        
+                        return TwitterFirehose().postToFirehose(package: package, application: application)
+                    }
+                    
+                    return EventLoopFuture.whenAllComplete(ops, on: tx.eventLoop)
+                        .flatMapAlways { _ in tx.eventLoop.future(input) }
+                }
         }
     }
     

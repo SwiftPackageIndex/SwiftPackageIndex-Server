@@ -65,6 +65,15 @@
         }
       },
       {
+        "package": "OhhAuth",
+        "repositoryURL": "https://github.com/handya/OhhAuth.git",
+        "state": {
+          "branch": null,
+          "revision": "fd789421370c71f811045b53b7ee14413e24b901",
+          "version": "1.4.0"
+        }
+      },
+      {
         "package": "Plot",
         "repositoryURL": "https://github.com/JohnSundell/Plot.git",
         "state": {
@@ -224,6 +233,15 @@
           "branch": null,
           "revision": "fa3d278e1475c1a4274da0a3abafa35daa3dab6b",
           "version": "1.0.0-alpha.7"
+        }
+      },
+      {
+        "package": "TwitterVapor",
+        "repositoryURL": "https://github.com/handya/TwitterVapor.git",
+        "state": {
+          "branch": null,
+          "revision": "a33b9e5d832a02e269c67d54a9fabdc8d2bde855",
+          "version": "1.1.0"
         }
       },
       {
