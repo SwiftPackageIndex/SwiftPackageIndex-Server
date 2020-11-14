@@ -100,4 +100,10 @@ p.description {
       }
     }
   }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    li {
+      flex-basis: 100%;
+    }
+  }
 }
