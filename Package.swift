@@ -19,6 +19,7 @@ let package = Package(
         .package(name: "SnapshotTesting",
                  url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
+        .package(url: "https://github.com/handya/TwitterVapor.git", from: "1.1.0"),
     ],
     targets: [
         .target(name: "App", dependencies: [
@@ -29,7 +30,8 @@ let package = Package(
             "Ink",
             "SemanticVersion",
             "ShellOut",
-            "SwiftPrometheus"
+            "SwiftPrometheus",
+            "TwitterVapor",
         ]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [
