@@ -73,3 +73,37 @@ p.description {
     }
   }
 }
+
+.package_list {
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  li {
+    margin: 5px 0;
+    display: flex;
+    flex-direction: column;
+    flex-basis: 49%;
+    background-color: var(--package-list-background);
+
+    a {
+      padding: 10px;
+
+      h4 {
+        margin: 0;
+      }
+
+      p {
+        margin: 5px 0;
+        color: var(--page-text);
+      }
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    li {
+      flex-basis: 100%;
+    }
+  }
+}

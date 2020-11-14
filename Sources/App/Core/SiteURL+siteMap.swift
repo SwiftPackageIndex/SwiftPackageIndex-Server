@@ -32,6 +32,8 @@ extension SiteURL {
         switch self {
             case .api:
                 return .weekly
+            case .author:
+                return .daily
             case .builds:
                 return .daily
             case .docs:
