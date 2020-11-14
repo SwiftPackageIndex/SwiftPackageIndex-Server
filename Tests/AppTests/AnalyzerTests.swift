@@ -499,7 +499,8 @@ class AnalyzerTests: AppTestCase {
                                 platforms: [.init(platformName: .ios, version: "11.0"),
                                             .init(platformName: .macos, version: "10.10")],
                                 products: [],
-                                swiftLanguageVersions: ["1", "2", "3.0.0"])
+                                swiftLanguageVersions: ["1", "2", "3.0.0"],
+                                toolsVersion: .init(version: "5.0.0"))
         
         // MUT
         _ = try updateVersion(on: app.db, version: version, manifest: manifest).wait()
@@ -509,6 +510,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(v.packageName, "foo")
         XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].asSwiftVersions)
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
+        XCTAssertEqual(v.toolsVersion, "5.0.0")
     }
     
     func test_updateVersion_reportUnknownPlatforms() throws {
@@ -530,8 +532,10 @@ class AnalyzerTests: AppTestCase {
         // setup
         let p = Package(id: UUID(), url: "1")
         let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
-        let m = Manifest(name: "1", products: [.init(name: "p1", type: .library),
-                                               .init(name: "p2", type: .executable)])
+        let m = Manifest(name: "1",
+                         products: [.init(name: "p1", type: .library),
+                                    .init(name: "p2", type: .executable)],
+                         toolsVersion: .init(version: "5.0.0"))
         try p.save(on: app.db).wait()
         try v.save(on: app.db).wait()
         
@@ -552,7 +556,8 @@ class AnalyzerTests: AppTestCase {
                                 platforms: [.init(platformName: .ios, version: "11.0"),
                                             .init(platformName: .macos, version: "10.10")],
                                 products: [.init(name: "p1", type: .library)],
-                                swiftLanguageVersions: ["1", "2", "3.0.0"])
+                                swiftLanguageVersions: ["1", "2", "3.0.0"],
+                                toolsVersion: .init(version: "5.0.0"))
         
         let packages: [Result<(Package, [(Version, Manifest)]), Error>] = [
             // feed in one error to see it passed through
@@ -572,6 +577,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(v.packageName, "foo")
         XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].asSwiftVersions)
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
+        XCTAssertEqual(v.toolsVersion, "5.0.0")
         let products = try Product.query(on: app.db).all().wait()
         XCTAssertEqual(products.count, 1)
         let p = try XCTUnwrap(products.first)

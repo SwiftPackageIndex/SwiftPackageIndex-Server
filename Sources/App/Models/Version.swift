@@ -49,6 +49,9 @@ final class Version: Model, Content {
     @Field(key: "swift_versions")
     var swiftVersions: [SwiftVersion]
     
+    @Field(key: "tools_version")
+    var toolsVersion: String?
+    
     // relationships
     
     @Children(for: \.$version)
@@ -67,7 +70,8 @@ final class Version: Model, Content {
          packageName: String? = nil,
          reference: Reference? = nil,
          supportedPlatforms: [Platform] = [],
-         swiftVersions: [SwiftVersion] = []) throws {
+         swiftVersions: [SwiftVersion] = [],
+         toolsVersion: String? = nil) throws {
         self.id = id
         self.$package.id = try package.requireID()
         self.commit = commit
@@ -77,6 +81,7 @@ final class Version: Model, Content {
         self.reference = reference
         self.supportedPlatforms = supportedPlatforms
         self.swiftVersions = swiftVersions
+        self.toolsVersion = toolsVersion
     }
 
     enum Kind: String, Codable {
