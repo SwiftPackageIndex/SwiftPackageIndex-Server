@@ -134,7 +134,7 @@
 
 /* Recent packages */
 
-.recent, .author {
+.recent {
   display: flex;
   flex-flow: row wrap;
   justify-content: space-evenly;
@@ -151,7 +151,7 @@
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .recent, .author {
+  .recent {
     flex-direction: column;
     align-items: center;
   }
