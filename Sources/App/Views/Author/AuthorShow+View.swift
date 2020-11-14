@@ -14,9 +14,9 @@ enum AuthorShow {
 
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .class("author recent"), // 'recent' is temporary while I figure out how to regenerate the CSS file from SCSS
+                .class("author"),
                 .div(
-                    .h2(.text("Showing \(model.count) packages from '\(model.owner)'"))
+                    .h2(.text("Showing \(model.count) \("package".pluralized(for: model.count)) from '\(model.owner)'"))
                 ),
                 .hr(),
                 .ul(
