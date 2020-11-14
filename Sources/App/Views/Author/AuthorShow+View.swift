@@ -13,25 +13,23 @@ enum AuthorShow {
         }
 
         override func content() -> Node<HTML.BodyContext> {
-            .div(
-                .class("author"),
-                .div(
-                    .h2(.text("Showing \(model.count) \("package".pluralized(for: model.count)) from '\(model.owner)'"))
-                ),
-                .hr(),
+            .group(
+                .h2(.text("Packages from \(model.owner)")),
                 .ul(
+                    .class("package_list"),
                     .group(
                         model.packages.map { package -> Node<HTML.ListContext> in
                             .li(
                                 .a(
                                     .href(package.url),
-                                    .text(package.title)
-                                ),
-                                .element(named: "small", text: package.description)
+                                    .h4(.text(package.title)),
+                                    .p(.text(package.description))
+                                )
                             )
                         }
                     )
-                )
+                ),
+                .p(.text("\(model.count) \("package".pluralized(for: model.count))."))
             )
         }
     }
