@@ -83,13 +83,25 @@ extension RecentRelease {
         let packageUrl = SiteURL.package(.value(repositoryOwner),
                                          .value(repositoryName),
                                          .none).absoluteURL()
-        let link = releaseUrl ?? packageUrl
         return .item(
-            .guid(.text(link), .isPermaLink(true)),
+            .guid(.text(packageUrl), .isPermaLink(true)),
             .title("\(packageName) - \(version)"),
-            .link(link),
+            .link(packageUrl),
             .pubDate(releasedAt, timeZone: .utc),
             .description(
+                .p(
+                    .a(
+                        .href(packageUrl),
+                        .text(packageName)
+                    ),
+                    .element(named: "small", nodes: [
+                        " – ",
+                        .a(
+                            .href(releaseUrl ?? packageUrl),
+                            .text("Version \(version) release notes. ")
+                        ),
+                    ])
+                ),
                 .p(.text(packageSummary ?? "")),
                 .element(named: "small", nodes: [
                     .a(
