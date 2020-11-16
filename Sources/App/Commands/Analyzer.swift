@@ -439,7 +439,7 @@ func updateVersion(on database: Database, version: Version, manifest: Manifest) 
     version.packageName = manifest.name
     version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
     version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
-    version.toolsVersion = manifest.toolsVersion.version
+    version.toolsVersion = manifest.toolsVersion?.version
     return version.save(on: database)
 }
 

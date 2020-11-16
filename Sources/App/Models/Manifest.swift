@@ -47,7 +47,7 @@ struct Manifest: Decodable, Equatable {
     var platforms: [Platform]?
     var products: [Product]
     var swiftLanguageVersions: [String]?
-    var toolsVersion: ToolsVersion
+    var toolsVersion: ToolsVersion?
 }
 
 
