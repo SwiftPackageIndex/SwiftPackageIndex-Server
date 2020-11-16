@@ -3,5 +3,5 @@
   <title>package</title>
   <link>http://localhost:8080/owner/repo</link>
   <pubDate>Thu, 1 Jan 1970 00:00:00 +0000</pubDate>
-  <description><![CDATA[<p><a href="http://localhost:8080/owner/repo">package</a></p><p>summary</p><small><a href="http://localhost:8080/owner/repo">owner/repo</a></small>]]></description>
+  <description><![CDATA[<p>summary</p><small><a href="http://localhost:8080/owner/repo">owner/repo</a></small>]]></description>
 </item>

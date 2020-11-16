@@ -7,7 +7,7 @@ class VersionTests: AppTestCase {
     
     func test_save() throws {
         // setup
-        let pkg = try savePackage(on: app.db, "1")
+        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         let v = try Version(package: pkg)
         
         // MUT - save to create
@@ -22,6 +22,7 @@ class VersionTests: AppTestCase {
         v.reference = .branch("branch")
         v.supportedPlatforms = [.ios("13"), .macos("10.15")]
         v.swiftVersions = ["4.0", "5.2"].asSwiftVersions
+        v.url = pkg.versionUrl(for: v.reference!)
         
         // MUT - save to update
         try v.save(on: app.db).wait()
@@ -34,6 +35,7 @@ class VersionTests: AppTestCase {
             XCTAssertEqual(v.reference, .branch("branch"))
             XCTAssertEqual(v.supportedPlatforms, [.ios("13"), .macos("10.15")])
             XCTAssertEqual(v.swiftVersions, ["4.0", "5.2"].asSwiftVersions)
+            XCTAssertEqual(v.url, "https://github.com/foo/1/tree/branch")
         }
     }
     

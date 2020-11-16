@@ -362,7 +362,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(repo.lastCommitDate, Date(timeIntervalSince1970: 1))
     }
     
-    func test_reconcileVersions_package() throws {
+    func test_reconcileVersions_single_package() throws {
         //setup
         Current.shell.run = { cmd, _ in
             if cmd.string == "git tag" {
@@ -388,9 +388,13 @@ class AnalyzerTests: AppTestCase {
         assertEquals(versions, \.commit, ["sha.main", "sha.1.2.3"])
         assertEquals(versions, \.commitDate,
                      [Date(timeIntervalSince1970: 0), Date(timeIntervalSince1970: 1)])
+        assertEquals(versions, \.url, [
+            "https://github.com/foo/1/tree/main",
+            "https://github.com/foo/1/releases/tag/1.2.3"
+        ])
     }
     
-    func test_reconcileVersions_checkouts() throws {
+    func test_reconcileVersions_package_list() throws {
         //setup
         Current.shell.run = { cmd, _ in
             if cmd.string == "git tag" {

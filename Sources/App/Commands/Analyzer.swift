@@ -312,10 +312,12 @@ func reconcileVersions(client: Client,
     let incoming: EventLoopFuture<[Version]> = references
         .flatMapEachThrowing { ref in
             let revInfo = try Git.revisionInfo(ref, at: cacheDir)
+            let url = package.versionUrl(for: ref)
             return try Version(package: package,
                                commit: revInfo.commit,
                                commitDate: revInfo.date,
-                               reference: ref) }
+                               reference: ref,
+                               url: url) }
     
     return Version.query(on: transaction)
         .filter(\.$package.$id == pkgId)

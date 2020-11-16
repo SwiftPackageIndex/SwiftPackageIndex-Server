@@ -88,6 +88,8 @@ extension Package {
 }
 
 
+// MARK: - Versions & Releases
+
 extension Package {
 
     static func findRelease(_ versions: [Version]) -> Version? {
@@ -140,6 +142,36 @@ extension Package {
             }
         })
     }
+
+    func versionUrl(for reference: Reference) -> String {
+        switch (hostingProvider, reference) {
+            case let (.github, .tag(_, tagName)):
+                return "\(url)/releases/tag/\(tagName)"
+            case let (.github, .branch(branchName)):
+                return "\(url)/tree/\(branchName)"
+            case let (.gitlab, .tag(_, tagName)):
+                return "\(url)/-/tags/\(tagName)"
+            case let (.gitlab, .branch(branchName)):
+                return "\(url)/-/tree/\(branchName)"
+        }
+    }
+
+    private var hostingProvider: HostingProvider {
+        switch url {
+            case _ where url.starts(with: "https://github.com"):
+                return .github
+            case _ where url.starts(with: "https://gitlab.com"):
+                return .gitlab
+            default:
+                return .github
+        }
+    }
+
+    private enum HostingProvider {
+        case github
+        case gitlab
+    }
+
 }
 
 
