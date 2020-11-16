@@ -31,4 +31,19 @@ class MetricsTests: AppTestCase {
         })
     }
 
+    func test_versions_added() throws {
+        //setup
+        let initialAdded = try XCTUnwrap(AppMetrics.analyzeVersionsAddedTotal?.get())
+        let initialDeleted = try XCTUnwrap(AppMetrics.analyzeVersionsDeletedTotal?.get())
+        let pkg = try savePackage(on: app.db, "1")
+        let v = try Version(package: pkg)
+
+        // MUT
+        try applyVersionDelta(on: app.db, delta: (toAdd: [v], toDelete: [])).wait()
+
+        // validation
+        XCTAssertEqual(AppMetrics.analyzeVersionsAddedTotal?.get(), initialAdded + 1)
+        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedTotal?.get(), initialDeleted)
+    }
+
 }
