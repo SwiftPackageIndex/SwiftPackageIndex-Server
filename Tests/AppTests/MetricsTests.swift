@@ -36,14 +36,25 @@ class MetricsTests: AppTestCase {
         let initialAdded = try XCTUnwrap(AppMetrics.analyzeVersionsAddedTotal?.get())
         let initialDeleted = try XCTUnwrap(AppMetrics.analyzeVersionsDeletedTotal?.get())
         let pkg = try savePackage(on: app.db, "1")
-        let v = try Version(package: pkg)
+        let new = [
+            try Version(package: pkg, reference: .branch("main")),
+            try Version(package: pkg, reference: .tag(1, 2, 3)),
+            try Version(package: pkg, reference: .tag(2, 0, 0)),
+        ]
+        let del = [
+            try Version(package: pkg, reference: .branch("main")),
+            try Version(package: pkg, reference: .tag(1, 0, 0)),
+        ]
+        try del.save(on: app.db).wait()
 
         // MUT
-        try applyVersionDelta(on: app.db, delta: (toAdd: [v], toDelete: [])).wait()
+        try applyVersionDelta(on: app.db, delta: (toAdd: new, toDelete: del)).wait()
 
         // validation
-        XCTAssertEqual(AppMetrics.analyzeVersionsAddedTotal?.get(), initialAdded + 1)
-        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedTotal?.get(), initialDeleted)
+        XCTAssertEqual(AppMetrics.analyzeVersionsAddedTotal?.get(.init("branch")), initialAdded + 1)
+        XCTAssertEqual(AppMetrics.analyzeVersionsAddedTotal?.get(.init("tag")), initialAdded + 2)
+        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedTotal?.get(.init("branch")), initialDeleted + 1)
+        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedTotal?.get(.init("tag")), initialDeleted + 1)
     }
 
 }
