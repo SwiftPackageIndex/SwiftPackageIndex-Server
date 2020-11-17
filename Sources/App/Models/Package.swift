@@ -146,13 +146,13 @@ extension Package {
     func versionUrl(for reference: Reference) -> String {
         switch (hostingProvider, reference) {
             case let (.github, .tag(_, tagName)):
-                return "\(url)/releases/tag/\(tagName)"
+                return "\(url.droppingGitExtension)/releases/tag/\(tagName)"
             case let (.github, .branch(branchName)):
-                return "\(url)/tree/\(branchName)"
+                return "\(url.droppingGitExtension)/tree/\(branchName)"
             case let (.gitlab, .tag(_, tagName)):
-                return "\(url)/-/tags/\(tagName)"
+                return "\(url.droppingGitExtension)/-/tags/\(tagName)"
             case let (.gitlab, .branch(branchName)):
-                return "\(url)/-/tree/\(branchName)"
+                return "\(url.droppingGitExtension)/-/tree/\(branchName)"
         }
     }
 
