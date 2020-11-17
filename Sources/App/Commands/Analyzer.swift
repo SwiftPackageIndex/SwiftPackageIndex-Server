@@ -540,7 +540,7 @@ func updateLatestVersions(on database: Database,
 }
 
 
-/// Event hook to run logic when new versions have been discovered in an analysis pass. Note that the provided
+/// Event hook to run logic when new (tagged) versions have been discovered in an analysis pass. Note that the provided
 /// transaction could potentially be rolled back in case an error occurs before all versions are processed and saved.
 /// - Parameters:
 ///   - client: `Client` object for http requests
@@ -550,7 +550,9 @@ func updateLatestVersions(on database: Database,
 func onNewVersions(client: Client,
                    transaction: Database,
                    versions: [Version]) -> EventLoopFuture<Void> {
-    let posts = versions.map {
+    let posts = versions
+        .filter { $0.reference?.isTag ?? false }
+        .map {
         Twitter.postToFirehose(client: client,
                                database: transaction,
                                version: $0)
