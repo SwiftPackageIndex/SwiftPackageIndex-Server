@@ -1,3 +1,4 @@
+import Fluent
 import OhhAuth
 import SemanticVersion
 import Vapor
@@ -49,6 +50,22 @@ extension Twitter {
                                   version: SemanticVersion,
                                   summary: String) -> String {
         "\(packageName) just released version \(version) – \(summary)\n\n\(url)"
+    }
+
+    static func firehostPost(db: Database, for version: Version) -> EventLoopFuture<String?> {
+        version.fetchPackage(db)
+            .flatMap { pkg in
+                pkg.fetchRepository(db).map { (pkg, $0) }
+            }
+            .map { pkg, repo in
+                guard let name = version.packageName,
+                      let semVer = version.reference?.semVer
+                else { return nil }
+                return buildFirehosePost(packageName: name,
+                                         url: pkg.url,
+                                         version: semVer,
+                                         summary: repo?.summary ?? "")
+            }
     }
 
     static func postToFirehose(client: Client, package: Package) -> EventLoopFuture<Void> {

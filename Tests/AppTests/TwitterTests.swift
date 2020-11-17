@@ -36,9 +36,8 @@ class TwitterTests: AppTestCase {
         // update versions
         _ = try updateLatestVersions(on: app.db, package: package).wait()
     }
-    
+
     func test_buildPost() throws {
-        let package = try Package.query(on: app.db, owner: "owner", repository: "SuperAwesomePackage").wait()
         let output = Twitter.buildFirehosePost(
             packageName: "SuperAwesomePackage",
             url: "http://localhost:8080/owner/SuperAwesomePackage",
@@ -48,6 +47,25 @@ class TwitterTests: AppTestCase {
         SuperAwesomePackage just released version 2.6.4 – This is a test package
         
         http://localhost:8080/owner/SuperAwesomePackage
+        """)
+    }
+
+    func test_postToFirehose() throws {
+        // setup
+        let pkg = Package(url: "1".asGithubUrl.url)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, summary: "This is a test package").save(on: app.db).wait()
+        let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
+        try version.save(on: app.db).wait()
+
+        // MUT
+        let res = try Twitter.firehostPost(db: app.db, for: version).wait()
+
+        // validate
+        XCTAssertEqual(res, """
+        MyPackage just released version 1.2.3 – This is a test package
+
+        https://github.com/foo/1
         """)
     }
     
