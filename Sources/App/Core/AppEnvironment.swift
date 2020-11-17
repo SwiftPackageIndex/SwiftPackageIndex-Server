@@ -79,13 +79,13 @@ extension AppEnvironment {
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
         twitterCredentials: {
-            guard let consumerKey = Environment.get("TWITTER_CONSUMER_KEY"),
-                  let consumerSecret = Environment.get("TWITTER_CONSUMER_SECRET"),
-                  let userKey = Environment.get("TWITTER_USER_KEY"),
-                  let userSecret = Environment.get("TWITTER_USER_SECRET")
+            guard let apiKey = Environment.get("TWITTER_API_KEY"),
+                  let apiKeySecret = Environment.get("TWITTER_API_SECRET"),
+                  let accessToken = Environment.get("TWITTER_ACCESS_TOKEN_KEY"),
+                  let accessTokenSecret = Environment.get("TWITTER_ACCESS_TOKEN_SECRET")
             else { return nil }
-            return .init(consumer: (key: consumerKey, secret: consumerSecret),
-                         user: (key: userKey, secret: userSecret))
+            return .init(apiKey: (key: apiKey, secret: apiKeySecret),
+                         accessToken: (key: accessToken, secret: accessTokenSecret))
         },
         twitterPostTweet: Twitter.post(client:tweet:)
     )

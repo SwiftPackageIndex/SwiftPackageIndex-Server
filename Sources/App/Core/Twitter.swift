@@ -13,8 +13,8 @@ enum Twitter {
     private static let apiUrl: String = "https://api.twitter.com/1.1/statuses/update.json"
 
     struct Credentials {
-        var consumer: (key: String, secret: String)
-        var user: (key: String, secret: String)
+        var apiKey: (key: String, secret: String)
+        var accessToken: (key: String, secret: String)
     }
 
     static func post(client: Client, tweet: String) -> EventLoopFuture<Void> {
@@ -26,8 +26,8 @@ enum Twitter {
             url: url,
             method: "POST",
             parameter: [:],
-            consumerCredentials: credentials.consumer,
-            userCredentials: credentials.user
+            consumerCredentials: credentials.apiKey,
+            userCredentials: credentials.accessToken
         )
 
         var headers: HTTPHeaders = .init()
