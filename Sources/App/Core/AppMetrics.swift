@@ -29,6 +29,27 @@ enum AppMetrics {
                 self.swiftVersion = "\(swiftVersion)"
             }
         }
+
+        struct Version: MetricLabels {
+            var kind: String = ""
+
+            init() {}
+            
+            init(_ kind: String) {
+                self.kind = kind
+            }
+
+            init(_ reference: Reference?) {
+                switch reference {
+                    case .branch:
+                        kind = "branch"
+                    case .tag:
+                        kind = "tag"
+                    case .none:
+                        kind = ""
+                }
+            }
+        }
     }
 
     static var analyzeCandidatesCount: PromGauge<Int, EmptyLabels>? {
@@ -43,12 +64,12 @@ enum AppMetrics {
         counter("spi_analyze_update_repository_failure_total", EmptyLabels.self)
     }
 
-    static var analyzeVersionsAddedTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_analyze_versions_added_total", EmptyLabels.self)
+    static var analyzeVersionsAddedTotal: PromCounter<Int, Labels.Version>? {
+        counter("spi_analyze_versions_added_total", Labels.Version.self)
     }
 
-    static var analyzeVersionsDeletedTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_analyze_versions_deleted_total", EmptyLabels.self)
+    static var analyzeVersionsDeletedTotal: PromCounter<Int, Labels.Version>? {
+        counter("spi_analyze_versions_deleted_total", Labels.Version.self)
     }
 
     static var buildCandidatesCount: PromGauge<Int, EmptyLabels>? {

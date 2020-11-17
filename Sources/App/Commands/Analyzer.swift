@@ -323,14 +323,30 @@ func reconcileVersions(client: Client,
         .filter(\.$package.$id == pkgId)
         .all()
         .and(incoming)
-        .flatMap { saved, incoming -> EventLoopFuture<[Version]> in
-            let delta = Version.diff(local: saved, incoming: incoming)
-            let delete = delta.toDelete.delete(on: transaction)
-            let insert = delta.toAdd.create(on: transaction).transform(to: delta.toAdd)
-            AppMetrics.analyzeVersionsAddedTotal?.inc(delta.toAdd.count)
-            AppMetrics.analyzeVersionsDeletedTotal?.inc(delta.toDelete.count)
-            return delete.flatMap { insert }
+        .map(Version.diff)
+        .flatMap { delta in
+            applyVersionDelta(on: transaction, delta: delta)
+                .map { delta.toAdd }
         }
+}
+
+
+/// Saves and deletes the versions specified in the version delta parameter.
+/// - Parameters:
+///   - transaction: transaction to run the save and delete in
+///   - delta: tuple containing the version to add and remove
+/// - Returns: future
+func applyVersionDelta(on transaction: Database,
+                       delta: (toAdd: [Version], toDelete: [Version])) -> EventLoopFuture<Void> {
+    let delete = delta.toDelete.delete(on: transaction)
+    let insert = delta.toAdd.create(on: transaction)
+    delta.toAdd.forEach {
+        AppMetrics.analyzeVersionsAddedTotal?.inc(1, .init($0.reference))
+    }
+    delta.toDelete.forEach {
+        AppMetrics.analyzeVersionsDeletedTotal?.inc(1, .init($0.reference))
+    }
+    return delete.flatMap { insert }
 }
 
 

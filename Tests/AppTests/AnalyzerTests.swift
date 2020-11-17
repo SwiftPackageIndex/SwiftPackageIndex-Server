@@ -384,7 +384,8 @@ class AnalyzerTests: AppTestCase {
                                              package: pkg).wait()
         
         // validate
-        assertEquals(versions, \.reference?.description, ["main", "1.2.3"])
+        assertEquals(versions, \.reference,
+                     [.branch("main"), .tag(1, 2, 3)])
         assertEquals(versions, \.commit, ["sha.main", "sha.1.2.3"])
         assertEquals(versions, \.commitDate,
                      [Date(timeIntervalSince1970: 0), Date(timeIntervalSince1970: 1)])
