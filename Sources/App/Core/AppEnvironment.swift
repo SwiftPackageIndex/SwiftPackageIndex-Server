@@ -26,6 +26,7 @@ struct AppEnvironment {
     var rollbarLogLevel: () -> AppError.Level
     var shell: Shell
     var siteURL: () -> String
+    var twitterCredentials: () -> Twitter.Credentials?
 }
 
 extension AppEnvironment {
@@ -75,7 +76,16 @@ extension AppEnvironment {
                 .get("ROLLBAR_LOG_LEVEL")
                 .flatMap(AppError.Level.init(rawValue:)) ?? .critical },
         shell: .live,
-        siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" }
+        siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
+        twitterCredentials: {
+            guard let consumerKey = Environment.get("TWITTER_CONSUMER_KEY"),
+                  let consumerSecret = Environment.get("TWITTER_CONSUMER_SECRET"),
+                  let userKey = Environment.get("TWITTER_USER_KEY"),
+                  let userSecret = Environment.get("TWITTER_USER_SECRET")
+            else { return nil }
+            return .init(consumer: (key: consumerKey, secret: consumerSecret),
+                         user: (key: userKey, secret: userSecret))
+        }
     )
 }
 

@@ -19,15 +19,13 @@ enum Twitter {
     }
     
     static func postToFirehose(client: Client, package: Package) -> EventLoopFuture<Void> {
-        guard let message = buildFirehosePost(package: package) else {
+        guard
+            let message = buildFirehosePost(package: package),
+            let credentials = Current.twitterCredentials() else {
             return client.eventLoop.future()
         }
-        // TODO: get from AppEnvironment
-        let consumerCredentials = Credentials(key: "", secret: "")
-        let userCredentials = Credentials(key: "", secret: "")
 
-        return post(client: client, tweet: message,
-                    consumer: consumerCredentials, user: userCredentials)
+        return post(client: client, tweet: message, credentials: credentials)
             .transform(to: ())
     }
 }
@@ -40,22 +38,21 @@ extension Twitter {
     private static let apiUrl: String = "https://api.twitter.com/1.1/statuses/update.json"
 
     struct Credentials {
-        var key: String
-        var secret: String
+        var consumer: (key: String, secret: String)
+        var user: (key: String, secret: String)
     }
 
     // FIXME: add to AppEnvironment
     static func post(client: Client,
                      tweet: String,
-                     consumer: Credentials,
-                     user: Credentials) -> EventLoopFuture<ClientResponse> {
+                     credentials: Credentials) -> EventLoopFuture<ClientResponse> {
         let url: URL = URL(string: "\(apiUrl)?status=\(tweet.urlEncodedString())")!
         let signature = OhhAuth.calculateSignature(
             url: url,
             method: "POST",
             parameter: [:],
-            consumerCredentials: (consumer.key, consumer.secret),
-            userCredentials: (user.key, user.secret)
+            consumerCredentials: credentials.consumer,
+            userCredentials: credentials.user
         )
 
         var headers: HTTPHeaders = .init()

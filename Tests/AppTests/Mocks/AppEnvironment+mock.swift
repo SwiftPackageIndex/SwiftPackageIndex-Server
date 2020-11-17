@@ -31,7 +31,8 @@ extension AppEnvironment {
             rollbarToken: { nil },
             rollbarLogLevel: { .critical },
             shell: .mock,
-            siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" }
+            siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
+            twitterCredentials: { nil }
         )
     }
 }
