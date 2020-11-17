@@ -15,7 +15,7 @@ class TwitterTests: AppTestCase {
                 version: .init(2, 6, 4),
                 summary: "This is a test package"),
             """
-            owner just released repoName version 2.6.4 – This is a test package
+            owner just released repoName v2.6.4 – This is a test package
 
             http://localhost:8080/owner/SuperAwesomePackage
             """
@@ -30,7 +30,7 @@ class TwitterTests: AppTestCase {
                 version: .init(2, 6, 4),
                 summary: nil),
             """
-            owner just released repoName version 2.6.4
+            owner just released repoName v2.6.4
 
             http://localhost:8080/owner/SuperAwesomePackage
             """
@@ -53,7 +53,7 @@ class TwitterTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res, """
-        owner just released repoName version 1.2.3 – This is a test package
+        owner just released repoName v1.2.3 – This is a test package
 
         http://localhost:8080/owner/repoName
         """)

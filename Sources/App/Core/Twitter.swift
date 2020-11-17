@@ -51,7 +51,7 @@ extension Twitter {
                              version: SemanticVersion,
                              summary: String?) -> String {
         """
-        \(repositoryOwner) just released \(repositoryName) version \(version)\(summary.map { " – \($0)"} ?? "")
+        \(repositoryOwner) just released \(repositoryName) v\(version)\(summary.map { " – \($0)"} ?? "")
 
         \(url)
         """
