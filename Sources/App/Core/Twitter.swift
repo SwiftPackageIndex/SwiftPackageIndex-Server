@@ -45,12 +45,13 @@ enum Twitter {
 
 extension Twitter {
 
-    static func firehostPost(repositoryName: String,
+    static func firehostPost(repositoryOwner: String,
+                             repositoryName: String,
                              url: String,
                              version: SemanticVersion,
                              summary: String?) -> String {
         """
-        \(repositoryName) just released version \(version)\(summary.map { " – \($0)"} ?? "")
+        \(repositoryOwner) just released \(repositoryName) version \(version)\(summary.map { " – \($0)"} ?? "")
 
         \(url)
         """
@@ -62,11 +63,14 @@ extension Twitter {
                 pkg.fetchRepository(db).map { (pkg, $0) }
             }
             .map { pkg, repo in
-                guard let name = repo?.name,
+                guard let repoName = repo?.name,
+                      let owner = repo?.owner,
                       let semVer = version.reference?.semVer
                 else { return nil }
-                return firehostPost(repositoryName: name,
-                                    url: pkg.url,
+                let url = SiteURL.package(.value(owner), .value(repoName), .none).absoluteURL()
+                return firehostPost(repositoryOwner: owner,
+                                    repositoryName: repoName,
+                                    url: url,
                                     version: semVer,
                                     summary: repo?.summary ?? "")
             }

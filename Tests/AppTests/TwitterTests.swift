@@ -9,12 +9,13 @@ class TwitterTests: AppTestCase {
     func test_buildPost() throws {
         XCTAssertEqual(
             Twitter.firehostPost(
-                repositoryName: "owner",
+                repositoryOwner: "owner",
+                repositoryName: "repoName",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: "This is a test package"),
             """
-            owner just released version 2.6.4 – This is a test package
+            owner just released repoName version 2.6.4 – This is a test package
 
             http://localhost:8080/owner/SuperAwesomePackage
             """
@@ -23,12 +24,13 @@ class TwitterTests: AppTestCase {
         // no summary
         XCTAssertEqual(
             Twitter.firehostPost(
-                repositoryName: "owner",
+                repositoryOwner: "owner",
+                repositoryName: "repoName",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: nil),
             """
-            owner just released version 2.6.4
+            owner just released repoName version 2.6.4
 
             http://localhost:8080/owner/SuperAwesomePackage
             """
@@ -41,7 +43,8 @@ class TwitterTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
                        summary: "This is a test package",
-                       name: "owner").save(on: app.db).wait()
+                       name: "repoName",
+                       owner: "owner").save(on: app.db).wait()
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try version.save(on: app.db).wait()
 
@@ -50,9 +53,9 @@ class TwitterTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res, """
-        owner just released version 1.2.3 – This is a test package
+        owner just released repoName version 1.2.3 – This is a test package
 
-        https://github.com/foo/1
+        http://localhost:8080/owner/repoName
         """)
     }
 
@@ -63,7 +66,8 @@ class TwitterTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
                        summary: "This is a test package",
-                       name: "owner").save(on: app.db).wait()
+                       name: "repoName",
+                       owner: "repoOwner").save(on: app.db).wait()
         let v1 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try v1.save(on: app.db).wait()
         let v2 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0, "b1"))
