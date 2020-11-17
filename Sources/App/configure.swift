@@ -1,6 +1,5 @@
 import Fluent
 import FluentPostgresDriver
-import TwitterVapor
 import Vapor
 
 
@@ -21,18 +20,7 @@ public func configure(_ app: Application) throws {
         app.logger.error("Incomplete DB configuration:\n\(vars)")
         throw Abort(.internalServerError)
     }
-    
-    // Enable @PackageFirehose Twitter integration
-    if let consumerKey = Environment.get("TWITTER_CONSUMER_KEY"),
-       let consumerSecret = Environment.get("TWITTER_CONSUMER_SECRET"),
-       let userKey = Environment.get("TWITTER_USER_KEY"),
-       let userSecret = Environment.get("TWITTER_USER_SECRET") {
-        app.twitter.credentials = .init(consumer: .init(key: consumerKey, secret: consumerSecret),
-                                        user: .init(key: userKey, secret: userSecret))
-    } else {
-        app.logger.error("Failed to enable Firehose Twitter integration")
-    }
-    
+        
     app.databases.use(.postgres(hostname: host,
                                 port: port,
                                 username: username,

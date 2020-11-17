@@ -236,15 +236,6 @@
         }
       },
       {
-        "package": "TwitterVapor",
-        "repositoryURL": "https://github.com/handya/TwitterVapor.git",
-        "state": {
-          "branch": null,
-          "revision": "a33b9e5d832a02e269c67d54a9fabdc8d2bde855",
-          "version": "1.1.0"
-        }
-      },
-      {
         "package": "vapor",
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {

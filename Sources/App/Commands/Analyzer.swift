@@ -97,18 +97,6 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
                 .map { getManifests(logger: application.logger, versions: $0) }
                 .flatMap { updateVersionsAndProducts(on: tx, packages: $0) }
                 .flatMap { updateLatestVersions(on: tx, packages: $0) }
-                .flatMap { input in
-                    let ops: [EventLoopFuture<Void>] = input.compactMap {
-                        guard let package = try? $0.get() else {
-                            return nil
-                        }
-                        
-                        return TwitterFirehose().postToFirehose(package: package, application: application)
-                    }
-                    
-                    return EventLoopFuture.whenAllComplete(ops, on: tx.eventLoop)
-                        .flatMapAlways { _ in tx.eventLoop.future(input) }
-                }
         }
     }
     
@@ -559,5 +547,8 @@ func updateLatestVersions(on database: Database,
 ///   - versions: array of newly discovered versions
 /// - Returns: future wrapping operation(s)
 func onNewVersions(on transaction: Database, versions: [Version]) -> EventLoopFuture<Void> {
+    // FIXME: enable
+    //    Twitter.postToFirehose(client: client, package: package)
+    //       .flatMapError { ... absorb ... }
     transaction.eventLoop.future()
 }

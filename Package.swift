@@ -19,7 +19,7 @@ let package = Package(
         .package(name: "SnapshotTesting",
                  url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
-        .package(url: "https://github.com/handya/TwitterVapor.git", from: "1.1.0"),
+        .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0")
     ],
     targets: [
         .target(name: "App", dependencies: [
@@ -31,7 +31,7 @@ let package = Package(
             "SemanticVersion",
             "ShellOut",
             "SwiftPrometheus",
-            "TwitterVapor",
+            "OhhAuth",
         ]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [
