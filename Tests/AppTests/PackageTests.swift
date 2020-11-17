@@ -417,14 +417,17 @@ final class PackageTests: AppTestCase {
     }
 
     func test_versionUrl() throws {
-       XCTAssertEqual(Package(url: "https://github.com/foo/bar").versionUrl(for: .tag(1, 2, 3)),
-                      "https://github.com/foo/bar/releases/tag/1.2.3")
-       XCTAssertEqual(Package(url: "https://github.com/foo/bar").versionUrl(for: .branch("main")),
-                      "https://github.com/foo/bar/tree/main")
-       XCTAssertEqual(Package(url: "https://gitlab.com/foo/bar").versionUrl(for: .tag(1, 2, 3)),
-                      "https://gitlab.com/foo/bar/-/tags/1.2.3")
-       XCTAssertEqual(Package(url: "https://gitlab.com/foo/bar").versionUrl(for: .branch("main")),
-                      "https://gitlab.com/foo/bar/-/tree/main")
+        XCTAssertEqual(Package(url: "https://github.com/foo/bar").versionUrl(for: .tag(1, 2, 3)),
+                       "https://github.com/foo/bar/releases/tag/1.2.3")
+        XCTAssertEqual(Package(url: "https://github.com/foo/bar").versionUrl(for: .branch("main")),
+                       "https://github.com/foo/bar/tree/main")
+        XCTAssertEqual(Package(url: "https://gitlab.com/foo/bar").versionUrl(for: .tag(1, 2, 3)),
+                       "https://gitlab.com/foo/bar/-/tags/1.2.3")
+        XCTAssertEqual(Package(url: "https://gitlab.com/foo/bar").versionUrl(for: .branch("main")),
+                       "https://gitlab.com/foo/bar/-/tree/main")
+        // ensure .git is stripped off
+        XCTAssertEqual(Package(url: "https://github.com/foo/bar.git").versionUrl(for: .tag(1, 2, 3)),
+                       "https://github.com/foo/bar/releases/tag/1.2.3")
     }
 
     func test_languagePlatformInfo() throws {
