@@ -543,6 +543,7 @@ func updateLatestVersions(on database: Database,
 /// Event hook to run logic when new versions have been discovered in an analysis pass. Note that the provided
 /// transaction could potentially be rolled back in case an error occurs before all versions are processed and saved.
 /// - Parameters:
+///   - client: `Client` object for http requests
 ///   - transaction: database transaction
 ///   - versions: array of newly discovered versions
 /// - Returns: future wrapping operation(s)
