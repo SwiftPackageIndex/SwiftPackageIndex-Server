@@ -38,16 +38,32 @@ class TwitterTests: AppTestCase {
     }
 
     func test_buildPost() throws {
-        let output = Twitter.buildFirehosePost(
-            packageName: "SuperAwesomePackage",
-            url: "http://localhost:8080/owner/SuperAwesomePackage",
-            version: .init(2, 6, 4),
-            summary: "This is a test package")
-        XCTAssertEqual(output, """
-        SuperAwesomePackage just released version 2.6.4 – This is a test package
-        
-        http://localhost:8080/owner/SuperAwesomePackage
-        """)
+        XCTAssertEqual(
+            Twitter.firehostPost(
+                packageName: "SuperAwesomePackage",
+                url: "http://localhost:8080/owner/SuperAwesomePackage",
+                version: .init(2, 6, 4),
+                summary: "This is a test package"),
+            """
+            SuperAwesomePackage just released version 2.6.4 – This is a test package
+
+            http://localhost:8080/owner/SuperAwesomePackage
+            """
+        )
+
+        // no summary
+        XCTAssertEqual(
+            Twitter.firehostPost(
+                packageName: "SuperAwesomePackage",
+                url: "http://localhost:8080/owner/SuperAwesomePackage",
+                version: .init(2, 6, 4),
+                summary: nil),
+            """
+            SuperAwesomePackage just released version 2.6.4 
+
+            http://localhost:8080/owner/SuperAwesomePackage
+            """
+        )
     }
 
     func test_postToFirehose() throws {

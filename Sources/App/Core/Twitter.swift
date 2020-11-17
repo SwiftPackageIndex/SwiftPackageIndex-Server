@@ -45,11 +45,15 @@ enum Twitter {
 
 extension Twitter {
 
-    static func buildFirehosePost(packageName: String,
-                                  url: String,
-                                  version: SemanticVersion,
-                                  summary: String) -> String {
-        "\(packageName) just released version \(version) – \(summary)\n\n\(url)"
+    static func firehostPost(packageName: String,
+                             url: String,
+                             version: SemanticVersion,
+                             summary: String?) -> String {
+        """
+        \(packageName) just released version \(version) \(summary.map { "– \($0)"} ?? "")
+
+        \(url)
+        """
     }
 
     static func firehostPost(db: Database, for version: Version) -> EventLoopFuture<String?> {
@@ -61,22 +65,23 @@ extension Twitter {
                 guard let name = version.packageName,
                       let semVer = version.reference?.semVer
                 else { return nil }
-                return buildFirehosePost(packageName: name,
-                                         url: pkg.url,
-                                         version: semVer,
-                                         summary: repo?.summary ?? "")
+                return firehostPost(packageName: name,
+                                    url: pkg.url,
+                                    version: semVer,
+                                    summary: repo?.summary ?? "")
             }
     }
 
-    static func postToFirehose(client: Client, package: Package) -> EventLoopFuture<Void> {
-
-        // FIXME
-        let message = buildFirehosePost(packageName: "foo",
-                                        url: "url",
-                                        version: .init(1, 2, 3),
-                                        summary: "summary")
-
-        return Current.twitterPostTweet(client, message)
+    static func postToFirehose(client: Client,
+                               database: Database,
+                               version: Version) -> EventLoopFuture<Void> {
+        firehostPost(db: database, for: version)
+            .flatMap {
+                guard let message = $0 else {
+                    return client.eventLoop.future(error: Error.invalidMessage)
+                }
+                return Current.twitterPostTweet(client, message)
+            }
     }
 
 }

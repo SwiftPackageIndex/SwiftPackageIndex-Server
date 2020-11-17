@@ -549,10 +549,10 @@ func updateLatestVersions(on database: Database,
 func onNewVersions(client: Client,
                    transaction: Database,
                    versions: [Version]) -> EventLoopFuture<Void> {
-    // FIXME: enable
-//    Twitter.postToFirehose(client: client, package: package)
-//        .flatMapError {
-//
-//        }
-    transaction.eventLoop.future()
+    let posts = versions.map {
+        Twitter.postToFirehose(client: client,
+                               database: transaction,
+                               version: $0)
+    }
+    return .andAllComplete(posts, on: client.eventLoop)
 }
