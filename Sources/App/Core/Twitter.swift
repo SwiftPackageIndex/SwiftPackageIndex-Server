@@ -50,7 +50,7 @@ extension Twitter {
                              version: SemanticVersion,
                              summary: String?) -> String {
         """
-        \(packageName) just released version \(version) \(summary.map { "– \($0)"} ?? "")
+        \(packageName) just released version \(version)\(summary.map { " – \($0)"} ?? "")
 
         \(url)
         """

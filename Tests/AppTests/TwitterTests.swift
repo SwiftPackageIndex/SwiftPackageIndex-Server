@@ -59,7 +59,7 @@ class TwitterTests: AppTestCase {
                 version: .init(2, 6, 4),
                 summary: nil),
             """
-            SuperAwesomePackage just released version 2.6.4 
+            SuperAwesomePackage just released version 2.6.4
 
             http://localhost:8080/owner/SuperAwesomePackage
             """
