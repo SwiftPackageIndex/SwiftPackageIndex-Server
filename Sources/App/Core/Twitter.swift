@@ -3,7 +3,12 @@ import Vapor
 
 
 enum Twitter {
-    
+
+    enum Error: LocalizedError {
+        case invalidMessage
+        case missingCredentials
+    }
+
     static func buildFirehosePost(package: Package) -> String? {
         guard let repo = package.repository,
               let version = Package.findRelease(package.versions),
@@ -19,14 +24,11 @@ enum Twitter {
     }
     
     static func postToFirehose(client: Client, package: Package) -> EventLoopFuture<Void> {
-        guard
-            let message = buildFirehosePost(package: package),
-            let credentials = Current.twitterCredentials() else {
-            return client.eventLoop.future()
+        guard let message = buildFirehosePost(package: package) else {
+            return client.eventLoop.future(error: Error.invalidMessage)
         }
 
-        return post(client: client, tweet: message, credentials: credentials)
-            .transform(to: ())
+        return Current.twitterPostTweet(client, message)
     }
 }
 
@@ -44,8 +46,10 @@ extension Twitter {
 
     // FIXME: add to AppEnvironment
     static func post(client: Client,
-                     tweet: String,
-                     credentials: Credentials) -> EventLoopFuture<ClientResponse> {
+                     tweet: String) -> EventLoopFuture<Void> {
+        guard let credentials = Current.twitterCredentials() else {
+            return client.eventLoop.future(error: Error.missingCredentials)
+        }
         let url: URL = URL(string: "\(apiUrl)?status=\(tweet.urlEncodedString())")!
         let signature = OhhAuth.calculateSignature(
             url: url,
@@ -59,6 +63,7 @@ extension Twitter {
         headers.add(name: "Authorization", value: signature)
         headers.add(name: "Content-Type", value: "application/x-www-form-urlencoded")
         return client.post(URI(string: url.absoluteString), headers: headers)
+            .transform(to: ())
     }
 
 }

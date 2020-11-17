@@ -27,6 +27,7 @@ struct AppEnvironment {
     var shell: Shell
     var siteURL: () -> String
     var twitterCredentials: () -> Twitter.Credentials?
+    var twitterPostTweet: (_ client: Client, _ tweet: String) -> EventLoopFuture<Void>
 }
 
 extension AppEnvironment {
@@ -85,7 +86,8 @@ extension AppEnvironment {
             else { return nil }
             return .init(consumer: (key: consumerKey, secret: consumerSecret),
                          user: (key: userKey, secret: userSecret))
-        }
+        },
+        twitterPostTweet: Twitter.post(client:tweet:)
     )
 }
 
