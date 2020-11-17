@@ -39,9 +39,13 @@ class TwitterTests: AppTestCase {
     
     func test_buildPost() throws {
         let package = try Package.query(on: app.db, owner: "owner", repository: "SuperAwesomePackage").wait()
-        let output = Twitter.buildFirehosePost(package: package)
+        let output = Twitter.buildFirehosePost(
+            packageName: "SuperAwesomePackage",
+            url: "http://localhost:8080/owner/SuperAwesomePackage",
+            version: .init(2, 6, 4),
+            summary: "This is a test package")
         XCTAssertEqual(output, """
-        SuperAwesomePackage just released v2.6.4 - This is a test package
+        SuperAwesomePackage just released version 2.6.4 – This is a test package
         
         http://localhost:8080/owner/SuperAwesomePackage
         """)

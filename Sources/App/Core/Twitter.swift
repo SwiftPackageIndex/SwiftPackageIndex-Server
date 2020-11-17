@@ -1,4 +1,5 @@
 import OhhAuth
+import SemanticVersion
 import Vapor
 
 
@@ -43,24 +44,21 @@ enum Twitter {
 
 extension Twitter {
 
-    static func buildFirehosePost(package: Package) -> String? {
-        guard let repo = package.repository,
-              let version = Package.findRelease(package.versions),
-              let semVer = version.reference?.semVer,
-              let repoName = repo.name
-        else { return nil }
-
-        // summary = '- repo summary goes here' or ''
-        let summary = repo.summary?.isEmpty != false ? "" : "- " + (repo.summary ?? "")
-        let url = SiteURL.package(.value(repo.owner ?? ""), .value(repoName), .none).absoluteURL()
-
-        return "\(repoName) just released v\(semVer.description) \(summary)\n\n\(url)"
+    static func buildFirehosePost(packageName: String,
+                                  url: String,
+                                  version: SemanticVersion,
+                                  summary: String) -> String {
+        "\(packageName) just released version \(version) – \(summary)\n\n\(url)"
     }
 
     static func postToFirehose(client: Client, package: Package) -> EventLoopFuture<Void> {
-        guard let message = buildFirehosePost(package: package) else {
-            return client.eventLoop.future(error: Error.invalidMessage)
-        }
+
+        // FIXME
+        let message = buildFirehosePost(packageName: "foo",
+                                        url: "url",
+                                        version: .init(1, 2, 3),
+                                        summary: "summary")
+
         return Current.twitterPostTweet(client, message)
     }
 

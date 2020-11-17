@@ -326,7 +326,7 @@ func reconcileVersions(client: Client,
         .map(Version.diff)
         .flatMap { delta in
             applyVersionDelta(on: transaction, delta: delta)
-                .flatMap { onNewVersions(on: transaction, versions: delta.toAdd) }
+                .flatMap { onNewVersions(client: client, transaction: transaction, versions: delta.toAdd) }
                 .map { delta.toAdd }
         }
 }
@@ -546,9 +546,13 @@ func updateLatestVersions(on database: Database,
 ///   - transaction: database transaction
 ///   - versions: array of newly discovered versions
 /// - Returns: future wrapping operation(s)
-func onNewVersions(on transaction: Database, versions: [Version]) -> EventLoopFuture<Void> {
+func onNewVersions(client: Client,
+                   transaction: Database,
+                   versions: [Version]) -> EventLoopFuture<Void> {
     // FIXME: enable
-    //    Twitter.postToFirehose(client: client, package: package)
-    //       .flatMapError { ... absorb ... }
+//    Twitter.postToFirehose(client: client, package: package)
+//        .flatMapError {
+//
+//        }
     transaction.eventLoop.future()
 }
