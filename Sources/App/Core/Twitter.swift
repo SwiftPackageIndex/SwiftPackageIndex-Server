@@ -9,6 +9,7 @@ enum Twitter {
     enum Error: LocalizedError {
         case invalidMessage
         case missingCredentials
+        case requestFailed(HTTPStatus, String)
     }
 
     private static let apiUrl: String = "https://api.twitter.com/1.1/statuses/update.json"
@@ -35,6 +36,11 @@ enum Twitter {
         headers.add(name: "Authorization", value: signature)
         headers.add(name: "Content-Type", value: "application/x-www-form-urlencoded")
         return client.post(URI(string: url.absoluteString), headers: headers)
+            .flatMapThrowing { response in
+                guard response.status == .ok else {
+                    throw Error.requestFailed(response.status, response.body?.asString() ?? "")
+                }
+            }
             .transform(to: ())
     }
 
