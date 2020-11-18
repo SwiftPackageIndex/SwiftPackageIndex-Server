@@ -110,4 +110,40 @@ class TwitterTests: AppTestCase {
         XCTAssertEqual(posted, 2)
     }
 
+    func test_allowTwitterPosts_switch() throws {
+        // test ALLOW_TWITTER_POSTS environment variable
+        // setup
+        let pkg = Package(url: "1".asGithubUrl.url)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg,
+                       summary: "This is a test package",
+                       name: "repoName",
+                       owner: "repoOwner").save(on: app.db).wait()
+        let v = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
+        try v.save(on: app.db).wait()
+        Current.twitterCredentials = {
+            .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
+        }
+        var posted = 0
+        Current.twitterPostTweet = { _, _ in
+            posted += 1
+            return self.app.eventLoopGroup.future()
+        }
+
+        // MUT & validate - disallow if set to false
+        Current.allowTwitterPosts = { false }
+        XCTAssertThrowsError(
+            try Twitter.postToFirehose(client: app.client, database: app.db, version: v).wait()
+        ) {
+            XCTAssertEqual("\($0.localizedDescription)",
+                           "The operation couldn’t be completed. (App.Twitter.Error error 3.)")
+        }
+        XCTAssertEqual(posted, 0)
+
+        // MUT & validate - allow if set to true
+        Current.allowTwitterPosts = { true }
+        try Twitter.postToFirehose(client: app.client, database: app.db, version: v).wait()
+        XCTAssertEqual(posted, 1)
+    }
+
 }

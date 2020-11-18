@@ -4,6 +4,7 @@ import Vapor
 
 struct AppEnvironment {
     var allowBuildTriggers: () -> Bool
+    var allowTwitterPosts: () -> Bool
     var builderToken: () -> String?
     var buildTriggerDownscaling: () -> Double
     var date: () -> Date
@@ -36,6 +37,11 @@ extension AppEnvironment {
             Environment.get("ALLOW_BUILD_TRIGGERS")
                 .flatMap(\.asBool)
                 ?? Constants.defaultAllowBuildTriggering
+        },
+        allowTwitterPosts: {
+            Environment.get("ALLOW_TWITTER_POSTS")
+                .flatMap(\.asBool)
+                ?? Constants.defaultAllowTwitterPosts
         },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerDownscaling: {

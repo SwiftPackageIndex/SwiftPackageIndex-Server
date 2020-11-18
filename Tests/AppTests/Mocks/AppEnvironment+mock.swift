@@ -8,6 +8,7 @@ extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
             allowBuildTriggers: { true },
+            allowTwitterPosts: { true },
             builderToken: { nil },
             buildTriggerDownscaling: { 1.0 },
             date: Date.init,

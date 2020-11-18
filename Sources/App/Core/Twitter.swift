@@ -12,6 +12,7 @@ enum Twitter {
     enum Error: LocalizedError {
         case invalidMessage
         case missingCredentials
+        case postingDisabled
         case requestFailed(HTTPStatus, String)
     }
 
@@ -94,7 +95,10 @@ extension Twitter {
     static func postToFirehose(client: Client,
                                database: Database,
                                version: Version) -> EventLoopFuture<Void> {
-        firehoseMessage(db: database, for: version)
+        guard Current.allowTwitterPosts() else {
+            return client.eventLoop.future(error: Error.postingDisabled)
+        }
+        return firehoseMessage(db: database, for: version)
             .flatMap {
                 guard let message = $0 else {
                     return client.eventLoop.future(error: Error.invalidMessage)
