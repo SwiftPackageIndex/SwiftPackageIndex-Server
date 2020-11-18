@@ -54,7 +54,7 @@ class TwitterTests: AppTestCase {
             """)
     }
 
-    func test_postToFirehose() throws {
+    func test_firehoseMessage_for_version() throws {
         // setup
         let pkg = Package(url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
