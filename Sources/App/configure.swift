@@ -20,7 +20,7 @@ public func configure(_ app: Application) throws {
         app.logger.error("Incomplete DB configuration:\n\(vars)")
         throw Abort(.internalServerError)
     }
-        
+    
     app.databases.use(.postgres(hostname: host,
                                 port: port,
                                 username: username,
