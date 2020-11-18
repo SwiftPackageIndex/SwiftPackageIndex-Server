@@ -34,13 +34,13 @@ class MetricsTests: AppTestCase {
     func test_versions_added() throws {
         //setup
         let initialAddedBranch = try
-            XCTUnwrap(AppMetrics.analyzeVersionsAddedTotal?.get(.init("branch")))
+            XCTUnwrap(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")))
         let initialAddedTag = try
-            XCTUnwrap(AppMetrics.analyzeVersionsAddedTotal?.get(.init("tag")))
+            XCTUnwrap(AppMetrics.analyzeVersionsAddedCount?.get(.init("tag")))
         let initialDeletedBranch = try
-            XCTUnwrap(AppMetrics.analyzeVersionsDeletedTotal?.get(.init("branch")))
+            XCTUnwrap(AppMetrics.analyzeVersionsDeletedCount?.get(.init("branch")))
         let initialDeletedTag = try
-            XCTUnwrap(AppMetrics.analyzeVersionsDeletedTotal?.get(.init("tag")))
+            XCTUnwrap(AppMetrics.analyzeVersionsDeletedCount?.get(.init("tag")))
         let pkg = try savePackage(on: app.db, "1")
         let new = [
             try Version(package: pkg, reference: .branch("main")),
@@ -57,13 +57,13 @@ class MetricsTests: AppTestCase {
         try applyVersionDelta(on: app.db, delta: (toAdd: new, toDelete: del)).wait()
 
         // validation
-        XCTAssertEqual(AppMetrics.analyzeVersionsAddedTotal?.get(.init("branch")),
+        XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")),
                        initialAddedBranch + 1)
-        XCTAssertEqual(AppMetrics.analyzeVersionsAddedTotal?.get(.init("tag")),
+        XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(.init("tag")),
                        initialAddedTag + 2)
-        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedTotal?.get(.init("branch")),
+        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(.init("branch")),
                        initialDeletedBranch + 1)
-        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedTotal?.get(.init("tag")),
+        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(.init("tag")),
                        initialDeletedTag + 1)
     }
 

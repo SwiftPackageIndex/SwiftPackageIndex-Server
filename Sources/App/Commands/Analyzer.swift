@@ -346,11 +346,17 @@ func applyVersionDelta(on transaction: Database,
                        delta: (toAdd: [Version], toDelete: [Version])) -> EventLoopFuture<Void> {
     let delete = delta.toDelete.delete(on: transaction)
     let insert = delta.toAdd.create(on: transaction)
+    if delta.toAdd.isEmpty {
+        AppMetrics.analyzeVersionsAddedCount?.set(0)
+    }
     delta.toAdd.forEach {
-        AppMetrics.analyzeVersionsAddedTotal?.inc(1, .init($0.reference))
+        AppMetrics.analyzeVersionsAddedCount?.inc(1, .init($0.reference))
+    }
+    if delta.toDelete.isEmpty {
+        AppMetrics.analyzeVersionsDeletedCount?.set(0)
     }
     delta.toDelete.forEach {
-        AppMetrics.analyzeVersionsDeletedTotal?.inc(1, .init($0.reference))
+        AppMetrics.analyzeVersionsDeletedCount?.inc(1, .init($0.reference))
     }
     return delete.flatMap { insert }
 }
