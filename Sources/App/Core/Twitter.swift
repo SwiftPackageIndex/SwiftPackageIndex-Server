@@ -91,14 +91,14 @@ extension Twitter {
     static func postToFirehose(client: Client,
                                database: Database,
                                versions: [Version]) -> EventLoopFuture<Void> {
-        let posts = versions
+        versions
             .filter { $0.reference?.isTag ?? false }
             .map {
                 postToFirehose(client: client, database: database, version: $0)
             }
-        return .andAllComplete(posts, on: client.eventLoop)
+            .flatten(on: client.eventLoop)
     }
-    
+
 }
 
 

@@ -791,7 +791,10 @@ class AnalyzerTests: AppTestCase {
         try version.save(on: app.db).wait()
 
         // MUT & validation (no error thrown)
-        try onNewVersions(client: app.client, transaction: app.db, versions: [version]).wait()
+        try onNewVersions(client: app.client,
+                          logger: app.logger,
+                          transaction: app.db,
+                          versions: [version]).wait()
     }
 
 }

@@ -84,7 +84,10 @@ class TwitterTests: AppTestCase {
         }
 
         // MUT
-        try onNewVersions(client: app.client, transaction: app.db, versions: [v1, v2, v3]).wait()
+        try onNewVersions(client: app.client,
+                          logger: app.logger,
+                          transaction: app.db,
+                          versions: [v1, v2, v3]).wait()
 
         // validate
         XCTAssertEqual(posted, 2)
