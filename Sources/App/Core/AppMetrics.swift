@@ -64,12 +64,12 @@ enum AppMetrics {
         counter("spi_analyze_update_repository_failure_total", EmptyLabels.self)
     }
 
-    static var analyzeVersionsAddedTotal: PromCounter<Int, Labels.Version>? {
-        counter("spi_analyze_versions_added_total", Labels.Version.self)
+    static var analyzeVersionsAddedCount: PromGauge<Int, Labels.Version>? {
+        gauge("spi_analyze_versions_added_count", Labels.Version.self)
     }
 
-    static var analyzeVersionsDeletedTotal: PromCounter<Int, Labels.Version>? {
-        counter("spi_analyze_versions_deleted_total", Labels.Version.self)
+    static var analyzeVersionsDeletedCount: PromGauge<Int, Labels.Version>? {
+        gauge("spi_analyze_versions_deleted_count", Labels.Version.self)
     }
 
     static var buildCandidatesCount: PromGauge<Int, EmptyLabels>? {

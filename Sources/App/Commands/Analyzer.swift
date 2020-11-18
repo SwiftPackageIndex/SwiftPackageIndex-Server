@@ -347,10 +347,10 @@ func applyVersionDelta(on transaction: Database,
     let delete = delta.toDelete.delete(on: transaction)
     let insert = delta.toAdd.create(on: transaction)
     delta.toAdd.forEach {
-        AppMetrics.analyzeVersionsAddedTotal?.inc(1, .init($0.reference))
+        AppMetrics.analyzeVersionsAddedCount?.inc(1, .init($0.reference))
     }
     delta.toDelete.forEach {
-        AppMetrics.analyzeVersionsDeletedTotal?.inc(1, .init($0.reference))
+        AppMetrics.analyzeVersionsDeletedCount?.inc(1, .init($0.reference))
     }
     return delete.flatMap { insert }
 }
