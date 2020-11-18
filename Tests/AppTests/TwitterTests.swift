@@ -37,6 +37,23 @@ class TwitterTests: AppTestCase {
         )
     }
 
+    func test_firehoseMessage_trimming() throws {
+        let msg = Twitter.firehoseMessage(
+            repositoryOwner: "owner",
+            repositoryName: "repoName",
+            url: "http://localhost:8080/owner/SuperAwesomePackage",
+            version: .init(2, 6, 4),
+            summary: String(repeating: "x", count: 280)
+        )
+
+        XCTAssertEqual(msg.count, 280)
+        XCTAssertEqual(msg, """
+            owner just released repoName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
+
+            http://localhost:8080/owner/SuperAwesomePackage
+            """)
+    }
+
     func test_postToFirehose() throws {
         // setup
         let pkg = Package(url: "1".asGithubUrl.url)

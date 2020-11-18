@@ -13,6 +13,7 @@ enum Twitter {
     }
 
     private static let apiUrl: String = "https://api.twitter.com/1.1/statuses/update.json"
+    private static let tweetMaxLength = 280
 
     struct Credentials {
         var apiKey: (key: String, secret: String)
@@ -56,11 +57,19 @@ extension Twitter {
                                 url: String,
                                 version: SemanticVersion,
                                 summary: String?) -> String {
-        """
-        \(repositoryOwner) just released \(repositoryName) v\(version)\(summary.map { " – \($0)"} ?? "")
+        let preamble = "\(repositoryOwner) just released \(repositoryName) v\(version)"
+        let link = "\n\n\(url)"
+        let separator = " – "
+        let availableLength = tweetMaxLength - preamble.count - separator.count - link.count
+        let description: String = {
+            guard let summary = summary else { return "" }
+            let ellipsis = "…"
+            return summary.count < availableLength
+                ? separator + summary
+                : separator + String(summary.prefix(availableLength - ellipsis.count)) + ellipsis
+        }()
 
-        \(url)
-        """
+        return preamble + description + link
     }
 
     static func firehoseMessage(db: Database, for version: Version) -> EventLoopFuture<String?> {
