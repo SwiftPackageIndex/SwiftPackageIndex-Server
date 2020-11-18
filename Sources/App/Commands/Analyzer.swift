@@ -550,12 +550,5 @@ func updateLatestVersions(on database: Database,
 func onNewVersions(client: Client,
                    transaction: Database,
                    versions: [Version]) -> EventLoopFuture<Void> {
-    let posts = versions
-        .filter { $0.reference?.isTag ?? false }
-        .map {
-        Twitter.postToFirehose(client: client,
-                               database: transaction,
-                               version: $0)
-    }
-    return .andAllComplete(posts, on: client.eventLoop)
+    Twitter.postToFirehose(client: client, database: transaction, versions: versions)
 }

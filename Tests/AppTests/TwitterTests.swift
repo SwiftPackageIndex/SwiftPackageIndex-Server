@@ -6,9 +6,9 @@ import SemanticVersion
 
 class TwitterTests: AppTestCase {
     
-    func test_buildPost() throws {
+    func test_firehoseMessage() throws {
         XCTAssertEqual(
-            Twitter.firehostPost(
+            Twitter.firehoseMessage(
                 repositoryOwner: "owner",
                 repositoryName: "repoName",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
@@ -23,7 +23,7 @@ class TwitterTests: AppTestCase {
 
         // no summary
         XCTAssertEqual(
-            Twitter.firehostPost(
+            Twitter.firehoseMessage(
                 repositoryOwner: "owner",
                 repositoryName: "repoName",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
@@ -49,7 +49,7 @@ class TwitterTests: AppTestCase {
         try version.save(on: app.db).wait()
 
         // MUT
-        let res = try Twitter.firehostPost(db: app.db, for: version).wait()
+        let res = try Twitter.firehoseMessage(db: app.db, for: version).wait()
 
         // validate
         XCTAssertEqual(res, """
@@ -89,4 +89,5 @@ class TwitterTests: AppTestCase {
         // validate
         XCTAssertEqual(posted, 2)
     }
+
 }

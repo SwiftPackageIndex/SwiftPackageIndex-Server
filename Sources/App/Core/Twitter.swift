@@ -45,11 +45,11 @@ enum Twitter {
 
 extension Twitter {
 
-    static func firehostPost(repositoryOwner: String,
-                             repositoryName: String,
-                             url: String,
-                             version: SemanticVersion,
-                             summary: String?) -> String {
+    static func firehoseMessage(repositoryOwner: String,
+                                repositoryName: String,
+                                url: String,
+                                version: SemanticVersion,
+                                summary: String?) -> String {
         """
         \(repositoryOwner) just released \(repositoryName) v\(version)\(summary.map { " – \($0)"} ?? "")
 
@@ -57,7 +57,7 @@ extension Twitter {
         """
     }
 
-    static func firehostPost(db: Database, for version: Version) -> EventLoopFuture<String?> {
+    static func firehoseMessage(db: Database, for version: Version) -> EventLoopFuture<String?> {
         version.fetchPackage(db)
             .flatMap { pkg in
                 pkg.fetchRepository(db).map { (pkg, $0) }
@@ -68,7 +68,7 @@ extension Twitter {
                       let semVer = version.reference?.semVer
                 else { return nil }
                 let url = SiteURL.package(.value(owner), .value(repoName), .none).absoluteURL()
-                return firehostPost(repositoryOwner: owner,
+                return firehoseMessage(repositoryOwner: owner,
                                     repositoryName: repoName,
                                     url: url,
                                     version: semVer,
@@ -79,7 +79,7 @@ extension Twitter {
     static func postToFirehose(client: Client,
                                database: Database,
                                version: Version) -> EventLoopFuture<Void> {
-        firehostPost(db: database, for: version)
+        firehoseMessage(db: database, for: version)
             .flatMap {
                 guard let message = $0 else {
                     return client.eventLoop.future(error: Error.invalidMessage)
@@ -88,6 +88,17 @@ extension Twitter {
             }
     }
 
+    static func postToFirehose(client: Client,
+                               database: Database,
+                               versions: [Version]) -> EventLoopFuture<Void> {
+        let posts = versions
+            .filter { $0.reference?.isTag ?? false }
+            .map {
+                postToFirehose(client: client, database: database, version: $0)
+            }
+        return .andAllComplete(posts, on: client.eventLoop)
+    }
+    
 }
 
 
