@@ -135,8 +135,7 @@ class TwitterTests: AppTestCase {
         XCTAssertThrowsError(
             try Twitter.postToFirehose(client: app.client, database: app.db, version: v).wait()
         ) {
-            XCTAssertEqual("\($0.localizedDescription)",
-                           "The operation couldn’t be completed. (App.Twitter.Error error 3.)")
+            XCTAssertTrue($0.localizedDescription.contains("App.Twitter.Error error 3"))
         }
         XCTAssertEqual(posted, 0)
 
