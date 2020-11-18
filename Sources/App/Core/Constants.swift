@@ -10,6 +10,7 @@ import Vapor
 
 enum Constants {
     static let defaultAllowBuildTriggering = true
+    static let defaultAllowTwitterPosts = true
     static let defaultGitlabPipelineLimit = 200
     static let defaultHideStagingBanner = false
     

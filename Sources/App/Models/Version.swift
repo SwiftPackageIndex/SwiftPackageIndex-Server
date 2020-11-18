@@ -119,6 +119,23 @@ extension Version {
 }
 
 
+// MARK: - Relationship helpers
+
+extension Version {
+
+    /// Fetches associated package relationship (if not already loaded).
+    /// - Parameters:
+    ///   - db: database object
+    /// - Returns: `Package` future
+    func fetchPackage(_ db: Database) -> EventLoopFuture<Package> {
+        if let package = $package.value {
+            return db.eventLoop.future(package)
+        }
+        return $package.load(on: db).map { self.package }
+    }
+
+}
+
 // MARK: - Version reconciliation / diffing
 
 extension Version {

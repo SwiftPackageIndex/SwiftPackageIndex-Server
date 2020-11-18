@@ -4,6 +4,7 @@ import Vapor
 
 struct AppEnvironment {
     var allowBuildTriggers: () -> Bool
+    var allowTwitterPosts: () -> Bool
     var builderToken: () -> String?
     var buildTriggerDownscaling: () -> Double
     var date: () -> Date
@@ -26,6 +27,8 @@ struct AppEnvironment {
     var rollbarLogLevel: () -> AppError.Level
     var shell: Shell
     var siteURL: () -> String
+    var twitterCredentials: () -> Twitter.Credentials?
+    var twitterPostTweet: (_ client: Client, _ tweet: String) -> EventLoopFuture<Void>
 }
 
 extension AppEnvironment {
@@ -34,6 +37,11 @@ extension AppEnvironment {
             Environment.get("ALLOW_BUILD_TRIGGERS")
                 .flatMap(\.asBool)
                 ?? Constants.defaultAllowBuildTriggering
+        },
+        allowTwitterPosts: {
+            Environment.get("ALLOW_TWITTER_POSTS")
+                .flatMap(\.asBool)
+                ?? Constants.defaultAllowTwitterPosts
         },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerDownscaling: {
@@ -75,7 +83,17 @@ extension AppEnvironment {
                 .get("ROLLBAR_LOG_LEVEL")
                 .flatMap(AppError.Level.init(rawValue:)) ?? .critical },
         shell: .live,
-        siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" }
+        siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
+        twitterCredentials: {
+            guard let apiKey = Environment.get("TWITTER_API_KEY"),
+                  let apiKeySecret = Environment.get("TWITTER_API_SECRET"),
+                  let accessToken = Environment.get("TWITTER_ACCESS_TOKEN_KEY"),
+                  let accessTokenSecret = Environment.get("TWITTER_ACCESS_TOKEN_SECRET")
+            else { return nil }
+            return .init(apiKey: (key: apiKey, secret: apiKeySecret),
+                         accessToken: (key: accessToken, secret: accessTokenSecret))
+        },
+        twitterPostTweet: Twitter.post(client:tweet:)
     )
 }
 

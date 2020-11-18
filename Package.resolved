@@ -65,6 +65,15 @@
         }
       },
       {
+        "package": "OhhAuth",
+        "repositoryURL": "https://github.com/handya/OhhAuth.git",
+        "state": {
+          "branch": null,
+          "revision": "fd789421370c71f811045b53b7ee14413e24b901",
+          "version": "1.4.0"
+        }
+      },
+      {
         "package": "Plot",
         "repositoryURL": "https://github.com/JohnSundell/Plot.git",
         "state": {

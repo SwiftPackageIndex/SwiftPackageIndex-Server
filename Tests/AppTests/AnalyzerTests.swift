@@ -777,6 +777,26 @@ class AnalyzerTests: AppTestCase {
         assertSnapshot(matching: commands, as: .dump)
     }
 
+    func test_onNewVersions() throws {
+        // ensure that onNewVersions does not propagate errors
+        // setup
+        Current.twitterPostTweet = { _, _ in
+            // simulate failure (this is for good measure - our version will also raise an
+            // invalidMessage error, because it is missing a repository)
+            self.app.eventLoopGroup.future(error: Twitter.Error.missingCredentials)
+        }
+        let pkg = Package(url: "1".asGithubUrl.url)
+        try pkg.save(on: app.db).wait()
+        let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
+        try version.save(on: app.db).wait()
+
+        // MUT & validation (no error thrown)
+        try onNewVersions(client: app.client,
+                          logger: app.logger,
+                          transaction: app.db,
+                          versions: [version]).wait()
+    }
+
 }
 
 
