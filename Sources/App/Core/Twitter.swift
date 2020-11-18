@@ -13,7 +13,7 @@ enum Twitter {
     }
 
     private static let apiUrl: String = "https://api.twitter.com/1.1/statuses/update.json"
-    private static let tweetMaxLength = 280
+    private static let tweetMaxLength = 260  // exactly 280 is rejected, plus leave some room for unicode accounting oddities
 
     struct Credentials {
         var apiKey: (key: String, secret: String)
