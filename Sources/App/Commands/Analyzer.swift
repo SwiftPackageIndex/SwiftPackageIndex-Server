@@ -88,15 +88,20 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
     
     let packageResults = packages.flatMap { packages in
         application.db.transaction { tx in
-            reconcileVersions(client: application.client,
-                              logger: application.logger,
-                              threadPool: application.threadPool,
-                              transaction: tx,
-                              packages: packages)
+            diffVersions(client: application.client,
+                         logger: application.logger,
+                         threadPool: application.threadPool,
+                         transaction: tx,
+                         packages: packages)
+                .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
                 .map { getManifests(logger: application.logger, packageAndVersions: $0) }
                 .flatMap { updateVersions(on: tx, packageResults: $0) }
                 .flatMap { createProducts(on: tx, packageResults: $0) }
                 .flatMap { updateLatestVersions(on: tx, packageResults: $0) }
+                .flatMap { onNewVersions(client: application.client,
+                                         logger: application.logger,
+                                         transaction: tx,
+                                         packageResults: $0)}
         }
     }
     
@@ -252,17 +257,17 @@ func updateRepository(package: Package) -> Result<Package, Error> {
 ///   - transaction: database transaction
 ///   - packages: `Package`s to reconcile
 /// - Returns: results future
-func reconcileVersions(client: Client,
-                       logger: Logger,
-                       threadPool: NIOThreadPool,
-                       transaction: Database,
-                       packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+func diffVersions(client: Client,
+                  logger: Logger,
+                  threadPool: NIOThreadPool,
+                  transaction: Database,
+                  packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]> {
     packages.whenAllComplete(on: transaction.eventLoop) { pkg in
-        reconcileVersions(client: client,
-                          logger: logger,
-                          threadPool: threadPool,
-                          transaction: transaction,
-                          package: pkg)
+        diffVersions(client: client,
+                     logger: logger,
+                     threadPool: threadPool,
+                     transaction: transaction,
+                     package: pkg)
             .map { (pkg, $0) }
     }
 }
@@ -276,11 +281,11 @@ func reconcileVersions(client: Client,
 ///   - transaction: database transaction
 ///   - package: `Package` to reconcile
 /// - Returns: future with array of inserted `Version`s
-func reconcileVersions(client: Client,
-                       logger: Logger,
-                       threadPool: NIOThreadPool,
-                       transaction: Database,
-                       package: Package) -> EventLoopFuture<[Version]> {
+func diffVersions(client: Client,
+                  logger: Logger,
+                  threadPool: NIOThreadPool,
+                  transaction: Database,
+                  package: Package) -> EventLoopFuture<(toAdd: [Version], toDelete: [Version])> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return transaction.eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
@@ -320,16 +325,15 @@ func reconcileVersions(client: Client,
         .all()
         .and(incoming)
         .map(Version.diff)
-        .flatMap { delta in
-            applyVersionDelta(on: transaction, delta: delta)
-                .flatMap {
-                    onNewVersions(client: client,
-                                  logger: logger,
-                                  transaction: transaction,
-                                  versions: delta.toAdd)
-                }
-                .map { delta.toAdd }
-        }
+}
+
+
+func applyVersionDelta(on transaction: Database,
+                       packageDeltas: [Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+    packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
+        applyVersionDelta(on: transaction, delta: delta)
+            .transform(to: (pkg, delta.toAdd))
+    }
 }
 
 
@@ -543,17 +547,21 @@ func updateLatestVersions(on database: Database,
 /// - Parameters:
 ///   - client: `Client` object for http requests
 ///   - transaction: database transaction
-///   - versions: array of newly discovered versions
-/// - Returns: future wrapping operation(s)
+///   - packageResults: array of `Package`s with their analysis results of `Version`s and `Manifest`s
+/// - Returns: the packageResults that were passed in, for further processing
 func onNewVersions(client: Client,
                    logger: Logger,
                    transaction: Database,
-                   versions: [Version]) -> EventLoopFuture<Void> {
-    Twitter.postToFirehose(client: client, database: transaction, versions: versions)
-        .flatMapError { error in
-            logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
-            return client.eventLoop.future()
-        }
+                   packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packageResults.whenAllComplete(on: transaction.eventLoop) { pkg, versionsAndManifests in
+        let versions = versionsAndManifests.map { $0.0 }
+        return Twitter.postToFirehose(client: client, database: transaction, versions: versions)
+            .flatMapError { error in
+                logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
+                return client.eventLoop.future()
+            }
+            .map { (pkg, versionsAndManifests) }
+    }
 }
 
 

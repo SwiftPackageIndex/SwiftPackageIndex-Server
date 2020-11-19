@@ -361,8 +361,8 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(repo.firstCommitDate, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(repo.lastCommitDate, Date(timeIntervalSince1970: 1))
     }
-    
-    func test_reconcileVersions_single_package() throws {
+
+    func test_diffVersions() throws {
         //setup
         Current.shell.run = { cmd, _ in
             if cmd.string == "git tag" {
@@ -375,27 +375,28 @@ class AnalyzerTests: AppTestCase {
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        
+
         // MUT
-        let versions = try reconcileVersions(client: app.client,
-                                             logger: app.logger,
-                                             threadPool: app.threadPool,
-                                             transaction: app.db,
-                                             package: pkg).wait()
-        
+        let delta = try diffVersions(client: app.client,
+                                        logger: app.logger,
+                                        threadPool: app.threadPool,
+                                        transaction: app.db,
+                                        package: pkg).wait()
+
         // validate
-        assertEquals(versions, \.reference,
+        assertEquals(delta.toAdd, \.reference,
                      [.branch("main"), .tag(1, 2, 3)])
-        assertEquals(versions, \.commit, ["sha.main", "sha.1.2.3"])
-        assertEquals(versions, \.commitDate,
+        assertEquals(delta.toAdd, \.commit, ["sha.main", "sha.1.2.3"])
+        assertEquals(delta.toAdd, \.commitDate,
                      [Date(timeIntervalSince1970: 0), Date(timeIntervalSince1970: 1)])
-        assertEquals(versions, \.url, [
+        assertEquals(delta.toAdd, \.url, [
             "https://github.com/foo/1/tree/main",
             "https://github.com/foo/1/releases/tag/1.2.3"
         ])
+        XCTAssertEqual(delta.toDelete, [])
     }
-    
-    func test_reconcileVersions_package_list() throws {
+
+    func test_diffVersions_package_list() throws {
         //setup
         Current.shell.run = { cmd, _ in
             if cmd.string == "git tag" {
@@ -412,19 +413,20 @@ class AnalyzerTests: AppTestCase {
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success(pkg)
         ]
-        
+
         // MUT
-        let results = try reconcileVersions(client: app.client,
-                                            logger: app.logger,
-                                            threadPool: app.threadPool,
-                                            transaction: app.db,
-                                            packages: packages).wait()
-        
+        let results = try diffVersions(client: app.client,
+                                       logger: app.logger,
+                                       threadPool: app.threadPool,
+                                       transaction: app.db,
+                                       packages: packages).wait()
+
         // validate
         XCTAssertEqual(results.count, 2)
         XCTAssertEqual(results.map(\.isSuccess), [false, true])
-        let (_, versions) = try XCTUnwrap(results.last).get()
-        assertEquals(versions, \.reference?.description, ["main", "1.2.3"])
+        let (_, delta) = try XCTUnwrap(results.last).get()
+        assertEquals(delta.toAdd, \.reference?.description, ["main", "1.2.3"])
+        XCTAssertEqual(delta.toDelete, [])
     }
     
     func test_getManifest() throws {
@@ -752,12 +754,15 @@ class AnalyzerTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try version.save(on: app.db).wait()
+        let packageResults: [Result<(Package, [(Version, Manifest)]), Error>] = [
+            .success((pkg, [(version, .mock)]))
+        ]
 
         // MUT & validation (no error thrown)
-        try onNewVersions(client: app.client,
-                          logger: app.logger,
-                          transaction: app.db,
-                          versions: [version]).wait()
+        _ = try onNewVersions(client: app.client,
+                              logger: app.logger,
+                              transaction: app.db,
+                              packageResults: packageResults).wait()
     }
 
 }
