@@ -24,9 +24,9 @@ class ArrayExtensionTests: XCTestCase {
         // setup
         enum MyError: Error, Equatable { case failed }
         let elg = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-        let results: [Result<Int, Error>] = [
+        let results: [Result<Int, MyError>] = [
             .success(0),
-            .failure(MyError.failed as Error),
+            .failure(MyError.failed),
             .success(2)
         ]
 
@@ -63,7 +63,7 @@ class ArrayExtensionTests: XCTestCase {
         let elg = MultiThreadedEventLoopGroup(numberOfThreads: 1)
         let results: [Result<Int, Error>] = [
             .success(0),
-            .failure(MyError.failed as Error),
+            .failure(MyError.failed),
             .success(2)
         ]
 
