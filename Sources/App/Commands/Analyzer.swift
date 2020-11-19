@@ -87,22 +87,24 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
         .flatMap { updateRepositories(application: application, packages: $0) }
     
     let versionUpdates = packageUpdates.flatMap { packages in
-        application.db.transaction { tx -> EventLoopFuture<[Result<Package, Error>]> in
-            let versions = reconcileVersions(client: application.client,
-                                             logger: application.logger,
-                                             threadPool: application.threadPool,
-                                             transaction: tx,
-                                             packages: packages)
-            return versions
+        application.db.transaction { tx in
+            reconcileVersions(client: application.client,
+                              logger: application.logger,
+                              threadPool: application.threadPool,
+                              transaction: tx,
+                              packages: packages)
                 .map { getManifests(logger: application.logger, versions: $0) }
-                .flatMap { updateVersionsAndProducts(on: tx, packages: $0) }
+                .flatMap { updateVersions(on: tx, packages: $0) }
+                .flatMap { createProducts(on: tx, packages: $0) }
                 .flatMap { updateLatestVersions(on: tx, packages: $0) }
         }
     }
     
-    let statusOps = versionUpdates.flatMap { updatePackage(application: application,
-                                                           results: $0,
-                                                           stage: .analysis) }
+    let statusOps = versionUpdates
+        .map(extractPackages)
+        .flatMap { updatePackage(application: application,
+                                 results: $0,
+                                 stage: .analysis) }
     
     let materializedViewRefresh = statusOps
         .flatMap { RecentPackage.refresh(on: application.db) }
@@ -427,29 +429,31 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 }
 
 
-/// Persist version and product changes to the database.
-/// - Parameters:
-///   - database: `Database` object
-///   - results: packages to save
-/// - Returns: results future
-func updateVersionsAndProducts(on database: Database,
-                               packages: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = packages.map { result -> EventLoopFuture<Package> in
-        switch result {
-            case let .success((pkg, versionsAndManifests)):
-                let updates = versionsAndManifests.map { version, manifest in
-                    updateVersion(on: database, version: version, manifest: manifest)
-                        .flatMap { createProducts(on: database, version: version, manifest: manifest)}
-                }
-                return EventLoopFuture
-                    .andAllComplete(updates, on: database.eventLoop)
-                    .transform(to: pkg)
-                
-            case let .failure(error):
-                return database.eventLoop.future(error: error)
-        }
+func updateVersions(on database: Database,
+                    packages: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packages.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
+        EventLoopFuture.andAllComplete(
+            versionsAndManifests.map { version, manifest in
+                updateVersion(on: database, version: version, manifest: manifest)
+            },
+            on: database.eventLoop
+        )
+        .transform(to: (pkg, versionsAndManifests))
     }
-    return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
+}
+
+
+func createProducts(on database: Database,
+                    packages: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packages.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
+        EventLoopFuture.andAllComplete(
+            versionsAndManifests.map { version, manifest in
+                createProducts(on: database, version: version, manifest: manifest)
+            },
+            on: database.eventLoop
+        )
+        .transform(to: (pkg, versionsAndManifests))
+    }
 }
 
 
@@ -495,9 +499,10 @@ func createProducts(on database: Database, version: Version, manifest: Manifest)
 ///   - packages: packages to update
 /// - Returns: results future
 func updateLatestVersions(on database: Database,
-                          packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
-    packages.whenAllComplete(on: database.eventLoop) {
-        updateLatestVersions(on: database, package: $0)
+                          packages: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packages.whenAllComplete(on: database.eventLoop) { pkg, versionsAndManifests in
+        updateLatestVersions(on: database, package: pkg)
+            .map { _ in (pkg, versionsAndManifests) }
     }
 }
 
@@ -555,4 +560,13 @@ func onNewVersions(client: Client,
             logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
             return client.eventLoop.future()
         }
+}
+
+
+func extractPackages(_ results: [Result<(Package, [(Version, Manifest)]), Error>]) -> [Result<Package, Error>] {
+    results.map { result in
+        result.map { pkg, _ in
+            pkg
+        }
+    }
 }

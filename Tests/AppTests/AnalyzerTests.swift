@@ -552,43 +552,6 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(products.map(\.name), ["p1", "p2"])
     }
     
-    func test_updateVersionsAndProducts() throws {
-        // setup
-        let pkg = Package(id: UUID(), url: "1")
-        try pkg.save(on: app.db).wait()
-        let version = try Version(package: pkg)
-        let manifest = Manifest(name: "foo",
-                                platforms: [.init(platformName: .ios, version: "11.0"),
-                                            .init(platformName: .macos, version: "10.10")],
-                                products: [.init(name: "p1", type: .library)],
-                                swiftLanguageVersions: ["1", "2", "3.0.0"],
-                                toolsVersion: .init(version: "5.0.0"))
-        
-        let packages: [Result<(Package, [(Version, Manifest)]), Error>] = [
-            // feed in one error to see it passed through
-            .failure(AppError.noValidVersions(nil, "some url")),
-            .success((pkg, [(version, manifest)]))
-        ]
-        
-        // MUT
-        let res = try updateVersionsAndProducts(on: app.db, packages: packages).wait()
-        
-        // validation
-        XCTAssertEqual(res.map(\.isSuccess), [false, true])
-        // read back and validate
-        let versions = try Version.query(on: app.db).all().wait()
-        XCTAssertEqual(versions.count, 1)
-        let v = try XCTUnwrap(versions.first)
-        XCTAssertEqual(v.packageName, "foo")
-        XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].asSwiftVersions)
-        XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
-        XCTAssertEqual(v.toolsVersion, "5.0.0")
-        let products = try Product.query(on: app.db).all().wait()
-        XCTAssertEqual(products.count, 1)
-        let p = try XCTUnwrap(products.first)
-        XCTAssertEqual(p.name, "p1")
-    }
-
     func test_updatePackage() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
