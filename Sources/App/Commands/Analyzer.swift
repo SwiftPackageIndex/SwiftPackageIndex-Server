@@ -257,20 +257,14 @@ func reconcileVersions(client: Client,
                        threadPool: NIOThreadPool,
                        transaction: Database,
                        packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
-    let ops = packages.map { result -> EventLoopFuture<(Package, [Version])> in
-        switch result {
-            case .success(let pkg):
-                return reconcileVersions(client: client,
-                                         logger: logger,
-                                         threadPool: threadPool,
-                                         transaction: transaction,
-                                         package: pkg)
-                    .map { (pkg, $0) }
-            case .failure(let error):
-                return transaction.eventLoop.future(error: error)
-        }
+    packages.whenAllComplete(on: transaction.eventLoop) { pkg in
+        reconcileVersions(client: client,
+                          logger: logger,
+                          threadPool: threadPool,
+                          transaction: transaction,
+                          package: pkg)
+            .map { (pkg, $0) }
     }
-    return EventLoopFuture.whenAllComplete(ops, on: transaction.eventLoop)
 }
 
 

@@ -2,10 +2,10 @@ import NIO
 
 
 extension Array {
-    func whenAllComplete<T>(on eventLoop: EventLoop,
-                            transform: (T) -> EventLoopFuture<T>) -> EventLoopFuture<[Result<T, Error>]>
+    func whenAllComplete<T, U>(on eventLoop: EventLoop,
+                               transform: (T) -> EventLoopFuture<U>) -> EventLoopFuture<[Result<U, Error>]>
     where Element == Result<T, Error> {
-        let ops = map { result -> EventLoopFuture<T> in
+        let ops = map { result -> EventLoopFuture<U> in
             switch result {
                 case let .success(value):
                     return transform(value)
