@@ -18,6 +18,11 @@ extension Array {
         }
     }
 
+    /// Returns a new `EventLoopFuture` that succeeds when all `Result<T, Error>` elements transformed into `EventLoopFuture<U>` elements have completed.
+    /// - Parameters:
+    ///   - eventLoop: The `EventLoop` on which the new `EventLoopFuture` callbacks will fire.
+    ///   - transform: The transformation to be applied to the `Array`'s elements
+    /// - Returns: A new `Array` with the results of the transformation, wrapped in `Result`s.
     func whenAllComplete<T, U>(on eventLoop: EventLoop,
                                transform: (T) -> EventLoopFuture<U>) -> EventLoopFuture<[Result<U, Error>]> where Element == Result<T, Error> {
         EventLoopFuture.whenAllComplete(
@@ -25,4 +30,5 @@ extension Array {
             on: eventLoop
         )
     }
+
 }
