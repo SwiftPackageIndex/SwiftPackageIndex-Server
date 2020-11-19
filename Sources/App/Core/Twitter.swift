@@ -109,13 +109,21 @@ extension Twitter {
 
     static func postToFirehose(client: Client,
                                database: Database,
+                               package: Package,
                                versions: [Version]) -> EventLoopFuture<Void> {
-        versions
-            .filter { $0.reference?.isTag ?? false }
-            .map {
-                postToFirehose(client: client, database: database, version: $0)
-            }
-            .flatten(on: client.eventLoop)
+        let (release, preRelease, defaultBranch) = package.findSignificantReleases()
+        let idsLatest = [release, preRelease, defaultBranch].compactMap { $0?.id }
+        // filter on versions with a tag and which are in the "latest" triple
+        let versions = versions.filter { version in
+            guard let reference = version.reference,
+                  reference.isTag,
+                  let id = version.id else { return false }
+            return idsLatest.contains(id)
+        }
+        return versions.map {
+            postToFirehose(client: client, database: database, version: $0)
+        }
+        .flatten(on: client.eventLoop)
     }
 
 }

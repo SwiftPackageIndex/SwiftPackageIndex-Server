@@ -87,10 +87,15 @@ class TwitterTests: AppTestCase {
                        owner: "repoOwner").save(on: app.db).wait()
         let v1 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try v1.save(on: app.db).wait()
-        let v2 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0, "b1"))
+        let v2 = try Version(package: pkg,
+                             commitDate: Date(timeIntervalSince1970: 0),
+                             packageName: "MyPackage",
+                             reference: .tag(2, 0, 0, "b1"))
         try v2.save(on: app.db).wait()
         let v3 = try Version(package: pkg, packageName: "MyPackage", reference: .branch("main"))
         try v3.save(on: app.db).wait()
+        try updateLatestVersions(on: app.db, package: pkg).wait()
+
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
         }
@@ -103,10 +108,49 @@ class TwitterTests: AppTestCase {
         // MUT
         try Twitter.postToFirehose(client: app.client,
                                    database: app.db,
+                                   package: pkg,
                                    versions: [v1, v2, v3]).wait()
 
         // validate
         XCTAssertEqual(posted, 2)
+    }
+
+    func test_onlyLatest() throws {
+        // ensure we only tweet about latest versions
+        // setup
+        let pkg = Package(url: "1".asGithubUrl.url)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg,
+                       summary: "This is a test package",
+                       name: "repoName",
+                       owner: "repoOwner").save(on: app.db).wait()
+        let v1 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
+        try v1.save(on: app.db).wait()
+        let v2 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0))
+        try v2.save(on: app.db).wait()
+        try updateLatestVersions(on: app.db, package: pkg).wait()
+
+        Current.twitterCredentials = {
+            .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
+        }
+        var message: String?
+        Current.twitterPostTweet = { _, msg in
+            if message == nil {
+                message = msg
+            } else {
+                XCTFail("message must only be set once")
+            }
+            return self.app.eventLoopGroup.future()
+        }
+
+        // MUT
+        try Twitter.postToFirehose(client: app.client,
+                                   database: app.db,
+                                   package: pkg,
+                                   versions: [v1, v2]).wait()
+
+        // validate
+        XCTAssertTrue(message?.contains("v2.0.0") ?? false)
     }
 
     func test_allowTwitterPosts_switch() throws {
