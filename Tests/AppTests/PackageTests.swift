@@ -294,7 +294,7 @@ final class PackageTests: AppTestCase {
     func test_updateLatestVersions() throws {
         // setup
         func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
-        var pkg = Package(id: UUID(), url: "1")
+        let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         try Version(package: pkg, commitDate: t(2), packageName: "foo", reference: .branch("main"))
@@ -308,7 +308,7 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
-        pkg = try updateLatestVersions(on: app.db, package: pkg).wait()
+        try updateLatestVersions(on: app.db, package: pkg).wait()
 
         // validate
         let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
@@ -322,7 +322,7 @@ final class PackageTests: AppTestCase {
         // is correctly reset.
         // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/188
         // setup
-        var pkg = Package(id: UUID(), url: "1")
+        let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         try Version(package: pkg,
@@ -345,7 +345,7 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
-        pkg = try updateLatestVersions(on: app.db, package: pkg).wait()
+        try updateLatestVersions(on: app.db, package: pkg).wait()
 
         // validate
         let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })

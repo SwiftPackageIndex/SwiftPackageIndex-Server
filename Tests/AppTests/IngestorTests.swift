@@ -150,7 +150,7 @@ class IngestorTests: AppTestCase {
         ]
         
         // MUT
-        try updatePackage(application: app, results: results, stage: .ingestion).wait()
+        try updatePackages(application: app, results: results, stage: .ingestion).wait()
         
         // validate
         do {
@@ -171,7 +171,7 @@ class IngestorTests: AppTestCase {
         let results: [Result<Package, Error>] = [ .success(pkgs[0]), .success(pkgs[1])]
         
         // MUT
-        try updatePackage(application: app, results: results, stage: .ingestion).wait()
+        try updatePackages(application: app, results: results, stage: .ingestion).wait()
         
         // validate
         do {
