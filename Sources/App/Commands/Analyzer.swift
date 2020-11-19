@@ -83,28 +83,28 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
         }
     }
     
-    let packageUpdates = refreshCheckouts(application: application, packages: packages)
+    let packages = refreshCheckouts(application: application, packages: packages)
         .flatMap { updateRepositories(application: application, packages: $0) }
     
-    let versionUpdates = packageUpdates.flatMap { packages in
+    let packageResults = packages.flatMap { packages in
         application.db.transaction { tx in
             reconcileVersions(client: application.client,
                               logger: application.logger,
                               threadPool: application.threadPool,
                               transaction: tx,
                               packages: packages)
-                .map { getManifests(logger: application.logger, versions: $0) }
-                .flatMap { updateVersions(on: tx, packages: $0) }
-                .flatMap { createProducts(on: tx, packages: $0) }
-                .flatMap { updateLatestVersions(on: tx, packages: $0) }
+                .map { getManifests(logger: application.logger, packageAndVersions: $0) }
+                .flatMap { updateVersions(on: tx, packageResults: $0) }
+                .flatMap { createProducts(on: tx, packageResults: $0) }
+                .flatMap { updateLatestVersions(on: tx, packageResults: $0) }
         }
     }
     
-    let statusOps = versionUpdates
+    let statusOps = packageResults
         .map(extractPackages)
-        .flatMap { updatePackage(application: application,
-                                 results: $0,
-                                 stage: .analysis) }
+        .flatMap { updatePackages(application: application,
+                                  results: $0,
+                                  stage: .analysis) }
     
     let materializedViewRefresh = statusOps
         .flatMap { RecentPackage.refresh(on: application.db) }
@@ -361,11 +361,11 @@ func applyVersionDelta(on transaction: Database,
 /// Get the package manifests for a set of `Package`s.
 /// - Parameters:
 ///   - logger: `Logger` object
-///   - versions: `Result` containing the `Package` and the set of `Verion`s to analyse
+///   - packageAndVersions: `Result` containing the `Package` and the set of `Verion`s to analyse
 /// - Returns: results future including the `Manifest`s
 func getManifests(logger: Logger,
-                  versions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
-    versions.map { result -> Result<(Package, [(Version, Manifest)]), Error> in
+                  packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
+    packageAndVersions.map { result -> Result<(Package, [(Version, Manifest)]), Error> in
         result.flatMap { (pkg, versions) -> Result<(Package, [(Version, Manifest)]), Error> in
             let m = versions.map { getManifest(package: pkg, version: $0) }
             let successes = m.compactMap { try? $0.get() }
@@ -430,8 +430,8 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 
 
 func updateVersions(on database: Database,
-                    packages: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
-    packages.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
+                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest in
                 updateVersion(on: database, version: version, manifest: manifest)
@@ -444,8 +444,8 @@ func updateVersions(on database: Database,
 
 
 func createProducts(on database: Database,
-                    packages: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
-    packages.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
+                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest in
                 createProducts(on: database, version: version, manifest: manifest)
@@ -499,8 +499,8 @@ func createProducts(on database: Database, version: Version, manifest: Manifest)
 ///   - packages: packages to update
 /// - Returns: results future
 func updateLatestVersions(on database: Database,
-                          packages: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
-    packages.whenAllComplete(on: database.eventLoop) { pkg, versionsAndManifests in
+                          packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packageResults.whenAllComplete(on: database.eventLoop) { pkg, versionsAndManifests in
         updateLatestVersions(on: database, package: pkg)
             .map { _ in (pkg, versionsAndManifests) }
     }

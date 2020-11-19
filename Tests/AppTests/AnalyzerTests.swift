@@ -473,14 +473,14 @@ class AnalyzerTests: AppTestCase {
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try version.save(on: app.db).wait()
         
-        let versions: [Result<(Package, [Version]), Error>] = [
+        let packageAndVersions: [Result<(Package, [Version]), Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success((pkg, [version]))
         ]
         
         // MUT
-        let results = getManifests(logger: app.logger, versions: versions)
+        let results = getManifests(logger: app.logger, packageAndVersions: packageAndVersions)
         
         // validation
         XCTAssertEqual(commands, [
@@ -562,7 +562,7 @@ class AnalyzerTests: AppTestCase {
         ]
         
         // MUT
-        try updatePackage(application: app, results: results, stage: .analysis).wait()
+        try updatePackages(application: app, results: results, stage: .analysis).wait()
         
         // validate
         do {

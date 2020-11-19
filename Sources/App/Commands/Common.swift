@@ -3,9 +3,9 @@ import PostgresNIO
 import Vapor
 
 
-func updatePackage(application: Application,
-                   results: [Result<Package, Error>],
-                   stage: Package.ProcessingStage) -> EventLoopFuture<Void> {
+func updatePackages(application: Application,
+                    results: [Result<Package, Error>],
+                    stage: Package.ProcessingStage) -> EventLoopFuture<Void> {
     let updates = results.map { result -> EventLoopFuture<Void> in
         switch result {
             case .success(let pkg):
