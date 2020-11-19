@@ -496,15 +496,9 @@ func createProducts(on database: Database, version: Version, manifest: Manifest)
 /// - Returns: results future
 func updateLatestVersions(on database: Database,
                           packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = packages.map { result -> EventLoopFuture<Package> in
-        switch result {
-            case let .success(pkg):
-                return updateLatestVersions(on: database, package: pkg)
-            case let .failure(error):
-                return database.eventLoop.future(error: error)
-        }
+    packages.whenAllComplete(on: database.eventLoop) {
+        updateLatestVersions(on: database, package: $0)
     }
-    return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
 }
 
 
