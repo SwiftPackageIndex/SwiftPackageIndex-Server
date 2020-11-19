@@ -1,16 +1,22 @@
 import Ink
 import Vapor
 import Plot
-import Down
 
 enum PackageShow {
     
     class View: PublicPage {
         
+        enum MarkdownRenderer {
+            case cmark
+            case ink
+        }
+        
         let model: Model
+        let renderer: MarkdownRenderer
         
         init(path: String, model: Model) {
             self.model = model
+            self.renderer = .cmark
             super.init(path: path)
         }
         
@@ -30,7 +36,7 @@ enum PackageShow {
             "package"
         }
         
-        override func content() -> Plot.Node<HTML.BodyContext> {
+        override func content() -> Node<HTML.BodyContext> {
             .group(
                 .div(
                     .class("split"),
@@ -91,11 +97,11 @@ enum PackageShow {
                     model.swiftVersionCompatibilitySection(),
                     model.platformCompatibilitySection()
                 ),
-                readmeSection()
+                readmeSection(renderer: renderer)
             )
         }
         
-        func licenseLozenge() -> Plot.Node<HTML.BodyContext> {
+        func licenseLozenge() -> Node<HTML.BodyContext> {
             switch model.license.licenseKind {
                 case .compatibleWithAppStore:
                     return .div(
@@ -128,7 +134,7 @@ enum PackageShow {
             }
         }
 
-        func arenaButton() -> Plot.Node<HTML.BodyContext> {
+        func arenaButton() -> Node<HTML.BodyContext> {
             let environment = (try? Environment.detect()) ?? .development
             return .if(environment != .production,
                        .a(.href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
@@ -136,19 +142,30 @@ enum PackageShow {
             )
         }
 
-        func readmeSection() -> Plot.Node<HTML.BodyContext> {
+        func readmeSection(renderer: MarkdownRenderer) -> Node<HTML.BodyContext> {
             let environment = (try? Environment.detect()) ?? .development
             guard environment == .development,
                   let readme = model.readme else { return .empty }
-            do {
+            
+            switch renderer {
+            case .ink:
                 return .div(
                     .h2("Readme"),
                     .hr(),
-                    .raw(try Down(markdownString: readme).toHTML())
+                    .raw(MarkdownParser().html(from: readme))
                 )
-            } catch {
-                return .empty
+            case .cmark:
+                do {
+                    return .div(
+                        .h2("Readme"),
+                        .hr(),
+                        .raw(try MarkdownHTMLConverter(markdown: readme).toHTML())
+                    )
+                } catch {
+                    return .empty
+                }
             }
+            
         }
 
     }

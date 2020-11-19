@@ -29,15 +29,6 @@
         }
       },
       {
-        "package": "Down",
-        "repositoryURL": "https://github.com/iwasrobbed/Down",
-        "state": {
-          "branch": null,
-          "revision": "731f6bbab24ab208ea2d6a944e3f8a8a9d5273c7",
-          "version": "0.9.4"
-        }
-      },
-      {
         "package": "fluent",
         "repositoryURL": "https://github.com/vapor/fluent.git",
         "state": {
@@ -152,6 +143,15 @@
           "branch": null,
           "revision": "f2fd8c4845a123419c348e0bc4b3839c414077d5",
           "version": "1.2.0"
+        }
+      },
+      {
+        "package": "cmark",
+        "repositoryURL": "https://github.com/apple/swift-cmark",
+        "state": {
+          "branch": null,
+          "revision": "9c8096a23f44794bde297452d87c455fc4f76d42",
+          "version": null
         }
       },
       {
