@@ -689,7 +689,7 @@ class AnalyzerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/577
         // setup
         let pkgId = UUID()
-        var pkg = Package(id: pkgId, url: "1")
+        let pkg = Package(id: pkgId, url: "1")
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         // existing "latest release" version
@@ -703,7 +703,7 @@ class AnalyzerTests: AppTestCase {
         try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
-        pkg = try updateLatestVersions(on: app.db, package: pkg).wait()
+        try updateLatestVersions(on: app.db, package: pkg).wait()
 
         // validate
         do {  // refetch package to ensure changes are persisted

@@ -524,9 +524,8 @@ func updateLatestVersions(on database: Database,
 /// - Parameters:
 ///   - database: `Database` object
 ///   - package: package to update
-/// - Returns: `Package` future
-func updateLatestVersions(on database: Database,
-                          package: Package) -> EventLoopFuture<Package> {
+/// - Returns: future
+func updateLatestVersions(on database: Database, package: Package) -> EventLoopFuture<Void> {
     package
         .$versions.load(on: database)
         .flatMap {
@@ -552,7 +551,6 @@ func updateLatestVersions(on database: Database,
             return (updates + resets)
                 .map { $0.save(on: database) }
                 .flatten(on: database.eventLoop)
-                .map { package }
         }
 }
 
