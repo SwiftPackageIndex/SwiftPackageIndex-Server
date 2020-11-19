@@ -2,17 +2,27 @@ import NIO
 
 
 extension Array {
-    func whenAllComplete<T, U>(on eventLoop: EventLoop,
-                               transform: (T) -> EventLoopFuture<U>) -> EventLoopFuture<[Result<U, Error>]>
-    where Element == Result<T, Error> {
-        let ops = map { result -> EventLoopFuture<U> in
+
+    /// Map `Result<T, Error>` elements with the given `transform` to `EventLoopFuture<U>`by transforming the sucess case and passing through the `Error` in case of failures.
+    /// - Parameters:
+    ///   - eventLoop: event loop
+    ///   - transform: transformation
+    /// - Returns: array of futures
+    func map<T, U>(on eventLoop: EventLoop,
+                   transform: (T) -> EventLoopFuture<U>) -> [EventLoopFuture<U>] where Element == Result<T, Error> {
+        map { result in
             switch result {
-                case let .success(value):
-                    return transform(value)
-                case let .failure(error):
-                    return eventLoop.future(error: error)
+                case .success(let v): return transform(v)
+                case .failure(let e): return eventLoop.future(error: e)
             }
         }
-        return EventLoopFuture.whenAllComplete(ops, on: eventLoop)
+    }
+
+    func whenAllComplete<T, U>(on eventLoop: EventLoop,
+                               transform: (T) -> EventLoopFuture<U>) -> EventLoopFuture<[Result<U, Error>]> where Element == Result<T, Error> {
+        EventLoopFuture.whenAllComplete(
+            map(on: eventLoop, transform: transform),
+            on: eventLoop
+        )
     }
 }
