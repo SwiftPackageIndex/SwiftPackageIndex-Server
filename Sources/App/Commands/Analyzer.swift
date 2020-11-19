@@ -106,7 +106,7 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
     }
     
     let statusOps = packageResults
-        .map(extractPackages)
+        .map(\.packages)
         .flatMap { updatePackages(application: application,
                                   results: $0,
                                   stage: .analysis) }
@@ -578,13 +578,14 @@ func onNewVersions(client: Client,
 }
 
 
-/// Helper to extract the nested `Package` results from the result tuple.
-/// - Parameter results: input results `(Package, [(Version, Manifest)])` inside the array of `Result`
-/// - Returns: unpacked array of `Result<Package, Error>`
-func extractPackages(_ results: [Result<(Package, [(Version, Manifest)]), Error>]) -> [Result<Package, Error>] {
-    results.map { result in
-        result.map { pkg, _ in
-            pkg
+private extension Array where Element == Result<(Package,[(Version, Manifest)]), Error> {
+    /// Helper to extract the nested `Package` results from the result tuple.
+    /// - Returns: unpacked array of `Result<Package, Error>`
+    var packages: [Result<Package, Error>]  {
+        map { result in
+            result.map { pkg, _ in
+                pkg
+            }
         }
     }
 }
