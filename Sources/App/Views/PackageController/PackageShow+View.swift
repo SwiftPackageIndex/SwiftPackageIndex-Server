@@ -1,6 +1,7 @@
 import Ink
 import Vapor
 import Plot
+import Down
 
 enum PackageShow {
     
@@ -29,7 +30,7 @@ enum PackageShow {
             "package"
         }
         
-        override func content() -> Node<HTML.BodyContext> {
+        override func content() -> Plot.Node<HTML.BodyContext> {
             .group(
                 .div(
                     .class("split"),
@@ -94,7 +95,7 @@ enum PackageShow {
             )
         }
         
-        func licenseLozenge() -> Node<HTML.BodyContext> {
+        func licenseLozenge() -> Plot.Node<HTML.BodyContext> {
             switch model.license.licenseKind {
                 case .compatibleWithAppStore:
                     return .div(
@@ -127,7 +128,7 @@ enum PackageShow {
             }
         }
 
-        func arenaButton() -> Node<HTML.BodyContext> {
+        func arenaButton() -> Plot.Node<HTML.BodyContext> {
             let environment = (try? Environment.detect()) ?? .development
             return .if(environment != .production,
                        .a(.href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
@@ -135,15 +136,19 @@ enum PackageShow {
             )
         }
 
-        func readmeSection() -> Node<HTML.BodyContext> {
+        func readmeSection() -> Plot.Node<HTML.BodyContext> {
             let environment = (try? Environment.detect()) ?? .development
             guard environment == .development,
                   let readme = model.readme else { return .empty }
-            return .div(
-                .h2("Readme"),
-                .hr(),
-                .raw(MarkdownParser().parse(readme).html)
-            )
+            do {
+                return .div(
+                    .h2("Readme"),
+                    .hr(),
+                    .raw(try Down(markdownString: readme).toHTML())
+                )
+            } catch {
+                return .empty
+            }
         }
 
     }
