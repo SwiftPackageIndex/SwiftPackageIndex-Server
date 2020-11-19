@@ -249,14 +249,14 @@ func updateRepository(package: Package) -> Result<Package, Error> {
 }
 
 
-/// Reconcile versions for a set of `Package`s. This will add new versions and delete versions that have been removed based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
+/// Find new and outdated versions for a set of `Package`s, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
 /// - Parameters:
 ///   - client: `Client` object (for Rollbar error reporting)
 ///   - logger: `Logger` object
 ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
 ///   - transaction: database transaction
 ///   - packages: `Package`s to reconcile
-/// - Returns: results future
+/// - Returns: results future with each `Package` and its pair of new and outdated `Version`s
 func diffVersions(client: Client,
                   logger: Logger,
                   threadPool: NIOThreadPool,
@@ -273,14 +273,14 @@ func diffVersions(client: Client,
 }
 
 
-/// Reconcile versions for a given `Package`. This will add new versions and delete versions that have been removed based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
+/// Find new and outdated versions for a given `Package`, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
 /// - Parameters:
 ///   - client: `Client` object (for Rollbar error reporting)
 ///   - logger: `Logger` object
 ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
 ///   - transaction: database transaction
 ///   - package: `Package` to reconcile
-/// - Returns: future with array of inserted `Version`s
+/// - Returns: future with array of pair of new and outdated `Version`s
 func diffVersions(client: Client,
                   logger: Logger,
                   threadPool: NIOThreadPool,
@@ -328,6 +328,11 @@ func diffVersions(client: Client,
 }
 
 
+/// Saves and deletes the versions specified in the version delta parameter.
+/// - Parameters:
+///   - transaction: transaction to run the save and delete in
+///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
+/// - Returns: future with an array of each `Package` paired with its new `Version`s
 func applyVersionDelta(on transaction: Database,
                        packageDeltas: [Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
     packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
@@ -340,7 +345,7 @@ func applyVersionDelta(on transaction: Database,
 /// Saves and deletes the versions specified in the version delta parameter.
 /// - Parameters:
 ///   - transaction: transaction to run the save and delete in
-///   - delta: tuple containing the version to add and remove
+///   - delta: tuple containing the versions to add and remove
 /// - Returns: future
 func applyVersionDelta(on transaction: Database,
                        delta: (toAdd: [Version], toDelete: [Version])) -> EventLoopFuture<Void> {
@@ -356,10 +361,10 @@ func applyVersionDelta(on transaction: Database,
 }
 
 
-/// Get the package manifests for a set of `Package`s.
+/// Get the package manifests for an array of `Package`s.
 /// - Parameters:
 ///   - logger: `Logger` object
-///   - packageAndVersions: `Result` containing the `Package` and the set of `Verion`s to analyse
+///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
 /// - Returns: results future including the `Manifest`s
 func getManifests(logger: Logger,
                   packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
@@ -427,26 +432,17 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 }
 
 
+/// Update and save a given array of `Version` (as contained in `packageResults`) with data from the associated `Manifest`.
+/// - Parameters:
+///   - database: database connection
+///   - packageResults: results to process, containing the versions and their manifests
+/// - Returns: the input data for further processing, wrapped in a future
 func updateVersions(on database: Database,
                     packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest in
                 updateVersion(on: database, version: version, manifest: manifest)
-            },
-            on: database.eventLoop
-        )
-        .transform(to: (pkg, versionsAndManifests))
-    }
-}
-
-
-func createProducts(on database: Database,
-                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
-    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
-        EventLoopFuture.andAllComplete(
-            versionsAndManifests.map { version, manifest in
-                createProducts(on: database, version: version, manifest: manifest)
             },
             on: database.eventLoop
         )
@@ -467,6 +463,25 @@ func updateVersion(on database: Database, version: Version, manifest: Manifest) 
     version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
     version.toolsVersion = manifest.toolsVersion?.version
     return version.save(on: database)
+}
+
+
+/// Create and persist `Product`s from the `Manifest` data provided in `packageResults`.
+/// - Parameters:
+///   - database: database connection
+///   - packageResults: results to process
+/// - Returns: the input data for further processing, wrapped in a future
+func createProducts(on database: Database,
+                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
+        EventLoopFuture.andAllComplete(
+            versionsAndManifests.map { version, manifest in
+                createProducts(on: database, version: version, manifest: manifest)
+            },
+            on: database.eventLoop
+        )
+        .transform(to: (pkg, versionsAndManifests))
+    }
 }
 
 
@@ -491,11 +506,11 @@ func createProducts(on database: Database, version: Version, manifest: Manifest)
 }
 
 
-/// Update the significant versions (stable, beta, latest) for a set of `Package`s.
+/// Update the significant versions (stable, beta, latest) for an array of `Package`s (contained in `packageResults`).
 /// - Parameters:
 ///   - database: `Database` object
-///   - packages: packages to update
-/// - Returns: results future
+///   - packageResults: packages to update
+/// - Returns: the input data for further processing, wrapped in a future
 func updateLatestVersions(on database: Database,
                           packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { pkg, versionsAndManifests in
@@ -565,6 +580,9 @@ func onNewVersions(client: Client,
 }
 
 
+/// Helper to extract the nested `Package` results from the result tuple.
+/// - Parameter results: input results `(Package, [(Version, Manifest)])` inside the array of `Result`
+/// - Returns: unpacked array of `Result<Package, Error>`
 func extractPackages(_ results: [Result<(Package, [(Version, Manifest)]), Error>]) -> [Result<Package, Error>] {
     results.map { result in
         result.map { pkg, _ in
