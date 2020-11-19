@@ -159,7 +159,7 @@ enum PackageShow {
                     return .div(
                         .h2("Readme"),
                         .hr(),
-                        .raw(try MarkdownHTMLConverter(markdown: readme).toHTML())
+                        .raw(try MarkdownHTMLConverter(markdown: readme, enableGFM: true).toHTML())
                     )
                 } catch {
                     return .empty

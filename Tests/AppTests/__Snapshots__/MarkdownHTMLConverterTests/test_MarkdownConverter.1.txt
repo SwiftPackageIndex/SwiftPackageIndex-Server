@@ -7,7 +7,8 @@
 <p># Not a Header</p>
 <h2>Basic Formatting</h2>
 <p><em>Italic</em> or <em>Italic</em>
-<strong>Bold</strong> or <strong>Bold</strong></p>
+<strong>Bold</strong> or <strong>Bold</strong>
+<del>Strikethrough</del></p>
 <h2>Horizontal Lines</h2>
 <hr />
 <hr />
@@ -59,16 +60,30 @@
 <h2>Links</h2>
 <p><a href="http://dev.nodeca.com">link text</a></p>
 <p><a href="http://nodeca.github.io/pica/demo/" title="title text!">link with title</a></p>
-<p>Autoconverted link https://github.com/nodeca/pica</p>
+<p>Autoconverted link <a href="https://github.com/nodeca/pica">https://github.com/nodeca/pica</a></p>
 <h2>Emoji</h2>
-<p>😂 :+1: :octocat:</p>
+<p>😂 👍 :octocat:</p>
 <h2>Task List</h2>
 <ul>
-<li>[ ] One</li>
-<li>[x] Two</li>
+<li><input type="checkbox" disabled="" /> One</li>
+<li><input type="checkbox" checked="" disabled="" /> Two</li>
 </ul>
 <h2>Tables</h2>
-<p>First Header | Second Header
------------- | -------------
-Content cell 1 | Content cell 2
-Content column 1 | Content column 2</p>
+<table>
+<thead>
+<tr>
+<th>First Header</th>
+<th>Second Header</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Content cell 1</td>
+<td>Content cell 2</td>
+</tr>
+<tr>
+<td>Content column 1</td>
+<td>Content column 2</td>
+</tr>
+</tbody>
+</table>

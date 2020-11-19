@@ -65,6 +65,15 @@
         }
       },
       {
+        "package": "libcmark_gfm",
+        "repositoryURL": "https://github.com/KristopherGBaker/libcmark_gfm",
+        "state": {
+          "branch": null,
+          "revision": "9e4a9a58b5ef145b1dc08c57fb0428dd950132e6",
+          "version": "0.29.3"
+        }
+      },
+      {
         "package": "OhhAuth",
         "repositoryURL": "https://github.com/handya/OhhAuth.git",
         "state": {
@@ -143,15 +152,6 @@
           "branch": null,
           "revision": "f2fd8c4845a123419c348e0bc4b3839c414077d5",
           "version": "1.2.0"
-        }
-      },
-      {
-        "package": "cmark",
-        "repositoryURL": "https://github.com/apple/swift-cmark",
-        "state": {
-          "branch": null,
-          "revision": "9c8096a23f44794bde297452d87c455fc4f76d42",
-          "version": null
         }
       },
       {

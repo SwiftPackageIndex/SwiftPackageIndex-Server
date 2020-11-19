@@ -10,15 +10,17 @@ class MarkdownHTMLConverterTests: XCTestCase {
     
     class MarkdownConverterPage: PublicPage {
         let markdown: String
+        let enableGFM: Bool
         
-        init(markdown: String) {
+        init(markdown: String, enableGFM: Bool) {
             self.markdown = markdown
+            self.enableGFM = enableGFM
             super.init(path: "")
         }
         
         override func content() -> Node<HTML.BodyContext> {
             do {
-                let html = try MarkdownHTMLConverter(markdown: markdown).toHTML()
+                let html = try MarkdownHTMLConverter(markdown: markdown, enableGFM: enableGFM).toHTML()
                 return .raw(html)
             } catch {
                 return .h1("Failed to convert: \(error.localizedDescription)")
@@ -40,7 +42,7 @@ class MarkdownHTMLConverterTests: XCTestCase {
     func test_MarkdownConverter() throws {
         let data = try XCTUnwrap(try loadData(for: "markdown-test.md"))
         let markdown = try XCTUnwrap(String(data: data, encoding: .utf8))
-        let page = MarkdownConverterPage(markdown: markdown)
+        let page = MarkdownConverterPage(markdown: markdown, enableGFM: true)
         
         assertSnapshot(matching: page.content().render(indentedBy: .spaces(4)), as: .lines)
         
