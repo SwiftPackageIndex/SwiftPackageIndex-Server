@@ -492,15 +492,12 @@ func createProducts(on database: Database,
 ///   - manifest: `Manifest` data
 /// - Returns: future
 func createProducts(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
-    let products = manifest.products.compactMap { p -> Product? in
-        let type: Product.`Type`
-        switch p.type {
-            case .executable: type = .executable
-            case .library:    type = .library
-        }
+    let products = manifest.products.compactMap { manifestProduct -> Product? in
         // Using `try?` here because the only way this could error is version.id being nil
         // - that should never happen and even in the pathological case we can skip the product
-        return try? Product(version: version, type: type, name: p.name)
+        return try? Product(version: version,
+                            type: .init(manifestProductType: manifestProduct.type),
+                            name: manifestProduct.name)
     }
     return products.create(on: database)
 }

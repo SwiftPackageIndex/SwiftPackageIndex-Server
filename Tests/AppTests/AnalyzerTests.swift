@@ -552,6 +552,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
         XCTAssertEqual(products.map(\.name), ["p1", "p2"])
+        XCTAssertEqual(products.map(\.type), [.library, .executable])
     }
     
     func test_updatePackage() throws {
