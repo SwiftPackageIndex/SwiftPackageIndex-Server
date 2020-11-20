@@ -6,17 +6,10 @@ enum PackageShow {
     
     class View: PublicPage {
         
-        enum MarkdownRenderer {
-            case cmark
-            case ink
-        }
-        
         let model: Model
-        let renderer: MarkdownRenderer
-        
+
         init(path: String, model: Model) {
             self.model = model
-            self.renderer = .cmark
             super.init(path: path)
         }
         
@@ -97,7 +90,7 @@ enum PackageShow {
                     model.swiftVersionCompatibilitySection(),
                     model.platformCompatibilitySection()
                 ),
-                readmeSection(renderer: renderer)
+                readmeSection()
             )
         }
         
@@ -142,30 +135,18 @@ enum PackageShow {
             )
         }
 
-        func readmeSection(renderer: MarkdownRenderer) -> Node<HTML.BodyContext> {
+        func readmeSection() -> Node<HTML.BodyContext> {
             let environment = (try? Environment.detect()) ?? .development
             guard environment == .development,
-                  let readme = model.readme else { return .empty }
+                  let readme = model.readme,
+                  let html = try? MarkdownHTMLConverter.html(from: readme)
+            else { return .empty }
             
-            switch renderer {
-            case .ink:
-                return .div(
-                    .h2("Readme"),
-                    .hr(),
-                    .raw(MarkdownParser().html(from: readme))
-                )
-            case .cmark:
-                do {
-                    return .div(
-                        .h2("Readme"),
-                        .hr(),
-                        .raw(try MarkdownHTMLConverter(markdown: readme, enableGFM: true).toHTML())
-                    )
-                } catch {
-                    return .empty
-                }
-            }
-            
+            return .div(
+                .h2("Readme"),
+                .hr(),
+                .raw(html)
+            )
         }
 
     }
