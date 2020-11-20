@@ -795,14 +795,44 @@ final class PackageTests: AppTestCase {
             XCTAssertTrue(pkg.isNew)
         }
 
-        // run analysis to progress package through pipeline
+        // run ingestion to progress package through pipeline
         try ingest(application: app, limit: 10).wait()
+
+        // MUT & validate
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertTrue(pkg.isNew)
+        }
+
+        // run analysis to progress package through pipeline
+        try analyze(application: app, limit: 10).wait()
 
         // MUT & validate
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
             XCTAssertFalse(pkg.isNew)
         }
+
+        // run stages again to simulate the cycle...
+
+        try reconcile(client: app.client, database: app.db).wait()
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertFalse(pkg.isNew)
+        }
+
+        try analyze(application: app, limit: 10).wait()
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertFalse(pkg.isNew)
+        }
+
+        try ingest(application: app, limit: 10).wait()
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertFalse(pkg.isNew)
+        }
+
     }
 
     func test_isNew_processingStage_nil() {

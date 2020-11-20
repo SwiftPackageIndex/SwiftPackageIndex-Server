@@ -155,7 +155,7 @@ class TwitterTests: AppTestCase {
     func test_postToFirehose_only_latest() throws {
         // ensure we only tweet about latest versions
         // setup
-        let pkg = Package(url: "1".asGithubUrl.url, processingStage: .ingestion)
+        let pkg = Package(url: "1".asGithubUrl.url, processingStage: .analysis)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
                        summary: "This is a test package",

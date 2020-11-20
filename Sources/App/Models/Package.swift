@@ -78,7 +78,7 @@ extension Package {
         case analysis
     }
 
-    var isNew: Bool { processingStage == nil || processingStage == .some(.reconciliation) }
+    var isNew: Bool { processingStage != .analysis }
 
 }
 
