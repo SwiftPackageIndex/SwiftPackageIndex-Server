@@ -770,6 +770,48 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(res.sorted(), [.macosXcodebuild, .linux])
     }
 
+    func test_isNew() throws {
+        // setup
+        let url = "1".asGithubUrl
+        Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
+        Current.fetchPackageList = { _ in self.future([url.url]) }
+        Current.shell.run = { cmd, path in
+            if cmd.string.hasSuffix("swift package dump-package") {
+                return #"{ "name": "Mock", "products": [] }"#
+            }
+            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+            return ""
+        }
+        // run reconcile to ingest package
+        try reconcile(client: app.client, database: app.db).wait()
+        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
+
+        // MUT & validate
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertTrue(pkg.isNew)
+        }
+
+        // run analysis to progress package through pipeline
+        try ingest(application: app, limit: 10).wait()
+
+        // MUT & validate
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertFalse(pkg.isNew)
+        }
+    }
+
+    func test_isNew_processingStage_nil() {
+        // ensure a package with processingStage == nil is new
+        // MUT & validate
+        let pkg = Package(url: "1", processingStage: nil)
+        XCTAssertTrue(pkg.isNew)
+    }
+
 }
 
 

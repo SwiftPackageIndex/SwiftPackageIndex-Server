@@ -77,6 +77,9 @@ extension Package {
         case ingestion
         case analysis
     }
+
+    var isNew: Bool { processingStage == nil || processingStage == .some(.reconciliation) }
+
 }
 
 
