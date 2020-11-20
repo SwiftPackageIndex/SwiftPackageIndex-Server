@@ -198,11 +198,11 @@ class AnalyzerTests: AppTestCase {
         Current.shell.run = { cmd, path in
             if cmd.string == "git tag" { return "1.0.0" }
             // first package fails
-            if cmd.string == "/swift-5.3/usr/bin/swift package dump-package" && path.hasSuffix("foo-1") {
+            if cmd.string.hasSuffix("swift package dump-package") && path.hasSuffix("foo-1") {
                 return "bad data"
             }
             // second package succeeds
-            if cmd.string == "/swift-5.3/usr/bin/swift package dump-package" && path.hasSuffix("foo-2") {
+            if cmd.string.hasSuffix("swift package dump-package") && path.hasSuffix("foo-2") {
                 return #"{ "name": "SPI-Server", "products": [] }"#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
@@ -437,7 +437,7 @@ class AnalyzerTests: AppTestCase {
             queue.sync {
                 commands.append(cmd.string)
             }
-            if cmd.string == "/swift-5.3/usr/bin/swift package dump-package" {
+            if cmd.string.hasSuffix("swift package dump-package") {
                 return #"{ "name": "SPI-Server", "products": [] }"#
             }
             return ""
@@ -466,7 +466,7 @@ class AnalyzerTests: AppTestCase {
             queue.sync {
                 commands.append(cmd.string)
             }
-            if cmd.string == "/swift-5.3/usr/bin/swift package dump-package" {
+            if cmd.string.hasSuffix("swift package dump-package") {
                 return #"{ "name": "SPI-Server", "products": [] }"#
             }
             return ""
@@ -581,7 +581,7 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == "git tag" {
                 return ["1.0.0", "2.0.0"].joined(separator: "\n")
             }
-            if cmd.string == "/swift-5.3/usr/bin/swift package dump-package" {
+            if cmd.string.hasSuffix("swift package dump-package") {
                 return #"{ "name": "foo", "products": [{"name":"p1","type":{"executable": null}}, {"name":"p2","type":{"executable": null}}] }"#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
