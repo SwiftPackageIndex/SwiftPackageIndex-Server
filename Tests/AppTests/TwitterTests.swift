@@ -9,13 +9,13 @@ class TwitterTests: AppTestCase {
     func test_versionUpdateMessage() throws {
         XCTAssertEqual(
             Twitter.versionUpdateMessage(
+                packageName: "packageName",
                 repositoryOwner: "owner",
-                repositoryName: "repoName",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: "This is a test package"),
             """
-            owner just released repoName v2.6.4 – This is a test package
+            owner just released packageName v2.6.4 – This is a test package
 
             http://localhost:8080/owner/SuperAwesomePackage
             """
@@ -24,13 +24,13 @@ class TwitterTests: AppTestCase {
         // no summary
         XCTAssertEqual(
             Twitter.versionUpdateMessage(
+                packageName: "packageName",
                 repositoryOwner: "owner",
-                repositoryName: "repoName",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: nil),
             """
-            owner just released repoName v2.6.4
+            owner just released packageName v2.6.4
 
             http://localhost:8080/owner/SuperAwesomePackage
             """
@@ -39,8 +39,8 @@ class TwitterTests: AppTestCase {
 
     func test_versionUpdateMessage_trimming() throws {
         let msg = Twitter.versionUpdateMessage(
+            packageName: "packageName",
             repositoryOwner: "owner",
-            repositoryName: "repoName",
             url: "http://localhost:8080/owner/SuperAwesomePackage",
             version: .init(2, 6, 4),
             summary: String(repeating: "x", count: 280)
@@ -48,7 +48,7 @@ class TwitterTests: AppTestCase {
 
         XCTAssertEqual(msg.count, 260)
         XCTAssertEqual(msg, """
-            owner just released repoName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
+            owner just released packageName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
 
             http://localhost:8080/owner/SuperAwesomePackage
             """)
@@ -85,7 +85,7 @@ class TwitterTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res, """
-        owner just released repoName v1.2.3 – This is a test package
+        owner just released MyPackage v1.2.3 – This is a test package
 
         http://localhost:8080/owner/repoName
         """)

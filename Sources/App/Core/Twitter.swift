@@ -80,12 +80,12 @@ extension Twitter {
                       url: url)
     }
 
-    static func versionUpdateMessage(repositoryOwner: String,
-                                     repositoryName: String,
+    static func versionUpdateMessage(packageName: String,
+                                     repositoryOwner: String,
                                      url: String,
                                      version: SemanticVersion,
                                      summary: String?) -> String {
-        createMessage(preamble: "\(repositoryOwner) just released \(repositoryName) v\(version)",
+        createMessage(preamble: "\(repositoryOwner) just released \(packageName) v\(version)",
                       summary: summary,
                       url: url)
     }
@@ -107,8 +107,8 @@ extension Twitter {
                                         repositoryOwner: owner,
                                         url: url,
                                         summary: repo?.summary ?? "")
-                    : versionUpdateMessage(repositoryOwner: owner,
-                                           repositoryName: repoName,
+                    : versionUpdateMessage(packageName: packageName,
+                                           repositoryOwner: owner,
                                            url: url,
                                            version: semVer,
                                            summary: repo?.summary ?? "")
