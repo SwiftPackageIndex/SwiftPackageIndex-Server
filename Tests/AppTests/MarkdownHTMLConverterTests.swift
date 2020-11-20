@@ -32,7 +32,7 @@ class MarkdownHTMLConverterTests: XCTestCase {
         try XCTSkipIf((Environment.get("SKIP_SNAPSHOTS") ?? "false") == "true")
         Current.date = { Date(timeIntervalSince1970: 0) }
         TempWebRoot.cleanup()
-        SnapshotTesting.isRecording = true
+        SnapshotTesting.isRecording = false
     }
     
     override class func setUp() {
