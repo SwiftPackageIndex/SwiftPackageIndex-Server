@@ -53,14 +53,12 @@ enum Twitter {
 
 extension Twitter {
 
-    static func firehoseMessage(repositoryOwner: String,
-                                repositoryName: String,
-                                url: String,
-                                version: SemanticVersion,
-                                summary: String?) -> String {
-        let preamble = "\(repositoryOwner) just released \(repositoryName) v\(version)"
+    static func createMessage(preamble: String,
+                              separator: String = "–",
+                              summary: String? = nil,
+                              url: String = "") -> String {
         let link = "\n\n\(url)"
-        let separator = " – "
+        let separator = " \(separator) "
         let availableLength = tweetMaxLength - preamble.count - separator.count - link.count
         let description: String = {
             guard let summary = summary else { return "" }
@@ -73,22 +71,47 @@ extension Twitter {
         return preamble + description + link
     }
 
+    static func newPackageMessage(packageName: String,
+                                  repositoryOwner: String,
+                                  url: String,
+                                  summary: String?) -> String {
+        createMessage(preamble: "New package: \(packageName) by \(repositoryOwner)",
+                      summary: summary,
+                      url: url)
+    }
+
+    static func versionUpdateMessage(packageName: String,
+                                     repositoryOwner: String,
+                                     url: String,
+                                     version: SemanticVersion,
+                                     summary: String?) -> String {
+        createMessage(preamble: "\(repositoryOwner) just released \(packageName) v\(version)",
+                      summary: summary,
+                      url: url)
+    }
+
     static func firehoseMessage(db: Database, for version: Version) -> EventLoopFuture<String?> {
         version.fetchPackage(db)
             .flatMap { pkg in
                 pkg.fetchRepository(db).map { (pkg, $0) }
             }
             .map { pkg, repo in
-                guard let repoName = repo?.name,
+                guard let packageName = version.packageName,
+                      let repoName = repo?.name,
                       let owner = repo?.owner,
                       let semVer = version.reference?.semVer
                 else { return nil }
                 let url = SiteURL.package(.value(owner), .value(repoName), .none).absoluteURL()
-                return firehoseMessage(repositoryOwner: owner,
-                                    repositoryName: repoName,
-                                    url: url,
-                                    version: semVer,
-                                    summary: repo?.summary ?? "")
+                return pkg.isNew
+                    ? newPackageMessage(packageName: packageName,
+                                        repositoryOwner: owner,
+                                        url: url,
+                                        summary: repo?.summary ?? "")
+                    : versionUpdateMessage(packageName: packageName,
+                                           repositoryOwner: owner,
+                                           url: url,
+                                           version: semVer,
+                                           summary: repo?.summary ?? "")
             }
     }
 
@@ -109,13 +132,21 @@ extension Twitter {
 
     static func postToFirehose(client: Client,
                                database: Database,
+                               package: Package,
                                versions: [Version]) -> EventLoopFuture<Void> {
-        versions
-            .filter { $0.reference?.isTag ?? false }
-            .map {
-                postToFirehose(client: client, database: database, version: $0)
-            }
-            .flatten(on: client.eventLoop)
+        let (release, preRelease, defaultBranch) = package.findSignificantReleases()
+        let idsLatest = [release, preRelease, defaultBranch].compactMap { $0?.id }
+        // filter on versions with a tag and which are in the "latest" triple
+        let versions = versions.filter { version in
+            guard let reference = version.reference,
+                  reference.isTag,
+                  let id = version.id else { return false }
+            return idsLatest.contains(id)
+        }
+        return versions.map {
+            postToFirehose(client: client, database: database, version: $0)
+        }
+        .flatten(on: client.eventLoop)
     }
 
 }

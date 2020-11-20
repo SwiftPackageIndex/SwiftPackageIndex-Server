@@ -556,6 +556,7 @@ func updateLatestVersions(on database: Database, package: Package) -> EventLoopF
 /// transaction could potentially be rolled back in case an error occurs before all versions are processed and saved.
 /// - Parameters:
 ///   - client: `Client` object for http requests
+///   - logger: `Logger` object
 ///   - transaction: database transaction
 ///   - packageResults: array of `Package`s with their analysis results of `Version`s and `Manifest`s
 /// - Returns: the packageResults that were passed in, for further processing
@@ -565,7 +566,10 @@ func onNewVersions(client: Client,
                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: transaction.eventLoop) { pkg, versionsAndManifests in
         let versions = versionsAndManifests.map { $0.0 }
-        return Twitter.postToFirehose(client: client, database: transaction, versions: versions)
+        return Twitter.postToFirehose(client: client,
+                                      database: transaction,
+                                      package: pkg,
+                                      versions: versions)
             .flatMapError { error in
                 logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
                 return client.eventLoop.future()

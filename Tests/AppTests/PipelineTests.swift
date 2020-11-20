@@ -103,7 +103,7 @@ class PipelineTests: AppTestCase {
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
         Current.fetchPackageList = { _ in self.future(urls.asURLs) }
         Current.shell.run = { cmd, path in
-            if cmd.string == "/swift-5.3/usr/bin/swift package dump-package" {
+            if cmd.string.hasSuffix("swift package dump-package") {
                 return #"{ "name": "Mock", "products": [] }"#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
