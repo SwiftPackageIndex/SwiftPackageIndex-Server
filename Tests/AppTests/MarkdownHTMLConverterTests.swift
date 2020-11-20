@@ -10,11 +10,9 @@ class MarkdownHTMLConverterTests: XCTestCase {
     
     class MarkdownConverterPage: PublicPage {
         let markdown: String
-        let enableGFM: Bool
         
-        init(markdown: String, enableGFM: Bool) {
+        init(markdown: String) {
             self.markdown = markdown
-            self.enableGFM = enableGFM
             super.init(path: "")
         }
         
@@ -42,7 +40,7 @@ class MarkdownHTMLConverterTests: XCTestCase {
     func test_MarkdownConverter() throws {
         let data = try XCTUnwrap(try loadData(for: "markdown-test.md"))
         let markdown = try XCTUnwrap(String(data: data, encoding: .utf8))
-        let page = MarkdownConverterPage(markdown: markdown, enableGFM: true)
+        let page = MarkdownConverterPage(markdown: markdown)
         
         assertSnapshot(matching: page.content().render(indentedBy: .spaces(4)), as: .lines)
         
