@@ -53,14 +53,12 @@ enum Twitter {
 
 extension Twitter {
 
-    static func firehoseMessage(repositoryOwner: String,
-                                repositoryName: String,
-                                url: String,
-                                version: SemanticVersion,
-                                summary: String?) -> String {
-        let preamble = "\(repositoryOwner) just released \(repositoryName) v\(version)"
+    static func createMessage(preamble: String,
+                              separator: String = "–",
+                              summary: String? = nil,
+                              url: String = "") -> String {
         let link = "\n\n\(url)"
-        let separator = " – "
+        let separator = " \(separator) "
         let availableLength = tweetMaxLength - preamble.count - separator.count - link.count
         let description: String = {
             guard let summary = summary else { return "" }
@@ -73,22 +71,47 @@ extension Twitter {
         return preamble + description + link
     }
 
+    static func newPackageMessage(packageName: String,
+                                  repositoryOwner: String,
+                                  url: String,
+                                  summary: String?) -> String {
+        createMessage(preamble: "New package: \(packageName) by \(repositoryOwner)",
+                      summary: summary,
+                      url: url)
+    }
+
+    static func versionUpdateMessage(repositoryOwner: String,
+                                     repositoryName: String,
+                                     url: String,
+                                     version: SemanticVersion,
+                                     summary: String?) -> String {
+        createMessage(preamble: "\(repositoryOwner) just released \(repositoryName) v\(version)",
+                      summary: summary,
+                      url: url)
+    }
+
     static func firehoseMessage(db: Database, for version: Version) -> EventLoopFuture<String?> {
         version.fetchPackage(db)
             .flatMap { pkg in
                 pkg.fetchRepository(db).map { (pkg, $0) }
             }
             .map { pkg, repo in
-                guard let repoName = repo?.name,
+                guard let packageName = version.packageName,
+                      let repoName = repo?.name,
                       let owner = repo?.owner,
                       let semVer = version.reference?.semVer
                 else { return nil }
                 let url = SiteURL.package(.value(owner), .value(repoName), .none).absoluteURL()
-                return firehoseMessage(repositoryOwner: owner,
-                                    repositoryName: repoName,
-                                    url: url,
-                                    version: semVer,
-                                    summary: repo?.summary ?? "")
+                return pkg.isNew
+                    ? newPackageMessage(packageName: packageName,
+                                        repositoryOwner: owner,
+                                        url: url,
+                                        summary: repo?.summary ?? "")
+                    : versionUpdateMessage(repositoryOwner: owner,
+                                           repositoryName: repoName,
+                                           url: url,
+                                           version: semVer,
+                                           summary: repo?.summary ?? "")
             }
     }
 

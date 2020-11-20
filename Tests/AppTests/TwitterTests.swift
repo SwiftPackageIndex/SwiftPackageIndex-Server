@@ -6,9 +6,9 @@ import SemanticVersion
 
 class TwitterTests: AppTestCase {
     
-    func test_firehoseMessage() throws {
+    func test_versionUpdateMessage() throws {
         XCTAssertEqual(
-            Twitter.firehoseMessage(
+            Twitter.versionUpdateMessage(
                 repositoryOwner: "owner",
                 repositoryName: "repoName",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
@@ -23,7 +23,7 @@ class TwitterTests: AppTestCase {
 
         // no summary
         XCTAssertEqual(
-            Twitter.firehoseMessage(
+            Twitter.versionUpdateMessage(
                 repositoryOwner: "owner",
                 repositoryName: "repoName",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
@@ -37,8 +37,8 @@ class TwitterTests: AppTestCase {
         )
     }
 
-    func test_firehoseMessage_trimming() throws {
-        let msg = Twitter.firehoseMessage(
+    func test_versionUpdateMessage_trimming() throws {
+        let msg = Twitter.versionUpdateMessage(
             repositoryOwner: "owner",
             repositoryName: "repoName",
             url: "http://localhost:8080/owner/SuperAwesomePackage",
@@ -54,9 +54,24 @@ class TwitterTests: AppTestCase {
             """)
     }
 
-    func test_firehoseMessage_for_version() throws {
+    func test_newPackageMessage() throws {
+        XCTAssertEqual(
+            Twitter.newPackageMessage(
+                packageName: "packageName",
+                repositoryOwner: "owner",
+                url: "http://localhost:8080/owner/SuperAwesomePackage",
+                summary: "This is a test package"),
+            """
+            New package: packageName by owner – This is a test package
+
+            http://localhost:8080/owner/SuperAwesomePackage
+            """
+        )
+    }
+
+    func test_firehoseMessage_new_version() throws {
         // setup
-        let pkg = Package(url: "1".asGithubUrl.url)
+        let pkg = Package(url: "1".asGithubUrl.url, processingStage: .analysis)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
                        summary: "This is a test package",
@@ -76,7 +91,29 @@ class TwitterTests: AppTestCase {
         """)
     }
 
-    func test_onlyReleaseAndPreRelease() throws {
+    func test_firehoseMessage_new_package() throws {
+        // setup
+        let pkg = Package(url: "1".asGithubUrl.url, processingStage: .reconciliation)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg,
+                       summary: "This is a test package",
+                       name: "repoName",
+                       owner: "owner").save(on: app.db).wait()
+        let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
+        try version.save(on: app.db).wait()
+
+        // MUT
+        let res = try Twitter.firehoseMessage(db: app.db, for: version).wait()
+
+        // validate
+        XCTAssertEqual(res, """
+        New package: MyPackage by owner – This is a test package
+
+        http://localhost:8080/owner/repoName
+        """)
+    }
+
+    func test_postToFirehose_only_release_and_preRelease() throws {
         // ensure we only tweet about releases and pre-releases
         // setup
         let pkg = Package(url: "1".asGithubUrl.url)
@@ -115,10 +152,10 @@ class TwitterTests: AppTestCase {
         XCTAssertEqual(posted, 2)
     }
 
-    func test_onlyLatest() throws {
+    func test_postToFirehose_only_latest() throws {
         // ensure we only tweet about latest versions
         // setup
-        let pkg = Package(url: "1".asGithubUrl.url)
+        let pkg = Package(url: "1".asGithubUrl.url, processingStage: .ingestion)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
                        summary: "This is a test package",
