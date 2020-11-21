@@ -821,18 +821,17 @@ final class PackageTests: AppTestCase {
             XCTAssertFalse(pkg.isNew)
         }
 
-        try analyze(application: app, limit: 10).wait()
-        do {
-            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
-            XCTAssertFalse(pkg.isNew)
-        }
-
         try ingest(application: app, limit: 10).wait()
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
             XCTAssertFalse(pkg.isNew)
         }
-
+        
+        try analyze(application: app, limit: 10).wait()
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertFalse(pkg.isNew)
+        }
     }
 
     func test_isNew_processingStage_nil() {

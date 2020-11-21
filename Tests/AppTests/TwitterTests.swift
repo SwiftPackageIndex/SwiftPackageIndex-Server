@@ -190,6 +190,73 @@ class TwitterTests: AppTestCase {
         XCTAssertTrue(message?.contains("v2.0.0") ?? false)
     }
 
+    func test_endToEnd() throws {
+        // setup
+        Current.twitterCredentials = {
+            .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
+        }
+        var message: String?
+        Current.twitterPostTweet = { _, msg in
+            if message == nil {
+                message = msg
+            } else {
+                XCTFail("message must only be set once")
+            }
+            return self.app.eventLoopGroup.future()
+        }
+
+        var tag = "1.2.3"
+        let url = "https://github.com/foo/bar"
+        Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
+        Current.fetchPackageList = { _ in self.future([url.url]) }
+        Current.shell.run = { cmd, path in
+            if cmd.string.hasSuffix("swift package dump-package") {
+                return #"{ "name": "Mock", "products": [] }"#
+            }
+            if cmd.string == "git tag" {
+                return tag }
+            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+            return ""
+        }
+        // run first two processing steps
+        try reconcile(client: app.client, database: app.db).wait()
+        try ingest(application: app, limit: 10).wait()
+
+        // MUT - analyze, triggering the tweet
+        try analyze(application: app, limit: 10).wait()
+        do {
+            let msg = try XCTUnwrap(message)
+            XCTAssertTrue(msg.hasPrefix("New package: Mock by foo"), "was \(msg)")
+        }
+
+        // run stages again to simulate the cycle...
+        message = nil
+        try reconcile(client: app.client, database: app.db).wait()
+        try ingest(application: app, limit: 10).wait()
+
+        // MUT - analyze, triggering tweets if any
+        try analyze(application: app, limit: 10).wait()
+
+        // validate
+        XCTAssertNil(message)
+
+        // Now simulate receiving a package update: version 2.0.0
+        tag = "2.0.0"
+        // fast forward our clock by the deadtime interval and re-ingest
+        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
+        try ingest(application: app, limit: 10).wait()
+
+        // MUT - analyze again
+        try analyze(application: app, limit: 10).wait()
+
+        // validate
+        let msg = try XCTUnwrap(message)
+        XCTAssertTrue(msg.hasPrefix("foo just release Mock v2.0.0"), "was: \(msg)")
+    }
+
     func test_allowTwitterPosts_switch() throws {
         // test ALLOW_TWITTER_POSTS environment variable
         // setup
