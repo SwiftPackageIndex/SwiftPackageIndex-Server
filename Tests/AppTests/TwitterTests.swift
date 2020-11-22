@@ -254,7 +254,7 @@ class TwitterTests: AppTestCase {
 
         // validate
         let msg = try XCTUnwrap(message)
-        XCTAssertTrue(msg.hasPrefix("foo just release Mock v2.0.0"), "was: \(msg)")
+        XCTAssertTrue(msg.hasPrefix("foo just released Mock v2.0.0"), "was: \(msg)")
     }
 
     func test_allowTwitterPosts_switch() throws {
