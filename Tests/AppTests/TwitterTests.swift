@@ -71,7 +71,7 @@ class TwitterTests: AppTestCase {
 
     func test_firehoseMessage_new_version() throws {
         // setup
-        let pkg = Package(url: "1".asGithubUrl.url, processingStage: .analysis)
+        let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
                        summary: "This is a test package",
@@ -93,7 +93,7 @@ class TwitterTests: AppTestCase {
 
     func test_firehoseMessage_new_package() throws {
         // setup
-        let pkg = Package(url: "1".asGithubUrl.url, processingStage: .reconciliation)
+        let pkg = Package(url: "1".asGithubUrl.url, status: .new)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
                        summary: "This is a test package",
@@ -155,7 +155,7 @@ class TwitterTests: AppTestCase {
     func test_postToFirehose_only_latest() throws {
         // ensure we only tweet about latest versions
         // setup
-        let pkg = Package(url: "1".asGithubUrl.url, processingStage: .analysis)
+        let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
                        summary: "This is a test package",
