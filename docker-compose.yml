@@ -118,6 +118,8 @@ services:
       - "2222:22"
     restart: always
 
+  # logging & monitoring visualiser
+
   grafana:
     image: grafana/grafana:7.3.1
     environment:
@@ -129,9 +131,11 @@ services:
     ports:
       - 3000:3000
 
+  # logging
+
   loki:
-    image: grafana/loki:1.5.0
-    command: -config.file=/etc/loki/local-config.yaml
+    build: ./infrastructure/loki
+    command: -config.file=/loki.yaml
     restart: always
 
   promtail:
@@ -140,6 +144,8 @@ services:
       - /var/lib/docker/containers:/var/log
     command: -config.file=/promtail.yaml
     restart: always
+
+  # monitoring
 
   prometheus:
     build: ./infrastructure/prometheus
