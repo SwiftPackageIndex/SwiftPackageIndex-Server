@@ -137,9 +137,6 @@ services:
     build: ./infrastructure/loki
     command: -config.file=/loki.yaml
     restart: always
-    # TODO: remove
-    ports:
-      - 3100:3100
 
   promtail:
     build: ./infrastructure/promtail
