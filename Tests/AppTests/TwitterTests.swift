@@ -241,7 +241,7 @@ class TwitterTests: AppTestCase {
         // MUT - analyze, triggering tweets if any
         try analyze(application: app, limit: 10).wait()
 
-        // validate
+        // validate - there are no new tweets to send
         XCTAssertNil(message)
 
         // Now simulate receiving a package update: version 2.0.0
