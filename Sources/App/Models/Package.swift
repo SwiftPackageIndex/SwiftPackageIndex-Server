@@ -78,7 +78,7 @@ extension Package {
         case analysis
     }
 
-    var isNew: Bool { processingStage != .analysis }
+    var isNew: Bool { status == .new }
 
 }
 
