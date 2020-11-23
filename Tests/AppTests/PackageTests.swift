@@ -814,7 +814,6 @@ final class PackageTests: AppTestCase {
         }
 
         // run stages again to simulate the cycle...
-        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
 
         try reconcile(client: app.client, database: app.db).wait()
         do {
@@ -822,6 +821,7 @@ final class PackageTests: AppTestCase {
             XCTAssertFalse(pkg.isNew)
         }
 
+        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         try ingest(application: app, limit: 10).wait()
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
