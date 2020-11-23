@@ -7,7 +7,7 @@ enum PackageShow {
     class View: PublicPage {
         
         let model: Model
-        
+
         init(path: String, model: Model) {
             self.model = model
             super.init(path: path)
@@ -138,11 +138,14 @@ enum PackageShow {
         func readmeSection() -> Node<HTML.BodyContext> {
             let environment = (try? Environment.detect()) ?? .development
             guard environment == .development,
-                  let readme = model.readme else { return .empty }
+                  let readme = model.readme,
+                  let html = try? MarkdownHTMLConverter.html(from: readme)
+            else { return .empty }
+            
             return .div(
                 .h2("Readme"),
                 .hr(),
-                .raw(MarkdownParser().parse(readme).html)
+                .raw(html)
             )
         }
 
