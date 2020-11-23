@@ -235,6 +235,7 @@ class TwitterTests: AppTestCase {
         // run stages again to simulate the cycle...
         message = nil
         try reconcile(client: app.client, database: app.db).wait()
+        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         try ingest(application: app, limit: 10).wait()
 
         // MUT - analyze, triggering tweets if any
@@ -245,8 +246,8 @@ class TwitterTests: AppTestCase {
 
         // Now simulate receiving a package update: version 2.0.0
         tag = "2.0.0"
-        // fast forward our clock by the deadtime interval and re-ingest
-        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
+        // fast forward our clock by the deadtime interval again (*2) and re-ingest
+        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime * 2) }
         try ingest(application: app, limit: 10).wait()
 
         // MUT - analyze again
