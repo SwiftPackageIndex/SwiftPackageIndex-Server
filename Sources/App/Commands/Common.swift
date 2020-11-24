@@ -3,15 +3,17 @@ import PostgresNIO
 import Vapor
 
 
-func updatePackages(application: Application,
+func updatePackages(client: Client,
+                    database: Database,
+                    logger: Logger,
                     results: [Result<Package, Error>],
                     stage: Package.ProcessingStage) -> EventLoopFuture<Void> {
     let updates = results.map { result -> EventLoopFuture<Void> in
         switch result {
             case .success(let pkg):
                 return pkg.$repositories
-                    .load(on: application.db)
-                    .flatMap { pkg.$versions.load(on: application.db) }
+                    .load(on: database)
+                    .flatMap { pkg.$versions.load(on: database) }
                     .flatMap {
                         if stage == .ingestion && pkg.status == .new {
                             // newly ingested package: leave status == .new for fast-track
@@ -21,24 +23,24 @@ func updatePackages(application: Application,
                         }
                         pkg.processingStage = stage
                         pkg.score = pkg.computeScore()
-                        return pkg.update(on: application.db)
+                        return pkg.update(on: database)
                     }
                     .flatMapError { error in
-                        application.logger.report(error: error)
-                        return Current.reportError(application.client, .critical, error)
-                            .flatMap { application.eventLoopGroup.next().future(error: error) }
+                        logger.report(error: error)
+                        return Current.reportError(client, .critical, error)
+                            .flatMap { database.eventLoop.future(error: error) }
                     }
             case .failure(let error) where error as? PostgresNIO.PostgresError != nil:
                 // Escalate database errors to critical
-                return Current.reportError(application.client, .critical, error)
-                    .flatMap { recordError(database: application.db, error: error, stage: stage) }
+                return Current.reportError(client, .critical, error)
+                    .flatMap { recordError(database: database, error: error, stage: stage) }
             case .failure(let error):
-                return Current.reportError(application.client, .error, error)
-                    .flatMap { recordError(database: application.db, error: error, stage: stage) }
+                return Current.reportError(client, .error, error)
+                    .flatMap { recordError(database: database, error: error, stage: stage) }
         }
     }
-    application.logger.debug("updateStatus ops: \(updates.count)")
-    return EventLoopFuture.andAllComplete(updates, on: application.eventLoopGroup.next())
+    logger.debug("updateStatus ops: \(updates.count)")
+    return EventLoopFuture.andAllComplete(updates, on: database.eventLoop)
 }
 
 

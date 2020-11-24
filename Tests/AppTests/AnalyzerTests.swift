@@ -571,7 +571,11 @@ class AnalyzerTests: AppTestCase {
         ]
         
         // MUT
-        try updatePackages(application: app, results: results, stage: .analysis).wait()
+        try updatePackages(client: app.client,
+                           database: app.db,
+                           logger: app.logger,
+                           results: results,
+                           stage: .analysis).wait()
         
         // validate
         do {

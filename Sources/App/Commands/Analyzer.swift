@@ -65,7 +65,8 @@ func analyze(application: Application, limit: Int) -> EventLoopFuture<Void> {
 ///   - application: `Application` object for database, client, and logger access
 ///   - packages: packages to be analysed
 /// - Returns: future
-func analyze(application: Application, packages: [Package]) -> EventLoopFuture<Void> {
+func analyze(application: Application,
+             packages: [Package]) -> EventLoopFuture<Void> {
     AppMetrics.analyzeCandidatesCount?.set(packages.count)
     // get or create directory
     let checkoutDir = Current.fileManager.checkoutsDirectory()
@@ -111,7 +112,9 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
     
     let statusOps = packageResults
         .map(\.packages)
-        .flatMap { updatePackages(application: application,
+        .flatMap { updatePackages(client: application.client,
+                                  database: application.db,
+                                  logger: application.logger,
                                   results: $0,
                                   stage: .analysis) }
     
