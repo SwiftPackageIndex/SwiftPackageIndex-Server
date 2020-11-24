@@ -31,4 +31,40 @@ class MetricsTests: AppTestCase {
         })
     }
 
+    func test_versions_added() throws {
+        //setup
+        let initialAddedBranch = try
+            XCTUnwrap(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")))
+        let initialAddedTag = try
+            XCTUnwrap(AppMetrics.analyzeVersionsAddedCount?.get(.init("tag")))
+        let initialDeletedBranch = try
+            XCTUnwrap(AppMetrics.analyzeVersionsDeletedCount?.get(.init("branch")))
+        let initialDeletedTag = try
+            XCTUnwrap(AppMetrics.analyzeVersionsDeletedCount?.get(.init("tag")))
+        let pkg = try savePackage(on: app.db, "1")
+        let new = [
+            try Version(package: pkg, reference: .branch("main")),
+            try Version(package: pkg, reference: .tag(1, 2, 3)),
+            try Version(package: pkg, reference: .tag(2, 0, 0)),
+        ]
+        let del = [
+            try Version(package: pkg, reference: .branch("main")),
+            try Version(package: pkg, reference: .tag(1, 0, 0)),
+        ]
+        try del.save(on: app.db).wait()
+
+        // MUT
+        try applyVersionDelta(on: app.db, delta: (toAdd: new, toDelete: del)).wait()
+
+        // validation
+        XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")),
+                       initialAddedBranch + 1)
+        XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(.init("tag")),
+                       initialAddedTag + 2)
+        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(.init("branch")),
+                       initialDeletedBranch + 1)
+        XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(.init("tag")),
+                       initialDeletedTag + 1)
+    }
+
 }

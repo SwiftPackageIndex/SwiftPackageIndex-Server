@@ -60,10 +60,24 @@
         }
     ],
     "products" : [
-        
+        {
+            "name" : "Some Product",
+            "targets" : [
+                "Some Target"
+            ],
+            "type" : {
+                "library" : [
+                    "automatic"
+                ]
+            }
+        }
     ],
     "providers" : null,
-    "swiftLanguageVersions" : null,
+    "swiftLanguageVersions" : [
+        "4",
+        "4.2",
+        "5"
+    ],
     "targets" : [
         {
             "dependencies" : [

@@ -49,6 +49,15 @@ extension Product {
     enum `Type`: String, Codable {
         case executable
         case library
+
+        init(manifestProductType: Manifest.Product.`Type`) {
+            switch manifestProductType {
+                case .executable:
+                    self = .executable
+                case .library:
+                    self = .library
+            }
+        }
     }
     
     var isLibrary: Bool { return type == .library }

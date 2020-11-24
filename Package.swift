@@ -19,6 +19,8 @@ let package = Package(
         .package(name: "SnapshotTesting",
                  url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
+        .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
+        .package(name: "libcmark_gfm", url: "https://github.com/KristopherGBaker/libcmark_gfm", from: "0.29.3")
     ],
     targets: [
         .target(name: "App", dependencies: [
@@ -29,7 +31,9 @@ let package = Package(
             "Ink",
             "SemanticVersion",
             "ShellOut",
-            "SwiftPrometheus"
+            "SwiftPrometheus",
+            "OhhAuth",
+            "libcmark_gfm"
         ]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [

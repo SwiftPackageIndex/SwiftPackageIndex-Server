@@ -49,6 +49,12 @@ final class Version: Model, Content {
     @Field(key: "swift_versions")
     var swiftVersions: [SwiftVersion]
     
+    @Field(key: "tools_version")
+    var toolsVersion: String?
+    
+    @Field(key: "url")
+    var url: String?
+
     // relationships
     
     @Children(for: \.$version)
@@ -67,7 +73,9 @@ final class Version: Model, Content {
          packageName: String? = nil,
          reference: Reference? = nil,
          supportedPlatforms: [Platform] = [],
-         swiftVersions: [SwiftVersion] = []) throws {
+         swiftVersions: [SwiftVersion] = [],
+         toolsVersion: String? = nil,
+         url: String? = nil) throws {
         self.id = id
         self.$package.id = try package.requireID()
         self.commit = commit
@@ -77,6 +85,8 @@ final class Version: Model, Content {
         self.reference = reference
         self.supportedPlatforms = supportedPlatforms
         self.swiftVersions = swiftVersions
+        self.toolsVersion = toolsVersion
+        self.url = url
     }
 
     enum Kind: String, Codable {
@@ -108,6 +118,23 @@ extension Version {
     }
 }
 
+
+// MARK: - Relationship helpers
+
+extension Version {
+
+    /// Fetches associated package relationship (if not already loaded).
+    /// - Parameters:
+    ///   - db: database object
+    /// - Returns: `Package` future
+    func fetchPackage(_ db: Database) -> EventLoopFuture<Package> {
+        if let package = $package.value {
+            return db.eventLoop.future(package)
+        }
+        return $package.load(on: db).map { self.package }
+    }
+
+}
 
 // MARK: - Version reconciliation / diffing
 

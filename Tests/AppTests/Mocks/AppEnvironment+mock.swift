@@ -8,6 +8,7 @@ extension AppEnvironment {
     static func mock(eventLoop: EventLoop) -> Self {
         .init(
             allowBuildTriggers: { true },
+            allowTwitterPosts: { true },
             builderToken: { nil },
             buildTriggerDownscaling: { 1.0 },
             date: Date.init,
@@ -31,7 +32,9 @@ extension AppEnvironment {
             rollbarToken: { nil },
             rollbarLogLevel: { .critical },
             shell: .mock,
-            siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" }
+            siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
+            twitterCredentials: { nil },
+            twitterPostTweet: { _, _ in eventLoop.future() }
         )
     }
 }

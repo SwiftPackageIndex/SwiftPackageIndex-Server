@@ -94,6 +94,13 @@ public func configure(_ app: Application) throws {
     do {  // Migration 019 - add readme_url to repositories
         app.migrations.add(UpdateRepositoryAddReadmeUrl())
     }
+    do {  // Migration 020 - add tools_version to versions
+        app.migrations.add(UpdateVersionAddToolsVersion())
+    }
+    do {  // Migration 021 - add release_url to recent_releases and url to versions
+        app.migrations.add(UpdateVersionAddUrl())
+        app.migrations.add(UpdateRecentReleases5())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

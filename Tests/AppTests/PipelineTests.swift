@@ -71,7 +71,25 @@ class PipelineTests: AppTestCase {
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["2"])
     }
-    
+
+    func test_fetchCandidates_ingestion_refresh_analysis_only() throws {
+        // Ensure we only pick up .analysis stage records on the refresh cycle *) - we don't
+        // want to refresh .ingestion stage records that have lagged in analysis, because it
+        // resets their `.new` state prematurely.
+        //
+        // *) in addition to the .reconciliation ones, which we always pick up, regardless of
+        // ingestion dead time.
+        try [
+            Package(url: "1", status: .new, processingStage: .reconciliation),
+            Package(url: "2", status: .new, processingStage: .ingestion),
+            Package(url: "3", status: .new, processingStage: .analysis),
+        ].save(on: app.db).wait()
+        // fast forward our clock by the deadtime interval
+        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
+        let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
+        XCTAssertEqual(batch.map(\.url), ["1", "3"])
+    }
+
     func test_fetchCandidates_analysis_correct_stage() throws {
         // only pick up from ingestion stage
         try [
@@ -103,7 +121,7 @@ class PipelineTests: AppTestCase {
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
         Current.fetchPackageList = { _ in self.future(urls.asURLs) }
         Current.shell.run = { cmd, path in
-            if cmd.string == "/swift-5.3/usr/bin/swift package dump-package" {
+            if cmd.string.hasSuffix("swift package dump-package") {
                 return #"{ "name": "Mock", "products": [] }"#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
@@ -121,6 +139,7 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.new, .new, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.reconciliation, .reconciliation, .reconciliation])
+            XCTAssertEqual(packages.map(\.isNew), [true, true, true])
         }
         
         // MUT - second stage
@@ -131,6 +150,7 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.new, .new, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
+            XCTAssertEqual(packages.map(\.isNew), [true, true, true])
         }
         
         // MUT - third stage
@@ -141,6 +161,7 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
+            XCTAssertEqual(packages.map(\.isNew), [false, false, false])
         }
         
         // Now we've got a new package and a deletion
@@ -154,6 +175,7 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .reconciliation])
+            XCTAssertEqual(packages.map(\.isNew), [false, false, true])
         }
         
         // MUT - ingest again
@@ -164,6 +186,7 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .ingestion])
+            XCTAssertEqual(packages.map(\.isNew), [false, false, true])
         }
         
         // MUT - analyze again
@@ -176,6 +199,7 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
             XCTAssertEqual(packages.map { $0.updatedAt! > lastAnalysis }, [false, false, true])
+            XCTAssertEqual(packages.map(\.isNew), [false, false, false])
         }
         
         // fast forward our clock by the deadtime interval
@@ -189,6 +213,7 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
+            XCTAssertEqual(packages.map(\.isNew), [false, false, false])
         }
         
         // MUT - re-run analysis to complete the sequence
@@ -199,6 +224,7 @@ class PipelineTests: AppTestCase {
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
+            XCTAssertEqual(packages.map(\.isNew), [false, false, false])
         }
         
         // at this point we've ensured that retriggering ingestion after the deadtime will

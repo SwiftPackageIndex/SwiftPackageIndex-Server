@@ -25,6 +25,7 @@ struct AnalyzeCommand: Command {
             try analyze(application: context.application, limit: limit).wait()
         }
         try AppMetrics.push(client: context.application.client,
+                            logger: context.application.logger,
                             jobName: "analyze").wait()
     }
 }
@@ -83,26 +84,33 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
         }
     }
     
-    let packageUpdates = refreshCheckouts(application: application, packages: packages)
+    let packages = refreshCheckouts(application: application, packages: packages)
         .flatMap { updateRepositories(application: application, packages: $0) }
     
-    let versionUpdates = packageUpdates.flatMap { packages in
-        application.db.transaction { tx -> EventLoopFuture<[Result<Package, Error>]> in
-            let versions = reconcileVersions(client: application.client,
-                                             logger: application.logger,
-                                             threadPool: application.threadPool,
-                                             transaction: tx,
-                                             packages: packages)
-            return versions
-                .map { getManifests(logger: application.logger, versions: $0) }
-                .flatMap { updateVersionsAndProducts(on: tx, packages: $0) }
-                .flatMap { updateLatestVersions(on: tx, packages: $0) }
+    let packageResults = packages.flatMap { packages in
+        application.db.transaction { tx in
+            diffVersions(client: application.client,
+                         logger: application.logger,
+                         threadPool: application.threadPool,
+                         transaction: tx,
+                         packages: packages)
+                .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
+                .map { getManifests(logger: application.logger, packageAndVersions: $0) }
+                .flatMap { updateVersions(on: tx, packageResults: $0) }
+                .flatMap { createProducts(on: tx, packageResults: $0) }
+                .flatMap { updateLatestVersions(on: tx, packageResults: $0) }
+                .flatMap { onNewVersions(client: application.client,
+                                         logger: application.logger,
+                                         transaction: tx,
+                                         packageResults: $0)}
         }
     }
     
-    let statusOps = versionUpdates.flatMap { updatePackage(application: application,
-                                                           results: $0,
-                                                           stage: .analysis) }
+    let statusOps = packageResults
+        .map(\.packages)
+        .flatMap { updatePackages(application: application,
+                                  results: $0,
+                                  stage: .analysis) }
     
     let materializedViewRefresh = statusOps
         .flatMap { RecentPackage.refresh(on: application.db) }
@@ -242,49 +250,43 @@ func updateRepository(package: Package) -> Result<Package, Error> {
 }
 
 
-/// Reconcile versions for a set of `Package`s. This will add new versions and delete versions that have been removed based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
+/// Find new and outdated versions for a set of `Package`s, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
 /// - Parameters:
 ///   - client: `Client` object (for Rollbar error reporting)
 ///   - logger: `Logger` object
 ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
 ///   - transaction: database transaction
 ///   - packages: `Package`s to reconcile
-/// - Returns: results future
-func reconcileVersions(client: Client,
-                       logger: Logger,
-                       threadPool: NIOThreadPool,
-                       transaction: Database,
-                       packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
-    let ops = packages.map { result -> EventLoopFuture<(Package, [Version])> in
-        switch result {
-            case .success(let pkg):
-                return reconcileVersions(client: client,
-                                         logger: logger,
-                                         threadPool: threadPool,
-                                         transaction: transaction,
-                                         package: pkg)
-                    .map { (pkg, $0) }
-            case .failure(let error):
-                return transaction.eventLoop.future(error: error)
-        }
+/// - Returns: results future with each `Package` and its pair of new and outdated `Version`s
+func diffVersions(client: Client,
+                  logger: Logger,
+                  threadPool: NIOThreadPool,
+                  transaction: Database,
+                  packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]> {
+    packages.whenAllComplete(on: transaction.eventLoop) { pkg in
+        diffVersions(client: client,
+                     logger: logger,
+                     threadPool: threadPool,
+                     transaction: transaction,
+                     package: pkg)
+            .map { (pkg, $0) }
     }
-    return EventLoopFuture.whenAllComplete(ops, on: transaction.eventLoop)
 }
 
 
-/// Reconcile versions for a given `Package`. This will add new versions and delete versions that have been removed based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
+/// Find new and outdated versions for a given `Package`, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
 /// - Parameters:
 ///   - client: `Client` object (for Rollbar error reporting)
 ///   - logger: `Logger` object
 ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
 ///   - transaction: database transaction
 ///   - package: `Package` to reconcile
-/// - Returns: future with array of inserted `Version`s
-func reconcileVersions(client: Client,
-                       logger: Logger,
-                       threadPool: NIOThreadPool,
-                       transaction: Database,
-                       package: Package) -> EventLoopFuture<[Version]> {
+/// - Returns: future with array of pair of new and outdated `Version`s
+func diffVersions(client: Client,
+                  logger: Logger,
+                  threadPool: NIOThreadPool,
+                  transaction: Database,
+                  package: Package) -> EventLoopFuture<(toAdd: [Version], toDelete: [Version])> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return transaction.eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
@@ -312,34 +314,62 @@ func reconcileVersions(client: Client,
     let incoming: EventLoopFuture<[Version]> = references
         .flatMapEachThrowing { ref in
             let revInfo = try Git.revisionInfo(ref, at: cacheDir)
+            let url = package.versionUrl(for: ref)
             return try Version(package: package,
                                commit: revInfo.commit,
                                commitDate: revInfo.date,
-                               reference: ref) }
+                               reference: ref,
+                               url: url) }
     
     return Version.query(on: transaction)
         .filter(\.$package.$id == pkgId)
         .all()
         .and(incoming)
-        .flatMap { saved, incoming -> EventLoopFuture<[Version]> in
-            let delta = Version.diff(local: saved, incoming: incoming)
-            let delete = delta.toDelete.delete(on: transaction)
-            let insert = delta.toAdd.create(on: transaction).transform(to: delta.toAdd)
-            AppMetrics.analyzeVersionsAddedTotal?.inc(delta.toAdd.count)
-            AppMetrics.analyzeVersionsDeletedTotal?.inc(delta.toDelete.count)
-            return delete.flatMap { insert }
-        }
+        .map(Version.diff)
 }
 
 
-/// Get the package manifests for a set of `Package`s.
+/// Saves and deletes the versions specified in the version delta parameter.
+/// - Parameters:
+///   - transaction: transaction to run the save and delete in
+///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
+/// - Returns: future with an array of each `Package` paired with its new `Version`s
+func applyVersionDelta(on transaction: Database,
+                       packageDeltas: [Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+    packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
+        applyVersionDelta(on: transaction, delta: delta)
+            .transform(to: (pkg, delta.toAdd))
+    }
+}
+
+
+/// Saves and deletes the versions specified in the version delta parameter.
+/// - Parameters:
+///   - transaction: transaction to run the save and delete in
+///   - delta: tuple containing the versions to add and remove
+/// - Returns: future
+func applyVersionDelta(on transaction: Database,
+                       delta: (toAdd: [Version], toDelete: [Version])) -> EventLoopFuture<Void> {
+    let delete = delta.toDelete.delete(on: transaction)
+    let insert = delta.toAdd.create(on: transaction)
+    delta.toAdd.forEach {
+        AppMetrics.analyzeVersionsAddedCount?.inc(1, .init($0.reference))
+    }
+    delta.toDelete.forEach {
+        AppMetrics.analyzeVersionsDeletedCount?.inc(1, .init($0.reference))
+    }
+    return delete.flatMap { insert }
+}
+
+
+/// Get the package manifests for an array of `Package`s.
 /// - Parameters:
 ///   - logger: `Logger` object
-///   - versions: `Result` containing the `Package` and the set of `Verion`s to analyse
+///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
 /// - Returns: results future including the `Manifest`s
 func getManifests(logger: Logger,
-                  versions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
-    versions.map { result -> Result<(Package, [(Version, Manifest)]), Error> in
+                  packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
+    packageAndVersions.map { result -> Result<(Package, [(Version, Manifest)]), Error> in
         result.flatMap { (pkg, versions) -> Result<(Package, [(Version, Manifest)]), Error> in
             let m = versions.map { getManifest(package: pkg, version: $0) }
             let successes = m.compactMap { try? $0.get() }
@@ -403,29 +433,22 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 }
 
 
-/// Persist version and product changes to the database.
+/// Update and save a given array of `Version` (as contained in `packageResults`) with data from the associated `Manifest`.
 /// - Parameters:
-///   - database: `Database` object
-///   - results: packages to save
-/// - Returns: results future
-func updateVersionsAndProducts(on database: Database,
-                               packages: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = packages.map { result -> EventLoopFuture<Package> in
-        switch result {
-            case let .success((pkg, versionsAndManifests)):
-                let updates = versionsAndManifests.map { version, manifest in
-                    updateVersion(on: database, version: version, manifest: manifest)
-                        .flatMap { createProducts(on: database, version: version, manifest: manifest)}
-                }
-                return EventLoopFuture
-                    .andAllComplete(updates, on: database.eventLoop)
-                    .transform(to: pkg)
-                
-            case let .failure(error):
-                return database.eventLoop.future(error: error)
-        }
+///   - database: database connection
+///   - packageResults: results to process, containing the versions and their manifests
+/// - Returns: the input data for further processing, wrapped in a future
+func updateVersions(on database: Database,
+                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
+        EventLoopFuture.andAllComplete(
+            versionsAndManifests.map { version, manifest in
+                updateVersion(on: database, version: version, manifest: manifest)
+            },
+            on: database.eventLoop
+        )
+        .transform(to: (pkg, versionsAndManifests))
     }
-    return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
 }
 
 
@@ -439,7 +462,27 @@ func updateVersion(on database: Database, version: Version, manifest: Manifest) 
     version.packageName = manifest.name
     version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
     version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
+    version.toolsVersion = manifest.toolsVersion?.version
     return version.save(on: database)
+}
+
+
+/// Create and persist `Product`s from the `Manifest` data provided in `packageResults`.
+/// - Parameters:
+///   - database: database connection
+///   - packageResults: results to process
+/// - Returns: the input data for further processing, wrapped in a future
+func createProducts(on database: Database,
+                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
+        EventLoopFuture.andAllComplete(
+            versionsAndManifests.map { version, manifest in
+                createProducts(on: database, version: version, manifest: manifest)
+            },
+            on: database.eventLoop
+        )
+        .transform(to: (pkg, versionsAndManifests))
+    }
 }
 
 
@@ -450,36 +493,28 @@ func updateVersion(on database: Database, version: Version, manifest: Manifest) 
 ///   - manifest: `Manifest` data
 /// - Returns: future
 func createProducts(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
-    let products = manifest.products.compactMap { p -> Product? in
-        let type: Product.`Type`
-        switch p.type {
-            case .executable: type = .executable
-            case .library:    type = .library
-        }
+    let products = manifest.products.compactMap { manifestProduct -> Product? in
         // Using `try?` here because the only way this could error is version.id being nil
         // - that should never happen and even in the pathological case we can skip the product
-        return try? Product(version: version, type: type, name: p.name)
+        return try? Product(version: version,
+                            type: .init(manifestProductType: manifestProduct.type),
+                            name: manifestProduct.name)
     }
     return products.create(on: database)
 }
 
 
-/// Update the significant versions (stable, beta, latest) for a set of `Package`s.
+/// Update the significant versions (stable, beta, latest) for an array of `Package`s (contained in `packageResults`).
 /// - Parameters:
 ///   - database: `Database` object
-///   - packages: packages to update
-/// - Returns: results future
+///   - packageResults: packages to update
+/// - Returns: the input data for further processing, wrapped in a future
 func updateLatestVersions(on database: Database,
-                          packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = packages.map { result -> EventLoopFuture<Package> in
-        switch result {
-            case let .success(pkg):
-                return updateLatestVersions(on: database, package: pkg)
-            case let .failure(error):
-                return database.eventLoop.future(error: error)
-        }
+                          packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packageResults.whenAllComplete(on: database.eventLoop) { pkg, versionsAndManifests in
+        updateLatestVersions(on: database, package: pkg)
+            .map { _ in (pkg, versionsAndManifests) }
     }
-    return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
 }
 
 
@@ -487,9 +522,8 @@ func updateLatestVersions(on database: Database,
 /// - Parameters:
 ///   - database: `Database` object
 ///   - package: package to update
-/// - Returns: `Package` future
-func updateLatestVersions(on database: Database,
-                          package: Package) -> EventLoopFuture<Package> {
+/// - Returns: future
+func updateLatestVersions(on database: Database, package: Package) -> EventLoopFuture<Void> {
     package
         .$versions.load(on: database)
         .flatMap {
@@ -515,6 +549,45 @@ func updateLatestVersions(on database: Database,
             return (updates + resets)
                 .map { $0.save(on: database) }
                 .flatten(on: database.eventLoop)
-                .map { package }
         }
+}
+
+
+/// Event hook to run logic when new (tagged) versions have been discovered in an analysis pass. Note that the provided
+/// transaction could potentially be rolled back in case an error occurs before all versions are processed and saved.
+/// - Parameters:
+///   - client: `Client` object for http requests
+///   - logger: `Logger` object
+///   - transaction: database transaction
+///   - packageResults: array of `Package`s with their analysis results of `Version`s and `Manifest`s
+/// - Returns: the packageResults that were passed in, for further processing
+func onNewVersions(client: Client,
+                   logger: Logger,
+                   transaction: Database,
+                   packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packageResults.whenAllComplete(on: transaction.eventLoop) { pkg, versionsAndManifests in
+        let versions = versionsAndManifests.map { $0.0 }
+        return Twitter.postToFirehose(client: client,
+                                      database: transaction,
+                                      package: pkg,
+                                      versions: versions)
+            .flatMapError { error in
+                logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
+                return client.eventLoop.future()
+            }
+            .map { (pkg, versionsAndManifests) }
+    }
+}
+
+
+private extension Array where Element == Result<(Package,[(Version, Manifest)]), Error> {
+    /// Helper to extract the nested `Package` results from the result tuple.
+    /// - Returns: unpacked array of `Result<Package, Error>`
+    var packages: [Result<Package, Error>]  {
+        map { result in
+            result.map { pkg, _ in
+                pkg
+            }
+        }
+    }
 }

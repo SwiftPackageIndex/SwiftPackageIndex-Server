@@ -65,12 +65,6 @@ extension RecentPackage {
             .link(link),
             .pubDate(createdAt, timeZone: .utc),
             .description(
-                .p(
-                    .a(
-                        .href(link),
-                        .text(packageName)
-                    )
-                ),
                 .p(.text(packageSummary ?? "")),
                 .element(named: "small", nodes: [
                     .a(
@@ -86,26 +80,32 @@ extension RecentPackage {
 
 extension RecentRelease {
     var rssItem: Node<RSS.ChannelContext> {
-        let link = SiteURL.package(.value(repositoryOwner),
-                                   .value(repositoryName),
-                                   .none).absoluteURL(anchor: version)
+        let packageUrl = SiteURL.package(.value(repositoryOwner),
+                                         .value(repositoryName),
+                                         .none).absoluteURL()
         return .item(
-            .guid(.text(link), .isPermaLink(true)),
+            .guid(.text(packageUrl), .isPermaLink(true)),
             .title("\(packageName) - \(version)"),
-            .link(link),
+            .link(packageUrl),
             .pubDate(releasedAt, timeZone: .utc),
             .description(
                 .p(
                     .a(
-                        .href(link),
+                        .href(packageUrl),
                         .text(packageName)
                     ),
-                    .element(named: "small", text: " – \(version)")
+                    .element(named: "small", nodes: [
+                        " – ",
+                        .a(
+                            .href(releaseUrl ?? packageUrl),
+                            .text("Version \(version) release notes. ")
+                        ),
+                    ])
                 ),
                 .p(.text(packageSummary ?? "")),
                 .element(named: "small", nodes: [
                     .a(
-                        .href(link),
+                        .href(packageUrl),
                         .text("\(repositoryOwner)/\(repositoryName)")
                     )
                 ])

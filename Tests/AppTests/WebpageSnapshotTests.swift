@@ -18,15 +18,13 @@ let configs: [(name: String, size: CGSize)] = [
 ]
 
 
-let recordSnapshotForAllTests = false
-
-
 class WebpageSnapshotTests: XCTestCase {
     
     override func setUpWithError() throws {
         try XCTSkipIf((Environment.get("SKIP_SNAPSHOTS") ?? "false") == "true")
         Current.date = { Date(timeIntervalSince1970: 0) }
         TempWebRoot.cleanup()
+        SnapshotTesting.isRecording = false
     }
     
     override class func setUp() {
@@ -35,9 +33,6 @@ class WebpageSnapshotTests: XCTestCase {
     
     func test_HomeIndexView() throws {
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
-        
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -54,9 +49,6 @@ class WebpageSnapshotTests: XCTestCase {
     
     func test_PackageShowView() throws {
         let page = { PackageShow.View(path: "", model: .mock).document() }
-        
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -77,9 +69,6 @@ class WebpageSnapshotTests: XCTestCase {
         
         let page = { PackageShow.View(path: "", model: model).document() }
         
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
-        
         assertSnapshot(matching: page, as: .html)
         
         #if os(macOS)
@@ -96,9 +85,6 @@ class WebpageSnapshotTests: XCTestCase {
     func test_PackageShowView_unknown_license() throws {
         let model = PackageShow.Model.unknownLicenseMock
         let page = { PackageShow.View(path: "", model: model).document() }
-        
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -117,9 +103,6 @@ class WebpageSnapshotTests: XCTestCase {
         var model = PackageShow.Model.mock
         model.license = License.gpl_3_0
         let page = { PackageShow.View(path: "", model: model).document() }
-        
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -141,9 +124,6 @@ class WebpageSnapshotTests: XCTestCase {
         model.authors = nil
         model.activity = nil
         let page = { PackageShow.View(path: "", model: model).document() }
-        
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -192,9 +172,6 @@ class WebpageSnapshotTests: XCTestCase {
         }
         let page = { PackageShow.View(path: "", model: model).document() }
         
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
-        
         assertSnapshot(matching: page, as: .html)
         
         #if os(macOS)
@@ -212,9 +189,6 @@ class WebpageSnapshotTests: XCTestCase {
         let model = ErrorPage.Model(Abort(.notFound))
         let page = { ErrorPage.View(path: "", model: model).document() }
         
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
-        
         assertSnapshot(matching: page, as: .html)
         
         #if os(macOS)
@@ -230,9 +204,6 @@ class WebpageSnapshotTests: XCTestCase {
     
     func test_MarkdownPage() throws {
         let page = { MarkdownPage(path: "", "privacy.md").document() }
-        
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
         
         assertSnapshot(matching: page, as: .html)
         
@@ -250,9 +221,6 @@ class WebpageSnapshotTests: XCTestCase {
     func test_BuildIndex() throws {
         let page = { BuildIndex.View(path: "", model: .mock).document() }
 
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
-
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
@@ -269,9 +237,22 @@ class WebpageSnapshotTests: XCTestCase {
     func test_BuildShow() throws {
         let page = { BuildShow.View(path: "", model: .mock).document() }
 
-        let recordSnapshotForThisTest = false
-        SnapshotTesting.isRecording = recordSnapshotForThisTest || recordSnapshotForAllTests
+        assertSnapshot(matching: page, as: .html)
 
+        #if os(macOS)
+        if !isRunningInCI {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
+    
+    func test_AuthorShow() throws {
+        let page = { AuthorShow.View(path: "", model: .mock).document() }
+        
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)

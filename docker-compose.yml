@@ -9,6 +9,7 @@ x-shared: &shared
     # set these variables via the environment or a `.env` file, which
     # docker-compose reads and uses to populate variables
     ALLOW_BUILD_TRIGGERS: ${ALLOW_BUILD_TRIGGERS}
+    ALLOW_TWITTER_POSTS: ${ALLOW_TWITTER_POSTS}
     BUILD_TRIGGER_DOWNSCALING: ${BUILD_TRIGGER_DOWNSCALING}
     BUILD_TRIGGER_LIMIT: ${BUILD_TRIGGER_LIMIT}
     BUILD_TRIGGER_SLEEP: ${BUILD_TRIGGER_SLEEP}
@@ -28,6 +29,10 @@ x-shared: &shared
     METRICS_PUSHGATEWAY_URL: ${METRICS_PUSHGATEWAY_URL}
     ROLLBAR_TOKEN: ${ROLLBAR_TOKEN}
     SITE_URL: ${SITE_URL}
+    TWITTER_API_KEY: ${TWITTER_API_KEY}
+    TWITTER_API_SECRET: ${TWITTER_API_SECRET}
+    TWITTER_ACCESS_TOKEN_KEY: ${TWITTER_ACCESS_TOKEN_KEY}
+    TWITTER_ACCESS_TOKEN_SECRET: ${TWITTER_ACCESS_TOKEN_SECRET}
   volumes:
     - checkouts:/checkouts
 
@@ -113,6 +118,8 @@ services:
       - "2222:22"
     restart: always
 
+  # logging & monitoring visualiser
+
   grafana:
     image: grafana/grafana:7.3.1
     environment:
@@ -124,9 +131,11 @@ services:
     ports:
       - 3000:3000
 
+  # logging
+
   loki:
-    image: grafana/loki:1.5.0
-    command: -config.file=/etc/loki/local-config.yaml
+    build: ./infrastructure/loki
+    command: -config.file=/loki.yaml
     restart: always
 
   promtail:
@@ -135,6 +144,8 @@ services:
       - /var/lib/docker/containers:/var/log
     command: -config.file=/promtail.yaml
     restart: always
+
+  # monitoring
 
   prometheus:
     build: ./infrastructure/prometheus

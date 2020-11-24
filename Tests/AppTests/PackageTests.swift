@@ -294,7 +294,7 @@ final class PackageTests: AppTestCase {
     func test_updateLatestVersions() throws {
         // setup
         func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
-        var pkg = Package(id: UUID(), url: "1")
+        let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         try Version(package: pkg, commitDate: t(2), packageName: "foo", reference: .branch("main"))
@@ -308,7 +308,7 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
-        pkg = try updateLatestVersions(on: app.db, package: pkg).wait()
+        try updateLatestVersions(on: app.db, package: pkg).wait()
 
         // validate
         let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
@@ -322,7 +322,7 @@ final class PackageTests: AppTestCase {
         // is correctly reset.
         // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/188
         // setup
-        var pkg = Package(id: UUID(), url: "1")
+        let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         try Version(package: pkg,
@@ -345,7 +345,7 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
-        pkg = try updateLatestVersions(on: app.db, package: pkg).wait()
+        try updateLatestVersions(on: app.db, package: pkg).wait()
 
         // validate
         let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
@@ -415,7 +415,21 @@ final class PackageTests: AppTestCase {
         // MUT / validate
         XCTAssertNoThrow(pkg.releaseInfo)
     }
-    
+
+    func test_versionUrl() throws {
+        XCTAssertEqual(Package(url: "https://github.com/foo/bar").versionUrl(for: .tag(1, 2, 3)),
+                       "https://github.com/foo/bar/releases/tag/1.2.3")
+        XCTAssertEqual(Package(url: "https://github.com/foo/bar").versionUrl(for: .branch("main")),
+                       "https://github.com/foo/bar/tree/main")
+        XCTAssertEqual(Package(url: "https://gitlab.com/foo/bar").versionUrl(for: .tag(1, 2, 3)),
+                       "https://gitlab.com/foo/bar/-/tags/1.2.3")
+        XCTAssertEqual(Package(url: "https://gitlab.com/foo/bar").versionUrl(for: .branch("main")),
+                       "https://gitlab.com/foo/bar/-/tree/main")
+        // ensure .git is stripped off
+        XCTAssertEqual(Package(url: "https://github.com/foo/bar.git").versionUrl(for: .tag(1, 2, 3)),
+                       "https://github.com/foo/bar/releases/tag/1.2.3")
+    }
+
     func test_languagePlatformInfo() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -754,6 +768,78 @@ final class PackageTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res.sorted(), [.macosXcodebuild, .linux])
+    }
+
+    func test_isNew() throws {
+        // setup
+        let url = "1".asGithubUrl
+        Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
+        Current.fetchPackageList = { _ in self.future([url.url]) }
+        Current.shell.run = { cmd, path in
+            if cmd.string.hasSuffix("swift package dump-package") {
+                return #"{ "name": "Mock", "products": [] }"#
+            }
+            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+            return ""
+        }
+        // run reconcile to ingest package
+        try reconcile(client: app.client, database: app.db).wait()
+        XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
+
+        // MUT & validate
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertTrue(pkg.isNew)
+        }
+
+        // run ingestion to progress package through pipeline
+        try ingest(application: app, limit: 10).wait()
+
+        // MUT & validate
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertTrue(pkg.isNew)
+        }
+
+        // run analysis to progress package through pipeline
+        try analyze(application: app, limit: 10).wait()
+
+        // MUT & validate
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertFalse(pkg.isNew)
+        }
+
+        // run stages again to simulate the cycle...
+
+        try reconcile(client: app.client, database: app.db).wait()
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertFalse(pkg.isNew)
+        }
+
+        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
+        try ingest(application: app, limit: 10).wait()
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertFalse(pkg.isNew)
+        }
+
+        try analyze(application: app, limit: 10).wait()
+        do {
+            let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+            XCTAssertFalse(pkg.isNew)
+        }
+    }
+
+    func test_isNew_processingStage_nil() {
+        // ensure a package with processingStage == nil is new
+        // MUT & validate
+        let pkg = Package(url: "1", processingStage: nil)
+        XCTAssertTrue(pkg.isNew)
     }
 
 }

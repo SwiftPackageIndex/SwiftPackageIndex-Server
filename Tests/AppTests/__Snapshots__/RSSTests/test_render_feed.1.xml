@@ -11,14 +11,14 @@
       <title>package0</title>
       <link>http://localhost:8080/owner0/repo0</link>
       <pubDate>Thu, 1 Jan 1970 00:00:00 +0000</pubDate>
-      <description><![CDATA[<p><a href="http://localhost:8080/owner0/repo0">package0</a></p><p>summary0</p><small><a href="http://localhost:8080/owner0/repo0">owner0/repo0</a></small>]]></description>
+      <description><![CDATA[<p>summary0</p><small><a href="http://localhost:8080/owner0/repo0">owner0/repo0</a></small>]]></description>
     </item>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner1/repo1</guid>
       <title>package1</title>
       <link>http://localhost:8080/owner1/repo1</link>
       <pubDate>Thu, 1 Jan 1970 00:00:01 +0000</pubDate>
-      <description><![CDATA[<p><a href="http://localhost:8080/owner1/repo1">package1</a></p><p>summary1</p><small><a href="http://localhost:8080/owner1/repo1">owner1/repo1</a></small>]]></description>
+      <description><![CDATA[<p>summary1</p><small><a href="http://localhost:8080/owner1/repo1">owner1/repo1</a></small>]]></description>
     </item>
   </channel>
 </rss>

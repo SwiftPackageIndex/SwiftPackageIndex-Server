@@ -14,6 +14,7 @@ struct RecentRelease: Decodable, Equatable {
     var packageSummary: String?
     var version: String
     var releasedAt: Date
+    var releaseUrl: String?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -23,6 +24,7 @@ struct RecentRelease: Decodable, Equatable {
         case packageSummary = "package_summary"
         case version
         case releasedAt = "released_at"
+        case releaseUrl = "release_url"
     }
 }
 

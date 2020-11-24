@@ -77,16 +77,36 @@ extension Package {
         case ingestion
         case analysis
     }
+
+    var isNew: Bool { status == .new }
+
 }
 
 
+// MARK: - Relationship helpers
+
 extension Package {
+
+    /// Return associated `Repository` or `nil` if the relationship has not been loaded.
     var repository: Repository? {
         guard let repositories = $repositories.value else { return nil }
         return repositories.first
     }
+
+    /// Fetches associated `Repository` relationship (if not already loaded).
+    /// - Parameter db: database object
+    /// - Returns: `Repository?` future
+    func fetchRepository(_ db: Database) -> EventLoopFuture<Repository?> {
+        if let repos = $repositories.value {
+            return db.eventLoop.future(repos.first)
+        }
+        return $repositories.load(on: db).map { self.repositories.first }
+    }
+
 }
 
+
+// MARK: - Versions & Releases
 
 extension Package {
 
@@ -140,6 +160,36 @@ extension Package {
             }
         })
     }
+
+    func versionUrl(for reference: Reference) -> String {
+        switch (hostingProvider, reference) {
+            case let (.github, .tag(_, tagName)):
+                return "\(url.droppingGitExtension)/releases/tag/\(tagName)"
+            case let (.github, .branch(branchName)):
+                return "\(url.droppingGitExtension)/tree/\(branchName)"
+            case let (.gitlab, .tag(_, tagName)):
+                return "\(url.droppingGitExtension)/-/tags/\(tagName)"
+            case let (.gitlab, .branch(branchName)):
+                return "\(url.droppingGitExtension)/-/tree/\(branchName)"
+        }
+    }
+
+    private var hostingProvider: HostingProvider {
+        switch url {
+            case _ where url.starts(with: "https://github.com"):
+                return .github
+            case _ where url.starts(with: "https://gitlab.com"):
+                return .gitlab
+            default:
+                return .github
+        }
+    }
+
+    private enum HostingProvider {
+        case github
+        case gitlab
+    }
+
 }
 
 
@@ -191,8 +241,14 @@ private extension QueryBuilder where Model == Package {
                 fatalError("reconciliation stage does not select candidates")
             case .ingestion:
                 return group(.or) {
-                    $0.filter(\.$processingStage == .reconciliation)
-                        .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reIngestionDeadtime))
+                    $0
+                        .filter(\.$processingStage == .reconciliation)
+                        .group(.and) {
+                            $0
+                                .filter(\.$processingStage == .analysis)
+                                .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reIngestionDeadtime)
+                                )
+                        }
                 }
             case .analysis:
                 return filter(\.$processingStage == .ingestion)

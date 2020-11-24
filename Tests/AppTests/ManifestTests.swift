@@ -37,26 +37,17 @@ class ManifestTests: XCTestCase {
         }
     }
     
-    func test_decode_name() throws {
+    func test_decode_basic() throws {
         let data = try loadData(for: "manifest-1.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
         XCTAssertEqual(m.name, "SPI-Server")
-    }
-    
-    func test_decode_swiftLanguageVersions() throws {
-        let data = try loadData(for: "PromiseKit.json")
-        let m = try JSONDecoder().decode(Manifest.self, from: data)
-        XCTAssertEqual(m.name, "PromiseKit")
+        XCTAssertEqual(m.toolsVersion, .init(version: "5.2.0"))
+        XCTAssertEqual(m.platforms, [.init(platformName: .macos, version: "10.15")])
+        XCTAssertEqual(m.products, [.init(name: "Some Product",
+                                          type: .library)])
         XCTAssertEqual(m.swiftLanguageVersions, ["4", "4.2", "5"])
     }
-    
-    func test_decode_products_basic() throws {
-        let data = try loadData(for: "PromiseKit.json")
-        let m = try JSONDecoder().decode(Manifest.self, from: data)
-        XCTAssertEqual(m.products, [.init(name: "PromiseKit",
-                                          type: .library)])
-    }
-    
+
     func test_decode_products_complex() throws {
         let data = try loadData(for: "SwiftNIO.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
@@ -90,5 +81,6 @@ class ManifestTests: XCTestCase {
         XCTAssertEqual(Set(Manifest.Platform.Name.allCases.map(\.rawValue)),
                        Set(Platform.Name.allCases.map(\.rawValue)))
     }
+
 }
 

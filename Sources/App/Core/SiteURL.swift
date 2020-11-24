@@ -73,6 +73,7 @@ enum Docs: String, Resourceable {
 enum SiteURL: Resourceable {
     
     case api(Api)
+    case author(_ owner: Parameter<String>)
     case builds(_ id: Parameter<UUID>)
     case docs(Docs)
     case faq
@@ -90,6 +91,12 @@ enum SiteURL: Resourceable {
         switch self {
             case let .api(next):
                 return "api/\(next.path)"
+
+            case let .author(.value(owner)):
+                return owner
+
+            case .author:
+                fatalError("invalid path: \(self)")
 
             case let .builds(.value(id)):
                 return "builds/\(id.uuidString)"
@@ -147,6 +154,9 @@ enum SiteURL: Resourceable {
                 
             case let .api(next):
                 return ["api"] + next.pathComponents
+                
+            case .author:
+                return [":owner"]
 
             case .builds(.key):
                 return ["builds", ":id"]

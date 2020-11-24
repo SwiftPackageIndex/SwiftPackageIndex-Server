@@ -29,6 +29,27 @@ enum AppMetrics {
                 self.swiftVersion = "\(swiftVersion)"
             }
         }
+
+        struct Version: MetricLabels {
+            var kind: String = ""
+
+            init() {}
+            
+            init(_ kind: String) {
+                self.kind = kind
+            }
+
+            init(_ reference: Reference?) {
+                switch reference {
+                    case .branch:
+                        kind = "branch"
+                    case .tag:
+                        kind = "tag"
+                    case .none:
+                        kind = ""
+                }
+            }
+        }
     }
 
     static var analyzeCandidatesCount: PromGauge<Int, EmptyLabels>? {
@@ -43,12 +64,12 @@ enum AppMetrics {
         counter("spi_analyze_update_repository_failure_total", EmptyLabels.self)
     }
 
-    static var analyzeVersionsAddedTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_analyze_versions_added_total", EmptyLabels.self)
+    static var analyzeVersionsAddedCount: PromGauge<Int, Labels.Version>? {
+        gauge("spi_analyze_versions_added_count", Labels.Version.self)
     }
 
-    static var analyzeVersionsDeletedTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_analyze_versions_deleted_total", EmptyLabels.self)
+    static var analyzeVersionsDeletedCount: PromGauge<Int, Labels.Version>? {
+        gauge("spi_analyze_versions_deleted_count", Labels.Version.self)
     }
 
     static var buildCandidatesCount: PromGauge<Int, EmptyLabels>? {
@@ -113,7 +134,7 @@ extension AppMetrics {
     /// scrape target.
     /// - Parameter client: client for POST request
     /// - Returns: future
-    static func push(client: Client, jobName: String) -> EventLoopFuture<Void> {
+    static func push(client: Client, logger: Logger, jobName: String) -> EventLoopFuture<Void> {
         guard let pushGatewayUrl = Current.metricsPushGatewayUrl() else {
             return client.eventLoop.future(error: AppError.envVariableNotSet("METRICS_PUSHGATEWAY_URL"))
         }
@@ -137,6 +158,11 @@ extension AppMetrics {
             .transform(to: ())
 
         return req
+            .flatMapError { error in
+                logger.error("AppMetrics.push failed with error: \(error)")
+                // absorb error - we don't want metrics issues to cause upstream failures
+                return client.eventLoop.future()
+            }
     }
 
 }
