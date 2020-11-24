@@ -21,6 +21,29 @@
       }
     }
   }
+
+  .license {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    
+    >:first-child {
+      margin-right: 8px;
+    }
+
+    // Only hide the question mark icon on the desktop versions.
+    @media screen and (min-width: $mobile-breakpoint) {
+      >:first-child {
+          visibility: hidden;
+      }
+      
+      &:hover {
+        >:first-child {
+          visibility: visible;
+        }
+      }
+    }
+  }
 }
 
 p.description {

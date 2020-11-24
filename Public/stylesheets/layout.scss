@@ -23,6 +23,11 @@
   .split {
     flex-direction: column;
     align-items: flex-start;
+    
+    >:last-child {
+      margin-top: 10px;
+      margin-left: auto;
+    }
   }
 }
 

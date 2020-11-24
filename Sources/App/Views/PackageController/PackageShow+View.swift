@@ -46,7 +46,7 @@ enum PackageShow {
                         ]),
                         arenaButton()
                     ),
-                    licenseLozenge()
+                    licenseMetadata()
                 ),
                 .hr(),
                 .p(
@@ -104,27 +104,37 @@ enum PackageShow {
                         .text(model.license.shortName)
                     )
                 case .other:
-                    return .a(
-                        .href(model.licenseUrl ?? SiteURL.faq.relativeURL(anchor: "license-problems")),
-                        .div(
-                            .class("lozenge \(model.license.licenseKind.cssClass)"),
-                            .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                            .i(.class("icon warning")),
-                            .text(model.license.shortName)
-                        )
+                    return .div(
+                        .class("lozenge \(model.license.licenseKind.cssClass)"),
+                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                        .i(.class("icon warning")),
+                        .text(model.license.shortName)
                     )
                 case .none,
                      .incompatibleWithAppStore:
-                    return .a(
-                        .href(SiteURL.faq.relativeURL(anchor: "license-problems")),
-                        .div(
-                            .class("lozenge \(model.license.licenseKind.cssClass)"),
-                            .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                            .i(.class("icon warning")),
-                            .text(model.license.shortName)
-                        )
+                    return .div(
+                        .class("lozenge \(model.license.licenseKind.cssClass)"),
+                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
+                        .i(.class("icon warning")),
+                        .text(model.license.shortName)
                     )
             }
+        }
+
+        func licenseMetadata() -> Node<HTML.BodyContext> {
+            return .div(
+                .class("license"),
+                .a(
+                    .href(SiteURL.faq.relativeURL(anchor: "licenses")),
+                    .i(.class("icon question"))
+                ),
+                .unwrap(model.licenseUrl, { licenseUrl in
+                    .a(
+                        href: licenseUrl,
+                        licenseLozenge()
+                    )
+                }, else: licenseLozenge())
+            )
         }
 
         func arenaButton() -> Node<HTML.BodyContext> {
@@ -148,7 +158,6 @@ enum PackageShow {
                 .raw(html)
             )
         }
-
     }
 }
 
