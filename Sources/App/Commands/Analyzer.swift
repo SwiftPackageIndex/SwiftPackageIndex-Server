@@ -128,7 +128,10 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
 ///   - packages: list of `Packages`
 /// - Returns: future with `Result`s
 func refreshCheckouts(application: Application, packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = packages.map { refreshCheckout(application: application, package: $0) }
+    let ops = packages.map { refreshCheckout(eventLoop: application.eventLoopGroup.next(),
+                                             logger: application.logger,
+                                             threadPool: application.threadPool,
+                                             package: $0) }
     return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
 }
 
@@ -175,33 +178,36 @@ func fetch(logger: Logger, cacheDir: String, branch: String, url: String) throws
 
 /// Refresh git checkout (working copy) for a given package.
 /// - Parameters:
-///   - application: `Application` object
+///   - eventLoop: `EventLoop` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
 ///   - package: `Package` to refresh
 /// - Returns: future
-func refreshCheckout(application: Application, package: Package) -> EventLoopFuture<Package> {
+func refreshCheckout(eventLoop: EventLoop,
+                     logger: Logger,
+                     threadPool: NIOThreadPool,
+                     package: Package) -> EventLoopFuture<Package> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return application.eventLoopGroup.next().makeFailedFuture(
-            AppError.invalidPackageCachePath(package.id, package.url)
-        )
+        return eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
-    return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
+    return threadPool.runIfActive(eventLoop: eventLoop) {
         guard Current.fileManager.fileExists(atPath: cacheDir) else {
-            try clone(logger: application.logger, cacheDir: cacheDir, url: package.url)
+            try clone(logger: logger, cacheDir: cacheDir, url: package.url)
             return
         }
 
         // attempt to fetch - if anything goes wrong we delete the directory
         // and fall back to cloning
         do {
-            try fetch(logger: application.logger,
+            try fetch(logger: logger,
                       cacheDir: cacheDir,
                       branch: package.repository?.defaultBranch ?? "master",
                       url: package.url)
         } catch {
-            application.logger.info("fetch failed: \(error.localizedDescription)")
-            application.logger.info("removing directory")
+            logger.info("fetch failed: \(error.localizedDescription)")
+            logger.info("removing directory")
             try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
-            try clone(logger: application.logger, cacheDir: cacheDir, url: package.url)
+            try clone(logger: logger, cacheDir: cacheDir, url: package.url)
         }
     }
     .map { package }

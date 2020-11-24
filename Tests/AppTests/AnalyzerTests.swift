@@ -284,7 +284,10 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        _ = try refreshCheckout(application: app, package: pkg).wait()
+        _ = try refreshCheckout(eventLoop: app.eventLoopGroup.next(),
+                                logger: app.logger,
+                                threadPool: app.threadPool,
+                                package: pkg).wait()
         
         // validate
         assertSnapshot(matching: commands, as: .dump)
@@ -737,7 +740,10 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        _ = try refreshCheckout(application: app, package: pkg).wait()
+        _ = try refreshCheckout(eventLoop: app.eventLoopGroup.next(),
+                                logger: app.logger,
+                                threadPool: app.threadPool,
+                                package: pkg).wait()
 
         // validate
         assertSnapshot(matching: commands, as: .dump)
