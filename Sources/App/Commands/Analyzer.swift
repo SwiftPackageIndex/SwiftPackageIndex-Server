@@ -20,7 +20,7 @@ struct AnalyzeCommand: Command {
 
         let client = context.application.client
         let db = context.application.db
-        let logger = Logger(label: "analyzer")
+        let logger = Logger(label: "analyze")
         let threadPool = context.application.threadPool
 
         if let id = signature.id {
