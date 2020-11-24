@@ -100,17 +100,13 @@ If you are the package author, you can fix this by adding a `LICENSE` file with 
 
 #### Unknown License
 
-If the package license is showing as "Unknown License", it means we have been unable to detect the license.
+If the package license is showing as "Unknown License", it means we have been unable to detect the license. It may be an open-source license where GitHub's license detection algorithm has failed, or it could be a completely different type of license, such as a commercial license. If you are considering using a package with an unidentified license, you should check the package's repository for the license details.
 
-If you are considering using a package with an unidentified license, you should check the package's repository for the details in the `LICENSE` file. If the license details are not clear, you should treat the code as unlicensed and see the section above.
-
-If you are the package author and would like to fix this, please [see GitHub's documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
+If you are the package author of a package showing an unknown license, and you believe it should show a valid open-source license, please [see GitHub's documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
 
 #### Incompatible license
 
-If the package license shows with an orange background but does *not* say "No License" or "Unknown License", then the package is using a license which is incompatible with the terms and conditions of the App Store, such as any GPL style license.
-
-If you are considering shipping your app to the App Store, you should be aware that using code licensed under one of these licences presents a legal risk.
+If the package license shows with an orange background but does *not* say "No License" or "Unknown License", then the package is using a license which is incompatible with the terms and conditions of the App Store, such as any GPL style license. If you are considering shipping your app to the App Store, you should be aware that using code licensed under one of these licences presents a legal risk.
 
 ---
 
