@@ -44,7 +44,11 @@ func analyze(application: Application, id: Package.Id) -> EventLoopFuture<Void> 
         .unwrap(or: Abort(.notFound))
         .map { [$0] }
         .flatMap {
-            analyze(application: application, packages: $0)
+            analyze(client: application.client,
+                    database: application.db,
+                    logger: application.logger,
+                    threadPool: application.threadPool,
+                    packages: $0)
         }
 }
 
@@ -56,55 +60,65 @@ func analyze(application: Application, id: Package.Id) -> EventLoopFuture<Void> 
 /// - Returns: future
 func analyze(application: Application, limit: Int) -> EventLoopFuture<Void> {
     Package.fetchCandidates(application.db, for: .analysis, limit: limit)
-        .flatMap { analyze(application: application, packages: $0) }
+        .flatMap { analyze(client: application.client,
+                           database: application.db,
+                           logger: application.logger,
+                           threadPool: application.threadPool,
+                           packages: $0) }
 }
 
 
 /// Main analysis function. Updates repostory checkouts, runs package dump, reconciles versions and updates packages.
 /// - Parameters:
-///   - application: `Application` object for database, client, and logger access
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
 ///   - packages: packages to be analysed
 /// - Returns: future
-func analyze(application: Application,
+func analyze(client: Client,
+             database: Database,
+             logger: Logger,
+             threadPool: NIOThreadPool,
              packages: [Package]) -> EventLoopFuture<Void> {
     AppMetrics.analyzeCandidatesCount?.set(packages.count)
     // get or create directory
     let checkoutDir = Current.fileManager.checkoutsDirectory()
-    application.logger.info("Checkout directory: \(checkoutDir)")
+    logger.info("Checkout directory: \(checkoutDir)")
     if !Current.fileManager.fileExists(atPath: checkoutDir) {
-        application.logger.info("Creating checkouts directory at path: \(checkoutDir)")
+        logger.info("Creating checkouts directory at path: \(checkoutDir)")
         do {
             try Current.fileManager.createDirectory(atPath: checkoutDir,
                                                     withIntermediateDirectories: false,
                                                     attributes: nil)
         } catch {
             let msg = "Failed to create checkouts directory: \(error.localizedDescription)"
-            return Current.reportError(application.client,
+            return Current.reportError(client,
                                        .critical,
                                        AppError.genericError(nil, msg))
         }
     }
     
-    let packages = refreshCheckouts(eventLoop: application.eventLoopGroup.next(),
-                                    logger: application.logger,
-                                    threadPool: application.threadPool,
+    let packages = refreshCheckouts(eventLoop: database.eventLoop,
+                                    logger: logger,
+                                    threadPool: threadPool,
                                     packages: packages)
-        .flatMap { updateRepositories(on: application.db, packages: $0) }
+        .flatMap { updateRepositories(on: database, packages: $0) }
     
     let packageResults = packages.flatMap { packages in
-        application.db.transaction { tx in
-            diffVersions(client: application.client,
-                         logger: application.logger,
-                         threadPool: application.threadPool,
+        database.transaction { tx in
+            diffVersions(client: client,
+                         logger: logger,
+                         threadPool: threadPool,
                          transaction: tx,
                          packages: packages)
                 .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
-                .map { getManifests(logger: application.logger, packageAndVersions: $0) }
+                .map { getManifests(logger: logger, packageAndVersions: $0) }
                 .flatMap { updateVersions(on: tx, packageResults: $0) }
                 .flatMap { createProducts(on: tx, packageResults: $0) }
                 .flatMap { updateLatestVersions(on: tx, packageResults: $0) }
-                .flatMap { onNewVersions(client: application.client,
-                                         logger: application.logger,
+                .flatMap { onNewVersions(client: client,
+                                         logger: logger,
                                          transaction: tx,
                                          packageResults: $0)}
         }
@@ -112,17 +126,17 @@ func analyze(application: Application,
     
     let statusOps = packageResults
         .map(\.packages)
-        .flatMap { updatePackages(client: application.client,
-                                  database: application.db,
-                                  logger: application.logger,
+        .flatMap { updatePackages(client: client,
+                                  database: database,
+                                  logger: logger,
                                   results: $0,
                                   stage: .analysis) }
     
     let materializedViewRefresh = statusOps
-        .flatMap { RecentPackage.refresh(on: application.db) }
-        .flatMap { RecentRelease.refresh(on: application.db) }
-        .flatMap { Search.refresh(on: application.db) }
-        .flatMap { Stats.refresh(on: application.db) }
+        .flatMap { RecentPackage.refresh(on: database) }
+        .flatMap { RecentRelease.refresh(on: database) }
+        .flatMap { Search.refresh(on: database) }
+        .flatMap { Stats.refresh(on: database) }
     
     return materializedViewRefresh
 }
