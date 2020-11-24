@@ -23,11 +23,11 @@ struct IngestCommand: Command {
         let logger = Logger(label: "ingestor")
 
         if let id = signature.id {
-            context.console.info("Ingesting (id: \(id)) ...")
+            logger.info("Ingesting (id: \(id)) ...")
             try ingest(client: client, database: db, logger: logger, id: id)
                 .wait()
         } else {
-            context.console.info("Ingesting (limit: \(limit)) ...")
+            logger.info("Ingesting (limit: \(limit)) ...")
             try ingest(client: client, database: db, logger: logger, limit: limit)
                 .wait()
         }

@@ -24,7 +24,7 @@ struct AnalyzeCommand: Command {
         let threadPool = context.application.threadPool
 
         if let id = signature.id {
-            context.console.info("Analyzing (id: \(id)) ...")
+            logger.info("Analyzing (id: \(id)) ...")
             try analyze(client: client,
                         database: db,
                         logger: logger,
@@ -32,7 +32,7 @@ struct AnalyzeCommand: Command {
                         id: id)
                 .wait()
         } else {
-            context.console.info("Analyzing (limit: \(limit)) ...")
+            logger.info("Analyzing (limit: \(limit)) ...")
             try analyze(client: client,
                         database: db,
                         logger: logger,
