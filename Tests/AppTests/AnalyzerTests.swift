@@ -300,7 +300,10 @@ class AnalyzerTests: AppTestCase {
         let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
         
         // MUT
-        let res = try pkgs.flatMap { refreshCheckouts(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
+                                                      logger: self.app.logger,
+                                                      threadPool: self.app.threadPool,
+                                                      packages: $0) }.wait()
         
         // validation
         XCTAssertEqual(res.count, 2)
@@ -631,7 +634,10 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        let res = try pkgs.flatMap { refreshCheckouts(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
+                                                      logger: self.app.logger,
+                                                      threadPool: self.app.threadPool,
+                                                      packages: $0) }.wait()
         
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
@@ -664,7 +670,10 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = try pkgs.flatMap { refreshCheckouts(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
+                                                      logger: self.app.logger,
+                                                      threadPool: self.app.threadPool,
+                                                      packages: $0) }.wait()
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])

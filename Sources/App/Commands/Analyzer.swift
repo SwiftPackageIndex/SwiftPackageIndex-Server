@@ -84,7 +84,10 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
         }
     }
     
-    let packages = refreshCheckouts(application: application, packages: packages)
+    let packages = refreshCheckouts(eventLoop: application.eventLoopGroup.next(),
+                                    logger: application.logger,
+                                    threadPool: application.threadPool,
+                                    packages: packages)
         .flatMap { updateRepositories(on: application.db, packages: $0) }
     
     let packageResults = packages.flatMap { packages in
@@ -124,15 +127,20 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
 
 /// Refresh git checkouts (working copies) for a list of packages.
 /// - Parameters:
-///   - application: `Application` object for database, client, and logger access
+///   - eventLoop: `EventLoop` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
 ///   - packages: list of `Packages`
 /// - Returns: future with `Result`s
-func refreshCheckouts(application: Application, packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = packages.map { refreshCheckout(eventLoop: application.eventLoopGroup.next(),
-                                             logger: application.logger,
-                                             threadPool: application.threadPool,
+func refreshCheckouts(eventLoop: EventLoop,
+                      logger: Logger,
+                      threadPool: NIOThreadPool,
+                      packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = packages.map { refreshCheckout(eventLoop: eventLoop,
+                                             logger: logger,
+                                             threadPool: threadPool,
                                              package: $0) }
-    return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
+    return EventLoopFuture.whenAllComplete(ops, on: eventLoop)
 }
 
 
