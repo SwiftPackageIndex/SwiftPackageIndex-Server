@@ -159,7 +159,7 @@ extension AppMetrics {
 
         return req
             .flatMapError { error in
-                logger.error("AppMetrics.push failed with error: \(error.localizedDescription)")
+                logger.error("AppMetrics.push failed with error: \(error)")
                 // absorb error - we don't want metrics issues to cause upstream failures
                 return client.eventLoop.future()
             }
