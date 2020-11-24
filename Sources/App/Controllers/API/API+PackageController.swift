@@ -78,7 +78,11 @@ extension API {
                             Command.Response(status: "ok", rows: limit)
                         }
                 case .analyze:
-                    return analyze(application: req.application, limit: limit)
+                    return analyze(client: req.application.client,
+                                   database: req.application.db,
+                                   logger: req.application.logger,
+                                   threadPool: req.application.threadPool,
+                                   limit: limit)
                         .map {
                             Command.Response(status: "ok", rows: limit)
                         }

@@ -77,7 +77,11 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         // validation
         let outDir = try XCTUnwrap(checkoutDir)
@@ -175,7 +179,11 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
 
         // validate versions
         let p = try XCTUnwrap(Package.find(pkgId, on: app.db).wait())
@@ -213,7 +221,11 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         // assert packages have been updated
         let packages = try Package.query(on: app.db).sort(\.$createdAt).all().wait()
@@ -256,7 +268,11 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
@@ -606,7 +622,11 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         // validation
         // 1 version for the default branch + 2 for the tags each = 6 versions

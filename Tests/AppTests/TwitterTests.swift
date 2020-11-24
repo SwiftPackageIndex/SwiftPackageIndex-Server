@@ -226,7 +226,11 @@ class TwitterTests: AppTestCase {
         try ingest(application: app, limit: 10).wait()
 
         // MUT - analyze, triggering the tweet
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         do {
             let msg = try XCTUnwrap(message)
             XCTAssertTrue(msg.hasPrefix("📦 foo just added a new package, Mock"), "was \(msg)")
@@ -239,7 +243,11 @@ class TwitterTests: AppTestCase {
         try ingest(application: app, limit: 10).wait()
 
         // MUT - analyze, triggering tweets if any
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
 
         // validate - there are no new tweets to send
         XCTAssertNil(message)
@@ -251,7 +259,11 @@ class TwitterTests: AppTestCase {
         try ingest(application: app, limit: 10).wait()
 
         // MUT - analyze again
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
 
         // validate
         let msg = try XCTUnwrap(message)

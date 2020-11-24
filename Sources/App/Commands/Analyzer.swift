@@ -22,7 +22,11 @@ struct AnalyzeCommand: Command {
             try analyze(application: context.application, id: id).wait()
         } else {
             context.console.info("Analyzing (limit: \(limit)) ...")
-            try analyze(application: context.application, limit: limit).wait()
+            try analyze(client: context.application.client,
+                        database: context.application.db,
+                        logger: context.application.logger,
+                        threadPool: context.application.threadPool,
+                        limit: limit).wait()
         }
         try AppMetrics.push(client: context.application.client,
                             logger: context.application.logger,
@@ -55,15 +59,22 @@ func analyze(application: Application, id: Package.Id) -> EventLoopFuture<Void> 
 
 /// Analyse a number of `Package`s, selected from a candidate list with a given limit.
 /// - Parameters:
-///   - application: `Application` object for database, client, and logger access
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
 ///   - limit: number of `Package`s to select from the candidate list
 /// - Returns: future
-func analyze(application: Application, limit: Int) -> EventLoopFuture<Void> {
-    Package.fetchCandidates(application.db, for: .analysis, limit: limit)
-        .flatMap { analyze(client: application.client,
-                           database: application.db,
-                           logger: application.logger,
-                           threadPool: application.threadPool,
+func analyze(client: Client,
+             database: Database,
+             logger: Logger,
+             threadPool: NIOThreadPool,
+             limit: Int) -> EventLoopFuture<Void> {
+    Package.fetchCandidates(database, for: .analysis, limit: limit)
+        .flatMap { analyze(client: client,
+                           database: database,
+                           logger: logger,
+                           threadPool: threadPool,
                            packages: $0) }
 }
 
