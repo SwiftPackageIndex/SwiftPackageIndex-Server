@@ -65,8 +65,13 @@
             </small>
             <a href="slide://open?dependencies=Alamo/Alamofire">🏟</a>
           </div>
-          <div class="lozenge green" title="MIT License">
-            <i class="icon osi"></i>MIT
+          <div class="license">
+            <div class="lozenge green" title="MIT License">
+              <i class="icon osi"></i>MIT
+            </div>
+            <a href="/faq#license-problems">
+              <i class="icon question"></i>
+            </a>
           </div>
         </div>
         <hr/>
