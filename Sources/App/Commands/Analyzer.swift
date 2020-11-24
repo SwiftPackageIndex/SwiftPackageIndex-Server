@@ -19,7 +19,11 @@ struct AnalyzeCommand: Command {
         let limit = signature.limit ?? defaultLimit
         if let id = signature.id {
             context.console.info("Analyzing (id: \(id)) ...")
-            try analyze(application: context.application, id: id).wait()
+            try analyze(client: context.application.client,
+                        database: context.application.db,
+                        logger: context.application.logger,
+                        threadPool: context.application.threadPool,
+                        id: id).wait()
         } else {
             context.console.info("Analyzing (limit: \(limit)) ...")
             try analyze(client: context.application.client,
@@ -40,18 +44,22 @@ struct AnalyzeCommand: Command {
 ///   - application: `Application` object for database, client, and logger access
 ///   - id: package id
 /// - Returns: future
-func analyze(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
-    Package.query(on: application.db)
+func analyze(client: Client,
+             database: Database,
+             logger: Logger,
+             threadPool: NIOThreadPool,
+             id: Package.Id) -> EventLoopFuture<Void> {
+    Package.query(on: database)
         .with(\.$repositories)
         .filter(\.$id == id)
         .first()
         .unwrap(or: Abort(.notFound))
         .map { [$0] }
         .flatMap {
-            analyze(client: application.client,
-                    database: application.db,
-                    logger: application.logger,
-                    threadPool: application.threadPool,
+            analyze(client: client,
+                    database: database,
+                    logger: logger,
+                    threadPool: threadPool,
                     packages: $0)
         }
 }
