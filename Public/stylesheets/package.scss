@@ -28,13 +28,13 @@
     align-items: center;
     
     >:first-child {
-        display: none;
+        visibility: hidden;
         margin-right: 8px;
     }
     
     &:hover {
       >:first-child {
-        display: block;
+        visibility: visible;
       }
     }
   }
