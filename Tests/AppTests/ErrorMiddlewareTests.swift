@@ -64,7 +64,7 @@ class ErrorMiddlewareTests: AppTestCase {
         var reportedError: String? = nil
         Current.reportError = { _, level, error in
             reportedLevel = level
-            reportedError = error.localizedDescription
+            reportedError = "\(error)"
             return self.future(())
         }
         

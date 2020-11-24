@@ -278,7 +278,7 @@ class IngestorTests: AppTestCase {
         Current.reportError = { _, level, error in
             // Errors seen here go to Rollbar
             reportedLevel = level
-            reportedError = error.localizedDescription
+            reportedError = "\(error)"
             return self.future(())
         }
         let lastUpdate = Date()

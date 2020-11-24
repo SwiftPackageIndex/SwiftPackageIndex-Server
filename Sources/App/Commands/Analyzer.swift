@@ -77,7 +77,7 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
                                                     withIntermediateDirectories: false,
                                                     attributes: nil)
         } catch {
-            let msg = "Failed to create checkouts directory: \(error.localizedDescription)"
+            let msg = "Failed to create checkouts directory: \(error)"
             return Current.reportError(application.client,
                                        .critical,
                                        AppError.genericError(nil, msg))
@@ -198,7 +198,7 @@ func refreshCheckout(application: Application, package: Package) -> EventLoopFut
                       branch: package.repository?.defaultBranch ?? "master",
                       url: package.url)
         } catch {
-            application.logger.info("fetch failed: \(error.localizedDescription)")
+            application.logger.info("fetch failed: \(error)")
             application.logger.info("removing directory")
             try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
             try clone(logger: application.logger, cacheDir: cacheDir, url: package.url)
@@ -304,7 +304,7 @@ func diffVersions(client: Client,
         return try Git.tag(at: cacheDir)
     }
     .flatMapError {
-        let appError = AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)")
+        let appError = AppError.genericError(pkgId, "Git.tag failed: \($0)")
         logger.report(error: appError)
         return Current.reportError(client, .error, appError)
             .transform(to: [])
@@ -374,7 +374,7 @@ func getManifests(logger: Logger,
             let m = versions.map { getManifest(package: pkg, version: $0) }
             let successes = m.compactMap { try? $0.get() }
             let errors = m.compactMap { $0.getError() }
-                .map { AppError.genericError(pkg.id, "getManifests failed: \($0.localizedDescription)") }
+                .map { AppError.genericError(pkg.id, "getManifests failed: \($0)") }
             errors.forEach { logger.report(error: $0) }
             if !versions.isEmpty && successes.isEmpty {
                 return .failure(AppError.noValidVersions(pkg.id, pkg.url))
@@ -572,7 +572,7 @@ func onNewVersions(client: Client,
                                       package: pkg,
                                       versions: versions)
             .flatMapError { error in
-                logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
+                logger.warning("Twitter.postToFirehose failed: \(error)")
                 return client.eventLoop.future()
             }
             .map { (pkg, versionsAndManifests) }
