@@ -28,13 +28,19 @@
     align-items: center;
     
     >:first-child {
-        visibility: hidden;
-        margin-right: 8px;
+      margin-right: 8px;
     }
-    
-    &:hover {
+
+    // Only hide the question mark icon on the desktop versions.
+    @media screen and (min-width: $mobile-breakpoint) {
       >:first-child {
-        visibility: visible;
+          visibility: hidden;
+      }
+      
+      &:hover {
+        >:first-child {
+          visibility: visible;
+        }
       }
     }
   }
