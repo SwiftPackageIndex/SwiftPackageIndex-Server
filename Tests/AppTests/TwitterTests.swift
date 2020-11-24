@@ -15,7 +15,7 @@ class TwitterTests: AppTestCase {
                 version: .init(2, 6, 4),
                 summary: "This is a test package"),
             """
-            owner just released packageName v2.6.4 – This is a test package
+            ⬆️ owner just released packageName v2.6.4 – This is a test package
 
             http://localhost:8080/owner/SuperAwesomePackage
             """
@@ -30,7 +30,7 @@ class TwitterTests: AppTestCase {
                 version: .init(2, 6, 4),
                 summary: nil),
             """
-            owner just released packageName v2.6.4
+            ⬆️ owner just released packageName v2.6.4
 
             http://localhost:8080/owner/SuperAwesomePackage
             """
@@ -48,7 +48,7 @@ class TwitterTests: AppTestCase {
 
         XCTAssertEqual(msg.count, 260)
         XCTAssertEqual(msg, """
-            owner just released packageName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
+            ⬆️ owner just released packageName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
 
             http://localhost:8080/owner/SuperAwesomePackage
             """)
@@ -62,7 +62,7 @@ class TwitterTests: AppTestCase {
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 summary: "This is a test package"),
             """
-            New package: packageName by owner – This is a test package
+            📦 owner just added a new package, packageName – This is a test package
 
             http://localhost:8080/owner/SuperAwesomePackage
             """
@@ -85,10 +85,10 @@ class TwitterTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res, """
-        owner just released MyPackage v1.2.3 – This is a test package
+            ⬆️ owner just released MyPackage v1.2.3 – This is a test package
 
-        http://localhost:8080/owner/repoName
-        """)
+            http://localhost:8080/owner/repoName
+            """)
     }
 
     func test_firehoseMessage_new_package() throws {
@@ -107,10 +107,10 @@ class TwitterTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res, """
-        New package: MyPackage by owner – This is a test package
+            📦 owner just added a new package, MyPackage – This is a test package
 
-        http://localhost:8080/owner/repoName
-        """)
+            http://localhost:8080/owner/repoName
+            """)
     }
 
     func test_postToFirehose_only_release_and_preRelease() throws {
@@ -229,7 +229,7 @@ class TwitterTests: AppTestCase {
         try analyze(application: app, limit: 10).wait()
         do {
             let msg = try XCTUnwrap(message)
-            XCTAssertTrue(msg.hasPrefix("New package: Mock by foo"), "was \(msg)")
+            XCTAssertTrue(msg.hasPrefix("📦 foo just added a new package, Mock"), "was \(msg)")
         }
 
         // run stages again to simulate the cycle...
@@ -255,7 +255,7 @@ class TwitterTests: AppTestCase {
 
         // validate
         let msg = try XCTUnwrap(message)
-        XCTAssertTrue(msg.hasPrefix("foo just released Mock v2.0.0"), "was: \(msg)")
+        XCTAssertTrue(msg.hasPrefix("⬆️ foo just released Mock v2.0.0"), "was: \(msg)")
     }
 
     func test_allowTwitterPosts_switch() throws {

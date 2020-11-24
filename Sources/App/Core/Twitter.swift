@@ -75,7 +75,7 @@ extension Twitter {
                                   repositoryOwner: String,
                                   url: String,
                                   summary: String?) -> String {
-        createMessage(preamble: "New package: \(packageName) by \(repositoryOwner)",
+        createMessage(preamble: "📦 \(repositoryOwner) just added a new package, \(packageName)",
                       summary: summary,
                       url: url)
     }
@@ -85,7 +85,7 @@ extension Twitter {
                                      url: String,
                                      version: SemanticVersion,
                                      summary: String?) -> String {
-        createMessage(preamble: "\(repositoryOwner) just released \(packageName) v\(version)",
+        createMessage(preamble: "⬆️ \(repositoryOwner) just released \(packageName) v\(version)",
                       summary: summary,
                       url: url)
     }
