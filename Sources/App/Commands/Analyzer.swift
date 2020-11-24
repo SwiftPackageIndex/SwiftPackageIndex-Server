@@ -17,24 +17,33 @@ struct AnalyzeCommand: Command {
     
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
+
+        let client = context.application.client
+        let db = context.application.db
+        let logger = Logger(label: "analyzer")
+        let threadPool = context.application.threadPool
+
         if let id = signature.id {
             context.console.info("Analyzing (id: \(id)) ...")
-            try analyze(client: context.application.client,
-                        database: context.application.db,
-                        logger: context.application.logger,
-                        threadPool: context.application.threadPool,
-                        id: id).wait()
+            try analyze(client: client,
+                        database: db,
+                        logger: logger,
+                        threadPool: threadPool,
+                        id: id)
+                .wait()
         } else {
             context.console.info("Analyzing (limit: \(limit)) ...")
-            try analyze(client: context.application.client,
-                        database: context.application.db,
-                        logger: context.application.logger,
-                        threadPool: context.application.threadPool,
-                        limit: limit).wait()
+            try analyze(client: client,
+                        database: db,
+                        logger: logger,
+                        threadPool: threadPool,
+                        limit: limit)
+                .wait()
         }
-        try AppMetrics.push(client: context.application.client,
-                            logger: context.application.logger,
-                            jobName: "analyze").wait()
+        try AppMetrics.push(client: client,
+                            logger: logger,
+                            jobName: "analyze")
+            .wait()
     }
 }
 
