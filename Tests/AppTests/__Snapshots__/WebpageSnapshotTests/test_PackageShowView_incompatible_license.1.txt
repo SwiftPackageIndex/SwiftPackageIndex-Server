@@ -66,12 +66,12 @@
             <a href="slide://open?dependencies=Alamo/Alamofire">🏟</a>
           </div>
           <div class="license">
-            <div class="lozenge orange" title="GNU General Public License v3.0">
-              <i class="icon warning"></i>GPL 3.0
-            </div>
             <a href="/faq#license-problems">
               <i class="icon question"></i>
             </a>
+            <div class="lozenge orange" title="GNU General Public License v3.0">
+              <i class="icon warning"></i>GPL 3.0
+            </div>
           </div>
         </div>
         <hr/>

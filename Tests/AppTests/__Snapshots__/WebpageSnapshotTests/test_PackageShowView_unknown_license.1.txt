@@ -66,13 +66,13 @@
             <a href="slide://open?dependencies=PSPDFKit/PSPDFKit-SP">🏟</a>
           </div>
           <div class="license">
-            <a href="https://github.com/foo/bar/blob/main/LICENSE">
-              <div class="lozenge orange" title="Unknown or unrecognised License">
-                <i class="icon warning"></i>Unknown License
-              </div>
-            </a>
             <a href="/faq#license-problems">
               <i class="icon question"></i>
+            </a>
+            <a href="https://github.com/foo/bar/blob/main/LICENSE">
+              <div class="lozenge orange" title="Unknown or Unrecognised License">
+                <i class="icon warning"></i>Unknown License
+              </div>
             </a>
           </div>
         </div>
