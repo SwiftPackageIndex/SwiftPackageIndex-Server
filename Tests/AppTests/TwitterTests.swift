@@ -223,10 +223,14 @@ class TwitterTests: AppTestCase {
         }
         // run first two processing steps
         try reconcile(client: app.client, database: app.db).wait()
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
 
         // MUT - analyze, triggering the tweet
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         do {
             let msg = try XCTUnwrap(message)
             XCTAssertTrue(msg.hasPrefix("📦 foo just added a new package, Mock"), "was \(msg)")
@@ -236,10 +240,14 @@ class TwitterTests: AppTestCase {
         message = nil
         try reconcile(client: app.client, database: app.db).wait()
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
 
         // MUT - analyze, triggering tweets if any
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
 
         // validate - there are no new tweets to send
         XCTAssertNil(message)
@@ -248,10 +256,14 @@ class TwitterTests: AppTestCase {
         tag = "2.0.0"
         // fast forward our clock by the deadtime interval again (*2) and re-ingest
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime * 2) }
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
 
         // MUT - analyze again
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
 
         // validate
         let msg = try XCTUnwrap(message)

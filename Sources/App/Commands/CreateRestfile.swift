@@ -25,15 +25,15 @@ struct CreateRestfileCommand: Command {
     var help: String { "Create restfile for automated testing" }
     
     func run(using context: CommandContext, signature: Signature) throws {
-        try createRestfile(application: context.application, variant: signature.variant).wait()
+        guard let db = context.application.db as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+        try createRestfile(on: db, variant: signature.variant).wait()
     }
 }
 
 
-func createRestfile(application: Application, variant: Variant) -> EventLoopFuture<Void> {
-    guard let db = application.db as? SQLDatabase else {
-        fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
-    }
+func createRestfile(on database: SQLDatabase, variant: Variant) -> EventLoopFuture<Void> {
     let query: SQLQueryString
     // FIXME: sas 2020-06-09: both query variants are prone to selecting packages without
     // verions, leading to unexpected 404s when requesting their package pages - drive 
@@ -68,7 +68,7 @@ func createRestfile(application: Application, variant: Variant) -> EventLoopFutu
     print("# auto-generated via `vapor run create-restfile \(variant.rawValue)`")
     print("mode: random")
     print("requests:")
-    return db.raw(query)
+    return database.raw(query)
         .all(decoding: Record.self)
         .mapEach { r in
             print("""

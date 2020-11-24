@@ -17,7 +17,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
         
         // MUT
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
         
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -150,7 +150,11 @@ class IngestorTests: AppTestCase {
         ]
         
         // MUT
-        try updatePackages(application: app, results: results, stage: .ingestion).wait()
+        try updatePackages(client: app.client,
+                           database: app.db,
+                           logger: app.logger,
+                           results: results,
+                           stage: .ingestion).wait()
         
         // validate
         do {
@@ -171,7 +175,11 @@ class IngestorTests: AppTestCase {
         let results: [Result<Package, Error>] = [ .success(pkgs[0]), .success(pkgs[1])]
         
         // MUT
-        try updatePackages(application: app, results: results, stage: .ingestion).wait()
+        try updatePackages(client: app.client,
+                           database: app.db,
+                           logger: app.logger,
+                           results: results,
+                           stage: .ingestion).wait()
         
         // validate
         do {
@@ -188,7 +196,7 @@ class IngestorTests: AppTestCase {
         let packages = try savePackages(on: app.db, testUrls, processingStage: .reconciliation)
         
         // MUT
-        try ingest(application: app, limit: testUrls.count).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: testUrls.count).wait()
         
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -233,7 +241,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
         
         // MUT
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
         
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -284,7 +292,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
         
         // MUT
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
         
         // validate repositories (single element pointing to first package)
         let repos = try Repository.query(on: app.db).all().wait()

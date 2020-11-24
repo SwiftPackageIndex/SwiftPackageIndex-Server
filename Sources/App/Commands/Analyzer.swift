@@ -17,16 +17,33 @@ struct AnalyzeCommand: Command {
     
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
+
+        let client = context.application.client
+        let db = context.application.db
+        let logger = Logger(component: "analyze")
+        let threadPool = context.application.threadPool
+
         if let id = signature.id {
-            context.console.info("Analyzing (id: \(id)) ...")
-            try analyze(application: context.application, id: id).wait()
+            logger.info("Analyzing (id: \(id)) ...")
+            try analyze(client: client,
+                        database: db,
+                        logger: logger,
+                        threadPool: threadPool,
+                        id: id)
+                .wait()
         } else {
-            context.console.info("Analyzing (limit: \(limit)) ...")
-            try analyze(application: context.application, limit: limit).wait()
+            logger.info("Analyzing (limit: \(limit)) ...")
+            try analyze(client: client,
+                        database: db,
+                        logger: logger,
+                        threadPool: threadPool,
+                        limit: limit)
+                .wait()
         }
-        try AppMetrics.push(client: context.application.client,
-                            logger: context.application.logger,
-                            jobName: "analyze").wait()
+        try AppMetrics.push(client: client,
+                            logger: logger,
+                            jobName: "analyze")
+            .wait()
     }
 }
 
@@ -36,71 +53,100 @@ struct AnalyzeCommand: Command {
 ///   - application: `Application` object for database, client, and logger access
 ///   - id: package id
 /// - Returns: future
-func analyze(application: Application, id: Package.Id) -> EventLoopFuture<Void> {
-    Package.query(on: application.db)
+func analyze(client: Client,
+             database: Database,
+             logger: Logger,
+             threadPool: NIOThreadPool,
+             id: Package.Id) -> EventLoopFuture<Void> {
+    Package.query(on: database)
         .with(\.$repositories)
         .filter(\.$id == id)
         .first()
         .unwrap(or: Abort(.notFound))
         .map { [$0] }
         .flatMap {
-            analyze(application: application, packages: $0)
+            analyze(client: client,
+                    database: database,
+                    logger: logger,
+                    threadPool: threadPool,
+                    packages: $0)
         }
 }
 
 
 /// Analyse a number of `Package`s, selected from a candidate list with a given limit.
 /// - Parameters:
-///   - application: `Application` object for database, client, and logger access
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
 ///   - limit: number of `Package`s to select from the candidate list
 /// - Returns: future
-func analyze(application: Application, limit: Int) -> EventLoopFuture<Void> {
-    Package.fetchCandidates(application.db, for: .analysis, limit: limit)
-        .flatMap { analyze(application: application, packages: $0) }
+func analyze(client: Client,
+             database: Database,
+             logger: Logger,
+             threadPool: NIOThreadPool,
+             limit: Int) -> EventLoopFuture<Void> {
+    Package.fetchCandidates(database, for: .analysis, limit: limit)
+        .flatMap { analyze(client: client,
+                           database: database,
+                           logger: logger,
+                           threadPool: threadPool,
+                           packages: $0) }
 }
 
 
 /// Main analysis function. Updates repostory checkouts, runs package dump, reconciles versions and updates packages.
 /// - Parameters:
-///   - application: `Application` object for database, client, and logger access
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
 ///   - packages: packages to be analysed
 /// - Returns: future
-func analyze(application: Application, packages: [Package]) -> EventLoopFuture<Void> {
+func analyze(client: Client,
+             database: Database,
+             logger: Logger,
+             threadPool: NIOThreadPool,
+             packages: [Package]) -> EventLoopFuture<Void> {
     AppMetrics.analyzeCandidatesCount?.set(packages.count)
     // get or create directory
     let checkoutDir = Current.fileManager.checkoutsDirectory()
-    application.logger.info("Checkout directory: \(checkoutDir)")
+    logger.info("Checkout directory: \(checkoutDir)")
     if !Current.fileManager.fileExists(atPath: checkoutDir) {
-        application.logger.info("Creating checkouts directory at path: \(checkoutDir)")
+        logger.info("Creating checkouts directory at path: \(checkoutDir)")
         do {
             try Current.fileManager.createDirectory(atPath: checkoutDir,
                                                     withIntermediateDirectories: false,
                                                     attributes: nil)
         } catch {
             let msg = "Failed to create checkouts directory: \(error.localizedDescription)"
-            return Current.reportError(application.client,
+            return Current.reportError(client,
                                        .critical,
                                        AppError.genericError(nil, msg))
         }
     }
     
-    let packages = refreshCheckouts(application: application, packages: packages)
-        .flatMap { updateRepositories(application: application, packages: $0) }
+    let packages = refreshCheckouts(eventLoop: database.eventLoop,
+                                    logger: logger,
+                                    threadPool: threadPool,
+                                    packages: packages)
+        .flatMap { updateRepositories(on: database, packages: $0) }
     
     let packageResults = packages.flatMap { packages in
-        application.db.transaction { tx in
-            diffVersions(client: application.client,
-                         logger: application.logger,
-                         threadPool: application.threadPool,
+        database.transaction { tx in
+            diffVersions(client: client,
+                         logger: logger,
+                         threadPool: threadPool,
                          transaction: tx,
                          packages: packages)
                 .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
-                .map { getManifests(logger: application.logger, packageAndVersions: $0) }
+                .map { getManifests(logger: logger, packageAndVersions: $0) }
                 .flatMap { updateVersions(on: tx, packageResults: $0) }
                 .flatMap { createProducts(on: tx, packageResults: $0) }
                 .flatMap { updateLatestVersions(on: tx, packageResults: $0) }
-                .flatMap { onNewVersions(client: application.client,
-                                         logger: application.logger,
+                .flatMap { onNewVersions(client: client,
+                                         logger: logger,
                                          transaction: tx,
                                          packageResults: $0)}
         }
@@ -108,15 +154,17 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
     
     let statusOps = packageResults
         .map(\.packages)
-        .flatMap { updatePackages(application: application,
+        .flatMap { updatePackages(client: client,
+                                  database: database,
+                                  logger: logger,
                                   results: $0,
                                   stage: .analysis) }
     
     let materializedViewRefresh = statusOps
-        .flatMap { RecentPackage.refresh(on: application.db) }
-        .flatMap { RecentRelease.refresh(on: application.db) }
-        .flatMap { Search.refresh(on: application.db) }
-        .flatMap { Stats.refresh(on: application.db) }
+        .flatMap { RecentPackage.refresh(on: database) }
+        .flatMap { RecentRelease.refresh(on: database) }
+        .flatMap { Search.refresh(on: database) }
+        .flatMap { Stats.refresh(on: database) }
     
     return materializedViewRefresh
 }
@@ -124,12 +172,20 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
 
 /// Refresh git checkouts (working copies) for a list of packages.
 /// - Parameters:
-///   - application: `Application` object for database, client, and logger access
+///   - eventLoop: `EventLoop` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
 ///   - packages: list of `Packages`
 /// - Returns: future with `Result`s
-func refreshCheckouts(application: Application, packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = packages.map { refreshCheckout(application: application, package: $0) }
-    return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
+func refreshCheckouts(eventLoop: EventLoop,
+                      logger: Logger,
+                      threadPool: NIOThreadPool,
+                      packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
+    let ops = packages.map { refreshCheckout(eventLoop: eventLoop,
+                                             logger: logger,
+                                             threadPool: threadPool,
+                                             package: $0) }
+    return EventLoopFuture.whenAllComplete(ops, on: eventLoop)
 }
 
 
@@ -175,33 +231,36 @@ func fetch(logger: Logger, cacheDir: String, branch: String, url: String) throws
 
 /// Refresh git checkout (working copy) for a given package.
 /// - Parameters:
-///   - application: `Application` object
+///   - eventLoop: `EventLoop` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
 ///   - package: `Package` to refresh
 /// - Returns: future
-func refreshCheckout(application: Application, package: Package) -> EventLoopFuture<Package> {
+func refreshCheckout(eventLoop: EventLoop,
+                     logger: Logger,
+                     threadPool: NIOThreadPool,
+                     package: Package) -> EventLoopFuture<Package> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return application.eventLoopGroup.next().makeFailedFuture(
-            AppError.invalidPackageCachePath(package.id, package.url)
-        )
+        return eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
-    return application.threadPool.runIfActive(eventLoop: application.eventLoopGroup.next()) {
+    return threadPool.runIfActive(eventLoop: eventLoop) {
         guard Current.fileManager.fileExists(atPath: cacheDir) else {
-            try clone(logger: application.logger, cacheDir: cacheDir, url: package.url)
+            try clone(logger: logger, cacheDir: cacheDir, url: package.url)
             return
         }
 
         // attempt to fetch - if anything goes wrong we delete the directory
         // and fall back to cloning
         do {
-            try fetch(logger: application.logger,
+            try fetch(logger: logger,
                       cacheDir: cacheDir,
                       branch: package.repository?.defaultBranch ?? "master",
                       url: package.url)
         } catch {
-            application.logger.info("fetch failed: \(error.localizedDescription)")
-            application.logger.info("removing directory")
+            logger.info("fetch failed: \(error.localizedDescription)")
+            logger.info("removing directory")
             try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
-            try clone(logger: application.logger, cacheDir: cacheDir, url: package.url)
+            try clone(logger: logger, cacheDir: cacheDir, url: package.url)
         }
     }
     .map { package }
@@ -210,23 +269,23 @@ func refreshCheckout(application: Application, package: Package) -> EventLoopFut
 
 /// Update the `Repository`s of a given set of `Package`s with git repository data (commit count, first commit date, etc).
 /// - Parameters:
-///   - application: `Application` object
+///   - database: `Database` object
 ///   - packages: `Package`s to update
 /// - Returns: results future
-func updateRepositories(application: Application,
+func updateRepositories(on database: Database,
                         packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = packages.map { result -> EventLoopFuture<Package> in
         let updatedPackage = result.flatMap(updateRepository(package:))
         switch updatedPackage {
             case .success(let pkg):
                 AppMetrics.analyzeUpdateRepositorySuccessTotal?.inc()
-                return pkg.repositories.update(on: application.db).transform(to: pkg)
+                return pkg.repositories.update(on: database).transform(to: pkg)
             case .failure(let error):
                 AppMetrics.analyzeUpdateRepositoryFailureTotal?.inc()
-                return application.eventLoopGroup.future(error: error)
+                return database.eventLoop.future(error: error)
         }
     }
-    return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
+    return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
 }
 
 

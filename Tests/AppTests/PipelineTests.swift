@@ -143,7 +143,7 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - second stage
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
         
         do { // validate
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
@@ -154,7 +154,11 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - third stage
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         do { // validate
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
@@ -179,7 +183,7 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - ingest again
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
         
         do {  // validate - only new package moves to .ingestion stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
@@ -191,7 +195,11 @@ class PipelineTests: AppTestCase {
         
         // MUT - analyze again
         let lastAnalysis = Current.date()
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         do {  // validate - only new package moves to .ingestion stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
@@ -206,7 +214,7 @@ class PipelineTests: AppTestCase {
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         
         // MUT - ingest yet again
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
         
         do {  // validate - now all three packages should have been updated
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
@@ -217,7 +225,11 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - re-run analysis to complete the sequence
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         do {  // validate - only new package moves to .ingestion stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()

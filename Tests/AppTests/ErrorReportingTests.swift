@@ -37,7 +37,7 @@ class ErrorReportingTests: AppTestCase {
         }
         
         // MUT
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
         
         // validation
         XCTAssertEqual(reportedError, AppError.invalidPackageUrl(nil, "foo"))
@@ -64,7 +64,11 @@ class ErrorReportingTests: AppTestCase {
         }
         
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         // validation
         XCTAssertNotNil(reportedError)
@@ -76,7 +80,11 @@ class ErrorReportingTests: AppTestCase {
         try savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
         
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         // validation
         let packages = try Package.query(on: app.db).sort(\.$url).all().wait()

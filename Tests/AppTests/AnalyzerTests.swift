@@ -77,7 +77,11 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         // validation
         let outDir = try XCTUnwrap(checkoutDir)
@@ -175,7 +179,11 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
 
         // validate versions
         let p = try XCTUnwrap(Package.find(pkgId, on: app.db).wait())
@@ -213,7 +221,11 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         // assert packages have been updated
         let packages = try Package.query(on: app.db).sort(\.$createdAt).all().wait()
@@ -256,7 +268,11 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         // validation (not in detail, this is just to ensure command count is as expected)
         // Test setup is identical to `test_basic_analysis` except for the Manifest JSON,
@@ -284,7 +300,10 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        _ = try refreshCheckout(application: app, package: pkg).wait()
+        _ = try refreshCheckout(eventLoop: app.eventLoopGroup.next(),
+                                logger: app.logger,
+                                threadPool: app.threadPool,
+                                package: pkg).wait()
         
         // validate
         assertSnapshot(matching: commands, as: .dump)
@@ -297,7 +316,10 @@ class AnalyzerTests: AppTestCase {
         let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
         
         // MUT
-        let res = try pkgs.flatMap { refreshCheckouts(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
+                                                      logger: self.app.logger,
+                                                      threadPool: self.app.threadPool,
+                                                      packages: $0) }.wait()
         
         // validation
         XCTAssertEqual(res.count, 2)
@@ -347,7 +369,7 @@ class AnalyzerTests: AppTestCase {
         
         // MUT
         let results: [Result<Package, Error>] =
-            try updateRepositories(application: app, packages: packages).wait()
+            try updateRepositories(on: app.db, packages: packages).wait()
         
         // validate
         XCTAssertEqual(results.count, 2)
@@ -565,7 +587,11 @@ class AnalyzerTests: AppTestCase {
         ]
         
         // MUT
-        try updatePackages(application: app, results: results, stage: .analysis).wait()
+        try updatePackages(client: app.client,
+                           database: app.db,
+                           logger: app.logger,
+                           results: results,
+                           stage: .analysis).wait()
         
         // validate
         do {
@@ -596,7 +622,11 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        try analyze(application: app, limit: 10).wait()
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
         
         // validation
         // 1 version for the default branch + 2 for the tags each = 6 versions
@@ -628,7 +658,10 @@ class AnalyzerTests: AppTestCase {
         }
         
         // MUT
-        let res = try pkgs.flatMap { refreshCheckouts(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
+                                                      logger: self.app.logger,
+                                                      threadPool: self.app.threadPool,
+                                                      packages: $0) }.wait()
         
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
@@ -661,7 +694,10 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = try pkgs.flatMap { refreshCheckouts(application: self.app, packages: $0) }.wait()
+        let res = try pkgs.flatMap { refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
+                                                      logger: self.app.logger,
+                                                      threadPool: self.app.threadPool,
+                                                      packages: $0) }.wait()
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
@@ -737,7 +773,10 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        _ = try refreshCheckout(application: app, package: pkg).wait()
+        _ = try refreshCheckout(eventLoop: app.eventLoopGroup.next(),
+                                logger: app.logger,
+                                threadPool: app.threadPool,
+                                package: pkg).wait()
 
         // validate
         assertSnapshot(matching: commands, as: .dump)
