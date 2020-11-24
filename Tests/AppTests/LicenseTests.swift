@@ -19,7 +19,7 @@ class LicenseTests: XCTestCase {
     func test_fullName() throws {
         XCTAssertEqual(License.mit.fullName, "MIT License")
         XCTAssertEqual(License.agpl_3_0.fullName, "GNU Affero General Public License v3.0")
-        XCTAssertEqual(License.other.fullName, "Unknown License")
+        XCTAssertEqual(License.other.fullName, "Unknown or Unrecognised License")
         XCTAssertEqual(License.none.fullName, "No License")
     }
     
