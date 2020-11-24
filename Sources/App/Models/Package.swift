@@ -241,8 +241,14 @@ private extension QueryBuilder where Model == Package {
                 fatalError("reconciliation stage does not select candidates")
             case .ingestion:
                 return group(.or) {
-                    $0.filter(\.$processingStage == .reconciliation)
-                        .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reIngestionDeadtime))
+                    $0
+                        .filter(\.$processingStage == .reconciliation)
+                        .group(.and) {
+                            $0
+                                .filter(\.$processingStage == .analysis)
+                                .filter(\.$updatedAt < Current.date().addingTimeInterval(-Constants.reIngestionDeadtime)
+                                )
+                        }
                 }
             case .analysis:
                 return filter(\.$processingStage == .ingestion)

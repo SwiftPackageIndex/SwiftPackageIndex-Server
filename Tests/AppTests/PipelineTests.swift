@@ -71,7 +71,25 @@ class PipelineTests: AppTestCase {
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
         XCTAssertEqual(batch.map(\.url), ["2"])
     }
-    
+
+    func test_fetchCandidates_ingestion_refresh_analysis_only() throws {
+        // Ensure we only pick up .analysis stage records on the refresh cycle *) - we don't
+        // want to refresh .ingestion stage records that have lagged in analysis, because it
+        // resets their `.new` state prematurely.
+        //
+        // *) in addition to the .reconciliation ones, which we always pick up, regardless of
+        // ingestion dead time.
+        try [
+            Package(url: "1", status: .new, processingStage: .reconciliation),
+            Package(url: "2", status: .new, processingStage: .ingestion),
+            Package(url: "3", status: .new, processingStage: .analysis),
+        ].save(on: app.db).wait()
+        // fast forward our clock by the deadtime interval
+        Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
+        let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
+        XCTAssertEqual(batch.map(\.url), ["1", "3"])
+    }
+
     func test_fetchCandidates_analysis_correct_stage() throws {
         // only pick up from ingestion stage
         try [
