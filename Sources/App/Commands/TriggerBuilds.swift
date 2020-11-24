@@ -43,6 +43,7 @@ struct TriggerBuildsCommand: Command {
                           logger: logger,
                           parameter: parameter).wait()
         try AppMetrics.push(client: context.application.client,
+                            logger: context.application.logger,
                             jobName: "trigger-builds").wait()
     }
 }

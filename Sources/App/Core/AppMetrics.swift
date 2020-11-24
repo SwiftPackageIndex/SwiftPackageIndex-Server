@@ -134,7 +134,7 @@ extension AppMetrics {
     /// scrape target.
     /// - Parameter client: client for POST request
     /// - Returns: future
-    static func push(client: Client, jobName: String) -> EventLoopFuture<Void> {
+    static func push(client: Client, logger: Logger, jobName: String) -> EventLoopFuture<Void> {
         guard let pushGatewayUrl = Current.metricsPushGatewayUrl() else {
             return client.eventLoop.future(error: AppError.envVariableNotSet("METRICS_PUSHGATEWAY_URL"))
         }
@@ -158,6 +158,11 @@ extension AppMetrics {
             .transform(to: ())
 
         return req
+            .flatMapError { error in
+                logger.error("AppMetrics.push failed with error: \(error.localizedDescription)")
+                // absorb error - we don't want metrics issues to cause upstream failures
+                return client.eventLoop.future()
+            }
     }
 
 }
