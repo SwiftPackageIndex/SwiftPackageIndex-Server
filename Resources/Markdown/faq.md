@@ -13,7 +13,7 @@ description: Frequently Asked Questions about the Swift Package Index
 * [How does the Swift Package Index work?](#how-does-it-work)
 * [What about the GitHub Package Registry?](#package-registry)
 * [How is the Swift language and platform support calculated?](#language-and-platforms)
-* [What do the license colours mean?](#license-problems)
+* [What do the license colours mean?](#licenses)
 * [Can I contribute to the Swift Package Index?](#contributing)
 * [Is there an API?](#api)
 * [Why are package versions missing?](#missing-versions)
@@ -82,7 +82,7 @@ To determine what versions of Swift a package supports, and what platforms it is
 
 ---
 
-<h3 id="license-problems">What do the license colours mean?</h3>
+<h3 id="licenses">What do the license colours mean?</h3>
 
 If a package's license shows with a background that is orange or red, it is for one of three reasons:
 

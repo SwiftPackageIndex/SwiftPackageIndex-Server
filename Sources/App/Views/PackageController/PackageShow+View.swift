@@ -125,7 +125,7 @@ enum PackageShow {
             return .div(
                 .class("license"),
                 .a(
-                    .href(SiteURL.faq.relativeURL(anchor: "license-problems")),
+                    .href(SiteURL.faq.relativeURL(anchor: "licenses")),
                     .i(.class("icon question"))
                 ),
                 .unwrap(model.licenseUrl, { licenseUrl in
