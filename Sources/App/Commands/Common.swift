@@ -55,7 +55,7 @@ func recordError(database: Database,
         
     }
     
-    database.logger.error("\(stage) error: \(error)")
+    database.logger.error("\(stage) error: \(error.localizedDescription)")
     
     guard let error = error as? AppError else { return database.eventLoop.future() }
     

@@ -137,7 +137,7 @@ struct Shell {
             return try run(command, path)
         } catch {
             // re-package error to capture more information
-            throw AppError.shellCommandFailed(command.string, path, "\(error)")
+            throw AppError.shellCommandFailed(command.string, path, error.localizedDescription)
         }
     }
     

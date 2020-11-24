@@ -18,7 +18,7 @@ class TempDir {
         do {
             try fileManager.removeItem(atPath: path)
         } catch {
-            print("⚠️ failed to delete temp directory: \(error)")
+            print("⚠️ failed to delete temp directory: \(error.localizedDescription)")
         }
     }
 

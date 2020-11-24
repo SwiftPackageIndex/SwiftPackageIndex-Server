@@ -71,6 +71,6 @@ extension AppError {
         guard level >= Current.rollbarLogLevel() else { return client.eventLoop.future() }
         return Rollbar.createItem(client: client,
                                   level: .init(level: level),
-                                  message: "\(error)")
+                                  message: error.localizedDescription)
     }
 }
