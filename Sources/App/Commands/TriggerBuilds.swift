@@ -25,7 +25,7 @@ struct TriggerBuildsCommand: Command {
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
         let force = signature.force
-        let logger = Logger(label: "trigger-builds")
+        let logger = Logger(component: "trigger-builds")
 
         let parameter: Parameter
         if let id = signature.id {

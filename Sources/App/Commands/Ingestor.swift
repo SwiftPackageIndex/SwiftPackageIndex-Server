@@ -20,7 +20,7 @@ struct IngestCommand: Command {
 
         let client = context.application.client
         let db = context.application.db
-        let logger = Logger(label: "ingest")
+        let logger = Logger(component: "ingest")
 
         if let id = signature.id {
             logger.info("Ingesting (id: \(id)) ...")
