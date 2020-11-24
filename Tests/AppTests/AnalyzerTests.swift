@@ -347,7 +347,7 @@ class AnalyzerTests: AppTestCase {
         
         // MUT
         let results: [Result<Package, Error>] =
-            try updateRepositories(application: app, packages: packages).wait()
+            try updateRepositories(on: app.db, packages: packages).wait()
         
         // validate
         XCTAssertEqual(results.count, 2)

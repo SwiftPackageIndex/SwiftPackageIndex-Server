@@ -85,7 +85,7 @@ func analyze(application: Application, packages: [Package]) -> EventLoopFuture<V
     }
     
     let packages = refreshCheckouts(application: application, packages: packages)
-        .flatMap { updateRepositories(application: application, packages: $0) }
+        .flatMap { updateRepositories(on: application.db, packages: $0) }
     
     let packageResults = packages.flatMap { packages in
         application.db.transaction { tx in
@@ -210,23 +210,23 @@ func refreshCheckout(application: Application, package: Package) -> EventLoopFut
 
 /// Update the `Repository`s of a given set of `Package`s with git repository data (commit count, first commit date, etc).
 /// - Parameters:
-///   - application: `Application` object
+///   - database: `Database` object
 ///   - packages: `Package`s to update
 /// - Returns: results future
-func updateRepositories(application: Application,
+func updateRepositories(on database: Database,
                         packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
     let ops = packages.map { result -> EventLoopFuture<Package> in
         let updatedPackage = result.flatMap(updateRepository(package:))
         switch updatedPackage {
             case .success(let pkg):
                 AppMetrics.analyzeUpdateRepositorySuccessTotal?.inc()
-                return pkg.repositories.update(on: application.db).transform(to: pkg)
+                return pkg.repositories.update(on: database).transform(to: pkg)
             case .failure(let error):
                 AppMetrics.analyzeUpdateRepositoryFailureTotal?.inc()
-                return application.eventLoopGroup.future(error: error)
+                return database.eventLoop.future(error: error)
         }
     }
-    return EventLoopFuture.whenAllComplete(ops, on: application.eventLoopGroup.next())
+    return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
 }
 
 
