@@ -796,7 +796,7 @@ final class PackageTests: AppTestCase {
         }
 
         // run ingestion to progress package through pipeline
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
 
         // MUT & validate
         do {
@@ -826,7 +826,7 @@ final class PackageTests: AppTestCase {
         }
 
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        try ingest(application: app, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
             XCTAssertFalse(pkg.isNew)
