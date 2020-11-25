@@ -22,3 +22,5 @@ scrape_configs:
           expression: "\\[component:\\s*(?P<component>\\w+)\\]"
       - labels:
           component:
+      - drop:
+          expression: "query=\"{"
