@@ -461,6 +461,19 @@
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
+		},
+	"/stylesheets/readme.scss": {
+		"aP": 0,
+		"bl": 0,
+		"dP": 10,
+		"ec": 1,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "/deploy/stylesheets/readme.css",
+		"oF": 0,
+		"oS": 0,
+		"sct": 0
 		}
 	},
 "hooks": [
@@ -473,7 +486,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 627912642.44439399
+	"lastBuiltDate": 628006808.46547699
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
