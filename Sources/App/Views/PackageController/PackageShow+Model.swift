@@ -121,7 +121,7 @@ extension PackageShow.Model {
     
     func historyClause() -> Node<HTML.BodyContext>? {
         guard let history = history else { return nil }
-		return .if(isArchived,
+        return .if(isArchived,
             .group([
                 .strong("No longer in active development."),
                 " The package author has archived this project and the repository is read-only. It had ",
