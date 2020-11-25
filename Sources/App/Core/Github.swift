@@ -252,11 +252,10 @@ extension Github {
                     releases(first: 10, orderBy: {field: CREATED_AT, direction: DESC}) {
                       nodes {
                         createdAt
-                        isDraft
-                        isPrerelease
-                        tagName
-                        publishedAt
                         description
+                        isDraft
+                        publishedAt
+                        tagName
                         url
                       }
                     }
@@ -281,6 +280,7 @@ extension Github {
             var openIssues: OpenIssues
             var openPullRequests: OpenPullRequests
             var owner: Owner
+            var releases: ReleaseNodes
             var stargazerCount: Int
             // derived properties
             var defaultBranch: String? { defaultBranchRef?.name }
@@ -291,36 +291,57 @@ extension Github {
                 (closedPullRequests.nodes + mergedPullRequests.nodes).map(\.closedAt).sorted().last
             }
         }
+
         struct IssueNodes: Decodable, Equatable {
             var nodes: [IssueNode]
 
             struct IssueNode: Decodable, Equatable {
                 var closedAt: Date
             }
+
             init(closedAtDates: [Date]) {
                 self.nodes = closedAtDates
                     .map(IssueNode.init(closedAt:))
             }
         }
+
         struct DefaultBranchRef: Decodable, Equatable {
             var name: String
         }
+
         struct LicenseInfo: Decodable, Equatable {
             var name: String
             var key: String
+
             init(name: String = "", key: String) {
                 self.name = name
                 self.key = key
             }
         }
+
         struct OpenIssues: Decodable, Equatable {
             var totalCount: Int
         }
+
         struct Owner: Decodable, Equatable {
             var login: String
         }
+
         struct OpenPullRequests: Decodable, Equatable {
             var totalCount: Int
+        }
+
+        struct ReleaseNodes: Decodable, Equatable {
+            var nodes: [ReleaseNode]
+
+            struct ReleaseNode: Decodable, Equatable {
+                var createdAt: Date
+                var description: String
+                var isDraft: Bool
+                var publishedAt: Date
+                var tagName: String
+                var url: String
+            }
         }
     }
 
