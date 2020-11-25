@@ -80,22 +80,22 @@ class GithubTests: AppTestCase {
 
         // validation
         XCTAssertEqual(res.repository?.closedIssues.nodes.first!.closedAt,
-                       iso8601.date(from: "2020-10-01T19:22:33Z"))
+                       iso8601.date(from: "2020-11-24T16:00:07Z"))
         XCTAssertEqual(res.repository?.closedPullRequests.nodes.first!.closedAt,
                        iso8601.date(from: "2020-08-13T19:10:08Z"))
-        XCTAssertEqual(res.repository?.forkCount, 6400)
+        XCTAssertEqual(res.repository?.forkCount, 6480)
         XCTAssertEqual(res.repository?.mergedPullRequests.nodes.first!.closedAt,
-                       iso8601.date(from: "2017-10-30T01:43:44Z"))
+                       iso8601.date(from: "2020-11-04T21:27:43Z"))
         XCTAssertEqual(res.repository?.name, "Alamofire")
         XCTAssertEqual(res.repository?.openIssues.totalCount, 30)
-        XCTAssertEqual(res.repository?.openPullRequests.totalCount, 7)
-        XCTAssertEqual(res.repository?.stargazerCount, 34434)
+        XCTAssertEqual(res.repository?.openPullRequests.totalCount, 6)
+        XCTAssertEqual(res.repository?.stargazerCount, 34720)
         // derived properties
         XCTAssertEqual(res.repository?.lastIssueClosedAt,
-                       iso8601.date(from: "2020-10-03T21:41:25Z"))
+                       iso8601.date(from: "2020-11-24T16:00:07Z"))
         // merged date is latest - expect that one to be reported back
         XCTAssertEqual(res.repository?.lastPullRequestClosedAt,
-                       iso8601.date(from: "2020-10-05T00:19:43Z"))
+                       iso8601.date(from: "2020-11-04T21:27:43Z"))
     }
 
     func test_fetchMetadata_badRequest() throws {
