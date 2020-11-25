@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html><!--Version: dev - will be overriden in release builds-->
+  <head>
+    <meta name="robots" content="noindex"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8"/>
+    <meta name="og:site_name" content="The Swift Package Index"/>
+    <link rel="canonical" href="http://localhost:8080/"/>
+    <meta name="twitter:url" content="http://localhost:8080/"/>
+    <meta name="og:url" content="http://localhost:8080/"/>
+    <title>Alamofire &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="Alamofire &ndash; Swift Package Index"/>
+    <meta name="og:title" content="Alamofire &ndash; Swift Package Index"/>
+    <meta name="description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
+    <meta name="twitter:description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
+    <meta name="og:description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
+    <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
+    <link rel="shortcut icon" href="/images/logo-simple.png" type="image/png"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
+    <link rel="stylesheet" href="/stylesheets/main.min.css?0"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recently Added" href="http://localhost:8080/packages.rss"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Releases" href="http://localhost:8080/releases.rss"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Releases" href="http://localhost:8080/releases.rss?major=true"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major & Minor Releases" href="http://localhost:8080/releases.rss?major=true&minor=true"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
+    <script src="/javascripts/main.min.js?0"></script>
+  </head>
+  <body class="package">
+    <div class="staging">Staging / Development</div>
+    <header>
+      <div class="inner">
+        <a href="/">
+          <h1>
+            <img src="/images/logo.svg"/>Swift Package Index
+          </h1>
+        </a>
+        <nav>
+          <ul>
+            <li>
+              <a href="/add-a-package">Add a Package</a>
+            </li>
+            <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
+            <li>
+              <a href="/faq">FAQ</a>
+            </li>
+            <li>
+              <a href="/">Search</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="inner">
+        <div class="split">
+          <div><!--CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE--><!--10-->
+            <h2>Alamofire</h2>
+            <small>
+              <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
+            </small>
+            <a href="slide://open?dependencies=Alamo/Alamofire">🏟</a>
+          </div>
+          <div class="license">
+            <a href="/faq#licenses">
+              <i class="icon question"></i>
+            </a>
+            <div class="lozenge green" title="MIT License">
+              <i class="icon osi"></i>MIT
+            </div>
+          </div>
+        </div>
+        <hr/>
+        <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.</p>
+        <section class="metadata">
+          <ul>
+            <li class="icon author">By 
+              <a href="https://github.com/cnoon">Christian Noon</a>, 
+              <a href="https://github.com/mattt">Mattt</a>, 
+              <a href="https://github.com/jshier">Jon Shier</a>, 
+              <a href="https://github.com/kcharwood">Kevin Harwood</a>, and 
+              <a href="https://github.com/Alamofire/Alamofire/graphs/contributors">186 other contributors</a>.
+            </li>
+            <li class="icon history">
+              <strong>No longer in active development.</strong> The package author has archived this project and the repository is read-only. It had 
+              <a href="https://github.com/Alamofire/Alamofire/commits/main">1,433 commits</a> and 
+              <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a> before being archived.
+            </li>
+            <li class="icon activity">There are 
+              <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and 
+              <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.
+            </li>
+            <li class="icon products">Alamofire contains 
+              <strong>3 libraries</strong> and 
+              <strong>1 executable</strong>.
+            </li>
+            <li class="icon stars">17 stars.</li>
+          </ul>
+        </section>
+        <hr class="short"></hr>
+        <section class="releases">
+          <ul>
+            <li>The latest stable release is 
+              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">
+                <span class="stable">
+                  <i class="icon stable"></i>5.2.0
+                </span>
+              </a>. Released 12 days ago.
+            </li>
+            <li>The latest beta release is 
+              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">
+                <span class="beta">
+                  <i class="icon beta"></i>5.3.0-beta.1
+                </span>
+              </a>. Released 4 days ago.
+            </li>
+            <li>The last commit to 
+              <a href="https://github.com/Alamofire/Alamofire">
+                <span class="branch">
+                  <i class="icon branch"></i>main
+                </span>
+              </a> was 12 minutes ago.
+            </li>
+          </ul>
+        </section>
+        <section>
+          <h3>Swift Version Compatibility</h3>
+          <ul class="matrix">
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <span class="stable">
+                      <i class="icon stable"></i>5.2.3
+                    </span> and 
+                    <span class="branch">
+                      <i class="icon branch"></i>main
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>5.3</div>
+                  <div>5.2</div>
+                  <div>5.1</div>
+                  <div>5.0</div>
+                  <div>4.2</div>
+                </div>
+                <div class="result">
+                  <div class="compatible" title="Built successfully with Swift 5.3">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with Swift 5.2">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for Swift 5.1">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="incompatible" title="Build failed with Swift 5.0">
+                    <i class="icon matrix_incompatible"></i>
+                  </div>
+                  <div class="incompatible" title="Build failed with Swift 4.2">
+                    <i class="icon matrix_incompatible"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <span class="beta">
+                      <i class="icon beta"></i>6.0.0-b1
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>5.3</div>
+                  <div>5.2</div>
+                  <div>5.1</div>
+                  <div>5.0</div>
+                  <div>4.2</div>
+                </div>
+                <div class="result">
+                  <div class="compatible" title="Built successfully with Swift 5.3">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with Swift 5.2">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with Swift 5.1">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with Swift 5.0">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="incompatible" title="Build failed with Swift 4.2">
+                    <i class="icon matrix_incompatible"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+          <div class="right">
+            <div id="swift_version_badge" hidden>[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2FAlamo%2FAlamofire%2Fbadge%3Ftype%3Dswift-versions)](http://localhost:8080/Alamo/Alamofire)</div>
+            <div>
+              <a href="/Alamo/Alamofire/builds">Full build results</a>
+            </div>
+          </div>
+        </section>
+        <section>
+          <h3>Platform Compatibility</h3>
+          <ul class="matrix">
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <span class="stable">
+                      <i class="icon stable"></i>5.2.3
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>iOS</div>
+                  <div>macOS
+                    <small>(Intel)</small>
+                  </div>
+                  <div>macOS
+                    <small>(ARM)</small>
+                  </div>
+                  <div>Linux</div>
+                  <div>tvOS</div>
+                  <div>watchOS</div>
+                </div>
+                <div class="result">
+                  <div class="compatible" title="Built successfully with iOS">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for macOS (Intel)">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for macOS (ARM)">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for Linux">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for tvOS">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for watchOS">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <span class="beta">
+                      <i class="icon beta"></i>6.0.0-b1
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>iOS</div>
+                  <div>macOS
+                    <small>(Intel)</small>
+                  </div>
+                  <div>macOS
+                    <small>(ARM)</small>
+                  </div>
+                  <div>Linux</div>
+                  <div>tvOS</div>
+                  <div>watchOS</div>
+                </div>
+                <div class="result">
+                  <div class="compatible" title="Built successfully with iOS">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with macOS (Intel)">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with macOS (ARM)">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with Linux">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with tvOS">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="unknown" title="No build information available for watchOS">
+                    <i class="icon matrix_unknown"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="row">
+              <div class="row_label">
+                <div>
+                  <div>
+                    <span class="branch">
+                      <i class="icon branch"></i>main
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="row_values">
+                <div class="column_label">
+                  <div>iOS</div>
+                  <div>macOS
+                    <small>(Intel)</small>
+                  </div>
+                  <div>macOS
+                    <small>(ARM)</small>
+                  </div>
+                  <div>Linux</div>
+                  <div>tvOS</div>
+                  <div>watchOS</div>
+                </div>
+                <div class="result">
+                  <div class="compatible" title="Built successfully with iOS">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with macOS (Intel)">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with macOS (ARM)">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with Linux">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with tvOS">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                  <div class="compatible" title="Built successfully with watchOS">
+                    <i class="icon matrix_compatible"></i>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+          <div class="right">
+            <div id="platform_badge" hidden>[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2FAlamo%2FAlamofire%2Fbadge%3Ftype%3Dplatforms)](http://localhost:8080/Alamo/Alamofire)</div>
+            <div>
+              <a href="/Alamo/Alamofire/builds">Full build results</a>
+            </div>
+          </div>
+        </section>
+        <div>
+          <h2>Readme</h2>
+          <hr/><p>This is the README</p>
+
+        </div>
+      </div>
+    </main>
+    <footer>
+      <div class="inner">
+        <nav>
+          <ul>
+            <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
+            <li>
+              <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a>
+            </li>
+            <li>
+              <a href="/privacy">Privacy and Cookies</a>
+            </li>
+            <li>
+              <a href="https://twitter.com/swiftpackages">Twitter</a>
+            </li>
+          </ul>
+          <p>
+            <a href="https://github.com/sponsors/SwiftPackageIndex">Please consider supporting this project</a>
+          </p>
+          <small>Kindly hosted by
+            <a href="https://macstadium.com/">MacStadium</a>
+          </small>
+        </nav>
+      </div>
+    </footer>
+    <div class="staging">Staging / Development</div>
+  </body>
+</html>

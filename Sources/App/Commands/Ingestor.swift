@@ -188,6 +188,7 @@ func insertOrUpdateRepository(on database: Database,
             repo.readmeUrl = readmeInfo?.downloadUrl
             repo.stars = repository.stargazerCount
             repo.summary = repository.description
+            repo.isArchived = repository.isArchived
             // TODO: find and assign parent repo
             return repo.save(on: database)
         }

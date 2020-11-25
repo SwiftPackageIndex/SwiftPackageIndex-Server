@@ -79,6 +79,9 @@ final class Repository: Model, Content {
     @Field(key: "summary")
     var summary: String?
     
+    @Field(key: "is_archived")
+    var isArchived: Bool?
+    
     // initializers
     
     init() { }
@@ -100,6 +103,7 @@ final class Repository: Model, Content {
          openPullRequests: Int? = nil,
          owner: String? = nil,
          readmeUrl: String? = nil,
+         isArchived: Bool? = nil,
          stars: Int? = nil,
          forks: Int? = nil,
          forkedFrom: Repository? = nil) throws {
@@ -120,6 +124,7 @@ final class Repository: Model, Content {
         self.openPullRequests = openPullRequests
         self.owner = owner
         self.readmeUrl = readmeUrl
+        self.isArchived = isArchived
         self.stars = stars
         self.forks = forks
         if let forkId = forkedFrom?.id {
