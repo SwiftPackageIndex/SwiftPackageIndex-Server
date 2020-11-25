@@ -152,10 +152,12 @@ enum PackageShow {
                   let html = try? MarkdownHTMLConverter.html(from: readme)
             else { return .empty }
             
-            return .div(
-                .h2("Readme"),
+            return .group(
                 .hr(),
-                .raw(html)
+                .article(
+                    .class("readme"),
+                    .raw(html)
+                )
             )
         }
     }
