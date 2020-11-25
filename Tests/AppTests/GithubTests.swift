@@ -32,7 +32,7 @@ class GithubTests: AppTestCase {
         }
         do {
             let data = """
-            {"data":{"repository":{"closedIssues":{"nodes":[]},"closedPullRequests":{"nodes":[]},"createdAt":"2019-04-23T09:26:22Z","defaultBranchRef":{"name":"master"},"description":null,"forkCount":0,"isArchived":false,"isFork":false,"licenseInfo":null,"mergedPullRequests":{"nodes":[]},"name":"CRToastSwift","openIssues":{"totalCount":0},"openPullRequests":{"totalCount":0},"owner":{"login":"krugazor"},"stargazerCount":3},"rateLimit":{"remaining":4753}}}
+            {"data":{"repository":{"closedIssues":{"nodes":[]},"closedPullRequests":{"nodes":[]},"createdAt":"2019-04-23T09:26:22Z","defaultBranchRef":{"name":"master"},"description":null,"forkCount":0,"isArchived":false,"isFork":false,"licenseInfo":null,"mergedPullRequests":{"nodes":[]},"name":"CRToastSwift","openIssues":{"totalCount":0},"openPullRequests":{"totalCount":0},"owner":{"login":"krugazor"},"releases":{"nodes":[]},"stargazerCount":3},"rateLimit":{"remaining":4753}}}
             """
             _ = try Github.decoder.decode(Response.self, from: Data(data.utf8))
         }
