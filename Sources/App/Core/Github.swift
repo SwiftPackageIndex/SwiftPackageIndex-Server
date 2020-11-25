@@ -249,6 +249,17 @@ extension Github {
                     owner {
                       login
                     }
+                    releases(first: 10, orderBy: {field: CREATED_AT, direction: DESC}) {
+                      nodes {
+                        createdAt
+                        isDraft
+                        isPrerelease
+                        tagName
+                        publishedAt
+                        description
+                        url
+                      }
+                    }
                     stargazerCount
                   }
                 }
