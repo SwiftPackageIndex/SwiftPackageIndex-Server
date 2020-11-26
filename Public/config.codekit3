@@ -382,6 +382,19 @@
 		"oS": 0,
 		"sct": 0
 		},
+	"/stylesheets/highlight.scss": {
+		"aP": 0,
+		"bl": 0,
+		"dP": 10,
+		"ec": 1,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "/deploy/stylesheets/highlight.css",
+		"oF": 0,
+		"oS": 0,
+		"sct": 0
+		},
 	"/stylesheets/home.scss": {
 		"aP": 0,
 		"bl": 0,
@@ -497,7 +510,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 628011081.79823303
+	"lastBuiltDate": 628011550.27109206
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
