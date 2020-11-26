@@ -26,6 +26,7 @@ final class RepositoryTests: AppTestCase {
                                   openIssues: 3,
                                   openPullRequests: 4,
                                   readmeUrl: "https://github.com/foo/bar/blob/main/README.md",
+                                  isArchived: true,
                                   stars: 42,
                                   forks: 17,
                                   forkedFrom: nil)
@@ -50,6 +51,7 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(r.openIssues, 3)
             XCTAssertEqual(r.openPullRequests, 4)
             XCTAssertEqual(r.readmeUrl, "https://github.com/foo/bar/blob/main/README.md")
+            XCTAssertEqual(r.isArchived, true)
             XCTAssertEqual(r.stars, 42)
             XCTAssertEqual(r.forks, 17)
             XCTAssertEqual(r.forkedFrom, nil)
