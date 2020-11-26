@@ -111,6 +111,11 @@
   --code-snippet-background: var(--very-light-grey);
   --code-snippet-text: var(--black);
   --code-snippet-border: var(--grey);
+
+  --package-markdown-border: var(--light-grey);
+  --package-markdown-blockquote-text: var(--dark-grey);
+  --package-markdown-table-alt-background: var(--very-light-grey);
+  --package-markdown-inline-code-background: var(--code-snippet-background);
 }
 
 /* Dark mode semantic color overrides */
@@ -162,5 +167,10 @@
     --code-snippet-background: var(--very-dark-grey);
     --code-snippet-text: var(--white);
     --code-snippet-border: var(--grey);
+    
+    --package-markdown-border: var(--dark-grey);
+    --package-markdown-blockquote-text: var(--light-grey);
+    --package-markdown-table-alt-background: var(--very-dark-grey);
+    --package-markdown-inline-code-background: var(--code-snippet-background);
   }
 }

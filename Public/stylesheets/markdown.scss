@@ -8,3 +8,43 @@
   max-width: 90%;
   box-shadow: 0px 3px 8px 2px rgba(100, 100, 100, 0.2);
 }
+
+#package-readme {
+    img {
+        max-width: 100%;
+    }
+    
+    table {
+        display: block;
+        width: 100%;
+        width: -webkit-max-content;
+        width: -moz-max-content;
+        width: max-content;
+        max-width: 100%;
+        overflow: auto;
+        border-collapse: collapse;
+        
+        th, td {
+            padding: 6px 13px;
+            border: 1px solid var(--package-markdown-border);
+        }
+        tr:nth-child(2n) {
+            background: var(--package-markdown-table-alt-background);
+        }
+    }
+    
+    blockquote {
+        margin: 0;
+        padding: 0 1rem;
+        color: var(--package-markdown-blockquote-text);
+        border-left: 0.25em solid var(--package-markdown-border);
+    }
+    
+    p code {
+        padding: .2em .4em;
+        margin: 0;
+        font-size: 85%;
+        background: var(--package-markdown-inline-code-background);
+        border-radius: 6px;
+    }
+}

@@ -153,6 +153,7 @@ enum PackageShow {
             else { return .empty }
             
             return .div(
+                .id("package-readme"),
                 .h2("Readme"),
                 .hr(),
                 .raw(html)

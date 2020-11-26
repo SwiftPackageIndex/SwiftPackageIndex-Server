@@ -76,3 +76,5 @@ First Header | Second Header
 ------------ | -------------
 Content cell 1 | Content cell 2
 Content column 1 | Content column 2
+Content extra 1 | Content extra 2
+Content extra 3 | Content extra 4

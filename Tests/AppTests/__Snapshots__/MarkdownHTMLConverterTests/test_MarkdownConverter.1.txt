@@ -1,4 +1,4 @@
-<h1>Header One</h1>
+id="package-readme"<h1>Header One</h1>
 <h2>Header Two</h2>
 <h3>Header Three</h3>
 <h4>Header Four</h4>
@@ -84,6 +84,14 @@
 <tr>
 <td>Content column 1</td>
 <td>Content column 2</td>
+</tr>
+<tr>
+<td>Content extra 1</td>
+<td>Content extra 2</td>
+</tr>
+<tr>
+<td>Content extra 3</td>
+<td>Content extra 4</td>
 </tr>
 </tbody>
 </table>

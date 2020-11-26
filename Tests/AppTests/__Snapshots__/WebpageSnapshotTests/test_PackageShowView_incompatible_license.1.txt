@@ -360,7 +360,7 @@
             </div>
           </div>
         </section>
-        <div>
+        <div id="package-readme">
           <h2>Readme</h2>
           <hr/><p>This is the README</p>
 

@@ -264,7 +264,7 @@
 		"ma": 0,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/node_modules/axios/index-min.js",
+		"oAP": "/deploy/node_modules/axios/index-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
