@@ -4,6 +4,7 @@ enum Score {
         var licenseKind: License.Kind
         var releaseCount: Int
         var likeCount: Int
+        var isArchived: Bool
     }
     
     static func compute(_ candidate: Input) -> Int {
@@ -11,6 +12,9 @@ enum Score {
         
         // Swift major version support
         if candidate.supportsLatestSwiftVersion { score += 10 }
+		
+        // Is the package archived and no longer receiving updates?
+        if candidate.isArchived { score -= 10 }
         
         // Is the license open-source and compatible with the App Store?
         switch candidate.licenseKind {
@@ -54,7 +58,8 @@ extension Package {
             .init(supportsLatestSwiftVersion: defaultVersion.supportsMajorSwiftVersion(Constants.latestMajorSwiftVersion),
                   licenseKind: r.license.licenseKind,
                   releaseCount: releases.count,
-                  likeCount: starsCount)
+                  likeCount: starsCount,
+                  isArchived: r.isArchived ?? false)
         )
     }
 }

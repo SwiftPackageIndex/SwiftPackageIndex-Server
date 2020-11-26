@@ -137,6 +137,25 @@ class WebpageSnapshotTests: XCTestCase {
         }
         #endif
     }
+	
+    func test_PackageShowView_archived_repository() throws {
+        var model = PackageShow.Model.mock
+        model.isArchived = true
+        
+        let page = { PackageShow.View(path: "", model: model).document() }
+        
+        assertSnapshot(matching: page, as: .html)
+        
+        #if os(macOS)
+        if !isRunningInCI {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
     
     func test_PackageShowView_single_row_tables() throws {
         // Test display when all three significant version collapse to a single row

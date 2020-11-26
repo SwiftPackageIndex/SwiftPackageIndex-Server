@@ -25,6 +25,7 @@ extension PackageShow {
         var title: String
         var url: String
         var score: Int?
+        var isArchived: Bool
         
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -44,7 +45,8 @@ extension PackageShow {
                       summary: String?,
                       title: String,
                       url: String,
-                      score: Int? = nil) {
+                      score: Int? = nil,
+                      isArchived: Bool) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
             self.repositoryName = repositoryName
@@ -64,6 +66,7 @@ extension PackageShow {
             self.title = title
             self.url = url
             self.score = score
+            self.isArchived = isArchived
         }
         
         init?(package: Package, readme: String?) {
@@ -96,7 +99,8 @@ extension PackageShow {
                 summary: package.repository?.summary,
                 title: title,
                 url: package.url,
-                score: package.score
+                score: package.score,
+                isArchived: package.repository?.isArchived ?? false
             )
 
         }
@@ -117,19 +121,36 @@ extension PackageShow.Model {
     
     func historyClause() -> Node<HTML.BodyContext>? {
         guard let history = history else { return nil }
-        return .group([
-            "In development for \(history.since), with ",
-            .a(
-                .href(history.commitCount.url),
-                .text(history.commitCount.label)
-            ),
-            " and ",
-            .a(
-                .href(history.releaseCount.url),
-                .text(history.releaseCount.label)
-            ),
-            "."
-        ])
+        return .if(isArchived,
+            .group([
+                .strong("No longer in active development."),
+                " The package author has archived this project and the repository is read-only. It had ",
+                .a(
+                    .href(history.commitCount.url),
+                    .text(history.commitCount.label)
+                ),
+                " and ",
+                .a(
+                    .href(history.releaseCount.url),
+                    .text(history.releaseCount.label)
+                ),
+                " before being archived."
+            ]),
+            else:
+            .group([
+                "In development for \(history.since), with ",
+                .a(
+                    .href(history.commitCount.url),
+                    .text(history.commitCount.label)
+                ),
+                " and ",
+                .a(
+                    .href(history.releaseCount.url),
+                    .text(history.releaseCount.label)
+                ),
+                "."
+            ])
+        )
     }
     
     func activityClause() -> Node<HTML.BodyContext>? {
