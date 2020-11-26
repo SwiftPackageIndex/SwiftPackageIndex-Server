@@ -42,7 +42,10 @@ final class Repository: Model, Content {
     
     @Field(key: "forks")
     var forks: Int?
-    
+
+    @Field(key: "is_archived")
+    var isArchived: Bool?
+
     @Field(key: "last_commit_date")
     var lastCommitDate: Date?
     
@@ -78,9 +81,6 @@ final class Repository: Model, Content {
     
     @Field(key: "summary")
     var summary: String?
-    
-    @Field(key: "is_archived")
-    var isArchived: Bool?
     
     // initializers
     

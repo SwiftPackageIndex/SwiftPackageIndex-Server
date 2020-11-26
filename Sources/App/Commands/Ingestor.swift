@@ -177,6 +177,7 @@ func insertOrUpdateRepository(on database: Database,
             let repo = repo ?? Repository(packageId: pkgId)
             repo.defaultBranch = repository.defaultBranch
             repo.forks = repository.forkCount
+            repo.isArchived = repository.isArchived
             repo.lastIssueClosedAt = repository.lastIssueClosedAt
             repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
             repo.license = .init(from: repository.licenseInfo)
@@ -188,7 +189,6 @@ func insertOrUpdateRepository(on database: Database,
             repo.readmeUrl = readmeInfo?.downloadUrl
             repo.stars = repository.stargazerCount
             repo.summary = repository.description
-            repo.isArchived = repository.isArchived
             // TODO: find and assign parent repo
             return repo.save(on: database)
         }
