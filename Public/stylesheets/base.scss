@@ -85,6 +85,12 @@ table {
   }
 }
 
+blockquote {
+  padding: 0 15px;
+  color: var(--blockquote-text);
+  border-left: 4px solid var(--blockquote-border);
+}
+
 hr {
   margin: 40px 0;
   border: 0;
