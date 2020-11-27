@@ -1,4 +1,5 @@
 import hljs from 'highlight.js/lib/core'
+import bash from 'highlight.js/lib/languages/bash'
 import applescript from 'highlight.js/lib/languages/applescript'
 import c from 'highlight.js/lib/languages/c'
 import cpp from 'highlight.js/lib/languages/cpp'
@@ -16,6 +17,7 @@ import yaml from 'highlight.js/lib/languages/yaml'
 
 hljs.initHighlightingOnLoad()
 hljs.registerLanguage('applescript', applescript)
+hljs.registerLanguage('bash', bash)
 hljs.registerLanguage('c', c)
 hljs.registerLanguage('cpp', cpp)
 hljs.registerLanguage('javascript', javascript)
