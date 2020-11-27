@@ -90,6 +90,7 @@ extension PackageShow.Model {
             licenseUrl: nil,
             products: .init(libraries: 3, executables: 1),
             readme: "This is the README",
+            readmeBaseUrl: "https://baseurl/readme",
             releases: .init(stable: .init(date: "12 days ago",
                                           link: .init(label: "5.2.0",
                                                       url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0")),
