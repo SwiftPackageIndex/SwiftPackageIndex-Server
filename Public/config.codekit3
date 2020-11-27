@@ -219,6 +219,17 @@
 		"sC": 3,
 		"tS": 0
 		},
+	"/javascripts/readme_processor.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 0,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/deploy/javascripts/readme_processor-min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
 	"/javascripts/search_core.js": {
 		"bF": 0,
 		"ft": 64,
@@ -510,7 +521,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 628175708.97565997
+	"lastBuiltDate": 628178259.63834298
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
