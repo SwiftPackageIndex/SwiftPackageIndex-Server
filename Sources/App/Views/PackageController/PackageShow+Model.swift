@@ -19,6 +19,7 @@ extension PackageShow {
         var licenseUrl: String?
         var products: ProductCounts?
         var readme: String?
+        var readmeBaseUrl: String?
         var releases: ReleaseInfo
         var stars: Int?
         var summary: String?
@@ -40,6 +41,7 @@ extension PackageShow {
                       licenseUrl: String? = nil,
                       products: ProductCounts? = nil,
                       readme: String? = nil,
+                      readmeBaseUrl: String? = nil,
                       releases: ReleaseInfo,
                       stars: Int? = nil,
                       summary: String?,
@@ -60,6 +62,7 @@ extension PackageShow {
             self.licenseUrl = licenseUrl
             self.products = products
             self.readme = readme
+            self.readmeBaseUrl = readmeBaseUrl
             self.releases = releases
             self.stars = stars
             self.summary = summary
@@ -94,6 +97,7 @@ extension PackageShow {
                 licenseUrl: package.repository?.licenseUrl,
                 products: package.productCounts(),
                 readme: readme,
+                readmeBaseUrl: NSString(string: repository.readmeUrl ?? "").deletingLastPathComponent,
                 releases: package.releaseInfo(),
                 stars: package.repository?.stars,
                 summary: package.repository?.summary,
