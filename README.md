@@ -12,7 +12,9 @@ The command processes that fetch and parse package metadata are broken up into t
 
 ## Running this project
 
-The `Makefile` defines a set of useful targets to get up and running. Make sure you have [Docker](https://www.docker.com/products/docker-desktop) installed and running, then run:
+The `Makefile` defines a set of useful targets to get up and running. The default environment variables they use are defined in `.env.testing.template` and `.env.development.template`. Before running any of the services, copy these files removing the `.template` extension and review their content in case your setup deviates from the default.
+
+With that taken care of, make sure you have [Docker](https://www.docker.com/products/docker-desktop) installed and running, and then run:
 
 ```
 make db-up

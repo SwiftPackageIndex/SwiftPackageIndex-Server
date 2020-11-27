@@ -9,6 +9,8 @@ db.sqlite
 
 SPI-checkouts/
 .env
+.env.development
+.env.testing
 *.dump
 misc/
 

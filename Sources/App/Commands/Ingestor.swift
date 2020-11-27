@@ -177,6 +177,7 @@ func insertOrUpdateRepository(on database: Database,
             let repo = repo ?? Repository(packageId: pkgId)
             repo.defaultBranch = repository.defaultBranch
             repo.forks = repository.forkCount
+            repo.isArchived = repository.isArchived
             repo.lastIssueClosedAt = repository.lastIssueClosedAt
             repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
             repo.license = .init(from: repository.licenseInfo)
