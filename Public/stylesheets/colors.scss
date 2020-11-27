@@ -59,6 +59,12 @@
   --link-text: var(--mid-blue);
   --link-highlight: var(--mid-red);
 
+  --table-header-background: var(--very-light-grey);
+  --table-row-alt-background: var(--very-very-light-grey);
+  
+  --blockquote-text: var(--dark-grey);
+  --blockquote-border: var(--light-grey);
+
   --header-background: var(--very-dark-blue);
   --header-text: var(--white);
   --header-link-text: var(--white);
@@ -119,6 +125,12 @@
   :root {
     --page-background: var(--black);
     --page-text: var(--white);
+
+    --table-header-background: var(--very-dark-grey);
+    --table-row-alt-background: var(--very-very-dark-grey);
+
+    --blockquote-text: var(--light-grey);
+    --blockquote-border: var(--dark-grey);
 
     --header-background: var(--very-dark-blue);
     --header-gradient-start: rgba(255, 255, 255, 0.08);

@@ -1,13 +1,16 @@
 {
-  "name": "codekit-project",
-  "version": "1.0.0",
-  "description": "CodeKit created this starter package.json file. You should customize it appropriately.",
   "scripts": {},
-  "author": "",
-  "license": "UNLICENSED",
-  "repository": {},
+  "devDependencies": {},
   "dependencies": {
-    "axios": "^0.19.2",
-    "lodash": "^4.17.19"
-  }
+    "axios": "^0.21.0",
+    "highlight.js": "^10.4.0",
+    "lodash": "^4.17.20"
+  },
+  "author": "",
+  "repository": {},
+  "name": "codekit-project",
+  "description": "CodeKit created this starter package.json file. You should customize it appropriately.",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "optionalDependencies": {}
 }

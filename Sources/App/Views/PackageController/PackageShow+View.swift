@@ -151,11 +151,14 @@ enum PackageShow {
                   let readme = model.readme,
                   let html = try? MarkdownHTMLConverter.html(from: readme)
             else { return .empty }
-            
-            return .div(
-                .h2("Readme"),
+
+            return .group(
                 .hr(),
-                .raw(html)
+                .article(
+                    .class("readme"),
+                    .attribute(named: "data-readme-base-url", value: model.readmeBaseUrl),
+                    .raw(html)
+                )
             )
         }
     }

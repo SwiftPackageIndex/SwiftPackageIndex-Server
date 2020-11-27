@@ -186,6 +186,17 @@
 		"sC": 3,
 		"tS": 0
 		},
+	"/javascripts/highlighting.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 0,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/deploy/javascripts/highlighting-min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
 	"/javascripts/keycodes.js": {
 		"bF": 0,
 		"ft": 64,
@@ -205,6 +216,17 @@
 		"oA": 0,
 		"oAP": "/deploy/javascripts/main.min.js",
 		"oF": 3,
+		"sC": 3,
+		"tS": 0
+		},
+	"/javascripts/readme_processor.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 0,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/deploy/javascripts/readme_processor-min.js",
+		"oF": 0,
 		"sC": 3,
 		"tS": 0
 		},
@@ -371,6 +393,19 @@
 		"oS": 0,
 		"sct": 0
 		},
+	"/stylesheets/highlight.scss": {
+		"aP": 0,
+		"bl": 0,
+		"dP": 10,
+		"ec": 1,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "/deploy/stylesheets/highlight.css",
+		"oF": 0,
+		"oS": 0,
+		"sct": 0
+		},
 	"/stylesheets/home.scss": {
 		"aP": 0,
 		"bl": 0,
@@ -461,6 +496,19 @@
 		"oF": 0,
 		"oS": 0,
 		"sct": 0
+		},
+	"/stylesheets/readme.scss": {
+		"aP": 0,
+		"bl": 0,
+		"dP": 10,
+		"ec": 1,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "/deploy/stylesheets/readme.css",
+		"oF": 0,
+		"oS": 0,
+		"sct": 0
 		}
 	},
 "hooks": [
@@ -473,7 +521,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 627912642.44439399
+	"lastBuiltDate": 628183423.12534499
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,

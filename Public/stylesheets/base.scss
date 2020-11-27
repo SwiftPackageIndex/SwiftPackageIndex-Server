@@ -64,6 +64,33 @@ pre {
   overflow: scroll;
 }
 
+table {
+  width: 100%;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+  border-collapse: collapse;
+  
+  th {
+    background-color: var(--table-header-background);
+  }
+
+  th, td {
+    padding: 5px 10px;
+    border: 1px solid var(--grey);
+  }
+
+  tr:nth-child(2n) {
+    background-color: var(--table-row-alt-background);
+  }
+}
+
+blockquote {
+  padding: 0 15px;
+  color: var(--blockquote-text);
+  border-left: 4px solid var(--blockquote-border);
+}
+
 hr {
   margin: 40px 0;
   border: 0;
