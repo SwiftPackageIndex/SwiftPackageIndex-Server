@@ -76,6 +76,9 @@ final class Repository: Model, Content {
     @Field(key: "readme_url")
     var readmeUrl: String?
 
+    @Field(key: "releases")
+    var releases: [Release]
+
     @Field(key: "stars")
     var stars: Int?
     
@@ -103,6 +106,7 @@ final class Repository: Model, Content {
          openPullRequests: Int? = nil,
          owner: String? = nil,
          readmeUrl: String? = nil,
+         releases: [Release] = [],
          isArchived: Bool? = nil,
          stars: Int? = nil,
          forks: Int? = nil,
@@ -124,6 +128,7 @@ final class Repository: Model, Content {
         self.openPullRequests = openPullRequests
         self.owner = owner
         self.readmeUrl = readmeUrl
+        self.releases = releases
         self.isArchived = isArchived
         self.stars = stars
         self.forks = forks
