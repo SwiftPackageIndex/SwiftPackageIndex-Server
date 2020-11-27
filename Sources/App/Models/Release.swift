@@ -9,3 +9,15 @@ struct Release: Codable, Equatable {
     var tagName: String
     var url: String
 }
+
+
+extension Release {
+    init(from node: Github.Metadata.ReleaseNodes.ReleaseNode) {
+        createdAt = node.createdAt
+        description = node.description
+        isDraft = node.isDraft
+        publishedAt = node.publishedAt
+        tagName = node.tagName
+        url = node.url
+    }
+}
