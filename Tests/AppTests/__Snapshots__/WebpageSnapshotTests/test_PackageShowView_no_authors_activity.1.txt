@@ -349,11 +349,9 @@
             </div>
           </div>
         </section>
-        <div>
-          <h2>Readme</h2>
-          <hr/><p>This is the README</p>
-
-        </div>
+        <hr/>
+        <article class="readme"><p>This is the README</p>
+</article>
       </div>
     </main>
     <footer>
