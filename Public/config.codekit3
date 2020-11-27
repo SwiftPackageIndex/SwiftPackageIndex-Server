@@ -186,6 +186,17 @@
 		"sC": 3,
 		"tS": 0
 		},
+	"/javascripts/highlighting.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 0,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/deploy/javascripts/highlighting-min.js",
+		"oF": 0,
+		"sC": 3,
+		"tS": 0
+		},
 	"/javascripts/keycodes.js": {
 		"bF": 0,
 		"ft": 64,
@@ -265,17 +276,6 @@
 		"mi": 1,
 		"oA": 1,
 		"oAP": "/node_modules/axios/index-min.js",
-		"oF": 0,
-		"sC": 3,
-		"tS": 0
-		},
-	"/node_modules/highlight.js/./lib/index.js": {
-		"bF": 0,
-		"ft": 64,
-		"ma": 0,
-		"mi": 1,
-		"oA": 1,
-		"oAP": "/deploy/node_modules/highlight.js/./lib/index-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -510,7 +510,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 628169232.21024895
+	"lastBuiltDate": 628175708.97565997
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,

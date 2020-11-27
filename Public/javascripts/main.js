@@ -1,4 +1,5 @@
 import './find_parent_matching.js'
+import './highlighting.js'
 
 import { ExternalLinkRetargeter } from './external_link_retargeter.js'
 import { SPISearchCore } from './search_core.js'
@@ -8,7 +9,6 @@ import { SPICopyPackageURL } from './copy_package_url.js'
 import { SPICopySwiftVersionBadge } from './copy_package_url.js'
 import { SPICopyPlatformBadge } from './copy_package_url.js'
 import { SPIBuildLogNavigation } from './build_log_navigation.js'
-import hljs from 'highlight.js'
 
 window.externalLinkRetargeter = new ExternalLinkRetargeter()
 window.spiSearchCore = new SPISearchCore()
@@ -18,5 +18,3 @@ window.spiCopyPackageURL = new SPICopyPackageURL()
 window.spiCopySwiftVersionBadge = new SPICopySwiftVersionBadge()
 window.spiCopyPlatformBadge = new SPICopyPlatformBadge()
 window.buildLogNavigation = new SPIBuildLogNavigation()
-
-hljs.initHighlightingOnLoad()
