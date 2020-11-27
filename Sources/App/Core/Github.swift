@@ -249,7 +249,7 @@ extension Github {
                     owner {
                       login
                     }
-                    releases(first: 10, orderBy: {field: CREATED_AT, direction: DESC}) {
+                    releases(first: 20, orderBy: {field: CREATED_AT, direction: DESC}) {
                       nodes {
                         createdAt
                         description
