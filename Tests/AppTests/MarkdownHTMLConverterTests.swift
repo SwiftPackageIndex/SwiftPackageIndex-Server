@@ -19,7 +19,10 @@ class MarkdownHTMLConverterTests: XCTestCase {
         override func content() -> Node<HTML.BodyContext> {
             do {
                 let html = try MarkdownHTMLConverter.html(from: markdown)
-                return .raw(html)
+                return .article(
+                    .class("readme"),
+                    .raw(html)
+                )
             } catch {
                 return .h1("Failed to convert: \(error.localizedDescription)")
             }

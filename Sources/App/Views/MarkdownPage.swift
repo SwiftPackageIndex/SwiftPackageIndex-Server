@@ -26,6 +26,12 @@ class MarkdownPage: PublicPage {
         super.init(path: path)
     }
     
+    init(path: String, html: String) {
+        self.metadata = [:]
+        self.html = html
+        super.init(path: path)
+    }
+    
     override func pageTitle() -> String? {
         metadata[Metadata.pageTitle]
     }

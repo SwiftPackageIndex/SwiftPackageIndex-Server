@@ -4,6 +4,7 @@ import SnapshotTesting
 import Vapor
 import XCTest
 import Plot
+import Ink
 
 
 extension CGSize {
@@ -231,6 +232,27 @@ class WebpageSnapshotTests: XCTestCase {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
+    
+    func test_MarkdownPageStyling() throws {
+        let data = try XCTUnwrap(try loadData(for: "markdown-test.md"))
+        let markdown = try XCTUnwrap(String(data: data, encoding: .utf8))
+        let html = MarkdownParser().parse(markdown).html
+        let page = { MarkdownPage(path: "", html: html).document() }
+        
+        assertSnapshot(matching: page, as: .html)
+        
+        #if os(macOS)
+        if !isRunningInCI {
+            configs.forEach {
+                var mutableSize = $0.size
+                mutableSize.height = 3000
+                assertSnapshot(matching: page,
+                               as: .image(size: mutableSize, baseURL: TempWebRoot.baseURL),
                                named: $0.name)
             }
         }
