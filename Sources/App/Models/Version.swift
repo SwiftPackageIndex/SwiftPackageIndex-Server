@@ -42,7 +42,10 @@ final class Version: Model, Content {
 
     @Field(key: "reference")
     var reference: Reference?
-    
+
+    @Field(key: "release_notes")
+    var releaseNotes: String?
+
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
     
@@ -72,6 +75,7 @@ final class Version: Model, Content {
          latest: Kind? = nil,
          packageName: String? = nil,
          reference: Reference? = nil,
+         releaseNotes: String? = nil,
          supportedPlatforms: [Platform] = [],
          swiftVersions: [SwiftVersion] = [],
          toolsVersion: String? = nil,
@@ -83,6 +87,7 @@ final class Version: Model, Content {
         self.latest = latest
         self.packageName = packageName
         self.reference = reference
+        self.releaseNotes = releaseNotes
         self.supportedPlatforms = supportedPlatforms
         self.swiftVersions = swiftVersions
         self.toolsVersion = toolsVersion

@@ -106,6 +106,7 @@ public func configure(_ app: Application) throws {
     }
     do {
         app.migrations.add(UpdateRepositoryAddReleases())
+        app.migrations.add(UpdateVersionAddReleaseNotes())
     }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
