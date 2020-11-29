@@ -1,7 +1,7 @@
 import Fluent
 
 
-struct UpdateRepositoryAddReleaseNotes: Migration {
+struct UpdateRepositoryAddReleases: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         database.schema("repositories")
             .field("releases", .array(of: .json), .sql(.default("{}")))
