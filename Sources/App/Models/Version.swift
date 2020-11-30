@@ -33,12 +33,15 @@ final class Version: Model, Content {
     
     @Field(key: "commit_date")
     var commitDate: Date?
-    
-    @Field(key: "package_name")
-    var packageName: String?
 
     @Field(key: "latest")
     var latest: Kind?
+
+    @Field(key: "package_name")
+    var packageName: String?
+
+    @Field(key: "published_at")
+    var publishedAt: Date?
 
     @Field(key: "reference")
     var reference: Reference?
@@ -74,6 +77,7 @@ final class Version: Model, Content {
          commitDate: Date? = nil,
          latest: Kind? = nil,
          packageName: String? = nil,
+         publishedAt: Date? = nil,
          reference: Reference? = nil,
          releaseNotes: String? = nil,
          supportedPlatforms: [Platform] = [],
@@ -86,6 +90,7 @@ final class Version: Model, Content {
         self.commitDate = commitDate
         self.latest = latest
         self.packageName = packageName
+        self.publishedAt = publishedAt
         self.reference = reference
         self.releaseNotes = releaseNotes
         self.supportedPlatforms = supportedPlatforms

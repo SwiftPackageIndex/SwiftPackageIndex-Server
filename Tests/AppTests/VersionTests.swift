@@ -19,6 +19,7 @@ class VersionTests: AppTestCase {
         v.commit = "commit"
         v.latest = .defaultBranch
         v.packageName = "pname"
+        v.publishedAt = Date(timeIntervalSince1970: 1)
         v.reference = .branch("branch")
         v.releaseNotes = "release notes"
         v.supportedPlatforms = [.ios("13"), .macos("10.15")]
@@ -33,6 +34,7 @@ class VersionTests: AppTestCase {
             XCTAssertEqual(v.commit, "commit")
             XCTAssertEqual(v.latest, .defaultBranch)
             XCTAssertEqual(v.packageName, "pname")
+            XCTAssertEqual(v.publishedAt, Date(timeIntervalSince1970: 1))
             XCTAssertEqual(v.reference, .branch("branch"))
             XCTAssertEqual(v.releaseNotes, "release notes")
             XCTAssertEqual(v.supportedPlatforms, [.ios("13"), .macos("10.15")])
