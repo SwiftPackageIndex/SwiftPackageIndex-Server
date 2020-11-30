@@ -17,6 +17,9 @@ class AnalyzerTests: AppTestCase {
                        defaultBranch: "main",
                        name: "1",
                        owner: "foo",
+                       releases: [
+                        .mock(descripton: "rel 1.0.0", tagName: "1.0.0")
+                       ],
                        stars: 25).save(on: app.db).wait()
         try Repository(package: pkgs[1],
                        defaultBranch: "main",
@@ -100,6 +103,7 @@ class AnalyzerTests: AppTestCase {
         let sortedVersions1 = pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
         XCTAssertEqual(sortedVersions1.map(\.reference?.description), ["main", "1.0.0", "1.1.1"])
         XCTAssertEqual(sortedVersions1.map(\.latest), [.defaultBranch, nil, .release])
+        XCTAssertEqual(sortedVersions1.map(\.releaseNotes), [nil, "rel 1.0.0", nil])
 
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
