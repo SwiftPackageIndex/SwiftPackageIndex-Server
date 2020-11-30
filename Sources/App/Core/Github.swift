@@ -209,6 +209,12 @@ extension Github {
     struct Metadata: Decodable, Equatable {
         static func query(owner: String, repository: String) -> GraphQLQuery {
             // Go to https://developer.github.com/v4/explorer/ to run query manually
+            // ⚠️ Important: consult the schema to determine which fields are optional
+            // and make sure the Decodable properties are optional as well to avoid
+            // decoding errors. Note that GraphQL uses sort of a reverse syntax to
+            // Swift:
+            // optionalField: String          -> var optionalField: String?
+            // nonOptionalField: String!      -> var nonOptionalField: String
             GraphQLQuery(query: """
                 {
                   repository(name: "\(repository)", owner: "\(owner)") {
