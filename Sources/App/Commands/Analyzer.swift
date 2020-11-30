@@ -140,6 +140,7 @@ func analyze(client: Client,
                          threadPool: threadPool,
                          transaction: tx,
                          packages: packages)
+                .flatMap { mergeReleaseInfo(on: tx, packageDeltas: $0) }
                 .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
                 .map { getManifests(logger: logger, packageAndVersions: $0) }
                 .flatMap { updateVersions(on: tx, packageResults: $0) }
