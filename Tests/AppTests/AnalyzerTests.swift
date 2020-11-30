@@ -451,33 +451,46 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(delta.toDelete, [])
     }
 
-    func test_mergeReleaseInfo_basic() throws {
+    func test_mergeReleaseInfo() throws {
         // setup
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, releases:[
-            .mock(descripton: "rel 1", tagName: "1.2.3"),
-            .mock(descripton: "rel 2", tagName: "2.0.0")
+            .mock(descripton: "rel 1.2.3", tagName: "1.2.3"),
+            .mock(descripton: "rel 2.0.0", tagName: "2.0.0"),
+            // 2.1.0 release note is missing on purpose
+            .mock(descripton: "rel 2.2.0", isDraft: true, tagName: "2.2.0"),
+            .mock(descripton: "rel 2.3.0", tagName: "2.3.0", url: "some url")
         ]).save(on: app.db).wait()
-        let v1 = try Version(id: UUID(),
-                             package: pkg,
-                             commitDate: Date(timeIntervalSince1970: 0),
-                             reference: .tag(1, 2, 3))
-        try v1.save(on: app.db).wait()
-        let v2 = try Version(id: UUID(),
-                             package: pkg,
-                             commitDate: Date(timeIntervalSince1970: 1),
-                             reference: .tag(2, 0, 0))
-        try v2.save(on: app.db).wait()
         try pkg.$repositories.load(on: app.db).wait()
+        let versions: [Version] = try [
+            (Date(timeIntervalSince1970: 0), Reference.tag(1, 2, 3)),
+            (Date(timeIntervalSince1970: 1), Reference.tag(2, 0, 0)),
+            (Date(timeIntervalSince1970: 2), Reference.tag(2, 1, 0)),
+            (Date(timeIntervalSince1970: 3), Reference.tag(2, 2, 0)),
+            (Date(timeIntervalSince1970: 4), Reference.tag(2, 3, 0)),
+            (Date(timeIntervalSince1970: 5), Reference.branch("main")),
+        ].map { date, ref in
+            let v = try Version(id: UUID(),
+                                 package: pkg,
+                                 commitDate: date,
+                                 reference: ref)
+            try v.save(on: app.db).wait()
+            return v
+        }
 
         // MUT
-        let res = try mergeReleaseInfo(on: app.db, package: pkg, versions: [v1, v2])
+        let res = try mergeReleaseInfo(on: app.db,
+                                       package: pkg,
+                                       versions: versions)
             .wait()
 
         // validate
-        let versions = res.1.sorted { $0.commitDate! < $1.commitDate! }
-        XCTAssertEqual(versions.map(\.releaseNotes), ["rel 1", "rel 2"])
+        let sortedResults = res.1.sorted { $0.commitDate! < $1.commitDate! }
+        XCTAssertEqual(sortedResults.map(\.releaseNotes),
+                       ["rel 1.2.3", "rel 2.0.0", nil, nil, "rel 2.3.0", nil])
+        XCTAssertEqual(sortedResults.map(\.url),
+                       ["", "", nil, nil, "some url", nil])
     }
 
     func test_getManifest() throws {
