@@ -35,6 +35,36 @@ class TwitterTests: AppTestCase {
             http://localhost:8080/owner/SuperAwesomePackage
             """
         )
+
+        // empty summary
+        XCTAssertEqual(
+            Twitter.versionUpdateMessage(
+                packageName: "packageName",
+                repositoryOwner: "owner",
+                url: "http://localhost:8080/owner/SuperAwesomePackage",
+                version: .init(2, 6, 4),
+                summary: ""),
+            """
+            ⬆️ owner just released packageName v2.6.4
+
+            http://localhost:8080/owner/SuperAwesomePackage
+            """
+        )
+
+        // whitespace summary
+        XCTAssertEqual(
+            Twitter.versionUpdateMessage(
+                packageName: "packageName",
+                repositoryOwner: "owner",
+                url: "http://localhost:8080/owner/SuperAwesomePackage",
+                version: .init(2, 6, 4),
+                summary: " \n"),
+            """
+            ⬆️ owner just released packageName v2.6.4
+
+            http://localhost:8080/owner/SuperAwesomePackage
+            """
+        )
     }
 
     func test_versionUpdateMessage_trimming() throws {
