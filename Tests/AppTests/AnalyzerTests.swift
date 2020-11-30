@@ -486,7 +486,7 @@ class AnalyzerTests: AppTestCase {
             .wait()
 
         // validate
-        let sortedResults = res.1.sorted { $0.commitDate! < $1.commitDate! }
+        let sortedResults = res.sorted { $0.commitDate! < $1.commitDate! }
         XCTAssertEqual(sortedResults.map(\.releaseNotes),
                        ["rel 1.2.3", "rel 2.0.0", nil, nil, "rel 2.3.0", nil])
         XCTAssertEqual(sortedResults.map(\.url),

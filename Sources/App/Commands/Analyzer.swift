@@ -388,20 +388,31 @@ func diffVersions(client: Client,
 }
 
 
+/// Merge release details from `Repository.releases` into the list of added `Version`s in a package delta.
+/// - Parameters:
+///   - transaction: transaction to run the save and delete in
+///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
+/// - Returns: future with an array of each `Package` paired with its update package delta for further processing
 func mergeReleaseInfo(on transaction: Database,
                       packageDeltas: [Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]) -> EventLoopFuture<[Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]> {
     packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
         mergeReleaseInfo(on: transaction, package: pkg, versions: delta.toAdd)
-            .map { ($0.0, (toAdd: $0.1, toDelete: delta.toDelete)) }
+            .map { (pkg, (toAdd: $0, toDelete: delta.toDelete)) }
     }
 }
 
 
+/// Merge release details from `Repository.releases` into a given list of `Version`s.
+/// - Parameters:
+///   - transaction: transaction to run the save and delete in
+///   - package: `Package` the `Version`s belong to
+///   - versions: list of `Verion`s to update
+/// - Returns: update `Version`s
 func mergeReleaseInfo(on transaction: Database,
                       package: Package,
-                      versions: [Version]) -> EventLoopFuture<(Package, [Version])> {
+                      versions: [Version]) -> EventLoopFuture<[Version]> {
     guard let releases = package.repository?.releases else {
-        return transaction.eventLoop.future((package, versions))
+        return transaction.eventLoop.future(versions)
     }
     let lookup = Dictionary.init(releases
                                     .filter { !$0.isDraft }
@@ -416,7 +427,7 @@ func mergeReleaseInfo(on transaction: Database,
         version.releaseNotes = rel.description
         version.url = rel.url
     }
-    return transaction.eventLoop.future((package, versions))
+    return transaction.eventLoop.future(versions)
 }
 
 
