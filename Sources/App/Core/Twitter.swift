@@ -61,7 +61,8 @@ extension Twitter {
         let separator = " \(separator) "
         let availableLength = tweetMaxLength - preamble.count - separator.count - link.count
         let description: String = {
-            guard let summary = summary else { return "" }
+            guard let summary = summary?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !summary.isEmpty else { return "" }
             let ellipsis = "…"
             return summary.count < availableLength
                 ? separator + summary
@@ -106,12 +107,12 @@ extension Twitter {
                     ? newPackageMessage(packageName: packageName,
                                         repositoryOwner: owner,
                                         url: url,
-                                        summary: repo?.summary ?? "")
+                                        summary: repo?.summary)
                     : versionUpdateMessage(packageName: packageName,
                                            repositoryOwner: owner,
                                            url: url,
                                            version: semVer,
-                                           summary: repo?.summary ?? "")
+                                           summary: repo?.summary)
             }
     }
 
