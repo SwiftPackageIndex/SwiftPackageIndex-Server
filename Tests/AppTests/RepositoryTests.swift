@@ -27,8 +27,7 @@ final class RepositoryTests: AppTestCase {
                                   openPullRequests: 4,
                                   readmeUrl: "https://github.com/foo/bar/blob/main/README.md",
                                   releases: [
-                                    .init(createdAt: Date(timeIntervalSince1970: 0),
-                                          description: "a release",
+                                    .init(description: "a release",
                                           isDraft: false,
                                           publishedAt: Date(timeIntervalSince1970: 1),
                                           tagName: "1.2.3",
@@ -60,8 +59,7 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(r.openPullRequests, 4)
             XCTAssertEqual(r.readmeUrl, "https://github.com/foo/bar/blob/main/README.md")
             XCTAssertEqual(r.releases, [
-                .init(createdAt: Date(timeIntervalSince1970: 0),
-                      description: "a release",
+                .init(description: "a release",
                       isDraft: false,
                       publishedAt: Date(timeIntervalSince1970: 1),
                       tagName: "1.2.3",

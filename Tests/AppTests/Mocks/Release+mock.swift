@@ -8,8 +8,7 @@ extension Release {
                      publishedAt: Int = 0,
                      tagName: String,
                      url: String = "") -> Self {
-        .init(createdAt: Date(),
-              description: descripton,
+        .init(description: descripton,
               isDraft: isDraft,
               publishedAt: Date(timeIntervalSince1970: TimeInterval(publishedAt)),
               tagName: tagName,

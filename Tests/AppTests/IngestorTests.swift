@@ -109,8 +109,7 @@ class IngestorTests: AppTestCase {
                                 Date(timeIntervalSince1970: 2),
                             ],
                             releases: [
-                                .init(createdAt: Date(timeIntervalSince1970: 4),
-                                      description: "a release",
+                                .init(description: "a release",
                                       isDraft: false,
                                       publishedAt: Date(timeIntervalSince1970: 5),
                                       tagName: "1.2.3",
@@ -144,8 +143,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.owner, "foo")
         XCTAssertEqual(repo.readmeUrl, "readme url")
         XCTAssertEqual(repo.releases, [
-            .init(createdAt: Date(timeIntervalSince1970: 4),
-                  description: "a release",
+            .init(description: "a release",
                   isDraft: false,
                   publishedAt: Date(timeIntervalSince1970: 5),
                   tagName: "1.2.3",

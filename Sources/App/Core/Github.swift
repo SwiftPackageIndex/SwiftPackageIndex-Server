@@ -251,7 +251,6 @@ extension Github {
                     }
                     releases(first: 20, orderBy: {field: CREATED_AT, direction: DESC}) {
                       nodes {
-                        createdAt
                         description
                         isDraft
                         publishedAt
@@ -335,7 +334,6 @@ extension Github {
             var nodes: [ReleaseNode]
 
             struct ReleaseNode: Decodable, Equatable {
-                var createdAt: Date
                 var description: String
                 var isDraft: Bool
                 var publishedAt: Date

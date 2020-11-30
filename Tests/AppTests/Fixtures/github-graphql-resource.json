@@ -938,7 +938,6 @@
       "releases": {
         "nodes": [
           {
-            "createdAt": "2020-11-04T21:38:08Z",
             "isDraft": false,
             "tagName": "5.4.0",
             "publishedAt": "2020-11-04T21:40:10Z",
@@ -946,7 +945,6 @@
             "url": "https://github.com/Alamofire/Alamofire/releases/tag/5.4.0"
           },
           {
-            "createdAt": "2020-10-18T01:04:45Z",
             "isDraft": false,
             "tagName": "5.3.0",
             "publishedAt": "2020-10-18T01:05:41Z",
@@ -954,7 +952,6 @@
             "url": "https://github.com/Alamofire/Alamofire/releases/tag/5.3.0"
           },
           {
-            "createdAt": "2020-07-17T19:59:22Z",
             "isDraft": false,
             "tagName": "5.2.2",
             "publishedAt": "2020-07-17T20:00:17Z",
@@ -962,7 +959,6 @@
             "url": "https://github.com/Alamofire/Alamofire/releases/tag/5.2.2"
           },
           {
-            "createdAt": "2020-05-26T02:37:08Z",
             "isDraft": false,
             "tagName": "5.2.1",
             "publishedAt": "2020-05-26T02:37:55Z",
@@ -970,7 +966,6 @@
             "url": "https://github.com/Alamofire/Alamofire/releases/tag/5.2.1"
           },
           {
-            "createdAt": "2020-05-16T22:23:11Z",
             "isDraft": false,
             "tagName": "5.2.0",
             "publishedAt": "2020-05-16T22:24:00Z",
@@ -978,7 +973,6 @@
             "url": "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0"
           },
           {
-            "createdAt": "2020-04-05T01:58:54Z",
             "isDraft": false,
             "tagName": "5.1.0",
             "publishedAt": "2020-04-05T01:59:25Z",
@@ -986,7 +980,6 @@
             "url": "https://github.com/Alamofire/Alamofire/releases/tag/5.1.0"
           },
           {
-            "createdAt": "2020-03-24T03:13:09Z",
             "isDraft": false,
             "tagName": "5.0.5",
             "publishedAt": "2020-03-24T03:13:47Z",
@@ -994,7 +987,6 @@
             "url": "https://github.com/Alamofire/Alamofire/releases/tag/5.0.5"
           },
           {
-            "createdAt": "2020-03-15T22:31:44Z",
             "isDraft": false,
             "tagName": "5.0.4",
             "publishedAt": "2020-03-15T22:32:38Z",
@@ -1002,7 +994,6 @@
             "url": "https://github.com/Alamofire/Alamofire/releases/tag/5.0.4"
           },
           {
-            "createdAt": "2020-03-15T02:48:18Z",
             "isDraft": false,
             "tagName": "5.0.3",
             "publishedAt": "2020-03-15T02:50:32Z",
@@ -1010,7 +1001,6 @@
             "url": "https://github.com/Alamofire/Alamofire/releases/tag/5.0.3"
           },
           {
-            "createdAt": "2020-02-23T21:43:29Z",
             "isDraft": false,
             "tagName": "5.0.2",
             "publishedAt": "2020-02-23T21:45:55Z",

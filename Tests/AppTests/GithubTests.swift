@@ -91,8 +91,7 @@ class GithubTests: AppTestCase {
         XCTAssertEqual(res.repository?.openPullRequests.totalCount, 6)
         XCTAssertEqual(res.repository?.releases.nodes.count, 10)
         XCTAssertEqual(res.repository?.releases.nodes.first, .some(
-                        .init(createdAt: iso8601.date(from: "2020-11-04T21:38:08Z")!,
-                              description: "Released on 2020-11-04. All issues associated with this milestone can be found using this [filter](https://github.com/Alamofire/Alamofire/milestone/74?closed=1).\r\n\r\n#### Added\r\n- `URLResponseSerializer` and attendant convenience methods so downloads can produce a non-optional `URL`.\r\n  - Added by[Jon Shier](https://github.com/jshier) in Pull Request [#3343](https://github.com/Alamofire/Alamofire/pull/3343).\r\n\r\n#### Updated\r\n- Handing of `file://` `URL`s, removing error added in 5.3.0 and adding support for `DownloadRequest`.\r\n  - Updated by [Jon Shier](https://github.com/jshier) in Pull Request [#3342](https://github.com/Alamofire/Alamofire/pull/3342).",
+                        .init(description: "Released on 2020-11-04. All issues associated with this milestone can be found using this [filter](https://github.com/Alamofire/Alamofire/milestone/74?closed=1).\r\n\r\n#### Added\r\n- `URLResponseSerializer` and attendant convenience methods so downloads can produce a non-optional `URL`.\r\n  - Added by[Jon Shier](https://github.com/jshier) in Pull Request [#3343](https://github.com/Alamofire/Alamofire/pull/3343).\r\n\r\n#### Updated\r\n- Handing of `file://` `URL`s, removing error added in 5.3.0 and adding support for `DownloadRequest`.\r\n  - Updated by [Jon Shier](https://github.com/jshier) in Pull Request [#3342](https://github.com/Alamofire/Alamofire/pull/3342).",
                               isDraft: false,
                               publishedAt: iso8601.date(from: "2020-11-04T21:40:10Z")!,
                               tagName: "5.4.0",
