@@ -11,7 +11,8 @@ extension Release {
         .init(description: descripton,
               isDraft: isDraft,
               publishedAt: publishedAt
-                .map { Date(timeIntervalSince1970: TimeInterval($0)) },
+                .map(TimeInterval.init)
+                .map(Date.init(timeIntervalSince1970:)),
               tagName: tagName,
               url: url)
     }
