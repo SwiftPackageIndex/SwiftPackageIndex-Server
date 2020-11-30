@@ -412,7 +412,7 @@ func mergeReleaseInfo(on transaction: Database,
               let rel = lookup[tagName] else {
             return
         }
-        //        version.publishedAt = rel.publishedAt
+        version.publishedAt = rel.publishedAt
         version.releaseNotes = rel.description
         version.url = rel.url
     }

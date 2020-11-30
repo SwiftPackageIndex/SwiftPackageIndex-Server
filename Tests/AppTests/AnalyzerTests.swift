@@ -456,11 +456,11 @@ class AnalyzerTests: AppTestCase {
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, releases:[
-            .mock(descripton: "rel 1.2.3", tagName: "1.2.3"),
-            .mock(descripton: "rel 2.0.0", tagName: "2.0.0"),
+            .mock(descripton: "rel 1.2.3", publishedAt: 1, tagName: "1.2.3"),
+            .mock(descripton: "rel 2.0.0", publishedAt: 2, tagName: "2.0.0"),
             // 2.1.0 release note is missing on purpose
-            .mock(descripton: "rel 2.2.0", isDraft: true, tagName: "2.2.0"),
-            .mock(descripton: "rel 2.3.0", tagName: "2.3.0", url: "some url")
+            .mock(descripton: "rel 2.2.0", isDraft: true, publishedAt: 3, tagName: "2.2.0"),
+            .mock(descripton: "rel 2.3.0", publishedAt: 4, tagName: "2.3.0", url: "some url")
         ]).save(on: app.db).wait()
         try pkg.$repositories.load(on: app.db).wait()
         let versions: [Version] = try [
@@ -491,6 +491,10 @@ class AnalyzerTests: AppTestCase {
                        ["rel 1.2.3", "rel 2.0.0", nil, nil, "rel 2.3.0", nil])
         XCTAssertEqual(sortedResults.map(\.url),
                        ["", "", nil, nil, "some url", nil])
+        XCTAssertEqual(sortedResults.compactMap(\.publishedAt),
+                       [Date(timeIntervalSince1970: 1),
+                        Date(timeIntervalSince1970: 2),
+                        Date(timeIntervalSince1970: 4)])
     }
 
     func test_getManifest() throws {

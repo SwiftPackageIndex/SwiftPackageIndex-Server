@@ -5,13 +5,13 @@ import Foundation
 extension Release {
     static func mock(descripton: String,
                      isDraft: Bool = false,
-                     publishedAt: Date = Current.date(),
+                     publishedAt: Int = 0,
                      tagName: String,
                      url: String = "") -> Self {
         .init(createdAt: Date(),
               description: descripton,
               isDraft: isDraft,
-              publishedAt: publishedAt,
+              publishedAt: Date(timeIntervalSince1970: TimeInterval(publishedAt)),
               tagName: tagName,
               url: url)
     }
