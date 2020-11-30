@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/swift-server/async-http-client.git",
         "state": {
           "branch": null,
-          "revision": "4b4d6605aa2e4f0c2ae3c7563795ae3bec259fff",
-          "version": "1.2.1"
+          "revision": "0a8dddbe15cd72f7bb5e47951fb7c1eb0836dfc2",
+          "version": "1.2.2"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/vapor/async-kit.git",
         "state": {
           "branch": null,
-          "revision": "7457413e57dbfac762b32dd30c1caf2c55a02a3d",
-          "version": "1.2.0"
+          "revision": "ff6deaafeea8e9ec2b64e8ae00297a3fa2ae25a9",
+          "version": "1.2.1"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "31d96b547cc1f869f2885d932a8a9a7ae2103fc6",
-          "version": "1.10.0"
+          "revision": "b6cd7b93ef45b767041efeb83571457658c4acf7",
+          "version": "1.10.1"
         }
       },
       {
@@ -177,8 +177,8 @@
         "repositoryURL": "https://github.com/apple/swift-metrics.git",
         "state": {
           "branch": null,
-          "revision": "f5ed78cb26019b2b85b016f8aa5b1a3427c8251a",
-          "version": "2.1.0"
+          "revision": "e382458581b05839a571c578e90060fff499f101",
+          "version": "2.1.1"
         }
       },
       {
@@ -186,8 +186,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio.git",
         "state": {
           "branch": null,
-          "revision": "c3e2359c55cd8b47207ab7363b77c9c398a95294",
-          "version": "2.23.0"
+          "revision": "2f9ea477387806a79a8951524ef2d40de917a0e1",
+          "version": "2.24.0"
         }
       },
       {
@@ -222,8 +222,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-transport-services.git",
         "state": {
           "branch": null,
-          "revision": "bb56586c4cab9a79dce6ec4738baddb5802c5de7",
-          "version": "1.9.0"
+          "revision": "5a352330c09a323e59ebd99afdf4ca3964c217bc",
+          "version": "1.9.1"
         }
       },
       {
@@ -240,8 +240,8 @@
         "repositoryURL": "https://github.com/MrLotU/SwiftPrometheus.git",
         "state": {
           "branch": null,
-          "revision": "fa3d278e1475c1a4274da0a3abafa35daa3dab6b",
-          "version": "1.0.0-alpha.7"
+          "revision": "970bd317cad578e15427dc2d3e7984ed75037756",
+          "version": "1.0.0-alpha.8"
         }
       },
       {
@@ -249,8 +249,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "b040f90b80ac5906fcf1476a46d360c159f01892",
-          "version": "4.35.0"
+          "revision": "2b222a632deb580cfd5122f46481df3a69ff99f1",
+          "version": "4.36.0"
         }
       },
       {
