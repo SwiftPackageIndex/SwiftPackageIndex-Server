@@ -334,9 +334,9 @@ extension Github {
             var nodes: [ReleaseNode]
 
             struct ReleaseNode: Decodable, Equatable {
-                var description: String
+                var description: String?
                 var isDraft: Bool
-                var publishedAt: Date
+                var publishedAt: Date?
                 var tagName: String
                 var url: String
             }
