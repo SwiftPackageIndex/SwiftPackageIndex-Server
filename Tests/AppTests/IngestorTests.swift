@@ -108,6 +108,13 @@ class IngestorTests: AppTestCase {
                                 Date(timeIntervalSince1970: 3),
                                 Date(timeIntervalSince1970: 2),
                             ],
+                            releases: [
+                                .init(description: "a release",
+                                      isDraft: false,
+                                      publishedAt: Date(timeIntervalSince1970: 5),
+                                      tagName: "1.2.3",
+                                      url: "https://example.com/1.2.3")
+                            ],
                             name: "bar",
                             stars: 2,
                             summary: "package desc"),
@@ -135,6 +142,13 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.openPullRequests, 2)
         XCTAssertEqual(repo.owner, "foo")
         XCTAssertEqual(repo.readmeUrl, "readme url")
+        XCTAssertEqual(repo.releases, [
+            .init(description: "a release",
+                  isDraft: false,
+                  publishedAt: Date(timeIntervalSince1970: 5),
+                  tagName: "1.2.3",
+                  url: "https://example.com/1.2.3")
+        ])
         XCTAssertEqual(repo.name, "bar")
         XCTAssertEqual(repo.stars, 2)
         XCTAssertEqual(repo.summary, "package desc")

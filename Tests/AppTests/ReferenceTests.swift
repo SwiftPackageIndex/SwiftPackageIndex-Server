@@ -25,5 +25,14 @@ class ReferenceTests: XCTestCase {
         XCTAssertFalse(Reference.tag(.init(1, 0, 0, "beta1")).isRelease)
         XCTAssertFalse(Reference.branch("main").isRelease)
     }
-    
+
+    func test_tagName() throws {
+        XCTAssertEqual(Reference.tag(.init(1, 2, 3)).tagName, "1.2.3")
+        XCTAssertEqual(Reference.tag(.init(1, 2, 3), "v1.2.3").tagName, "v1.2.3")
+        XCTAssertEqual(Reference.tag(.init(1, 2, 3, "b1")).tagName, "1.2.3-b1")
+        XCTAssertEqual(Reference.tag(.init(1, 2, 3, "b1", "test")).tagName,
+                       "1.2.3-b1+test")
+        XCTAssertEqual(Reference.branch("").tagName, nil)
+    }
+
 }

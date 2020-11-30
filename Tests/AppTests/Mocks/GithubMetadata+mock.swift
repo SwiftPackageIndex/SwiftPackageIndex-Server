@@ -12,6 +12,7 @@ extension Github.Metadata {
                                   openPullRequests: 0,
                                   owner: "packageOwner",
                                   pullRequestsClosedAtDates: [],
+                                  releases: [],
                                   name: "packageName",
                                   stars: 2,
                                   summary: "desc")
@@ -26,6 +27,7 @@ extension Github.Metadata {
               openPullRequests: 0,
               owner: owner,
               pullRequestsClosedAtDates: [],
+              releases: [],
               name: name,
               stars: package.url.count + 1,
               summary: "This is package " + package.url)
@@ -39,6 +41,7 @@ extension Github.Metadata {
          openPullRequests: Int,
          owner: String,
          pullRequestsClosedAtDates: [Date],
+         releases: [ReleaseNodes.ReleaseNode] = [],
          name: String,
          stars: Int,
          summary: String) {
@@ -56,6 +59,7 @@ extension Github.Metadata {
                               openIssues: .init(totalCount: openIssues),
                               openPullRequests: .init(totalCount: openPullRequests),
                               owner: .init(login: owner),
+                              releases: .init(nodes: releases),
                               stargazerCount: stars)
         )
     }

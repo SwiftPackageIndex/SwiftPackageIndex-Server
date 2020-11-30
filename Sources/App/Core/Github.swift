@@ -209,6 +209,12 @@ extension Github {
     struct Metadata: Decodable, Equatable {
         static func query(owner: String, repository: String) -> GraphQLQuery {
             // Go to https://developer.github.com/v4/explorer/ to run query manually
+            // ⚠️ Important: consult the schema to determine which fields are optional
+            // and make sure the Decodable properties are optional as well to avoid
+            // decoding errors. Note that GraphQL uses sort of a reverse syntax to
+            // Swift:
+            // optionalField: String          -> var optionalField: String?
+            // nonOptionalField: String!      -> var nonOptionalField: String
             GraphQLQuery(query: """
                 {
                   repository(name: "\(repository)", owner: "\(owner)") {
@@ -249,6 +255,15 @@ extension Github {
                     owner {
                       login
                     }
+                    releases(first: 20, orderBy: {field: CREATED_AT, direction: DESC}) {
+                      nodes {
+                        description
+                        isDraft
+                        publishedAt
+                        tagName
+                        url
+                      }
+                    }
                     stargazerCount
                   }
                 }
@@ -270,6 +285,7 @@ extension Github {
             var openIssues: OpenIssues
             var openPullRequests: OpenPullRequests
             var owner: Owner
+            var releases: ReleaseNodes
             var stargazerCount: Int
             // derived properties
             var defaultBranch: String? { defaultBranchRef?.name }
@@ -280,36 +296,56 @@ extension Github {
                 (closedPullRequests.nodes + mergedPullRequests.nodes).map(\.closedAt).sorted().last
             }
         }
+
         struct IssueNodes: Decodable, Equatable {
             var nodes: [IssueNode]
 
             struct IssueNode: Decodable, Equatable {
                 var closedAt: Date
             }
+
             init(closedAtDates: [Date]) {
                 self.nodes = closedAtDates
                     .map(IssueNode.init(closedAt:))
             }
         }
+
         struct DefaultBranchRef: Decodable, Equatable {
             var name: String
         }
+
         struct LicenseInfo: Decodable, Equatable {
             var name: String
             var key: String
+
             init(name: String = "", key: String) {
                 self.name = name
                 self.key = key
             }
         }
+
         struct OpenIssues: Decodable, Equatable {
             var totalCount: Int
         }
+
         struct Owner: Decodable, Equatable {
             var login: String
         }
+
         struct OpenPullRequests: Decodable, Equatable {
             var totalCount: Int
+        }
+
+        struct ReleaseNodes: Decodable, Equatable {
+            var nodes: [ReleaseNode]
+
+            struct ReleaseNode: Decodable, Equatable {
+                var description: String?
+                var isDraft: Bool
+                var publishedAt: Date?
+                var tagName: String
+                var url: String
+            }
         }
     }
 

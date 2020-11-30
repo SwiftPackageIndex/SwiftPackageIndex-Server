@@ -104,6 +104,10 @@ public func configure(_ app: Application) throws {
     do {  // Migration 022 - add is_archived to repositories
         app.migrations.add(UpdateRepositoryAddIsArchived())
     }
+    do {  // Migration 023 0 add releases to repositories and published_at and release_notes to versions
+        app.migrations.add(UpdateRepositoryAddReleases())
+        app.migrations.add(UpdateVersionAddPublisedAtReleaseNotes())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

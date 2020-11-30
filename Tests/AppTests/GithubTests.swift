@@ -32,7 +32,7 @@ class GithubTests: AppTestCase {
         }
         do {
             let data = """
-            {"data":{"repository":{"closedIssues":{"nodes":[]},"closedPullRequests":{"nodes":[]},"createdAt":"2019-04-23T09:26:22Z","defaultBranchRef":{"name":"master"},"description":null,"forkCount":0,"isArchived":false,"isFork":false,"licenseInfo":null,"mergedPullRequests":{"nodes":[]},"name":"CRToastSwift","openIssues":{"totalCount":0},"openPullRequests":{"totalCount":0},"owner":{"login":"krugazor"},"stargazerCount":3},"rateLimit":{"remaining":4753}}}
+            {"data":{"repository":{"closedIssues":{"nodes":[]},"closedPullRequests":{"nodes":[]},"createdAt":"2019-04-23T09:26:22Z","defaultBranchRef":{"name":"master"},"description":null,"forkCount":0,"isArchived":false,"isFork":false,"licenseInfo":null,"mergedPullRequests":{"nodes":[]},"name":"CRToastSwift","openIssues":{"totalCount":0},"openPullRequests":{"totalCount":0},"owner":{"login":"krugazor"},"releases":{"nodes":[]},"stargazerCount":3},"rateLimit":{"remaining":4753}}}
             """
             _ = try Github.decoder.decode(Response.self, from: Data(data.utf8))
         }
@@ -80,22 +80,30 @@ class GithubTests: AppTestCase {
 
         // validation
         XCTAssertEqual(res.repository?.closedIssues.nodes.first!.closedAt,
-                       iso8601.date(from: "2020-10-01T19:22:33Z"))
+                       iso8601.date(from: "2020-11-24T16:00:07Z"))
         XCTAssertEqual(res.repository?.closedPullRequests.nodes.first!.closedAt,
                        iso8601.date(from: "2020-08-13T19:10:08Z"))
-        XCTAssertEqual(res.repository?.forkCount, 6400)
+        XCTAssertEqual(res.repository?.forkCount, 6480)
         XCTAssertEqual(res.repository?.mergedPullRequests.nodes.first!.closedAt,
-                       iso8601.date(from: "2017-10-30T01:43:44Z"))
+                       iso8601.date(from: "2020-11-04T21:27:43Z"))
         XCTAssertEqual(res.repository?.name, "Alamofire")
         XCTAssertEqual(res.repository?.openIssues.totalCount, 30)
-        XCTAssertEqual(res.repository?.openPullRequests.totalCount, 7)
-        XCTAssertEqual(res.repository?.stargazerCount, 34434)
+        XCTAssertEqual(res.repository?.openPullRequests.totalCount, 6)
+        XCTAssertEqual(res.repository?.releases.nodes.count, 10)
+        XCTAssertEqual(res.repository?.releases.nodes.first, .some(
+                        .init(description: "Released on 2020-11-04. All issues associated with this milestone can be found using this [filter](https://github.com/Alamofire/Alamofire/milestone/74?closed=1).\r\n\r\n#### Added\r\n- `URLResponseSerializer` and attendant convenience methods so downloads can produce a non-optional `URL`.\r\n  - Added by[Jon Shier](https://github.com/jshier) in Pull Request [#3343](https://github.com/Alamofire/Alamofire/pull/3343).\r\n\r\n#### Updated\r\n- Handing of `file://` `URL`s, removing error added in 5.3.0 and adding support for `DownloadRequest`.\r\n  - Updated by [Jon Shier](https://github.com/jshier) in Pull Request [#3342](https://github.com/Alamofire/Alamofire/pull/3342).",
+                              isDraft: false,
+                              publishedAt: iso8601.date(from: "2020-11-04T21:40:10Z")!,
+                              tagName: "5.4.0",
+                              url: "https://github.com/Alamofire/Alamofire/releases/tag/5.4.0")
+        ))
+        XCTAssertEqual(res.repository?.stargazerCount, 34720)
         // derived properties
         XCTAssertEqual(res.repository?.lastIssueClosedAt,
-                       iso8601.date(from: "2020-10-03T21:41:25Z"))
+                       iso8601.date(from: "2020-11-24T16:00:07Z"))
         // merged date is latest - expect that one to be reported back
         XCTAssertEqual(res.repository?.lastPullRequestClosedAt,
-                       iso8601.date(from: "2020-10-05T00:19:43Z"))
+                       iso8601.date(from: "2020-11-04T21:27:43Z"))
     }
 
     func test_fetchMetadata_badRequest() throws {

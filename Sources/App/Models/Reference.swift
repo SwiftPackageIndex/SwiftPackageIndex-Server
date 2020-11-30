@@ -33,6 +33,15 @@ enum Reference: Equatable, Hashable {
     }
     
     var isRelease: Bool { semVer?.isStable ?? false }
+
+    var tagName: String? {
+        switch self {
+            case .branch:
+                return nil
+            case let .tag(_, tagName):
+                return tagName
+        }
+    }
 }
 
 

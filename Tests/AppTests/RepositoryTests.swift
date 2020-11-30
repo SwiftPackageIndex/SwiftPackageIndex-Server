@@ -26,6 +26,13 @@ final class RepositoryTests: AppTestCase {
                                   openIssues: 3,
                                   openPullRequests: 4,
                                   readmeUrl: "https://github.com/foo/bar/blob/main/README.md",
+                                  releases: [
+                                    .init(description: "a release",
+                                          isDraft: false,
+                                          publishedAt: Date(timeIntervalSince1970: 1),
+                                          tagName: "1.2.3",
+                                          url: "https://example.com/release/1.2.3")
+                                  ],
                                   isArchived: true,
                                   stars: 42,
                                   forks: 17,
@@ -51,6 +58,13 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(r.openIssues, 3)
             XCTAssertEqual(r.openPullRequests, 4)
             XCTAssertEqual(r.readmeUrl, "https://github.com/foo/bar/blob/main/README.md")
+            XCTAssertEqual(r.releases, [
+                .init(description: "a release",
+                      isDraft: false,
+                      publishedAt: Date(timeIntervalSince1970: 1),
+                      tagName: "1.2.3",
+                      url: "https://example.com/release/1.2.3")
+            ])
             XCTAssertEqual(r.isArchived, true)
             XCTAssertEqual(r.stars, 42)
             XCTAssertEqual(r.forks, 17)
