@@ -414,13 +414,13 @@ func mergeReleaseInfo(on transaction: Database,
     guard let releases = package.repository?.releases else {
         return transaction.eventLoop.future(versions)
     }
-    let tagsToRelease = Dictionary.init(releases
+    let tagToRelease = Dictionary.init(releases
                                     .filter { !$0.isDraft }
                                     .map { ($0.tagName, $0) },
                                  uniquingKeysWith: { $1 })
     versions.forEach { version in
         guard let tagName = version.reference?.tagName,
-              let rel = tagsToRelease[tagName] else {
+              let rel = tagToRelease[tagName] else {
             return
         }
         version.publishedAt = rel.publishedAt
