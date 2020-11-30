@@ -2,6 +2,7 @@ import Foundation
 
 
 struct Release: Codable, Equatable {
+    // FIXME: remove createdAt
     var createdAt: Date
     var description: String
     var isDraft: Bool

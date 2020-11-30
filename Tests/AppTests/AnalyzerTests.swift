@@ -450,7 +450,36 @@ class AnalyzerTests: AppTestCase {
         assertEquals(delta.toAdd, \.reference?.description, ["main", "1.2.3"])
         XCTAssertEqual(delta.toDelete, [])
     }
-    
+
+    func test_mergeReleaseInfo_basic() throws {
+        // setup
+        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, releases:[
+            .mock(descripton: "rel 1", tagName: "1.2.3"),
+            .mock(descripton: "rel 2", tagName: "2.0.0")
+        ]).save(on: app.db).wait()
+        let v1 = try Version(id: UUID(),
+                             package: pkg,
+                             commitDate: Date(timeIntervalSince1970: 0),
+                             reference: .tag(1, 2, 3))
+        try v1.save(on: app.db).wait()
+        let v2 = try Version(id: UUID(),
+                             package: pkg,
+                             commitDate: Date(timeIntervalSince1970: 1),
+                             reference: .tag(2, 0, 0))
+        try v2.save(on: app.db).wait()
+        try pkg.$repositories.load(on: app.db).wait()
+
+        // MUT
+        let res = try mergeReleaseInfo(on: app.db, package: pkg, versions: [v1, v2])
+            .wait()
+
+        // validate
+        let versions = res.1.sorted { $0.commitDate! < $1.commitDate! }
+        XCTAssertEqual(versions.map(\.releaseNotes), ["rel 1", "rel 2"])
+    }
+
     func test_getManifest() throws {
         // setup
         let queue = DispatchQueue(label: "serial")

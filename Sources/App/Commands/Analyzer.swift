@@ -388,6 +388,36 @@ func diffVersions(client: Client,
 }
 
 
+func mergeReleaseInfo(on transaction: Database,
+                      packageDeltas: [Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]) -> EventLoopFuture<[Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]> {
+    packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
+        mergeReleaseInfo(on: transaction, package: pkg, versions: delta.toAdd)
+            .map { ($0.0, (toAdd: $0.1, toDelete: delta.toDelete)) }
+    }
+}
+
+
+func mergeReleaseInfo(on transaction: Database,
+                      package: Package,
+                      versions: [Version]) -> EventLoopFuture<(Package, [Version])> {
+    guard let releases = package.repository?.releases else {
+        return transaction.eventLoop.future((package, versions))
+    }
+    let lookup = Dictionary.init(releases.map { ($0.tagName, $0) },
+                                 uniquingKeysWith: { $1 })
+    versions.forEach { version in
+        guard let tagName = version.reference?.tagName ?? version.reference?.semVer?.description,
+              let rel = lookup[tagName] else {
+            return
+        }
+        //        version.publishedAt = rel.publishedAt
+        version.releaseNotes = rel.description
+        version.url = rel.url
+    }
+    return transaction.eventLoop.future((package, versions))
+}
+
+
 /// Saves and deletes the versions specified in the version delta parameter.
 /// - Parameters:
 ///   - transaction: transaction to run the save and delete in
