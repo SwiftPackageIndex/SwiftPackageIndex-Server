@@ -54,6 +54,9 @@ build:
     rollbar() {
       curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "local_username": "CI", "revision": "'"$VERSION"'", "status": "'"$1"'"}' https://api.rollbar.com/api/1/deploy
     }
+    telegram() {
+      curl -s -X POST https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage -d chat_id=${TELEGRAM_CHAT_ID} -d text="$1"
+    }
 
     # pull image (retry for up to 10 minutes to allow builds on another pipeline to complete)
     echo Pulling image ...
@@ -70,11 +73,14 @@ build:
     env VERSION=$VERSION docker-compose run migrate
 
     echo Deploying VERSION $VERSION with SITE_URL: ${SITE_URL} ...
+    telegram "🚧 deploying version $VERSION ..."
     env VERSION=$VERSION docker-compose up --build -d
     if [[ $? == 0 ]]; then
       rollbar succeeded
+      telegram "✅ deployed version $VERSION"
     else
       rollbar failed
+      telegram "🛑 failed to deploy version $VERSION"
     fi
   
   
