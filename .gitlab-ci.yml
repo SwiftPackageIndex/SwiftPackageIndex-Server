@@ -58,12 +58,12 @@ build:
       curl -s -X POST https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage -d chat_id=${TELEGRAM_CHAT_ID} -d text="$1"
     }
 
-    # pull image (retry for up to 10 minutes to allow builds on another pipeline to complete)
+    # pull image (retry for up to 30 minutes to allow builds on another pipeline to complete)
     echo Pulling image ...
-    retries=120
+    retries=180
     until docker pull $REGISTRY_IMAGE:$VERSION; do
       [[ $retries -eq 0 ]] && echo "docker pull failed" && exit 1
-      sleep 5
+      sleep 10
       echo Retrying ...
       echo $((retries--)) retries left
     done
