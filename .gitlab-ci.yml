@@ -76,11 +76,21 @@ build:
     telegram "🚧 deploying version $VERSION ..."
     env VERSION=$VERSION docker-compose up --build -d
     if [[ $? == 0 ]]; then
-      rollbar succeeded
       telegram "✅ deployed version $VERSION"
+      retries=5
+      until rollbar succeeded ; do
+        sleep 5
+        echo Retrying ...
+        echo $((retries--)) retries left
+      done
     else
-      rollbar failed
       telegram "🛑 failed to deploy version $VERSION"
+      retries=5
+      until rollbar failed ; do
+        sleep 5
+        echo Retrying ...
+        echo $((retries--)) retries left
+      done
     fi
   
   
