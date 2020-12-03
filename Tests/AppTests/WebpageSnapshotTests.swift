@@ -206,8 +206,7 @@ class WebpageSnapshotTests: XCTestCase {
     }
     
     func test_ErrorPageView() throws {
-        let model = ErrorPage.Model(Abort(.notFound))
-        let page = { ErrorPage.View(path: "", model: model).document() }
+        let page = { ErrorPage.View(path: "", error: Abort(.notFound)).document() }
         
         assertSnapshot(matching: page, as: .html)
         
