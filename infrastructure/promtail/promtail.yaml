@@ -23,4 +23,6 @@ scrape_configs:
       - labels:
           component:
       - drop:
-          expression: "query=\"{"
+          # Drop Grafana logs so we don't do the "grep greps its own output"-thing
+          # https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/839
+          expression: "caller=metrics.go:"
