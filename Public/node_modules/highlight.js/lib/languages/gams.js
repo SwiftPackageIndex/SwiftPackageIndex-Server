@@ -1,12 +1,37 @@
-/*
- Language: GAMS
- Author: Stefan Bechert <stefan.bechert@gmx.net>
- Contributors: Oleg Efimov <efimovov@gmail.com>, Mikko Kouhia <mikko.kouhia@iki.fi>
- Description: The General Algebraic Modeling System language
- Website: https://www.gams.com
- Category: scientific
- */
+/**
+ * @param {string} value
+ * @returns {RegExp}
+ * */
 
+/**
+ * @param {RegExp | string } re
+ * @returns {string}
+ */
+function source(re) {
+  if (!re) return null;
+  if (typeof re === "string") return re;
+
+  return re.source;
+}
+
+/**
+ * @param {RegExp | string } re
+ * @returns {string}
+ */
+function anyNumberOfTimes(re) {
+  return concat('(', re, ')*');
+}
+
+/**
+ * @param {...(RegExp | string) } args
+ * @returns {string}
+ */
+function concat(...args) {
+  const joined = args.map((x) => source(x)).join("");
+  return joined;
+}
+
+/** @type LanguageFn */
 function gams(hljs) {
   const KEYWORDS = {
     keyword:
@@ -79,6 +104,7 @@ function gams(hljs) {
       hljs.C_NUMBER_MODE
     ]
   };
+  const COMMENT_WORD = /[a-z0-9&#*=?@\\><:,()$[\]_.{}!+%^-]+/;
   const DESCTEXT = { // Parameter/set/variable description text
     begin: /[a-z][a-z0-9_]*(\([a-z0-9_, ]*\))?[ \t]+/,
     excludeBegin: true,
@@ -89,7 +115,12 @@ function gams(hljs) {
       ASSIGNMENT,
       {
         className: 'comment',
-        begin: /([ ]*[a-z0-9&#*=?@\\><:,()$[\]_.{}!+%^-]+)+/,
+        // one comment word, then possibly more
+        begin: concat(
+          COMMENT_WORD,
+          // [ ] because \s would be too broad (matching newlines)
+          anyNumberOfTimes(concat(/[ ]+/, COMMENT_WORD))
+        ),
         relevance: 0
       }
     ]

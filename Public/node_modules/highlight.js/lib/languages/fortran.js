@@ -1,3 +1,28 @@
+/**
+ * @param {string} value
+ * @returns {RegExp}
+ * */
+
+/**
+ * @param {RegExp | string } re
+ * @returns {string}
+ */
+function source(re) {
+  if (!re) return null;
+  if (typeof re === "string") return re;
+
+  return re.source;
+}
+
+/**
+ * @param {...(RegExp | string) } args
+ * @returns {string}
+ */
+function concat(...args) {
+  const joined = args.map((x) => source(x)).join("");
+  return joined;
+}
+
 /*
 Language: Fortran
 Author: Anthony Scemama <scemama@irsamc.ups-tlse.fr>
@@ -28,10 +53,22 @@ function fortran(hljs) {
     ]
   };
 
+  // regex in both fortran and irpf90 should match
+  const OPTIONAL_NUMBER_SUFFIX = /(_[a-z_\d]+)?/;
+  const OPTIONAL_NUMBER_EXP = /([de][+-]?\d+)?/;
   const NUMBER = {
     className: 'number',
-    // regex in both fortran and irpf90 should match
-    begin: '(?=\\b|\\+|-|\\.)(?:\\.|\\d+\\.?)\\d*([de][+-]?\\d+)?(_[a-z_\\d]+)?',
+    variants: [
+      {
+        begin: concat(/\b\d+/, /\.(\d*)/, OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX)
+      },
+      {
+        begin: concat(/\b\d+/, OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX)
+      },
+      {
+        begin: concat(/\.\d+/, OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX)
+      }
+    ],
     relevance: 0
   };
 

@@ -1,3 +1,38 @@
+// https://docs.oracle.com/javase/specs/jls/se15/html/jls-3.html#jls-3.10
+var decimalDigits = '[0-9](_*[0-9])*';
+var frac = `\\.(${decimalDigits})`;
+var hexDigits = '[0-9a-fA-F](_*[0-9a-fA-F])*';
+var NUMERIC = {
+  className: 'number',
+  variants: [
+    // DecimalFloatingPointLiteral
+    // including ExponentPart
+    { begin: `(\\b(${decimalDigits})((${frac})|\\.)?|(${frac}))` +
+      `[eE][+-]?(${decimalDigits})[fFdD]?\\b` },
+    // excluding ExponentPart
+    { begin: `\\b(${decimalDigits})((${frac})[fFdD]?\\b|\\.([fFdD]\\b)?)` },
+    { begin: `(${frac})[fFdD]?\\b` },
+    { begin: `\\b(${decimalDigits})[fFdD]\\b` },
+
+    // HexadecimalFloatingPointLiteral
+    { begin: `\\b0[xX]((${hexDigits})\\.?|(${hexDigits})?\\.(${hexDigits}))` +
+      `[pP][+-]?(${decimalDigits})[fFdD]?\\b` },
+
+    // DecimalIntegerLiteral
+    { begin: '\\b(0|[1-9](_*[0-9])*)[lL]?\\b' },
+
+    // HexIntegerLiteral
+    { begin: `\\b0[xX](${hexDigits})[lL]?\\b` },
+
+    // OctalIntegerLiteral
+    { begin: '\\b0(_*[0-7])*[lL]?\\b' },
+
+    // BinaryIntegerLiteral
+    { begin: '\\b0[bB][01](_*[01])*[lL]?\\b' },
+  ],
+  relevance: 0
+};
+
 /*
  Language: Kotlin
  Description: Kotlin is an OSS statically typed programming language that targets the JVM, Android, JavaScript and Native.
@@ -104,25 +139,7 @@ function kotlin(hljs) {
   // https://kotlinlang.org/docs/reference/whatsnew11.html#underscores-in-numeric-literals
   // According to the doc above, the number mode of kotlin is the same as java 8,
   // so the code below is copied from java.js
-  const KOTLIN_NUMBER_RE = '\\b' +
-    '(' +
-      '0[bB]([01]+[01_]+[01]+|[01]+)' + // 0b...
-      '|' +
-      '0[xX]([a-fA-F0-9]+[a-fA-F0-9_]+[a-fA-F0-9]+|[a-fA-F0-9]+)' + // 0x...
-      '|' +
-      '(' +
-        '([\\d]+[\\d_]+[\\d]+|[\\d]+)(\\.([\\d]+[\\d_]+[\\d]+|[\\d]+))?' +
-        '|' +
-        '\\.([\\d]+[\\d_]+[\\d]+|[\\d]+)' +
-      ')' +
-      '([eE][-+]?\\d+)?' + // octal, decimal, float
-    ')' +
-    '[lLfF]?';
-  const KOTLIN_NUMBER_MODE = {
-    className: 'number',
-    begin: KOTLIN_NUMBER_RE,
-    relevance: 0
-  };
+  const KOTLIN_NUMBER_MODE = NUMERIC;
   const KOTLIN_NESTED_COMMENT = hljs.COMMENT(
     '/\\*', '\\*/',
     {
@@ -177,7 +194,6 @@ function kotlin(hljs) {
         returnBegin: true,
         excludeEnd: true,
         keywords: KEYWORDS,
-        illegal: /fun\s+(<.*>)?[^\s\(]+(\s+[^\s\(]+)\s*=/,
         relevance: 5,
         contains: [
           {
