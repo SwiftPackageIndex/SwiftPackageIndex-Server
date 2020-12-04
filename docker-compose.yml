@@ -121,7 +121,7 @@ services:
   # logging & monitoring visualiser
 
   grafana:
-    image: finestructure/grafana-custom
+    image: grafana-custom
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_USERS_ALLOW_SIGN_UP: 'false'
