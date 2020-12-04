@@ -20,11 +20,13 @@ struct AppEnvironment {
     var gitlabPipelineToken: () -> String?
     var gitlabPipelineLimit: () -> Int
     var hideStagingBanner: () -> Bool
+    var logger: () -> Logger?
     var metricsPushGatewayUrl: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>
     var rollbarToken: () -> String?
     var rollbarLogLevel: () -> AppError.Level
+    var setLogger: (Logger) -> Void
     var shell: Shell
     var siteURL: () -> String
     var twitterCredentials: () -> Twitter.Credentials?
@@ -32,6 +34,8 @@ struct AppEnvironment {
 }
 
 extension AppEnvironment {
+    static var logger: Logger?
+
     static let live = AppEnvironment(
         allowBuildTriggers: {
             Environment.get("ALLOW_BUILD_TRIGGERS")
@@ -74,6 +78,7 @@ extension AppEnvironment {
             Environment.get("HIDE_STAGING_BANNER").flatMap(\.asBool)
                 ?? Constants.defaultHideStagingBanner
         },
+        logger: { logger },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         random: Double.random,
         reportError: AppError.report,
@@ -82,6 +87,7 @@ extension AppEnvironment {
             Environment
                 .get("ROLLBAR_LOG_LEVEL")
                 .flatMap(AppError.Level.init(rawValue:)) ?? .critical },
+        setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
         twitterCredentials: {

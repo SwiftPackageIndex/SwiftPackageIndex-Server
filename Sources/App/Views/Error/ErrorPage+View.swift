@@ -7,8 +7,8 @@ enum ErrorPage {
         let model: Model
         
         
-        init(path: String, model: Model) {
-            self.model = model
+        init(path: String, error: AbortError) {
+            self.model = Model(error)
             super.init(path: path)
         }
         

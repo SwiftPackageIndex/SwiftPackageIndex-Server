@@ -24,15 +24,15 @@ enum AppError: LocalizedError {
             case let .envVariableNotSet(value):
                 return "Environment variable not set: \(value)"
             case let .invalidPackageUrl(id, value):
-                return "Invalid packge URL: \(value) (id: \(String(describing: id)))"
+                return "Invalid packge URL: \(value) (id: \(id?.uuidString ?? "-"))"
             case let .invalidPackageCachePath(id, value):
-                return "Invalid packge cache path: \(value) (id: \(String(describing: id))"
+                return "Invalid packge cache path: \(value) (id: \(id?.uuidString ?? "-")"
             case let .invalidRevision(id, value):
-                return "Invalid revision: \(value ?? "nil") (id: \(String(describing: id)))"
+                return "Invalid revision: \(value ?? "nil") (id: \(id?.uuidString ?? "-"))"
             case let .metadataRequestFailed(id, status, uri):
-                return "Metadata request for URI '\(uri.description)' failed with status '\(status)'  (id: \(String(describing: id)))"
+                return "Metadata request for URI '\(uri.description)' failed with status '\(status)'  (id: \(id?.uuidString ?? "-"))"
             case let .noValidVersions(id, value):
-                return "No valid version found for package '\(value)' (id: \(String(describing: id)))"
+                return "No valid version found for package '\(value)' (id: \(id?.uuidString ?? "-"))"
             case let .shellCommandFailed(command, path, message):
                 return """
                     Shell command failed:
@@ -41,7 +41,7 @@ enum AppError: LocalizedError {
                     message: "\(message)"
                     """
             case let .genericError(id, value):
-                return "Generic error: \(value) (id: \(String(describing: id)))"
+                return "Generic error: \(value) (id: \(id?.uuidString ?? "-"))"
         }
     }
     
