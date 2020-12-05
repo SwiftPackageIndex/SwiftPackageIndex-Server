@@ -275,7 +275,7 @@ function coffeescript(hljs) {
   const TITLE = hljs.inherit(hljs.TITLE_MODE, {
     begin: JS_IDENT_RE
   });
-  const PARAMS_RE = '(\\(.*\\))?\\s*\\B[-=]>';
+  const POSSIBLE_PARAMS_RE = '(\\(.*\\)\\s*)?\\B[-=]>';
   const PARAMS = {
     className: 'params',
     begin: '\\([^\\(]',
@@ -304,7 +304,7 @@ function coffeescript(hljs) {
       hljs.HASH_COMMENT_MODE,
       {
         className: 'function',
-        begin: '^\\s*' + JS_IDENT_RE + '\\s*=\\s*' + PARAMS_RE,
+        begin: '^\\s*' + JS_IDENT_RE + '\\s*=\\s*' + POSSIBLE_PARAMS_RE,
         end: '[-=]>',
         returnBegin: true,
         contains: [
@@ -318,7 +318,7 @@ function coffeescript(hljs) {
         relevance: 0,
         contains: [{
           className: 'function',
-          begin: PARAMS_RE,
+          begin: POSSIBLE_PARAMS_RE,
           end: '[-=]>',
           returnBegin: true,
           contains: [PARAMS]

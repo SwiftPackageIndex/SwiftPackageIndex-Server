@@ -120,7 +120,7 @@ function r(hljs) {
                   className: 'variable',
                   variants: [
                     { begin: IDENT_RE },
-                    { begin: /`(?:\\.|[^`])+`/ }
+                    { begin: /`(?:\\.|[^`\\])+`/ }
                   ],
                   endsParent: true
                 }

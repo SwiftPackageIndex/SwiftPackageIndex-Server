@@ -32,7 +32,7 @@ function jbossCli(hljs) {
   };
   const PATH = {
     className: 'string',
-    begin: /\B(([\/.])[\w\-.\/=]+)+/
+    begin: /\B([\/.])[\w\-.\/=]+/
   };
   const COMMAND_PARAMS = {
     className: 'params',

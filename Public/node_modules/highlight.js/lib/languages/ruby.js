@@ -103,7 +103,7 @@ function ruby(hljs) {
         begin: /\B\?(\\\d{1,3}|\\x[A-Fa-f0-9]{1,2}|\\u[A-Fa-f0-9]{4}|\\?\S)\b/
       },
       { // heredocs
-        begin: /<<[-~]?'?(\w+)(?:.|\n)*?\n\s*\1\b/,
+        begin: /<<[-~]?'?(\w+)\n(?:[^\n]*\n)*?\s*\1\b/,
         returnBegin: true,
         contains: [
           { begin: /<<[-~]?'?/ },
@@ -232,7 +232,7 @@ function ruby(hljs) {
   var SIMPLE_PROMPT = "[>?]>";
   // irb(main):001:0>
   var DEFAULT_PROMPT = "[\\w#]+\\(\\w+\\):\\d+:\\d+>";
-  var RVM_PROMPT = "(\\w+-)?\\d+\\.\\d+\\.\\d(p\\d+)?[^>]+>";
+  var RVM_PROMPT = "(\\w+-)?\\d+\\.\\d+\\.\\d+(p\\d+)?[^\\d][^>]+>";
 
   var IRB_DEFAULT = [
     {

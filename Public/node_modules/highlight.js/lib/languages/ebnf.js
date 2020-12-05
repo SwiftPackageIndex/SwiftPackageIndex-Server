@@ -10,7 +10,7 @@ function ebnf(hljs) {
 
   const nonTerminalMode = {
     className: "attribute",
-    begin: /^[ ]*[a-zA-Z][a-zA-Z_-]*([\s_-]+[a-zA-Z][a-zA-Z]*)*/
+    begin: /^[ ]*[a-zA-Z]+([\s_-]+[a-zA-Z]+)*/
   };
 
   const specialSequenceMode = {

@@ -25,8 +25,8 @@ function dsconfig(hljs) {
   };
   const VALUELESS_PROPERTY = {
     className: 'string',
-    begin: /\w+-?\w+/,
-    end: /\W/,
+    begin: /\w+(\-\w+)*/,
+    end: /(?=\W)/,
     relevance: 0
   };
 

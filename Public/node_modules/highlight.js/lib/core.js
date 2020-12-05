@@ -1278,7 +1278,7 @@ function commonKeyword(keyword) {
   return COMMON_KEYWORDS.includes(keyword.toLowerCase());
 }
 
-var version = "10.4.0";
+var version = "10.4.1";
 
 // @ts-nocheck
 

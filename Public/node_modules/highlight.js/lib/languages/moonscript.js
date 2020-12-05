@@ -70,7 +70,7 @@ function moonscript(hljs) {
   const TITLE = hljs.inherit(hljs.TITLE_MODE, {
     begin: JS_IDENT_RE
   });
-  const PARAMS_RE = '(\\(.*\\))?\\s*\\B[-=]>';
+  const POSSIBLE_PARAMS_RE = '(\\(.*\\)\\s*)?\\B[-=]>';
   const PARAMS = {
     className: 'params',
     begin: '\\([^\\(]',
@@ -96,7 +96,7 @@ function moonscript(hljs) {
       hljs.COMMENT('--', '$'),
       {
         className: 'function', // function: -> =>
-        begin: '^\\s*' + JS_IDENT_RE + '\\s*=\\s*' + PARAMS_RE,
+        begin: '^\\s*' + JS_IDENT_RE + '\\s*=\\s*' + POSSIBLE_PARAMS_RE,
         end: '[-=]>',
         returnBegin: true,
         contains: [
@@ -110,7 +110,7 @@ function moonscript(hljs) {
         contains: [
           {
             className: 'function',
-            begin: PARAMS_RE,
+            begin: POSSIBLE_PARAMS_RE,
             end: '[-=]>',
             returnBegin: true,
             contains: [ PARAMS ]

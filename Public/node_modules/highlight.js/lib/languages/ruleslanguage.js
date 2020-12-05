@@ -63,7 +63,7 @@ function ruleslanguage(hljs) {
         className: 'literal',
         variants: [
           { // looks like #-comment
-            begin: '#\\s+[a-zA-Z .]*',
+            begin: '#\\s+',
             relevance: 0
           },
           {
