@@ -121,7 +121,11 @@ services:
   # logging & monitoring visualiser
 
   grafana:
-    image: grafana-custom
+    build:
+      context: ./infrastructure/grafana
+      args:
+        GRAFANA_VERSION: '7.3.1'
+        GF_INSTALL_IMAGE_RENDERER_PLUGIN: 'true'
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_USERS_ALLOW_SIGN_UP: 'false'
