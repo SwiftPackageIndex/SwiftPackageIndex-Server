@@ -277,6 +277,34 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertEqual(model.badgeMarkdown(for: .swiftVersions),
                        "[![](\(badgeURL))](\(packageURL))")
     }
+    
+    func test_readmeBaseURL() throws {
+        let pkg = try savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
+        
+        try Repository(
+            package: pkg,
+            defaultBranch: "default",
+            name: "Alamofire",
+            owner: "Alamofire",
+            readmeUrl: "https://github.com/Alamofire/Alamofire/master/README.md"
+        ).save(on: app.db).wait()
+        
+        try App.Version(
+            package: pkg,
+            latest: .defaultBranch,
+            packageName: "Alamofire",
+            reference: .branch("default"),
+            swiftVersions: ["5"].asSwiftVersions
+        ).save(on: app.db).wait()
+        
+        // re-load repository relationship
+        try pkg.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+
+        let model = PackageShow.Model(package: pkg, readme: nil)
+        XCTAssertEqual(model?.readmeBaseUrl, "https://github.com/Alamofire/Alamofire/master/")
+    }
 
 }
 
