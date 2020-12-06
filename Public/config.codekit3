@@ -286,7 +286,7 @@
 		"ma": 0,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/deploy/node_modules/axios/index-min.js",
+		"oAP": "/node_modules/axios/index-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -521,7 +521,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 628978997.61216402
+	"lastBuiltDate": 628986321.60976195
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
