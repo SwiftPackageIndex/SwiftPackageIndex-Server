@@ -12,7 +12,7 @@ export class SPIReadmeProcessor {
           // Relative URLs will *fail* this initialisation.
           new URL(imageSource)
         } catch(error) {
-          image.src = `${readmeBaseUrl}/${imageSource}`
+          image.src = `${readmeBaseUrl}${imageSource}`
         }
       })
     })

@@ -97,7 +97,7 @@ extension PackageShow {
                 licenseUrl: package.repository?.licenseUrl,
                 products: package.productCounts(),
                 readme: readme,
-                readmeBaseUrl: NSString(string: repository.readmeUrl ?? "").deletingLastPathComponent,
+                readmeBaseUrl: repository.readmeUrl.flatMap(URL.init(string:))?.deletingLastPathComponent().absoluteString,
                 releases: package.releaseInfo(),
                 stars: package.repository?.stars,
                 summary: package.repository?.summary,
