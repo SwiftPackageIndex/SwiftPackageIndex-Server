@@ -279,7 +279,7 @@ class PackageShowModelTests: AppTestCase {
     }
     
     func test_readmeBaseURL() throws {
-        let pkg = try savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
+        var pkg = try savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
         
         try Repository(
             package: pkg,
@@ -293,14 +293,13 @@ class PackageShowModelTests: AppTestCase {
             package: pkg,
             latest: .defaultBranch,
             packageName: "Alamofire",
-            reference: .branch("default"),
-            swiftVersions: ["5"].asSwiftVersions
+            reference: .branch("default")
         ).save(on: app.db).wait()
-        
-        // re-load repository relationship
-        try pkg.$repositories.load(on: app.db).wait()
-        // update versions
-        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+
+        // reload via query to ensure relationships are loaded
+        pkg = try Package.query(on: app.db,
+                                owner: "Alamofire",
+                                repository: "Alamofire").wait()
 
         let model = PackageShow.Model(package: pkg, readme: nil)
         XCTAssertEqual(model?.readmeBaseUrl, "https://github.com/Alamofire/Alamofire/master/")
