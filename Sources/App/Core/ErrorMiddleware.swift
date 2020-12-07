@@ -11,13 +11,16 @@ public final class ErrorMiddleware: Middleware {
         next.respond(to: req)
             .flatMapError { error in
                 let abortError = error as? AbortError ?? Abort(.internalServerError)
+                let statusCode = abortError.status.code
 
-                let reportError = abortError.status.code >= 500
+                let reportError = statusCode >= 500
                     ? Current.reportError(req.client, .critical, error)
                     : req.eventLoop.future()
 
                 return reportError.flatMap {
-                    Current.logger()?.critical("ErrorPage.View: \(error.localizedDescription)")
+                    statusCode >= 500
+                        ? Current.logger()?.critical("ErrorPage.View \(statusCode): \(error.localizedDescription)")
+                        : Current.logger()?.error("ErrorPage.View \(statusCode): \(error.localizedDescription)")
                     return ErrorPage.View(path: req.url.path, error: abortError)
                         .document()
                         .encodeResponse(for: req, status: abortError.status)
