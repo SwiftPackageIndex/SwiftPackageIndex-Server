@@ -1,22 +1,33 @@
+import Fluent
 import Foundation
 
 
 extension PackageCollection {
-    static func generate(name: String,
+    static func generate(db: Database,
+                         name: String,
                          overview: String? = nil,
                          keywords: [String]? = nil,
                          packageURLs: [String],
-                         createdAt: Date = Date(),
-                         createdBy: Author? = nil) -> PackageCollection {
-        // TODO: look up packages from urls
-        let packages = [Package]()
-        let collection = PackageCollection.init(
-            name: name,
-            overview: overview,
-            keywords: keywords,
-            packages: packages,
-            createdAt: createdAt,
-            createdBy: createdBy)
-        return collection
+                         createdBy: Author? = nil) -> EventLoopFuture<PackageCollection> {
+        App.Package.query(on: db)
+            .with(\.$repositories)
+            .filter(\.$url ~~ packageURLs)
+            .all()
+            .mapEach { dbPackage in
+                Package.init(url: dbPackage.url,
+                             summary: dbPackage.repository?.summary,
+                             keywords: nil,
+                             readmeURL: nil,
+                             versions: [])
+            }
+            .map { packages in
+                PackageCollection.init(
+                    name: name,
+                    overview: overview,
+                    keywords: keywords,
+                    packages: packages,
+                    createdAt: Date(),
+                    createdBy: createdBy)
+            }
     }
 }
