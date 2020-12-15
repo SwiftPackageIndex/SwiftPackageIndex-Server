@@ -1,5 +1,4 @@
 import struct Foundation.Date
-import struct Foundation.URL
 import SemanticVersion
 
 // https://github.com/apple/swift-package-collection-generator/blob/main/PackageCollectionFormats/v1.md
@@ -15,10 +14,10 @@ struct PackageCollection: Equatable, Codable {
 
 extension PackageCollection {
     struct Package: Equatable, Codable {
-        var url: URL
+        var url: String
         var summary: String?
         var keywords: [String]?
-        var readmeURL: URL?
+        var readmeURL: String?
         var versions: [Version]
     }
 }
