@@ -1,5 +1,5 @@
 
 struct Author: Codable, Equatable {
     var name: String
-    var url: String
+    var url: String?
 }
