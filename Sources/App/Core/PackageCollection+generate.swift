@@ -38,7 +38,11 @@ extension PackageCollection {
                          owner: String,
                          createdBy: Author? = nil) -> EventLoopFuture<PackageCollection> {
         Repository.query(on: db)
-            .with(\.$package)
+            .with(\.$package) {
+                $0.with(\.$versions) {
+                    $0.with(\.$products)
+                }
+            }
             .filter(\.$owner == owner)
             .all()
             .mapEach { repository in
@@ -46,7 +50,21 @@ extension PackageCollection {
                              summary: repository.summary,
                              keywords: nil,
                              readmeURL: nil,
-                             versions: [])
+                             versions: repository.package.versions
+                                .compactMap { dbVersion in
+                                    guard let semVer = dbVersion.reference?.semVer,
+                                          let packageName = dbVersion.packageName else {
+                                        return nil
+                                    }
+                                    return Version.init(
+                                        version: semVer,
+                                        packageName: packageName,
+                                        targets: [],  // FIXME
+                                        products: []  // FIXME
+                                    )
+                                }
+                                .sorted { $0.version > $1.version }
+                )
             }
             .map { packages in
                 PackageCollection.init(
