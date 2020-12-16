@@ -146,9 +146,7 @@ enum PackageShow {
         }
 
         func readmeSection() -> Node<HTML.BodyContext> {
-            let environment = (try? Environment.detect()) ?? .development
-            guard environment == .development,
-                  let readme = model.readme,
+            guard let readme = model.readme,
                   let html = try? MarkdownHTMLConverter.html(from: readme)
             else { return .empty }
 
