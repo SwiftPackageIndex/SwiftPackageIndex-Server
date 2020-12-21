@@ -480,6 +480,9 @@ final class PackageTests: AppTestCase {
     
     func test_history() throws {
         // setup
+        Current.date = {
+            Date.init(timeIntervalSince1970: 1608000588)  // Dec 15, 2020
+        }
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg,
                        commitCount: 1433,
