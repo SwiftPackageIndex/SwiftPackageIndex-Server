@@ -180,6 +180,7 @@ class PublicPage {
     final func body() -> Node<HTML.DocumentContext> {
         .body(
             .class(bodyClass() ?? ""),
+            bodyComments(),
             analyticsBody(),
             stagingBanner(),
             header(),
@@ -190,6 +191,12 @@ class PublicPage {
             footer(),
             stagingBanner()
         )
+    }
+
+    /// Any page level HTML comments for hidden metadata.
+    /// - Returns: An element, or `group` of elements.
+    func bodyComments() -> Node<HTML.BodyContext> {
+        .text("")
     }
     
     /// A stagig banner, which only appears on the staging/development server.
