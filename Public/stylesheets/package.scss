@@ -41,14 +41,9 @@ p.description {
   font-size: 19px;
 }
 
-.releases ul,
-.language_platforms ul {
+.releases ul {
   padding: 0;
   list-style: none;
-}
-
-.language_platforms li {
-  margin: 30px 0;
 }
 
 /* Branches */
@@ -69,23 +64,6 @@ p.description {
 
 .branch {
   color: var(--branch-text);
-}
-
-/* Language and platforms */
-
-.language_platforms {
-  ul {
-    li {
-      ul {
-        padding: 0 40px;
-        list-style: disc;
-
-        li {
-          margin: 5px 0;
-        }
-      }
-    }
-  }
 }
 
 .package_list {
