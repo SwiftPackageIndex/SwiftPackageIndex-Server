@@ -28,7 +28,7 @@
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
     <script src="/javascripts/main.min.js?0"></script>
   </head>
-  <body>
+  <body><!--CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE-->
     <div class="staging">Staging / Development</div>
     <header>
       <div class="inner">
@@ -58,7 +58,7 @@
     <main>
       <div class="inner">
         <div>
-          <div class="split"><!--CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE-->
+          <div class="split">
             <h2>Build Information</h2>
             <div class="lozenge green">
               <i class="icon matrix_succeeded"></i>Build Succeeded

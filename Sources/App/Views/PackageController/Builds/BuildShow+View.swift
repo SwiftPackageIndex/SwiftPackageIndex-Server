@@ -12,11 +12,14 @@ enum BuildShow {
             super.init(path: path)
         }
 
+        override func bodyComments() -> Node<HTML.BodyContext> {
+            .comment(model.versionId.uuidString)
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .div(
                     .class("split"),
-                    .comment(model.versionId.uuidString),
                     .h2("Build Information"),
                     .div(
                         .class("lozenge \(model.buildInfo.status.cssClass)"),

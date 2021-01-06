@@ -28,14 +28,19 @@ enum PackageShow {
         override func bodyClass() -> String? {
             "package"
         }
+
+        override func bodyComments() -> Node<HTML.BodyContext> {
+            .group(
+                .comment(model.packageId.uuidString),
+                .comment(model.score.map(String.init) ?? "unknown")
+            )
+        }
         
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .div(
                     .class("split"),
                     .div(
-                        .comment(model.packageId.uuidString),
-                        .comment(model.score.map(String.init) ?? "unknown"),
                         .h2(.text(model.title)),
                         .element(named: "small", nodes: [ // TODO: Fix after Plot update
                             .a(
