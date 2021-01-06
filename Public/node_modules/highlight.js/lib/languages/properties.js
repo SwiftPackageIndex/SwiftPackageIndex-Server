@@ -27,6 +27,7 @@ function properties(hljs) {
             end: /$/,
             relevance: 0,
             contains: [
+              { begin: '\\\\\\\\'},
               { begin: '\\\\\\n' }
             ]
           }

@@ -164,6 +164,7 @@ hljs.registerLanguage('smali', require('./languages/smali'));
 hljs.registerLanguage('smalltalk', require('./languages/smalltalk'));
 hljs.registerLanguage('sml', require('./languages/sml'));
 hljs.registerLanguage('sqf', require('./languages/sqf'));
+hljs.registerLanguage('sql_more', require('./languages/sql_more'));
 hljs.registerLanguage('sql', require('./languages/sql'));
 hljs.registerLanguage('stan', require('./languages/stan'));
 hljs.registerLanguage('stata', require('./languages/stata'));

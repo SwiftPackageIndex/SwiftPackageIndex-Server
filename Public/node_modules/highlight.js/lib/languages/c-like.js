@@ -93,7 +93,7 @@ function cLike(hljs) {
         begin: '\\b(0b[01\']+)'
       },
       {
-        begin: '(-?)\\b([\\d\']+(\\.[\\d\']*)?|\\.[\\d\']+)(u|U|l|L|ul|UL|f|F|b|B)'
+        begin: '(-?)\\b([\\d\']+(\\.[\\d\']*)?|\\.[\\d\']+)((ll|LL|l|L)(u|U)?|(u|U)(ll|LL|l|L)?|f|F|b|B)'
       },
       {
         begin: '(-?)(\\b0[xX][a-fA-F0-9\']+|(\\b[\\d\']+(\\.[\\d\']*)?|\\.[\\d\']+)([eE][-+]?[\\d\']+)?)'
@@ -210,7 +210,7 @@ function cLike(hljs) {
     end: /[{;=]/,
     excludeEnd: true,
     keywords: CPP_KEYWORDS,
-    illegal: /[^\w\s\*&:<>]/,
+    illegal: /[^\w\s\*&:<>.]/,
     contains: [
       { // to prevent it from being confused as the function title
         begin: DECLTYPE_AUTO_RE,

@@ -1,14 +1,40 @@
+/**
+ * @param {string} value
+ * @returns {RegExp}
+ * */
+
+/**
+ * @param {RegExp | string } re
+ * @returns {string}
+ */
+function source(re) {
+  if (!re) return null;
+  if (typeof re === "string") return re;
+
+  return re.source;
+}
+
+/**
+ * @param {...(RegExp | string) } args
+ * @returns {string}
+ */
+function concat(...args) {
+  const joined = args.map((x) => source(x)).join("");
+  return joined;
+}
+
 /*
 Language: Augmented Backus-Naur Form
 Author: Alex McKibben <alex@nullscope.net>
 Website: https://tools.ietf.org/html/rfc5234
+Audit: 2020
 */
 
 /** @type LanguageFn */
 function abnf(hljs) {
   const regexes = {
-    ruleDeclaration: "^[a-zA-Z][a-zA-Z0-9-]*",
-    unexpectedChars: "[!@#$^&',?+~`|:]"
+    ruleDeclaration: /^[a-zA-Z][a-zA-Z0-9-]*/,
+    unexpectedChars: /[!@#$^&',?+~`|:]/
   };
 
   const keywords = [
@@ -30,7 +56,7 @@ function abnf(hljs) {
     "WSP"
   ];
 
-  const commentMode = hljs.COMMENT(";", "$");
+  const commentMode = hljs.COMMENT(/;/, /$/);
 
   const terminalBinaryMode = {
     className: "symbol",
@@ -54,7 +80,7 @@ function abnf(hljs) {
 
   const ruleDeclarationMode = {
     className: "attribute",
-    begin: regexes.ruleDeclaration + '(?=\\s*=)'
+    begin: concat(regexes.ruleDeclaration, /(?=\s*=)/)
   };
 
   return {

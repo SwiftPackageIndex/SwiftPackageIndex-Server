@@ -15,6 +15,14 @@ function source(re) {
 }
 
 /**
+ * @param {RegExp | string } re
+ * @returns {string}
+ */
+function lookahead(re) {
+  return concat('(?=', re, ')');
+}
+
+/**
  * @param {...(RegExp | string) } args
  * @returns {string}
  */
@@ -29,9 +37,10 @@ Description: R is a free software environment for statistical computing and grap
 Author: Joe Cheng <joe@rstudio.org>
 Contributors: Konrad Rudolph <konrad.rudolph@gmail.com>
 Website: https://www.r-project.org
-Category: scientific
+Category: common,scientific
 */
 
+/** @type LanguageFn */
 function r(hljs) {
   // Identifiers in R cannot start with `_`, but they can start with `.` if it
   // is not immediately followed by a digit.
@@ -78,7 +87,30 @@ function r(hljs) {
         'standardGeneric substitute sum switch tan tanh tanpi tracemem ' +
         'trigamma trunc unclass untracemem UseMethod xtfrm',
     },
+    compilerExtensions: [
+      // allow beforeMatch to act as a "qualifier" for the match
+      // the full match begin must be [beforeMatch][begin]
+      (mode, parent) => {
+        if (!mode.beforeMatch) return;
+        // starts conflicts with endsParent which we need to make sure the child
+        // rule is not matched multiple times
+        if (mode.starts) throw new Error("beforeMatch cannot be used with starts");
 
+        const originalMode = Object.assign({}, mode);
+        Object.keys(mode).forEach((key) => { delete mode[key]; });
+
+        mode.begin = concat(originalMode.beforeMatch, lookahead(originalMode.begin));
+        mode.starts = {
+          relevance: 0,
+          contains: [
+            Object.assign(originalMode, { endsParent: true })
+          ]
+        };
+        mode.relevance = 0;
+
+        delete originalMode.beforeMatch;
+      }
+    ],
     contains: [
       // Roxygen comments
       hljs.COMMENT(
@@ -156,41 +188,25 @@ function r(hljs) {
       },
       {
         className: 'number',
+        relevance: 0,
+        beforeMatch: /([^a-zA-Z0-9._])/, // not part of an identifier
         variants: [
           // TODO: replace with negative look-behind when available
           // { begin: /(?<![a-zA-Z0-9._])0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*[pP][+-]?\d+i?/ },
           // { begin: /(?<![a-zA-Z0-9._])0[xX][0-9a-fA-F]+([pP][+-]?\d+)?[Li]?/ },
           // { begin: /(?<![a-zA-Z0-9._])(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?[Li]?/ }
-
-          // The below rules all eat an extra character in front (for the
-          // look-behind check) and then exclude it from the match, but I think
-          // in many cases this will work out just fine.
           {
             // Special case: only hexadecimal binary powers can contain fractions.
-            begin: /([^a-zA-Z0-9._])(?=0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*[pP][+-]?\d+i?)/,
-            end: /0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*[pP][+-]?\d+i?/,
-            excludeBegin: true
+            match: /0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*[pP][+-]?\d+i?/,
           },
           {
-            begin: /([^a-zA-Z0-9._])(?=0[xX][0-9a-fA-F]+([pP][+-]?\d+)?[Li]?)/,
-            end: /0[xX][0-9a-fA-F]+([pP][+-]?\d+)?[Li]?/ ,
-            excludeBegin: true
+            match: /0[xX][0-9a-fA-F]+([pP][+-]?\d+)?[Li]?/
           },
           {
-            begin: /([^a-zA-Z0-9._])(?=(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?[Li]?)/,
-            end: /(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?[Li]?/,
-            excludeBegin: true
+            match: /(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?[Li]?/,
           }
         ],
-        // "on:begin": (match, response) => {
-        //   if (match.index > 0) {
-        //     let priorChar = match.input[match.index - 1];
-        //     if (priorChar.match(/[a-zA-Z0-9._]/)) response.ignoreMatch();
-        //   }
-        // },
-        relevance: 0
       },
-
       {
         // infix operator
         begin: '%',
