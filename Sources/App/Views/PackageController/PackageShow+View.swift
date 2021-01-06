@@ -54,47 +54,7 @@ enum PackageShow {
                     licenseMetadata()
                 ),
                 .hr(),
-                .p(
-                    .class("description"),
-                    .unwrap(model.summary) { summary in
-                        .text(summary.replaceShorthandEmojis())
-                    }
-                ),
-                .section(
-                    .class("metadata"),
-                    .ul(
-                        .unwrap(model.authorsClause()) {
-                            .li(.class("icon author"), $0)
-                        },
-                        .unwrap(model.historyClause()) {
-                            .li(.class("icon history"), $0)
-                        },
-                        .unwrap(model.activityClause()) {
-                            .li(.class("icon activity"), $0)
-                        },
-                        .unwrap(model.productsClause()) {
-                            .li(.class("icon products"), $0)
-                        },
-                        .unwrap(model.starsClause()) {
-                            .li(.class("icon stars"), $0)
-                        }
-                    )
-                ),
-                .element(named: "hr", nodes:[ // TODO: Fix after Plot update
-                    .attribute(named: "class", value: "short")
-                ]),
-                .section(
-                    .class("releases"),
-                    .ul(
-                        .li(.group(model.stableReleaseClause())),
-                        .li(.group(model.betaReleaseClause())),
-                        .li(.group(model.latestReleaseClause()))
-                    )
-                ),
-                .group(
-                    model.swiftVersionCompatibilitySection(),
-                    model.platformCompatibilitySection()
-                ),
+                metadataSection(),
                 readmeSection()
             )
         }
@@ -147,6 +107,68 @@ enum PackageShow {
             return .if(environment != .production,
                        .a(.href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
                           "🏟")
+            )
+        }
+
+        func metadataSection() -> Node<HTML.BodyContext> {
+            .section(
+                .class("metadata"),
+                mainMetadata(),
+                sidebarMetadata()
+            )
+        }
+
+        func mainMetadata() -> Node<HTML.BodyContext> {
+            .article(
+                .p(
+                    .class("description"),
+                    .unwrap(model.summary) { summary in
+                        .text(summary.replaceShorthandEmojis())
+                    }
+                ),
+                .section(
+                    .ul(
+                        .unwrap(model.authorsClause()) {
+                            .li(.class("icon author"), $0)
+                        },
+                        .unwrap(model.historyClause()) {
+                            .li(.class("icon history"), $0)
+                        },
+                        .unwrap(model.activityClause()) {
+                            .li(.class("icon activity"), $0)
+                        },
+                        .unwrap(model.productsClause()) {
+                            .li(.class("icon products"), $0)
+                        }
+                    )
+                ),
+                .hr(),
+                .group(
+                    .h3("Compatibility"),
+                    model.swiftVersionCompatibilitySection(),
+                    model.platformCompatibilitySection()
+                )
+            )
+        }
+
+        func sidebarMetadata() -> Node<HTML.BodyContext> {
+            .aside(
+                .section(
+                    .ul(
+                        .unwrap(model.starsClause()) {
+                            .li(.class("icon stars"), $0)
+                        }
+                    )
+                ),
+                .hr(),
+                .section(
+                    .class("releases"),
+                    .ul(
+                        .li(.group(model.stableReleaseClause())),
+                        .li(.group(model.betaReleaseClause())),
+                        .li(.group(model.latestReleaseClause()))
+                    )
+                )
             )
         }
 

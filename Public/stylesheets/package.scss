@@ -12,6 +12,16 @@
     margin: 10px 0;
   }
   
+  section.metadata {
+    display: grid;
+    grid-template-columns: 0.7fr 0.3fr;
+    gap: 40px;
+  }
+  
+  aside {
+    // align-self: start;
+  }
+
   .license {
     display: flex;
     flex-direction: row;
