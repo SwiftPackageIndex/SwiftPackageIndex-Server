@@ -196,13 +196,13 @@ class PublicPage {
     /// Any page level HTML comments for hidden metadata.
     /// - Returns: An element, or `group` of elements.
     func bodyComments() -> Node<HTML.BodyContext> {
-        .text("")
+        .empty
     }
     
     /// A stagig banner, which only appears on the staging/development server.
     /// - Returns: Either a <div> element, or nothing.
     final func stagingBanner() -> Node<HTML.BodyContext> {
-        guard !Current.hideStagingBanner() else { return .text("") }
+        guard !Current.hideStagingBanner() else { return .empty }
         let environment = (try? Environment.detect()) ?? .development
         if environment == .development {
             return .div(
@@ -210,7 +210,7 @@ class PublicPage {
                 .text("Staging / Development")
             )
         } else {
-            return .text("")
+            return .empty
         }
     }
     
@@ -270,13 +270,13 @@ class PublicPage {
     /// A <noscript> element that will only be shown to people with JavaScript disabled.
     /// - Returns: A <noscript> element.
     func noScript() -> Node<HTML.BodyContext> {
-        .text("")
+        .empty
     }
     
     /// Optional content that will be inserted in between the page header and the main content for the page.
     /// - Returns: An optional element, or group of elements.
     func preMain() -> Node<HTML.BodyContext> {
-        .text("")
+        .empty
     }
     
     /// The <main> element that will contain the primary content for the page.
@@ -292,7 +292,7 @@ class PublicPage {
     /// Optional content that will be inserted in between the main content for the page and the page footer.
     /// - Returns: An optional element, or group of elements.
     func postMain() -> Node<HTML.BodyContext> {
-        .text("")
+        .empty
     }
     
     /// The page's content.
