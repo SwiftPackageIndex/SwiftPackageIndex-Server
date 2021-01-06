@@ -8,20 +8,10 @@
     padding: 0;
   }
 
-  hr {
+  li {
     margin: 10px 0;
   }
-
-  section.metadata{
-    li {
-      margin: 10px 0;
-
-      p {
-        margin: 10px 0;
-      }
-    }
-  }
-
+  
   .license {
     display: flex;
     flex-direction: row;
@@ -47,6 +37,7 @@
 }
 
 p.description {
+  margin-top: 0;
   font-size: 19px;
 }
 

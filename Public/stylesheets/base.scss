@@ -92,19 +92,15 @@ blockquote {
 }
 
 hr {
-  margin: 40px 0;
+  margin: 10px auto;
   border: 0;
   height: 2px;
   background-color: var(--rule-background);
 }
 
-hr.short {
-  max-width: 40%;
+section hr {
+  margin: 20px auto;
   height: 1px;
-}
-
-section {
-  margin: 35px 0;
 }
 
 noscript {

@@ -39,7 +39,7 @@ enum BuildIndex {
                 ),
                 .forEach(SwiftVersion.allActive.reversed()) { swiftVersion in
                     .group(
-                        .element(named: "hr"),
+                        .hr(),
                         .h3(.text(swiftVersion.longDisplayName)),
                         .ul(
                             .class("matrix"),
