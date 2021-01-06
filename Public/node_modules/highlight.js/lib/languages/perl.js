@@ -182,7 +182,7 @@ function perl(hljs) {
             /\//,
             /(\\.|[^\\\/])*/,
             /\//,
-            REGEX_MODIFIERS,
+            REGEX_MODIFIERS
           ),
           relevance: 10
         },
