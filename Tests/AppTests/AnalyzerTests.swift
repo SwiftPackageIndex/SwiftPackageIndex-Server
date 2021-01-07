@@ -60,7 +60,7 @@ class AnalyzerTests: AppTestCase {
                           }
                         }
                       ],
-                      "targets": []
+                      "targets": [{"name": "t1"}]
                     }
                     """#
             }
@@ -76,7 +76,7 @@ class AnalyzerTests: AppTestCase {
                           }
                         }
                       ],
-                      "targets": []
+                      "targets": [{"name": "t2"}]
                     }
                     """#
             }
@@ -139,11 +139,17 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(sortedVersions2.map(\.reference?.description), ["main", "2.0.0", "2.1.0"])
         XCTAssertEqual(sortedVersions2.map(\.latest), [.defaultBranch, nil, .release])
 
-        // validate products (each version has 2 products)
+        // validate products
+        // (2 packages with 3 versions with 1 product each = 6 products)
         let products = try Product.query(on: app.db).sort(\.$name).all().wait()
         XCTAssertEqual(products.count, 6)
         assertEquals(products, \.name, ["p1", "p1", "p1", "p2", "p2", "p2"])
         assertEquals(products, \.type, [.executable, .executable, .executable, .library, .library, .library])
+
+        // validate targets
+        // (2 packages with 3 versions with 1 target each = 6 targets)
+        let targets = try Target.query(on: app.db).sort(\.$name).all().wait()
+        XCTAssertEqual(targets.map(\.name), ["t1", "t1", "t1", "t2", "t2", "t2"])
         
         // validate score
         XCTAssertEqual(pkg1.score, 10)
@@ -672,6 +678,25 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(products.map(\.type), [.library, .executable])
     }
     
+    func test_createTargets() throws {
+        // setup
+        let p = Package(id: UUID(), url: "1")
+        let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
+        let m = Manifest(name: "1",
+                         products: [],
+                         targets: [.init(name: "t1"), .init(name: "t2")],
+                         toolsVersion: .init(version: "5.0.0"))
+        try p.save(on: app.db).wait()
+        try v.save(on: app.db).wait()
+
+        // MUT
+        try createTargets(on: app.db, version: v, manifest: m).wait()
+
+        // validation
+        let targets = try Target.query(on: app.db).sort(\.$createdAt).all().wait()
+        XCTAssertEqual(targets.map(\.name), ["t1", "t2"])
+    }
+
     func test_updatePackage() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)

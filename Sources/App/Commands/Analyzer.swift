@@ -145,6 +145,7 @@ func analyze(client: Client,
                 .map { getManifests(logger: logger, packageAndVersions: $0) }
                 .flatMap { updateVersions(on: tx, packageResults: $0) }
                 .flatMap { createProducts(on: tx, packageResults: $0) }
+                .flatMap { createTargets(on: tx, packageResults: $0) }
                 .flatMap { updateLatestVersions(on: tx, packageResults: $0) }
                 .flatMap { onNewVersions(client: client,
                                          logger: logger,
@@ -604,6 +605,42 @@ func createProducts(on database: Database, version: Version, manifest: Manifest)
                             name: manifestProduct.name)
     }
     return products.create(on: database)
+}
+
+
+/// Create and persist `Target`s from the `Manifest` data provided in `packageResults`.
+/// - Parameters:
+///   - database: database connection
+///   - packageResults: results to process
+/// - Returns: the input data for further processing, wrapped in a future
+func createTargets(on database: Database,
+                   packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
+        EventLoopFuture.andAllComplete(
+            versionsAndManifests.map { version, manifest in
+                createTargets(on: database, version: version, manifest: manifest)
+            },
+            on: database.eventLoop
+        )
+        .transform(to: (pkg, versionsAndManifests))
+    }
+}
+
+
+/// Create and persist `Target`s for a given `Version` according to the given `Manifest`.
+/// - Parameters:
+///   - database: `Database` object
+///   - version: version to update
+///   - manifest: `Manifest` data
+/// - Returns: future
+func createTargets(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
+    let targets = manifest.targets.compactMap { manifestTarget -> Target? in
+        // Using `try?` here because the only way this could error is version.id being nil
+        // - that should never happen and even in the pathological case we can skip the product
+        return try? Target(version: version,
+                           name: manifestTarget.name)
+    }
+    return targets.create(on: database)
 }
 
 
