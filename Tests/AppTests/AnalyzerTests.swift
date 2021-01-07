@@ -583,6 +583,7 @@ class AnalyzerTests: AppTestCase {
                                             .init(platformName: .macos, version: "10.10")],
                                 products: [],
                                 swiftLanguageVersions: ["1", "2", "3.0.0"],
+                                targets: [],
                                 toolsVersion: .init(version: "5.0.0"))
         
         // MUT
@@ -618,6 +619,7 @@ class AnalyzerTests: AppTestCase {
         let m = Manifest(name: "1",
                          products: [.init(name: "p1", type: .library),
                                     .init(name: "p2", type: .executable)],
+                         targets: [],
                          toolsVersion: .init(version: "5.0.0"))
         try p.save(on: app.db).wait()
         try v.save(on: app.db).wait()
