@@ -18,6 +18,11 @@ final class Target: Model, Content {
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
 
+    // reference fields
+
+    @Parent(key: "version_id")
+    var version: Version
+
     // data fields
 
     @Field(key: "name")
@@ -28,7 +33,10 @@ final class Target: Model, Content {
     init() { }
 
     init(id: UUID? = nil,
-         name: String) {
+         version: Version,
+         name: String) throws {
+        self.id = id
+        self.$version.id = try version.requireID()
         self.name = name
     }
 }

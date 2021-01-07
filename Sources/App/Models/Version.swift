@@ -69,6 +69,9 @@ final class Version: Model, Content {
     @Children(for: \.$version)
     var products: [Product]
     
+    @Children(for: \.$version)
+    var targets: [Target]
+
     init() { }
     
     init(id: Id? = nil,

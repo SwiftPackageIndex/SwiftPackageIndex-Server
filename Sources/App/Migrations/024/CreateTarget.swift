@@ -8,6 +8,10 @@ struct CreateTarget: Migration {
             .field("created_at", .datetime)
             .field("updated_at", .datetime)
 
+            // reference fields
+            .field("version_id", .uuid,
+                   .references("versions", "id", onDelete: .cascade))
+
             // data fields
             .field("name", .string)
 
