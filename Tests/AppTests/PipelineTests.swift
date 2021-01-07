@@ -122,7 +122,7 @@ class PipelineTests: AppTestCase {
         Current.fetchPackageList = { _ in self.future(urls.asURLs) }
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("swift package dump-package") {
-                return #"{ "name": "Mock", "products": [] }"#
+                return #"{ "name": "Mock", "products": [], "targets": [] }"#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             if cmd.string == "git rev-list --count HEAD" { return "12" }

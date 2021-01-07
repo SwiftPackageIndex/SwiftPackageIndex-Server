@@ -49,10 +49,36 @@ class AnalyzerTests: AppTestCase {
                 return ["2.0.0", "2.1.0"].joined(separator: "\n")
             }
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-1") {
-                return #"{ "name": "foo-1", "products": [{"name":"p1","type":{"executable": null}}] }"#
+                return #"""
+                    {
+                      "name": "foo-1",
+                      "products": [
+                        {
+                          "name": "p1",
+                          "type": {
+                            "executable": null
+                          }
+                        }
+                      ],
+                      "targets": []
+                    }
+                    """#
             }
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
-                return #"{ "name": "foo-2", "products": [{"name":"p2","type":{"library": []}}] }"#
+                return #"""
+                    {
+                      "name": "foo-2",
+                      "products": [
+                        {
+                          "name": "p2",
+                          "type": {
+                            "library": []
+                          }
+                        }
+                      ],
+                      "targets": []
+                    }
+                    """#
             }
             
             // Git.revisionInfo (per ref - default branch & tags)
@@ -159,7 +185,20 @@ class AnalyzerTests: AppTestCase {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
             if cmd.string.hasSuffix("package dump-package") {
-                return #"{ "name": "foo-1", "products": [{"name":"p1","type":{"executable": null}}] }"#
+                return #"""
+                    {
+                      "name": "foo-1",
+                      "products": [
+                        {
+                          "name": "p1",
+                          "type": {
+                            "executable": null
+                          }
+                        }
+                      ],
+                      "targets": []
+                    }
+                    """#
             }
 
             // New Git.revisionInfo (per ref - default branch & tags)
@@ -215,7 +254,7 @@ class AnalyzerTests: AppTestCase {
             }
             // second package succeeds
             if cmd.string.hasSuffix("swift package dump-package") && path.hasSuffix("foo-2") {
-                return #"{ "name": "SPI-Server", "products": [] }"#
+                return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             if cmd.string == "git rev-list --count HEAD" { return "12" }
@@ -514,7 +553,7 @@ class AnalyzerTests: AppTestCase {
                 commands.append(cmd.string)
             }
             if cmd.string.hasSuffix("swift package dump-package") {
-                return #"{ "name": "SPI-Server", "products": [] }"#
+                return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             return ""
         }
@@ -543,7 +582,7 @@ class AnalyzerTests: AppTestCase {
                 commands.append(cmd.string)
             }
             if cmd.string.hasSuffix("swift package dump-package") {
-                return #"{ "name": "SPI-Server", "products": [] }"#
+                return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             return ""
         }
@@ -664,7 +703,26 @@ class AnalyzerTests: AppTestCase {
                 return ["1.0.0", "2.0.0"].joined(separator: "\n")
             }
             if cmd.string.hasSuffix("swift package dump-package") {
-                return #"{ "name": "foo", "products": [{"name":"p1","type":{"executable": null}}, {"name":"p2","type":{"executable": null}}] }"#
+                return #"""
+                    {
+                      "name": "foo",
+                      "products": [
+                        {
+                          "name": "p1",
+                          "type": {
+                            "executable": null
+                          }
+                        },
+                        {
+                          "name": "p2",
+                          "type": {
+                            "executable": null
+                          }
+                        }
+                      ],
+                      "targets": []
+                    }
+                    """#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             if cmd.string == "git rev-list --count HEAD" { return "12" }
