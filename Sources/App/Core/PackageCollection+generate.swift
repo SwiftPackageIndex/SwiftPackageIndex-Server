@@ -8,7 +8,7 @@ extension PackageCollection {
                          overview: String? = nil,
                          keywords: [String]? = nil,
                          packageURLs: [String],
-                         createdBy: Author? = nil) -> EventLoopFuture<PackageCollection> {
+                         generatedBy author: Author? = nil) -> EventLoopFuture<PackageCollection> {
         App.Package.query(on: db)
             .with(\.$repositories)
             .filter(\.$url ~~ packageURLs)
@@ -17,8 +17,8 @@ extension PackageCollection {
                 Package.init(url: dbPackage.url,
                              summary: dbPackage.repository?.summary,
                              keywords: nil,
-                             readmeURL: nil,
-                             versions: [])
+                             versions: [],
+                             readmeURL: nil)
             }
             .map { packages in
                 PackageCollection.init(
@@ -26,8 +26,8 @@ extension PackageCollection {
                     overview: overview,
                     keywords: keywords,
                     packages: packages,
-                    createdAt: Date(),
-                    createdBy: createdBy)
+                    generatedAt: Date(),
+                    generatedBy: author)
             }
     }
 
@@ -36,7 +36,7 @@ extension PackageCollection {
                          overview: String? = nil,
                          keywords: [String]? = nil,
                          owner: String,
-                         createdBy: Author? = nil) -> EventLoopFuture<PackageCollection> {
+                         generatedBy author: Author? = nil) -> EventLoopFuture<PackageCollection> {
         Repository.query(on: db)
             .with(\.$package) {
                 $0.with(\.$versions) {
@@ -49,7 +49,6 @@ extension PackageCollection {
                 Package.init(url: repository.package.url,
                              summary: repository.summary,
                              keywords: nil,
-                             readmeURL: nil,
                              versions: repository.package.versions
                                 .compactMap { dbVersion in
                                     guard let semVer = dbVersion.reference?.semVer,
@@ -63,7 +62,8 @@ extension PackageCollection {
                                         products: []  // FIXME
                                     )
                                 }
-                                .sorted { $0.version > $1.version }
+                                .sorted { $0.version > $1.version },
+                             readmeURL: nil
                 )
             }
             .map { packages in
@@ -72,8 +72,8 @@ extension PackageCollection {
                     overview: overview,
                     keywords: keywords,
                     packages: packages,
-                    createdAt: Date(),
-                    createdBy: createdBy)
+                    generatedAt: Date(),
+                    generatedBy: author)
             }
     }
 }

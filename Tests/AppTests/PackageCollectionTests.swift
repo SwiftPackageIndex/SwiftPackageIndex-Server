@@ -15,7 +15,7 @@ class PackageCollectionTests: AppTestCase {
                                                  overview: "overview",
                                                  keywords: ["key", "word"],
                                                  packageURLs: ["1"],
-                                                 createdBy: .init(name: "Foo", url: nil)).wait()
+                                                 generatedBy: .init(name: "Foo", url: nil)).wait()
 
         // validate
         XCTAssertEqual(res.name, "Foo")
@@ -23,8 +23,8 @@ class PackageCollectionTests: AppTestCase {
                         .init(url: "1",
                               summary: "summary",
                               keywords: nil,
-                              readmeURL: nil,
-                              versions: [])
+                              versions: [],
+                              readmeURL: nil)
         ])
     }
 
@@ -96,7 +96,7 @@ class PackageCollectionTests: AppTestCase {
                                                  overview: "overview",
                                                  keywords: ["key", "word"],
                                                  owner: "foo",
-                                                 createdBy: .init(name: "Foo", url: nil)).wait()
+                                                 generatedBy: .init(name: "Foo", url: nil)).wait()
 
         // validate
 
@@ -106,7 +106,6 @@ class PackageCollectionTests: AppTestCase {
                         .init(url: "https://github.com/foo/1",
                               summary: "summary 1",
                               keywords: nil,
-                              readmeURL: nil,
                               versions: [
                                 .init(version: .init(2, 0, 0),
                                       packageName: "P1-tag",
@@ -116,17 +115,18 @@ class PackageCollectionTests: AppTestCase {
                                       packageName: "P1-tag",
                                       targets: [],
                                       products: [])
-                              ]),
+                              ],
+                              readmeURL: nil),
                         .init(url: "https://github.com/foo/2",
                               summary: "summary 2",
                               keywords: nil,
-                              readmeURL: nil,
                               versions: [
                                 .init(version: .init(1, 2, 3),
                                                  packageName: "P2-tag",
                                                  targets: [],
                                                  products: [])
-                              ])
+                              ],
+                              readmeURL: nil)
         ])
     }
 
