@@ -1,4 +1,5 @@
 @testable import App
+import SnapshotTesting
 import XCTest
 
 
@@ -30,6 +31,7 @@ class PackageCollectionTests: AppTestCase {
 
     func test_generate_for_owner() throws {
         // setup
+        Current.date = { Date(timeIntervalSince1970: 0) }
         // first package
         let p1 = try savePackage(on: app.db, "https://github.com/foo/1")
         do {
@@ -99,35 +101,7 @@ class PackageCollectionTests: AppTestCase {
                                                  generatedBy: .init(name: "Foo", url: nil)).wait()
 
         // validate
-
-        // FIXME: use snapshot test (easier diffs)
-        XCTAssertEqual(res.name, "Foo")
-        XCTAssertEqual(res.packages, [
-                        .init(url: "https://github.com/foo/1",
-                              summary: "summary 1",
-                              keywords: nil,
-                              versions: [
-                                .init(version: .init(2, 0, 0),
-                                      packageName: "P1-tag",
-                                      targets: [],
-                                      products: []),
-                                .init(version: .init(1, 2, 3),
-                                      packageName: "P1-tag",
-                                      targets: [],
-                                      products: [])
-                              ],
-                              readmeURL: nil),
-                        .init(url: "https://github.com/foo/2",
-                              summary: "summary 2",
-                              keywords: nil,
-                              versions: [
-                                .init(version: .init(1, 2, 3),
-                                                 packageName: "P2-tag",
-                                                 targets: [],
-                                                 products: [])
-                              ],
-                              readmeURL: nil)
-        ])
+        assertSnapshot(matching: res, as: .json)
     }
 
 }
