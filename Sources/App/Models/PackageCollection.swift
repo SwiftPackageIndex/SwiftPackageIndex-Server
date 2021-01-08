@@ -8,8 +8,16 @@ struct PackageCollection: Equatable, Codable {
     var overview: String?
     var keywords: [String]?
     var packages: [Package]
-    var createdAt: Date
-    var createdBy: Author?
+    var formatVersion: FormatVersion = .v1_0
+    var revision: Int?
+    var generatedAt: Date
+    var generatedBy: Author?
+}
+
+extension PackageCollection {
+    enum FormatVersion: String, Equatable, Codable {
+        case v1_0 = "1.0"
+    }
 }
 
 extension PackageCollection {
@@ -17,8 +25,8 @@ extension PackageCollection {
         var url: String
         var summary: String?
         var keywords: [String]?
-        var readmeURL: String?
         var versions: [Version]
+        var readmeURL: String?
     }
 }
 
@@ -28,6 +36,11 @@ extension PackageCollection {
         var packageName: String
         var targets: [Target]
         var products: [Product]
+        // var toolsVersion: String
+        // var minimumPlatformVersions: [PlatformVersion]
+        // var verifiedPlatforms: [Platform]
+        // var verifiedSwiftVersion: [String]?
+        // var license: License?
     }
 }
 
@@ -41,12 +54,18 @@ extension PackageCollection {
 extension PackageCollection {
     struct Product: Equatable, Codable {
         var name: String
-        var type: Type
-        var target: [Target]
+        var type: ProductType
+        var targets: [String]
 
-        enum `Type`: String, Equatable, Codable {
+        enum ProductType: String, Equatable, Codable {
             case executable
-            case library
+            case library  //(LibraryType)
         }
+
+        //    enum LibraryType: String, Equatable, Codable {
+        //        case `static`
+        //        case `dynamic`
+        //        case automatic
+        //    }
     }
 }
