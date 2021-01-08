@@ -14,6 +14,7 @@ extension PackageCollection {
             .with(\.$repositories)
             .with(\.$versions) {
                 $0.with(\.$products)
+                $0.with(\.$targets)
             }
             .filter(\.$url ~~ packageURLs)
             .all()
@@ -39,6 +40,7 @@ extension PackageCollection {
             .with(\.$repositories)
             .with(\.$versions) {
                 $0.with(\.$products)
+                $0.with(\.$targets)
             }
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
             .filter(Repository.self, \.$owner == owner)
@@ -65,21 +67,44 @@ extension PackageCollection.Package {
                   summary: package.repository?.summary,
                   keywords: nil,
                   versions: package.versions
-                    .compactMap { dbVersion in
-                        guard let semVer = dbVersion.reference?.semVer,
-                              let packageName = dbVersion.packageName else {
+                    .compactMap { version in
+                        guard let semVer = version.reference?.semVer,
+                              let packageName = version.packageName else {
                             return nil
                         }
                         return PackageCollection.Version.init(
                             version: "\(semVer)",
                             packageName: packageName,
-                            targets: [],  // FIXME
-                            products: []  // FIXME
+                            targets: version.targets.map(PackageCollection.Target.init(target:)),
+                            products: version.products.compactMap(PackageCollection.Product.init(product:))
                         )
                     }
                     .sorted { $0.version > $1.version },
                   readmeURL: nil
         )
+    }
+
+}
+
+
+extension PackageCollection.Target {
+
+    init(target: App.Target) {
+        self.init(name: target.name, moduleName: nil)
+    }
+
+}
+
+
+extension PackageCollection.Product {
+
+    init?(product: App.Product) {
+        guard let type = ProductType(rawValue: product.type.rawValue) else {
+            return nil
+        }
+        self.init(name: product.name,
+                  type: type,
+                  targets: [])  // FIXME: add targets
     }
 
 }

@@ -1,5 +1,6 @@
 @testable import App
 import SnapshotTesting
+import Vapor
 import XCTest
 
 
@@ -14,7 +15,49 @@ class PackageCollectionTests: AppTestCase {
 
     func test_Package_init() throws {
         // Tests PackageCollection.Package initialisation from a App.Package
-        // TODO
+        do {
+            let p = Package(url: "1".asGithubUrl.url)
+            try p.save(on: app.db).wait()
+            do {
+                let r = try Repository(package: p, summary: "summary")
+                try r.save(on: app.db).wait()
+            }
+            do {
+                let v = try Version(package: p,
+                                    packageName: "Foo",
+                                    reference: .tag(1, 2, 3))
+                try v.save(on: app.db).wait()
+                do {
+                    let p1 = try Product(version: v, type: .library, name: "P1")
+                    let p2 = try Product(version: v, type: .library, name: "P2")
+                    try [p1, p2].save(on: app.db).wait()
+                }
+                do {
+                    let t1 = try Target(version: v, name: "T1")
+                    let t2 = try Target(version: v, name: "T2")
+                    try [t1, t2].save(on: app.db).wait()
+                }
+            }
+        }
+        let p = try Package.query(on: app.db)
+            .with(\.$repositories)
+            .with(\.$versions) {
+                $0.with(\.$products)
+                $0.with(\.$targets)
+            }
+            .first()
+            .unwrap(or: Abort(.notFound))
+            .wait()
+
+        // MUT
+        let res = PackageCollection.Package(package: p)
+
+        // validate
+        XCTAssertEqual(res.summary, "summary")
+        XCTAssertEqual(res.versions.flatMap { $0.products.map(\.name) },
+                       ["P1", "P2"])
+        XCTAssertEqual(res.versions.flatMap { $0.targets.map(\.name) },
+                       ["T1", "T2"])
     }
 
     func test_generate_from_urls() throws {
