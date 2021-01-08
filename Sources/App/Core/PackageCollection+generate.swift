@@ -3,6 +3,7 @@ import Foundation
 
 
 extension PackageCollection {
+
     static func generate(db: Database,
                          name: String,
                          overview: String? = nil,
@@ -11,21 +12,18 @@ extension PackageCollection {
                          generatedBy author: Author? = nil) -> EventLoopFuture<PackageCollection> {
         App.Package.query(on: db)
             .with(\.$repositories)
+            .with(\.$versions) {
+                $0.with(\.$products)
+            }
             .filter(\.$url ~~ packageURLs)
             .all()
-            .mapEach { dbPackage in
-                Package.init(url: dbPackage.url,
-                             summary: dbPackage.repository?.summary,
-                             keywords: nil,
-                             versions: [],
-                             readmeURL: nil)
-            }
-            .map { packages in
+            .mapEach { Package.init(package: $0) }
+            .map {
                 PackageCollection.init(
                     name: name,
                     overview: overview,
                     keywords: keywords,
-                    packages: packages,
+                    packages: $0,
                     generatedAt: Date(),
                     generatedBy: author)
             }
@@ -37,43 +35,51 @@ extension PackageCollection {
                          keywords: [String]? = nil,
                          owner: String,
                          generatedBy author: Author? = nil) -> EventLoopFuture<PackageCollection> {
-        Repository.query(on: db)
-            .with(\.$package) {
-                $0.with(\.$versions) {
-                    $0.with(\.$products)
-                }
+        App.Package.query(on: db)
+            .with(\.$repositories)
+            .with(\.$versions) {
+                $0.with(\.$products)
             }
-            .filter(\.$owner == owner)
+            .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
+            .filter(Repository.self, \.$owner == owner)
             .all()
-            .mapEach { repository in
-                Package.init(url: repository.package.url,
-                             summary: repository.summary,
-                             keywords: nil,
-                             versions: repository.package.versions
-                                .compactMap { dbVersion in
-                                    guard let semVer = dbVersion.reference?.semVer,
-                                          let packageName = dbVersion.packageName else {
-                                        return nil
-                                    }
-                                    return Version.init(
-                                        version: semVer,
-                                        packageName: packageName,
-                                        targets: [],  // FIXME
-                                        products: []  // FIXME
-                                    )
-                                }
-                                .sorted { $0.version > $1.version },
-                             readmeURL: nil
-                )
-            }
-            .map { packages in
+            .mapEach { Package.init(package: $0) }
+            .map {
                 PackageCollection.init(
                     name: name,
                     overview: overview,
                     keywords: keywords,
-                    packages: packages,
+                    packages: $0,
                     generatedAt: Current.date(),
                     generatedBy: author)
             }
     }
+
+}
+
+
+extension PackageCollection.Package {
+
+    init(package: App.Package) {
+        self.init(url: package.url,
+                  summary: package.repository?.summary,
+                  keywords: nil,
+                  versions: package.versions
+                    .compactMap { dbVersion in
+                        guard let semVer = dbVersion.reference?.semVer,
+                              let packageName = dbVersion.packageName else {
+                            return nil
+                        }
+                        return PackageCollection.Version.init(
+                            version: semVer,
+                            packageName: packageName,
+                            targets: [],  // FIXME
+                            products: []  // FIXME
+                        )
+                    }
+                    .sorted { $0.version > $1.version },
+                  readmeURL: nil
+        )
+    }
+
 }
