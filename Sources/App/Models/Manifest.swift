@@ -37,6 +37,9 @@ struct Manifest: Decodable, Equatable {
         var name: String
         var type: `Type`
     }
+    struct Target: Decodable, Equatable {
+        var name: String
+    }
     struct ToolsVersion: Decodable, Equatable {
         enum CodingKeys: String, CodingKey {
             case version = "_version"
@@ -47,6 +50,7 @@ struct Manifest: Decodable, Equatable {
     var platforms: [Platform]?
     var products: [Product]
     var swiftLanguageVersions: [String]?
+    var targets: [Target]
     var toolsVersion: ToolsVersion?
 }
 

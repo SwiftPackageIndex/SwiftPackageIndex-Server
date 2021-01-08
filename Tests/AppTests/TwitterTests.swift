@@ -241,7 +241,7 @@ class TwitterTests: AppTestCase {
         Current.fetchPackageList = { _ in self.future([url.url]) }
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("swift package dump-package") {
-                return #"{ "name": "Mock", "products": [] }"#
+                return #"{ "name": "Mock", "products": [], "targets": [] }"#
             }
             if cmd.string == "git tag" {
                 return tag }

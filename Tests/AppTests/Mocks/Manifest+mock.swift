@@ -3,7 +3,7 @@
 
 extension Manifest {
     static var mock: Self {
-        .init(name: "MockManifest", products: [.mock])
+        .init(name: "MockManifest", products: [.mock], targets: [])
     }
 }
 

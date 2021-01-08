@@ -41,11 +41,14 @@ class ManifestTests: XCTestCase {
         let data = try loadData(for: "manifest-1.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
         XCTAssertEqual(m.name, "SPI-Server")
-        XCTAssertEqual(m.toolsVersion, .init(version: "5.2.0"))
         XCTAssertEqual(m.platforms, [.init(platformName: .macos, version: "10.15")])
         XCTAssertEqual(m.products, [.init(name: "Some Product",
                                           type: .library)])
         XCTAssertEqual(m.swiftLanguageVersions, ["4", "4.2", "5"])
+        XCTAssertEqual(m.targets, [.init(name: "App"),
+                                   .init(name: "Run"),
+                                   .init(name: "AppTests")])
+        XCTAssertEqual(m.toolsVersion, .init(version: "5.2.0"))
     }
 
     func test_decode_products_complex() throws {

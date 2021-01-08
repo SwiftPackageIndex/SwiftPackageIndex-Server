@@ -49,10 +49,36 @@ class AnalyzerTests: AppTestCase {
                 return ["2.0.0", "2.1.0"].joined(separator: "\n")
             }
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-1") {
-                return #"{ "name": "foo-1", "products": [{"name":"p1","type":{"executable": null}}] }"#
+                return #"""
+                    {
+                      "name": "foo-1",
+                      "products": [
+                        {
+                          "name": "p1",
+                          "type": {
+                            "executable": null
+                          }
+                        }
+                      ],
+                      "targets": [{"name": "t1"}]
+                    }
+                    """#
             }
             if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
-                return #"{ "name": "foo-2", "products": [{"name":"p2","type":{"library": []}}] }"#
+                return #"""
+                    {
+                      "name": "foo-2",
+                      "products": [
+                        {
+                          "name": "p2",
+                          "type": {
+                            "library": []
+                          }
+                        }
+                      ],
+                      "targets": [{"name": "t2"}]
+                    }
+                    """#
             }
             
             // Git.revisionInfo (per ref - default branch & tags)
@@ -113,11 +139,17 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(sortedVersions2.map(\.reference?.description), ["main", "2.0.0", "2.1.0"])
         XCTAssertEqual(sortedVersions2.map(\.latest), [.defaultBranch, nil, .release])
 
-        // validate products (each version has 2 products)
+        // validate products
+        // (2 packages with 3 versions with 1 product each = 6 products)
         let products = try Product.query(on: app.db).sort(\.$name).all().wait()
         XCTAssertEqual(products.count, 6)
         assertEquals(products, \.name, ["p1", "p1", "p1", "p2", "p2", "p2"])
         assertEquals(products, \.type, [.executable, .executable, .executable, .library, .library, .library])
+
+        // validate targets
+        // (2 packages with 3 versions with 1 target each = 6 targets)
+        let targets = try Target.query(on: app.db).sort(\.$name).all().wait()
+        XCTAssertEqual(targets.map(\.name), ["t1", "t1", "t1", "t2", "t2", "t2"])
         
         // validate score
         XCTAssertEqual(pkg1.score, 10)
@@ -159,7 +191,20 @@ class AnalyzerTests: AppTestCase {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
             if cmd.string.hasSuffix("package dump-package") {
-                return #"{ "name": "foo-1", "products": [{"name":"p1","type":{"executable": null}}] }"#
+                return #"""
+                    {
+                      "name": "foo-1",
+                      "products": [
+                        {
+                          "name": "p1",
+                          "type": {
+                            "executable": null
+                          }
+                        }
+                      ],
+                      "targets": []
+                    }
+                    """#
             }
 
             // New Git.revisionInfo (per ref - default branch & tags)
@@ -215,7 +260,7 @@ class AnalyzerTests: AppTestCase {
             }
             // second package succeeds
             if cmd.string.hasSuffix("swift package dump-package") && path.hasSuffix("foo-2") {
-                return #"{ "name": "SPI-Server", "products": [] }"#
+                return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             if cmd.string == "git rev-list --count HEAD" { return "12" }
@@ -514,7 +559,7 @@ class AnalyzerTests: AppTestCase {
                 commands.append(cmd.string)
             }
             if cmd.string.hasSuffix("swift package dump-package") {
-                return #"{ "name": "SPI-Server", "products": [] }"#
+                return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             return ""
         }
@@ -543,7 +588,7 @@ class AnalyzerTests: AppTestCase {
                 commands.append(cmd.string)
             }
             if cmd.string.hasSuffix("swift package dump-package") {
-                return #"{ "name": "SPI-Server", "products": [] }"#
+                return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             return ""
         }
@@ -583,6 +628,7 @@ class AnalyzerTests: AppTestCase {
                                             .init(platformName: .macos, version: "10.10")],
                                 products: [],
                                 swiftLanguageVersions: ["1", "2", "3.0.0"],
+                                targets: [],
                                 toolsVersion: .init(version: "5.0.0"))
         
         // MUT
@@ -618,6 +664,7 @@ class AnalyzerTests: AppTestCase {
         let m = Manifest(name: "1",
                          products: [.init(name: "p1", type: .library),
                                     .init(name: "p2", type: .executable)],
+                         targets: [],
                          toolsVersion: .init(version: "5.0.0"))
         try p.save(on: app.db).wait()
         try v.save(on: app.db).wait()
@@ -631,6 +678,25 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(products.map(\.type), [.library, .executable])
     }
     
+    func test_createTargets() throws {
+        // setup
+        let p = Package(id: UUID(), url: "1")
+        let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
+        let m = Manifest(name: "1",
+                         products: [],
+                         targets: [.init(name: "t1"), .init(name: "t2")],
+                         toolsVersion: .init(version: "5.0.0"))
+        try p.save(on: app.db).wait()
+        try v.save(on: app.db).wait()
+
+        // MUT
+        try createTargets(on: app.db, version: v, manifest: m).wait()
+
+        // validation
+        let targets = try Target.query(on: app.db).sort(\.$createdAt).all().wait()
+        XCTAssertEqual(targets.map(\.name), ["t1", "t2"])
+    }
+
     func test_updatePackage() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
@@ -662,7 +728,26 @@ class AnalyzerTests: AppTestCase {
                 return ["1.0.0", "2.0.0"].joined(separator: "\n")
             }
             if cmd.string.hasSuffix("swift package dump-package") {
-                return #"{ "name": "foo", "products": [{"name":"p1","type":{"executable": null}}, {"name":"p2","type":{"executable": null}}] }"#
+                return #"""
+                    {
+                      "name": "foo",
+                      "products": [
+                        {
+                          "name": "p1",
+                          "type": {
+                            "executable": null
+                          }
+                        },
+                        {
+                          "name": "p2",
+                          "type": {
+                            "executable": null
+                          }
+                        }
+                      ],
+                      "targets": []
+                    }
+                    """#
             }
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             if cmd.string == "git rev-list --count HEAD" { return "12" }
