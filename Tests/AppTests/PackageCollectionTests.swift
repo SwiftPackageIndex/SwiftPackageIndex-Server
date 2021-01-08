@@ -5,6 +5,11 @@ import XCTest
 
 class PackageCollectionTests: AppTestCase {
 
+    func test_Package_init() throws {
+        // Tests PackageCollection.Package initialisation from a App.Package
+        // TODO
+    }
+
     func test_generate_from_urls() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
