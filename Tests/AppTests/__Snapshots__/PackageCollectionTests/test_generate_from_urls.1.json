@@ -1,0 +1,22 @@
+{
+  "formatVersion" : "1.0",
+  "generatedAt" : "2021-01-08T13:25:45Z",
+  "generatedBy" : {
+    "name" : "Foo"
+  },
+  "keywords" : [
+    "key",
+    "word"
+  ],
+  "name" : "Foo",
+  "overview" : "overview",
+  "packages" : [
+    {
+      "summary" : "summary",
+      "url" : "1",
+      "versions" : [
+
+      ]
+    }
+  ]
+}

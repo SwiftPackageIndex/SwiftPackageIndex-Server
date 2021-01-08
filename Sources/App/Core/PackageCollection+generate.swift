@@ -24,7 +24,7 @@ extension PackageCollection {
                     overview: overview,
                     keywords: keywords,
                     packages: $0,
-                    generatedAt: Date(),
+                    generatedAt: Current.date(),
                     generatedBy: author)
             }
     }
