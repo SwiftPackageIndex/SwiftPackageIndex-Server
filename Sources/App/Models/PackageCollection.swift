@@ -32,7 +32,7 @@ extension PackageCollection {
 
 extension PackageCollection {
     struct Version: Equatable, Codable {
-        var version: SemanticVersion
+        var version: String
         var packageName: String
         var targets: [Target]
         var products: [Product]

@@ -71,7 +71,7 @@ extension PackageCollection.Package {
                             return nil
                         }
                         return PackageCollection.Version.init(
-                            version: semVer,
+                            version: "\(semVer)",
                             packageName: packageName,
                             targets: [],  // FIXME
                             products: []  // FIXME
