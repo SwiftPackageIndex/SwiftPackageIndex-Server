@@ -80,7 +80,7 @@ extension PackageCollection.Package {
                         )
                     }
                     .sorted { $0.version > $1.version },
-                  readmeURL: nil
+                  readmeURL: package.repository?.readmeUrl
         )
     }
 

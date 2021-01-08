@@ -19,7 +19,9 @@ class PackageCollectionTests: AppTestCase {
             let p = Package(url: "1".asGithubUrl.url)
             try p.save(on: app.db).wait()
             do {
-                let r = try Repository(package: p, summary: "summary")
+                let r = try Repository(package: p,
+                                       summary: "summary",
+                                       readmeUrl: "readmeUrl")
                 try r.save(on: app.db).wait()
             }
             do {
@@ -54,6 +56,7 @@ class PackageCollectionTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res.summary, "summary")
+        XCTAssertEqual(res.readmeURL, "readmeUrl")
         XCTAssertEqual(res.versions.flatMap { $0.products.map(\.name) },
                        ["P1", "P2"])
         XCTAssertEqual(res.versions.flatMap { $0.targets.map(\.name) },
