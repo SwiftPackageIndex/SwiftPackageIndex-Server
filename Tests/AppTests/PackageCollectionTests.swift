@@ -5,6 +5,13 @@ import XCTest
 
 class PackageCollectionTests: AppTestCase {
 
+    let encoder: JSONEncoder = {
+        let e = JSONEncoder()
+        e.outputFormatting = [.prettyPrinted, .sortedKeys]
+        e.dateEncodingStrategy = .iso8601
+        return e
+    }()
+
     func test_Package_init() throws {
         // Tests PackageCollection.Package initialisation from a App.Package
         // TODO
@@ -12,6 +19,7 @@ class PackageCollectionTests: AppTestCase {
 
     func test_generate_from_urls() throws {
         // setup
+        Current.date = { Date(timeIntervalSince1970: 1610112345) }
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, summary: "summary").create(on: app.db).wait()
 
@@ -24,19 +32,12 @@ class PackageCollectionTests: AppTestCase {
                                                  generatedBy: .init(name: "Foo", url: nil)).wait()
 
         // validate
-        XCTAssertEqual(res.name, "Foo")
-        XCTAssertEqual(res.packages,[
-                        .init(url: "1",
-                              summary: "summary",
-                              keywords: nil,
-                              versions: [],
-                              readmeURL: nil)
-        ])
+        assertSnapshot(matching: res, as: .json(encoder))
     }
 
     func test_generate_for_owner() throws {
         // setup
-        Current.date = { Date(timeIntervalSince1970: 0) }
+        Current.date = { Date(timeIntervalSince1970: 1610112345) }
         // first package
         let p1 = try savePackage(on: app.db, "https://github.com/foo/1")
         do {
@@ -106,7 +107,7 @@ class PackageCollectionTests: AppTestCase {
                                                  generatedBy: .init(name: "Foo", url: nil)).wait()
 
         // validate
-        assertSnapshot(matching: res, as: .json)
+        assertSnapshot(matching: res, as: .json(encoder))
     }
 
 }
