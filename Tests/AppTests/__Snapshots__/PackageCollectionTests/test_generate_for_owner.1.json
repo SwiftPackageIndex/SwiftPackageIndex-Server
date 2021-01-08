@@ -23,13 +23,7 @@
           "targets" : [
 
           ],
-          "version" : {
-            "build" : "",
-            "major" : 2,
-            "minor" : 0,
-            "patch" : 0,
-            "preRelease" : ""
-          }
+          "version" : "2.0.0"
         },
         {
           "packageName" : "P1-tag",
@@ -39,13 +33,7 @@
           "targets" : [
 
           ],
-          "version" : {
-            "build" : "",
-            "major" : 1,
-            "minor" : 2,
-            "patch" : 3,
-            "preRelease" : ""
-          }
+          "version" : "1.2.3"
         }
       ]
     },
@@ -61,13 +49,7 @@
           "targets" : [
 
           ],
-          "version" : {
-            "build" : "",
-            "major" : 1,
-            "minor" : 2,
-            "patch" : 3,
-            "preRelease" : ""
-          }
+          "version" : "1.2.3"
         }
       ]
     }
