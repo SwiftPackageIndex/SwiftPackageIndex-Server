@@ -18,7 +18,13 @@
         {
           "packageName" : "P1-tag",
           "products" : [
+            {
+              "name" : "P1Lib",
+              "targets" : [
 
+              ],
+              "type" : "library"
+            }
           ],
           "targets" : [
 
@@ -28,7 +34,13 @@
         {
           "packageName" : "P1-tag",
           "products" : [
+            {
+              "name" : "P1Lib",
+              "targets" : [
 
+              ],
+              "type" : "library"
+            }
           ],
           "targets" : [
 
@@ -44,7 +56,13 @@
         {
           "packageName" : "P2-tag",
           "products" : [
+            {
+              "name" : "P1Lib",
+              "targets" : [
 
+              ],
+              "type" : "library"
+            }
           ],
           "targets" : [
 
