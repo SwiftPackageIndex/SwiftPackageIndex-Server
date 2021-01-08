@@ -1,0 +1,75 @@
+{
+  "formatVersion" : "1.0",
+  "generatedAt" : -978307200,
+  "generatedBy" : {
+    "name" : "Foo"
+  },
+  "keywords" : [
+    "key",
+    "word"
+  ],
+  "name" : "Foo",
+  "overview" : "overview",
+  "packages" : [
+    {
+      "summary" : "summary 1",
+      "url" : "https:\/\/github.com\/foo\/1",
+      "versions" : [
+        {
+          "packageName" : "P1-tag",
+          "products" : [
+
+          ],
+          "targets" : [
+
+          ],
+          "version" : {
+            "build" : "",
+            "major" : 2,
+            "minor" : 0,
+            "patch" : 0,
+            "preRelease" : ""
+          }
+        },
+        {
+          "packageName" : "P1-tag",
+          "products" : [
+
+          ],
+          "targets" : [
+
+          ],
+          "version" : {
+            "build" : "",
+            "major" : 1,
+            "minor" : 2,
+            "patch" : 3,
+            "preRelease" : ""
+          }
+        }
+      ]
+    },
+    {
+      "summary" : "summary 2",
+      "url" : "https:\/\/github.com\/foo\/2",
+      "versions" : [
+        {
+          "packageName" : "P2-tag",
+          "products" : [
+
+          ],
+          "targets" : [
+
+          ],
+          "version" : {
+            "build" : "",
+            "major" : 1,
+            "minor" : 2,
+            "patch" : 3,
+            "preRelease" : ""
+          }
+        }
+      ]
+    }
+  ]
+}

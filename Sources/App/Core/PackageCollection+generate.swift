@@ -72,7 +72,7 @@ extension PackageCollection {
                     overview: overview,
                     keywords: keywords,
                     packages: packages,
-                    generatedAt: Date(),
+                    generatedAt: Current.date(),
                     generatedBy: author)
             }
     }
