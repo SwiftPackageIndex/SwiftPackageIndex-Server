@@ -1,8 +1,7 @@
-//
-//  File.swift
-//  
-//
-//  Created by Dave Verwer on 11/01/2021.
-//
+import Plot
 
-import Foundation
+extension Node where Context == HTML.BodyContext {
+    static func small(_ nodes: Node<HTML.BodyContext>...) -> Self {
+        .element(named: "small", nodes: nodes)
+    }
+}

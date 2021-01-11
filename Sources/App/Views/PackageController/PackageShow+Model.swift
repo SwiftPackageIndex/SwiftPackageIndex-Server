@@ -221,43 +221,39 @@ extension PackageShow.Model {
     
     func stableReleaseMetadata() -> Node<HTML.BodyContext> {
         guard let datedLink = releases.stable else { return .empty }
-        return releaseMetadata(datedLink, cssClass: "stable")
+        return releaseMetadata(datedLink, title: "Stable Release", cssClass: "stable")
     }
 
-    func betaReleaseClause() -> [Node<HTML.BodyContext>] {
-        releases.beta.map { datedLink -> [Node<HTML.BodyContext>] in
-            [
-                "The latest beta release is ",
+    func betaReleaseMetadata() -> Node<HTML.BodyContext> {
+        guard let datedLink = releases.beta else { return .empty }
+        return releaseMetadata(datedLink, title: "Beta Release", cssClass: "beta")
+    }
+    
+    func latestReleaseMetadata() -> Node<HTML.BodyContext> {
+        guard let datedLink = releases.latest else { return .empty }
+        return releaseMetadata(datedLink, title: "Default Branch", cssClass: "branch")
+    }
+    
+    func releaseMetadata(_ datedLink: DatedLink, title: String, cssClass: String) -> Node<HTML.BodyContext> {
+        .group(
+            .h4(.text(title)),
+            .p(
                 .a(
                     .href(datedLink.link.url),
                     .span(
-                        .class("beta"),
-                        .i(.class("icon beta")),
+                        .class(cssClass),
+                        .i(.class("icon \(cssClass)")),
                         .text(datedLink.link.label)
                     )
                 ),
-                ". Released \(datedLink.date)."
-            ]
-        } ?? []
+                .small(
+                    .text(datedLink.date)
+                )
+            )
+        )
     }
-    
-    func latestReleaseClause() -> [Node<HTML.BodyContext>] {
-        releases.latest.map { datedLink -> [Node<HTML.BodyContext>] in
-            [
-                "The last commit to ",
-                .a(
-                    .href(datedLink.link.url),
-                    .span(
-                        .class("branch"),
-                        .i(.class("icon branch")),
-                        .text(datedLink.link.label)
-                    )
-                ),
-                " was \(datedLink.date)."
-            ]
-        } ?? []
-    }
-    
+
+    // TODO: Check if this is used. I think it was replaced with the compatibility matrices.
     func languagesAndPlatformsClause() -> Node<HTML.ListContext>? {
         let groups = Self.lpInfoGroups(languagePlatforms)
         let listItems = groups

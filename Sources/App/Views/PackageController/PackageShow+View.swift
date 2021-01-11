@@ -164,9 +164,9 @@ enum PackageShow {
                 .section(
                     .class("releases"),
                     .ul(
-                        .li(.group(model.stableReleaseClause())),
-                        .li(.group(model.betaReleaseClause())),
-                        .li(.group(model.latestReleaseClause()))
+                        .li(model.stableReleaseMetadata()),
+                        .li(model.betaReleaseMetadata()),
+                        .li(model.latestReleaseMetadata())
                     )
                 )
             )
