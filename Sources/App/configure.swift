@@ -113,6 +113,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 024 - add targets table
         app.migrations.add(CreateTarget())
     }
+    do {  // Migration 025 - add targets to products
+        app.migrations.add(UpdateProductAddTargets())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
