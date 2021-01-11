@@ -35,6 +35,7 @@ struct Manifest: Decodable, Equatable {
             case library
         }
         var name: String
+        var targets: [String] = []
         var type: `Type`
     }
     struct Target: Decodable, Equatable {
