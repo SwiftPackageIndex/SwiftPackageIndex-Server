@@ -602,7 +602,8 @@ func createProducts(on database: Database, version: Version, manifest: Manifest)
         // - that should never happen and even in the pathological case we can skip the product
         return try? Product(version: version,
                             type: .init(manifestProductType: manifestProduct.type),
-                            name: manifestProduct.name)
+                            name: manifestProduct.name,
+                            targets: manifestProduct.targets)
     }
     return products.create(on: database)
 }

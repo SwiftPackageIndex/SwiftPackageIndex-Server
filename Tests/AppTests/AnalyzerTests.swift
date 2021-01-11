@@ -55,7 +55,7 @@ class AnalyzerTests: AppTestCase {
                       "products": [
                         {
                           "name": "p1",
-                          "targets": [],
+                          "targets": ["t1"],
                           "type": {
                             "executable": null
                           }
@@ -72,7 +72,7 @@ class AnalyzerTests: AppTestCase {
                       "products": [
                         {
                           "name": "p2",
-                          "targets": [],
+                          "targets": ["t2"],
                           "type": {
                             "library": []
                           }
@@ -146,6 +146,8 @@ class AnalyzerTests: AppTestCase {
         let products = try Product.query(on: app.db).sort(\.$name).all().wait()
         XCTAssertEqual(products.count, 6)
         assertEquals(products, \.name, ["p1", "p1", "p1", "p2", "p2", "p2"])
+        assertEquals(products, \.targets,
+                     [["t1"], ["t1"], ["t1"], ["t2"], ["t2"], ["t2"]])
         assertEquals(products, \.type, [.executable, .executable, .executable, .library, .library, .library])
 
         // validate targets
@@ -665,8 +667,12 @@ class AnalyzerTests: AppTestCase {
         let p = Package(id: UUID(), url: "1")
         let v = try Version(id: UUID(), package: p, packageName: "1", reference: .tag(.init(1, 0, 0)))
         let m = Manifest(name: "1",
-                         products: [.init(name: "p1", type: .library),
-                                    .init(name: "p2", type: .executable)],
+                         products: [.init(name: "p1",
+                                          targets: ["t1", "t2"],
+                                          type: .library),
+                                    .init(name: "p2",
+                                          targets: ["t3", "t4"],
+                                          type: .executable)],
                          targets: [],
                          toolsVersion: .init(version: "5.0.0"))
         try p.save(on: app.db).wait()
@@ -678,6 +684,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
         XCTAssertEqual(products.map(\.name), ["p1", "p2"])
+        XCTAssertEqual(products.map(\.targets), [["t1", "t2"], ["t3", "t4"]])
         XCTAssertEqual(products.map(\.type), [.library, .executable])
     }
     
