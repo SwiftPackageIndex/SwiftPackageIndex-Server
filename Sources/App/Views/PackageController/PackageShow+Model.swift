@@ -219,23 +219,11 @@ extension PackageShow.Model {
         )
     }
     
-    func stableReleaseClause() -> [Node<HTML.BodyContext>] {
-        releases.stable.map { datedLink -> [Node<HTML.BodyContext>] in
-            [
-                "The latest stable release is ",
-                .a(
-                    .href(datedLink.link.url),
-                    .span(
-                        .class("stable"),
-                        .i(.class("icon stable")),
-                        .text(datedLink.link.label)
-                    )
-                ),
-                ". Released \(datedLink.date)."
-            ]
-        } ?? []
+    func stableReleaseMetadata() -> Node<HTML.BodyContext> {
+        guard let datedLink = releases.stable else { return .empty }
+        return releaseMetadata(datedLink, cssClass: "stable")
     }
-    
+
     func betaReleaseClause() -> [Node<HTML.BodyContext>] {
         releases.beta.map { datedLink -> [Node<HTML.BodyContext>] in
             [
