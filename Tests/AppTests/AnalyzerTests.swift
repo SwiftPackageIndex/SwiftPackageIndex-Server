@@ -55,6 +55,7 @@ class AnalyzerTests: AppTestCase {
                       "products": [
                         {
                           "name": "p1",
+                          "targets": [],
                           "type": {
                             "executable": null
                           }
@@ -71,6 +72,7 @@ class AnalyzerTests: AppTestCase {
                       "products": [
                         {
                           "name": "p2",
+                          "targets": [],
                           "type": {
                             "library": []
                           }
@@ -197,6 +199,7 @@ class AnalyzerTests: AppTestCase {
                       "products": [
                         {
                           "name": "p1",
+                          "targets": [],
                           "type": {
                             "executable": null
                           }
@@ -734,12 +737,14 @@ class AnalyzerTests: AppTestCase {
                       "products": [
                         {
                           "name": "p1",
+                          "targets": [],
                           "type": {
                             "executable": null
                           }
                         },
                         {
                           "name": "p2",
+                          "targets": [],
                           "type": {
                             "executable": null
                           }
