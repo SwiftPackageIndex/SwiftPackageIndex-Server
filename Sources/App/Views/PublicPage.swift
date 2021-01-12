@@ -107,7 +107,7 @@ class PublicPage {
                     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
                     })(window,document,'script','dataLayer','GTM-T2KRSKX');</script>
                     <script async defer data-domain="swiftpackageindex.com"
-                    src="https://plausible.io/js/plausible.js"></script>
+                    src="https://plausible.io/js/plausible.outbound-links.js"></script>
                     """))
     }
     
