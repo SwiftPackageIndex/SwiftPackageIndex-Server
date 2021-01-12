@@ -375,20 +375,6 @@ extension PackageShow.Model {
             .ul(
                 .class("matrix"),
                 .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
-            ),
-            .div(
-                .class("right"),
-                .div(
-                    .id("swift_version_badge"),
-                    .text(badgeMarkdown(for: .swiftVersions)),
-                    .attribute(named: "hidden")
-                ),
-                .div(
-                    .a(
-                        .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
-                        "Full build results"
-                    )
-                )
             )
         )
     }
@@ -400,20 +386,6 @@ extension PackageShow.Model {
             .ul(
                 .class("matrix"),
                 .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
-            ),
-            .div(
-                .class("right"),
-                .div(
-                    .id("platform_badge"),
-                    .text(badgeMarkdown(for: .platforms)),
-                    .attribute(named: "hidden")
-                ),
-                .div(
-                    .a(
-                        .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
-                        "Full build results"
-                    )
-                )
             )
         )
     }
