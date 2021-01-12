@@ -55,13 +55,18 @@ enum ProductType: Equatable {
     case library(LibraryType)
     case test
 
-    init(manifestProductType: Manifest.Product.`Type`) {
+    init(manifestProductType: Manifest.ProductType) {
         switch manifestProductType {
             case .executable:
                 self = .executable
-            case .library:
-                // FIXME: extend manifest parsing
+            case .library(.automatic):
                 self = .library(.automatic)
+            case .library(.dynamic):
+                self = .library(.dynamic)
+            case .library(.static):
+                self = .library(.static)
+            case .test:
+                self = .test
         }
     }
 

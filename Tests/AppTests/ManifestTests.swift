@@ -17,9 +17,10 @@ class ManifestTests: XCTestCase {
             """
             let data = Data(json.utf8)
             struct Test: Decodable, Equatable {
-                var type: Manifest.Product.`Type`
+                var type: Manifest.ProductType
             }
-            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data), .init(type: .executable))
+            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
+                           .init(type: .executable))
         }
         do { // lib
             let json = """
@@ -31,9 +32,10 @@ class ManifestTests: XCTestCase {
             """
             let data = Data(json.utf8)
             struct Test: Decodable, Equatable {
-                var type: Manifest.Product.`Type`
+                var type: Manifest.ProductType
             }
-            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data), .init(type: .library))
+            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
+                           .init(type: .library(.automatic)))
         }
     }
     
@@ -44,7 +46,7 @@ class ManifestTests: XCTestCase {
         XCTAssertEqual(m.platforms, [.init(platformName: .macos, version: "10.15")])
         XCTAssertEqual(m.products, [.init(name: "Some Product",
                                           targets: ["t1", "t2"],
-                                          type: .library)])
+                                          type: .library(.automatic))])
         XCTAssertEqual(m.swiftLanguageVersions, ["4", "4.2", "5"])
         XCTAssertEqual(m.targets, [.init(name: "App"),
                                    .init(name: "Run"),
@@ -94,28 +96,28 @@ class ManifestTests: XCTestCase {
                   type: .executable),
             .init(name: "NIO",
                   targets: ["NIO"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "_NIO1APIShims",
                   targets: ["_NIO1APIShims"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOTLS",
                   targets: ["NIOTLS"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOHTTP1",
                   targets: ["NIOHTTP1"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOConcurrencyHelpers",
                   targets: ["NIOConcurrencyHelpers"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOFoundationCompat",
                   targets: ["NIOFoundationCompat"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOWebSocket",
                   targets: ["NIOWebSocket"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOTestUtils",
                   targets: ["NIOTestUtils"],
-                  type: .library),
+                  type: .library(.automatic)),
         ])
     }
     

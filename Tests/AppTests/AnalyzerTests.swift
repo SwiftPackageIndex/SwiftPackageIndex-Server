@@ -78,7 +78,7 @@ class AnalyzerTests: AppTestCase {
                           "name": "p2",
                           "targets": ["t2"],
                           "type": {
-                            "library": []
+                            "library": ["automatic"]
                           }
                         }
                       ],
@@ -682,7 +682,7 @@ class AnalyzerTests: AppTestCase {
         let m = Manifest(name: "1",
                          products: [.init(name: "p1",
                                           targets: ["t1", "t2"],
-                                          type: .library),
+                                          type: .library(.automatic)),
                                     .init(name: "p2",
                                           targets: ["t3", "t4"],
                                           type: .executable)],
