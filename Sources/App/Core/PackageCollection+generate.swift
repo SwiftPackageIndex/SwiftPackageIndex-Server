@@ -61,43 +61,43 @@ extension PackageCollection {
 
 
 extension PackageCollection.Package {
-
     init(package: App.Package) {
         self.init(url: package.url,
                   summary: package.repository?.summary,
                   keywords: nil,
                   versions: package.versions
-                    .compactMap { version in
-                        guard let semVer = version.reference?.semVer,
-                              let packageName = version.packageName else {
-                            return nil
-                        }
-                        return PackageCollection.Version.init(
-                            version: "\(semVer)",
-                            packageName: packageName,
-                            products: version.products.compactMap(PackageCollection.Product.init(product:)),
-                            targets: version.targets.map(PackageCollection.Target.init(target:))
-                        )
-                    }
+                    .compactMap(PackageCollection.Version.init(version:))
                     .sorted { $0.version > $1.version },
                   readmeURL: package.repository?.readmeUrl
         )
     }
+}
 
+
+extension PackageCollection.Version {
+    init?(version: App.Version) {
+        guard let semVer = version.reference?.semVer,
+              let packageName = version.packageName else {
+            return nil
+        }
+        self.init(
+            version: "\(semVer)",
+            packageName: packageName,
+            products: version.products.compactMap(PackageCollection.Product.init(product:)),
+            targets: version.targets.map(PackageCollection.Target.init(target:))
+        )
+    }
 }
 
 
 extension PackageCollection.Target {
-
     init(target: App.Target) {
         self.init(name: target.name, moduleName: nil)
     }
-
 }
 
 
 extension PackageCollection.Product {
-
     init?(product: App.Product) {
         guard let type = ProductType(rawValue: product.type.rawValue) else {
             return nil
@@ -106,5 +106,4 @@ extension PackageCollection.Product {
                   type: type,
                   targets: product.targets)
     }
-
 }
