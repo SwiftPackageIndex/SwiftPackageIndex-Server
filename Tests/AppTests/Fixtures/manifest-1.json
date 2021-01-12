@@ -63,7 +63,8 @@
         {
             "name" : "Some Product",
             "targets" : [
-                "Some Target"
+                "t1",
+                "t2"
             ],
             "type" : {
                 "library" : [
