@@ -162,6 +162,25 @@ enum PackageShow {
                 ),
                 .hr(),
                 .section(
+                    .class("menu"),
+                    .ul(
+                        .li(
+                            .a(
+                                .href(model.url),
+                                // TODO: Make "GitHub" dynamic.
+                                "View on GitHub"
+                            )
+                        ),
+                        .li(
+                            .a(
+                                .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
+                                "Package Compatibility"
+                            )
+                        )
+                    )
+                ),
+                .hr(),
+                .section(
                     .class("releases"),
                     .ul(
                         .li(model.stableReleaseMetadata()),
