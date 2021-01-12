@@ -22,6 +22,7 @@ class PackageCollectionTests: AppTestCase {
             let v = try Version(package: p,
                                 packageName: "Foo",
                                 reference: .tag(1, 2, 3),
+                                supportedPlatforms: [.ios("14.0")],
                                 toolsVersion: "5.3")
             try v.save(on: app.db).wait()
             do {
@@ -60,6 +61,8 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.targets,
                        [.init(name: "T1"), .init(name: "T2")])
         XCTAssertEqual(res.toolsVersion, "5.3")
+        XCTAssertEqual(res.minimumPlatformVersions,
+                       [.init(platform: .ios, version: "14.0")])
     }
 
     func test_Package_init() throws {

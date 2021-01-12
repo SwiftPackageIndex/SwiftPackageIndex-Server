@@ -1,5 +1,4 @@
 import struct Foundation.Date
-import SemanticVersion
 
 // https://github.com/apple/swift-package-collection-generator/blob/main/PackageCollectionFormats/v1.md
 
@@ -26,7 +25,10 @@ extension PackageCollection {
         var summary: String?
         var keywords: [String]?
         var versions: [Version]
+//        var latestVersion: Version?
+//        var watchersCount: Int?
         var readmeURL: String?
+//        var authors: [Author]?
     }
 }
 
@@ -37,10 +39,10 @@ extension PackageCollection {
         var products: [Product]
         var targets: [Target]
         var toolsVersion: String
-        // var minimumPlatformVersions: [PlatformVersion]
-        // var verifiedPlatforms: [Platform]
-        // var verifiedSwiftVersion: [String]?
-        // var license: License?
+        var minimumPlatformVersions: [SupportedPlatform]?
+        var verifiedPlatforms: [Platform]?
+        var verifiedSwiftVersion: [String]?
+        var license: License?
     }
 }
 
@@ -67,5 +69,32 @@ extension PackageCollection {
         //        case `dynamic`
         //        case automatic
         //    }
+    }
+}
+
+extension PackageCollection {
+    enum Platform: String, Codable {
+        case macos
+        case ios
+        case tvos
+        case watchos
+        case linux
+        case android
+        case windows
+        case wasi
+    }
+}
+
+extension PackageCollection {
+    struct SupportedPlatform: Equatable, Codable {
+        public let platform: Platform
+        public let version: String
+        public let options: [String]
+
+        public init(platform: Platform, version: String, options: [String] = []) {
+            self.platform = platform
+            self.version = version
+            self.options = options
+        }
     }
 }

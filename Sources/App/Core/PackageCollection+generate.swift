@@ -88,8 +88,19 @@ extension PackageCollection.Version {
                 .compactMap(PackageCollection.Product.init(product:)),
             targets: version.targets
                 .map(PackageCollection.Target.init(target:)),
-            toolsVersion: toolsVersion
+            toolsVersion: toolsVersion,
+            minimumPlatformVersions: version.supportedPlatforms
+                .compactMap(PackageCollection.SupportedPlatform.init(platform:))
         )
+    }
+}
+
+
+extension PackageCollection.SupportedPlatform {
+    init?(platform: App.Platform) {
+        guard let name = PackageCollection.Platform(rawValue: platform.name.rawValue)
+        else { return nil }
+        self.init(platform: name, version: platform.version)
     }
 }
 
