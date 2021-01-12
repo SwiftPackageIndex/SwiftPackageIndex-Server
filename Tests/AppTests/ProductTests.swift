@@ -8,7 +8,11 @@ class ProductTests: AppTestCase {
     func test_Product_save() throws {
         let pkg = Package(id: UUID(), url: "1")
         let ver = try Version(id: UUID(), package: pkg)
-        let prod = try Product(id: UUID(), version: ver, type: .library, name: "p1")
+        let prod = try Product(id: UUID(),
+                               version: ver,
+                               type: .library,
+                               name: "p1",
+                               targets: ["t1", "t2"])
         try pkg.save(on: app.db).wait()
         try ver.save(on: app.db).wait()
         try prod.save(on: app.db).wait()
@@ -17,6 +21,7 @@ class ProductTests: AppTestCase {
             XCTAssertEqual(p.$version.id, ver.id)
             XCTAssertEqual(p.type, .library)
             XCTAssertEqual(p.name, "p1")
+            XCTAssertEqual(p.targets, ["t1", "t2"])
         }
     }
     

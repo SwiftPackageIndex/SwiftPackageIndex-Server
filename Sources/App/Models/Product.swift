@@ -30,17 +30,22 @@ final class Product: Model, Content {
     
     @Field(key: "name")
     var name: String
+
+    @Field(key: "targets")
+    var targets: [String]
     
     init() {}
     
     init(id: Id? = nil,
          version: Version,
          type: `Type`,
-         name: String) throws {
+         name: String,
+         targets: [String] = []) throws {
         self.id = id
         self.$version.id = try version.requireID()
         self.type = type
         self.name = name
+        self.targets = targets
     }
 }
 
