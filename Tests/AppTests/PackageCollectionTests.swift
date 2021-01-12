@@ -13,8 +13,58 @@ class PackageCollectionTests: AppTestCase {
         return e
     }()
 
+    func test_Version_init() throws {
+        // Tests PackageCollection.Version initialisation from App.Version
+        // setup
+        let p = Package(url: "1".asGithubUrl.url)
+        try p.save(on: app.db).wait()
+        do {
+            let v = try Version(package: p,
+                                packageName: "Foo",
+                                reference: .tag(1, 2, 3),
+                                toolsVersion: "5.3")
+            try v.save(on: app.db).wait()
+            do {
+                let p1 = try Product(version: v,
+                                     type: .library,
+                                     name: "P1",
+                                     targets: ["T1"])
+                let p2 = try Product(version: v,
+                                     type: .library,
+                                     name: "P2",
+                                     targets: ["T2"])
+                try [p1, p2].save(on: app.db).wait()
+            }
+            do {
+                let t1 = try Target(version: v, name: "T1")
+                let t2 = try Target(version: v, name: "T2")
+                try [t1, t2].save(on: app.db).wait()
+            }
+        }
+        let v = try Version.query(on: app.db)
+            .with(\.$products)
+            .with(\.$targets)
+            .first()
+            .unwrap(or: Abort(.notFound))
+            .wait()
+
+        // MUT
+        let res = try XCTUnwrap(PackageCollection.Version(version: v))
+
+        // validate
+        XCTAssertEqual(res.version, "1.2.3")
+        XCTAssertEqual(res.packageName, "Foo")
+        XCTAssertEqual(res.products,
+                       [.init(name: "P1", type: .library, targets: ["T1"]),
+                        .init(name: "P2", type: .library, targets: ["T2"])])
+        XCTAssertEqual(res.targets,
+                       [.init(name: "T1"), .init(name: "T2")])
+        XCTAssertEqual(res.toolsVersion, "5.3")
+    }
+
     func test_Package_init() throws {
         // Tests PackageCollection.Package initialisation from a App.Package
+        // setup
         do {
             let p = Package(url: "1".asGithubUrl.url)
             try p.save(on: app.db).wait()
@@ -29,22 +79,6 @@ class PackageCollectionTests: AppTestCase {
                                     packageName: "Foo",
                                     reference: .tag(1, 2, 3))
                 try v.save(on: app.db).wait()
-                do {
-                    let p1 = try Product(version: v,
-                                         type: .library,
-                                         name: "P1",
-                                         targets: ["T1"])
-                    let p2 = try Product(version: v,
-                                         type: .library,
-                                         name: "P2",
-                                         targets: ["T2"])
-                    try [p1, p2].save(on: app.db).wait()
-                }
-                do {
-                    let t1 = try Target(version: v, name: "T1")
-                    let t2 = try Target(version: v, name: "T2")
-                    try [t1, t2].save(on: app.db).wait()
-                }
             }
         }
         let p = try Package.query(on: app.db)
@@ -63,14 +97,9 @@ class PackageCollectionTests: AppTestCase {
         // validate
         XCTAssertEqual(res.summary, "summary")
         XCTAssertEqual(res.readmeURL, "readmeUrl")
+        // version details tested in test_Version_init
+        // simply assert count here
         XCTAssertEqual(res.versions.count, 1)
-        XCTAssertEqual(res.versions[0],
-            .init(version: "1.2.3",
-                  packageName: "Foo",
-                  products: [.init(name: "P1", type: .library, targets: ["T1"]),
-                             .init(name: "P2", type: .library, targets: ["T2"])],
-                  targets: [.init(name: "T1"), .init(name: "T2")])
-        )
     }
 
     func test_generate_from_urls() throws {

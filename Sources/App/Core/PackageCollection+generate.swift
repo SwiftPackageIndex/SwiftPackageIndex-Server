@@ -77,14 +77,18 @@ extension PackageCollection.Package {
 extension PackageCollection.Version {
     init?(version: App.Version) {
         guard let semVer = version.reference?.semVer,
-              let packageName = version.packageName else {
+              let packageName = version.packageName,
+              let toolsVersion = version.toolsVersion else {
             return nil
         }
         self.init(
             version: "\(semVer)",
             packageName: packageName,
-            products: version.products.compactMap(PackageCollection.Product.init(product:)),
-            targets: version.targets.map(PackageCollection.Target.init(target:))
+            products: version.products
+                .compactMap(PackageCollection.Product.init(product:)),
+            targets: version.targets
+                .map(PackageCollection.Target.init(target:)),
+            toolsVersion: toolsVersion
         )
     }
 }

@@ -36,7 +36,7 @@ extension PackageCollection {
         var packageName: String
         var products: [Product]
         var targets: [Target]
-        // var toolsVersion: String
+        var toolsVersion: String
         // var minimumPlatformVersions: [PlatformVersion]
         // var verifiedPlatforms: [Platform]
         // var verifiedSwiftVersion: [String]?
