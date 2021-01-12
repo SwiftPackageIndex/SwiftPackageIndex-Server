@@ -1,4 +1,5 @@
 import delay from 'lodash/delay'
+import { measurePlausibleEvent } from './plausible_analytics.js'
 
 export class SPICopyPackageURL {
   constructor() {
@@ -23,6 +24,9 @@ export class SPICopyPackageURL {
 
         // Change the text back after a short delay.
         delay(() => { copyButtonElement.textContent = 'Copy' }, 1000)
+
+        // Log the event to analytics.        
+        measurePlausibleEvent('Copy Package URL Button')
       })
     })
   }
@@ -53,6 +57,9 @@ export class SPICopySwiftVersionBadge {
 
         // Change the text back after a short delay.
         delay(() => { copyButtonElement.textContent = 'Copy badge' }, 1000)
+
+        // Log the event to analytics.        
+        measurePlausibleEvent('Copy Language Badge Button')
       })
     })
   }
@@ -83,6 +90,9 @@ export class SPICopyPlatformBadge {
 
         // Change the text back after a short delay.
         delay(() => { copyButtonElement.textContent = 'Copy badge' }, 1000)
+
+        // Log the event to analytics.        
+        measurePlausibleEvent('Copy Platform Badge Button')
       })
     })
   }

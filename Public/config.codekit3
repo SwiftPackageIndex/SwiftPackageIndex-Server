@@ -178,7 +178,7 @@
 	"/javascripts/find_parent_matching.js": {
 		"bF": 0,
 		"ft": 64,
-		"ma": 1,
+		"ma": 0,
 		"mi": 1,
 		"oA": 1,
 		"oAP": "/deploy/javascripts/find_parent_matching-min.js",
@@ -216,6 +216,17 @@
 		"oA": 0,
 		"oAP": "/deploy/javascripts/main.min.js",
 		"oF": 3,
+		"sC": 3,
+		"tS": 0
+		},
+	"/javascripts/plausible_analytics.js": {
+		"bF": 0,
+		"ft": 64,
+		"ma": 0,
+		"mi": 1,
+		"oA": 1,
+		"oAP": "/deploy/javascripts/plausible_analytics-min.js",
+		"oF": 0,
 		"sC": 3,
 		"tS": 0
 		},
@@ -521,7 +532,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 631622460.67894495
+	"lastBuiltDate": 632143645.53827095
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
