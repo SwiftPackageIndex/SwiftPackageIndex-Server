@@ -187,6 +187,21 @@ enum PackageShow {
                         .li(model.betaReleaseMetadata()),
                         .li(model.latestReleaseMetadata())
                     )
+                ),
+                .section(
+                    .class("github_support"),
+                    .h4("Help the Swift Package Index"),
+                    .p("This site is ",
+                       .a(
+                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
+                            "open-source"
+                       ),
+                       " and runs entirely on commuity donations. Please consider supporting this project."
+                    ),
+                    .a(
+                        .href("https://github.com/sponsors/SwiftPackageIndex"),
+                        "Sponsor the Swift Package Index"
+                    )
                 )
             )
         }
