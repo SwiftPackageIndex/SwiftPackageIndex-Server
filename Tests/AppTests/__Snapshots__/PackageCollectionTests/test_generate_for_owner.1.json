@@ -16,6 +16,9 @@
       "url" : "https:\/\/github.com\/foo\/1",
       "versions" : [
         {
+          "minimumPlatformVersions" : [
+
+          ],
           "packageName" : "P1-tag",
           "products" : [
             {
@@ -33,6 +36,9 @@
           "version" : "2.0.0"
         },
         {
+          "minimumPlatformVersions" : [
+
+          ],
           "packageName" : "P1-tag",
           "products" : [
             {
@@ -56,6 +62,9 @@
       "url" : "https:\/\/github.com\/foo\/2",
       "versions" : [
         {
+          "minimumPlatformVersions" : [
+
+          ],
           "packageName" : "P2-tag",
           "products" : [
             {
