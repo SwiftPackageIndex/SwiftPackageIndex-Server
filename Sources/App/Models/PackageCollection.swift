@@ -34,8 +34,8 @@ extension PackageCollection {
     struct Version: Equatable, Codable {
         var version: String
         var packageName: String
-        var targets: [Target]
         var products: [Product]
+        var targets: [Target]
         // var toolsVersion: String
         // var minimumPlatformVersions: [PlatformVersion]
         // var verifiedPlatforms: [Platform]

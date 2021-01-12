@@ -30,8 +30,14 @@ class PackageCollectionTests: AppTestCase {
                                     reference: .tag(1, 2, 3))
                 try v.save(on: app.db).wait()
                 do {
-                    let p1 = try Product(version: v, type: .library, name: "P1")
-                    let p2 = try Product(version: v, type: .library, name: "P2")
+                    let p1 = try Product(version: v,
+                                         type: .library,
+                                         name: "P1",
+                                         targets: ["T1"])
+                    let p2 = try Product(version: v,
+                                         type: .library,
+                                         name: "P2",
+                                         targets: ["T2"])
                     try [p1, p2].save(on: app.db).wait()
                 }
                 do {
@@ -57,10 +63,14 @@ class PackageCollectionTests: AppTestCase {
         // validate
         XCTAssertEqual(res.summary, "summary")
         XCTAssertEqual(res.readmeURL, "readmeUrl")
-        XCTAssertEqual(res.versions.flatMap { $0.products.map(\.name) },
-                       ["P1", "P2"])
-        XCTAssertEqual(res.versions.flatMap { $0.targets.map(\.name) },
-                       ["T1", "T2"])
+        XCTAssertEqual(res.versions.count, 1)
+        XCTAssertEqual(res.versions[0],
+            .init(version: "1.2.3",
+                  packageName: "Foo",
+                  products: [.init(name: "P1", type: .library, targets: ["T1"]),
+                             .init(name: "P2", type: .library, targets: ["T2"])],
+                  targets: [.init(name: "T1"), .init(name: "T2")])
+        )
     }
 
     func test_generate_from_urls() throws {

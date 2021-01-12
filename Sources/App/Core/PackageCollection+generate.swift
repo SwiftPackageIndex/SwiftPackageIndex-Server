@@ -75,8 +75,8 @@ extension PackageCollection.Package {
                         return PackageCollection.Version.init(
                             version: "\(semVer)",
                             packageName: packageName,
-                            targets: version.targets.map(PackageCollection.Target.init(target:)),
-                            products: version.products.compactMap(PackageCollection.Product.init(product:))
+                            products: version.products.compactMap(PackageCollection.Product.init(product:)),
+                            targets: version.targets.map(PackageCollection.Target.init(target:))
                         )
                     }
                     .sorted { $0.version > $1.version },
@@ -104,7 +104,7 @@ extension PackageCollection.Product {
         }
         self.init(name: product.name,
                   type: type,
-                  targets: [])  // FIXME: add targets
+                  targets: product.targets)
     }
 
 }
