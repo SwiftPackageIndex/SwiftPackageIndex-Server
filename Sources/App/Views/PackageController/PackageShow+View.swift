@@ -59,15 +59,30 @@ enum PackageShow {
         }
 
         func licenseMetadata() -> Node<HTML.ListContext> {
-            let licenseSpan: Node<HTML.BodyContext> = .span(
+            let licenseDiv: Node<HTML.BodyContext> = .div(
                 .attribute(named: "title", value: model.license.fullName),
                 .i(.class("icon \(model.license.licenseKind.iconName)")),
                 .text(model.license.shortName)
             )
 
+            let whatsThisLink: Node<HTML.BodyContext> = {
+                switch model.license.licenseKind {
+                    case .compatibleWithAppStore:
+                        return .empty
+                    case .incompatibleWithAppStore, .other, .none:
+                        return .small(
+                            .a(
+                                .href(SiteURL.faq.relativeURL(anchor: "licenses")),
+                                "Why is this not green?"
+                            )
+                        )
+                }
+            }()
+
             return .li(
                 .class("license \(model.license.licenseKind.cssClass)"),
-                .unwrap(model.licenseUrl, { .a(href: $0, licenseSpan) }, else: licenseSpan)
+                .unwrap(model.licenseUrl, { .a(href: $0, licenseDiv) }, else: licenseDiv),
+                whatsThisLink
             )
         }
 
