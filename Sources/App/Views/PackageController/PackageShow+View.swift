@@ -50,55 +50,24 @@ enum PackageShow {
                             )
                         ]),
                         arenaButton()
-                    ),
-                    licenseMetadata()
+                    )
                 ),
                 .hr(),
                 metadataSection(),
                 readmeSection()
             )
         }
-        
-        func licenseLozenge() -> Node<HTML.BodyContext> {
-            switch model.license.licenseKind {
-                case .compatibleWithAppStore:
-                    return .div(
-                        .class("lozenge green"),
-                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                        .i(.class("icon osi")),
-                        .text(model.license.shortName)
-                    )
-                case .other:
-                    return .div(
-                        .class("lozenge \(model.license.licenseKind.cssClass)"),
-                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                        .i(.class("icon warning")),
-                        .text(model.license.shortName)
-                    )
-                case .none,
-                     .incompatibleWithAppStore:
-                    return .div(
-                        .class("lozenge \(model.license.licenseKind.cssClass)"),
-                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                        .i(.class("icon warning")),
-                        .text(model.license.shortName)
-                    )
-            }
-        }
 
-        func licenseMetadata() -> Node<HTML.BodyContext> {
-            return .div(
-                .class("license"),
-                .a(
-                    .href(SiteURL.faq.relativeURL(anchor: "licenses")),
-                    .i(.class("icon question"))
-                ),
-                .unwrap(model.licenseUrl, { licenseUrl in
-                    .a(
-                        href: licenseUrl,
-                        licenseLozenge()
-                    )
-                }, else: licenseLozenge())
+        func licenseMetadata() -> Node<HTML.ListContext> {
+            let licenseSpan: Node<HTML.BodyContext> = .span(
+                .attribute(named: "title", value: model.license.fullName),
+                .i(.class("icon \(model.license.licenseKind.iconName)")),
+                .text(model.license.shortName)
+            )
+
+            return .li(
+                .class("license \(model.license.licenseKind.cssClass)"),
+                .unwrap(model.licenseUrl, { .a(href: $0, licenseSpan) }, else: licenseSpan)
             )
         }
 
@@ -157,7 +126,8 @@ enum PackageShow {
                     .ul(
                         .unwrap(model.starsClause()) {
                             .li(.class("icon stars"), $0)
-                        }
+                        },
+                        licenseMetadata()
                     )
                 ),
                 .hr(),
@@ -230,6 +200,13 @@ private extension License.Kind {
             case .none: return "red"
             case .incompatibleWithAppStore, .other: return "orange"
             case .compatibleWithAppStore: return "green"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+            case .compatibleWithAppStore: return "osi"
+            case .incompatibleWithAppStore, .other, .none: return "warning"
         }
     }
 }
