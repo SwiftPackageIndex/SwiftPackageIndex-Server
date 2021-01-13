@@ -55,6 +55,7 @@ enum PackageShow {
                     }
                 ),
                 detailsSection(),
+                supportSection(),
                 readmeSection()
             )
         }
@@ -112,28 +113,20 @@ enum PackageShow {
         
         func sidebarColumn() -> Node<HTML.BodyContext> {
             .group(
-                sidebarMetadata(),
                 sidebarLinks(),
-                sidebarReleases(),
-                sidebarSupport()
-            )
-        }
-
-        func sidebarMetadata() -> Node<HTML.BodyContext> {
-            .section(
-                .class("sidebar_metadata"),
-                .ul(
-                    .unwrap(model.starsClause()) {
-                        .li(.class("icon stars"), $0)
-                    },
-                    licenseMetadata()
-                )
+                sidebarReleases()
             )
         }
 
         func sidebarLinks() -> Node<HTML.BodyContext> {
             .section(
                 .class("sidebar_links"),
+                .ul(
+                    .unwrap(model.starsClause()) {
+                        .li(.class("icon stars"), $0)
+                    },
+                    licenseMetadata()
+                ),
                 .ul(
                     .li(
                         .a(
@@ -190,12 +183,11 @@ enum PackageShow {
             )
         }
 
-        func sidebarSupport() -> Node<HTML.BodyContext> {
+        func supportSection() -> Node<HTML.BodyContext> {
             .section(
-                .class("sidebar_support"),
+                .class("support"),
                 .section(
-                    .h4("Help the Swift Package Index"),
-                    .p("This site is ",
+                    .p("The Swift Package Index is ",
                        .a(
                         .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
                         "open-source"
