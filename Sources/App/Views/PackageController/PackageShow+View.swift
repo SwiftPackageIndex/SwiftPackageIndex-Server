@@ -68,7 +68,7 @@ enum PackageShow {
 
         func metadataSection() -> Node<HTML.BodyContext> {
             .article(
-                .class("metadata"),
+                .class("details"),
                 mainColumn(),
                 sidebarColumn()
             )
