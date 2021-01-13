@@ -38,20 +38,15 @@ enum PackageShow {
         
         override func content() -> Node<HTML.BodyContext> {
             .group(
-                .div(
-                    .class("split"),
-                    .div(
-                        .h2(.text(model.title)),
-                        .element(named: "small", nodes: [ // TODO: Fix after Plot update
-                            .a(
-                                .id("package_url"),
-                                .href(model.url),
-                                .text(model.url)
-                            )
-                        ]),
-                        arenaButton()
+                .h2(.text(model.title)),
+                .small(
+                    .a(
+                        .id("package_url"),
+                        .href(model.url),
+                        .text(model.url)
                     )
                 ),
+                arenaButton(),
                 .hr(),
                 metadataSection(),
                 readmeSection()
