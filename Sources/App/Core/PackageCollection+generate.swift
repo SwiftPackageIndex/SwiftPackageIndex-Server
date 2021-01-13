@@ -2,6 +2,10 @@ import Fluent
 import Foundation
 
 
+typealias PackageCollectionModel = JSONPackageCollectionModel.V1
+typealias PackageCollection = PackageCollectionModel.Collection
+
+
 extension PackageCollection {
 
     static func generate(db: Database,
@@ -18,13 +22,15 @@ extension PackageCollection {
             }
             .filter(\.$url ~~ packageURLs)
             .all()
-            .mapEach { Package.init(package: $0) }
+            .mapEachCompact { Package.init(package: $0) }
             .map {
                 PackageCollection.init(
                     name: name,
                     overview: overview,
                     keywords: keywords,
                     packages: $0,
+                    formatVersion: .v1_0,
+                    revision: nil,
                     generatedAt: Current.date(),
                     generatedBy: author)
             }
@@ -45,13 +51,15 @@ extension PackageCollection {
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
             .filter(Repository.self, \.$owner == owner)
             .all()
-            .mapEach { Package.init(package: $0) }
+            .mapEachCompact { Package.init(package: $0) }
             .map {
                 PackageCollection.init(
                     name: name,
                     overview: overview,
                     keywords: keywords,
                     packages: $0,
+                    formatVersion: .v1_0,
+                    revision: nil,
                     generatedAt: Current.date(),
                     generatedBy: author)
             }
@@ -61,20 +69,22 @@ extension PackageCollection {
 
 
 extension PackageCollection.Package {
-    init(package: App.Package) {
-        self.init(url: package.url,
+    init?(package: App.Package) {
+        guard let url = URL(string: package.url) else { return nil }
+        self.init(url: url,
                   summary: package.repository?.summary,
                   keywords: nil,
                   versions: package.versions
-                    .compactMap(PackageCollection.Version.init(version:))
+                    .compactMap(Self.Version.init(version:))
                     .sorted { $0.version > $1.version },
-                  readmeURL: package.repository?.readmeUrl
+                  readmeURL: package.repository?.readmeUrl.flatMap(URL.init(string:)),
+                  license: nil  // TODO: fill in
         )
     }
 }
 
 
-extension PackageCollection.Version {
+extension PackageCollection.Package.Version {
     init?(version: App.Version) {
         guard let semVer = version.reference?.semVer,
               let packageName = version.packageName,
@@ -84,41 +94,54 @@ extension PackageCollection.Version {
         self.init(
             version: "\(semVer)",
             packageName: packageName,
-            products: version.products
-                .compactMap(PackageCollection.Product.init(product:)),
             targets: version.targets
-                .map(PackageCollection.Target.init(target:)),
+                .map(PackageCollectionModel.Target.init(target:)),
+            products: version.products
+                .compactMap(PackageCollectionModel.Product.init(product:)),
             toolsVersion: toolsVersion,
             minimumPlatformVersions: version.supportedPlatforms
-                .compactMap(PackageCollection.SupportedPlatform.init(platform:))
+                .map(PackageCollectionModel.PlatformVersion.init(platform:)),
+            verifiedCompatibility: nil, // TODO: fill in
+            license: nil // TODO: fill in
         )
     }
 }
 
 
-extension PackageCollection.SupportedPlatform {
-    init?(platform: App.Platform) {
-        guard let name = PackageCollection.Platform(rawValue: platform.name.rawValue)
-        else { return nil }
-        self.init(platform: name, version: platform.version)
+extension PackageCollectionModel.PlatformVersion {
+    init(platform: App.Platform) {
+        self.init(name: platform.name.rawValue, version: platform.version)
     }
 }
 
 
-extension PackageCollection.Target {
+extension PackageCollectionModel.Target {
     init(target: App.Target) {
         self.init(name: target.name, moduleName: nil)
     }
 }
 
 
-extension PackageCollection.Product {
+extension PackageCollectionModel.Product {
     init?(product: App.Product) {
-        guard let type = ProductType(rawValue: product.type.rawValue) else {
+        guard let type = PackageCollectionModel
+                .ProductType(productType: product.type) else {
             return nil
         }
         self.init(name: product.name,
                   type: type,
                   targets: product.targets)
+    }
+}
+
+
+extension PackageCollectionModel.ProductType {
+    init?(productType: App.Product.`Type`) {
+        switch productType {
+            case .executable:
+                self = .executable
+            case .library:  // TODO: wire up detailed data
+                self = .library(.automatic)
+        }
     }
 }
