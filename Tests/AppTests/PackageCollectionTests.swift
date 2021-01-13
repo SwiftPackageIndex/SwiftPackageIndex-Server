@@ -50,19 +50,22 @@ class PackageCollectionTests: AppTestCase {
             .wait()
 
         // MUT
-        let res = try XCTUnwrap(PackageCollection.Version(version: v))
+        let res = try XCTUnwrap(PackageCollection.Package.Version(version: v))
 
         // validate
         XCTAssertEqual(res.version, "1.2.3")
         XCTAssertEqual(res.packageName, "Foo")
-        XCTAssertEqual(res.products,
-                       [.init(name: "P1", type: .library, targets: ["T1"]),
-                        .init(name: "P2", type: .library, targets: ["T2"])])
-        XCTAssertEqual(res.targets,
-                       [.init(name: "T1"), .init(name: "T2")])
+        XCTAssertEqual(
+            res.products,
+            [.init(name: "P1", type: .library(.automatic), targets: ["T1"]),
+             .init(name: "P2", type: .library(.automatic), targets: ["T2"])])
+        XCTAssertEqual(
+            res.targets,
+            [.init(name: "T1", moduleName: nil),
+             .init(name: "T2", moduleName: nil)])
         XCTAssertEqual(res.toolsVersion, "5.3")
         XCTAssertEqual(res.minimumPlatformVersions,
-                       [.init(platform: .ios, version: "14.0")])
+                       [.init(name: "ios", version: "14.0")])
         // TODO: verifiedPlatforms (from builds)
         // TODO: verifiedSwiftVersions (from builds)
 //        XCTAssertEqual(res.license, ...)
@@ -99,7 +102,7 @@ class PackageCollectionTests: AppTestCase {
             .wait()
 
         // MUT
-        let res = PackageCollection.Package(package: p)
+        let res = try XCTUnwrap(PackageCollection.Package(package: p))
 
         // validate
         XCTAssertEqual(res.summary, "summary")
@@ -121,7 +124,8 @@ class PackageCollectionTests: AppTestCase {
                                                  overview: "overview",
                                                  keywords: ["key", "word"],
                                                  packageURLs: ["1"],
-                                                 generatedBy: .init(name: "Foo", url: nil)).wait()
+                                                 generatedBy: .init(name: "Foo"))
+            .wait()
 
         // validate
         assertSnapshot(matching: res, as: .json(encoder))
@@ -201,7 +205,8 @@ class PackageCollectionTests: AppTestCase {
                                                  overview: "overview",
                                                  keywords: ["key", "word"],
                                                  owner: "foo",
-                                                 generatedBy: .init(name: "Foo", url: nil)).wait()
+                                                 generatedBy: .init(name: "Foo"))
+            .wait()
 
         // validate
         assertSnapshot(matching: res, as: .json(encoder))

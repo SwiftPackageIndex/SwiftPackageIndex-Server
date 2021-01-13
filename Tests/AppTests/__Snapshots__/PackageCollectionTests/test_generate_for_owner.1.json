@@ -26,7 +26,11 @@
               "targets" : [
 
               ],
-              "type" : "library"
+              "type" : {
+                "library" : [
+                  "automatic"
+                ]
+              }
             }
           ],
           "targets" : [
@@ -46,7 +50,11 @@
               "targets" : [
 
               ],
-              "type" : "library"
+              "type" : {
+                "library" : [
+                  "automatic"
+                ]
+              }
             }
           ],
           "targets" : [
@@ -72,7 +80,11 @@
               "targets" : [
 
               ],
-              "type" : "library"
+              "type" : {
+                "library" : [
+                  "automatic"
+                ]
+              }
             }
           ],
           "targets" : [
