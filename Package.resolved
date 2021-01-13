@@ -227,6 +227,15 @@
         }
       },
       {
+        "package": "PackageCollectionModel",
+        "repositoryURL": "https://github.com/finestructure/swift-package-collection-model.git",
+        "state": {
+          "branch": null,
+          "revision": "11151bd2ad7a3efb7be0448df923b48986d85774",
+          "version": "0.0.5"
+        }
+      },
+      {
         "package": "SnapshotTesting",
         "repositoryURL": "https://github.com/pointfreeco/swift-snapshot-testing.git",
         "state": {
