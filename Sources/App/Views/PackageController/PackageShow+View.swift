@@ -83,6 +83,7 @@ enum PackageShow {
 
         func mainColumnMetadata() -> Node<HTML.BodyContext> {
             .section(
+                .class("main_metadata"),
                 .ul(
                     .unwrap(model.authorsClause()) {
                         .li(.class("icon author"), $0)
@@ -102,6 +103,7 @@ enum PackageShow {
 
         func mainColumnCompatibility() -> Node<HTML.BodyContext> {
             .section(
+                .class("main_compatibility"),
                 .h3("Compatibility"),
                 model.swiftVersionCompatibilitySection(),
                 model.platformCompatibilitySection()
