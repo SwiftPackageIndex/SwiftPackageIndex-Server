@@ -1,5 +1,6 @@
 import Fluent
 import Foundation
+import PackageCollectionModel
 
 
 typealias PackageCollectionModel = JSONPackageCollectionModel.V1
