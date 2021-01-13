@@ -63,6 +63,9 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.toolsVersion, "5.3")
         XCTAssertEqual(res.minimumPlatformVersions,
                        [.init(platform: .ios, version: "14.0")])
+        // TODO: verifiedPlatforms (from builds)
+        // TODO: verifiedSwiftVersions (from builds)
+//        XCTAssertEqual(res.license, ...)
     }
 
     func test_Package_init() throws {

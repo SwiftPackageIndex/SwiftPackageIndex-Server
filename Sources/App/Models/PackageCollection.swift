@@ -47,6 +47,13 @@ extension PackageCollection {
 }
 
 extension PackageCollection {
+    struct License: Equatable, Codable {
+        var name: String
+        var url: String
+    }
+}
+
+extension PackageCollection {
     struct Target: Equatable, Codable {
         var name: String
         var moduleName: String?
