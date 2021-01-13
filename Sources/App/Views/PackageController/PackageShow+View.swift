@@ -48,6 +48,12 @@ enum PackageShow {
                 ),
                 arenaButton(),
                 .hr(),
+                .p(
+                    .class("description"),
+                    .unwrap(model.summary) { summary in
+                        .text(summary.replaceShorthandEmojis())
+                    }
+                ),
                 metadataSection(),
                 readmeSection()
             )
@@ -61,85 +67,83 @@ enum PackageShow {
         }
 
         func metadataSection() -> Node<HTML.BodyContext> {
-            .section(
+            .article(
                 .class("metadata"),
-                mainMetadata(),
-                sidebar()
+                mainColumn(),
+                sidebarColumn()
+            )
+        }
+        
+        func mainColumn() -> Node<HTML.BodyContext> {
+            .group(
+                mainColumnMetadata(),
+                mainColumnCompatibility()
             )
         }
 
-        func mainMetadata() -> Node<HTML.BodyContext> {
-            .article(
-                .p(
-                    .class("description"),
-                    .unwrap(model.summary) { summary in
-                        .text(summary.replaceShorthandEmojis())
+        func mainColumnMetadata() -> Node<HTML.BodyContext> {
+            .section(
+                .ul(
+                    .unwrap(model.authorsClause()) {
+                        .li(.class("icon author"), $0)
+                    },
+                    .unwrap(model.historyClause()) {
+                        .li(.class("icon history"), $0)
+                    },
+                    .unwrap(model.activityClause()) {
+                        .li(.class("icon activity"), $0)
+                    },
+                    .unwrap(model.productsClause()) {
+                        .li(.class("icon products"), $0)
                     }
-                ),
-                .section(
-                    .ul(
-                        .unwrap(model.authorsClause()) {
-                            .li(.class("icon author"), $0)
-                        },
-                        .unwrap(model.historyClause()) {
-                            .li(.class("icon history"), $0)
-                        },
-                        .unwrap(model.activityClause()) {
-                            .li(.class("icon activity"), $0)
-                        },
-                        .unwrap(model.productsClause()) {
-                            .li(.class("icon products"), $0)
-                        }
-                    )
-                ),
-                .hr(),
-                .group(
-                    .h3("Compatibility"),
-                    model.swiftVersionCompatibilitySection(),
-                    model.platformCompatibilitySection()
                 )
             )
         }
 
-        func sidebar() -> Node<HTML.BodyContext> {
+        func mainColumnCompatibility() -> Node<HTML.BodyContext> {
+            .section(
+                .h3("Compatibility"),
+                model.swiftVersionCompatibilitySection(),
+                model.platformCompatibilitySection()
+            )
+        }
+        
+        func sidebarColumn() -> Node<HTML.BodyContext> {
             .group(
                 sidebarMetadata(),
                 sidebarLinks(),
                 sidebarReleases(),
-                sidebarGitHubSupport()
+                sidebarSupport()
             )
-
         }
 
         func sidebarMetadata() -> Node<HTML.BodyContext> {
-            .aside(
-                .section(
-                    .ul(
-                        .unwrap(model.starsClause()) {
-                            .li(.class("icon stars"), $0)
-                        },
-                        licenseMetadata()
-                    )
+            .section(
+                .class("sidebar_metadata"),
+                .ul(
+                    .unwrap(model.starsClause()) {
+                        .li(.class("icon stars"), $0)
+                    },
+                    licenseMetadata()
                 )
             )
         }
 
         func sidebarLinks() -> Node<HTML.BodyContext> {
-            .aside(
-                .section(
-                    .ul(
-                        .li(
-                            .a(
-                                .href(model.url),
-                                // TODO: Make "GitHub" dynamic.
-                                "View on GitHub"
-                            )
-                        ),
-                        .li(
-                            .a(
-                                .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
-                                "Package Compatibility"
-                            )
+            .section(
+                .class("sidebar_links"),
+                .ul(
+                    .li(
+                        .a(
+                            .href(model.url),
+                            // TODO: Make "GitHub" dynamic.
+                            "View on GitHub"
+                        )
+                    ),
+                    .li(
+                        .a(
+                            .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
+                            "Package Compatibility"
                         )
                     )
                 )
@@ -147,14 +151,13 @@ enum PackageShow {
         }
 
         func sidebarReleases() -> Node<HTML.BodyContext> {
-            .aside(
-                .section(
-                    .class("releases"),
-                    .ul(
-                        .li(model.stableReleaseMetadata()),
-                        .li(model.betaReleaseMetadata()),
-                        .li(model.latestReleaseMetadata())
-                    )
+            .section(
+                .class("sidebar_releases"),
+                .class("releases"),
+                .ul(
+                    .li(model.stableReleaseMetadata()),
+                    .li(model.betaReleaseMetadata()),
+                    .li(model.latestReleaseMetadata())
                 )
             )
         }
@@ -187,10 +190,10 @@ enum PackageShow {
             )
         }
 
-        func sidebarGitHubSupport() -> Node<HTML.BodyContext> {
-            .aside(
+        func sidebarSupport() -> Node<HTML.BodyContext> {
+            .section(
+                .class("sidebar_support"),
                 .section(
-                    .class("github_support"),
                     .h4("Help the Swift Package Index"),
                     .p("This site is ",
                        .a(
