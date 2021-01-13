@@ -49,7 +49,7 @@ enum PackageShow {
                 arenaButton(),
                 .hr(),
                 .p(
-                    .class("description"),
+                    .class("summary"),
                     .unwrap(model.summary) { summary in
                         .text(summary.replaceShorthandEmojis())
                     }
