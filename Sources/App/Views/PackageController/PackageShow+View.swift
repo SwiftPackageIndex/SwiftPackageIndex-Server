@@ -104,7 +104,7 @@ enum PackageShow {
         func sidebar() -> Node<HTML.BodyContext> {
             .group(
                 sidebarMetadata(),
-                sidebarMenu(),
+                sidebarLinks(),
                 sidebarReleases(),
                 sidebarGitHubSupport()
             )
@@ -124,10 +124,9 @@ enum PackageShow {
             )
         }
 
-        func sidebarMenu() -> Node<HTML.BodyContext> {
+        func sidebarLinks() -> Node<HTML.BodyContext> {
             .aside(
                 .section(
-                    .class("menu"),
                     .ul(
                         .li(
                             .a(
