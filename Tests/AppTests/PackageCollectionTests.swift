@@ -50,7 +50,11 @@ class PackageCollectionTests: AppTestCase {
             .wait()
 
         // MUT
-        let res = try XCTUnwrap(PackageCollection.Package.Version(version: v))
+        let res = try XCTUnwrap(
+            PackageCollection.Package.Version(version: v,
+                                              licenseName: "MIT",
+                                              licenseURL: URL(string: "https://foo/mit")!)
+        )
 
         // validate
         XCTAssertEqual(res.version, "1.2.3")
@@ -68,7 +72,8 @@ class PackageCollectionTests: AppTestCase {
                        [.init(name: "ios", version: "14.0")])
         // TODO: verifiedPlatforms (from builds)
         // TODO: verifiedSwiftVersions (from builds)
-//        XCTAssertEqual(res.license, ...)
+        XCTAssertEqual(res.license,
+                       .init(name: "MIT", url: URL(string: "https://foo/mit")!))
     }
 
     func test_Package_init() throws {
@@ -80,6 +85,8 @@ class PackageCollectionTests: AppTestCase {
             do {
                 let r = try Repository(package: p,
                                        summary: "summary",
+                                       license: .mit,
+                                       licenseUrl: "https://foo/mit",
                                        readmeUrl: "readmeUrl")
                 try r.save(on: app.db).wait()
             }
@@ -107,6 +114,7 @@ class PackageCollectionTests: AppTestCase {
         // validate
         XCTAssertEqual(res.summary, "summary")
         XCTAssertEqual(res.readmeURL, "readmeUrl")
+        XCTAssertEqual(res.license?.name, "MIT")
         // version details tested in test_Version_init
         // simply assert count here
         XCTAssertEqual(res.versions.count, 1)
@@ -116,7 +124,10 @@ class PackageCollectionTests: AppTestCase {
         // setup
         Current.date = { Date(timeIntervalSince1970: 1610112345) }
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, summary: "summary").create(on: app.db).wait()
+        try Repository(package: pkg,
+                       summary: "summary",
+                       license: .mit,
+                       licenseUrl: "https://foo/mit").create(on: app.db).wait()
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
@@ -193,10 +204,14 @@ class PackageCollectionTests: AppTestCase {
         try Repository(package: p1,
                        summary: "summary 1",
                        defaultBranch: "main",
+                       license: .mit,
+                       licenseUrl: "https://foo/mit",
                        owner: "foo").create(on: app.db).wait()
         try Repository(package: p2,
                        summary: "summary 2",
                        defaultBranch: "main",
+                       license: .mit,
+                       licenseUrl: "https://foo/mit",
                        owner: "foo").create(on: app.db).wait()
 
         // MUT

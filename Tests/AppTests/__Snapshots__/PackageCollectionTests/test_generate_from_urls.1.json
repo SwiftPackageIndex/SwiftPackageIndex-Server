@@ -12,6 +12,10 @@
   "overview" : "overview",
   "packages" : [
     {
+      "license" : {
+        "name" : "MIT",
+        "url" : "https:\/\/foo\/mit"
+      },
       "summary" : "summary",
       "url" : "1",
       "versions" : [

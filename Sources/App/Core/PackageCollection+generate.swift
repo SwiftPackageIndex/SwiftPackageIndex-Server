@@ -70,22 +70,30 @@ extension PackageCollection {
 
 extension PackageCollection.Package {
     init?(package: App.Package) {
-        guard let url = URL(string: package.url) else { return nil }
+        guard
+            let licenseName = package.repository?.license.shortName,
+            let licenseURL = package.repository?.licenseUrl
+              .flatMap(URL.init(string:)),
+            let url = URL(string: package.url) else { return nil }
         self.init(url: url,
                   summary: package.repository?.summary,
                   keywords: nil,
                   versions: package.versions
-                    .compactMap(Self.Version.init(version:))
+                    .compactMap {
+                        Self.Version.init(version: $0,
+                                          licenseName: licenseName,
+                                          licenseURL: licenseURL)
+                    }
                     .sorted { $0.version > $1.version },
                   readmeURL: package.repository?.readmeUrl.flatMap(URL.init(string:)),
-                  license: nil  // TODO: fill in
+                  license: .init(name: licenseName, url: licenseURL)
         )
     }
 }
 
 
 extension PackageCollection.Package.Version {
-    init?(version: App.Version) {
+    init?(version: App.Version, licenseName: String, licenseURL: URL) {
         guard let semVer = version.reference?.semVer,
               let packageName = version.packageName,
               let toolsVersion = version.toolsVersion else {
@@ -102,7 +110,7 @@ extension PackageCollection.Package.Version {
             minimumPlatformVersions: version.supportedPlatforms
                 .map(PackageCollectionModel.PlatformVersion.init(platform:)),
             verifiedCompatibility: nil, // TODO: fill in
-            license: nil // TODO: fill in
+            license: .init(name: licenseName, url: licenseURL)
         )
     }
 }
