@@ -64,7 +64,7 @@ enum PackageShow {
             .section(
                 .class("metadata"),
                 mainMetadata(),
-                sidebarMetadata()
+                sidebar()
             )
         }
 
@@ -101,6 +101,18 @@ enum PackageShow {
             )
         }
 
+        func sidebar() -> Node<HTML.BodyContext> {
+            .group(
+                sidebarMetadata(),
+                .hr(),
+                sidebarMenu(),
+                .hr(),
+                sidebarReleases(),
+                sidebarGitHubSupport()
+            )
+
+        }
+
         func sidebarMetadata() -> Node<HTML.BodyContext> {
             .aside(
                 .section(
@@ -110,8 +122,12 @@ enum PackageShow {
                         },
                         licenseMetadata()
                     )
-                ),
-                .hr(),
+                )
+            )
+        }
+
+        func sidebarMenu() -> Node<HTML.BodyContext> {
+            .aside(
                 .section(
                     .class("menu"),
                     .ul(
@@ -129,29 +145,18 @@ enum PackageShow {
                             )
                         )
                     )
-                ),
-                .hr(),
+                )
+            )
+        }
+
+        func sidebarReleases() -> Node<HTML.BodyContext> {
+            .aside(
                 .section(
                     .class("releases"),
                     .ul(
                         .li(model.stableReleaseMetadata()),
                         .li(model.betaReleaseMetadata()),
                         .li(model.latestReleaseMetadata())
-                    )
-                ),
-                .section(
-                    .class("github_support"),
-                    .h4("Help the Swift Package Index"),
-                    .p("This site is ",
-                       .a(
-                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
-                            "open-source"
-                       ),
-                       " and runs entirely on commuity donations. Please consider supporting this project."
-                    ),
-                    .a(
-                        .href("https://github.com/sponsors/SwiftPackageIndex"),
-                        "Sponsor the Swift Package Index"
                     )
                 )
             )
@@ -182,6 +187,26 @@ enum PackageShow {
                 .class("license \(model.license.licenseKind.cssClass)"),
                 .unwrap(model.licenseUrl, { .a(href: $0, licenseDiv) }, else: licenseDiv),
                 whatsThisLink
+            )
+        }
+
+        func sidebarGitHubSupport() -> Node<HTML.BodyContext> {
+            .aside(
+                .section(
+                    .class("github_support"),
+                    .h4("Help the Swift Package Index"),
+                    .p("This site is ",
+                       .a(
+                        .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
+                        "open-source"
+                       ),
+                       " and runs entirely on commuity donations. Please consider supporting this project."
+                    ),
+                    .a(
+                        .href("https://github.com/sponsors/SwiftPackageIndex"),
+                        "Sponsor the Swift Package Index"
+                    )
+                )
             )
         }
 
