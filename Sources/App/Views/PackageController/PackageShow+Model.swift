@@ -371,22 +371,18 @@ extension PackageShow.Model {
     func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
         guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
-        return .section(
-            .ul(
-                .class("matrix"),
-                .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
-            )
+        return .ul(
+            .class("matrix"),
+            .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
         )
     }
 
     func platformCompatibilitySection() -> Node<HTML.BodyContext> {
         guard let buildInfo = platformBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
-        return .section(
-            .ul(
-                .class("matrix"),
-                .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
-            )
+        return .ul(
+            .class("matrix"),
+            .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
         )
     }
 
