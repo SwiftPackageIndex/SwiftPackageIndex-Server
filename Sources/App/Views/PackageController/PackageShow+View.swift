@@ -53,39 +53,10 @@ enum PackageShow {
             )
         }
 
-        func licenseMetadata() -> Node<HTML.ListContext> {
-            let licenseDiv: Node<HTML.BodyContext> = .div(
-                .attribute(named: "title", value: model.license.fullName),
-                .i(.class("icon \(model.license.licenseKind.iconName)")),
-                .text(model.license.shortName)
-            )
-
-            let whatsThisLink: Node<HTML.BodyContext> = {
-                switch model.license.licenseKind {
-                    case .compatibleWithAppStore:
-                        return .empty
-                    case .incompatibleWithAppStore, .other, .none:
-                        return .small(
-                            .a(
-                                .href(SiteURL.faq.relativeURL(anchor: "licenses")),
-                                "Why is this not green?"
-                            )
-                        )
-                }
-            }()
-
-            return .li(
-                .class("license \(model.license.licenseKind.cssClass)"),
-                .unwrap(model.licenseUrl, { .a(href: $0, licenseDiv) }, else: licenseDiv),
-                whatsThisLink
-            )
-        }
-
         func arenaButton() -> Node<HTML.BodyContext> {
             let environment = (try? Environment.detect()) ?? .development
             return .if(environment != .production,
-                       .a(.href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
-                          "🏟")
+                       .a(.href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"), "🏟")
             )
         }
 
@@ -183,6 +154,34 @@ enum PackageShow {
                         "Sponsor the Swift Package Index"
                     )
                 )
+            )
+        }
+
+        func licenseMetadata() -> Node<HTML.ListContext> {
+            let licenseDiv: Node<HTML.BodyContext> = .div(
+                .attribute(named: "title", value: model.license.fullName),
+                .i(.class("icon \(model.license.licenseKind.iconName)")),
+                .text(model.license.shortName)
+            )
+
+            let whatsThisLink: Node<HTML.BodyContext> = {
+                switch model.license.licenseKind {
+                    case .compatibleWithAppStore:
+                        return .empty
+                    case .incompatibleWithAppStore, .other, .none:
+                        return .small(
+                            .a(
+                                .href(SiteURL.faq.relativeURL(anchor: "licenses")),
+                                "Why is this not green?"
+                            )
+                        )
+                }
+            }()
+
+            return .li(
+                .class("license \(model.license.licenseKind.cssClass)"),
+                .unwrap(model.licenseUrl, { .a(href: $0, licenseDiv) }, else: licenseDiv),
+                whatsThisLink
             )
         }
 
