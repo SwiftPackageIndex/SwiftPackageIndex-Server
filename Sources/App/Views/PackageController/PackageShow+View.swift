@@ -54,7 +54,7 @@ enum PackageShow {
                         .text(summary.replaceShorthandEmojis())
                     }
                 ),
-                metadataSection(),
+                detailsSection(),
                 readmeSection()
             )
         }
@@ -66,7 +66,7 @@ enum PackageShow {
             )
         }
 
-        func metadataSection() -> Node<HTML.BodyContext> {
+        func detailsSection() -> Node<HTML.BodyContext> {
             .article(
                 .class("details"),
                 mainColumn(),
@@ -155,7 +155,6 @@ enum PackageShow {
         func sidebarReleases() -> Node<HTML.BodyContext> {
             .section(
                 .class("sidebar_releases"),
-                .class("releases"),
                 .ul(
                     .li(model.stableReleaseMetadata()),
                     .li(model.betaReleaseMetadata()),
@@ -167,7 +166,6 @@ enum PackageShow {
         func licenseMetadata() -> Node<HTML.ListContext> {
             let licenseDiv: Node<HTML.BodyContext> = .div(
                 .attribute(named: "title", value: model.license.fullName),
-                .i(.class("icon \(model.license.licenseKind.iconName)")),
                 .text(model.license.shortName)
             )
 
@@ -186,7 +184,7 @@ enum PackageShow {
             }()
 
             return .li(
-                .class("license \(model.license.licenseKind.cssClass)"),
+                .class("icon \(model.license.licenseKind.iconName) \(model.license.licenseKind.cssClass)"),
                 .unwrap(model.licenseUrl, { .a(href: $0, licenseDiv) }, else: licenseDiv),
                 whatsThisLink
             )

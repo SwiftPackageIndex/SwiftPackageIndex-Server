@@ -8,52 +8,61 @@
     padding: 0;
   }
 
-  li {
-    margin: 10px 0;
+  p.summary {
+    margin-top: 0;
+    font-size: 19px;
   }
-  
-  section.metadata {
+  article.details {
     display: grid;
-    grid-template-columns: 0.7fr 0.3fr;
-    gap: 40px;
-  }
-  
-  aside {
-    // align-self: start;
-  }
-
-  .license {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    grid-template-columns: [main] 0.7fr [sidebar] 0.3fr;
+    gap: 20px 40px;
     
-    >:first-child {
-      margin-right: 8px;
+    section.main_metadata {
+      grid-column-start: main;
+      grid-row-start: 1;
+    }
+    
+    section.main_compatibility {
+      grid-column-start: main;
+      grid-row-start: 2;
+      grid-row-end: 3 span;
+    }
+    
+    section.sidebar_metadata {
+      grid-column-start: sidebar;
+      grid-row-start:  1;
     }
 
-    // Only hide the question mark icon on the desktop versions.
-    @media screen and (min-width: $mobile-breakpoint) {
-      >:first-child {
-          visibility: hidden;
-      }
-      
-      &:hover {
-        >:first-child {
-          visibility: visible;
+    section.sidebar_links {
+      grid-column-start: sidebar;
+      grid-row-start:  2;
+    }
+
+    section.sidebar_releases {
+      grid-column-start: sidebar;
+      grid-row-start:  3;
+    }
+
+    section.sidebar_support {
+      grid-column-start: sidebar;
+      grid-row-start:  4;
+    }
+    
+    section.main_metadata,
+    section.sidebar_metadata,
+    section.sidebar_releases {
+      ul {
+        margin: 0;
+        padding: 0;
+        padding-left: 20px;
+        list-style: none;
+        
+        li {
+          margin: 15px;
         }
       }
     }
   }
-}
-
-p.summary {
-  margin-top: 0;
-  font-size: 19px;
-}
-
-.releases ul {
-  padding: 0;
-  list-style: none;
 }
 
 /* Branches */
