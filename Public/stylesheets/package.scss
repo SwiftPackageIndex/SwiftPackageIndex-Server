@@ -12,54 +12,42 @@
     margin-top: 0;
     font-size: 19px;
   }
+
   article.details {
     display: grid;
     grid-template-columns: [main] 0.7fr [sidebar] 0.3fr;
     gap: 20px 40px;
-    
+
     section.main_metadata {
       grid-column-start: main;
       grid-row-start: 1;
     }
-    
+
     section.main_compatibility {
       grid-column-start: main;
       grid-row-start: 2;
-      grid-row-end: 3 span;
-    }
-    
-    section.sidebar_metadata {
-      grid-column-start: sidebar;
-      grid-row-start:  1;
     }
 
     section.sidebar_links {
       grid-column-start: sidebar;
-      grid-row-start:  2;
+      grid-row-start: 1;
     }
 
     section.sidebar_releases {
       grid-column-start: sidebar;
-      grid-row-start:  3;
+      grid-row-start: 2;
     }
 
-    section.sidebar_support {
-      grid-column-start: sidebar;
-      grid-row-start:  4;
-    }
-    
-    section.main_metadata,
-    section.sidebar_metadata,
-    section.sidebar_releases {
-      ul {
-        margin: 0;
-        padding: 0;
-        padding-left: 20px;
-        list-style: none;
-        
-        li {
-          margin: 15px;
-        }
+    section.main_metadata > ul,
+    section.sidebar_links > ul:first-of-type,
+    section.sidebar_releases > ul {
+      margin: 0;
+      padding: 0;
+      padding-left: 20px;
+      list-style: none;
+
+      li {
+        margin: 15px;
       }
     }
   }
