@@ -45,6 +45,8 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
         app.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
                 use: API.PackageController().badge)
+        app.get(SiteURL.api(.packageCollections).pathComponents,
+                use: API.PackageCollectionController().get)
 
         // protected routes
         app.group(User.TokenAuthenticator(), User.guardMiddleware()) { protected in
