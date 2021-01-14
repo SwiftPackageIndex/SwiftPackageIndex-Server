@@ -4,7 +4,7 @@
 
 ul.matrix {
   padding: 0;
-  margin: 0;
+  margin: 20px 0;
 
   li {
     margin: 5px 0;
@@ -90,6 +90,7 @@ ul.matrix {
     align-items: center;
     flex-basis: 0;
     flex-grow: 1;
+    font-size: 14px;
     font-weight: 600;
 
     small {
