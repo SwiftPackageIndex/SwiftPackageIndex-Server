@@ -16,7 +16,7 @@
   article.details {
     display: grid;
     grid-template-columns: [main] 0.7fr [sidebar] 0.3fr;
-    gap: 20px 40px;
+    gap: 20px 50px;
 
     section.main_metadata {
       grid-column-start: main;
@@ -36,11 +36,34 @@
     section.sidebar_releases {
       grid-column-start: sidebar;
       grid-row-start: 2;
+
+      ul {
+        padding: 0;
+        list-style: none;
+
+        li {
+          display: flex;
+          flex-direction: column;
+          margin: 0 0 15px 0;
+
+          &:last-child {
+            margin: 0;
+          }
+
+          strong {
+            margin-bottom: 5px;
+          }
+
+          a,
+          small {
+            padding-left: 10px;
+          }
+        }
+      }
     }
 
     section.main_metadata > ul,
-    section.sidebar_links > ul:first-of-type,
-    section.sidebar_releases > ul {
+    section.sidebar_links > ul:last-of-type {
       margin: 0;
       padding: 0;
       padding-left: 20px;
@@ -50,6 +73,63 @@
         margin: 15px;
       }
     }
+
+    ul.package_links {
+      margin-top: 0px;
+    }
+  }
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    article.details {
+      display: grid;
+      grid-template-columns: [main] 1fr;
+
+      section.main_metadata {
+        grid-column-start: main;
+        grid-row-start: 2;
+      }
+
+      section.main_compatibility {
+        grid-column-start: main;
+        grid-row-start: 4;
+      }
+
+      section.sidebar_links {
+        grid-column-start: main;
+        grid-row-start: 1;
+      }
+
+      section.sidebar_releases {
+        grid-column-start: main;
+        grid-row-start: 3;
+      }
+    }
+  }
+}
+
+section.support {
+  display: flex;
+  flex-direction: row;
+  margin: 20px 0;
+  padding: 10px;
+  border: 1px var(--support-text) solid;
+  border-radius: 6px;
+  background-color: var(--support-background);
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    text-align: center;
+    font-weight: 600;
+    color: var(--support-text);
+  }
+}
+
+@media screen and (max-width: $mobile-breakpoint) {
+  section.support {
+    flex-direction: column;
   }
 }
 

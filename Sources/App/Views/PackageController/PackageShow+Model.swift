@@ -219,36 +219,34 @@ extension PackageShow.Model {
         )
     }
     
-    func stableReleaseMetadata() -> Node<HTML.BodyContext> {
+    func stableReleaseMetadata() -> Node<HTML.ListContext> {
         guard let datedLink = releases.stable else { return .empty }
-        return releaseMetadata(datedLink, title: "Stable Release", cssClass: "stable")
+        return releaseMetadata(datedLink, title: "Latest Stable", cssClass: "stable")
     }
 
-    func betaReleaseMetadata() -> Node<HTML.BodyContext> {
+    func betaReleaseMetadata() -> Node<HTML.ListContext> {
         guard let datedLink = releases.beta else { return .empty }
-        return releaseMetadata(datedLink, title: "Beta Release", cssClass: "beta")
+        return releaseMetadata(datedLink, title: "Latest Beta", cssClass: "beta")
     }
     
-    func latestReleaseMetadata() -> Node<HTML.BodyContext> {
+    func defaultBranchMetadata() -> Node<HTML.ListContext> {
         guard let datedLink = releases.latest else { return .empty }
-        return releaseMetadata(datedLink, title: "Default Branch", cssClass: "branch")
+        return releaseMetadata(datedLink, title: "Default Branch", datePrefix: "Modified", cssClass: "branch")
     }
     
-    func releaseMetadata(_ datedLink: DatedLink, title: String, cssClass: String) -> Node<HTML.BodyContext> {
-        .group(
-            .h4(.text(title)),
-            .p(
-                .a(
-                    .href(datedLink.link.url),
-                    .span(
-                        .class(cssClass),
-                        .i(.class("icon \(cssClass)")),
-                        .text(datedLink.link.label)
-                    )
-                ),
-                .small(
-                    .text(datedLink.date)
+    func releaseMetadata(_ datedLink: DatedLink, title: String, datePrefix: String = "Released", cssClass: String) -> Node<HTML.ListContext> {
+        .li(
+            .strong(.text(title)),
+            .a(
+                .href(datedLink.link.url),
+                .span(
+                    .class(cssClass),
+                    .i(.class("icon \(cssClass)")),
+                    .text(datedLink.link.label)
                 )
+            ),
+            .small(
+                .text([datePrefix, datedLink.date].joined(separator: " "))
             )
         )
     }

@@ -77,6 +77,8 @@ enum PackageShow {
         
         func mainColumn() -> Node<HTML.BodyContext> {
             .group(
+                // Note: Adding *any* other markup other than the main sections here will break
+                // layout. This is a grid layout, and every element is positioned manually.
                 mainColumnMetadata(),
                 mainColumnCompatibility()
             )
@@ -105,13 +107,15 @@ enum PackageShow {
         func mainColumnCompatibility() -> Node<HTML.BodyContext> {
             .section(
                 .class("main_compatibility"),
-                .h3("Compatibility"),
+                .h3("Package Compatibility"),
                 model.swiftVersionCompatibilitySection(),
                 model.platformCompatibilitySection()
             )
         }
         
         func sidebarColumn() -> Node<HTML.BodyContext> {
+            // Note: Adding *any* other markup other than the main sections here will break
+            // layout. This is a grid layout, and every element is positioned manually.
             .group(
                 sidebarLinks(),
                 sidebarReleases()
@@ -121,37 +125,48 @@ enum PackageShow {
         func sidebarLinks() -> Node<HTML.BodyContext> {
             .section(
                 .class("sidebar_links"),
-                .ul(
-                    .unwrap(model.starsClause()) {
-                        .li(.class("icon stars"), $0)
-                    },
-                    licenseMetadata()
+                sidebarLinksList(),
+                .hr(),
+                sidebarMetadataList()
+            )
+        }
+
+        func sidebarLinksList() -> Node<HTML.BodyContext> {
+            .ul(
+                .class("package_links"),
+                .li(
+                    .a(
+                        .href(model.url),
+                        // TODO: Make "GitHub" dynamic.
+                        "View on GitHub"
+                    )
                 ),
-                .ul(
-                    .li(
-                        .a(
-                            .href(model.url),
-                            // TODO: Make "GitHub" dynamic.
-                            "View on GitHub"
-                        )
-                    ),
-                    .li(
-                        .a(
-                            .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
-                            "Package Compatibility"
-                        )
+                .li(
+                    .a(
+                        .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
+                        "Package Compatibility"
                     )
                 )
+            )
+        }
+
+        func sidebarMetadataList() -> Node<HTML.BodyContext> {
+            .ul(
+                .unwrap(model.starsClause()) {
+                    .li(.class("icon stars"), $0)
+                },
+                licenseMetadata()
             )
         }
 
         func sidebarReleases() -> Node<HTML.BodyContext> {
             .section(
                 .class("sidebar_releases"),
+                .h3("Releases"),
                 .ul(
-                    .li(model.stableReleaseMetadata()),
-                    .li(model.betaReleaseMetadata()),
-                    .li(model.latestReleaseMetadata())
+                    model.stableReleaseMetadata(),
+                    model.betaReleaseMetadata(),
+                    model.defaultBranchMetadata()
                 )
             )
         }
@@ -170,7 +185,7 @@ enum PackageShow {
                         return .small(
                             .a(
                                 .href(SiteURL.faq.relativeURL(anchor: "licenses")),
-                                "Why is this not green?"
+                                "Why is this icon not green?"
                             )
                         )
                 }
@@ -186,18 +201,16 @@ enum PackageShow {
         func supportSection() -> Node<HTML.BodyContext> {
             .section(
                 .class("support"),
-                .section(
-                    .p("The Swift Package Index is ",
-                       .a(
-                        .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
-                        "open-source"
-                       ),
-                       " and runs entirely on commuity donations. Please consider supporting this project."
-                    ),
-                    .a(
-                        .href("https://github.com/sponsors/SwiftPackageIndex"),
-                        "Sponsor the Swift Package Index"
-                    )
+                .p("The Swift Package Index is open-source, built and maintained by individuals rather than a company, and runs entirely on community donations. Please consider ",
+                   .a(
+                    .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
+                    "supporting this project by sponsoring it"
+                   ),
+                   "."
+                ),
+                .a(
+                    .href("https://github.com/sponsors/SwiftPackageIndex"),
+                    "Support This Project"
                 )
             )
         }
@@ -208,7 +221,6 @@ enum PackageShow {
             else { return .empty }
 
             return .group(
-                .hr(),
                 .article(
                     .class("readme"),
                     .attribute(named: "data-readme-base-url", value: model.readmeBaseUrl),

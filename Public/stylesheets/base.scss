@@ -137,27 +137,14 @@ button:focus {
   outline: none;
 }
 
-.lozenge {
-  margin: 5px 0;
-  display: flex;
-  align-items: center;
-  padding: 5px 8px;
-  border-radius: 8px;
-  color: var(--lozenge-text);
+.green {
+  color: var(--lozenge-green-background);
+}
 
-  i.icon {
-    margin-right: 7px;
-  }
+.orange {
+  color: var(--lozenge-orange-background);
+}
 
-  &.green {
-    background-color: var(--lozenge-green-background);
-  }
-
-  &.orange {
-    background-color: var(--lozenge-orange-background);
-  }
-
-  &.red {
-    background-color: var(--lozenge-red-background);
-  }
+.red {
+  color: var(--lozenge-red-background);
 }
