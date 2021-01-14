@@ -8,12 +8,7 @@ typealias PackageCollection = PackageCollectionModel.Collection
 
 extension PackageCollection {
 
-    static func generate(db: Database,
-                         name: String,
-                         overview: String? = nil,
-                         keywords: [String]? = nil,
-                         packageURLs: [String],
-                         generatedBy author: Author? = nil) -> EventLoopFuture<PackageCollection> {
+    private static func packageQuery(db: Database) -> QueryBuilder<App.Package> {
         App.Package.query(on: db)
             .with(\.$repositories)
             .with(\.$versions) {
@@ -21,6 +16,15 @@ extension PackageCollection {
                 $0.with(\.$products)
                 $0.with(\.$targets)
             }
+    }
+
+    static func generate(db: Database,
+                         name: String,
+                         overview: String? = nil,
+                         keywords: [String]? = nil,
+                         packageURLs: [String],
+                         generatedBy author: Author? = nil) -> EventLoopFuture<PackageCollection> {
+        packageQuery(db: db)
             .filter(\.$url ~~ packageURLs)
             .all()
             .mapEachCompact { Package.init(package: $0) }
@@ -43,13 +47,7 @@ extension PackageCollection {
                          keywords: [String]? = nil,
                          owner: String,
                          generatedBy author: Author? = nil) -> EventLoopFuture<PackageCollection> {
-        App.Package.query(on: db)
-            .with(\.$repositories)
-            .with(\.$versions) {
-                $0.with(\.$builds)
-                $0.with(\.$products)
-                $0.with(\.$targets)
-            }
+        packageQuery(db: db)
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
             .filter(Repository.self, \.$owner == owner)
             .all()
