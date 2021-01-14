@@ -26,23 +26,36 @@ class PackageCollectionTests: AppTestCase {
                                 toolsVersion: "5.3")
             try v.save(on: app.db).wait()
             do {
-                let p1 = try Product(version: v,
-                                     type: .library,
-                                     name: "P1",
-                                     targets: ["T1"])
-                let p2 = try Product(version: v,
-                                     type: .library,
-                                     name: "P2",
-                                     targets: ["T2"])
-                try [p1, p2].save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library,
+                            name: "P1",
+                            targets: ["T1"]).save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library,
+                            name: "P2",
+                            targets: ["T2"]).save(on: app.db).wait()
             }
             do {
-                let t1 = try Target(version: v, name: "T1")
-                let t2 = try Target(version: v, name: "T2")
-                try [t1, t2].save(on: app.db).wait()
+                try Target(version: v, name: "T1").save(on: app.db).wait()
+                try Target(version: v, name: "T2").save(on: app.db).wait()
+            }
+            do {
+                try Build(version: v,
+                          platform: .ios,
+                          status: .ok,
+                          swiftVersion: .v5_2).save(on: app.db).wait()
+                try Build(version: v,
+                          platform: .macosXcodebuild,
+                          status: .ok,
+                          swiftVersion: .v5_3).save(on: app.db).wait()
+                try Build(version: v,
+                          platform: .macosXcodebuildArm,
+                          status: .ok,
+                          swiftVersion: .v5_3).save(on: app.db).wait()
             }
         }
         let v = try Version.query(on: app.db)
+            .with(\.$builds)
             .with(\.$products)
             .with(\.$targets)
             .first()
@@ -70,8 +83,10 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.toolsVersion, "5.3")
         XCTAssertEqual(res.minimumPlatformVersions,
                        [.init(name: "ios", version: "14.0")])
-        // TODO: verifiedPlatforms (from builds)
-        // TODO: verifiedSwiftVersions (from builds)
+        XCTAssertEqual(res.verifiedCompatibility, [
+            .init(platform: .init(name: "ios"), swiftVersion: .init("5.2")),
+            .init(platform: .init(name: "macos"), swiftVersion: .init("5.3")),
+        ])
         XCTAssertEqual(res.license,
                        .init(name: "MIT", url: URL(string: "https://foo/mit")!))
     }
@@ -101,6 +116,7 @@ class PackageCollectionTests: AppTestCase {
         let p = try Package.query(on: app.db)
             .with(\.$repositories)
             .with(\.$versions) {
+                $0.with(\.$builds)
                 $0.with(\.$products)
                 $0.with(\.$targets)
             }
@@ -176,6 +192,10 @@ class PackageCollectionTests: AppTestCase {
             try v.save(on: app.db).wait()
             try Product(version: v, type: .library, name: "P1Lib")
                 .save(on: app.db).wait()
+            try Build(version: v,
+                      platform: .ios,
+                      status: .ok,
+                      swiftVersion: .v5_2).save(on: app.db).wait()
         }
         // second package
         let p2 = try savePackage(on: app.db, "https://github.com/foo/2")

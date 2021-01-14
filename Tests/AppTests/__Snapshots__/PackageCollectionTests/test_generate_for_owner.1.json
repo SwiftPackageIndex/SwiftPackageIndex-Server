@@ -45,6 +45,14 @@
 
           ],
           "toolsVersion" : "5.2",
+          "verifiedCompatibility" : [
+            {
+              "platform" : {
+                "name" : "ios"
+              },
+              "swiftVersion" : "5.2"
+            }
+          ],
           "version" : "2.0.0"
         },
         {
@@ -73,6 +81,9 @@
 
           ],
           "toolsVersion" : "5.1",
+          "verifiedCompatibility" : [
+
+          ],
           "version" : "1.2.3"
         }
       ]
@@ -111,6 +122,9 @@
 
           ],
           "toolsVersion" : "5.3",
+          "verifiedCompatibility" : [
+
+          ],
           "version" : "1.2.3"
         }
       ]

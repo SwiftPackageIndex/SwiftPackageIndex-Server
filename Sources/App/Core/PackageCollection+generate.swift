@@ -17,6 +17,7 @@ extension PackageCollection {
         App.Package.query(on: db)
             .with(\.$repositories)
             .with(\.$versions) {
+                $0.with(\.$builds)
                 $0.with(\.$products)
                 $0.with(\.$targets)
             }
@@ -45,6 +46,7 @@ extension PackageCollection {
         App.Package.query(on: db)
             .with(\.$repositories)
             .with(\.$versions) {
+                $0.with(\.$builds)
                 $0.with(\.$products)
                 $0.with(\.$targets)
             }
@@ -109,7 +111,7 @@ extension PackageCollection.Package.Version {
             toolsVersion: toolsVersion,
             minimumPlatformVersions: version.supportedPlatforms
                 .map(PackageCollectionModel.PlatformVersion.init(platform:)),
-            verifiedCompatibility: nil, // TODO: fill in
+            verifiedCompatibility: .init(builds: version.builds),
             license: .init(name: licenseName, url: licenseURL)
         )
     }
@@ -151,5 +153,62 @@ extension PackageCollectionModel.ProductType {
             case .library:  // TODO: wire up detailed data
                 self = .library(.automatic)
         }
+    }
+}
+
+
+private extension Array where Element == PackageCollectionModel.Compatibility {
+    // Helper struct to work around Compatibility not being Hashable
+    struct Pair: Hashable {
+        var platform: PackageCollectionModel.Platform
+        var version: String
+    }
+
+    init(builds: [Build]) {
+        self.init(
+            // Gather up build via a Set to de-duplicate various
+            // macOS build variants - spm, xcodebuild, ARM
+            Set<Pair>(
+                builds.map { Pair.init(platform: .init(platform: $0.platform),
+                                       version: $0.swiftVersion.displayName)}
+            )
+            .map { Element.init(platform: $0.platform, swiftVersion: $0.version) }
+            .sorted()
+        )
+    }
+}
+
+
+extension PackageCollectionModel.Platform {
+    init(platform: Build.Platform) {
+        switch platform {
+            case .ios, .tvos, .watchos, .linux:
+                self.init(name: platform.rawValue)
+            case .macosSpmArm, .macosXcodebuildArm, .macosSpm, .macosXcodebuild:
+                self.init(name: "macos")
+        }
+    }
+}
+
+
+extension PackageCollectionModel.Platform: Hashable {
+    public var hashValue: Int { name.hashValue }
+    public func hash(into hasher: inout Hasher) {
+        name.hash(into: &hasher)
+    }
+}
+
+
+extension PackageCollectionModel.Platform: Comparable {
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.name < rhs.name
+    }
+}
+
+
+extension PackageCollectionModel.Compatibility: Comparable {
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        if lhs.platform != rhs.platform { return lhs.platform < rhs.platform }
+        return lhs.swiftVersion < rhs.swiftVersion
     }
 }
