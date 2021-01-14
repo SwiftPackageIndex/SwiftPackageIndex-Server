@@ -7,13 +7,23 @@ extension API {
     struct PackageCollectionController {
 
         func generate(req: Request) throws -> EventLoopFuture<PackageCollection> {
-            let dto = try req.content.decode(PostPackageCollectionOwnerDTO.self)
-
+            if let dto = try? req.content.decode(PostPackageCollectionOwnerDTO.self) {
+                return PackageCollection.generate(
+                    db: req.db,
+                    owner: dto.owner,
+                    authorName: dto.authorName ?? "Swift Package Index",
+                    collectionName: dto.collectionName ?? dto.owner,
+                    keywords: dto.keywords,
+                    overview: dto.overview,
+                    revision: dto.revision
+                )
+            }
+            let dto = try req.content.decode(PostPackageCollectionPackageUrlsDTO.self)
             return PackageCollection.generate(
                 db: req.db,
-                owner: dto.owner,
+                packageURLs: dto.packageUrls,
                 authorName: dto.authorName ?? "Swift Package Index",
-                collectionName: dto.collectionName ?? dto.owner,
+                collectionName: dto.collectionName ?? "Package List",
                 keywords: dto.keywords,
                 overview: dto.overview,
                 revision: dto.revision
@@ -32,6 +42,16 @@ extension API {
 
     struct PostPackageCollectionOwnerDTO: Codable {
         var owner: String
+
+        var authorName: String?
+        var keywords: [String]?
+        var collectionName: String?
+        var overview: String?
+        var revision: Int?
+    }
+
+    struct PostPackageCollectionPackageUrlsDTO: Codable {
+        var packageUrls: [String]
 
         var authorName: String?
         var keywords: [String]?

@@ -430,15 +430,81 @@ class ApiTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
 
         do {  // MUT
-            let dto = API.PostPackageCollectionOwnerDTO(
-                owner: "owner",
-                authorName: "author",
-                keywords: ["a", "b"],
-                collectionName: "my collection",
-                overview: "my overview",
-                revision: 3
-            )
-            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            let body: ByteBuffer = .init(string: """
+                {
+                  "revision": 3,
+                  "authorName": "author",
+                  "owner": "owner",
+                  "keywords": [
+                    "a",
+                    "b"
+                  ],
+                  "collectionName": "my collection",
+                  "overview": "my overview"
+                }
+                """)
+
+            try app.test(.POST,
+                         "api/package-collections",
+                         headers: .init([("Content-Type", "application/json")]),
+                         body: body,
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(
+                    try res.content.decode(PackageCollection.self),
+                    PackageCollection.init(name: "my collection",
+                                           overview: "my overview",
+                                           keywords: ["a", "b"],
+                                           packages: [],
+                                           formatVersion: .v1_0,
+                                           revision: 3,
+                                           generatedAt: refDate,
+                                           generatedBy: .init(name: "author"))
+                )
+            })
+        }
+    }
+
+
+    func test_package_collection_packageURLs() throws {
+        // setup
+        let refDate = Date(timeIntervalSince1970: 0)
+        Current.date = { refDate }
+        let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
+                         url: "1")
+        try p1.save(on: app.db).wait()
+        let p2 = Package(id: UUID(uuidString: "4e256250-d1ea-4cdd-9fe9-0fc5dce17a80")!,
+                         url: "2")
+        try p2.save(on: app.db).wait()
+        try Repository(package: p1,
+                       summary: "some package",
+                       defaultBranch: "main").save(on: app.db).wait()
+        try Repository(package: p2,
+                       summary: "foo bar package",
+                       defaultBranch: "main",
+                       name: "name 2",
+                       owner: "foo").save(on: app.db).wait()
+        try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
+        try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {  // MUT
+            let body: ByteBuffer = .init(string: """
+                {
+                  "revision": 3,
+                  "authorName": "author",
+                  "keywords": [
+                    "a",
+                    "b"
+                  ],
+                  "packageUrls": [
+                    "1"
+                  ],
+                  "collectionName": "my collection",
+                  "overview": "my overview"
+                }
+                """)
 
             try app.test(.POST,
                          "api/package-collections",
