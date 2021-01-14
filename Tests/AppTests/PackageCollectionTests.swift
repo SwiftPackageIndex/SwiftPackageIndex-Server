@@ -149,11 +149,11 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
-                                                 name: "Foo",
-                                                 overview: "overview",
-                                                 keywords: ["key", "word"],
                                                  packageURLs: ["1"],
-                                                 generatedBy: .init(name: "Foo"))
+                                                 authorName: "Foo",
+                                                 collectionName: "Foo",
+                                                 keywords: ["key", "word"],
+                                                 overview: "overview")
             .wait()
 
         // validate
@@ -241,11 +241,11 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
-                                                 name: "Foo",
-                                                 overview: "overview",
-                                                 keywords: ["key", "word"],
                                                  owner: "foo",
-                                                 generatedBy: .init(name: "Foo"))
+                                                 authorName: "Foo",
+                                                 collectionName: "Foo",
+                                                 keywords: ["key", "word"],
+                                                 overview: "overview")
             .wait()
 
         // validate

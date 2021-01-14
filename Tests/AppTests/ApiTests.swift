@@ -429,22 +429,37 @@ class ApiTests: AppTestCase {
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
 
-        // MUT
-        try app.test(.GET, "/api/package-collections?owner=foo", afterResponse: { res in
-            // validation
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(
-                try res.content.decode(PackageCollection.self),
-                PackageCollection.init(name: "foo",
-                                       overview: nil,
-                                       keywords: nil,
-                                       packages: [],
-                                       formatVersion: .v1_0,
-                                       revision: nil,
-                                       generatedAt: refDate,
-                                       generatedBy: .init(name: "Swift Package Index"))
+        do {  // MUT
+            let dto = API.PostPackageCollectionOwnerDTO(
+                owner: "owner",
+                authorName: "author",
+                keywords: ["a", "b"],
+                collectionName: "my collection",
+                overview: "my overview",
+                revision: 3
             )
-        })
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+
+            try app.test(.POST,
+                         "api/package-collections",
+                         headers: .init([("Content-Type", "application/json")]),
+                         body: body,
+                         afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                XCTAssertEqual(
+                    try res.content.decode(PackageCollection.self),
+                    PackageCollection.init(name: "my collection",
+                                           overview: "my overview",
+                                           keywords: ["a", "b"],
+                                           packages: [],
+                                           formatVersion: .v1_0,
+                                           revision: 3,
+                                           generatedAt: refDate,
+                                           generatedBy: .init(name: "author"))
+                )
+            })
+        }
     }
 
 }
