@@ -8,16 +8,6 @@ typealias PackageCollection = PackageCollectionModel.Collection
 
 extension PackageCollection {
 
-    private static func packageQuery(db: Database) -> QueryBuilder<App.Package> {
-        App.Package.query(on: db)
-            .with(\.$repositories)
-            .with(\.$versions) {
-                $0.with(\.$builds)
-                $0.with(\.$products)
-                $0.with(\.$targets)
-            }
-    }
-
     static func generate(db: Database,
                          name: String,
                          overview: String? = nil,
@@ -27,7 +17,7 @@ extension PackageCollection {
         packageQuery(db: db)
             .filter(\.$url ~~ packageURLs)
             .all()
-            .mapEachCompact { Package.init(package: $0) }
+            .mapEachCompact(Package.init(package:))
             .map {
                 PackageCollection.init(
                     name: name,
@@ -51,7 +41,7 @@ extension PackageCollection {
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
             .filter(Repository.self, \.$owner == owner)
             .all()
-            .mapEachCompact { Package.init(package: $0) }
+            .mapEachCompact(Package.init(package:))
             .map {
                 PackageCollection.init(
                     name: name,
@@ -68,25 +58,43 @@ extension PackageCollection {
 }
 
 
+extension PackageCollection {
+
+    private static func packageQuery(db: Database) -> QueryBuilder<App.Package> {
+        App.Package.query(on: db)
+            .with(\.$repositories)
+            .with(\.$versions) {
+                $0.with(\.$builds)
+                $0.with(\.$products)
+                $0.with(\.$targets)
+            }
+    }
+
+}
+
+
+// MARK: - Initializers to transform SPI entities to Package Collection Model entities
+
+
 extension PackageCollection.Package {
     init?(package: App.Package) {
         guard
             let licenseName = package.repository?.license.shortName,
             let licenseURL = package.repository?.licenseUrl
-              .flatMap(URL.init(string:)),
-            let url = URL(string: package.url) else { return nil }
-        self.init(url: url,
-                  summary: package.repository?.summary,
-                  keywords: nil,
-                  versions: package.versions
-                    .compactMap {
-                        Self.Version.init(version: $0,
-                                          licenseName: licenseName,
-                                          licenseURL: licenseURL)
-                    }
-                    .sorted { $0.version > $1.version },
-                  readmeURL: package.repository?.readmeUrl.flatMap(URL.init(string:)),
-                  license: .init(name: licenseName, url: licenseURL)
+                .flatMap(URL.init(string:)),
+            let url = URL(string: package.url)
+        else {
+            return nil
+        }
+        self.init(
+            url: url,
+            summary: package.repository?.summary,
+            keywords: nil,
+            versions: .init(versions: package.versions,
+                            licenseName: licenseName,
+                            licenseURL: licenseURL),
+            readmeURL: package.repository?.readmeUrl.flatMap(URL.init(string:)),
+            license: .init(name: licenseName, url: licenseURL)
         )
     }
 }
@@ -94,9 +102,11 @@ extension PackageCollection.Package {
 
 extension PackageCollection.Package.Version {
     init?(version: App.Version, licenseName: String, licenseURL: URL) {
-        guard let semVer = version.reference?.semVer,
-              let packageName = version.packageName,
-              let toolsVersion = version.toolsVersion else {
+        guard
+            let semVer = version.reference?.semVer,
+            let packageName = version.packageName,
+            let toolsVersion = version.toolsVersion
+        else {
             return nil
         }
         self.init(
@@ -116,6 +126,20 @@ extension PackageCollection.Package.Version {
 }
 
 
+private extension Array where Element == PackageCollection.Package.Version {
+    init(versions: [App.Version], licenseName: String, licenseURL: URL) {
+        self.init(
+            versions.compactMap {
+                Element.init(version: $0,
+                             licenseName: licenseName,
+                             licenseURL: licenseURL)
+            }
+            .sorted { $0.version > $1.version }
+        )
+    }
+}
+
+
 extension PackageCollectionModel.PlatformVersion {
     init(platform: App.Platform) {
         self.init(name: platform.name.rawValue, version: platform.version)
@@ -123,19 +147,18 @@ extension PackageCollectionModel.PlatformVersion {
 }
 
 
-extension PackageCollectionModel.Target {
+private extension PackageCollectionModel.Target {
     init(target: App.Target) {
         self.init(name: target.name, moduleName: nil)
     }
 }
 
 
-extension PackageCollectionModel.Product {
+private extension PackageCollectionModel.Product {
     init?(product: App.Product) {
         guard let type = PackageCollectionModel
-                .ProductType(productType: product.type) else {
-            return nil
-        }
+                .ProductType(productType: product.type)
+        else { return nil }
         self.init(name: product.name,
                   type: type,
                   targets: product.targets)
@@ -143,7 +166,7 @@ extension PackageCollectionModel.Product {
 }
 
 
-extension PackageCollectionModel.ProductType {
+private extension PackageCollectionModel.ProductType {
     init?(productType: App.Product.`Type`) {
         switch productType {
             case .executable:
@@ -168,7 +191,7 @@ private extension Array where Element == PackageCollectionModel.Compatibility {
             // macOS build variants - spm, xcodebuild, ARM
             Set<Pair>(
                 builds.map { Pair.init(platform: .init(platform: $0.platform),
-                                       version: $0.swiftVersion.displayName)}
+                                       version: $0.swiftVersion.displayName) }
             )
             .map { Element.init(platform: $0.platform, swiftVersion: $0.version) }
             .sorted()
@@ -177,7 +200,7 @@ private extension Array where Element == PackageCollectionModel.Compatibility {
 }
 
 
-extension PackageCollectionModel.Platform {
+private extension PackageCollectionModel.Platform {
     init(platform: Build.Platform) {
         switch platform {
             case .ios, .tvos, .watchos, .linux:
@@ -187,6 +210,9 @@ extension PackageCollectionModel.Platform {
         }
     }
 }
+
+
+// MARK: - Hashable and Comparable conformances
 
 
 extension PackageCollectionModel.Platform: Hashable {
