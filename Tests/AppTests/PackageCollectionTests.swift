@@ -92,7 +92,7 @@ class PackageCollectionTests: AppTestCase {
     }
 
     func test_Package_init() throws {
-        // Tests PackageCollection.Package initialisation from a App.Package
+        // Tests PackageCollection.Package initialisation from App.Package
         // setup
         do {
             let p = Package(url: "1".asGithubUrl.url)
@@ -180,8 +180,9 @@ class PackageCollectionTests: AppTestCase {
                                 reference: .tag(1, 2, 3),
                                 toolsVersion: "5.1")
             try v.save(on: app.db).wait()
-            try Product(version: v, type: .library, name: "P1Lib")
+            try Product(version: v, type: .library, name: "P1Lib", targets: ["t1"])
                 .save(on: app.db).wait()
+            try Target(version: v, name: "t1").save(on: app.db).wait()
         }
         do {
             let v = try Version(id: UUID(),
@@ -190,12 +191,13 @@ class PackageCollectionTests: AppTestCase {
                                 reference: .tag(2, 0, 0),
                                 toolsVersion: "5.2")
             try v.save(on: app.db).wait()
-            try Product(version: v, type: .library, name: "P1Lib")
+            try Product(version: v, type: .library, name: "P1Lib", targets: ["t1"])
                 .save(on: app.db).wait()
             try Build(version: v,
                       platform: .ios,
                       status: .ok,
                       swiftVersion: .v5_2).save(on: app.db).wait()
+            try Target(version: v, name: "t1").save(on: app.db).wait()
         }
         // second package
         let p2 = try savePackage(on: app.db, "https://github.com/foo/2")
@@ -216,8 +218,9 @@ class PackageCollectionTests: AppTestCase {
                                 reference: .tag(1, 2, 3),
                                 toolsVersion: "5.3")
             try v.save(on: app.db).wait()
-            try Product(version: v, type: .library, name: "P1Lib")
+            try Product(version: v, type: .library, name: "P1Lib", targets: ["t2"])
                 .save(on: app.db).wait()
+            try Target(version: v, name: "t2").save(on: app.db).wait()
         }
         // unrelated package
         _ = try savePackage(on: app.db, "https://github.com/bar/1")

@@ -32,7 +32,7 @@
             {
               "name" : "P1Lib",
               "targets" : [
-
+                "t1"
               ],
               "type" : {
                 "library" : [
@@ -42,7 +42,9 @@
             }
           ],
           "targets" : [
-
+            {
+              "name" : "t1"
+            }
           ],
           "toolsVersion" : "5.2",
           "verifiedCompatibility" : [
@@ -68,7 +70,7 @@
             {
               "name" : "P1Lib",
               "targets" : [
-
+                "t1"
               ],
               "type" : {
                 "library" : [
@@ -78,7 +80,9 @@
             }
           ],
           "targets" : [
-
+            {
+              "name" : "t1"
+            }
           ],
           "toolsVersion" : "5.1",
           "verifiedCompatibility" : [
@@ -109,7 +113,7 @@
             {
               "name" : "P1Lib",
               "targets" : [
-
+                "t2"
               ],
               "type" : {
                 "library" : [
@@ -119,7 +123,9 @@
             }
           ],
           "targets" : [
-
+            {
+              "name" : "t2"
+            }
           ],
           "toolsVersion" : "5.3",
           "verifiedCompatibility" : [
