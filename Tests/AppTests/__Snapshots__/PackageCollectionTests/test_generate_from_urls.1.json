@@ -12,6 +12,10 @@
   "overview" : "overview",
   "packages" : [
     {
+      "keywords" : [
+        "key",
+        "word"
+      ],
       "license" : {
         "name" : "MIT",
         "url" : "https:\/\/foo\/mit"

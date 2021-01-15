@@ -17,7 +17,7 @@ extension PackageCollection {
         packageQuery(db: db)
             .filter(\.$url ~~ packageURLs)
             .all()
-            .mapEachCompact(Package.init(package:))
+            .mapEachCompact { Package.init(package:$0, keywords: keywords) }
             .map {
                 PackageCollection.init(
                     name: name,
@@ -41,7 +41,7 @@ extension PackageCollection {
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
             .filter(Repository.self, \.$owner == owner)
             .all()
-            .mapEachCompact(Package.init(package:))
+            .mapEachCompact { Package.init(package:$0, keywords: keywords) }
             .map {
                 PackageCollection.init(
                     name: name,
@@ -77,7 +77,7 @@ extension PackageCollection {
 
 
 extension PackageCollection.Package {
-    init?(package: App.Package) {
+    init?(package: App.Package, keywords: [String]?) {
         guard
             let licenseName = package.repository?.license.shortName,
             let licenseURL = package.repository?.licenseUrl
@@ -89,7 +89,7 @@ extension PackageCollection.Package {
         self.init(
             url: url,
             summary: package.repository?.summary,
-            keywords: nil,
+            keywords: keywords,
             versions: .init(versions: package.versions,
                             licenseName: licenseName,
                             licenseURL: licenseURL),

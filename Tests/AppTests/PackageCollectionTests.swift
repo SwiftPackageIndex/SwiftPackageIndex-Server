@@ -125,9 +125,11 @@ class PackageCollectionTests: AppTestCase {
             .wait()
 
         // MUT
-        let res = try XCTUnwrap(PackageCollection.Package(package: p))
+        let res = try XCTUnwrap(PackageCollection.Package(package: p,
+                                                          keywords: ["a", "b"]))
 
         // validate
+        XCTAssertEqual(res.keywords, ["a", "b"])
         XCTAssertEqual(res.summary, "summary")
         XCTAssertEqual(res.readmeURL, "readmeUrl")
         XCTAssertEqual(res.license?.name, "MIT")
