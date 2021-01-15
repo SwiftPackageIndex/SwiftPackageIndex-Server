@@ -9,34 +9,36 @@ typealias PackageCollection = PackageCollectionModel.Collection
 extension PackageCollection {
 
     static func generate(db: Database,
-                         name: String,
-                         overview: String? = nil,
-                         keywords: [String]? = nil,
                          packageURLs: [String],
-                         generatedBy author: Author? = nil) -> EventLoopFuture<PackageCollection> {
+                         authorName: String? = nil,
+                         collectionName: String,
+                         keywords: [String]? = nil,
+                         overview: String? = nil,
+                         revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
         packageQuery(db: db)
             .filter(\.$url ~~ packageURLs)
             .all()
             .mapEachCompact { Package.init(package:$0, keywords: keywords) }
             .map {
                 PackageCollection.init(
-                    name: name,
+                    name: collectionName,
                     overview: overview,
                     keywords: keywords,
                     packages: $0,
                     formatVersion: .v1_0,
-                    revision: nil,
+                    revision: revision,
                     generatedAt: Current.date(),
-                    generatedBy: author)
+                    generatedBy: authorName.map(Author.init(name:)))
             }
     }
 
     static func generate(db: Database,
-                         name: String,
-                         overview: String? = nil,
-                         keywords: [String]? = nil,
                          owner: String,
-                         generatedBy author: Author? = nil) -> EventLoopFuture<PackageCollection> {
+                         authorName: String? = nil,
+                         collectionName: String,
+                         keywords: [String]? = nil,
+                         overview: String? = nil,
+                         revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
         packageQuery(db: db)
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
             .filter(Repository.self, \.$owner == owner)
@@ -44,14 +46,14 @@ extension PackageCollection {
             .mapEachCompact { Package.init(package:$0, keywords: keywords) }
             .map {
                 PackageCollection.init(
-                    name: name,
+                    name: collectionName,
                     overview: overview,
                     keywords: keywords,
                     packages: $0,
                     formatVersion: .v1_0,
-                    revision: nil,
+                    revision: revision,
                     generatedAt: Current.date(),
-                    generatedBy: author)
+                    generatedBy: authorName.map(Author.init(name:)))
             }
     }
 

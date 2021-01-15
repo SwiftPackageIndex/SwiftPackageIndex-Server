@@ -1,0 +1,26 @@
+variables:
+    base_url: http://localhost:8080/api
+    # base_url: https://staging.swiftpackageindex.com/api
+
+requests:
+
+    generate:
+        url: ${base_url}/package-collections
+        method: POST
+        body:
+            json:
+                owner: finestructure
+                # or
+                # packageUrls:
+                #    - https://github.com/finestructure/Arena.git
+                #    - https://github.com/finestructure/Rester.git
+                authorName: foo
+                collectionName: my collection
+                keywords:
+                    - a
+                    - b
+                overview: my overview
+                revision: 3    
+        validation:
+            status: 200
+        log: json

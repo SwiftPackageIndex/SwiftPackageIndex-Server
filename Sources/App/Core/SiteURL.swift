@@ -16,6 +16,7 @@ import Vapor
 
 enum Api: Resourceable {
     case packages(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagesPathComponents)
+    case packageCollections
     case search
     case version
     case versions(_ id: Parameter<UUID>, VersionsPathComponents)
@@ -26,6 +27,8 @@ enum Api: Resourceable {
                 return "packages/\(owner)/\(repo)/\(next.path)"
             case .packages:
                 fatalError("path must not be called with a name parameter")
+            case .packageCollections:
+                return "package-collections"
             case .version:
                 return "version"
             case let .versions(.value(id), next):
@@ -43,6 +46,8 @@ enum Api: Resourceable {
                 return ["packages", ":owner", ":repository"] + remainder.pathComponents
             case .packages:
                 fatalError("pathComponents must not be called with a value parameter")
+            case .packageCollections:
+                return ["package-collections"]
             case .search, .version:
                 return [.init(stringLiteral: path)]
             case let .versions(.key, remainder):
