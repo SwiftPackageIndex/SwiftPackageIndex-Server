@@ -1,0 +1,147 @@
+{
+  "formatVersion" : "1.0",
+  "generatedAt" : "2021-01-08T13:25:45Z",
+  "generatedBy" : {
+    "name" : "Foo"
+  },
+  "keywords" : [
+    "key",
+    "word"
+  ],
+  "name" : "Foo",
+  "overview" : "overview",
+  "packages" : [
+    {
+      "keywords" : [
+        "key",
+        "word"
+      ],
+      "license" : {
+        "name" : "MIT",
+        "url" : "https:\/\/foo\/mit"
+      },
+      "summary" : "summary 1",
+      "url" : "https:\/\/github.com\/foo\/1",
+      "versions" : [
+        {
+          "license" : {
+            "name" : "MIT",
+            "url" : "https:\/\/foo\/mit"
+          },
+          "minimumPlatformVersions" : [
+
+          ],
+          "packageName" : "P1-tag",
+          "products" : [
+            {
+              "name" : "P1Lib",
+              "targets" : [
+                "t1"
+              ],
+              "type" : {
+                "library" : [
+                  "automatic"
+                ]
+              }
+            }
+          ],
+          "targets" : [
+            {
+              "name" : "t1"
+            }
+          ],
+          "toolsVersion" : "5.2",
+          "verifiedCompatibility" : [
+            {
+              "platform" : {
+                "name" : "ios"
+              },
+              "swiftVersion" : "5.2"
+            }
+          ],
+          "version" : "2.0.0"
+        },
+        {
+          "license" : {
+            "name" : "MIT",
+            "url" : "https:\/\/foo\/mit"
+          },
+          "minimumPlatformVersions" : [
+
+          ],
+          "packageName" : "P1-tag",
+          "products" : [
+            {
+              "name" : "P1Lib",
+              "targets" : [
+                "t1"
+              ],
+              "type" : {
+                "library" : [
+                  "automatic"
+                ]
+              }
+            }
+          ],
+          "targets" : [
+            {
+              "name" : "t1"
+            }
+          ],
+          "toolsVersion" : "5.1",
+          "verifiedCompatibility" : [
+
+          ],
+          "version" : "1.2.3"
+        }
+      ]
+    },
+    {
+      "keywords" : [
+        "key",
+        "word"
+      ],
+      "license" : {
+        "name" : "MIT",
+        "url" : "https:\/\/foo\/mit"
+      },
+      "summary" : "summary 2",
+      "url" : "https:\/\/github.com\/foo\/2",
+      "versions" : [
+        {
+          "license" : {
+            "name" : "MIT",
+            "url" : "https:\/\/foo\/mit"
+          },
+          "minimumPlatformVersions" : [
+
+          ],
+          "packageName" : "P2-tag",
+          "products" : [
+            {
+              "name" : "P1Lib",
+              "targets" : [
+                "t2"
+              ],
+              "type" : {
+                "library" : [
+                  "automatic"
+                ]
+              }
+            }
+          ],
+          "targets" : [
+            {
+              "name" : "t2"
+            }
+          ],
+          "toolsVersion" : "5.3",
+          "verifiedCompatibility" : [
+
+          ],
+          "version" : "1.2.3"
+        }
+      ]
+    }
+  ]
+}

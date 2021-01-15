@@ -49,6 +49,7 @@ final class Version: Model, Content {
     @Field(key: "release_notes")
     var releaseNotes: String?
 
+    // TODO: rename to minimumPlatformVersions?
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
     
