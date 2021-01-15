@@ -7,6 +7,7 @@ extension API {
     struct PackageCollectionController {
 
         func generate(req: Request) throws -> EventLoopFuture<PackageCollection> {
+            // First try decoding "owner" type DTO
             if let dto = try? req.content.decode(PostPackageCollectionOwnerDTO.self) {
                 return PackageCollection.generate(
                     db: req.db,
@@ -18,7 +19,12 @@ extension API {
                     revision: dto.revision
                 )
             }
+
+            // Then try if it's "packageURLs" based
             let dto = try req.content.decode(PostPackageCollectionPackageUrlsDTO.self)
+            guard dto.packageUrls.count <= 20 else {
+                throw Abort(.badRequest)
+            }
             return PackageCollection.generate(
                 db: req.db,
                 packageURLs: dto.packageUrls,

@@ -528,4 +528,21 @@ class ApiTests: AppTestCase {
         }
     }
 
+    func test_package_collection_packageURLs_limit() throws {
+        let dto = API.PostPackageCollectionPackageUrlsDTO(
+            // request 21 urls - this should raise a 400
+            packageUrls: (0...20).map(String.init)
+        )
+        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+
+        try app.test(.POST,
+                     "api/package-collections",
+                     headers: .init([("Content-Type", "application/json")]),
+                     body: body,
+                     afterResponse: { res in
+                        // validation
+                        XCTAssertEqual(res.status, .badRequest)
+                     })
+    }
+
 }
