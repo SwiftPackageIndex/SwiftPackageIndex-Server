@@ -46,6 +46,11 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
                 use: API.PackageController().badge)
 
+        if (try? Environment.detect()) ?? .development == .development {
+            app.post(SiteURL.api(.packageCollections).pathComponents,
+                     use: API.PackageCollectionController().generate)
+        }
+
         // protected routes
         app.group(User.TokenAuthenticator(), User.guardMiddleware()) { protected in
             let builds = API.BuildController()
