@@ -114,62 +114,100 @@ extension PackageShow {
 
 
 extension PackageShow.Model {
-    func authorsClause() -> Node<HTML.BodyContext>? {
-        guard let authors = authors else { return nil }
-        let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
-        return .group(listPhrase(opening: "By ",
-                                 nodes: nodes,
-                                 ifEmpty: "-",
-                                 closing: "."))
+    func licenseListNode() -> Node<HTML.ListContext> {
+        let licenseDiv: Node<HTML.BodyContext> = .div(
+            .class("\(license.licenseKind.iconName) \(license.licenseKind.cssClass)"),
+            .attribute(named: "title", value: license.fullName),
+            .text(license.shortName)
+        )
+
+        let whatsThisLink: Node<HTML.BodyContext> = {
+            switch license.licenseKind {
+                case .compatibleWithAppStore:
+                    return .empty
+                case .incompatibleWithAppStore, .other, .none:
+                    return .small(
+                        .a(
+                            .href(SiteURL.faq.relativeURL(anchor: "licenses")),
+                            "Why is this icon not green?"
+                        )
+                    )
+            }
+        }()
+
+        return .li(
+            .class("license"),
+            .unwrap(licenseUrl, { .a(href: $0, licenseDiv) }, else: licenseDiv),
+            whatsThisLink
+        )
     }
-    
-    func historyClause() -> Node<HTML.BodyContext>? {
-        guard let history = history else { return nil }
-        return .if(isArchived,
-            .group([
-                .strong("No longer in active development."),
-                " The package author has archived this project and the repository is read-only. It had ",
-                .a(
-                    .href(history.commitCount.url),
-                    .text(history.commitCount.label)
-                ),
-                " and ",
-                .a(
-                    .href(history.releaseCount.url),
-                    .text(history.releaseCount.label)
-                ),
-                " before being archived."
-            ]),
-            else:
-            .group([
-                "In development for \(history.since), with ",
-                .a(
-                    .href(history.commitCount.url),
-                    .text(history.commitCount.label)
-                ),
-                " and ",
-                .a(
-                    .href(history.releaseCount.url),
-                    .text(history.releaseCount.label)
-                ),
-                "."
-            ])
+
+    func starsListNode() -> Node<HTML.ListContext> {
+        guard let stars = stars,
+              let str = Self.starsNumberFormatter.string(from: NSNumber(value: stars))
+        else { return emptyListNode() }
+        return .li(
+            .class("stars"),
+            .text("\(str) stars.")
+        )
+    }
+
+    func authorsListNode() -> Node<HTML.ListContext> {
+        guard let authors = authors else { return emptyListNode() }
+        let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
+        return .li(
+            .class("authors"),
+            .group(listPhrase(opening: "By ", nodes: nodes, ifEmpty: "-", closing: "."))
         )
     }
     
-    func activityClause() -> Node<HTML.BodyContext>? {
-        guard
-            let activity = activity,
-            // bail out if not at least one field is non-nil
-            activity.openIssues != nil
+    func historyListNode() -> Node<HTML.ListContext> {
+        guard let history = history else { return emptyListNode() }
+
+        let commitsLinkNode: Node<HTML.BodyContext> = .a(
+            .href(history.commitCount.url),
+            .text(history.commitCount.label)
+        )
+
+        let releasesLinkNode: Node<HTML.BodyContext> = .a(
+            .href(history.releaseCount.url),
+            .text(history.releaseCount.label)
+        )
+
+        var releasesSentenceFragments: [Node<HTML.BodyContext>] = []
+        if isArchived {
+            releasesSentenceFragments.append(contentsOf: [
+                .strong("No longer in active development."),
+                " The package author has archived this project and the repository is read-only. It had ",
+                commitsLinkNode, " and ", releasesLinkNode,
+                " before being archived."
+            ])
+        } else {
+            releasesSentenceFragments.append(contentsOf: [
+                "In development for \(history.since), with ",
+                commitsLinkNode, " and ", releasesLinkNode,
+                "."
+            ])
+        }
+
+        return .li(
+            .class("history"),
+            .group(releasesSentenceFragments)
+        )
+    }
+    
+    func activityListNode() -> Node<HTML.ListContext> {
+        // Bail out if not at least one field is non-nil
+        guard let activity = activity,
+              activity.openIssues != nil
                 || activity.openPullRequests != nil
                 || activity.lastIssueClosedAt != nil
                 || activity.lastPullRequestClosedAt != nil
-        else { return nil }
+        else { return emptyListNode() }
         
         let openItems = [activity.openIssues, activity.openPullRequests]
             .compactMap { $0 }
-            .map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
+            .map { Node.a(.href($0.url), .text($0.label)) }
         
         let lastClosed: [Node<HTML.BodyContext>] = [
             activity.lastIssueClosedAt.map { .text("last issue was closed \($0)") },
@@ -177,47 +215,38 @@ extension PackageShow.Model {
         ]
         .compactMap { $0 }
         
-        return .group(
-            listPhrase(
-                opening: .text("There is ".pluralized(for: activity.openIssuesCount,
-                                                      plural: "There are ")),
-                nodes: openItems,
-                closing: ". ") +
-                listPhrase(opening: "The ", nodes: lastClosed, conjunction: " and the ", closing: ".")
+        return .li(
+            .class("activity"),
+            .group(listPhrase(opening: .text("There is ".pluralized(for: activity.openIssuesCount, plural: "There are ")), nodes: openItems, closing: ". ") + listPhrase(opening: "The ", nodes: lastClosed, conjunction: " and the ", closing: "."))
         )
     }
-    
-    func productsClause() -> Node<HTML.BodyContext>? {
-        guard let products = products else { return nil }
-        return .group([
-            "\(title) contains ",
-            .strong(
-                .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries"))
-            ),
-            " and ",
-            .strong(
-                .text(pluralizedCount(products.executables, singular: "executable"))
-            ),
-            "."
-        ])
+
+    func librariesListNode() -> Node<HTML.ListContext> {
+        guard let products = products else { return emptyListNode() }
+        return .li(
+            .class("libraries"),
+            .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries"))
+        )
     }
-    
+
+    func executablesListNode() -> Node<HTML.ListContext> {
+        guard let products = products else { return emptyListNode() }
+        return .li(
+            .class("executables"),
+            .text(pluralizedCount(products.executables, singular: "executable"))
+        )
+    }
+
+    func emptyListNode() -> Node<HTML.ListContext> {
+        return .li(.class("no_data"))
+    }
+
     static var starsNumberFormatter: NumberFormatter = {
         let f = NumberFormatter()
         f.thousandSeparator = ","
         f.numberStyle = .decimal
         return f
     }()
-    
-    func starsClause() -> Node<HTML.BodyContext>? {
-        guard
-            let stars = stars,
-            let str = Self.starsNumberFormatter.string(from: NSNumber(value: stars))
-        else { return nil }
-        return .group(
-            "\(str) stars."
-        )
-    }
     
     func stableReleaseMetadata() -> Node<HTML.ListContext> {
         guard let datedLink = releases.stable else { return .empty }
@@ -436,6 +465,23 @@ extension Platform {
                 return 2
             case .tvos:
                 return 3
+        }
+    }
+}
+
+extension License.Kind {
+    var cssClass: String {
+        switch self {
+            case .none: return "red"
+            case .incompatibleWithAppStore, .other: return "orange"
+            case .compatibleWithAppStore: return "green"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+            case .compatibleWithAppStore: return "osi"
+            case .incompatibleWithAppStore, .other, .none: return "warning"
         }
     }
 }

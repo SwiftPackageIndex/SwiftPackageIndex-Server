@@ -141,14 +141,14 @@ class PackageShowModelTests: AppTestCase {
     func test_activity_variants__missing_open_issue() throws {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
-        XCTAssertEqual(model.activityClause()?.render(),
+        XCTAssertEqual(model.activityListNode().render(),
                        "There are <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
     }
     
     func test_activity_variants__missing_open_PRs() throws {
         var model = PackageShow.Model.mock
         model.activity?.openPullRequests = nil
-        XCTAssertEqual(model.activityClause()?.render(),
+        XCTAssertEqual(model.activityListNode().render(),
                        "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
     }
     
@@ -156,21 +156,21 @@ class PackageShowModelTests: AppTestCase {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
         model.activity?.openPullRequests = nil
-        XCTAssertEqual(model.activityClause()?.render(),
+        XCTAssertEqual(model.activityListNode().render(),
                        "The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
     }
     
     func test_activity_variants__missing_last_closed_issue() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastIssueClosedAt = nil
-        XCTAssertEqual(model.activityClause()?.render(),
+        XCTAssertEqual(model.activityListNode().render(),
                        "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last pull request was merged/closed 6 days ago.")
     }
     
     func test_activity_variants__missing_last_closed_PR() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastPullRequestClosedAt = nil
-        XCTAssertEqual(model.activityClause()?.render(),
+        XCTAssertEqual(model.activityListNode().render(),
                        "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last issue was closed 5 days ago.")
     }
     
@@ -178,7 +178,7 @@ class PackageShowModelTests: AppTestCase {
         var model = PackageShow.Model.mock
         model.activity?.lastIssueClosedAt = nil
         model.activity?.lastPullRequestClosedAt = nil
-        XCTAssertEqual(model.activityClause()?.render(),
+        XCTAssertEqual(model.activityListNode().render(),
                        "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. ")
     }
     
@@ -188,17 +188,17 @@ class PackageShowModelTests: AppTestCase {
         model.activity?.openPullRequests = nil
         model.activity?.lastIssueClosedAt = nil
         model.activity?.lastPullRequestClosedAt = nil
-        XCTAssertEqual(model.activityClause()?.render(), nil)
+        XCTAssertEqual(model.activityListNode().render(), nil)
     }
     
     func test_stars_formatting() throws {
         var model = PackageShow.Model.mock
         model.stars = 999
-        XCTAssertEqual(model.starsClause()?.render(), "999 stars.")
+        XCTAssertEqual(model.starsListNode().render(), "999 stars.")
         model.stars = 1_000
-        XCTAssertEqual(model.starsClause()?.render(), "1,000 stars.")
+        XCTAssertEqual(model.starsListNode().render(), "1,000 stars.")
         model.stars = 1_000_000
-        XCTAssertEqual(model.starsClause()?.render(), "1,000,000 stars.")
+        XCTAssertEqual(model.starsListNode().render(), "1,000,000 stars.")
     }
     
     func test_groupBuildInfo() throws {

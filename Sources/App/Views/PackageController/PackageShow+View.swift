@@ -88,18 +88,13 @@ enum PackageShow {
             .section(
                 .class("main_metadata"),
                 .ul(
-                    .unwrap(model.authorsClause()) {
-                        .li(.class("icon author"), $0)
-                    },
-                    .unwrap(model.historyClause()) {
-                        .li(.class("icon history"), $0)
-                    },
-                    .unwrap(model.activityClause()) {
-                        .li(.class("icon activity"), $0)
-                    },
-                    .unwrap(model.productsClause()) {
-                        .li(.class("icon products"), $0)
-                    }
+                    model.licenseListNode(),
+                    model.starsListNode(),
+                    model.authorsListNode(),
+                    model.historyListNode(),
+                    model.activityListNode(),
+                    model.librariesListNode(),
+                    model.executablesListNode()
                 )
             )
         }
@@ -125,37 +120,21 @@ enum PackageShow {
         func sidebarLinks() -> Node<HTML.BodyContext> {
             .section(
                 .class("sidebar_links"),
-                sidebarLinksList(),
-                .hr(),
-                sidebarMetadataList()
-            )
-        }
-
-        func sidebarLinksList() -> Node<HTML.BodyContext> {
-            .ul(
-                .class("package_links"),
-                .li(
-                    .a(
-                        .href(model.url),
-                        // TODO: Make "GitHub" dynamic.
-                        "View on GitHub"
-                    )
-                ),
-                .li(
-                    .a(
-                        .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
-                        "Package Compatibility"
+                .ul(
+                    .li(
+                        .a(
+                            .href(model.url),
+                            // TODO: Make "GitHub" dynamic.
+                            "View on GitHub"
+                        )
+                    ),
+                    .li(
+                        .a(
+                            .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
+                            "Package Compatibility"
+                        )
                     )
                 )
-            )
-        }
-
-        func sidebarMetadataList() -> Node<HTML.BodyContext> {
-            .ul(
-                .unwrap(model.starsClause()) {
-                    .li(.class("icon stars"), $0)
-                },
-                licenseMetadata()
             )
         }
 
@@ -168,33 +147,6 @@ enum PackageShow {
                     model.betaReleaseMetadata(),
                     model.defaultBranchMetadata()
                 )
-            )
-        }
-
-        func licenseMetadata() -> Node<HTML.ListContext> {
-            let licenseDiv: Node<HTML.BodyContext> = .div(
-                .attribute(named: "title", value: model.license.fullName),
-                .text(model.license.shortName)
-            )
-
-            let whatsThisLink: Node<HTML.BodyContext> = {
-                switch model.license.licenseKind {
-                    case .compatibleWithAppStore:
-                        return .empty
-                    case .incompatibleWithAppStore, .other, .none:
-                        return .small(
-                            .a(
-                                .href(SiteURL.faq.relativeURL(anchor: "licenses")),
-                                "Why is this icon not green?"
-                            )
-                        )
-                }
-            }()
-
-            return .li(
-                .class("icon \(model.license.licenseKind.iconName) \(model.license.licenseKind.cssClass)"),
-                .unwrap(model.licenseUrl, { .a(href: $0, licenseDiv) }, else: licenseDiv),
-                whatsThisLink
             )
         }
 
@@ -227,24 +179,6 @@ enum PackageShow {
                     .raw(html)
                 )
             )
-        }
-    }
-}
-
-
-private extension License.Kind {
-    var cssClass: String {
-        switch self {
-            case .none: return "red"
-            case .incompatibleWithAppStore, .other: return "orange"
-            case .compatibleWithAppStore: return "green"
-        }
-    }
-
-    var iconName: String {
-        switch self {
-            case .compatibleWithAppStore: return "osi"
-            case .incompatibleWithAppStore, .other, .none: return "warning"
         }
     }
 }
