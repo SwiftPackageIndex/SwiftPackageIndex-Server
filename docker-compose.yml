@@ -38,6 +38,9 @@ x-shared: &shared
 
 
 services:
+  
+  # Main services
+  
   app:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
@@ -92,6 +95,8 @@ services:
     ]
     restart: always
   
+  # Main app database & migration
+  
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
@@ -110,6 +115,8 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
     restart: always
 
+  # Maintenance access container
+  
   sshd:
     image: registry.gitlab.com/finestructure/spi-sshd:0.0.1
     entrypoint: ["/bin/bash"]
@@ -118,7 +125,7 @@ services:
       - "2222:22"
     restart: always
 
-  # logging & monitoring visualiser
+  # Logging & monitoring visualiser
 
   grafana:
     build:
@@ -136,7 +143,7 @@ services:
     ports:
       - 3000:3000
 
-  # logging
+  # Logging
 
   loki:
     build: ./infrastructure/loki
@@ -150,7 +157,7 @@ services:
     command: -config.file=/promtail.yaml
     restart: always
 
-  # monitoring
+  # Monitoring
 
   prometheus:
     build: ./infrastructure/prometheus
@@ -163,6 +170,47 @@ services:
   pushgateway:
     image: prom/pushgateway:v1.3.0
     restart: always
+
+  # Analytics
+
+  mail:
+    image: bytemark/smtp
+    restart: always
+  
+  plausible_db:
+    image: postgres:12.1-alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+  
+  plausible_events_db:
+    image: yandex/clickhouse-server:20.8.12.2
+    volumes:
+      - event-data:/var/lib/clickhouse
+      - ./clickhouse/clickhouse-config.xml:/etc/clickhouse-server/config.d/logging.xml:ro
+      - ./clickhouse/clickhouse-user-config.xml:/etc/clickhouse-server/users.d/logging.xml:ro
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+  
+  plausible:
+    image: plausible/analytics:v.1.2
+    command: sh -c "sleep 10 && /entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh db init-admin && /entrypoint.sh run"
+    depends_on:
+      - plausible_db
+      - plausible_events_db
+      - mail
+    ports:
+      - 8000:8000
+    environment:
+      ADMIN_USER_EMAIL: ${PLAUSIBLE_ADMIN_USER_EMAIL}
+      ADMIN_USER_NAME: ${PLAUSIBLE_ADMIN_USER_NAME}
+      ADMIN_USER_PWD: ${PLAUSIBLE_ADMIN_USER_PWD}
+      BASE_URL: ${PLAUSIBLE_BASE_URL}
+      SECRET_KEY_BASE: ${PLAUSIBLE_SECRET_KEY_BASE}
+      
 
 volumes:
   db_data:
