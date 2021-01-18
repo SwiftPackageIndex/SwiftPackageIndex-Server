@@ -176,6 +176,8 @@ services:
   mail:
     image: bytemark/smtp
     restart: always
+    environment:
+      MAILNAME: ${PLAUSIBLE_MAILNAME}
   
   plausible_db:
     image: postgres:12.1-alpine
