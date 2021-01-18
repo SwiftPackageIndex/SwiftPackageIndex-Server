@@ -15,32 +15,6 @@
 		"oAP": "/deploy/deploy",
 		"oF": 0
 		},
-	"/fonts/icomoon.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 2,
-		"oAP": "/deploy/fonts/icomoon.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/fonts/icomoon.ttf": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 2,
-		"oAP": "/deploy/fonts/icomoon.ttf",
-		"oF": 1
-		},
-	"/fonts/icomoon.woff": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 2,
-		"oAP": "/deploy/fonts/icomoon.woff",
-		"oF": 1
-		},
 	"/images/add-package-in-xcode~dark.png": {
 		"ft": 32768,
 		"iS": 28133,
@@ -430,19 +404,6 @@
 		"oS": 0,
 		"sct": 0
 		},
-	"/stylesheets/icon.scss": {
-		"aP": 0,
-		"bl": 0,
-		"dP": 10,
-		"ec": 1,
-		"ft": 4,
-		"ma": 0,
-		"oA": 1,
-		"oAP": "/deploy/stylesheets/icon.css",
-		"oF": 0,
-		"oS": 0,
-		"sct": 0
-		},
 	"/stylesheets/layout.scss": {
 		"aP": 0,
 		"bl": 0,
@@ -532,7 +493,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 632347391.48279202
+	"lastBuiltDate": 632652525.15656102
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,

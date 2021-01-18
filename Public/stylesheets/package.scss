@@ -16,11 +16,53 @@
   article.details {
     display: grid;
     grid-template-columns: [main] 0.7fr [sidebar] 0.3fr;
-    gap: 20px 50px;
+    gap: 10px 40px;
 
     section.main_metadata {
       grid-column-start: main;
       grid-row-start: 1;
+
+      ul {
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 0.5fr 0.5fr;
+        gap: 15px;
+        list-style: outside none;
+
+        li.no_data {
+          display: none;
+        }
+
+        li.license {
+          grid-column-start: 1;
+          grid-row-start: 1;
+        }
+
+        li.stars {
+          grid-column-start: 2;
+          grid-row-start: 1;
+        }
+
+        li.history {
+          grid-column-start: span 2;
+          grid-row-start: 2;
+        }
+
+        li.activity {
+          grid-column-start: span 2;
+          grid-row-start: 3;
+        }
+
+        li.libraries {
+          grid-column-start: 1;
+          grid-row-start: 4;
+        }
+
+        li.libraries {
+          grid-column-start: 2;
+          grid-row-start: 4;
+        }
+      }
     }
 
     section.main_compatibility {
@@ -60,22 +102,6 @@
           }
         }
       }
-    }
-
-    section.main_metadata > ul,
-    section.sidebar_links > ul:last-of-type {
-      margin: 0;
-      padding: 0;
-      padding-left: 20px;
-      list-style: none;
-
-      li {
-        margin: 15px;
-      }
-    }
-
-    ul.package_links {
-      margin-top: 0px;
     }
   }
 
