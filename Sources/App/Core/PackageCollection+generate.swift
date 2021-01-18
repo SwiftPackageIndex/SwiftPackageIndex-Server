@@ -1,6 +1,6 @@
 import Fluent
 import Foundation
-import PackageCollectionModel
+import PackageCollectionJSONModel
 
 
 typealias PackageCollectionModel = JSONPackageCollectionModel.V1
@@ -190,7 +190,7 @@ private extension Array where Element == PackageCollectionModel.Compatibility {
 
     init(builds: [Build]) {
         self.init(
-            // Gather up build via a Set to de-duplicate various
+            // Gather up builds via a Set to de-duplicate various
             // macOS build variants - spm, xcodebuild, ARM
             Set<Pair>(
                 builds.map { Pair.init(platform: .init(platform: $0.platform),

@@ -21,8 +21,9 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
         .package(name: "libcmark_gfm", url: "https://github.com/KristopherGBaker/libcmark_gfm", from: "0.29.3"),
-        .package(name: "PackageCollectionModel",
-                 url: "https://github.com/finestructure/swift-package-collection-model.git", from: "0.0.5")
+        .package(name: "SwiftPM",
+                 url: "https://github.com/finestructure/swift-package-manager.git",
+                 .revision("11a1040d509142296e12982335c0fd1f2fc0bf95"))
     ],
     targets: [
         .target(name: "App", dependencies: [
@@ -36,7 +37,7 @@ let package = Package(
             "SwiftPrometheus",
             "OhhAuth",
             "libcmark_gfm",
-            "PackageCollectionModel"
+            .product(name: "PackageCollectionJSONModel", package: "SwiftPM")
         ]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [
