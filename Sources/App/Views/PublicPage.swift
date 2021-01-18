@@ -108,7 +108,7 @@ class PublicPage {
                     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
                     })(window,document,'script','dataLayer','GTM-T2KRSKX');</script>
-                    <script async defer data-domain="\(plausibleDomain)" src="http://spi-dev.swiftpackageindex.com:8000/js/plausible.js"></script>
+                    <script async defer data-domain="\(plausibleDomain)" src="\(plausibleBaseUrl)/js/plausible.js"></script>
                     <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
                     """)
     }
