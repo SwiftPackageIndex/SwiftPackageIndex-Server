@@ -180,16 +180,16 @@ services:
   plausible_db:
     image: postgres:12.1-alpine
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - plausible_db_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=postgres
   
   plausible_events_db:
     image: yandex/clickhouse-server:20.8.12.2
     volumes:
-      - event-data:/var/lib/clickhouse
       - ./clickhouse/clickhouse-config.xml:/etc/clickhouse-server/config.d/logging.xml:ro
       - ./clickhouse/clickhouse-user-config.xml:/etc/clickhouse-server/users.d/logging.xml:ro
+      - plausible_event_data:/var/lib/clickhouse
     ulimits:
       nofile:
         soft: 262144
@@ -216,4 +216,6 @@ volumes:
   db_data:
   checkouts:
   grafana_data:
+  plausible_db_data:
+  plausible_event_data:
   prometheus_data:
