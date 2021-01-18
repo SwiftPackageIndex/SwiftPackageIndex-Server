@@ -28,6 +28,8 @@ extension AppEnvironment {
             hideStagingBanner: { false },
             logger: { nil },
             metricsPushGatewayUrl: { "http://pushgateway:9091" },
+            plausibleBaseUrl: { nil },
+            plausibleDomain: { nil },
             random: Double.random,
             reportError: { _, _, _ in eventLoop.future(()) },
             rollbarToken: { nil },

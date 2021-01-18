@@ -22,6 +22,8 @@ struct AppEnvironment {
     var hideStagingBanner: () -> Bool
     var logger: () -> Logger?
     var metricsPushGatewayUrl: () -> String?
+    var plausibleBaseUrl: () -> String?
+    var plausibleDomain: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>
     var rollbarToken: () -> String?
@@ -80,6 +82,8 @@ extension AppEnvironment {
         },
         logger: { logger },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
+        plausibleBaseUrl: { Environment.get("PLAUSIBLE_BASE_URL") },
+        plausibleDomain: { Environment.get("ALLOW_BUILD_TRIGGERS") },
         random: Double.random,
         reportError: AppError.report,
         rollbarToken: { Environment.get("ROLLBAR_TOKEN") },
