@@ -183,18 +183,18 @@ services:
       - plausible_db_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=postgres
+    # restart: always
   
   plausible_events_db:
-    image: yandex/clickhouse-server:20.8.12.2
+    build: ./infrastructure/clickhouse-server
     volumes:
-      - ./clickhouse/clickhouse-config.xml:/etc/clickhouse-server/config.d/logging.xml:ro
-      - ./clickhouse/clickhouse-user-config.xml:/etc/clickhouse-server/users.d/logging.xml:ro
       - plausible_event_data:/var/lib/clickhouse
     ulimits:
       nofile:
         soft: 262144
         hard: 262144
-  
+    # restart: always
+
   plausible:
     image: plausible/analytics:v.1.2
     command: sh -c "sleep 10 && /entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh db init-admin && /entrypoint.sh run"
@@ -210,7 +210,8 @@ services:
       ADMIN_USER_PWD: ${PLAUSIBLE_ADMIN_USER_PWD}
       BASE_URL: ${PLAUSIBLE_BASE_URL}
       SECRET_KEY_BASE: ${PLAUSIBLE_SECRET_KEY_BASE}
-      
+    # restart: always
+
 
 volumes:
   db_data:
