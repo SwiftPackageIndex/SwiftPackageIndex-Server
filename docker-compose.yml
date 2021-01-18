@@ -181,7 +181,6 @@ services:
       RELAY_PORT: ${MAIL_RELAY_PORT}
       RELAY_USERNAME: ${MAIL_RELAY_USERNAME}
       RELAY_PASSWORD: ${MAIL_RELAY_PASSWORD}
-      
   
   plausible_db:
     image: postgres:12.1-alpine

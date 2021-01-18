@@ -83,7 +83,7 @@ extension AppEnvironment {
         logger: { logger },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         plausibleBaseUrl: { Environment.get("PLAUSIBLE_BASE_URL") },
-        plausibleDomain: { Environment.get("ALLOW_BUILD_TRIGGERS") },
+        plausibleDomain: { Environment.get("PLAUSIBLE_DOMAIN") },
         random: Double.random,
         reportError: AppError.report,
         rollbarToken: { Environment.get("ROLLBAR_TOKEN") },
