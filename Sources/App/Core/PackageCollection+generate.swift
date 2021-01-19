@@ -216,29 +216,3 @@ private extension PackageCollectionModel.Platform {
         }
     }
 }
-
-
-// MARK: - Hashable and Comparable conformances
-
-
-extension PackageCollectionModel.Platform: Hashable {
-    public var hashValue: Int { name.hashValue }
-    public func hash(into hasher: inout Hasher) {
-        name.hash(into: &hasher)
-    }
-}
-
-
-extension PackageCollectionModel.Platform: Comparable {
-    public static func < (lhs: Self, rhs: Self) -> Bool {
-        lhs.name < rhs.name
-    }
-}
-
-
-extension PackageCollectionModel.Compatibility: Comparable {
-    public static func < (lhs: Self, rhs: Self) -> Bool {
-        if lhs.platform != rhs.platform { return lhs.platform < rhs.platform }
-        return lhs.swiftVersion < rhs.swiftVersion
-    }
-}
