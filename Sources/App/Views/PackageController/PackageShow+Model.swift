@@ -256,12 +256,12 @@ extension PackageShow.Model {
     
     func stableReleaseMetadata() -> Node<HTML.ListContext> {
         guard let datedLink = releases.stable else { return .empty }
-        return releaseMetadata(datedLink, title: "Latest Stable", cssClass: "stable")
+        return releaseMetadata(datedLink, title: "Latest Stable Release", cssClass: "stable")
     }
 
     func betaReleaseMetadata() -> Node<HTML.ListContext> {
         guard let datedLink = releases.beta else { return .empty }
-        return releaseMetadata(datedLink, title: "Latest Beta", cssClass: "beta")
+        return releaseMetadata(datedLink, title: "Latest Beta Release", cssClass: "beta")
     }
     
     func defaultBranchMetadata() -> Node<HTML.ListContext> {

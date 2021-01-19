@@ -113,7 +113,7 @@ enum PackageShow {
             // layout. This is a grid layout, and every element is positioned manually.
             .group(
                 sidebarLinks(),
-                sidebarReleases()
+                sidebarVersions()
             )
         }
 
@@ -138,10 +138,10 @@ enum PackageShow {
             )
         }
 
-        func sidebarReleases() -> Node<HTML.BodyContext> {
+        func sidebarVersions() -> Node<HTML.BodyContext> {
             .section(
-                .class("sidebar_releases"),
-                .h3("Releases"),
+                .class("sidebar_versions"),
+                .h3("Versions"),
                 .ul(
                     model.stableReleaseMetadata(),
                     model.betaReleaseMetadata(),
