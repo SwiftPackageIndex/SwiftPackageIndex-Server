@@ -22,19 +22,9 @@
       grid-column-start: main;
       grid-row-start: 1;
 
-      ul {
-        padding: 0;
-        display: grid;
+      ul.icons {
         grid-template-columns: 0.5fr 0.5fr;
-        gap: 15px;
-
-        li {
-          padding-left: 30px;
-          list-style: outside none none;
-          background-size: 18px;
-          background-repeat: no-repeat;
-          background-position: top 2px left;
-        }
+        grid-auto-flow: row;
 
         li.no_data {
           display: none;
@@ -42,38 +32,28 @@
 
         li.history {
           grid-column-start: span 2;
-          grid-row-start: 1;
-          background-image: url("../images/clock.svg");
+          background-image: var(--image-clock);
         }
 
         li.activity {
           grid-column-start: span 2;
-          grid-row-start: 2;
-          background-image: url("../images/inbox.svg");
+          background-image: var(--image-speech-bubble);
         }
 
         li.license {
-          grid-column-start: 1;
-          grid-row-start: 3;
-          background-image: url("../images/osi.svg");
+          background-image: var(--image-osi);
         }
 
         li.stars {
-          grid-column-start: 2;
-          grid-row-start: 3;
-          background-image: url("../images/star.svg");
+          background-image: var(--image-star);
         }
 
         li.libraries {
-          grid-column-start: 1;
-          grid-row-start: 4;
-          background-image: url("../images/package.svg");
+          background-image: var(--image-box);
         }
 
         li.executables {
-          grid-column-start: 2;
-          grid-row-start: 4;
-          background-image: url("../images/package.svg");
+          background-image: var(--image-circle-prompt);
         }
       }
     }
@@ -86,33 +66,31 @@
     section.sidebar_links {
       grid-column-start: sidebar;
       grid-row-start: 1;
+
+      ul.icons {
+        li.github {
+          background-image: var(--image-github);
+        }
+
+        li.compatibility {
+          background-image: var(--image-circle-tick);
+        }
+      }
     }
 
-    section.sidebar_releases {
+    section.sidebar_versions {
       grid-column-start: sidebar;
       grid-row-start: 2;
 
       ul {
         padding: 0;
         list-style: none;
+        display: grid;
+        gap: 15px;
 
         li {
           display: flex;
           flex-direction: column;
-          margin: 0 0 15px 0;
-
-          &:last-child {
-            margin: 0;
-          }
-
-          strong {
-            margin-bottom: 5px;
-          }
-
-          a,
-          small {
-            padding-left: 10px;
-          }
         }
       }
     }
