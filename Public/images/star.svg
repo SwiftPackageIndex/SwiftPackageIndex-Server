@@ -1,10 +1,11 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+<svg xmlns="http://www.w3.org/2000/svg" width="199" height="189" viewBox="0 0 199 189">
   <defs>
     <style>
       .cls-1 {
-        fill: #1d1d1d;
+        fill: #2f2f2f;
+        fill-rule: evenodd;
       }
     </style>
   </defs>
-  <polygon class="cls-1" points="25 2.29 32.38 17.24 48.87 19.64 36.94 31.28 39.76 47.7 25 39.95 10.24 47.7 13.06 31.28 1.13 19.64 17.62 17.24 25 2.29"/>
+  <path id="star.svg" class="cls-1" d="M113.5,255l30.747,62.216L213,327.191l-49.75,48.428L174.994,444,113.5,411.715,52.006,444,63.75,375.619,14,327.191l68.753-9.977Z" transform="translate(-14 -255)"/>
 </svg>

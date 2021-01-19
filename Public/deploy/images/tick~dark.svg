@@ -1,1 +1,11 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><defs><style>.cls-1{fill:#f1f1f1}</style></defs><path class="cls-1" d="M18.32 44.89L.74 27.31l8.85-8.85 8.73 8.74L40.41 5.11l8.85 8.85-30.94 30.93z"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="202" height="166" viewBox="0 0 202 166">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #f1f1f1;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="tick_dark.svg" data-name="tick~dark.svg" class="cls-1" d="M1750.2,673L1677,599.635l36.83-36.906,36.37,36.441L1842.17,507,1879,543.906Z" transform="translate(-1677 -507)"/>
+</svg>

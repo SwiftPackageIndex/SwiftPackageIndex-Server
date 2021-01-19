@@ -1,10 +1,11 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+<svg xmlns="http://www.w3.org/2000/svg" width="202" height="166" viewBox="0 0 202 166">
   <defs>
     <style>
       .cls-1 {
-        fill: #1d1d1d;
+        fill: #2f2f2f;
+        fill-rule: evenodd;
       }
     </style>
   </defs>
-  <polygon class="cls-1" points="18.32 44.89 0.74 27.31 9.59 18.46 18.32 27.2 40.41 5.11 49.26 13.96 18.32 44.89"/>
+  <path id="tick.svg" class="cls-1" d="M800.2,673L727,599.635l36.826-36.906L800.2,599.17,892.168,507,929,543.906Z" transform="translate(-727 -507)"/>
 </svg>

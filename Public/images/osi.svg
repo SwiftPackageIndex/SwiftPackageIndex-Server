@@ -1,10 +1,11 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+<svg xmlns="http://www.w3.org/2000/svg" width="202.376" height="195.688" viewBox="0 0 202.376 195.688">
   <defs>
     <style>
       .cls-1 {
-        fill: #1d1d1d;
+        fill: #68bb13;
+        fill-rule: evenodd;
       }
     </style>
   </defs>
-  <path id="path3773" class="cls-1" d="M28,33.68a8.46,8.46,0,1,0-6.06,0l-5.69,14.8a24.34,24.34,0,1,1,17.44,0Z"/>
+  <path id="osi.svg" class="cls-1" d="M841.092,150.32a35.137,35.137,0,1,0-25.187,0L792.237,212a101.19,101.19,0,1,1,72.523,0Z" transform="translate(-727.312 -16.313)"/>
 </svg>

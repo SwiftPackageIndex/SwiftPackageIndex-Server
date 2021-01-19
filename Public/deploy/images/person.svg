@@ -1,1 +1,11 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><defs><style>.cls-1{fill:#1d1d1d}</style></defs><circle class="cls-1" cx="25" cy="13.38" r="12.38"/><path class="cls-1" d="M49 49c0-8.67-3.71-23-10.46-27.47a15.56 15.56 0 01-27.08 0C4.71 26 1 40.33 1 49"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="199.875" viewBox="0 0 200 199.875">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #2f2f2f;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="person.svg" class="cls-1" d="M168.562,67.534A51.562,51.562,0,1,1,117,16,51.548,51.548,0,0,1,168.562,67.534ZM217,215.89c0-36.111-15.47-95.973-43.6-114.38a64.87,64.87,0,0,1-112.808,0C32.47,119.917,17,179.779,17,215.89" transform="translate(-17 -16)"/>
+</svg>

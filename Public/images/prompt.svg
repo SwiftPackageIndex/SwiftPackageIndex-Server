@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #2f2f2f;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="prompt.svg" class="cls-1" d="M591,259A100,100,0,1,0,691,359,100,100,0,0,0,591,259ZM537.065,400.461L567.868,359l-30.8-41.459,16.724-12.426L593.82,359l-40.031,53.89ZM640.74,416.412H588.656V395.579H640.74v20.833Z" transform="translate(-491 -259)"/>
+</svg>

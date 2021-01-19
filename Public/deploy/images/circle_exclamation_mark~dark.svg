@@ -1,1 +1,11 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><defs><style>.cls-1{fill:#f1f1f1}</style></defs><path class="cls-1" d="M25 1a24 24 0 1024 24A24 24 0 0025 1zm2.66 36.18a3.8 3.8 0 01-2.68.89 3.91 3.91 0 01-2.72-.89 3.14 3.14 0 01-1-2.47 3.28 3.28 0 01.95-2.49 3.93 3.93 0 012.79-.88 3.79 3.79 0 012.72.88 3.34 3.34 0 01.92 2.49 3.19 3.19 0 01-.98 2.47zm.24-8.62h-5.8l-.9-16.63h7.6z"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #ff4343;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="circle_exclamation_mark_dark.svg" data-name="circle_exclamation_mark~dark.svg" class="cls-1" d="M1541,490a100,100,0,1,0,100,100A100,100,0,0,0,1541,490Zm11.09,150.757q-3.99,3.7-11.16,3.7-7.26,0-11.36-3.7t-4.1-10.291q0-6.664,3.96-10.364,3.945-3.7,11.5-3.7,7.47,0,11.31,3.7t3.85,10.364Q1556.09,637.059,1552.09,640.757Zm1-35.925h-24.18l-3.73-69.287h31.64Z" transform="translate(-1441 -490)"/>
+</svg>

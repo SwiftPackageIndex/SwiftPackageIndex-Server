@@ -1,10 +1,11 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
   <defs>
     <style>
       .cls-1 {
-        fill: #1d1d1d;
+        fill: #2f2f2f;
+        fill-rule: evenodd;
       }
     </style>
   </defs>
-  <path class="cls-1" d="M25,1A24,24,0,1,0,49,25,24,24,0,0,0,25,1Zm0,27.54L11.76,15.28l3.54-3.54L25,21.46l6.9-6.89,3.53,3.54Z"/>
+  <path id="clock.svg" class="cls-1" d="M358,24A100,100,0,1,0,458,124,100,100,0,0,0,358,24Zm0.09,114.732L302.849,83.487l14.729-14.73,40.512,40.511,28.727-28.725,14.73,14.73Z" transform="translate(-258 -24)"/>
 </svg>

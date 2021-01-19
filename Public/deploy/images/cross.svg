@@ -1,1 +1,11 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><defs><style>.cls-1{fill:#1d1d1d}</style></defs><path class="cls-1" d="M48.95 10.95l-9.9-9.9L25 15.1 10.95 1.05l-9.9 9.9L15.1 25 1.05 39.05l9.9 9.9L25 34.9l14.05 14.05 9.9-9.9L34.9 25l14.05-14.05z"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #2f2f2f;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="cross.svg" class="cls-1" d="M453.994,778.335L412.661,737,354,795.661,295.331,737,254,778.335,312.661,837,254,895.657l41.333,41.337L354,878.33l58.665,58.664,41.333-41.337L395.331,837Z" transform="translate(-254 -737)"/>
+</svg>

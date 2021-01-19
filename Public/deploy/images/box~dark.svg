@@ -1,1 +1,11 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><defs><style>.cls-1{fill:#f1f1f1}</style></defs><path class="cls-1" d="M48 12.9l-20.81 8.53v28L48 40.9zm-46 0v28l20.78 8.53v-28zM25 .57L4.59 9 25 17.32 45.41 9z"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="191" height="204" viewBox="0 0 191 204">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #f1f1f1;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="box_dark.svg" data-name="box~dark.svg" class="cls-1" d="M1399,307.47l-86.41,35.621v116.9L1399,424.373V307.47Zm-191.01,0v116.9l86.41,35.621v-116.9ZM1303.5,256l-84.88,34.961,84.88,34.961,84.87-34.961Z" transform="translate(-1208 -256)"/>
+</svg>
