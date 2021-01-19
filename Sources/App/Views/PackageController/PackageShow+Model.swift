@@ -222,7 +222,10 @@ extension PackageShow.Model {
     }
 
     func librariesListNode() -> Node<HTML.ListContext> {
-        guard let products = products else { return emptyListNode() }
+        guard let products = products,
+              products.libraries > 0
+        else { return emptyListNode() }
+
         return .li(
             .class("libraries"),
             .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries"))
@@ -230,7 +233,10 @@ extension PackageShow.Model {
     }
 
     func executablesListNode() -> Node<HTML.ListContext> {
-        guard let products = products else { return emptyListNode() }
+        guard let products = products,
+              products.executables > 0
+        else { return emptyListNode() }
+
         return .li(
             .class("executables"),
             .text(pluralizedCount(products.executables, singular: "executable"))
