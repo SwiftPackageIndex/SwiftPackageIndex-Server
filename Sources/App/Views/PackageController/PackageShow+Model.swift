@@ -228,7 +228,7 @@ extension PackageShow.Model {
 
         return .li(
             .class("libraries"),
-            .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries"))
+            .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries") + ".")
         )
     }
 
@@ -239,7 +239,7 @@ extension PackageShow.Model {
 
         return .li(
             .class("executables"),
-            .text(pluralizedCount(products.executables, singular: "executable"))
+            .text(pluralizedCount(products.executables, singular: "executable") + ".")
         )
     }
 

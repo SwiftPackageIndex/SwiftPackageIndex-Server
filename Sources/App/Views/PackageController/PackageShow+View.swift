@@ -88,6 +88,7 @@ enum PackageShow {
             .section(
                 .class("main_metadata"),
                 .ul(
+                    .class("icons"),
                     model.authorsListNode(),
                     model.historyListNode(),
                     model.activityListNode(),
@@ -121,7 +122,9 @@ enum PackageShow {
             .section(
                 .class("sidebar_links"),
                 .ul(
+                    .class("icons"),
                     .li(
+                        .class("github"),
                         .a(
                             .href(model.url),
                             // TODO: Make "GitHub" dynamic.
@@ -129,6 +132,7 @@ enum PackageShow {
                         )
                     ),
                     .li(
+                        .class("compatibility"),
                         .a(
                             .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
                             "Package Compatibility"
