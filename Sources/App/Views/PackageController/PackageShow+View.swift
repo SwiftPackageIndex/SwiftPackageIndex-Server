@@ -88,11 +88,11 @@ enum PackageShow {
             .section(
                 .class("main_metadata"),
                 .ul(
-                    model.licenseListNode(),
-                    model.starsListNode(),
                     model.authorsListNode(),
                     model.historyListNode(),
                     model.activityListNode(),
+                    model.licenseListNode(),
+                    model.starsListNode(),
                     model.librariesListNode(),
                     model.executablesListNode()
                 )
