@@ -146,15 +146,6 @@
         }
       },
       {
-        "package": "swift-argument-parser",
-        "repositoryURL": "https://github.com/apple/swift-argument-parser.git",
-        "state": {
-          "branch": null,
-          "revision": "9564d61b08a5335ae0a36f789a7d71493eacadfc",
-          "version": "0.3.2"
-        }
-      },
-      {
         "package": "swift-backtrace",
         "repositoryURL": "https://github.com/swift-server/swift-backtrace.git",
         "state": {
@@ -170,24 +161,6 @@
           "branch": null,
           "revision": "8f4bfa5bc1951440c15710e9e893721aa4b2765c",
           "version": "1.1.3"
-        }
-      },
-      {
-        "package": "swift-driver",
-        "repositoryURL": "https://github.com/apple/swift-driver.git",
-        "state": {
-          "branch": "main",
-          "revision": "5f5ebaf31061b3e5b92e3dada79587b86c6c69cb",
-          "version": null
-        }
-      },
-      {
-        "package": "llbuild",
-        "repositoryURL": "https://github.com/apple/swift-llbuild.git",
-        "state": {
-          "branch": "main",
-          "revision": "063f81d2666a02288b3250d8dadd752c8703d0ab",
-          "version": null
         }
       },
       {
@@ -254,30 +227,12 @@
         }
       },
       {
-        "package": "SwiftPM",
-        "repositoryURL": "https://github.com/finestructure/swift-package-manager.git",
-        "state": {
-          "branch": null,
-          "revision": "11a1040d509142296e12982335c0fd1f2fc0bf95",
-          "version": null
-        }
-      },
-      {
         "package": "SnapshotTesting",
         "repositoryURL": "https://github.com/pointfreeco/swift-snapshot-testing.git",
         "state": {
           "branch": null,
           "revision": "c466812aa2e22898f27557e2e780d3aad7a27203",
           "version": "1.8.2"
-        }
-      },
-      {
-        "package": "swift-tools-support-core",
-        "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
-        "state": {
-          "branch": "main",
-          "revision": "32a081abda1936c80139669d4b14451da6474d71",
-          "version": null
         }
       },
       {
@@ -305,15 +260,6 @@
           "branch": null,
           "revision": "2b06a70dfcfa76a2e5079f60e3ae911511f09db0",
           "version": "2.1.2"
-        }
-      },
-      {
-        "package": "Yams",
-        "repositoryURL": "https://github.com/jpsim/Yams.git",
-        "state": {
-          "branch": null,
-          "revision": "1bce5b89a11912fb8a8c48bd404bd24979472f27",
-          "version": "4.0.3"
         }
       }
     ]

@@ -22,8 +22,8 @@ let package = Package(
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
         .package(name: "libcmark_gfm", url: "https://github.com/KristopherGBaker/libcmark_gfm", from: "0.29.3"),
         .package(name: "SwiftPM",
-                 url: "https://github.com/finestructure/swift-package-manager.git",
-                 .revision("11a1040d509142296e12982335c0fd1f2fc0bf95"))
+                 url: "https://github.com/apple/swift-package-manager.git",
+                 .revision("1615db5fa82ece3e3b935e8cdd3b675d8de64498"))
     ],
     targets: [
         .target(name: "App", dependencies: [
