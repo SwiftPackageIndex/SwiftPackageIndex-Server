@@ -190,7 +190,7 @@ services:
       - plausible_db_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=postgres
-    # restart: always
+    restart: always
   
   plausible_events_db:
     build: ./infrastructure/clickhouse-server
@@ -200,7 +200,7 @@ services:
       nofile:
         soft: 262144
         hard: 262144
-    # restart: always
+    restart: always
 
   plausible:
     image: plausible/analytics:v1.2
@@ -217,7 +217,7 @@ services:
       ADMIN_USER_PWD: ${PLAUSIBLE_ADMIN_USER_PWD}
       BASE_URL: ${PLAUSIBLE_BASE_URL}
       SECRET_KEY_BASE: ${PLAUSIBLE_SECRET_KEY_BASE}
-    # restart: always
+    restart: always
 
 
 volumes:
