@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/vapor/console-kit.git",
         "state": {
           "branch": null,
-          "revision": "7454e839bc5ae0e75c3946d2613e442fd342fe6b",
-          "version": "4.2.4"
+          "revision": "08f36a30e0893e6a52fefbf1c2db4a6bc1288ba2",
+          "version": "4.2.5"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "86ebecdb98981b7a242746209b4335770bf0bd11",
-          "version": "1.10.2"
+          "revision": "7f1a5fe1effeee258ef0012def798e4bad43303d",
+          "version": "1.10.3"
         }
       },
       {
