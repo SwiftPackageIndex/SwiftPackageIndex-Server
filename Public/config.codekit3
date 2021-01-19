@@ -41,86 +41,6 @@
 		"q": 100,
 		"rq": 75
 		},
-	"/images/author.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/author.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/beta.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/beta.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/branch.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/branch.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/build_failed.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/build_failed.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/build_success.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/build_success.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/build_unknown.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/build_unknown.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/clock.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/clock.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/inbox.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/inbox.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
 	"/images/languages-and-platforms~dark.png": {
 		"ft": 32768,
 		"iS": 63176,
@@ -183,56 +103,6 @@
 		"plM": 52780316221407,
 		"prP": 0
 		},
-	"/images/osi.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/osi.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/package.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/package.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/question.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/question.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/stable.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/stable.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/star.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/star.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
 	"/images/swiftpm-library.png": {
 		"ft": 32768,
 		"iS": 499622,
@@ -245,16 +115,6 @@
 		"ou": "lpckwebp-none",
 		"q": 100,
 		"rq": 75
-		},
-	"/images/warning.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/warning.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
 		},
 	"/javascripts/build_log_navigation.js": {
 		"bF": 0,
@@ -633,7 +493,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 632752317.81500196
+	"lastBuiltDate": 632752492.70718801
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
