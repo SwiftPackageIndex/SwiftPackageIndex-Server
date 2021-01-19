@@ -1,0 +1,47 @@
+/* -------------------------------------------------------------------------
+  Image variables for both light and dark mode.
+---------------------------------------------------------------------------- */
+
+/* Light mode images */
+
+:root {
+  --image-box: url("/images/box.svg");
+  --image-circle-beta: url("/images/circle_beta.svg");
+  --image-circle-branch: url("/images/circle_branch.svg");
+  --image-circle-exclamation_mark: url("/images/circle_exclamation_mark.svg");
+  --image-circle-prompt: url("/images/circle_prompt.svg");
+  --image-circle-question_mark: url("/images/circle_question_mark.svg");
+  --image-circle-tick: url("/images/circle_tick.svg");
+  --image-clock: url("/images/clock.svg");
+  --image-cross: url("/images/cross.svg");
+  --image-github: url("/images/github.svg");
+  --image-osi: url("/images/osi.svg");
+  --image-person: url("/images/person.svg");
+  --image-question-mark: url("/images/question_mark.svg");
+  --image-speech-bubble: url("/images/speech_bubble.svg");
+  --image-star: url("/images/star.svg");
+  --image-tick: url("/images/tick.svg");
+}
+
+/* Dark mode images */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --image-box: url("/images/box~dark.svg");
+    --image-circle-beta: url("/images/circle_beta~dark.svg");
+    --image-circle-branch: url("/images/circle_branch~dark.svg");
+    --image-circle-exclamation_mark: url("/images/circle_exclamation_mark~dark.svg");
+    --image-circle-prompt: url("/images/circle_prompt~dark.svg");
+    --image-circle-question_mark: url("/images/circle_question_mark~dark.svg");
+    --image-circle-tick: url("/images/circle_tick~dark.svg");
+    --image-clock: url("/images/clock~dark.svg");
+    --image-cross: url("/images/cross~dark.svg");
+    --image-github: url("/images/github~dark.svg");
+    --image-osi: url("/images/osi~dark.svg");
+    --image-person: url("/images/person~dark.svg");
+    --image-question-mark: url("/images/question_mark~dark.svg");
+    --image-speech-bubble: url("/images/speech_bubble~dark.svg");
+    --image-star: url("/images/star~dark.svg");
+    --image-tick: url("/images/tick~dark.svg");
+  }
+}
