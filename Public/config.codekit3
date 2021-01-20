@@ -41,6 +41,26 @@
 		"q": 100,
 		"rq": 75
 		},
+	"/images/beta.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/beta.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/images/beta~dark.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/beta~dark.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
 	"/images/box.svg": {
 		"ft": 2097152,
 		"miP": 0,
@@ -61,41 +81,21 @@
 		"plM": 52780316221407,
 		"prP": 0
 		},
-	"/images/circle_beta.svg": {
+	"/images/branch.svg": {
 		"ft": 2097152,
 		"miP": 0,
 		"oA": 0,
-		"oAP": "/deploy/images/circle_beta.svg",
+		"oAP": "/deploy/images/branch.svg",
 		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
 		"prP": 0
 		},
-	"/images/circle_beta~dark.svg": {
+	"/images/branch~dark.svg": {
 		"ft": 2097152,
 		"miP": 0,
 		"oA": 0,
-		"oAP": "/deploy/images/circle_beta~dark.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/circle_branch.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/circle_branch.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/circle_branch~dark.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/circle_branch~dark.svg",
+		"oAP": "/deploy/images/branch~dark.svg",
 		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
@@ -156,26 +156,6 @@
 		"miP": 0,
 		"oA": 0,
 		"oAP": "/deploy/images/circle_question_mark~dark.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/circle_tick.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/circle_tick.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/circle_tick~dark.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/circle_tick~dark.svg",
 		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
@@ -398,6 +378,26 @@
 		"miP": 0,
 		"oA": 0,
 		"oAP": "/deploy/images/speech_bubble~dark.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/images/stable.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/stable.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/images/stable~dark.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/stable~dark.svg",
 		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
@@ -846,7 +846,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 632824515.80141997
+	"lastBuiltDate": 632828399.56057298
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
