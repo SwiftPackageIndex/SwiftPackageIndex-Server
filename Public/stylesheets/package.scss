@@ -115,6 +115,10 @@
         li {
           display: flex;
           flex-direction: column;
+
+          strong {
+            font-size: 14px;
+          }
         }
       }
     }

@@ -307,7 +307,6 @@ extension PackageShow.Model {
     
     func releaseMetadata(_ datedLink: DatedLink, title: String, datePrefix: String = "Released", cssClass: String) -> Node<HTML.ListContext> {
         .li(
-            .strong(.text(title)),
             .a(
                 .href(datedLink.link.url),
                 .span(
@@ -315,9 +314,8 @@ extension PackageShow.Model {
                     .text(datedLink.link.label)
                 )
             ),
-            .small(
-                .text([datePrefix, datedLink.date].joined(separator: " "))
-            )
+            .strong(.text(title)),
+            .small(.text([datePrefix, datedLink.date].joined(separator: " ")))
         )
     }
 
