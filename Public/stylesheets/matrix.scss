@@ -107,34 +107,34 @@ ul.matrix {
       align-items: center;
       flex-basis: 0;
       flex-grow: 1;
-    }
-
-    i.icon {
-      margin: 0;
+      background-position: center center;
+      background-size: 20px;
+      background-repeat: no-repeat;
     }
 
     .compatible {
       background-color: var(--matrix-result-compatible-background);
-      color: var(--matrix-result-compatible-text);
+      background-image: var(--image-compatible);
       font-size: 20px;
     }
 
     .pending,
     .unknown {
       background-color: var(--matrix-result-unknown-background);
-      color: var(--matrix-result-unknown-text);
+      background-image: var(--image-unknown);
       font-size: 20px;
     }
 
     .incompatible {
       background-color: var(--matrix-result-incompatible-background);
-      color: var(--matrix-result-incompatible-text);
+      background-image: var(--image-incompatible);
       font-size: 20px;
     }
 
     .succeeded {
       background-color: var(--matrix-result-succeeded-background);
       color: var(--matrix-result-succeeded-text);
+      background-image: var(--image-tick);
       font-size: 20px;
     }
 

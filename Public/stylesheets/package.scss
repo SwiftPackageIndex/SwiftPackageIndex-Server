@@ -16,7 +16,7 @@
   article.details {
     display: grid;
     grid-template-columns: [main] 0.7fr [sidebar] 0.3fr;
-    gap: 10px 40px;
+    gap: 10px 60px;
 
     section.main_metadata {
       grid-column-start: main;
@@ -61,7 +61,7 @@
         }
 
         li.executables {
-          background-image: var(--image-circle-prompt);
+          background-image: var(--image-prompt);
         }
       }
     }
