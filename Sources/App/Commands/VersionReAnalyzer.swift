@@ -11,11 +11,11 @@ func reAnalyzeVersions(client: Client,
     Package.fetchReAnalysisCandidates(database,
                                       versionsLastUpdatedBefore: cutOffDate,
                                       limit: limit)
-        .flatMap { analyze(client: client,
-                           database: database,
-                           logger: logger,
-                           threadPool: threadPool,
-                           packages: $0) }
+        .flatMap { reAnalyzeVersions(client: client,
+                                     database: database,
+                                     logger: logger,
+                                     threadPool: threadPool,
+                                     packages: $0) }
 }
 
 
