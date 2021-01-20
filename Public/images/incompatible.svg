@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #9a9a9a;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="incompatible.svg" class="cls-1" d="M453.994,1011.33L412.661,970,354,1028.66,295.331,970,254,1011.33,312.661,1070,254,1128.66l41.333,41.33L354,1111.33l58.665,58.66,41.333-41.33L395.331,1070Z" transform="translate(-254 -970)"/>
+</svg>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="202.376" height="195.688" viewBox="0 0 202.376 195.688">
+<svg xmlns="http://www.w3.org/2000/svg" width="202.375" height="195.688" viewBox="0 0 202.375 195.688">
   <defs>
     <style>
       .cls-1 {
@@ -7,5 +7,5 @@
       }
     </style>
   </defs>
-  <path id="osi.svg" class="cls-1" d="M841.092,150.32a35.137,35.137,0,1,0-25.187,0L792.237,212a101.19,101.19,0,1,1,72.523,0Z" transform="translate(-727.312 -16.313)"/>
+  <path id="osi.svg" class="cls-1" d="M130.092,627.32a35.137,35.137,0,1,0-25.187,0L81.237,689a101.191,101.191,0,1,1,72.523,0Z" transform="translate(-16.313 -493.312)"/>
 </svg>

@@ -2,10 +2,10 @@
   <defs>
     <style>
       .cls-1 {
-        fill: #2f2f2f;
+        fill: #fff;
         fill-rule: evenodd;
       }
     </style>
   </defs>
-  <path id="tick.svg" class="cls-1" d="M800.2,673L727,599.635l36.826-36.906L800.2,599.17,892.168,507,929,543.906Z" transform="translate(-727 -507)"/>
+  <path id="compatible.svg" class="cls-1" d="M90.2,1143L17,1069.64l36.826-36.91L90.2,1069.17,182.168,977,219,1013.91Z" transform="translate(-17 -977)"/>
 </svg>
