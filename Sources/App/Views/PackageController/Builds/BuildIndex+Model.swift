@@ -139,19 +139,16 @@ extension BuildIndex.Model {
             switch value {
                 case let .some(value) where value.status == .ok:
                     return .div(.class("succeeded"),
-                                .i(.class("icon matrix_succeeded")),
                                 .a(.href(SiteURL.builds(.value(value.id)).relativeURL()),
                                    .text("View Build Log")))
                 case let .some(value) where value.status == .failed:
                     return .div(.class("failed"),
-                                .i(.class("icon matrix_failed")),
                                 .a(.href(SiteURL.builds(.value(value.id)).relativeURL()),
                                    .text("View Build Log")))
                 case let .some(value) where value.status == .pending:
-                    return .div(.class("pending"),
-                                .i(.class("icon matrix_pending")))
+                    return .div(.class("pending"))
                 case .some, .none:
-                    return .div(.class("unknown"), .i(.class("icon matrix_unknown")))
+                    return .div(.class("unknown"))
             }
         }
 
@@ -174,7 +171,7 @@ extension BuildIndex.Model {
                 case .release:
                     cssClass = "stable"
             }
-            return .div(.span(.class(cssClass), .i(.class("icon \(cssClass)")), .text(label)))
+            return .div(.span(.class(cssClass), .text(label)))
         }
     }
 

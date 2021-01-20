@@ -81,7 +81,7 @@
         }
 
         li.compatibility {
-          background-image: var(--image-circle-tick);
+          background-image: var(--image-stable);
         }
       }
     }
@@ -164,18 +164,25 @@ section.support {
 .beta,
 .branch {
   font-weight: 600;
+  padding-right: 18px;
+  background-size: 14px;
+  background-repeat: no-repeat;
+  background-position: top 2px right;
 }
 
 .stable {
   color: var(--stable-text);
+  background-image: var(--image-stable);
 }
 
 .beta {
   color: var(--beta-text);
+  background-image: var(--image-beta);
 }
 
 .branch {
   color: var(--branch-text);
+  background-image: var(--image-branch);
 }
 
 .package_list {

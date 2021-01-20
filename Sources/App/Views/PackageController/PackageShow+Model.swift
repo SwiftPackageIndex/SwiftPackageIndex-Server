@@ -302,7 +302,6 @@ extension PackageShow.Model {
                 .href(datedLink.link.url),
                 .span(
                     .class(cssClass),
-                    .i(.class("icon \(cssClass)")),
                     .text(datedLink.link.label)
                 )
             ),

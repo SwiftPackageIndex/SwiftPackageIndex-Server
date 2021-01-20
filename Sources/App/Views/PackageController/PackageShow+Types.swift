@@ -101,7 +101,6 @@ extension PackageShow.Model {
         var node: Node<HTML.BodyContext> {
             .span(
                 .class(cssClass),
-                .i(.class("icon \(cssClass)")),
                 .text(name)
             )
         }
@@ -220,8 +219,7 @@ extension PackageShow.Model {
         var cellNode: Node<HTML.BodyContext> {
             .div(
                 .class("\(status.cssClass)"),
-                .attribute(named: "title", value: title),
-                .i(.class("icon matrix_\(status.cssClass)"))
+                .attribute(named: "title", value: title)
             )
         }
         
