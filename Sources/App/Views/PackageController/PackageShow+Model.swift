@@ -118,16 +118,12 @@ extension PackageShow.Model {
         let licenseDescription: Node<HTML.BodyContext> = {
             switch license.licenseKind {
                 case .compatibleWithAppStore, .incompatibleWithAppStore:
-                    return .div(
-                        .text("Licensed as "),
-                        .span(
-                            .class(license.licenseKind.cssClass),
-                            .attribute(named: "title", value: license.fullName),
-                            .text(license.shortName)
-                        )
+                    return .span(
+                        .attribute(named: "title", value: license.fullName),
+                        .text("Licensed as " + license.shortName)
                     )
                 case .other, .none:
-                    return .div(
+                    return .span(
                         .class(license.licenseKind.cssClass),
                         .text(license.shortName)
                     )

@@ -39,10 +39,6 @@
         li.license {
           background-image: var(--image-osi);
 
-          small {
-            margin-right: 10px;
-          }
-
           &.warning {
             background-image: var(--image-circle-question-mark);
           }
