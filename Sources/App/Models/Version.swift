@@ -182,7 +182,7 @@ extension Version {
         return (
             toAdd: incoming.filter { $0.immutableReference.map({delta.toAdd.contains($0)}) ?? false },
             toDelete: local.filter { $0.immutableReference.map({delta.toDelete.contains($0)}) ?? false },
-            toKeep: incoming.filter { $0.immutableReference.map({delta.toKeep.contains($0)}) ?? false }
+            toKeep: local.filter { $0.immutableReference.map({delta.toKeep.contains($0)}) ?? false }
         )
     }
 }

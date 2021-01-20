@@ -134,11 +134,14 @@ class VersionDiffTests: AppTestCase {
         // Branch changes commit hash
         // setup
         let pkg = try savePackage(on: app.db, "1")
+        let keptId = UUID()
         let saved: [Version] = [
             try .init(package: pkg, commit: "hash1", reference: .branch("main")),
-            try .init(package: pkg, commit: "hash2", reference: .tag(1, 2, 3)),
+            try .init(id: keptId,
+                      package: pkg, commit: "hash2", reference: .tag(1, 2, 3)),
         ]
-        
+        try saved.save(on: app.db).wait()
+
         // MUT
         let res = Version.diff(local: saved, incoming: [
             try .init(package: pkg, commit: "hash3", reference: .branch("main")),
@@ -154,6 +157,7 @@ class VersionDiffTests: AppTestCase {
                        [.init(reference: .branch("main"), commit: "hash1")])
         XCTAssertEqual(res.toKeep.compactMap(\.immutableReference),
                        [.init(reference: .tag(1, 2, 3), commit: "hash2")])
+        XCTAssertEqual(res.toKeep.map(\.id), [keptId])
     }
     
 }
