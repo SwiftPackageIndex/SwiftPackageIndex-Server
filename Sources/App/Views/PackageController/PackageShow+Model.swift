@@ -120,7 +120,11 @@ extension PackageShow.Model {
                 case .compatibleWithAppStore, .incompatibleWithAppStore:
                     return .span(
                         .attribute(named: "title", value: license.fullName),
-                        .text("Licensed as " + license.shortName)
+                        .text("Licensed as "),
+                        .span(
+                            .class(license.licenseKind.cssClass),
+                            .text(license.shortName)
+                        )
                     )
                 case .other, .none:
                     return .span(
@@ -499,9 +503,9 @@ extension Platform {
 extension License.Kind {
     var cssClass: String {
         switch self {
-            case .none: return "red"
-            case .incompatibleWithAppStore, .other: return "orange"
-            case .compatibleWithAppStore: return "green"
+            case .none: return "no_license"
+            case .incompatibleWithAppStore, .other: return "incompatible_license"
+            case .compatibleWithAppStore: return "compatible_license"
         }
     }
 

@@ -40,11 +40,25 @@
           background-image: var(--image-osi);
 
           &.warning {
-            background-image: var(--image-circle-question-mark);
+            background-image: var(--image-warning);
           }
 
           &.error {
-            background-image: var(--image-circle-exclamation-mark);
+            background-image: var(--image-error);
+          }
+
+          .compatible_license {
+            font-weight: 600;
+          }
+
+          .incompatible_license {
+            font-weight: 600;
+            color: var(--lozenge-orange-background);
+          }
+
+          .no_license {
+            font-weight: 600;
+            color: var(--lozenge-red-background);
           }
         }
 
