@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="202.376" height="195.688" viewBox="0 0 202.376 195.688">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: #68bb13;
-        fill-rule: evenodd;
-      }
-    </style>
-  </defs>
-  <path id="osi.svg" class="cls-1" d="M841.092,150.32a35.137,35.137,0,1,0-25.187,0L792.237,212a101.19,101.19,0,1,1,72.523,0Z" transform="translate(-727.312 -16.313)"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="202.376" height="195.688" viewBox="0 0 202.376 195.688"><defs><style>.cls-1{fill:#2f2f2f;fill-rule:evenodd}</style></defs><path id="osi.svg" class="cls-1" d="M841.092 150.32a35.137 35.137 0 10-25.187 0L792.237 212a101.19 101.19 0 1172.523 0z" transform="translate(-727.312 -16.313)"/></svg>

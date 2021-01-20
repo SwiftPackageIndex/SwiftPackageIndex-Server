@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: #2f2f2f;
-        fill-rule: evenodd;
-      }
-    </style>
-  </defs>
-  <path id="clock.svg" class="cls-1" d="M358,24A100,100,0,1,0,458,124,100,100,0,0,0,358,24Zm0.09,114.732L302.849,83.487l14.729-14.73,40.512,40.511,28.727-28.725,14.73,14.73Z" transform="translate(-258 -24)"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><defs><style>.cls-1{fill:#2f2f2f;fill-rule:evenodd}</style></defs><path id="clock.svg" class="cls-1" d="M358 24a100 100 0 10100 100A100 100 0 00358 24zm.09 114.732l-55.241-55.245 14.729-14.73 40.512 40.511 28.727-28.725 14.73 14.73z" transform="translate(-258 -24)"/></svg>

@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="199.875" viewBox="0 0 200 199.875">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: #2f2f2f;
-        fill-rule: evenodd;
-      }
-    </style>
-  </defs>
-  <path id="person.svg" class="cls-1" d="M168.562,67.534A51.562,51.562,0,1,1,117,16,51.548,51.548,0,0,1,168.562,67.534ZM217,215.89c0-36.111-15.47-95.973-43.6-114.38a64.87,64.87,0,0,1-112.808,0C32.47,119.917,17,179.779,17,215.89" transform="translate(-17 -16)"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="199.875" viewBox="0 0 200 199.875"><defs><style>.cls-1{fill:#2f2f2f;fill-rule:evenodd}</style></defs><path id="person.svg" class="cls-1" d="M168.562 67.534A51.562 51.562 0 11117 16a51.548 51.548 0 0151.562 51.534zM217 215.89c0-36.111-15.47-95.973-43.6-114.38a64.87 64.87 0 01-112.808 0C32.47 119.917 17 179.779 17 215.89" transform="translate(-17 -16)"/></svg>

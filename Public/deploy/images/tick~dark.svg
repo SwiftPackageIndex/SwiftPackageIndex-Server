@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="202" height="166" viewBox="0 0 202 166">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: #f1f1f1;
-        fill-rule: evenodd;
-      }
-    </style>
-  </defs>
-  <path id="tick_dark.svg" data-name="tick~dark.svg" class="cls-1" d="M1750.2,673L1677,599.635l36.83-36.906,36.37,36.441L1842.17,507,1879,543.906Z" transform="translate(-1677 -507)"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="202" height="166" viewBox="0 0 202 166"><defs><style>.cls-1{fill:#f1f1f1;fill-rule:evenodd}</style></defs><path id="tick_dark.svg" data-name="tick~dark.svg" class="cls-1" d="M1750.2 673l-73.2-73.365 36.83-36.906 36.37 36.441 91.97-92.17 36.83 36.906z" transform="translate(-1677 -507)"/></svg>

@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="199.875" viewBox="0 0 200 199.875">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: #f1f1f1;
-        fill-rule: evenodd;
-      }
-    </style>
-  </defs>
-  <path id="person_dark.svg" data-name="person~dark.svg" class="cls-1" d="M1118.56,67.534A51.56,51.56,0,1,1,1067,16,51.545,51.545,0,0,1,1118.56,67.534ZM1167,215.89c0-36.111-15.47-95.973-43.6-114.38a64.864,64.864,0,0,1-112.8,0C982.47,119.917,967,179.779,967,215.89" transform="translate(-967 -16)"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="199.875" viewBox="0 0 200 199.875"><defs><style>.cls-1{fill:#f1f1f1;fill-rule:evenodd}</style></defs><path id="person_dark.svg" data-name="person~dark.svg" class="cls-1" d="M1118.56 67.534A51.56 51.56 0 111067 16a51.545 51.545 0 0151.56 51.534zM1167 215.89c0-36.111-15.47-95.973-43.6-114.38a64.864 64.864 0 01-112.8 0c-28.13 18.407-43.6 78.269-43.6 114.38" transform="translate(-967 -16)"/></svg>
