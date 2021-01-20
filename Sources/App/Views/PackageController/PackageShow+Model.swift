@@ -115,10 +115,39 @@ extension PackageShow {
 
 extension PackageShow.Model {
     func licenseListItem() -> Node<HTML.ListContext> {
-        let licenseDiv: Node<HTML.BodyContext> = .div(
-            .class("\(license.licenseKind.iconName) \(license.licenseKind.cssClass)"),
-            .attribute(named: "title", value: license.fullName),
-            .text(license.shortName)
+        let licenseDescription: Node<HTML.BodyContext> = {
+            switch license.licenseKind {
+                case .compatibleWithAppStore, .incompatibleWithAppStore:
+                    return .div(
+                        .text("Licensed as "),
+                        .span(
+                            .class(license.licenseKind.cssClass),
+                            .attribute(named: "title", value: license.fullName),
+                            .text(license.shortName)
+                        )
+                    )
+                case .other, .none:
+                    return .div(
+                        .class(license.licenseKind.cssClass),
+                        .text(license.shortName)
+                    )
+            }
+        }()
+
+        let licenseClass: String = {
+            switch license.licenseKind {
+                case .compatibleWithAppStore:
+                    return "license"
+                case .incompatibleWithAppStore, .other:
+                    return "license warning"
+                case .none:
+                    return "license error"
+            }
+        }()
+
+        let licenseLink: Node<HTML.BodyContext> = .unwrap(
+            licenseUrl,
+            { .small(.a(href: $0, "View License")) }
         )
 
         let whatsThisLink: Node<HTML.BodyContext> = {
@@ -129,15 +158,16 @@ extension PackageShow.Model {
                     return .small(
                         .a(
                             .href(SiteURL.faq.relativeURL(anchor: "licenses")),
-                            "Why is this icon not green?"
+                            "More Info"
                         )
                     )
             }
         }()
 
         return .li(
-            .class("license"),
-            .unwrap(licenseUrl, { .a(href: $0, licenseDiv) }, else: licenseDiv),
+            .class(licenseClass),
+            licenseDescription,
+            licenseLink,
             whatsThisLink
         )
     }
@@ -148,7 +178,7 @@ extension PackageShow.Model {
         else { return .empty }
         return .li(
             .class("stars"),
-            .text("\(str) stars.")
+            .text("\(str) stars")
         )
     }
 
@@ -228,7 +258,7 @@ extension PackageShow.Model {
 
         return .li(
             .class("libraries"),
-            .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries") + ".")
+            .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries"))
         )
     }
 
@@ -239,7 +269,7 @@ extension PackageShow.Model {
 
         return .li(
             .class("executables"),
-            .text(pluralizedCount(products.executables, singular: "executable") + ".")
+            .text(pluralizedCount(products.executables, singular: "executable"))
         )
     }
 
