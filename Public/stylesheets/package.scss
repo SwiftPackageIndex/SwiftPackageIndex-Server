@@ -26,10 +26,6 @@
         grid-template-columns: 0.5fr 0.5fr;
         grid-auto-flow: row;
 
-        li.no_data {
-          display: none;
-        }
-
         li.history {
           grid-column-start: span 2;
           background-image: var(--image-clock);

@@ -145,7 +145,7 @@ extension PackageShow.Model {
     func starsListItem() -> Node<HTML.ListContext> {
         guard let stars = stars,
               let str = Self.starsNumberFormatter.string(from: NSNumber(value: stars))
-        else { return emptyListItem() }
+        else { return .empty }
         return .li(
             .class("stars"),
             .text("\(str) stars.")
@@ -153,7 +153,7 @@ extension PackageShow.Model {
     }
 
     func authorsListItem() -> Node<HTML.ListContext> {
-        guard let authors = authors else { return emptyListItem() }
+        guard let authors = authors else { return .empty }
         let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
         return .li(
             .class("authors"),
@@ -162,7 +162,7 @@ extension PackageShow.Model {
     }
     
     func historyListItem() -> Node<HTML.ListContext> {
-        guard let history = history else { return emptyListItem() }
+        guard let history = history else { return .empty }
 
         let commitsLinkNode: Node<HTML.BodyContext> = .a(
             .href(history.commitCount.url),
@@ -203,7 +203,7 @@ extension PackageShow.Model {
                 || activity.openPullRequests != nil
                 || activity.lastIssueClosedAt != nil
                 || activity.lastPullRequestClosedAt != nil
-        else { return emptyListItem() }
+        else { return .empty }
         
         let openItems = [activity.openIssues, activity.openPullRequests]
             .compactMap { $0 }
@@ -224,7 +224,7 @@ extension PackageShow.Model {
     func librariesListItem() -> Node<HTML.ListContext> {
         guard let products = products,
               products.libraries > 0
-        else { return emptyListItem() }
+        else { return .empty }
 
         return .li(
             .class("libraries"),
@@ -235,16 +235,12 @@ extension PackageShow.Model {
     func executablesListItem() -> Node<HTML.ListContext> {
         guard let products = products,
               products.executables > 0
-        else { return emptyListItem() }
+        else { return .empty }
 
         return .li(
             .class("executables"),
             .text(pluralizedCount(products.executables, singular: "executable") + ".")
         )
-    }
-
-    func emptyListItem() -> Node<HTML.ListContext> {
-        return .li(.class("no_data"))
     }
 
     static var starsNumberFormatter: NumberFormatter = {
