@@ -89,13 +89,13 @@ enum PackageShow {
                 .class("main_metadata"),
                 .ul(
                     .class("icons"),
-                    model.authorsListNode(),
-                    model.historyListNode(),
-                    model.activityListNode(),
-                    model.licenseListNode(),
-                    model.starsListNode(),
-                    model.librariesListNode(),
-                    model.executablesListNode()
+                    model.authorsListItem(),
+                    model.historyListItem(),
+                    model.activityListItem(),
+                    model.licenseListItem(),
+                    model.starsListItem(),
+                    model.librariesListItem(),
+                    model.executablesListItem()
                 )
             )
         }
@@ -135,7 +135,7 @@ enum PackageShow {
                         .class("compatibility"),
                         .a(
                             .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
-                            "Package Compatibility"
+                            "Full Compatibility Report"
                         )
                     )
                 )

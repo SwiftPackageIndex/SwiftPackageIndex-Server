@@ -114,7 +114,7 @@ extension PackageShow {
 
 
 extension PackageShow.Model {
-    func licenseListNode() -> Node<HTML.ListContext> {
+    func licenseListItem() -> Node<HTML.ListContext> {
         let licenseDiv: Node<HTML.BodyContext> = .div(
             .class("\(license.licenseKind.iconName) \(license.licenseKind.cssClass)"),
             .attribute(named: "title", value: license.fullName),
@@ -142,18 +142,18 @@ extension PackageShow.Model {
         )
     }
 
-    func starsListNode() -> Node<HTML.ListContext> {
+    func starsListItem() -> Node<HTML.ListContext> {
         guard let stars = stars,
               let str = Self.starsNumberFormatter.string(from: NSNumber(value: stars))
-        else { return emptyListNode() }
+        else { return emptyListItem() }
         return .li(
             .class("stars"),
             .text("\(str) stars.")
         )
     }
 
-    func authorsListNode() -> Node<HTML.ListContext> {
-        guard let authors = authors else { return emptyListNode() }
+    func authorsListItem() -> Node<HTML.ListContext> {
+        guard let authors = authors else { return emptyListItem() }
         let nodes = authors.map { Node<HTML.BodyContext>.a(.href($0.url), .text($0.label)) }
         return .li(
             .class("authors"),
@@ -161,8 +161,8 @@ extension PackageShow.Model {
         )
     }
     
-    func historyListNode() -> Node<HTML.ListContext> {
-        guard let history = history else { return emptyListNode() }
+    func historyListItem() -> Node<HTML.ListContext> {
+        guard let history = history else { return emptyListItem() }
 
         let commitsLinkNode: Node<HTML.BodyContext> = .a(
             .href(history.commitCount.url),
@@ -196,14 +196,14 @@ extension PackageShow.Model {
         )
     }
     
-    func activityListNode() -> Node<HTML.ListContext> {
+    func activityListItem() -> Node<HTML.ListContext> {
         // Bail out if not at least one field is non-nil
         guard let activity = activity,
               activity.openIssues != nil
                 || activity.openPullRequests != nil
                 || activity.lastIssueClosedAt != nil
                 || activity.lastPullRequestClosedAt != nil
-        else { return emptyListNode() }
+        else { return emptyListItem() }
         
         let openItems = [activity.openIssues, activity.openPullRequests]
             .compactMap { $0 }
@@ -221,10 +221,10 @@ extension PackageShow.Model {
         )
     }
 
-    func librariesListNode() -> Node<HTML.ListContext> {
+    func librariesListItem() -> Node<HTML.ListContext> {
         guard let products = products,
               products.libraries > 0
-        else { return emptyListNode() }
+        else { return emptyListItem() }
 
         return .li(
             .class("libraries"),
@@ -232,10 +232,10 @@ extension PackageShow.Model {
         )
     }
 
-    func executablesListNode() -> Node<HTML.ListContext> {
+    func executablesListItem() -> Node<HTML.ListContext> {
         guard let products = products,
               products.executables > 0
-        else { return emptyListNode() }
+        else { return emptyListItem() }
 
         return .li(
             .class("executables"),
@@ -243,7 +243,7 @@ extension PackageShow.Model {
         )
     }
 
-    func emptyListNode() -> Node<HTML.ListContext> {
+    func emptyListItem() -> Node<HTML.ListContext> {
         return .li(.class("no_data"))
     }
 
