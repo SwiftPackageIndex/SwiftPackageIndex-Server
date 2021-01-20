@@ -23,7 +23,7 @@ let package = Package(
         .package(name: "libcmark_gfm", url: "https://github.com/KristopherGBaker/libcmark_gfm", from: "0.29.3"),
         .package(name: "SwiftPM",
                  url: "https://github.com/apple/swift-package-manager.git",
-                 .revision("1615db5fa82ece3e3b935e8cdd3b675d8de64498"))
+                 .revision("fcf50914ecb0c566dfe77af696a99042a22e07ac"))
     ],
     targets: [
         .target(name: "App", dependencies: [
@@ -37,7 +37,7 @@ let package = Package(
             "SwiftPrometheus",
             "OhhAuth",
             "libcmark_gfm",
-            .product(name: "PackageCollectionJSONModel", package: "SwiftPM")
+            .product(name: "PackageCollectionsModel", package: "SwiftPM")
         ]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [
