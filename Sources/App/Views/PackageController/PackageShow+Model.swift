@@ -118,15 +118,20 @@ extension PackageShow.Model {
         let licenseDescription: Node<HTML.BodyContext> = {
             switch license.licenseKind {
                 case .compatibleWithAppStore, .incompatibleWithAppStore:
-                    return .span(
-                        .attribute(named: "title", value: license.fullName),
-                        .text("Licensed as "),
-                        .span(
-                            .class(license.licenseKind.cssClass),
-                            .text(license.shortName)
-                        )
+                    return .group(
+                        .unwrap(licenseUrl, {
+                            .a(href: $0, .id("license_link"),
+                               .attribute(named: "title", value: license.fullName),
+                               .text(license.shortName))
+                        }),
+                        .text(" licensed")
                     )
-                case .other, .none:
+                case .other:
+                    return .unwrap(licenseUrl, {
+                        .a(href: $0, .id("license_link"),
+                           .text(license.shortName))
+                    })
+                case .none:
                     return .span(
                         .class(license.licenseKind.cssClass),
                         .text(license.shortName)
@@ -145,21 +150,27 @@ extension PackageShow.Model {
             }
         }()
 
-        let licenseLink: Node<HTML.BodyContext> = .unwrap(
-            licenseUrl,
-            { .small(.a(href: $0, "View License")) }
-        )
-
-        let whatsThisLink: Node<HTML.BodyContext> = {
+        let moreInfoLink: Node<HTML.BodyContext> = {
             switch license.licenseKind {
                 case .compatibleWithAppStore:
                     return .empty
-                case .incompatibleWithAppStore, .other, .none:
-                    return .small(
-                        .a(
-                            .href(SiteURL.faq.relativeURL(anchor: "licenses")),
-                            "More Info"
-                        )
+                case .incompatibleWithAppStore:
+                    return .a(
+                        .id("license_info"),
+                        .href(SiteURL.faq.relativeURL(anchor: "licenses")),
+                        "Why might the \(license.shortName) be problematic?"
+                    )
+                case .other:
+                    return .a(
+                        .id("license_info"),
+                        .href(SiteURL.faq.relativeURL(anchor: "licenses")),
+                        "Why is this package's license unknown?"
+                    )
+                case .none:
+                    return .a(
+                        .id("license_info"),
+                        .href(SiteURL.faq.relativeURL(anchor: "licenses")),
+                        "Why should you not use unlicensed code?"
                     )
             }
         }()
@@ -167,8 +178,7 @@ extension PackageShow.Model {
         return .li(
             .class(licenseClass),
             licenseDescription,
-            licenseLink,
-            whatsThisLink
+            moreInfoLink
         )
     }
 

@@ -47,18 +47,24 @@
             background-image: var(--image-error);
           }
 
-          .compatible_license {
+          .compatible_license,
+          .incompatible_license,
+          .no_license {
             font-weight: 600;
-          }
-
-          .incompatible_license {
-            font-weight: 600;
-            color: var(--lozenge-orange-background);
           }
 
           .no_license {
             font-weight: 600;
             color: var(--lozenge-red-background);
+          }
+
+          #license_link {
+            font-weight: 600;
+          }
+
+          #license_info {
+            display: block;
+            font-size: 11px;
           }
         }
 

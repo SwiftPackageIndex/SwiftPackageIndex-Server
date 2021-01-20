@@ -107,8 +107,8 @@ enum License: String, Codable, Equatable {
             case .unlicense: return "The Unlicense"
             case .zlib: return "zLib"
                 
-            case .other: return "Unknown License"
-            case .none: return "No License"
+            case .other: return "Unknown license"
+            case .none: return "No license"
         }
     }
     
