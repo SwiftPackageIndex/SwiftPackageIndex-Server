@@ -164,18 +164,25 @@ extension Version {
     }
     
     static func diff(local: [Version.ImmutableReference],
-                     incoming: [Version.ImmutableReference]) -> (toAdd: Set<Version.ImmutableReference>, toDelete: Set<Version.ImmutableReference>) {
+                     incoming: [Version.ImmutableReference]) -> (toAdd: Set<Version.ImmutableReference>,
+                                                                 toDelete: Set<Version.ImmutableReference>,
+                                                                 toKeep: Set<Version.ImmutableReference>) {
         let local = Set(local)
         let incoming = Set(incoming)
-        return (toAdd: incoming.subtracting(local), toDelete: local.subtracting(incoming))
+        return (toAdd: incoming.subtracting(local),
+                toDelete: local.subtracting(incoming),
+                toKeep: local.intersection(incoming))
     }
     
-    static func diff(local: [Version], incoming: [Version]) -> (toAdd: [Version], toDelete: [Version]) {
+    static func diff(local: [Version], incoming: [Version]) -> (toAdd: [Version],
+                                                                toDelete: [Version],
+                                                                toKeep: [Version]) {
         let delta = diff(local: local.compactMap(\.immutableReference),
                          incoming: incoming.compactMap(\.immutableReference))
         return (
             toAdd: incoming.filter { $0.immutableReference.map({delta.toAdd.contains($0)}) ?? false },
-            toDelete: local.filter { $0.immutableReference.map({delta.toDelete.contains($0)}) ?? false }
+            toDelete: local.filter { $0.immutableReference.map({delta.toDelete.contains($0)}) ?? false },
+            toKeep: incoming.filter { $0.immutableReference.map({delta.toKeep.contains($0)}) ?? false }
         )
     }
 }

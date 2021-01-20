@@ -330,7 +330,7 @@ func diffVersions(client: Client,
                      threadPool: threadPool,
                      transaction: transaction,
                      package: pkg)
-            .map { (pkg, $0) }
+            .map { (pkg, ($0.toAdd, $0.toDelete)) }
     }
 }
 
@@ -347,7 +347,9 @@ func diffVersions(client: Client,
                   logger: Logger,
                   threadPool: NIOThreadPool,
                   transaction: Database,
-                  package: Package) -> EventLoopFuture<(toAdd: [Version], toDelete: [Version])> {
+                  package: Package) -> EventLoopFuture<(toAdd: [Version],
+                                                        toDelete: [Version],
+                                                        toKeep: [Version])> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return transaction.eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
