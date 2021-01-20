@@ -55,7 +55,6 @@ enum PackageShow {
                     }
                 ),
                 detailsSection(),
-                supportSection(),
                 readmeSection()
             )
         }
@@ -154,29 +153,13 @@ enum PackageShow {
             )
         }
 
-        func supportSection() -> Node<HTML.BodyContext> {
-            .section(
-                .class("support"),
-                .p("The Swift Package Index is open-source, built and maintained by individuals rather than a company, and runs entirely on community donations. Please consider ",
-                   .a(
-                    .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
-                    "supporting this project by sponsoring it"
-                   ),
-                   "."
-                ),
-                .a(
-                    .href("https://github.com/sponsors/SwiftPackageIndex"),
-                    "Support This Project"
-                )
-            )
-        }
-
         func readmeSection() -> Node<HTML.BodyContext> {
             guard let readme = model.readme,
                   let html = try? MarkdownHTMLConverter.html(from: readme)
             else { return .empty }
 
             return .group(
+                .hr(),
                 .article(
                     .class("readme"),
                     .attribute(named: "data-readme-base-url", value: model.readmeBaseUrl),

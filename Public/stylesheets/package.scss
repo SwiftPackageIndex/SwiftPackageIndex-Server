@@ -132,32 +132,6 @@
   }
 }
 
-section.support {
-  display: flex;
-  flex-direction: row;
-  margin: 20px 0;
-  padding: 10px;
-  border: 1px var(--support-text) solid;
-  border-radius: 6px;
-  background-color: var(--support-background);
-
-  p {
-    margin: 0;
-  }
-
-  a {
-    text-align: center;
-    font-weight: 600;
-    color: var(--support-text);
-  }
-}
-
-@media screen and (max-width: $mobile-breakpoint) {
-  section.support {
-    flex-direction: column;
-  }
-}
-
 /* Branches */
 
 .stable,
