@@ -101,46 +101,6 @@
 		"plM": 52780316221407,
 		"prP": 0
 		},
-	"/images/circle_exclamation_mark.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/circle_exclamation_mark.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/circle_exclamation_mark~dark.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/circle_exclamation_mark~dark.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/circle_question_mark.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/circle_question_mark.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/circle_question_mark~dark.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/circle_question_mark~dark.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
 	"/images/clock.svg": {
 		"ft": 2097152,
 		"miP": 0,
@@ -176,6 +136,46 @@
 		"miP": 0,
 		"oA": 0,
 		"oAP": "/deploy/images/compatible~dark.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/images/error.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/error.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/images/error~dark.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/error~dark.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/images/external_link.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/external_link.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/images/external_link~dark.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/external_link~dark.svg",
 		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
@@ -431,6 +431,26 @@
 		"miP": 0,
 		"oA": 0,
 		"oAP": "/deploy/images/unknown~dark.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/images/warning.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/warning.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/images/warning~dark.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/warning~dark.svg",
 		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
@@ -826,7 +846,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 632843219.97636199
+	"lastBuiltDate": 632844520.67385101
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,

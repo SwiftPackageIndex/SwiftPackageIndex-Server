@@ -6,15 +6,16 @@
 
 :root {
   --image-box: url("/images/box.svg");
+  --image-error: url("/images/error.svg");
+  --image-warning: url("/images/warning.svg");
+  --image-external-link: url("/images/external_link.svg");
   --image-stable: url("/images/stable.svg");
   --image-beta: url("/images/beta.svg");
   --image-branch: url("/images/branch.svg");
   --image-compatible: url("/images/compatible.svg");
   --image-unknown: url("/images/unknown.svg");
   --image-incompatible: url("/images/incompatible.svg");
-  --image-circle-exclamation-mark: url("/images/circle_exclamation_mark.svg");
   --image-prompt: url("/images/prompt.svg");
-  --image-circle-question-mark: url("/images/circle_question_mark.svg");
   --image-clock: url("/images/clock.svg");
   --image-github: url("/images/github.svg");
   --image-osi: url("/images/osi.svg");
@@ -28,15 +29,16 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --image-box: url("/images/box~dark.svg");
+    --image-error: url("/images/error~dark.svg");
+    --image-warning: url("/images/warning~dark.svg");
+    --image-external-link: url("/images/external_link~dark.svg");
     --image-stable: url("/images/stable~dark.svg");
     --image-beta: url("/images/beta~dark.svg");
     --image-branch: url("/images/branch~dark.svg");
     --image-compatible: url("/images/compatible~dark.svg");
     --image-unknown: url("/images/unknown~dark.svg");
     --image-incompatible: url("/images/incompatible~dark.svg");
-    --image-circle-exclamation-mark: url("/images/circle_exclamation_mark~dark.svg");
     --image-prompt: url("/images/prompt~dark.svg");
-    --image-circle-question-mark: url("/images/circle_question_mark~dark.svg");
     --image-clock: url("/images/clock~dark.svg");
     --image-github: url("/images/github~dark.svg");
     --image-osi: url("/images/osi~dark.svg");
