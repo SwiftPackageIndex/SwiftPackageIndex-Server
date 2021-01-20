@@ -14,8 +14,8 @@ enum ErrorPage {
         
         
         override func content() -> Node<HTML.BodyContext> {
-            .div(
-                .class("error"),
+            .section(
+                .class("error_message"),
                 .i(
                     .class("icon warning")
                 ),
