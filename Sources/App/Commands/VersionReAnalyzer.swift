@@ -15,16 +15,37 @@ func reAnalyzeVersions(client: Client,
                                      database: database,
                                      logger: logger,
                                      threadPool: threadPool,
+                                     versionsLastUpdatedBefore: cutOffDate,
                                      packages: $0) }
 }
 
 
+/// Re-analyze outdated version for the given list of `Package`s.
+/// - Parameters:
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
+///   - versionsLastUpdatedBefore: `Date` cut-off for versions to update
+///   - packages: packages to be analysed
+/// - Returns: future
 func reAnalyzeVersions(client: Client,
                        database: Database,
                        logger: Logger,
                        threadPool: NIOThreadPool,
+                       versionsLastUpdatedBefore cutOffDate: Date,
                        packages: [Package]) -> EventLoopFuture<Void> {
-    // TODO: implement
+    // Pick essentials parts of comapanion function `analyze`
+    // We don't refresh checkouts, because these are being freshed in `analyze`
+    // and would race unnecessarily if we also tried to refresh them here.
+    //
+    // On that note: care should be taken to ensure `reAnalyzeVersions` operates
+    // on a set of versions that is distinct from those `analyze` updates, to
+    // avoid data races.
+    //
+    // Since `reAnalyzeVersions` only updates existing versions, this will be the
+    // case by design, as `analyze` will only add or remove versions, ignoring
+    // existing ones.
     database.eventLoop.future()
 }
 
