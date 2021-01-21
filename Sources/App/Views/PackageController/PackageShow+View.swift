@@ -156,7 +156,9 @@ enum PackageShow {
             else { return .empty }
 
             return .group(
-                .hr(),
+                .hr(
+                    .class("padded")
+                ),
                 .article(
                     .class("readme"),
                     .attribute(named: "data-readme-base-url", value: model.readmeBaseUrl),

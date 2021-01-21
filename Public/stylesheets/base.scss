@@ -99,6 +99,10 @@ hr {
   border: 0;
   height: 2px;
   background-color: var(--rule-background);
+
+  &.padded {
+    margin: 30px auto;
+  }
 }
 
 section hr {
