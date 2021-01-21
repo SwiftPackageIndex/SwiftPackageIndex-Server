@@ -87,7 +87,6 @@ enum PackageShow {
             .section(
                 .class("main_metadata"),
                 .ul(
-                    .class("icons"),
                     model.authorsListItem(),
                     model.historyListItem(),
                     model.activityListItem(),
@@ -121,7 +120,6 @@ enum PackageShow {
             .section(
                 .class("sidebar_links"),
                 .ul(
-                    .class("icons"),
                     .li(
                         .class("github"),
                         .a(

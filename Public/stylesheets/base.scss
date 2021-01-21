@@ -144,18 +144,3 @@ button:focus {
 .red {
   color: var(--lozenge-red-background);
 }
-
-ul.icons {
-  margin: 10px 0;
-  padding: 0;
-  display: grid;
-  gap: 15px;
-
-  li {
-    padding: 0 0 0 30px;
-    list-style: outside none none;
-    background-size: 18px;
-    background-repeat: no-repeat;
-    background-position: top 2px left;
-  }
-}
