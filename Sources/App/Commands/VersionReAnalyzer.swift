@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 
 
-struct VersionReAnalyzeCommand: Command {
+struct ReAnalyzeVersionsCommand: Command {
     let defaultLimit = 1
 
     struct Signature: CommandSignature {

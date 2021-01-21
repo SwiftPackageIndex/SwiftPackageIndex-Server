@@ -6,7 +6,7 @@ import Vapor
 import XCTest
 
 
-class VersionReAnalyzerTests: AppTestCase {
+class ReAnalyzeVersionsTests: AppTestCase {
 
     func test_reAnalyzeVersions() throws {
         // Basic end-to-end test
