@@ -11,7 +11,7 @@ class VersionReAnalyzerTests: AppTestCase {
     func test_reAnalyzeVersions() throws {
         // Basic end-to-end test
         // setup
-        // - package dump does not include toolsVersion to simulate an "old version"
+        // - package dump does not include toolsVersion, targets to simulate an "old version"
         // - run analysis to create existing version
         // - validate that toolsVersion is nil
         // - prepare package dump to report "5.3" before running MUT
@@ -41,17 +41,20 @@ class VersionReAnalyzerTests: AppTestCase {
                     logger: app.logger,
                     threadPool: app.threadPool,
                     limit: 10).wait()
-        XCTAssertEqual(
-            try Version.query(on: app.db).all().wait().map(\.toolsVersion),
-            [nil]
-        )
+        do {  // assert old state
+            let versions = try Version.query(on: app.db)
+                .with(\.$targets)
+                .all().wait()
+            XCTAssertEqual(versions.map(\.toolsVersion), [nil])
+            XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [[]])
+        }
         // now include toolsVersion "5.3", effectively simulating the situation
         // where we only started parsing it after versions had already been created
         pkgDump = #"""
             {
               "name": "SPI-Server",
               "products": [],
-              "targets": [],
+              "targets": [{"name": "t1"}],
               "toolsVersion": {
                 "_version": "5.3"
               }
@@ -77,11 +80,11 @@ class VersionReAnalyzerTests: AppTestCase {
                               limit: 10).wait()
 
         // validate
-        // ensure tools-version is now updated
-        XCTAssertEqual(
-            try Version.query(on: app.db).all().wait().map(\.toolsVersion),
-            ["5.3"]
-        )
+        let versions = try Version.query(on: app.db)
+            .with(\.$targets)
+            .all().wait()
+        XCTAssertEqual(versions.map(\.toolsVersion), ["5.3"])
+        XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [["t1"]])
     }
 
     func test_Package_fetchReAnalysisCandidates() throws {
