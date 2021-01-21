@@ -145,7 +145,7 @@ func analyze(client: Client,
                 .map { getManifests(logger: logger, packageAndVersions: $0) }
                 .flatMap { updateVersions(on: tx, packageResults: $0) }
                 .flatMap { updateProducts(on: tx, packageResults: $0) }
-                .flatMap { createTargets(on: tx, packageResults: $0) }
+                .flatMap { updateTargets(on: tx, packageResults: $0) }
                 .flatMap { updateLatestVersions(on: tx, packageResults: $0) }
                 .flatMap { onNewVersions(client: client,
                                          logger: logger,
@@ -616,17 +616,22 @@ func createProducts(on database: Database, version: Version, manifest: Manifest)
 }
 
 
-/// Create and persist `Target`s from the `Manifest` data provided in `packageResults`.
+/// Update (delete and re-create) `Target`s from the `Manifest` data provided in `packageResults`.
 /// - Parameters:
 ///   - database: database connection
 ///   - packageResults: results to process
 /// - Returns: the input data for further processing, wrapped in a future
-func createTargets(on database: Database,
+func updateTargets(on database: Database,
                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest in
-                createTargets(on: database, version: version, manifest: manifest)
+                Target.query(on: database)
+                    .filter(\.$version.$id == version.id!)
+                    .delete()
+                    .flatMap {
+                        createTargets(on: database, version: version, manifest: manifest)
+                    }
             },
             on: database.eventLoop
         )

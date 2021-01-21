@@ -94,26 +94,6 @@ func getExistingVersions(client: Client,
 }
 
 
-// TODO: replace createTargets with this
-func updateTargets(on database: Database,
-                   packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
-    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
-        EventLoopFuture.andAllComplete(
-            versionsAndManifests.map { version, manifest in
-                Target.query(on: database)
-                    .filter(\.$version.$id == version.id!)
-                    .delete()
-                    .flatMap {
-                        createTargets(on: database, version: version, manifest: manifest)
-                    }
-            },
-            on: database.eventLoop
-        )
-        .transform(to: (pkg, versionsAndManifests))
-    }
-}
-
-
 extension Package {
     static func fetchReAnalysisCandidates(
         _ database: Database,
