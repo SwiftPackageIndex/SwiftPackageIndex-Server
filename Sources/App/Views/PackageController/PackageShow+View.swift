@@ -61,17 +61,19 @@ enum PackageShow {
         func detailsSection() -> Node<HTML.BodyContext> {
             .article(
                 .class("details"),
-                mainColumn(),
-                sidebarColumn()
-            )
-        }
-        
-        func mainColumn() -> Node<HTML.BodyContext> {
-            .group(
-                // Note: Adding *any* other markup other than the main sections here will break
-                // layout. This is a grid layout, and every element is positioned manually.
-                mainColumnMetadata(),
-                mainColumnCompatibility()
+                .div(
+                    .class("two_column"),
+                    mainColumnMetadata(),
+                    sidebarLinks()
+                ),
+                .hr(
+                    .class("thin")
+                ),
+                .div(
+                    .class("two_column"),
+                    mainColumnCompatibility(),
+                    sidebarVersions()
+                )
             )
         }
 
@@ -93,18 +95,9 @@ enum PackageShow {
         func mainColumnCompatibility() -> Node<HTML.BodyContext> {
             .section(
                 .class("main_compatibility"),
-                .h3("Package Compatibility"),
+                .h3("Compatibility"),
                 model.swiftVersionCompatibilitySection(),
                 model.platformCompatibilitySection()
-            )
-        }
-        
-        func sidebarColumn() -> Node<HTML.BodyContext> {
-            // Note: Adding *any* other markup other than the main sections here will break
-            // layout. This is a grid layout, and every element is positioned manually.
-            .group(
-                sidebarLinks(),
-                sidebarVersions()
             )
         }
 
@@ -131,7 +124,7 @@ enum PackageShow {
                     .li(
                         .a(
                             .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
-                            "Build Compatibility Report"
+                            "Full Package Compatibility Report"
                         )
                     )
                 )

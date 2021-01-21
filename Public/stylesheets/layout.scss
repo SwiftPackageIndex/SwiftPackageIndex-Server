@@ -19,6 +19,13 @@
   text-align: right;
 }
 
+.two_column {
+  display: grid;
+  grid-template-columns: 0.75fr 0.25fr;
+  grid-auto-flow: column;
+  gap: 60px;
+}
+
 @media screen and (max-width: $mobile-breakpoint) {
   .split {
     flex-direction: column;
@@ -28,6 +35,12 @@
       margin-top: 10px;
       margin-left: auto;
     }
+  }
+
+  .two_column {
+    grid-template-columns: 1fr;
+    grid-auto-flow: row;
+    gap: 10px;
   }
 }
 

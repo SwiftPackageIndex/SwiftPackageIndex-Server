@@ -14,24 +14,18 @@
   }
 
   article.details {
-    display: grid;
-    grid-template-columns: [main] 0.75fr [sidebar] 0.25fr;
-    gap: 10px 60px;
-
     h3 {
-      margin-bottom: 15px;
+      margin: 0;
+      padding: 0;
     }
 
     section.main_metadata {
-      grid-column-start: main;
-      grid-row-start: 1;
-
       ul {
+        padding: 0;
+        margin: 10px 0;
+        display: grid;
         grid-template-columns: 0.5fr 0.5fr;
         grid-auto-flow: row;
-        margin: 10px 0;
-        padding: 0;
-        display: grid;
         gap: 15px;
 
         li {
@@ -86,15 +80,7 @@
       }
     }
 
-    section.main_compatibility {
-      grid-column-start: main;
-      grid-row-start: 2;
-    }
-
     section.sidebar_links {
-      grid-column-start: sidebar;
-      grid-row-start: 1;
-
       ul {
         margin: 0;
         padding: 0;
@@ -117,9 +103,6 @@
     }
 
     section.sidebar_versions {
-      grid-column-start: sidebar;
-      grid-row-start: 2;
-
       ul {
         padding: 0;
         list-style: none;
@@ -155,27 +138,32 @@
 
   @media screen and (max-width: $mobile-breakpoint) {
     article.details {
-      display: grid;
-      grid-template-columns: [main] 1fr;
-
       section.main_metadata {
-        grid-column-start: main;
-        grid-row-start: 2;
-      }
+        order: 2;
 
-      section.main_compatibility {
-        grid-column-start: main;
-        grid-row-start: 4;
+        ul {
+          grid-template-columns: 1fr;
+
+          li.history {
+            grid-column-start: 1; // Only needed as this was explicitly specified.
+          }
+
+          li.activity {
+            grid-column-start: 1; // Only needed as this was explicitly specified.
+          }
+        }
       }
 
       section.sidebar_links {
-        grid-column-start: main;
-        grid-row-start: 1;
+        order: 1;
       }
 
-      section.sidebar_releases {
-        grid-column-start: main;
-        grid-row-start: 3;
+      section.main_compatibility {
+        order: 2;
+      }
+
+      section.sidebar_versions {
+        order: 1;
       }
     }
   }
