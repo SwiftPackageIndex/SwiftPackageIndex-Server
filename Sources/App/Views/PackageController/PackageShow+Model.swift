@@ -120,7 +120,7 @@ extension PackageShow.Model {
                 case .compatibleWithAppStore, .incompatibleWithAppStore:
                     return .group(
                         .unwrap(licenseUrl, {
-                            .a(href: $0, .id("license_link"),
+                            .a(href: $0,
                                .attribute(named: "title", value: license.fullName),
                                .text(license.shortName))
                         }),
@@ -128,8 +128,7 @@ extension PackageShow.Model {
                     )
                 case .other:
                     return .unwrap(licenseUrl, {
-                        .a(href: $0, .id("license_link"),
-                           .text(license.shortName))
+                        .a(href: $0, .text(license.shortName))
                     })
                 case .none:
                     return .span(
@@ -156,19 +155,19 @@ extension PackageShow.Model {
                     return .empty
                 case .incompatibleWithAppStore:
                     return .a(
-                        .id("license_info"),
+                        .id("license_more_info"),
                         .href(SiteURL.faq.relativeURL(anchor: "licenses")),
                         "Why might the \(license.shortName) be problematic?"
                     )
                 case .other:
                     return .a(
-                        .id("license_info"),
+                        .id("license_more_info"),
                         .href(SiteURL.faq.relativeURL(anchor: "licenses")),
                         "Why is this package's license unknown?"
                     )
                 case .none:
                     return .a(
-                        .id("license_info"),
+                        .id("license_more_info"),
                         .href(SiteURL.faq.relativeURL(anchor: "licenses")),
                         "Why should you not use unlicensed code?"
                     )
