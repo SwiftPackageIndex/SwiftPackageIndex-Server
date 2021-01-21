@@ -103,6 +103,12 @@ hr {
   &.padded {
     margin: 30px auto;
   }
+
+  &.thin {
+    height: 1px;
+    margin: 20px auto;
+    background-color: var(--rule-thin-background);
+  }
 }
 
 section hr {
