@@ -18,8 +18,8 @@ class VersionReAnalyzerTests: AppTestCase {
         // - run analysis again to confirm "blindness"
         // - run re-analysis and confirm changes are now reflected
         let pkg = try savePackage(on: app.db,
-                                   "https://github.com/foo/1".url,
-                                   processingStage: .ingestion)
+                                  "https://github.com/foo/1".url,
+                                  processingStage: .ingestion)
         let repoId = UUID()
         try Repository(id: repoId,
                        package: pkg,
@@ -110,8 +110,8 @@ class VersionReAnalyzerTests: AppTestCase {
     func test_Package_fetchReAnalysisCandidates() throws {
         // Three packages with two versions:
         // 1) both versions updated before cutoff -> candidate
-        // 2) one versino update before cutoff, one after -> candidate
-        // 3) both version updated after cutoff -> no candidate
+        // 2) one version update before cutoff, one after -> candidate
+        // 3) both version updated after cutoff -> not a candidate
         let cutoff = Date(timeIntervalSince1970: 2)
         do {
             let p = Package(url: "1")
