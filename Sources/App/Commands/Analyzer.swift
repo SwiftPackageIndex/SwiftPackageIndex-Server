@@ -144,7 +144,7 @@ func analyze(client: Client,
                 .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
                 .map { getManifests(logger: logger, packageAndVersions: $0) }
                 .flatMap { updateVersions(on: tx, packageResults: $0) }
-                .flatMap { createProducts(on: tx, packageResults: $0) }
+                .flatMap { updateProducts(on: tx, packageResults: $0) }
                 .flatMap { createTargets(on: tx, packageResults: $0) }
                 .flatMap { updateLatestVersions(on: tx, packageResults: $0) }
                 .flatMap { onNewVersions(client: client,
@@ -335,14 +335,14 @@ func diffVersions(client: Client,
 }
 
 
-/// Find new and outdated versions for a given `Package`, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
+/// Find new, outdated, and unchanged versions for a given `Package`, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
 /// - Parameters:
 ///   - client: `Client` object (for Rollbar error reporting)
 ///   - logger: `Logger` object
 ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
 ///   - transaction: database transaction
 ///   - package: `Package` to reconcile
-/// - Returns: future with array of pair of new and outdated `Version`s
+/// - Returns: future with array of pair of new, outdated, and unchanged `Version`s
 func diffVersions(client: Client,
                   logger: Logger,
                   threadPool: NIOThreadPool,
@@ -573,17 +573,22 @@ func updateVersion(on database: Database, version: Version, manifest: Manifest) 
 }
 
 
-/// Create and persist `Product`s from the `Manifest` data provided in `packageResults`.
+/// Update (delete and re-create) `Product`s from the `Manifest` data provided in `packageResults`.
 /// - Parameters:
 ///   - database: database connection
 ///   - packageResults: results to process
 /// - Returns: the input data for further processing, wrapped in a future
-func createProducts(on database: Database,
+func updateProducts(on database: Database,
                     packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest in
-                createProducts(on: database, version: version, manifest: manifest)
+                Product.query(on: database)
+                    .filter(\.$version.$id == version.id!)
+                    .delete()
+                    .flatMap {
+                        createProducts(on: database, version: version, manifest: manifest)
+                    }
             },
             on: database.eventLoop
         )

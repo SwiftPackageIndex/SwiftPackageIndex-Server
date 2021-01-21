@@ -64,7 +64,7 @@ func reAnalyzeVersions(client: Client,
                             threadPool: threadPool,
                             transaction: tx,
                             packages: packages)
-            // FIXME: this should be part of it
+            // TODO: this should be part of it
             //  .flatMap { mergeReleaseInfo(on: tx, packageDeltas: $0) }
             .map { getManifests(logger: logger, packageAndVersions: $0) }
             .flatMap { updateVersions(on: tx, packageResults: $0) }
@@ -91,26 +91,6 @@ func getExistingVersions(client: Client,
         },
         on: transaction.eventLoop
     )
-}
-
-
-// TODO: replace createProduct with this
-func updateProducts(on database: Database,
-                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
-    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
-        EventLoopFuture.andAllComplete(
-            versionsAndManifests.map { version, manifest in
-                Product.query(on: database)
-                    .filter(\.$version.$id == version.id!)
-                    .delete()
-                    .flatMap {
-                        createProducts(on: database, version: version, manifest: manifest)
-                    }
-            },
-            on: database.eventLoop
-        )
-        .transform(to: (pkg, versionsAndManifests))
-    }
 }
 
 
