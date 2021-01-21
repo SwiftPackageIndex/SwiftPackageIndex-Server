@@ -151,6 +151,7 @@ func reAnalyzeVersions(client: Client,
                             transaction: tx,
                             packages: packages,
                             before: cutoffDate)
+            .flatMap { setUpdatedAt(on: tx, packageVersions: $0) }
             .flatMap { mergeReleaseInfo(on: tx, packageVersions: $0) }
             .map { getManifests(logger: logger, packageAndVersions: $0) }
             .flatMap { updateVersions(on: tx, packageResults: $0) }
@@ -186,6 +187,20 @@ func getExistingVersions(client: Client,
         },
         on: transaction.eventLoop
     )
+}
+
+
+func setUpdatedAt(on database: Database,
+                  packageVersions: [Result<(Package, [Version]), Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+    packageVersions.whenAllComplete(on: database.eventLoop) { pkg, versions in
+        versions
+            .map { version -> Version in
+                version.updatedAt = Current.date()
+                return version
+            }
+            .save(on: database)
+            .map { (pkg, versions) }
+    }
 }
 
 

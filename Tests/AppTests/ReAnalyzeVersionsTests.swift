@@ -95,7 +95,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                               database: app.db,
                               logger: app.logger,
                               threadPool: app.threadPool,
-                              before: Date(),
+                              before: Current.date(),
                               limit: 10).wait()
 
         // validate that re-analysis has now updated existing versions
@@ -140,6 +140,54 @@ class ReAnalyzeVersionsTests: AppTestCase {
         XCTAssertEqual(res.map(\.url), ["1", "2"])
     }
 
+    func test_versionsUpdatedOnError() throws {
+        // Test to ensure versions are updated even if processing throws errors.
+        // This is to ensure our candidate selection shrinks and we don't
+        // churn over and over on failing versions.
+        let cutoff = Date(timeIntervalSince1970: 1)
+        Current.date = { Date(timeIntervalSince1970: 2) }
+        let pkg = try savePackage(on: app.db,
+                                  "https://github.com/foo/1".url,
+                                  processingStage: .ingestion)
+        try Repository(package: pkg,
+                       defaultBranch: "main").save(on: app.db).wait()
+        Current.shell.run = { cmd, path in
+            if cmd.string.hasSuffix("swift package dump-package") {
+                // causing error to be thrown during package dump
+                return "bad dump"
+            }
+            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
+            if cmd.string == "git rev-list --count HEAD" { return "12" }
+            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
+            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+            return ""
+        }
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
+        try setAllVersionsUpdatedAt(app.db, updatedAt: 0)
+        do {
+            let candidates = try Package
+                .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).wait()
+            XCTAssertEqual(candidates.count, 1)
+        }
+
+        // MUT
+        try reAnalyzeVersions(client: app.client,
+                              database: app.db,
+                              logger: app.logger,
+                              threadPool: app.threadPool,
+                              before: Current.date(),
+                              limit: 10).wait()
+
+        // validate
+        let candidates = try Package
+            .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).wait()
+        XCTAssertEqual(candidates.count, 0)
+    }
+
 }
 
 
@@ -148,10 +196,27 @@ private func createVersion(_ db: Database,
                            updatedAt: Int) throws {
     let id = UUID()
     try Version(id: id, package: package).save(on: db).wait()
+    try setUpdatedAt(db, versionId: id, updatedAt: updatedAt)
+}
+
+
+private func setUpdatedAt(_ db: Database,
+                          versionId: Version.Id,
+                          updatedAt: Int) throws {
     let db = db as! SQLDatabase
     try db.raw("""
         update versions set updated_at = to_timestamp(\(bind: updatedAt))
-        where id = \(bind: id)
+        where id = \(bind: versionId)
+        """)
+        .run()
+        .wait()
+}
+
+
+private func setAllVersionsUpdatedAt(_ db: Database, updatedAt: Int) throws {
+    let db = db as! SQLDatabase
+    try db.raw("""
+        update versions set updated_at = to_timestamp(\(bind: updatedAt))
         """)
         .run()
         .wait()
