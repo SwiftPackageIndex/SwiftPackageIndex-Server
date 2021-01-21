@@ -52,6 +52,8 @@ struct ReAnalyzeVersionsCommand: Command {
                             logger: logger,
                             jobName: "re-analyze-versions")
             .wait()
+
+        logger.info("done.")
     }
 }
 
@@ -176,6 +178,10 @@ func getExistingVersions(client: Client,
                     (pkg, $0.toKeep.filter {
                         $0.updatedAt != nil && $0.updatedAt! < cutoffDate
                     })
+                }
+                .map { pkg, versions in
+                    logger.info("updating \(versions.count) versions (id: \(pkg.id)) ...")
+                    return (pkg, versions)
                 }
         },
         on: transaction.eventLoop
