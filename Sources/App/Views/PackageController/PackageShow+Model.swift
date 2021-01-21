@@ -261,24 +261,22 @@ extension PackageShow.Model {
     }
 
     func librariesListItem() -> Node<HTML.ListContext> {
-        guard let products = products,
-              products.libraries > 0
+        guard let products = products
         else { return .empty }
 
         return .li(
             .class("libraries"),
-            .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries"))
+            .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries", capitalized: true))
         )
     }
 
     func executablesListItem() -> Node<HTML.ListContext> {
-        guard let products = products,
-              products.executables > 0
+        guard let products = products
         else { return .empty }
 
         return .li(
             .class("executables"),
-            .text(pluralizedCount(products.executables, singular: "executable"))
+            .text(pluralizedCount(products.executables, singular: "executable", capitalized: true))
         )
     }
 
