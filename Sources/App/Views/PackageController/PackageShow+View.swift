@@ -46,7 +46,6 @@ enum PackageShow {
                         .text(model.url)
                     )
                 ),
-                arenaButton(),
                 .hr(),
                 .p(
                     .class("summary"),
@@ -56,13 +55,6 @@ enum PackageShow {
                 ),
                 detailsSection(),
                 readmeSection()
-            )
-        }
-
-        func arenaButton() -> Node<HTML.BodyContext> {
-            let environment = (try? Environment.detect()) ?? .development
-            return .if(environment != .production,
-                       .a(.href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"), "🏟")
             )
         }
 
@@ -117,9 +109,18 @@ enum PackageShow {
         }
 
         func sidebarLinks() -> Node<HTML.BodyContext> {
-            .section(
+            let environment = (try? Environment.detect()) ?? .development
+            return .section(
                 .class("sidebar_links"),
                 .ul(
+                    .if(environment == .development,
+                        .li(
+                            .a(
+                                .href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
+                                "Try in a Playground"
+                            )
+                        )
+                    ),
                     .li(
                         .a(
                             .href(model.url),
