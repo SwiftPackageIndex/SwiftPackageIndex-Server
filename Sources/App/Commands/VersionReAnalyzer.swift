@@ -24,8 +24,10 @@ struct ReAnalyzeVersionsCommand: Command {
         let logger = Logger(component: "re-analyze-versions")
         let threadPool = context.application.threadPool
 
-        // TODO: use env variable
-        let cutoffDate = signature.before!
+        guard let cutoffDate = signature.before ?? Current.reAnalyzeVersionsBeforeDate() else {
+            logger.info("No cut-off date set, skipping re-analysis")
+            return
+        }
 
         if let id = signature.id {
             logger.info("Re-analyzing versions (id: \(id)) ...")
@@ -64,9 +66,13 @@ extension Date: LosslessStringConvertible {
         return formatter
     }()
 
-    public init?(_ string: String) {
-        guard let date = Self.ymd.date(from: string) else { return nil }
+    public init?(yyyyMMdd: String) {
+        guard let date = Self.ymd.date(from: yyyyMMdd) else { return nil }
         self = date
+    }
+
+    public init?(_ string: String) {
+        self.init(yyyyMMdd: string)
     }
 }
 
