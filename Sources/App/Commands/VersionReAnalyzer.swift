@@ -64,8 +64,7 @@ func reAnalyzeVersions(client: Client,
                             threadPool: threadPool,
                             transaction: tx,
                             packages: packages)
-            // TODO: this should be part of it
-            //  .flatMap { mergeReleaseInfo(on: tx, packageDeltas: $0) }
+            .flatMap { mergeReleaseInfo(on: tx, packageVersions: $0) }
             .map { getManifests(logger: logger, packageAndVersions: $0) }
             .flatMap { updateVersions(on: tx, packageResults: $0) }
             .flatMap { updateProducts(on: tx, packageResults: $0) }
@@ -91,6 +90,20 @@ func getExistingVersions(client: Client,
         },
         on: transaction.eventLoop
     )
+}
+
+
+/// Merge release details from `Repository.releases` into the list of existing `Version`s.
+/// - Parameters:
+///   - transaction: transaction to run the save and delete in
+///   - packageVersions: tuples containing the `Package` and its existing `Version`s
+/// - Returns: future with an array of each `Package` paired with its existing `Version`s for further processing
+func mergeReleaseInfo(on transaction: Database,
+                      packageVersions: [Result<(Package, [Version]), Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+    packageVersions.whenAllComplete(on: transaction.eventLoop) { pkg, versions in
+        mergeReleaseInfo(on: transaction, package: pkg, versions: versions)
+            .map { (pkg, $0) }
+    }
 }
 
 
