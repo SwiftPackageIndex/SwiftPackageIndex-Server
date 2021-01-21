@@ -10,6 +10,8 @@ struct ReAnalyzeVersionsCommand: Command {
         var limit: Int?
         @Option(name: "id")
         var id: UUID?
+        @Option(name: "before")
+        var before: Date?
     }
 
     var help: String { "Run version re-analysis" }
@@ -23,7 +25,7 @@ struct ReAnalyzeVersionsCommand: Command {
         let threadPool = context.application.threadPool
 
         // TODO: use env variable
-        let cutoffDate = Current.date()
+        let cutoffDate = signature.before!
 
         if let id = signature.id {
             logger.info("Re-analyzing versions (id: \(id)) ...")
@@ -40,7 +42,7 @@ struct ReAnalyzeVersionsCommand: Command {
                                   database: db,
                                   logger: logger,
                                   threadPool: threadPool,
-                                  versionsLastUpdatedBefore: cutoffDate,
+                                  before: cutoffDate,
                                   limit: limit)
                 .wait()
         }
@@ -48,6 +50,23 @@ struct ReAnalyzeVersionsCommand: Command {
                             logger: logger,
                             jobName: "re-analyze-versions")
             .wait()
+    }
+}
+
+
+// Conformance required by @Option command line argument conversion
+extension Date: LosslessStringConvertible {
+    private static let ymd: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.calendar = Calendar(identifier: .iso8601)
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter
+    }()
+
+    public init?(_ string: String) {
+        guard let date = Self.ymd.date(from: string) else { return nil }
+        self = date
     }
 }
 
@@ -77,7 +96,7 @@ func reAnalyzeVersions(client: Client,
                                      database: database,
                                      logger: logger,
                                      threadPool: threadPool,
-                                     versionsLastUpdatedBefore: cutOffDate,
+                                     before: cutOffDate,
                                      packages: $0) }
 }
 
@@ -95,16 +114,16 @@ func reAnalyzeVersions(client: Client,
                        database: Database,
                        logger: Logger,
                        threadPool: NIOThreadPool,
-                       versionsLastUpdatedBefore cutOffDate: Date,
+                       before cutOffDate: Date,
                        limit: Int) -> EventLoopFuture<Void> {
     Package.fetchReAnalysisCandidates(database,
-                                      versionsLastUpdatedBefore: cutOffDate,
+                                      before: cutOffDate,
                                       limit: limit)
         .flatMap { reAnalyzeVersions(client: client,
                                      database: database,
                                      logger: logger,
                                      threadPool: threadPool,
-                                     versionsLastUpdatedBefore: cutOffDate,
+                                     before: cutOffDate,
                                      packages: $0) }
 }
 
@@ -122,7 +141,7 @@ func reAnalyzeVersions(client: Client,
                        database: Database,
                        logger: Logger,
                        threadPool: NIOThreadPool,
-                       versionsLastUpdatedBefore cutOffDate: Date,
+                       before cutoffDate: Date,
                        packages: [Package]) -> EventLoopFuture<Void> {
     // Pick essentials parts of companion function `analyze` and run the for
     // re-analysis.
@@ -143,7 +162,8 @@ func reAnalyzeVersions(client: Client,
                             logger: logger,
                             threadPool: threadPool,
                             transaction: tx,
-                            packages: packages)
+                            packages: packages,
+                            before: cutoffDate)
             .flatMap { mergeReleaseInfo(on: tx, packageVersions: $0) }
             .map { getManifests(logger: logger, packageAndVersions: $0) }
             .flatMap { updateVersions(on: tx, packageResults: $0) }
@@ -158,7 +178,8 @@ func getExistingVersions(client: Client,
                          logger: Logger,
                          threadPool: NIOThreadPool,
                          transaction: Database,
-                         packages: [Package]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+                         packages: [Package],
+                         before cutoffDate: Date) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
     EventLoopFuture.whenAllComplete(
         packages.map { pkg in
             diffVersions(client: client,
@@ -166,8 +187,11 @@ func getExistingVersions(client: Client,
                          threadPool: threadPool,
                          transaction: transaction,
                          package: pkg)
-                .map { (pkg, $0.toKeep) }
-            // TODO: filter out versions where updatedAt >= cutoffDate?
+                .map {
+                    (pkg, $0.toKeep.filter {
+                        $0.updatedAt != nil && $0.updatedAt! < cutoffDate
+                    })
+                }
         },
         on: transaction.eventLoop
     )
@@ -191,7 +215,7 @@ func mergeReleaseInfo(on transaction: Database,
 extension Package {
     static func fetchReAnalysisCandidates(
         _ database: Database,
-        versionsLastUpdatedBefore cutOffDate: Date,
+        before cutOffDate: Date,
         limit: Int) -> EventLoopFuture<[Package]> {
         Package.query(on: database)
             .with(\.$repositories)

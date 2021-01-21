@@ -95,7 +95,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                               database: app.db,
                               logger: app.logger,
                               threadPool: app.threadPool,
-                              versionsLastUpdatedBefore: Date(),
+                              before: Date(),
                               limit: 10).wait()
 
         // validate that re-analysis has now updated existing versions
@@ -134,9 +134,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
 
         // MUT
         let res = try Package
-            .fetchReAnalysisCandidates(app.db,
-                                       versionsLastUpdatedBefore: cutoff,
-                                       limit: 10).wait()
+            .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).wait()
 
         // validate
         XCTAssertEqual(res.map(\.url), ["1", "2"])
