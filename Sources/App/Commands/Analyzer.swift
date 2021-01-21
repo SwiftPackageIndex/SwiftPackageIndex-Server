@@ -50,7 +50,10 @@ struct AnalyzeCommand: Command {
 
 /// Analyse a given `Package`, identified by its `Id`.
 /// - Parameters:
-///   - application: `Application` object for database, client, and logger access
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
 ///   - id: package id
 /// - Returns: future
 func analyze(client: Client,

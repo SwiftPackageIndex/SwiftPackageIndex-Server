@@ -2,6 +2,86 @@ import Vapor
 import Fluent
 
 
+struct VersionReAnalyzeCommand: Command {
+    let defaultLimit = 1
+
+    struct Signature: CommandSignature {
+        @Option(name: "limit", short: "l")
+        var limit: Int?
+        @Option(name: "id")
+        var id: UUID?
+    }
+
+    var help: String { "Run version re-analysis" }
+
+    func run(using context: CommandContext, signature: Signature) throws {
+        let limit = signature.limit ?? defaultLimit
+
+        let client = context.application.client
+        let db = context.application.db
+        let logger = Logger(component: "re-analyze-versions")
+        let threadPool = context.application.threadPool
+
+        // TODO: use env variable
+        let cutoffDate = Current.date()
+
+        if let id = signature.id {
+            logger.info("Re-analyzing versions (id: \(id)) ...")
+            try reAnalyzeVersions(client: client,
+                                  database: db,
+                                  logger: logger,
+                                  threadPool: threadPool,
+                                  versionsLastUpdatedBefore: cutoffDate,
+                                  id: id)
+                .wait()
+        } else {
+            logger.info("Re-analyzing versions (limit: \(limit)) ...")
+            try reAnalyzeVersions(client: client,
+                                  database: db,
+                                  logger: logger,
+                                  threadPool: threadPool,
+                                  versionsLastUpdatedBefore: cutoffDate,
+                                  limit: limit)
+                .wait()
+        }
+        try AppMetrics.push(client: client,
+                            logger: logger,
+                            jobName: "re-analyze-versions")
+            .wait()
+    }
+}
+
+
+/// Re-analyze outdated versions for a given `Package`, identified by its `Id`.
+/// - Parameters:
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
+///   - versionsLastUpdatedBefore: `Date` cut-off for versions to update
+///   - packages: packages to be analysed
+/// - Returns: future
+func reAnalyzeVersions(client: Client,
+                       database: Database,
+                       logger: Logger,
+                       threadPool: NIOThreadPool,
+                       versionsLastUpdatedBefore cutOffDate: Date,
+                       id: Package.Id) -> EventLoopFuture<Void> {
+    Package.query(on: database)
+        .with(\.$repositories)
+        .filter(\.$id == id)
+        .first()
+        .unwrap(or: Abort(.notFound))
+        .map { [$0] }
+        .flatMap { reAnalyzeVersions(client: client,
+                                     database: database,
+                                     logger: logger,
+                                     threadPool: threadPool,
+                                     versionsLastUpdatedBefore: cutOffDate,
+                                     packages: $0) }
+}
+
+
 /// Re-analyze outdated versions.
 /// - Parameters:
 ///   - client: `Client` object
@@ -87,6 +167,7 @@ func getExistingVersions(client: Client,
                          transaction: transaction,
                          package: pkg)
                 .map { (pkg, $0.toKeep) }
+            // TODO: filter out versions where updatedAt >= cutoffDate?
         },
         on: transaction.eventLoop
     )
