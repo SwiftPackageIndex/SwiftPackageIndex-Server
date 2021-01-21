@@ -121,7 +121,6 @@ enum PackageShow {
                 .class("sidebar_links"),
                 .ul(
                     .li(
-                        .class("github"),
                         .a(
                             .href(model.url),
                             // TODO: Make "GitHub" dynamic.
@@ -129,10 +128,9 @@ enum PackageShow {
                         )
                     ),
                     .li(
-                        .class("compatibility"),
                         .a(
                             .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
-                            "Full Compatibility Report"
+                            "Build Compatibility Report"
                         )
                     )
                 )

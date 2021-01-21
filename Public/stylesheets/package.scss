@@ -96,6 +96,23 @@
       grid-row-start: 1;
 
       ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 5px;
+
+        li > a {
+          display: block;
+          padding: 5px;
+          padding-left: 10px;
+          border-left: 3px var(--light-grey) solid;
+          background-color: var(--very-very-light-grey);
+
+          &:hover {
+            background-color: var(--very-light-grey);
+          }
+        }
       }
     }
 
