@@ -583,9 +583,7 @@ func updateProducts(on database: Database,
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest in
-                Product.query(on: database)
-                    .filter(\.$version.$id == version.id!)
-                    .delete()
+                deleteProducts(on: database, version: version)
                     .flatMap {
                         createProducts(on: database, version: version, manifest: manifest)
                     }
@@ -597,6 +595,21 @@ func updateProducts(on database: Database,
 }
 
 
+/// Delete `Product`s for a given `versionId`.
+/// - Parameters:
+///   - database: database connection
+///   - version: parent model object
+/// - Returns: future
+func deleteProducts(on database: Database, version: Version) -> EventLoopFuture<Void> {
+    guard let versionId = version.id else {
+        return database.eventLoop.future()
+    }
+    return Product.query(on: database)
+        .filter(\.$version.$id == versionId)
+        .delete()
+}
+
+
 /// Create and persist `Product`s for a given `Version` according to the given `Manifest`.
 /// - Parameters:
 ///   - database: `Database` object
@@ -604,15 +617,13 @@ func updateProducts(on database: Database,
 ///   - manifest: `Manifest` data
 /// - Returns: future
 func createProducts(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
-    let products = manifest.products.compactMap { manifestProduct -> Product? in
-        // Using `try?` here because the only way this could error is version.id being nil
-        // - that should never happen and even in the pathological case we can skip the product
-        return try? Product(version: version,
-                            type: .init(manifestProductType: manifestProduct.type),
-                            name: manifestProduct.name,
-                            targets: manifestProduct.targets)
+    manifest.products.compactMap { manifestProduct in
+        try? Product(version: version,
+                     type: .init(manifestProductType: manifestProduct.type),
+                     name: manifestProduct.name,
+                     targets: manifestProduct.targets)
     }
-    return products.create(on: database)
+    .create(on: database)
 }
 
 
@@ -626,9 +637,7 @@ func updateTargets(on database: Database,
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest in
-                Target.query(on: database)
-                    .filter(\.$version.$id == version.id!)
-                    .delete()
+                deleteTargets(on: database, version: version)
                     .flatMap {
                         createTargets(on: database, version: version, manifest: manifest)
                     }
@@ -640,6 +649,21 @@ func updateTargets(on database: Database,
 }
 
 
+/// Delete `Target`s for a given `versionId`.
+/// - Parameters:
+///   - database: database connection
+///   - version: parent model object
+/// - Returns: future
+func deleteTargets(on database: Database, version: Version) -> EventLoopFuture<Void> {
+    guard let versionId = version.id else {
+        return database.eventLoop.future()
+    }
+    return Target.query(on: database)
+        .filter(\.$version.$id == versionId)
+        .delete()
+}
+
+
 /// Create and persist `Target`s for a given `Version` according to the given `Manifest`.
 /// - Parameters:
 ///   - database: `Database` object
@@ -647,13 +671,10 @@ func updateTargets(on database: Database,
 ///   - manifest: `Manifest` data
 /// - Returns: future
 func createTargets(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
-    let targets = manifest.targets.compactMap { manifestTarget -> Target? in
-        // Using `try?` here because the only way this could error is version.id being nil
-        // - that should never happen and even in the pathological case we can skip the product
-        return try? Target(version: version,
-                           name: manifestTarget.name)
+    manifest.targets.compactMap { manifestTarget in
+        try? Target(version: version, name: manifestTarget.name)
     }
-    return targets.create(on: database)
+    .create(on: database)
 }
 
 
