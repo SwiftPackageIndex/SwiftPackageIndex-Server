@@ -119,6 +119,7 @@ ul.matrix {
 
     .pending,
     .unknown {
+      background-size: 11px;
       background-color: var(--matrix-result-unknown-background);
       background-image: var(--image-unknown);
     }
