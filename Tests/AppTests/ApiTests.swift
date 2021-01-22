@@ -1,5 +1,6 @@
 @testable import App
 
+import SnapshotTesting
 import XCTVapor
 
 
@@ -511,19 +512,10 @@ class ApiTests: AppTestCase {
                          headers: .init([("Content-Type", "application/json")]),
                          body: body,
                          afterResponse: { res in
-                // validation
-                XCTAssertEqual(res.status, .ok)
-                XCTAssertEqual(
-                    try res.content.decode(PackageCollection.self),
-                    PackageCollection.init(name: "my collection",
-                                           overview: "my overview",
-                                           keywords: ["a", "b"],
-                                           packages: [],
-                                           formatVersion: .v1_0,
-                                           revision: 3,
-                                           generatedAt: refDate,
-                                           generatedBy: .init(name: "author"))
-                )
+                            // validation
+                            XCTAssertEqual(res.status, .ok)
+                            let pkgColl = try res.content.decode(PackageCollection.self)
+                            assertSnapshot(matching: pkgColl, as: .dump, record: true)
             })
         }
     }
