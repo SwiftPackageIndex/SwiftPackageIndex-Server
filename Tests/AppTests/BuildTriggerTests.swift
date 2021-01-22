@@ -80,7 +80,9 @@ class BuildTriggerTests: AppTestCase {
         let res = try findMissingBuilds(app.db, packageId: pkgId).wait()
         let droppedPlatform = try XCTUnwrap(Build.Platform.allActive.first)
         let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
-        XCTAssertEqual(res, [.init(versionId, expectedPairs)])
+        XCTAssertEqual(res, [.init(versionId: versionId,
+                                   pairs: expectedPairs,
+                                   packageId: pkgId)])
     }
 
     func test_triggerBuildsUnchecked() throws {
@@ -105,7 +107,8 @@ class BuildTriggerTests: AppTestCase {
             let v = try Version(id: versionId, package: p, latest: .defaultBranch, reference: .branch("main"))
             try v.save(on: app.db).wait()
         }
-        let triggers = [BuildTriggerInfo(versionId, [BuildPair(.ios, .v4_2)])]
+        let triggers = [BuildTriggerInfo(versionId: versionId,
+                                         pairs: [BuildPair(.ios, .v4_2)])]
 
         // MUT
         try triggerBuildsUnchecked(on: app.db,
