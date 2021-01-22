@@ -162,7 +162,7 @@ func triggerBuildsUnchecked(on database: Database,
                             logger: Logger,
                             triggers: [BuildTriggerInfo]) -> EventLoopFuture<Void> {
     triggers.flatMap { trigger -> [EventLoopFuture<Void>] in
-        logger.info("Triggering \(trigger.pairs.count) builds for package id: \(trigger.packageId), ref: \(trigger.reference)")
+        logger.info("Triggering \(trigger.pairs.count) builds for package name: \(trigger.packageName), ref: \(trigger.reference), id: \(trigger.packageId)")
         return trigger.pairs.map { pair in
             AppMetrics.buildTriggerTotal?.inc(1, .init(pair.platform, pair.swiftVersion))
             return Build.trigger(database: database,
@@ -242,15 +242,18 @@ struct BuildTriggerInfo: Equatable {
     var pairs: Set<BuildPair>
     // non-essential fields, used for logging
     var packageId: Package.Id?
+    var packageName: String?
     var reference: Reference?
 
     init(versionId: Version.Id,
          pairs: Set<BuildPair>,
          packageId: Package.Id? = nil,
+         packageName: String? = nil,
          reference: Reference? = nil) {
         self.versionId = versionId
         self.pairs = pairs
         self.packageId = packageId
+        self.packageName = packageName
         self.reference = reference
     }
 }
@@ -271,6 +274,7 @@ func findMissingBuilds(_ database: Database,
         return BuildTriggerInfo(versionId: versionId,
                                 pairs: pairs,
                                 packageId: packageId,
+                                packageName: v.packageName,
                                 reference: v.reference)
     }
 }
