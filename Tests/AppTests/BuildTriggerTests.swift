@@ -81,8 +81,7 @@ class BuildTriggerTests: AppTestCase {
         let droppedPlatform = try XCTUnwrap(Build.Platform.allActive.first)
         let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
         XCTAssertEqual(res, [.init(versionId: versionId,
-                                   pairs: expectedPairs,
-                                   packageId: pkgId)])
+                                   pairs: expectedPairs)])
     }
 
     func test_triggerBuildsUnchecked() throws {
