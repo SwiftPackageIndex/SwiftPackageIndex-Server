@@ -50,7 +50,10 @@ struct AnalyzeCommand: Command {
 
 /// Analyse a given `Package`, identified by its `Id`.
 /// - Parameters:
-///   - application: `Application` object for database, client, and logger access
+///   - client: `Client` object
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running shell commands)
 ///   - id: package id
 /// - Returns: future
 func analyze(client: Client,
@@ -144,8 +147,8 @@ func analyze(client: Client,
                 .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
                 .map { getManifests(logger: logger, packageAndVersions: $0) }
                 .flatMap { updateVersions(on: tx, packageResults: $0) }
-                .flatMap { createProducts(on: tx, packageResults: $0) }
-                .flatMap { createTargets(on: tx, packageResults: $0) }
+                .flatMap { updateProducts(on: tx, packageResults: $0) }
+                .flatMap { updateTargets(on: tx, packageResults: $0) }
                 .flatMap { updateLatestVersions(on: tx, packageResults: $0) }
                 .flatMap { onNewVersions(client: client,
                                          logger: logger,
@@ -330,24 +333,26 @@ func diffVersions(client: Client,
                      threadPool: threadPool,
                      transaction: transaction,
                      package: pkg)
-            .map { (pkg, $0) }
+            .map { (pkg, ($0.toAdd, $0.toDelete)) }
     }
 }
 
 
-/// Find new and outdated versions for a given `Package`, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
+/// Find new, outdated, and unchanged versions for a given `Package`, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
 /// - Parameters:
 ///   - client: `Client` object (for Rollbar error reporting)
 ///   - logger: `Logger` object
 ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
 ///   - transaction: database transaction
 ///   - package: `Package` to reconcile
-/// - Returns: future with array of pair of new and outdated `Version`s
+/// - Returns: future with array of pair of new, outdated, and unchanged `Version`s
 func diffVersions(client: Client,
                   logger: Logger,
                   threadPool: NIOThreadPool,
                   transaction: Database,
-                  package: Package) -> EventLoopFuture<(toAdd: [Version], toDelete: [Version])> {
+                  package: Package) -> EventLoopFuture<(toAdd: [Version],
+                                                        toDelete: [Version],
+                                                        toKeep: [Version])> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return transaction.eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
@@ -571,22 +576,40 @@ func updateVersion(on database: Database, version: Version, manifest: Manifest) 
 }
 
 
-/// Create and persist `Product`s from the `Manifest` data provided in `packageResults`.
+/// Update (delete and re-create) `Product`s from the `Manifest` data provided in `packageResults`.
 /// - Parameters:
 ///   - database: database connection
 ///   - packageResults: results to process
 /// - Returns: the input data for further processing, wrapped in a future
-func createProducts(on database: Database,
+func updateProducts(on database: Database,
                     packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest in
-                createProducts(on: database, version: version, manifest: manifest)
+                deleteProducts(on: database, version: version)
+                    .flatMap {
+                        createProducts(on: database, version: version, manifest: manifest)
+                    }
             },
             on: database.eventLoop
         )
         .transform(to: (pkg, versionsAndManifests))
     }
+}
+
+
+/// Delete `Product`s for a given `versionId`.
+/// - Parameters:
+///   - database: database connection
+///   - version: parent model object
+/// - Returns: future
+func deleteProducts(on database: Database, version: Version) -> EventLoopFuture<Void> {
+    guard let versionId = version.id else {
+        return database.eventLoop.future()
+    }
+    return Product.query(on: database)
+        .filter(\.$version.$id == versionId)
+        .delete()
 }
 
 
@@ -597,34 +620,50 @@ func createProducts(on database: Database,
 ///   - manifest: `Manifest` data
 /// - Returns: future
 func createProducts(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
-    let products = manifest.products.compactMap { manifestProduct -> Product? in
-        // Using `try?` here because the only way this could error is version.id being nil
-        // - that should never happen and even in the pathological case we can skip the product
-        return try? Product(version: version,
-                            type: .init(manifestProductType: manifestProduct.type),
-                            name: manifestProduct.name,
-                            targets: manifestProduct.targets)
+    manifest.products.compactMap { manifestProduct in
+        try? Product(version: version,
+                     type: .init(manifestProductType: manifestProduct.type),
+                     name: manifestProduct.name,
+                     targets: manifestProduct.targets)
     }
-    return products.create(on: database)
+    .create(on: database)
 }
 
 
-/// Create and persist `Target`s from the `Manifest` data provided in `packageResults`.
+/// Update (delete and re-create) `Target`s from the `Manifest` data provided in `packageResults`.
 /// - Parameters:
 ///   - database: database connection
 ///   - packageResults: results to process
 /// - Returns: the input data for further processing, wrapped in a future
-func createTargets(on database: Database,
+func updateTargets(on database: Database,
                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest in
-                createTargets(on: database, version: version, manifest: manifest)
+                deleteTargets(on: database, version: version)
+                    .flatMap {
+                        createTargets(on: database, version: version, manifest: manifest)
+                    }
             },
             on: database.eventLoop
         )
         .transform(to: (pkg, versionsAndManifests))
     }
+}
+
+
+/// Delete `Target`s for a given `versionId`.
+/// - Parameters:
+///   - database: database connection
+///   - version: parent model object
+/// - Returns: future
+func deleteTargets(on database: Database, version: Version) -> EventLoopFuture<Void> {
+    guard let versionId = version.id else {
+        return database.eventLoop.future()
+    }
+    return Target.query(on: database)
+        .filter(\.$version.$id == versionId)
+        .delete()
 }
 
 
@@ -635,13 +674,10 @@ func createTargets(on database: Database,
 ///   - manifest: `Manifest` data
 /// - Returns: future
 func createTargets(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
-    let targets = manifest.targets.compactMap { manifestTarget -> Target? in
-        // Using `try?` here because the only way this could error is version.id being nil
-        // - that should never happen and even in the pathological case we can skip the product
-        return try? Target(version: version,
-                           name: manifestTarget.name)
+    manifest.targets.compactMap { manifestTarget in
+        try? Target(version: version, name: manifestTarget.name)
     }
-    return targets.create(on: database)
+    .create(on: database)
 }
 
 

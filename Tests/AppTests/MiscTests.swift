@@ -19,5 +19,17 @@ class MiscTests: XCTestCase {
         XCTAssertEqual([String: String]().queryString(), "")
         XCTAssertEqual([String: String]().queryString(includeSeparator: false), "")
     }
-    
+
+    func test_Date_init_yyyyMMdd() throws {
+        XCTAssertEqual(Date(yyyyMMdd: "1970-01-01"),
+                       Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(Date(yyyyMMdd: "foo"), nil)
+    }
+
+    func test_Date_LosslessStringConvertible() throws {
+        XCTAssertEqual(Date("1970-01-01"),
+                       Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(Date("foo"), nil)
+    }
+
 }
