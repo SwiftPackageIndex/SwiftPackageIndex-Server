@@ -80,30 +80,27 @@ extension PackageCollection {
 
 extension PackageCollection.Package {
     init?(package: App.Package, keywords: [String]?) {
-        guard
-            let licenseName = package.repository?.license.shortName,
-            let licenseURL = package.repository?.licenseUrl
-                .flatMap(URL.init(string:)),
-            let url = URL(string: package.url)
-        else {
-            return nil
-        }
+        let license = PackageCollectionModel.License(
+            name: package.repository?.license.shortName,
+            url: package.repository?.licenseUrl
+        )
+
+        guard let url = URL(string: package.url) else { return nil }
+
         self.init(
             url: url,
             summary: package.repository?.summary,
             keywords: keywords,
-            versions: .init(versions: package.versions,
-                            licenseName: licenseName,
-                            licenseURL: licenseURL),
+            versions: .init(versions: package.versions, license: license),
             readmeURL: package.repository?.readmeUrl.flatMap(URL.init(string:)),
-            license: .init(name: licenseName, url: licenseURL)
+            license: license
         )
     }
 }
 
 
 extension PackageCollection.Package.Version {
-    init?(version: App.Version, licenseName: String, licenseURL: URL) {
+    init?(version: App.Version, license: PackageCollectionModel.License?) {
         guard
             let semVer = version.reference?.semVer,
             let packageName = version.packageName,
@@ -122,22 +119,28 @@ extension PackageCollection.Package.Version {
             minimumPlatformVersions: version.supportedPlatforms
                 .map(PackageCollectionModel.PlatformVersion.init(platform:)),
             verifiedCompatibility: .init(builds: version.builds),
-            license: .init(name: licenseName, url: licenseURL)
+            license: license
         )
     }
 }
 
 
 private extension Array where Element == PackageCollection.Package.Version {
-    init(versions: [App.Version], licenseName: String, licenseURL: URL) {
+    init(versions: [App.Version], license: PackageCollectionModel.License?) {
         self.init(
             versions.compactMap {
-                Element.init(version: $0,
-                             licenseName: licenseName,
-                             licenseURL: licenseURL)
+                Element.init(version: $0, license: license)
             }
             .sorted { $0.version > $1.version }
         )
+    }
+}
+
+
+extension PackageCollectionModel.License {
+    init?(name: String?, url: String?) {
+        guard let url = url.flatMap(URL.init(string:)) else { return nil }
+        self.init(name: name, url: url)
     }
 }
 
