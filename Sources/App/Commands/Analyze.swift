@@ -482,9 +482,6 @@ func getManifests(logger: Logger,
         result.flatMap { (pkg, versions) -> Result<(Package, [(Version, Manifest)]), Error> in
             let m = versions.map { getManifest(package: pkg, version: $0) }
             let successes = m.compactMap { try? $0.get() }
-            let errors = m.compactMap { $0.getError() }
-                .map { AppError.genericError(pkg.id, "getManifests failed: \($0.localizedDescription)") }
-            errors.forEach { logger.report(error: $0) }
             if !versions.isEmpty && successes.isEmpty {
                 return .failure(AppError.noValidVersions(pkg.id, pkg.url))
             }
