@@ -18,7 +18,11 @@ class MetricsTests: AppTestCase {
         try triggerBuildsUnchecked(on: app.db,
                                client: app.client,
                                logger: app.logger,
-                               triggers: [.init(versionId, [.init(.macosSpm, .v5_3)])]).wait()
+                               triggers: [
+                                .init(versionId: versionId,
+                                      pairs: [.init(.macosSpm, .v5_3)])
+                               ]
+        ).wait()
 
         // MUT
         try app.test(.GET, "metrics", afterResponse: { res in

@@ -162,7 +162,7 @@ func triggerBuildsUnchecked(on database: Database,
                             logger: Logger,
                             triggers: [BuildTriggerInfo]) -> EventLoopFuture<Void> {
     triggers.flatMap { trigger -> [EventLoopFuture<Void>] in
-        logger.info("Triggering \(trigger.pairs.count) builds for version id: \(trigger.versionId)")
+        logger.info("Triggering \(trigger.pairs.count) builds for package name: \(trigger.packageName), ref: \(trigger.reference)")
         return trigger.pairs.map { pair in
             AppMetrics.buildTriggerTotal?.inc(1, .init(pair.platform, pair.swiftVersion))
             return Build.trigger(database: database,
@@ -240,10 +240,18 @@ struct BuildPair: Equatable, Hashable {
 struct BuildTriggerInfo: Equatable {
     var versionId: Version.Id
     var pairs: Set<BuildPair>
+    // non-essential fields, used for logging
+    var packageName: String?
+    var reference: Reference?
 
-    init(_ versionId: Version.Id, _ pairs: Set<BuildPair>) {
+    init(versionId: Version.Id,
+         pairs: Set<BuildPair>,
+         packageName: String? = nil,
+         reference: Reference? = nil) {
         self.versionId = versionId
         self.pairs = pairs
+        self.packageName = packageName
+        self.reference = reference
     }
 }
 
@@ -260,7 +268,10 @@ func findMissingBuilds(_ database: Database,
         guard let versionId = v.id else { return nil }
         let existing = v.builds.map { BuildPair($0.platform, $0.swiftVersion) }
         let pairs = Set(BuildPair.all).subtracting(Set(existing))
-        return BuildTriggerInfo(versionId, pairs)
+        return BuildTriggerInfo(versionId: versionId,
+                                pairs: pairs,
+                                packageName: v.packageName,
+                                reference: v.reference)
     }
 }
 
