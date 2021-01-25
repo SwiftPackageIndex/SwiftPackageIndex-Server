@@ -383,21 +383,21 @@
 		"plM": 52780316221407,
 		"prP": 0
 		},
-	"/images/successful.svg": {
+	"/images/succeeded.svg": {
 		"ft": 2097152,
 		"miP": 0,
 		"oA": 0,
-		"oAP": "/deploy/images/successful.svg",
+		"oAP": "/deploy/images/succeeded.svg",
 		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
 		"prP": 0
 		},
-	"/images/successful~dark.svg": {
+	"/images/succeeded~dark.svg": {
 		"ft": 2097152,
 		"miP": 0,
 		"oA": 0,
-		"oAP": "/deploy/images/successful~dark.svg",
+		"oAP": "/deploy/images/succeeded~dark.svg",
 		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
@@ -846,7 +846,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 633274835.30383801
+	"lastBuiltDate": 633274909.88486397
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
