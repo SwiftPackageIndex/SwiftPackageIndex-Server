@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #ff4343;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="failed_dark.svg" data-name="failed~dark.svg" class="cls-1" d="M1398.99,1244.33L1357.66,1203,1299,1261.66,1240.33,1203,1199,1244.33l58.66,58.67L1199,1361.66l41.33,41.33,58.67-58.66,58.66,58.66,41.33-41.33L1340.33,1303Z" transform="translate(-1199 -1203)"/>
+</svg>

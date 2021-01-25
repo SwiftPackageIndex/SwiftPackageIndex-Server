@@ -161,41 +161,21 @@
 		"plM": 52780316221407,
 		"prP": 0
 		},
-	"/images/external_link.svg": {
+	"/images/failed.svg": {
 		"ft": 2097152,
 		"miP": 0,
 		"oA": 0,
-		"oAP": "/deploy/images/external_link.svg",
+		"oAP": "/deploy/images/failed.svg",
 		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
 		"prP": 0
 		},
-	"/images/external_link~dark.svg": {
+	"/images/failed~dark.svg": {
 		"ft": 2097152,
 		"miP": 0,
 		"oA": 0,
-		"oAP": "/deploy/images/external_link~dark.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/github.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/github.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/images/github~dark.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 0,
-		"oAP": "/deploy/images/github~dark.svg",
+		"oAP": "/deploy/images/failed~dark.svg",
 		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
@@ -398,6 +378,26 @@
 		"miP": 0,
 		"oA": 0,
 		"oAP": "/deploy/images/star~dark.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/images/successful.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/successful.svg",
+		"oF": 1,
+		"opt": 1,
+		"plM": 52780316221407,
+		"prP": 0
+		},
+	"/images/successful~dark.svg": {
+		"ft": 2097152,
+		"miP": 0,
+		"oA": 0,
+		"oAP": "/deploy/images/successful~dark.svg",
 		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
@@ -846,7 +846,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 633272094.93131196
+	"lastBuiltDate": 633274045.91254795
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
