@@ -131,13 +131,12 @@ ul.matrix {
 
     .succeeded {
       background-color: var(--matrix-result-succeeded-background);
-      color: var(--matrix-result-succeeded-text);
-      background-image: var(--image-tick);
+      background-image: var(--image-successful);
     }
 
     .failed {
       background-color: var(--matrix-result-failed-background);
-      color: var(--matrix-result-failed-text);
+      background-image: var(--image-failed);
     }
   }
 }
