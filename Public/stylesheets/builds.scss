@@ -4,8 +4,8 @@
 
 .matrix {
   .result {
-    &>.succeeded,
-    &>.failed {
+    & > .succeeded,
+    & > .failed {
       a {
         display: none;
         font-size: 16px;

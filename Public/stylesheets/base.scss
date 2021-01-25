@@ -9,9 +9,9 @@
 body {
   color: var(--page-text);
   background-color: var(--page-background);
-  font-family: -apple-system, "BlinkMacSystemFont", "SF Hello", "Segoe UI",
-    "Roboto", "Helvetica Neue", "Arial", sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji";
+  font-family: -apple-system, 'BlinkMacSystemFont', 'SF Hello', 'Segoe UI',
+    'Roboto', 'Helvetica Neue', 'Arial', sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji';
   font-size: 16px;
   line-height: 1.4;
 }
@@ -66,28 +66,6 @@ pre {
   overflow: scroll;
 }
 
-table {
-  width: 100%;
-  width: max-content;
-  max-width: 100%;
-  overflow: auto;
-  border-collapse: collapse;
-
-  th {
-    background-color: var(--table-header-background);
-  }
-
-  th,
-  td {
-    padding: 5px 10px;
-    border: 1px solid var(--grey);
-  }
-
-  tr:nth-child(2n) {
-    background-color: var(--table-row-alt-background);
-  }
-}
-
 blockquote {
   padding: 0 15px;
   color: var(--blockquote-text);
@@ -109,11 +87,6 @@ hr {
     margin: 20px auto;
     background-color: var(--rule-thin-background);
   }
-}
-
-section hr {
-  margin: 20px auto;
-  height: 1px;
 }
 
 noscript {
@@ -141,16 +114,4 @@ button {
 
 button:focus {
   outline: none;
-}
-
-.green {
-  color: var(--lozenge-green-background);
-}
-
-.orange {
-  color: var(--lozenge-orange-background);
-}
-
-.red {
-  color: var(--lozenge-red-background);
 }
