@@ -23,7 +23,7 @@ let package = Package(
         .package(name: "libcmark_gfm", url: "https://github.com/KristopherGBaker/libcmark_gfm", from: "0.29.3"),
         .package(name: "SwiftPM",
                  url: "https://github.com/apple/swift-package-manager.git",
-                 .revision("fcf50914ecb0c566dfe77af696a99042a22e07ac"))
+                 .revision("swift-DEVELOPMENT-SNAPSHOT-2021-01-23-a"))
     ],
     targets: [
         .target(name: "App", dependencies: [
