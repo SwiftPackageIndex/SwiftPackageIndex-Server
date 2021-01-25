@@ -16,3 +16,18 @@ extension String {
         return self
     }
 }
+
+
+extension String.StringInterpolation {
+
+    mutating func appendInterpolation<T: CustomStringConvertible>(_ value: T?) {
+        appendInterpolation(value, defaultValue: "nil")
+    }
+
+    mutating func appendInterpolation<T: CustomStringConvertible>(
+        _ value: T?,
+        defaultValue: @autoclosure () -> String) {
+        appendInterpolation(value ?? defaultValue() as CustomStringConvertible)
+    }
+
+}

@@ -1,0 +1,27 @@
+▿ Collection
+  - formatVersion: FormatVersion.v1_0
+  - generatedAt: 1970-01-01T00:00:00Z
+  ▿ generatedBy: Optional<Author>
+    ▿ some: Author
+      - name: "author"
+  ▿ keywords: Optional<Array<String>>
+    ▿ some: 2 elements
+      - "a"
+      - "b"
+  - name: "my collection"
+  ▿ overview: Optional<String>
+    - some: "my overview"
+  ▿ packages: 1 element
+    ▿ Package
+      ▿ keywords: Optional<Array<String>>
+        ▿ some: 2 elements
+          - "a"
+          - "b"
+      - license: Optional<License>.none
+      - readmeURL: Optional<URL>.none
+      ▿ summary: Optional<String>
+        - some: "some package"
+      - url: 1
+      - versions: 0 elements
+  ▿ revision: Optional<Int>
+    - some: 3
