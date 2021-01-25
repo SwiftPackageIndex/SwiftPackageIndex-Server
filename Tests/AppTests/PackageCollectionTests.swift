@@ -64,9 +64,10 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try XCTUnwrap(
-            PackageCollection.Package.Version(version: v,
-                                              licenseName: "MIT",
-                                              licenseURL: URL(string: "https://foo/mit")!)
+            PackageCollection.Package.Version(
+                version: v,
+                license: .init(name: "MIT", url: "https://foo/mit")
+            )
         )
 
         // validate
