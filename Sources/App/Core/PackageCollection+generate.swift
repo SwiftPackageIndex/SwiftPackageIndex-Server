@@ -3,11 +3,17 @@ import Foundation
 import PackageCollectionsModel
 
 
-typealias PackageCollectionModel = JSONPackageCollectionModel.V1
-typealias PackageCollection = PackageCollectionModel.Collection
+typealias PackageCollection = PackageCollectionModel.V1.Collection
 
 
 extension PackageCollection {
+    typealias Compatibility = PackageCollectionModel.V1.Compatibility
+    typealias License = PackageCollectionModel.V1.License
+    typealias Platform = PackageCollectionModel.V1.Platform
+    typealias PlatformVersion = PackageCollectionModel.V1.PlatformVersion
+    typealias Product = PackageCollectionModel.V1.Product
+    typealias ProductType = PackageCollectionModel.V1.ProductType
+    typealias Target = PackageCollectionModel.V1.Target
 
     static func generate(db: Database,
                          packageURLs: [String],
@@ -81,7 +87,7 @@ extension PackageCollection {
 
 extension PackageCollection.Package {
     init?(package: App.Package, keywords: [String]?) {
-        let license = PackageCollectionModel.License(
+        let license = PackageCollection.License(
             name: package.repository?.license.shortName,
             url: package.repository?.licenseUrl
         )
@@ -101,7 +107,7 @@ extension PackageCollection.Package {
 
 
 extension PackageCollection.Package.Version {
-    init?(version: App.Version, license: PackageCollectionModel.License?) {
+    init?(version: App.Version, license: PackageCollection.License?) {
         guard
             let semVer = version.reference?.semVer,
             let packageName = version.packageName,
@@ -113,12 +119,12 @@ extension PackageCollection.Package.Version {
             version: "\(semVer)",
             packageName: packageName,
             targets: version.targets
-                .map(PackageCollectionModel.Target.init(target:)),
+                .map(PackageCollection.Target.init(target:)),
             products: version.products
-                .compactMap(PackageCollectionModel.Product.init(product:)),
+                .compactMap(PackageCollection.Product.init(product:)),
             toolsVersion: toolsVersion,
             minimumPlatformVersions: version.supportedPlatforms
-                .map(PackageCollectionModel.PlatformVersion.init(platform:)),
+                .map(PackageCollection.PlatformVersion.init(platform:)),
             verifiedCompatibility: .init(builds: version.builds),
             license: license
         )
@@ -127,7 +133,7 @@ extension PackageCollection.Package.Version {
 
 
 private extension Array where Element == PackageCollection.Package.Version {
-    init(versions: [App.Version], license: PackageCollectionModel.License?) {
+    init(versions: [App.Version], license: PackageCollection.License?) {
         self.init(
             versions.compactMap {
                 Element.init(version: $0, license: license)
@@ -138,7 +144,7 @@ private extension Array where Element == PackageCollection.Package.Version {
 }
 
 
-extension PackageCollectionModel.License {
+extension PackageCollection.License {
     init?(name: String?, url: String?) {
         guard let url = url.flatMap(URL.init(string:)) else { return nil }
         self.init(name: name, url: url)
@@ -146,23 +152,23 @@ extension PackageCollectionModel.License {
 }
 
 
-extension PackageCollectionModel.PlatformVersion {
+extension PackageCollection.PlatformVersion {
     init(platform: App.Platform) {
         self.init(name: platform.name.rawValue, version: platform.version)
     }
 }
 
 
-private extension PackageCollectionModel.Target {
+private extension PackageCollection.Target {
     init(target: App.Target) {
         self.init(name: target.name, moduleName: nil)
     }
 }
 
 
-private extension PackageCollectionModel.Product {
+private extension PackageCollection.Product {
     init?(product: App.Product) {
-        guard let type = PackageCollectionModel
+        guard let type = PackageCollection
                 .ProductType(productType: product.type)
         else { return nil }
         self.init(name: product.name,
@@ -172,7 +178,7 @@ private extension PackageCollectionModel.Product {
 }
 
 
-private extension PackageCollectionModel.ProductType {
+private extension PackageCollection.ProductType {
     init?(productType: App.Product.`Type`) {
         switch productType {
             case .executable:
@@ -184,10 +190,10 @@ private extension PackageCollectionModel.ProductType {
 }
 
 
-private extension Array where Element == PackageCollectionModel.Compatibility {
+private extension Array where Element == PackageCollection.Compatibility {
     // Helper struct to work around Compatibility not being Hashable
     struct Pair: Hashable {
-        var platform: PackageCollectionModel.Platform
+        var platform: PackageCollection.Platform
         var version: String
     }
 
@@ -206,7 +212,7 @@ private extension Array where Element == PackageCollectionModel.Compatibility {
 }
 
 
-private extension PackageCollectionModel.Platform {
+private extension PackageCollection.Platform {
     init(platform: Build.Platform) {
         switch platform {
             case .ios, .tvos, .watchos, .linux:
