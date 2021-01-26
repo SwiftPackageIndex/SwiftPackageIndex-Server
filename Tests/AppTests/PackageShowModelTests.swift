@@ -68,75 +68,7 @@ class PackageShowModelTests: AppTestCase {
         // validate
         XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)
     }
-    
-    func test_lpInfoGroups_by_swiftVersions() throws {
-        // Test grouping by swift versions
-        let lnk = Link(label: "1", url: "1")
-        let v1 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
-        let v2 = Version(link: lnk, swiftVersions: ["2"], platforms: [.macos("10")])
-        let v3 = Version(link: lnk, swiftVersions: ["3"], platforms: [.macos("10")])
-        
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
-                       [[\.stable], [\.beta], [\.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v2)),
-                       [[\.stable], [\.beta, \.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v2)),
-                       [[\.stable, \.beta], [\.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v2, beta: v1, latest: v2)),
-                       [[\.stable, \.latest], [\.beta]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v1)),
-                       [[\.stable, \.beta, \.latest]])
-    }
-    
-    func test_lpInfoGroups_by_platforms() throws {
-        // Test grouping by platforms
-        let lnk = Link(label: "1", url: "1")
-        let v1 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
-        let v2 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("11")])
-        let v3 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("12")])
-        
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
-                       [[\.stable], [\.beta], [\.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v2)),
-                       [[\.stable], [\.beta, \.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v2)),
-                       [[\.stable, \.beta], [\.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v2, beta: v1, latest: v2)),
-                       [[\.stable, \.latest], [\.beta]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v1)),
-                       [[\.stable, \.beta, \.latest]])
-    }
-    
-    func test_lpInfoGroups_ignores_link() throws {
-        // Test to ensure the link isn't part of the grouping
-        let l1 = Link(label: "1", url: "1")
-        let l2 = Link(label: "2", url: "2")
-        let l3 = Link(label: "3", url: "3")
-        let v1 = Version(link: l1, swiftVersions: ["1"], platforms: [.macos("10")])
-        let v2 = Version(link: l2, swiftVersions: ["1"], platforms: [.macos("10")])
-        let v3 = Version(link: l3, swiftVersions: ["1"], platforms: [.macos("10")])
-        
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
-                       [[\.stable, \.beta, \.latest]])
-    }
-    
-    func test_lpInfoSection_nil() throws {
-        // Test to ensure lpInfoSection returns nil when there are no swift versions or platforms
-        // setup
-        let lpInfo = PackageShow.Model.LanguagePlatformInfo(
-            stable: .init(link: .init(label: "1", url: "1"), swiftVersions: [], platforms: []),
-            beta: nil,
-            latest: .init(link: .init(label: "2", url: "2"), swiftVersions: [], platforms: [])
-        )
-        
-        // MUT
-        let res = PackageShow.Model.lpInfoSection(keypaths: [\.stable, \.latest],
-                                                  languagePlatforms: lpInfo)
-        
-        // validate
-        XCTAssertNil(res)
-    }
-    
+
     // Test output of some activity variants without firing up a full snapshot test:
     func test_activity_variants__missing_open_issue() throws {
         var model = PackageShow.Model.mock
@@ -313,4 +245,3 @@ fileprivate typealias Version = PackageShow.Model.Version
 fileprivate typealias BuildInfo = PackageShow.Model.BuildInfo
 fileprivate typealias BuildResults = PackageShow.Model.SwiftVersionResults
 fileprivate typealias BuildStatusRow = PackageShow.Model.BuildStatusRow
-let lpInfoGroups = PackageShow.Model.lpInfoGroups
