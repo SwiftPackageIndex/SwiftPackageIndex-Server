@@ -103,6 +103,7 @@ class WebpageSnapshotTests: XCTestCase {
     func test_PackageShowView_incompatible_license() throws {
         var model = PackageShow.Model.mock
         model.license = License.gpl_3_0
+        model.licenseUrl = "https://example.com/license.html"
         let page = { PackageShow.View(path: "", model: model).document() }
         
         assertSnapshot(matching: page, as: .html)
