@@ -140,15 +140,15 @@ extension BuildIndex.Model {
                 case let .some(value) where value.status == .ok:
                     return .div(.class("succeeded"),
                                 .a(.href(SiteURL.builds(.value(value.id)).relativeURL()),
-                                   .text("View Build Log")))
+                                   .text("Succeeded")))
                 case let .some(value) where value.status == .failed:
                     return .div(.class("failed"),
                                 .a(.href(SiteURL.builds(.value(value.id)).relativeURL()),
-                                   .text("View Build Log")))
+                                   .text("Failed")))
                 case let .some(value) where value.status == .pending:
-                    return .div(.class("pending"))
+                    return .div(.class("pending"), .span("Queued"))
                 case .some, .none:
-                    return .div(.class("unknown"))
+                    return .div(.class("unknown"), .span("Pending"))
             }
         }
 

@@ -112,6 +112,8 @@ ul.matrix {
       background-repeat: no-repeat;
     }
 
+    // Package page compatibility matrix.
+
     .compatible {
       background-color: var(--matrix-result-compatible-background);
       background-image: var(--image-compatible);
@@ -119,7 +121,7 @@ ul.matrix {
 
     .pending,
     .unknown {
-      background-size: 11px;
+      background-size: 12px;
       background-color: var(--matrix-result-unknown-background);
       background-image: var(--image-unknown);
     }
@@ -129,14 +131,39 @@ ul.matrix {
       background-image: var(--image-incompatible);
     }
 
+    // Builds results matrix.
+
+    .succeeded > a,
+    .failed > a {
+      padding-left: 25px;
+      background-size: 18px;
+      background-position: left center;
+      background-repeat: no-repeat;
+    }
+
     .succeeded {
       background-color: var(--matrix-result-succeeded-background);
-      background-image: var(--image-successful);
+
+      a {
+        background-image: var(--image-succeeded);
+      }
     }
 
     .failed {
       background-color: var(--matrix-result-failed-background);
-      background-image: var(--image-failed);
+
+      a {
+        background-image: var(--image-failed);
+      }
+    }
+
+    .pending > span,
+    .unknown > span {
+      padding-left: 22px;
+      background-size: 12px;
+      background-position: left center;
+      background-repeat: no-repeat;
+      background-image: var(--image-unknown);
     }
   }
 }
