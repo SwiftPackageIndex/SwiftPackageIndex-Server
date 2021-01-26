@@ -26,8 +26,8 @@ class LicenseTests: XCTestCase {
     func test_shortName() throws {
         XCTAssertEqual(License.mit.shortName, "MIT")
         XCTAssertEqual(License.agpl_3_0.shortName, "AGPL 3.0")
-        XCTAssertEqual(License.other.shortName, "Unknown License")
-        XCTAssertEqual(License.none.shortName, "No License")
+        XCTAssertEqual(License.other.shortName, "Unknown license")
+        XCTAssertEqual(License.none.shortName, "No license")
     }
     
     func test_isCompatibleWithAppStore() throws {
