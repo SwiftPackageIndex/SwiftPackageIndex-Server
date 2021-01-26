@@ -170,14 +170,6 @@ ul.matrix {
       &.pending,
       &.unknown {
         background-color: var(--matrix-result-unknown-background);
-
-        span {
-          padding-left: 22px;
-          background-size: 12px;
-          background-position: left center;
-          background-repeat: no-repeat;
-          background-image: var(--image-unknown);
-        }
       }
     }
   }
