@@ -8,17 +8,6 @@
   max-width: 850px;
 }
 
-.split {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.right {
-  text-align: right;
-}
-
 .two_column {
   display: grid;
   grid-template-columns: 0.75fr 0.25fr;
@@ -27,16 +16,6 @@
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .split {
-    flex-direction: column;
-    align-items: flex-start;
-
-    > :last-child {
-      margin-top: 10px;
-      margin-left: auto;
-    }
-  }
-
   .two_column {
     grid-template-columns: 1fr;
     grid-auto-flow: row;
