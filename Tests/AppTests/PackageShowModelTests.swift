@@ -133,11 +133,11 @@ class PackageShowModelTests: AppTestCase {
     func test_stars_formatting() throws {
         var model = PackageShow.Model.mock
         model.stars = 999
-        XCTAssertEqual(model.starsListItem().render(), "999 stars.")
+        XCTAssertEqual(model.starsListItem().render(), "<li class=\"stars\">999 stars</li>")
         model.stars = 1_000
-        XCTAssertEqual(model.starsListItem().render(), "1,000 stars.")
+        XCTAssertEqual(model.starsListItem().render(), "<li class=\"stars\">1,000 stars</li>")
         model.stars = 1_000_000
-        XCTAssertEqual(model.starsListItem().render(), "1,000,000 stars.")
+        XCTAssertEqual(model.starsListItem().render(), "<li class=\"stars\">1,000,000 stars</li>")
     }
     
     func test_groupBuildInfo() throws {
