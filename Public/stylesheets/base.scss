@@ -115,3 +115,15 @@ button {
 button:focus {
   outline: none;
 }
+
+.green {
+  color: var(--green-text);
+}
+
+.orange {
+  color: var(--orange-text);
+}
+
+.red {
+  color: var(--red-text);
+}
