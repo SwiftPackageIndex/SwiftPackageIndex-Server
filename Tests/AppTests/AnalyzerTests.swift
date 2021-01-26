@@ -608,7 +608,7 @@ class AnalyzerTests: AppTestCase {
         ]
         
         // MUT
-        let results = getManifests(logger: app.logger, packageAndVersions: packageAndVersions)
+        let results = getManifests(packageAndVersions: packageAndVersions)
         
         // validation
         XCTAssertEqual(commands, [

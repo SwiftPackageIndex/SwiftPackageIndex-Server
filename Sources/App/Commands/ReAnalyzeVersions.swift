@@ -153,7 +153,7 @@ func reAnalyzeVersions(client: Client,
                             before: cutoffDate)
             .flatMap { setUpdatedAt(on: tx, packageVersions: $0) }
             .flatMap { mergeReleaseInfo(on: tx, packageVersions: $0) }
-            .map { getManifests(logger: logger, packageAndVersions: $0) }
+            .map { getManifests(packageAndVersions: $0) }
             .flatMap { updateVersions(on: tx, packageResults: $0) }
             .flatMap { updateProducts(on: tx, packageResults: $0) }
             .flatMap { updateTargets(on: tx, packageResults: $0) }
