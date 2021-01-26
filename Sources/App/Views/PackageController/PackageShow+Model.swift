@@ -436,7 +436,7 @@ extension PackageShow.Model {
         guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .ul(
-            .class("matrix"),
+            .class("matrix compatibility"),
             .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
         )
     }
@@ -445,7 +445,7 @@ extension PackageShow.Model {
         guard let buildInfo = platformBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
         return .ul(
-            .class("matrix"),
+            .class("matrix compatibility"),
             .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
         )
     }

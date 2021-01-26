@@ -42,7 +42,7 @@ enum BuildIndex {
                         .hr(),
                         .h3(.text(swiftVersion.longDisplayName)),
                         .ul(
-                            .class("matrix"),
+                            .class("matrix builds"),
                             .group(model.buildMatrix[swiftVersion].map(\.node))
                         )
                     )
