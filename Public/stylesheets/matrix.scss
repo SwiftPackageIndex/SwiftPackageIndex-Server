@@ -137,6 +137,11 @@ ul.matrix {
   }
 
   &.builds {
+    .column_label > div > span {
+      font-size: 16px;
+      background-position: top 4px right;
+    }
+
     .result > div {
       &.succeeded > a,
       &.failed > a {
