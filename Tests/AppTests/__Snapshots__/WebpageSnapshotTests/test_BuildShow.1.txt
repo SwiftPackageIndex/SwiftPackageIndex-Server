@@ -19,7 +19,6 @@
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
     <link rel="shortcut icon" href="/images/logo-simple.png" type="image/png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
     <link rel="stylesheet" href="/stylesheets/main.min.css?0"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recently Added" href="http://localhost:8080/packages.rss"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Releases" href="http://localhost:8080/releases.rss"/>
@@ -58,22 +57,18 @@
     <main>
       <div class="inner">
         <div>
-          <div class="split">
-            <h2>Build Information</h2>
-            <div class="lozenge green">
-              <i class="icon matrix_succeeded"></i>Build Succeeded
-            </div>
-          </div>
-          <div class="split">
-            <div>Built 
+          <h2>Build Information</h2>
+          <div class="two_column">
+            <p>
+              <strong class="green">Successful</strong> to build 
               <a href="/foo/bar">Bar</a> with 
               <strong>Swift 5.2</strong> for 
               <strong>iOS</strong> using 
               <strong>Xcode 11.6</strong>.
-            </div>
-            <div>
+            </p>
+            <p class="right">
               <a href="/foo/bar/builds">View all builds</a>
-            </div>
+            </p>
           </div>
           <h3>Build Command</h3>
           <pre>
