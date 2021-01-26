@@ -129,7 +129,42 @@ class PackageShowModelTests: AppTestCase {
         model.activity?.lastPullRequestClosedAt = nil
         XCTAssertEqual(model.activityListItem().render(), "")
     }
-    
+
+    func test_license_open_source_license() throws {
+        var model = PackageShow.Model.mock
+        model.license = .mit
+        model.licenseUrl = "https://example.com/license.html"
+        XCTAssertEqual(model.licenseListItem().render(), """
+            <li class="license"><a href="https://example.com/license.html" title="MIT License">MIT</a> licensed</li>
+            """)
+    }
+
+    func test_license_app_store_incompatible_license() throws {
+        var model = PackageShow.Model.mock
+        model.license = .gpl_3_0
+        model.licenseUrl = "https://example.com/license.html"
+        XCTAssertEqual(model.licenseListItem().render(), """
+            <li class="license warning"><a href="https://example.com/license.html" title="GNU General Public License v3.0">GPL 3.0</a> licensed<a id="license_more_info" href="/faq#licenses">Why might the GPL 3.0 be problematic?</a></li>
+            """)
+    }
+
+    func test_license_other_license() throws {
+        var model = PackageShow.Model.mock
+        model.license = .other
+        model.licenseUrl = "https://example.com/license.html"
+        XCTAssertEqual(model.licenseListItem().render(), """
+            <li class="license warning"><a href="https://example.com/license.html">Unknown license</a><a id="license_more_info" href="/faq#licenses">Why is this package's license unknown?</a></li>
+            """)
+    }
+
+    func test_license_no_license() throws {
+        var model = PackageShow.Model.mock
+        model.license = .none
+        XCTAssertEqual(model.licenseListItem().render(), """
+            <li class="license error"><span class="no_license">No license</span><a id="license_more_info" href="/faq#licenses">Why should you not use unlicensed code?</a></li>
+            """)
+    }
+
     func test_stars_formatting() throws {
         var model = PackageShow.Model.mock
         model.stars = 999
