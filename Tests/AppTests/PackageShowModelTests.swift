@@ -174,7 +174,27 @@ class PackageShowModelTests: AppTestCase {
         model.stars = 1_000_000
         XCTAssertEqual(model.starsListItem().render(), "<li class=\"stars\">1,000,000 stars</li>")
     }
+
+    func test_num_libraries_formatting() throws {
+        var model = PackageShow.Model.mock
+        model.products?.libraries = 0
+        XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">No libraries</li>")
+        model.products?.libraries = 1
+        XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">1 library</li>")
+        model.products?.libraries = 2
+        XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">2 libraries</li>")
+    }
     
+    func test_num_executables_formatting() throws {
+        var model = PackageShow.Model.mock
+        model.products?.executables = 0
+        XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">No executables</li>")
+        model.products?.executables = 1
+        XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">1 executable</li>")
+        model.products?.executables = 2
+        XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">2 executables</li>")
+    }
+
     func test_groupBuildInfo() throws {
         let result1: BuildResults = .init(status4_2: .compatible,
                                           status5_0: .compatible,
