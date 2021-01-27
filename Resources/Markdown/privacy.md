@@ -9,8 +9,10 @@ This site has no user accounts and will not ask you to identify yourself.
 
 ### Data Sources and Storage
 
-The source of the data indexed by this site is from [this packages.json](https://github.com/SwiftPackageIndex/PackageList/blob/main/packages.json) file, and all repositories indexed are publicly available. If you are the owner of a Swift package listed there and would like it removed from this index, please let us know by [creating a new GitHub issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose).
+The source of all data indexed by this site is [this packages.json](https://github.com/SwiftPackageIndex/PackageList/blob/main/packages.json) file. Any information gathered is from either the repository itself or the repository’s hosting platform. This site gathers information only from publicly accessible source repositories. If you are the owner of a Swift package indexed by this site and would like it removed from this index, please let us know by [creating a new GitHub issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose).
 
 ### Cookies and Analytics
 
-This site uses [Google Analytics](https://analytics.google.com) loaded via [Google Tag Manager](https://tagmanager.google.com) to gather usage statistics. We use no other analytics frameworks, trackers, or other cookies. All IP address information is anonymised using [IP anonymisation in Google Analytics](https://support.google.com/analytics/answer/2763052).
+This site uses [Plausible Analytics](https://plausible.io/) to gather anonymous usage data. We do not track visitors in any way and do not store a cookie or use local storage. You can read more about how Plausible analytics works in their [data policy](https://plausible.io/data-policy).
+
+This site routes all traffic through the Cloudflare CDN, who may inject a cookie. For more information, see the [Cloudflare privacy policy](https://www.cloudflare.com/privacypolicy/).
