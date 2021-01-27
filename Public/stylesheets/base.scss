@@ -73,18 +73,17 @@ blockquote {
 }
 
 hr {
-  margin: 10px auto;
+  margin: 25px auto;
   border: 0;
   height: 2px;
   background-color: var(--rule-background);
 
-  &.padded {
-    margin: 30px auto;
+  &.tight {
+    margin: 10px auto;
   }
 
-  &.thin {
+  &.minor {
     height: 1px;
-    margin: 20px auto;
     background-color: var(--rule-thin-background);
   }
 }

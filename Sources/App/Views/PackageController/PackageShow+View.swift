@@ -46,7 +46,7 @@ enum PackageShow {
                         .text(model.url)
                     )
                 ),
-                .hr(),
+                .hr(.class("tight")),
                 .p(
                     .class("summary"),
                     .unwrap(model.summary) { summary in
@@ -67,7 +67,7 @@ enum PackageShow {
                     sidebarLinks()
                 ),
                 .hr(
-                    .class("thin")
+                    .class("minor")
                 ),
                 .div(
                     .class("two_column"),
@@ -149,9 +149,7 @@ enum PackageShow {
             else { return .empty }
 
             return .group(
-                .hr(
-                    .class("padded")
-                ),
+                .hr(),
                 .article(
                     .class("readme"),
                     .attribute(named: "data-readme-base-url", value: model.readmeBaseUrl),
