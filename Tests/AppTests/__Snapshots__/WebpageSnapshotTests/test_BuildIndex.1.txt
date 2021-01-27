@@ -66,7 +66,7 @@
             <a href="https://swiftpackageindex.com/docs/builds">build system FAQ</a> to see how we derive build parameters. If you still see surprising results, please 
             <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new">raise an issue</a>.
           </p>
-          <hr class="padded"/>
+          <hr/>
           <h3>Swift 5.3</h3>
           <ul class="matrix builds">
             <li class="row">
@@ -334,7 +334,7 @@
               </div>
             </li>
           </ul>
-          <hr class="padded"/>
+          <hr/>
           <h3>Swift 5.2</h3>
           <ul class="matrix builds">
             <li class="row">
@@ -536,7 +536,7 @@
               </div>
             </li>
           </ul>
-          <hr class="padded"/>
+          <hr/>
           <h3>Swift 5.1</h3>
           <ul class="matrix builds">
             <li class="row">
@@ -738,7 +738,7 @@
               </div>
             </li>
           </ul>
-          <hr class="padded"/>
+          <hr/>
           <h3>Swift 5.0</h3>
           <ul class="matrix builds">
             <li class="row">
@@ -940,7 +940,7 @@
               </div>
             </li>
           </ul>
-          <hr class="padded"/>
+          <hr/>
           <h3>Swift 4.2</h3>
           <ul class="matrix builds">
             <li class="row">

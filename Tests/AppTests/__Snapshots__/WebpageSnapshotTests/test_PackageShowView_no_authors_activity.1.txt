@@ -60,7 +60,7 @@
         <small>
           <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
         </small>
-        <hr/>
+        <hr class="tight"/>
         <p class="summary">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.</p>
         <article class="details">
           <div class="two_column">
@@ -90,158 +90,160 @@
               </ul>
             </section>
           </div>
-          <hr class="thin"/>
+          <hr class="minor"/>
           <div class="two_column">
             <section class="main_compatibility">
               <h3>Compatibility</h3>
-              <ul class="matrix compatibility">
-                <li class="row">
-                  <div class="row_label">
-                    <div>
+              <div class="matrices">
+                <ul class="matrix compatibility">
+                  <li class="row">
+                    <div class="row_label">
                       <div>
-                        <span class="stable">5.2.3</span> and 
-                        <span class="branch">main</span>
+                        <div>
+                          <span class="stable">5.2.3</span> and 
+                          <span class="branch">main</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="row_values">
-                    <div class="column_label">
-                      <div>5.3</div>
-                      <div>5.2</div>
-                      <div>5.1</div>
-                      <div>5.0</div>
-                      <div>4.2</div>
+                    <div class="row_values">
+                      <div class="column_label">
+                        <div>5.3</div>
+                        <div>5.2</div>
+                        <div>5.1</div>
+                        <div>5.0</div>
+                        <div>4.2</div>
+                      </div>
+                      <div class="result">
+                        <div class="compatible" title="Built successfully with Swift 5.3"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.2"></div>
+                        <div class="unknown" title="No build information available for Swift 5.1"></div>
+                        <div class="incompatible" title="Build failed with Swift 5.0"></div>
+                        <div class="incompatible" title="Build failed with Swift 4.2"></div>
+                      </div>
                     </div>
-                    <div class="result">
-                      <div class="compatible" title="Built successfully with Swift 5.3"></div>
-                      <div class="compatible" title="Built successfully with Swift 5.2"></div>
-                      <div class="unknown" title="No build information available for Swift 5.1"></div>
-                      <div class="incompatible" title="Build failed with Swift 5.0"></div>
-                      <div class="incompatible" title="Build failed with Swift 4.2"></div>
-                    </div>
-                  </div>
-                </li>
-                <li class="row">
-                  <div class="row_label">
-                    <div>
+                  </li>
+                  <li class="row">
+                    <div class="row_label">
                       <div>
-                        <span class="beta">6.0.0-b1</span>
+                        <div>
+                          <span class="beta">6.0.0-b1</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="row_values">
-                    <div class="column_label">
-                      <div>5.3</div>
-                      <div>5.2</div>
-                      <div>5.1</div>
-                      <div>5.0</div>
-                      <div>4.2</div>
+                    <div class="row_values">
+                      <div class="column_label">
+                        <div>5.3</div>
+                        <div>5.2</div>
+                        <div>5.1</div>
+                        <div>5.0</div>
+                        <div>4.2</div>
+                      </div>
+                      <div class="result">
+                        <div class="compatible" title="Built successfully with Swift 5.3"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.2"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.1"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.0"></div>
+                        <div class="incompatible" title="Build failed with Swift 4.2"></div>
+                      </div>
                     </div>
-                    <div class="result">
-                      <div class="compatible" title="Built successfully with Swift 5.3"></div>
-                      <div class="compatible" title="Built successfully with Swift 5.2"></div>
-                      <div class="compatible" title="Built successfully with Swift 5.1"></div>
-                      <div class="compatible" title="Built successfully with Swift 5.0"></div>
-                      <div class="incompatible" title="Build failed with Swift 4.2"></div>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-              <ul class="matrix compatibility">
-                <li class="row">
-                  <div class="row_label">
-                    <div>
+                  </li>
+                </ul>
+                <ul class="matrix compatibility">
+                  <li class="row">
+                    <div class="row_label">
                       <div>
-                        <span class="stable">5.2.3</span>
+                        <div>
+                          <span class="stable">5.2.3</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="row_values">
-                    <div class="column_label">
-                      <div>iOS</div>
-                      <div>macOS
-                        <small>(Intel)</small>
+                    <div class="row_values">
+                      <div class="column_label">
+                        <div>iOS</div>
+                        <div>macOS
+                          <small>(Intel)</small>
+                        </div>
+                        <div>macOS
+                          <small>(ARM)</small>
+                        </div>
+                        <div>Linux</div>
+                        <div>tvOS</div>
+                        <div>watchOS</div>
                       </div>
-                      <div>macOS
-                        <small>(ARM)</small>
+                      <div class="result">
+                        <div class="compatible" title="Built successfully with iOS"></div>
+                        <div class="unknown" title="No build information available for macOS (Intel)"></div>
+                        <div class="unknown" title="No build information available for macOS (ARM)"></div>
+                        <div class="unknown" title="No build information available for Linux"></div>
+                        <div class="unknown" title="No build information available for tvOS"></div>
+                        <div class="unknown" title="No build information available for watchOS"></div>
                       </div>
-                      <div>Linux</div>
-                      <div>tvOS</div>
-                      <div>watchOS</div>
                     </div>
-                    <div class="result">
-                      <div class="compatible" title="Built successfully with iOS"></div>
-                      <div class="unknown" title="No build information available for macOS (Intel)"></div>
-                      <div class="unknown" title="No build information available for macOS (ARM)"></div>
-                      <div class="unknown" title="No build information available for Linux"></div>
-                      <div class="unknown" title="No build information available for tvOS"></div>
-                      <div class="unknown" title="No build information available for watchOS"></div>
-                    </div>
-                  </div>
-                </li>
-                <li class="row">
-                  <div class="row_label">
-                    <div>
+                  </li>
+                  <li class="row">
+                    <div class="row_label">
                       <div>
-                        <span class="beta">6.0.0-b1</span>
+                        <div>
+                          <span class="beta">6.0.0-b1</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="row_values">
-                    <div class="column_label">
-                      <div>iOS</div>
-                      <div>macOS
-                        <small>(Intel)</small>
+                    <div class="row_values">
+                      <div class="column_label">
+                        <div>iOS</div>
+                        <div>macOS
+                          <small>(Intel)</small>
+                        </div>
+                        <div>macOS
+                          <small>(ARM)</small>
+                        </div>
+                        <div>Linux</div>
+                        <div>tvOS</div>
+                        <div>watchOS</div>
                       </div>
-                      <div>macOS
-                        <small>(ARM)</small>
+                      <div class="result">
+                        <div class="compatible" title="Built successfully with iOS"></div>
+                        <div class="compatible" title="Built successfully with macOS (Intel)"></div>
+                        <div class="compatible" title="Built successfully with macOS (ARM)"></div>
+                        <div class="compatible" title="Built successfully with Linux"></div>
+                        <div class="compatible" title="Built successfully with tvOS"></div>
+                        <div class="unknown" title="No build information available for watchOS"></div>
                       </div>
-                      <div>Linux</div>
-                      <div>tvOS</div>
-                      <div>watchOS</div>
                     </div>
-                    <div class="result">
-                      <div class="compatible" title="Built successfully with iOS"></div>
-                      <div class="compatible" title="Built successfully with macOS (Intel)"></div>
-                      <div class="compatible" title="Built successfully with macOS (ARM)"></div>
-                      <div class="compatible" title="Built successfully with Linux"></div>
-                      <div class="compatible" title="Built successfully with tvOS"></div>
-                      <div class="unknown" title="No build information available for watchOS"></div>
-                    </div>
-                  </div>
-                </li>
-                <li class="row">
-                  <div class="row_label">
-                    <div>
+                  </li>
+                  <li class="row">
+                    <div class="row_label">
                       <div>
-                        <span class="branch">main</span>
+                        <div>
+                          <span class="branch">main</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="row_values">
-                    <div class="column_label">
-                      <div>iOS</div>
-                      <div>macOS
-                        <small>(Intel)</small>
+                    <div class="row_values">
+                      <div class="column_label">
+                        <div>iOS</div>
+                        <div>macOS
+                          <small>(Intel)</small>
+                        </div>
+                        <div>macOS
+                          <small>(ARM)</small>
+                        </div>
+                        <div>Linux</div>
+                        <div>tvOS</div>
+                        <div>watchOS</div>
                       </div>
-                      <div>macOS
-                        <small>(ARM)</small>
+                      <div class="result">
+                        <div class="compatible" title="Built successfully with iOS"></div>
+                        <div class="compatible" title="Built successfully with macOS (Intel)"></div>
+                        <div class="compatible" title="Built successfully with macOS (ARM)"></div>
+                        <div class="compatible" title="Built successfully with Linux"></div>
+                        <div class="compatible" title="Built successfully with tvOS"></div>
+                        <div class="compatible" title="Built successfully with watchOS"></div>
                       </div>
-                      <div>Linux</div>
-                      <div>tvOS</div>
-                      <div>watchOS</div>
                     </div>
-                    <div class="result">
-                      <div class="compatible" title="Built successfully with iOS"></div>
-                      <div class="compatible" title="Built successfully with macOS (Intel)"></div>
-                      <div class="compatible" title="Built successfully with macOS (ARM)"></div>
-                      <div class="compatible" title="Built successfully with Linux"></div>
-                      <div class="compatible" title="Built successfully with tvOS"></div>
-                      <div class="compatible" title="Built successfully with watchOS"></div>
-                    </div>
-                  </div>
-                </li>
-              </ul>
+                  </li>
+                </ul>
+              </div>
             </section>
             <section class="sidebar_versions">
               <h3>Versions</h3>
@@ -271,7 +273,7 @@
             </section>
           </div>
         </article>
-        <hr class="padded"/>
+        <hr/>
         <article class="readme" data-readme-base-url="https://baseurl/readme"><p>This is the README</p>
 </article>
       </div>
