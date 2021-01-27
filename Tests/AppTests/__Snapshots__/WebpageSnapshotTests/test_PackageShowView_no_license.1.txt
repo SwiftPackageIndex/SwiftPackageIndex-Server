@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html><!--Version: dev - will be overriden in release builds-->
+  <head>
+    <meta name="robots" content="noindex"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8"/>
+    <meta name="og:site_name" content="The Swift Package Index"/>
+    <link rel="canonical" href="http://localhost:8080/"/>
+    <meta name="twitter:url" content="http://localhost:8080/"/>
+    <meta name="og:url" content="http://localhost:8080/"/>
+    <title>Alamofire &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="Alamofire &ndash; Swift Package Index"/>
+    <meta name="og:title" content="Alamofire &ndash; Swift Package Index"/>
+    <meta name="description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
+    <meta name="twitter:description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
+    <meta name="og:description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
+    <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
+    <link rel="shortcut icon" href="/images/logo-simple.png" type="image/png"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
+    <link rel="stylesheet" href="/stylesheets/main.min.css?0"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recently Added" href="http://localhost:8080/packages.rss"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Releases" href="http://localhost:8080/releases.rss"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Releases" href="http://localhost:8080/releases.rss?major=true"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major & Minor Releases" href="http://localhost:8080/releases.rss?major=true&minor=true"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
+    <script src="/javascripts/main.min.js?0"></script>
+  </head>
+  <body class="package"><!--CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE--><!--10-->
+    <div class="staging">Staging / Development</div>
+    <header>
+      <div class="inner">
+        <a href="/">
+          <h1>
+            <img src="/images/logo.svg"/>Swift Package Index
+          </h1>
+        </a>
+        <nav>
+          <ul>
+            <li>
+              <a href="/add-a-package">Add a Package</a>
+            </li>
+            <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
+            <li>
+              <a href="/faq">FAQ</a>
+            </li>
+            <li>
+              <a href="/">Search</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="inner">
+        <h2>Alamofire</h2>
+        <small>
+          <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
+        </small>
+        <hr/>
+        <p class="summary">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.</p>
+        <article class="details">
+          <div class="two_column">
+            <section class="main_metadata">
+              <ul>
+                <li class="authors">By 
+                  <a href="https://github.com/cnoon">Christian Noon</a>, 
+                  <a href="https://github.com/mattt">Mattt</a>, 
+                  <a href="https://github.com/jshier">Jon Shier</a>, 
+                  <a href="https://github.com/kcharwood">Kevin Harwood</a>, and 
+                  <a href="https://github.com/Alamofire/Alamofire/graphs/contributors">186 other contributors</a>.
+                </li>
+                <li class="history">In development for over 5 years, with 
+                  <a href="https://github.com/Alamofire/Alamofire/commits/main">1,433 commits</a> and 
+                  <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
+                </li>
+                <li class="activity">There are 
+                  <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and 
+                  <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.
+                </li>
+                <li class="license error">
+                  <span class="no_license">No license</span>
+                  <a id="license_more_info" href="/faq#licenses">Why should you not use unlicensed code?</a>
+                </li>
+                <li class="stars">17 stars</li>
+                <li class="libraries">3 libraries</li>
+                <li class="executables">1 executable</li>
+              </ul>
+            </section>
+            <section class="sidebar_links">
+              <ul>
+                <li>
+                  <a href="slide://open?dependencies=Alamo/Alamofire">Try in a Playground</a>
+                </li>
+                <li>
+                  <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
+                </li>
+                <li>
+                  <a href="/Alamo/Alamofire/builds">Full Package Compatibility Report</a>
+                </li>
+              </ul>
+            </section>
+          </div>
+          <hr class="thin"/>
+          <div class="two_column">
+            <section class="main_compatibility">
+              <h3>Compatibility</h3>
+              <ul class="matrix compatibility">
+                <li class="row">
+                  <div class="row_label">
+                    <div>
+                      <div>
+                        <span class="stable">5.2.3</span> and 
+                        <span class="branch">main</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row_values">
+                    <div class="column_label">
+                      <div>5.3</div>
+                      <div>5.2</div>
+                      <div>5.1</div>
+                      <div>5.0</div>
+                      <div>4.2</div>
+                    </div>
+                    <div class="result">
+                      <div class="compatible" title="Built successfully with Swift 5.3"></div>
+                      <div class="compatible" title="Built successfully with Swift 5.2"></div>
+                      <div class="unknown" title="No build information available for Swift 5.1"></div>
+                      <div class="incompatible" title="Build failed with Swift 5.0"></div>
+                      <div class="incompatible" title="Build failed with Swift 4.2"></div>
+                    </div>
+                  </div>
+                </li>
+                <li class="row">
+                  <div class="row_label">
+                    <div>
+                      <div>
+                        <span class="beta">6.0.0-b1</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row_values">
+                    <div class="column_label">
+                      <div>5.3</div>
+                      <div>5.2</div>
+                      <div>5.1</div>
+                      <div>5.0</div>
+                      <div>4.2</div>
+                    </div>
+                    <div class="result">
+                      <div class="compatible" title="Built successfully with Swift 5.3"></div>
+                      <div class="compatible" title="Built successfully with Swift 5.2"></div>
+                      <div class="compatible" title="Built successfully with Swift 5.1"></div>
+                      <div class="compatible" title="Built successfully with Swift 5.0"></div>
+                      <div class="incompatible" title="Build failed with Swift 4.2"></div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+              <ul class="matrix compatibility">
+                <li class="row">
+                  <div class="row_label">
+                    <div>
+                      <div>
+                        <span class="stable">5.2.3</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row_values">
+                    <div class="column_label">
+                      <div>iOS</div>
+                      <div>macOS
+                        <small>(Intel)</small>
+                      </div>
+                      <div>macOS
+                        <small>(ARM)</small>
+                      </div>
+                      <div>Linux</div>
+                      <div>tvOS</div>
+                      <div>watchOS</div>
+                    </div>
+                    <div class="result">
+                      <div class="compatible" title="Built successfully with iOS"></div>
+                      <div class="unknown" title="No build information available for macOS (Intel)"></div>
+                      <div class="unknown" title="No build information available for macOS (ARM)"></div>
+                      <div class="unknown" title="No build information available for Linux"></div>
+                      <div class="unknown" title="No build information available for tvOS"></div>
+                      <div class="unknown" title="No build information available for watchOS"></div>
+                    </div>
+                  </div>
+                </li>
+                <li class="row">
+                  <div class="row_label">
+                    <div>
+                      <div>
+                        <span class="beta">6.0.0-b1</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row_values">
+                    <div class="column_label">
+                      <div>iOS</div>
+                      <div>macOS
+                        <small>(Intel)</small>
+                      </div>
+                      <div>macOS
+                        <small>(ARM)</small>
+                      </div>
+                      <div>Linux</div>
+                      <div>tvOS</div>
+                      <div>watchOS</div>
+                    </div>
+                    <div class="result">
+                      <div class="compatible" title="Built successfully with iOS"></div>
+                      <div class="compatible" title="Built successfully with macOS (Intel)"></div>
+                      <div class="compatible" title="Built successfully with macOS (ARM)"></div>
+                      <div class="compatible" title="Built successfully with Linux"></div>
+                      <div class="compatible" title="Built successfully with tvOS"></div>
+                      <div class="unknown" title="No build information available for watchOS"></div>
+                    </div>
+                  </div>
+                </li>
+                <li class="row">
+                  <div class="row_label">
+                    <div>
+                      <div>
+                        <span class="branch">main</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row_values">
+                    <div class="column_label">
+                      <div>iOS</div>
+                      <div>macOS
+                        <small>(Intel)</small>
+                      </div>
+                      <div>macOS
+                        <small>(ARM)</small>
+                      </div>
+                      <div>Linux</div>
+                      <div>tvOS</div>
+                      <div>watchOS</div>
+                    </div>
+                    <div class="result">
+                      <div class="compatible" title="Built successfully with iOS"></div>
+                      <div class="compatible" title="Built successfully with macOS (Intel)"></div>
+                      <div class="compatible" title="Built successfully with macOS (ARM)"></div>
+                      <div class="compatible" title="Built successfully with Linux"></div>
+                      <div class="compatible" title="Built successfully with tvOS"></div>
+                      <div class="compatible" title="Built successfully with watchOS"></div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </section>
+            <section class="sidebar_versions">
+              <h3>Versions</h3>
+              <ul>
+                <li class="stable">
+                  <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">
+                    <span class="stable">5.2.0</span>
+                  </a>
+                  <strong>Latest Stable Release</strong>
+                  <small>Released 12 days ago</small>
+                </li>
+                <li class="beta">
+                  <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">
+                    <span class="beta">5.3.0-beta.1</span>
+                  </a>
+                  <strong>Latest Beta Release</strong>
+                  <small>Released 4 days ago</small>
+                </li>
+                <li class="branch">
+                  <a href="https://github.com/Alamofire/Alamofire">
+                    <span class="branch">main</span>
+                  </a>
+                  <strong>Default Branch</strong>
+                  <small>Modified 12 minutes ago</small>
+                </li>
+              </ul>
+            </section>
+          </div>
+        </article>
+        <hr class="padded"/>
+        <article class="readme" data-readme-base-url="https://baseurl/readme"><p>This is the README</p>
+</article>
+      </div>
+    </main>
+    <footer>
+      <div class="inner">
+        <nav>
+          <ul>
+            <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
+            <li>
+              <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a>
+            </li>
+            <li>
+              <a href="/privacy">Privacy and Cookies</a>
+            </li>
+            <li>
+              <a href="https://twitter.com/swiftpackages">Twitter</a>
+            </li>
+          </ul>
+          <p>
+            <a href="https://github.com/sponsors/SwiftPackageIndex">Please consider supporting this project</a>
+          </p>
+          <small>Kindly hosted by
+            <a href="https://macstadium.com/">MacStadium</a>
+          </small>
+        </nav>
+      </div>
+    </footer>
+    <div class="staging">Staging / Development</div>
+  </body>
+</html>

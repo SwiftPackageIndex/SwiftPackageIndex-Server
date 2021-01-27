@@ -8,12 +8,12 @@
     <link rel="canonical" href="http://localhost:8080/"/>
     <meta name="twitter:url" content="http://localhost:8080/"/>
     <meta name="og:url" content="http://localhost:8080/"/>
-    <title>PSPDFKit &ndash; Swift Package Index</title>
-    <meta name="twitter:title" content="PSPDFKit &ndash; Swift Package Index"/>
-    <meta name="og:title" content="PSPDFKit &ndash; Swift Package Index"/>
-    <meta name="description" content="PSPDFKit on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicul…"/>
-    <meta name="twitter:description" content="PSPDFKit on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicul…"/>
-    <meta name="og:description" content="PSPDFKit on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicul…"/>
+    <title>Alamofire &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="Alamofire &ndash; Swift Package Index"/>
+    <meta name="og:title" content="Alamofire &ndash; Swift Package Index"/>
+    <meta name="description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
+    <meta name="twitter:description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
+    <meta name="og:description" content="Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicu…"/>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
@@ -56,9 +56,9 @@
     </header>
     <main>
       <div class="inner">
-        <h2>PSPDFKit</h2>
+        <h2>Alamofire</h2>
         <small>
-          <a id="package_url" href="https://github.com/PSPDFKit/PSPDFKit-SP.git">https://github.com/PSPDFKit/PSPDFKit-SP.git</a>
+          <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
         </small>
         <hr/>
         <p class="summary">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.</p>
@@ -82,7 +82,7 @@
                   <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.
                 </li>
                 <li class="license warning">
-                  <a href="https://github.com/foo/bar/blob/main/LICENSE">Unknown license</a>
+                  <a href="https://example.com/license.html">Unknown license</a>
                   <a id="license_more_info" href="/faq#licenses">Why is this package's license unknown?</a>
                 </li>
                 <li class="stars">17 stars</li>
@@ -93,13 +93,13 @@
             <section class="sidebar_links">
               <ul>
                 <li>
-                  <a href="slide://open?dependencies=PSPDFKit/PSPDFKit-SP">Try in a Playground</a>
+                  <a href="slide://open?dependencies=Alamo/Alamofire">Try in a Playground</a>
                 </li>
                 <li>
-                  <a href="https://github.com/PSPDFKit/PSPDFKit-SP.git">View on GitHub</a>
+                  <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
                 </li>
                 <li>
-                  <a href="/PSPDFKit/PSPDFKit-SP/builds">Full Package Compatibility Report</a>
+                  <a href="/Alamo/Alamofire/builds">Full Package Compatibility Report</a>
                 </li>
               </ul>
             </section>
