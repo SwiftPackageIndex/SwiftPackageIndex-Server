@@ -145,7 +145,7 @@ func analyze(client: Client,
                          packages: packages)
                 .flatMap { mergeReleaseInfo(on: tx, packageDeltas: $0) }
                 .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
-                .map { getManifests(logger: logger, packageAndVersions: $0) }
+                .map { getManifests(packageAndVersions: $0) }
                 .flatMap { updateVersions(on: tx, packageResults: $0) }
                 .flatMap { updateProducts(on: tx, packageResults: $0) }
                 .flatMap { updateTargets(on: tx, packageResults: $0) }
@@ -476,15 +476,11 @@ func applyVersionDelta(on transaction: Database,
 ///   - logger: `Logger` object
 ///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
 /// - Returns: results future including the `Manifest`s
-func getManifests(logger: Logger,
-                  packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
+func getManifests(packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
     packageAndVersions.map { result -> Result<(Package, [(Version, Manifest)]), Error> in
         result.flatMap { (pkg, versions) -> Result<(Package, [(Version, Manifest)]), Error> in
             let m = versions.map { getManifest(package: pkg, version: $0) }
             let successes = m.compactMap { try? $0.get() }
-            let errors = m.compactMap { $0.getError() }
-                .map { AppError.genericError(pkg.id, "getManifests failed: \($0.localizedDescription)") }
-            errors.forEach { logger.report(error: $0) }
             if !versions.isEmpty && successes.isEmpty {
                 return .failure(AppError.noValidVersions(pkg.id, pkg.url))
             }

@@ -56,9 +56,15 @@ func recordError(database: Database,
             .update()
         
     }
-    
-    database.logger.error("\(stage) error: \(error.localizedDescription)")
-    
+
+    switch error as? AppError {
+        case .noValidVersions:
+            // don't log, too common and unimportant
+            break
+        default:
+            database.logger.error("\(stage) error: \(error.localizedDescription)")
+    }
+
     guard let error = error as? AppError else { return database.eventLoop.future() }
     
     switch error {
