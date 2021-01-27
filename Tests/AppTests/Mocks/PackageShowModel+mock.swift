@@ -16,14 +16,16 @@ extension PackageShow.Model {
                 openPullRequests: .init(label: "5 open pull requests",
                                         url: "https://github.com/Alamofire/Alamofire/pulls"),
                 lastIssueClosedAt: "5 days ago",
-                lastPullRequestClosedAt: "6 days ago"),
-            authors: [
-                .init(label: "Christian Noon", url: "https://github.com/cnoon"),
-                .init(label: "Mattt", url: "https://github.com/mattt"),
-                .init(label: "Jon Shier", url: "https://github.com/jshier"),
-                .init(label: "Kevin Harwood", url: "https://github.com/kcharwood"),
-                .init(label: "186 other contributors", url: "https://github.com/Alamofire/Alamofire/graphs/contributors"),
-            ],
+                lastPullRequestClosedAt: "6 days ago"
+            ),
+            // No need for mock authors until we support showing author information!
+            // authors: [
+            //     .init(label: "Christian Noon", url: "https://github.com/cnoon"),
+            //     .init(label: "Mattt", url: "https://github.com/mattt"),
+            //     .init(label: "Jon Shier", url: "https://github.com/jshier"),
+            //     .init(label: "Kevin Harwood", url: "https://github.com/kcharwood"),
+            //     .init(label: "186 other contributors", url: "https://github.com/Alamofire/Alamofire/graphs/contributors"),
+            // ],
             swiftVersionBuildInfo: .init(stable: NamedBuildResults(referenceName: "5.2.3",
                                                                    results: .init(status4_2: .incompatible,
                                                                                   status5_0: .incompatible,
