@@ -92,11 +92,11 @@
           display: block;
           padding: 5px;
           padding-left: 10px;
-          border-left: 3px var(--light-grey) solid;
-          background-color: var(--very-very-light-grey);
+          border-left: 3px var(--sidebar-section-border) solid;
+          background-color: var(--sidebar-section-background);
 
           &:hover {
-            background-color: var(--very-light-grey);
+            background-color: var(--sidebar-section-hover);
           }
         }
       }
@@ -113,8 +113,8 @@
           display: flex;
           flex-direction: column;
           padding: 5px 10px 6px 10px;
-          background-color: var(--very-very-light-grey);
-          border-left: 3px var(--grey) solid;
+          background-color: var(--sidebar-section-background);
+          border-left: 3px var(--sidebar-section-border) solid;
 
           strong {
             font-size: 14px;

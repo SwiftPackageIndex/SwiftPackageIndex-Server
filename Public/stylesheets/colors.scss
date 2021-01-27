@@ -75,6 +75,10 @@
   --header-gradient-start: rgba(255, 255, 255, 0.2);
   --header-gradient-end: rgba(255, 255, 255, 0.05);
 
+  --sidebar-section-background: var(--very-very-light-grey);
+  --sidebar-section-hover: var(--very-light-grey);
+  --sidebar-section-border: var(--light-grey);
+
   --input-background: var(--white);
   --input-text: var(--black);
   --input-placeholder: var(--light-grey);
@@ -126,6 +130,10 @@
     --header-background: var(--very-dark-blue);
     --header-gradient-start: rgba(255, 255, 255, 0.08);
     --header-gradient-end: rgba(255, 255, 255, 0.03);
+
+    --sidebar-section-background: var(--very-very-dark-grey);
+    --sidebar-section-hover: var(--very-dark-grey);
+    --sidebar-section-border: var(--dark-grey);
 
     --input-background: var(--very-dark-grey);
     --input-text: var(--white);
