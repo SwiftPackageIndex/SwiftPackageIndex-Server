@@ -80,52 +80,51 @@ class PackageShowModelTests: AppTestCase {
     func test_activity_variants__missing_open_issue() throws {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
-        XCTAssertEqual(model.activityListItem().render(), """
-            <li class="activity">There are <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.</li>
-            """)
+
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_open_PRs() throws {
         var model = PackageShow.Model.mock
         model.activity?.openPullRequests = nil
-        XCTAssertEqual(model.activityListItem().render(), """
-            <li class="activity">There are <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.</li>
-            """)
+
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_open_issues_and_PRs() throws {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
         model.activity?.openPullRequests = nil
-        XCTAssertEqual(model.activityListItem().render(), """
-            <li class="activity">The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.</li>
-            """)
+
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_last_closed_issue() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastIssueClosedAt = nil
-        XCTAssertEqual(model.activityListItem().render(), """
-            <li class="activity">There are <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last pull request was merged/closed 6 days ago.</li>
-            """)
 
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_last_closed_PR() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastPullRequestClosedAt = nil
-        XCTAssertEqual(model.activityListItem().render(), """
-            <li class="activity">There are <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last issue was closed 5 days ago.</li>
-            """)
+
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_last_closed_issue_and_PR() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastIssueClosedAt = nil
         model.activity?.lastPullRequestClosedAt = nil
-        XCTAssertEqual(model.activityListItem().render(), """
-            <li class="activity">There are <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. </li>
-            """)
+
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_everything() throws {
@@ -134,6 +133,7 @@ class PackageShowModelTests: AppTestCase {
         model.activity?.openPullRequests = nil
         model.activity?.lastIssueClosedAt = nil
         model.activity?.lastPullRequestClosedAt = nil
+
         XCTAssertEqual(model.activityListItem().render(), "")
     }
 
