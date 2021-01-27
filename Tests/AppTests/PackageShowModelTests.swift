@@ -76,7 +76,31 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)
     }
 
-    // Test output of some activity variants without firing up a full snapshot test:
+    func test_history() throws {
+        var model = PackageShow.Model.mock
+        model.history = .init(
+            since: "7 months",
+            commitCount: .init(label: "12 commits", url: "https://example.com/commits.html"),
+            releaseCount: .init(label: "2 releases", url: "https://example.com/releases.html")
+        )
+
+        let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedHistory, as: .lines)
+    }
+
+    func test_history_archived_package() throws {
+        var model = PackageShow.Model.mock
+        model.history = .init(
+            since: "7 months",
+            commitCount: .init(label: "12 commits", url: "https://example.com/commits.html"),
+            releaseCount: .init(label: "2 releases", url: "https://example.com/releases.html")
+        )
+        model.isArchived = true
+
+        let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedHistory, as: .lines)
+    }
+
     func test_activity_variants__missing_open_issue() throws {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
