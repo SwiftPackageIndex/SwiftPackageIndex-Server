@@ -1,10 +1,17 @@
 @testable import App
 
 import XCTVapor
+import SnapshotTesting
 
 
 class PackageShowModelTests: AppTestCase {
     
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+
+        SnapshotTesting.isRecording = false
+    }
+
     func test_init_no_title() throws {
         // Tests behaviour when we're lacking data
         // setup package without package name
@@ -134,35 +141,36 @@ class PackageShowModelTests: AppTestCase {
         var model = PackageShow.Model.mock
         model.license = .mit
         model.licenseUrl = "https://example.com/license.html"
-        XCTAssertEqual(model.licenseListItem().render(), """
-            <li class="license"><a href="https://example.com/license.html" title="MIT License">MIT</a> licensed</li>
-            """)
+
+        let renderedLicense = model.licenseListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedLicense, as: .lines)
     }
 
     func test_license_app_store_incompatible_license() throws {
         var model = PackageShow.Model.mock
         model.license = .gpl_3_0
         model.licenseUrl = "https://example.com/license.html"
-        XCTAssertEqual(model.licenseListItem().render(), """
-            <li class="license warning"><a href="https://example.com/license.html" title="GNU General Public License v3.0">GPL 3.0</a> licensed<a id="license_more_info" href="/faq#licenses">Why might the GPL 3.0 be problematic?</a></li>
-            """)
+
+        let renderedLicense = model.licenseListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedLicense, as: .lines)
     }
 
     func test_license_other_license() throws {
         var model = PackageShow.Model.mock
         model.license = .other
         model.licenseUrl = "https://example.com/license.html"
-        XCTAssertEqual(model.licenseListItem().render(), """
-            <li class="license warning"><a href="https://example.com/license.html">Unknown license</a><a id="license_more_info" href="/faq#licenses">Why is this package's license unknown?</a></li>
-            """)
+
+        let renderedLicense = model.licenseListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedLicense, as: .lines)
+
     }
 
     func test_license_no_license() throws {
         var model = PackageShow.Model.mock
         model.license = .none
-        XCTAssertEqual(model.licenseListItem().render(), """
-            <li class="license error"><span class="no_license">No license</span><a id="license_more_info" href="/faq#licenses">Why should you not use unlicensed code?</a></li>
-            """)
+
+        let renderedLicense = model.licenseListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedLicense, as: .lines)
     }
 
     func test_stars_formatting() throws {

@@ -1,0 +1,4 @@
+<li class="license warning">
+  <a href="https://example.com/license.html" title="GNU General Public License v3.0">GPL 3.0</a> licensed
+  <a id="license_more_info" href="/faq#licenses">Why might the GPL 3.0 be problematic?</a>
+</li>

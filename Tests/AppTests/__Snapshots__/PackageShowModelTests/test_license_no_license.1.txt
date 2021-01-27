@@ -1,0 +1,4 @@
+<li class="license error">
+  <span class="no_license">No license</span>
+  <a id="license_more_info" href="/faq#licenses">Why should you not use unlicensed code?</a>
+</li>
