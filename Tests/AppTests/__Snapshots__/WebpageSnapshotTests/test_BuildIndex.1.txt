@@ -19,7 +19,6 @@
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
     <link rel="shortcut icon" href="/images/logo-simple.png" type="image/png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
     <link rel="stylesheet" href="/stylesheets/main.min.css?0"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recently Added" href="http://localhost:8080/packages.rss"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Releases" href="http://localhost:8080/releases.rss"/>
@@ -67,9 +66,9 @@
             <a href="https://swiftpackageindex.com/docs/builds">build system FAQ</a> to see how we derive build parameters. If you still see surprising results, please 
             <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new">raise an issue</a>.
           </p>
-          <hr></hr>
+          <hr/>
           <h3>Swift 5.3</h3>
-          <ul class="matrix">
+          <ul class="matrix builds">
             <li class="row">
               <div class="row_label">
                 <div>
@@ -81,30 +80,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -120,30 +113,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -159,30 +146,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -198,30 +179,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -237,30 +212,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -276,30 +245,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -315,30 +278,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -354,38 +311,32 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
             </li>
           </ul>
-          <hr></hr>
+          <hr/>
           <h3>Swift 5.2</h3>
-          <ul class="matrix">
+          <ul class="matrix builds">
             <li class="row">
               <div class="row_label">
                 <div>
@@ -397,33 +348,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -439,33 +381,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -481,32 +414,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="pending">
-                    <i class="icon matrix_pending"></i>
+                    <span>Build Queued</span>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -522,30 +447,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -561,33 +480,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -603,38 +513,32 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
             </li>
           </ul>
-          <hr></hr>
+          <hr/>
           <h3>Swift 5.1</h3>
-          <ul class="matrix">
+          <ul class="matrix builds">
             <li class="row">
               <div class="row_label">
                 <div>
@@ -646,33 +550,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -688,33 +583,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -730,33 +616,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -772,30 +649,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -811,33 +682,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -853,38 +715,32 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
             </li>
           </ul>
-          <hr></hr>
+          <hr/>
           <h3>Swift 5.0</h3>
-          <ul class="matrix">
+          <ul class="matrix builds">
             <li class="row">
               <div class="row_label">
                 <div>
@@ -896,33 +752,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                 </div>
               </div>
@@ -938,33 +785,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                 </div>
               </div>
@@ -980,33 +818,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                 </div>
               </div>
@@ -1022,30 +851,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1061,33 +884,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="succeeded">
-                    <i class="icon matrix_succeeded"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                 </div>
               </div>
@@ -1103,38 +917,32 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
             </li>
           </ul>
-          <hr></hr>
+          <hr/>
           <h3>Swift 4.2</h3>
-          <ul class="matrix">
+          <ul class="matrix builds">
             <li class="row">
               <div class="row_label">
                 <div>
@@ -1146,33 +954,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                 </div>
               </div>
@@ -1188,33 +987,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                 </div>
               </div>
@@ -1230,33 +1020,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                 </div>
               </div>
@@ -1272,30 +1053,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1311,33 +1086,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                   <div class="failed">
-                    <i class="icon matrix_failed"></i>
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">View Build Log</a>
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                 </div>
               </div>
@@ -1353,30 +1119,24 @@
               <div class="row_values">
                 <div class="column_label">
                   <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>1.2.3
-                    </span>
+                    <span class="stable">1.2.3</span>
                   </div>
                   <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
+                    <span class="branch">main</span>
                   </div>
                   <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>2.0.0-b1
-                    </span>
+                    <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
                 <div class="result">
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                   <div class="unknown">
-                    <i class="icon matrix_unknown"></i>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>

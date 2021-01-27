@@ -22,6 +22,8 @@ let configs: [(name: String, size: CGSize)] = [
 class WebpageSnapshotTests: XCTestCase {
     
     override func setUpWithError() throws {
+        try super.setUpWithError()
+
         try XCTSkipIf((Environment.get("SKIP_SNAPSHOTS") ?? "false") == "true")
         Current.date = { Date(timeIntervalSince1970: 0) }
         TempWebRoot.cleanup()
@@ -82,13 +84,15 @@ class WebpageSnapshotTests: XCTestCase {
         }
         #endif
     }
-    
-    func test_PackageShowView_unknown_license() throws {
-        let model = PackageShow.Model.unknownLicenseMock
+
+    func test_PackageShowView_open_source_license() throws {
+        var model = PackageShow.Model.mock
+        model.license = .mit
+        model.licenseUrl = "https://example.com/license.html"
+
         let page = { PackageShow.View(path: "", model: model).document() }
-        
         assertSnapshot(matching: page, as: .html)
-        
+
         #if os(macOS)
         if !isRunningInCI {
             configs.forEach {
@@ -99,14 +103,53 @@ class WebpageSnapshotTests: XCTestCase {
         }
         #endif
     }
-    
-    func test_PackageShowView_incompatible_license() throws {
+
+    func test_PackageShowView_app_store_incompatible_license() throws {
         var model = PackageShow.Model.mock
-        model.license = License.gpl_3_0
+        model.license = .gpl_3_0
+        model.licenseUrl = "https://example.com/license.html"
+
         let page = { PackageShow.View(path: "", model: model).document() }
-        
         assertSnapshot(matching: page, as: .html)
-        
+
+        #if os(macOS)
+        if !isRunningInCI {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
+
+    func test_PackageShowView_other_license() throws {
+        var model = PackageShow.Model.mock
+        model.license = .other
+        model.licenseUrl = "https://example.com/license.html"
+
+        let page = { PackageShow.View(path: "", model: model).document() }
+        assertSnapshot(matching: page, as: .html)
+
+        #if os(macOS)
+        if !isRunningInCI {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
+
+    func test_PackageShowView_no_license() throws {
+        var model = PackageShow.Model.mock
+        model.license = .none
+        model.licenseUrl = nil
+
+        let page = { PackageShow.View(path: "", model: model).document() }
+        assertSnapshot(matching: page, as: .html)
+
         #if os(macOS)
         if !isRunningInCI {
             configs.forEach {
@@ -138,26 +181,7 @@ class WebpageSnapshotTests: XCTestCase {
         }
         #endif
     }
-	
-    func test_PackageShowView_archived_repository() throws {
-        var model = PackageShow.Model.mock
-        model.isArchived = true
-        
-        let page = { PackageShow.View(path: "", model: model).document() }
-        
-        assertSnapshot(matching: page, as: .html)
-        
-        #if os(macOS)
-        if !isRunningInCI {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
-    }
-    
+
     func test_PackageShowView_single_row_tables() throws {
         // Test display when all three significant version collapse to a single row
         var model = PackageShow.Model.mock

@@ -21,9 +21,6 @@ enum HomeIndex {
         
         override func noScript() -> Node<HTML.BodyContext> {
             .noscript(
-                .i(
-                    .class("icon warning")
-                ),
                 .p("The search function of this site requires JavaScript.")
             )
         }

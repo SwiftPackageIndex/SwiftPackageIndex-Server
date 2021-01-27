@@ -7,28 +7,30 @@
 :root {
   --very-dark-blue: #111930;
   --dark-blue: #232339;
-  --mid-blue: #356FCE;
-  --light-blue: #BEDEFF;
-  --very-light-blue: #E6F2FF;
+  --mid-blue: #356fce;
+  --light-blue: #bedeff;
+  --very-light-blue: #e6f2ff;
 
   --dark-green: #027353;
-  --mid-green: #038C33;
-  --light-green: #68BB13;
+  --mid-green: #038c33;
+  --light-green: #68bb13;
 
-  --yellow: #F2B94F;
-  --orange: #F58E36;
-  --mid-red: #CC4444;
-  --light-red: #FFEEEE;
+  --yellow: #f2b94f;
+  --orange: #f58e36;
+  --mid-red: #cc4444;
+  --light-red: #ffeeee;
+  --pink: #ea4aaa;
+  --light-pink: #fff2fa;
 
-  --black: #1D1D1D;
+  --black: #1d1d1d;
   --very-very-dark-grey: #232323;
-  --very-dark-grey: #2F2F2F;
-  --dark-grey: #3E3E3E;
-  --grey: #9A9A9A;
-  --light-grey: #DADADA;
-  --very-light-grey: #F1F1F1;
-  --very-very-light-grey: #F8F8F8;
-  --white: #FFFFFF;
+  --very-dark-grey: #2f2f2f;
+  --dark-grey: #3e3e3e;
+  --grey: #9a9a9a;
+  --light-grey: #dadada;
+  --very-light-grey: #f1f1f1;
+  --very-very-light-grey: #f8f8f8;
+  --white: #ffffff;
 }
 
 /* Dark mode base color overrides */
@@ -36,18 +38,18 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --black: #070710;
-    --very-very-dark-grey: #0E0E19;
+    --very-very-dark-grey: #0e0e19;
     --very-dark-grey: #191923;
 
-    --mid-blue: #55B7FF;
-    --orange: #EC8329;
-    --mid-red: #FF4343;
+    --mid-blue: #55b7ff;
+    --orange: #ec8329;
+    --mid-red: #ff4343;
     --dark-red: #250201;
-    --yellow: #FFB834;
+    --yellow: #ffb834;
 
-    --mid-green: #0EBF4C;
-    --light-green: #96FF4C;
-    --dark-green: #0C946E;
+    --dark-green: #0c946e;
+    --mid-green: #0ebf4c;
+    --light-green: #96ff4c;
   }
 }
 
@@ -59,9 +61,10 @@
   --link-text: var(--mid-blue);
   --link-highlight: var(--mid-red);
 
-  --table-header-background: var(--very-light-grey);
-  --table-row-alt-background: var(--very-very-light-grey);
-  
+  --green-text: var(--light-green);
+  --orange-text: var(--orange);
+  --red-text: var(--mid-red);
+
   --blockquote-text: var(--dark-grey);
   --blockquote-border: var(--light-grey);
 
@@ -71,6 +74,10 @@
   --header-link-highlight: var(--yellow);
   --header-gradient-start: rgba(255, 255, 255, 0.2);
   --header-gradient-end: rgba(255, 255, 255, 0.05);
+
+  --sidebar-section-background: var(--very-very-light-grey);
+  --sidebar-section-hover: var(--very-light-grey);
+  --sidebar-section-border: var(--light-grey);
 
   --input-background: var(--white);
   --input-text: var(--black);
@@ -86,30 +93,19 @@
   --button-border: var(--light-blue);
 
   --rule-background: var(--light-blue);
-
-  --lozenge-text: var(--white);
-  --lozenge-green-background: var(--light-green);
-  --lozenge-orange-background: var(--orange);
-  --lozenge-red-background: var(--mid-red);
+  --rule-thin-background: var(--light-grey);
 
   --stable-text: var(--light-green);
   --beta-text: var(--mid-green);
   --branch-text: var(--dark-green);
 
   --matrix-result-compatible-background: var(--light-green);
-  --matrix-result-compatible-text: var(--white);
   --matrix-result-unknown-background: var(--very-very-light-grey);
-  --matrix-result-unknown-text: var(--light-grey);
   --matrix-result-incompatible-background: var(--light-grey);
-  --matrix-result-incompatible-text: var(--grey);
   --matrix-result-succeeded-background: var(--very-light-grey);
-  --matrix-result-succeeded-text: var(--light-green);
   --matrix-result-failed-background: var(--very-light-grey);
-  --matrix-result-failed-text: var(--mid-red);
 
   --package-list-background: var(--very-very-light-grey);
-
-  --icon-text: var(--dark-grey);
 
   --error-background: var(--light-red);
   --error-text: var(--mid-red);
@@ -126,8 +122,7 @@
     --page-background: var(--black);
     --page-text: var(--white);
 
-    --table-header-background: var(--very-dark-grey);
-    --table-row-alt-background: var(--very-very-dark-grey);
+    --green-text: var(--mid-green);
 
     --blockquote-text: var(--light-grey);
     --blockquote-border: var(--dark-grey);
@@ -135,6 +130,10 @@
     --header-background: var(--very-dark-blue);
     --header-gradient-start: rgba(255, 255, 255, 0.08);
     --header-gradient-end: rgba(255, 255, 255, 0.03);
+
+    --sidebar-section-background: var(--very-very-dark-grey);
+    --sidebar-section-hover: var(--very-dark-grey);
+    --sidebar-section-border: var(--dark-grey);
 
     --input-background: var(--very-dark-grey);
     --input-text: var(--white);
@@ -150,23 +149,15 @@
     --button-border: var(--mid-blue);
 
     --rule-background: var(--dark-blue);
-
-    --lozenge-green-background: var(--mid-green);
+    --rule-thin-background: var(--dark-grey);
 
     --matrix-result-compatible-background: var(--mid-green);
-    --matrix-result-compatible-text: var(--white);
     --matrix-result-unknown-background: var(--very-very-dark-grey);
-    --matrix-result-unknown-text: var(--dark-grey);
     --matrix-result-incompatible-background: var(--very-dark-grey);
-    --matrix-result-incompatible-text: var(--dark-grey);
     --matrix-result-succeeded-background: var(--very-dark-grey);
-    --matrix-result-succeeded-text: var(--mid-green);
     --matrix-result-failed-background: var(--very-dark-grey);
-    --matrix-result-failed-text: var(--mid-red);
 
     --package-list-background: var(--very-very-dark-grey);
-
-    --icon-text: var(--light-grey);
 
     --error-background: var(--dark-red);
     --error-text: var(--mid-red);

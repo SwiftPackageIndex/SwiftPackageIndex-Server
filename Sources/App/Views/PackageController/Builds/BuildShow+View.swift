@@ -18,19 +18,15 @@ enum BuildShow {
 
         override func content() -> Node<HTML.BodyContext> {
             .div(
+                .h2("Build Information"),
                 .div(
-                    .class("split"),
-                    .h2("Build Information"),
-                    .div(
-                        .class("lozenge \(model.buildInfo.status.cssClass)"),
-                        .i(.class("icon \(model.buildInfo.status.cssIcon)")),
-                        .text(model.buildInfo.status.text)
-                    )
-                ),
-                .div(
-                    .class("split"),
-                    .div(
-                        .text("Built "),
+                    .class("two_column"),
+                    .p(
+                        .strong(
+                            .class(model.buildInfo.status.cssClass),
+                            .text(model.buildInfo.status.text)
+                        ),
+                        .text(" to build "),
                         .a(
                             .href(model.packageURL),
                             .text(model.packageName)
@@ -47,7 +43,8 @@ enum BuildShow {
                         },
                         .text(".")
                     ),
-                    .div(
+                    .p(
+                        .class("right"),
                         .a(
                             .href(model.buildsURL),
                             "View all builds"
@@ -75,11 +72,14 @@ enum BuildShow {
 
 
 private extension Build.Status {
+
+    // There should never be pending builds visible on this page so the pending cases are only for completeness.
+
     var text: String {
         switch self {
-            case .ok: return "Build Succeeded"
-            case .failed: return "Build Failed"
-            case .pending: return "Build Pending"
+            case .ok: return "Successful"
+            case .failed: return "Failed"
+            case .pending: return ""
         }
     }
 
@@ -87,16 +87,7 @@ private extension Build.Status {
         switch self {
             case .ok: return "green"
             case .failed: return "red"
-            // We should never have pending builds visible on this page, so the CSS class here will never be used.
-            case .pending: return "grey"
-        }
-    }
-
-    var cssIcon: String {
-        switch self {
-            case .ok: return "matrix_succeeded"
-            case .failed: return "matrix_failed"
-            case .pending: return "matrix_pending"
+            case .pending: return ""
         }
     }
 }

@@ -2,12 +2,6 @@
   Error page.
 ---------------------------------------------------------------------------- */
 
-.error {
-  padding: 100px 0;
-  text-align: center;
-
-  i {
-    font-size: 35px;
-    color: var(--error-text);
-  }
+section.error_message {
+  padding: 50px 0;
 }

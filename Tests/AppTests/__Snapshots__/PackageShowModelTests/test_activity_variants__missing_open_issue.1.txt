@@ -1,0 +1,3 @@
+<li class="activity">There are 
+  <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.
+</li>

@@ -5,7 +5,10 @@
 .search {
   margin: 0;
   background-color: var(--header-background);
-  background-image: radial-gradient(var(--header-gradient-start) 0%, var(--header-gradient-end) 75%);
+  background-image: radial-gradient(
+    var(--header-gradient-start) 0%,
+    var(--header-gradient-end) 75%
+  );
   color: var(--white);
 
   .inner {

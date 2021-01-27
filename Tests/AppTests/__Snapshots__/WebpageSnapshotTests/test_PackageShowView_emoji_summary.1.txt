@@ -19,7 +19,6 @@
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
     <link rel="shortcut icon" href="/images/logo-simple.png" type="image/png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"/>
     <link rel="stylesheet" href="/stylesheets/main.min.css?0"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recently Added" href="http://localhost:8080/packages.rss"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Releases" href="http://localhost:8080/releases.rss"/>
@@ -57,309 +56,227 @@
     </header>
     <main>
       <div class="inner">
-        <div class="split">
-          <div>
-            <h2>Alamofire</h2>
-            <small>
-              <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
-            </small>
-            <a href="slide://open?dependencies=Alamo/Alamofire">🏟</a>
+        <h2>Alamofire</h2>
+        <small>
+          <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
+        </small>
+        <hr class="tight"/>
+        <p class="summary">📦 Nothing but Cache. :octocat:</p>
+        <article class="details">
+          <div class="two_column">
+            <section class="main_metadata">
+              <ul>
+                <li class="history">In development for over 5 years, with 
+                  <a href="https://github.com/Alamofire/Alamofire/commits/main">1,433 commits</a> and 
+                  <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
+                </li>
+                <li class="activity">There are 
+                  <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and 
+                  <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.
+                </li>
+                <li class="license"> licensed</li>
+                <li class="stars">17 stars</li>
+                <li class="libraries">3 libraries</li>
+                <li class="executables">1 executable</li>
+              </ul>
+            </section>
+            <section class="sidebar_links">
+              <ul>
+                <li>
+                  <a href="slide://open?dependencies=Alamo/Alamofire">Try in a Playground</a>
+                </li>
+                <li>
+                  <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
+                </li>
+                <li>
+                  <a href="/Alamo/Alamofire/builds">Full Package Compatibility Report</a>
+                </li>
+              </ul>
+            </section>
           </div>
-          <div class="license">
-            <a href="/faq#licenses">
-              <i class="icon question"></i>
-            </a>
-            <div class="lozenge green" title="MIT License">
-              <i class="icon osi"></i>MIT
-            </div>
+          <hr class="minor"/>
+          <div class="two_column">
+            <section class="main_compatibility">
+              <h3>Compatibility</h3>
+              <div class="matrices">
+                <ul class="matrix compatibility">
+                  <li class="row">
+                    <div class="row_label">
+                      <div>
+                        <div>
+                          <span class="stable">5.2.3</span> and 
+                          <span class="branch">main</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row_values">
+                      <div class="column_label">
+                        <div>5.3</div>
+                        <div>5.2</div>
+                        <div>5.1</div>
+                        <div>5.0</div>
+                        <div>4.2</div>
+                      </div>
+                      <div class="result">
+                        <div class="compatible" title="Built successfully with Swift 5.3"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.2"></div>
+                        <div class="unknown" title="No build information available for Swift 5.1"></div>
+                        <div class="incompatible" title="Build failed with Swift 5.0"></div>
+                        <div class="incompatible" title="Build failed with Swift 4.2"></div>
+                      </div>
+                    </div>
+                  </li>
+                  <li class="row">
+                    <div class="row_label">
+                      <div>
+                        <div>
+                          <span class="beta">6.0.0-b1</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row_values">
+                      <div class="column_label">
+                        <div>5.3</div>
+                        <div>5.2</div>
+                        <div>5.1</div>
+                        <div>5.0</div>
+                        <div>4.2</div>
+                      </div>
+                      <div class="result">
+                        <div class="compatible" title="Built successfully with Swift 5.3"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.2"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.1"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.0"></div>
+                        <div class="incompatible" title="Build failed with Swift 4.2"></div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+                <ul class="matrix compatibility">
+                  <li class="row">
+                    <div class="row_label">
+                      <div>
+                        <div>
+                          <span class="stable">5.2.3</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row_values">
+                      <div class="column_label">
+                        <div>iOS</div>
+                        <div>macOS
+                          <small>(Intel)</small>
+                        </div>
+                        <div>macOS
+                          <small>(ARM)</small>
+                        </div>
+                        <div>Linux</div>
+                        <div>tvOS</div>
+                        <div>watchOS</div>
+                      </div>
+                      <div class="result">
+                        <div class="compatible" title="Built successfully with iOS"></div>
+                        <div class="unknown" title="No build information available for macOS (Intel)"></div>
+                        <div class="unknown" title="No build information available for macOS (ARM)"></div>
+                        <div class="unknown" title="No build information available for Linux"></div>
+                        <div class="unknown" title="No build information available for tvOS"></div>
+                        <div class="unknown" title="No build information available for watchOS"></div>
+                      </div>
+                    </div>
+                  </li>
+                  <li class="row">
+                    <div class="row_label">
+                      <div>
+                        <div>
+                          <span class="beta">6.0.0-b1</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row_values">
+                      <div class="column_label">
+                        <div>iOS</div>
+                        <div>macOS
+                          <small>(Intel)</small>
+                        </div>
+                        <div>macOS
+                          <small>(ARM)</small>
+                        </div>
+                        <div>Linux</div>
+                        <div>tvOS</div>
+                        <div>watchOS</div>
+                      </div>
+                      <div class="result">
+                        <div class="compatible" title="Built successfully with iOS"></div>
+                        <div class="compatible" title="Built successfully with macOS (Intel)"></div>
+                        <div class="compatible" title="Built successfully with macOS (ARM)"></div>
+                        <div class="compatible" title="Built successfully with Linux"></div>
+                        <div class="compatible" title="Built successfully with tvOS"></div>
+                        <div class="unknown" title="No build information available for watchOS"></div>
+                      </div>
+                    </div>
+                  </li>
+                  <li class="row">
+                    <div class="row_label">
+                      <div>
+                        <div>
+                          <span class="branch">main</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row_values">
+                      <div class="column_label">
+                        <div>iOS</div>
+                        <div>macOS
+                          <small>(Intel)</small>
+                        </div>
+                        <div>macOS
+                          <small>(ARM)</small>
+                        </div>
+                        <div>Linux</div>
+                        <div>tvOS</div>
+                        <div>watchOS</div>
+                      </div>
+                      <div class="result">
+                        <div class="compatible" title="Built successfully with iOS"></div>
+                        <div class="compatible" title="Built successfully with macOS (Intel)"></div>
+                        <div class="compatible" title="Built successfully with macOS (ARM)"></div>
+                        <div class="compatible" title="Built successfully with Linux"></div>
+                        <div class="compatible" title="Built successfully with tvOS"></div>
+                        <div class="compatible" title="Built successfully with watchOS"></div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </section>
+            <section class="sidebar_versions">
+              <h3>Versions</h3>
+              <ul>
+                <li class="stable">
+                  <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">
+                    <span class="stable">5.2.0</span>
+                  </a>
+                  <strong>Latest Stable Release</strong>
+                  <small>Released 12 days ago</small>
+                </li>
+                <li class="beta">
+                  <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">
+                    <span class="beta">5.3.0-beta.1</span>
+                  </a>
+                  <strong>Latest Beta Release</strong>
+                  <small>Released 4 days ago</small>
+                </li>
+                <li class="branch">
+                  <a href="https://github.com/Alamofire/Alamofire">
+                    <span class="branch">main</span>
+                  </a>
+                  <strong>Default Branch</strong>
+                  <small>Modified 12 minutes ago</small>
+                </li>
+              </ul>
+            </section>
           </div>
-        </div>
-        <hr/>
-        <p class="description">📦 Nothing but Cache. :octocat:</p>
-        <section class="metadata">
-          <ul>
-            <li class="icon author">By 
-              <a href="https://github.com/cnoon">Christian Noon</a>, 
-              <a href="https://github.com/mattt">Mattt</a>, 
-              <a href="https://github.com/jshier">Jon Shier</a>, 
-              <a href="https://github.com/kcharwood">Kevin Harwood</a>, and 
-              <a href="https://github.com/Alamofire/Alamofire/graphs/contributors">186 other contributors</a>.
-            </li>
-            <li class="icon history">In development for over 5 years, with 
-              <a href="https://github.com/Alamofire/Alamofire/commits/main">1,433 commits</a> and 
-              <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
-            </li>
-            <li class="icon activity">There are 
-              <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and 
-              <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.
-            </li>
-            <li class="icon products">Alamofire contains 
-              <strong>3 libraries</strong> and 
-              <strong>1 executable</strong>.
-            </li>
-            <li class="icon stars">17 stars.</li>
-          </ul>
-        </section>
-        <hr class="short"></hr>
-        <section class="releases">
-          <ul>
-            <li>The latest stable release is 
-              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">
-                <span class="stable">
-                  <i class="icon stable"></i>5.2.0
-                </span>
-              </a>. Released 12 days ago.
-            </li>
-            <li>The latest beta release is 
-              <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">
-                <span class="beta">
-                  <i class="icon beta"></i>5.3.0-beta.1
-                </span>
-              </a>. Released 4 days ago.
-            </li>
-            <li>The last commit to 
-              <a href="https://github.com/Alamofire/Alamofire">
-                <span class="branch">
-                  <i class="icon branch"></i>main
-                </span>
-              </a> was 12 minutes ago.
-            </li>
-          </ul>
-        </section>
-        <section>
-          <h3>Swift Version Compatibility</h3>
-          <ul class="matrix">
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>5.2.3
-                    </span> and 
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>5.3</div>
-                  <div>5.2</div>
-                  <div>5.1</div>
-                  <div>5.0</div>
-                  <div>4.2</div>
-                </div>
-                <div class="result">
-                  <div class="compatible" title="Built successfully with Swift 5.3">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with Swift 5.2">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for Swift 5.1">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="incompatible" title="Build failed with Swift 5.0">
-                    <i class="icon matrix_incompatible"></i>
-                  </div>
-                  <div class="incompatible" title="Build failed with Swift 4.2">
-                    <i class="icon matrix_incompatible"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>6.0.0-b1
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>5.3</div>
-                  <div>5.2</div>
-                  <div>5.1</div>
-                  <div>5.0</div>
-                  <div>4.2</div>
-                </div>
-                <div class="result">
-                  <div class="compatible" title="Built successfully with Swift 5.3">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with Swift 5.2">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with Swift 5.1">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with Swift 5.0">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="incompatible" title="Build failed with Swift 4.2">
-                    <i class="icon matrix_incompatible"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-          <div class="right">
-            <div id="swift_version_badge" hidden>[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2FAlamo%2FAlamofire%2Fbadge%3Ftype%3Dswift-versions)](http://localhost:8080/Alamo/Alamofire)</div>
-            <div>
-              <a href="/Alamo/Alamofire/builds">Full build results</a>
-            </div>
-          </div>
-        </section>
-        <section>
-          <h3>Platform Compatibility</h3>
-          <ul class="matrix">
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
-                    <span class="stable">
-                      <i class="icon stable"></i>5.2.3
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>iOS</div>
-                  <div>macOS
-                    <small>(Intel)</small>
-                  </div>
-                  <div>macOS
-                    <small>(ARM)</small>
-                  </div>
-                  <div>Linux</div>
-                  <div>tvOS</div>
-                  <div>watchOS</div>
-                </div>
-                <div class="result">
-                  <div class="compatible" title="Built successfully with iOS">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for macOS (Intel)">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for macOS (ARM)">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for Linux">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for tvOS">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for watchOS">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
-                    <span class="beta">
-                      <i class="icon beta"></i>6.0.0-b1
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>iOS</div>
-                  <div>macOS
-                    <small>(Intel)</small>
-                  </div>
-                  <div>macOS
-                    <small>(ARM)</small>
-                  </div>
-                  <div>Linux</div>
-                  <div>tvOS</div>
-                  <div>watchOS</div>
-                </div>
-                <div class="result">
-                  <div class="compatible" title="Built successfully with iOS">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with macOS (Intel)">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with macOS (ARM)">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with Linux">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with tvOS">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="unknown" title="No build information available for watchOS">
-                    <i class="icon matrix_unknown"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_label">
-                <div>
-                  <div>
-                    <span class="branch">
-                      <i class="icon branch"></i>main
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="row_values">
-                <div class="column_label">
-                  <div>iOS</div>
-                  <div>macOS
-                    <small>(Intel)</small>
-                  </div>
-                  <div>macOS
-                    <small>(ARM)</small>
-                  </div>
-                  <div>Linux</div>
-                  <div>tvOS</div>
-                  <div>watchOS</div>
-                </div>
-                <div class="result">
-                  <div class="compatible" title="Built successfully with iOS">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with macOS (Intel)">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with macOS (ARM)">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with Linux">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with tvOS">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                  <div class="compatible" title="Built successfully with watchOS">
-                    <i class="icon matrix_compatible"></i>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-          <div class="right">
-            <div id="platform_badge" hidden>[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2FAlamo%2FAlamofire%2Fbadge%3Ftype%3Dplatforms)](http://localhost:8080/Alamo/Alamofire)</div>
-            <div>
-              <a href="/Alamo/Alamofire/builds">Full build results</a>
-            </div>
-          </div>
-        </section>
+        </article>
         <hr/>
         <article class="readme" data-readme-base-url="https://baseurl/readme"><p>This is the README</p>
 </article>

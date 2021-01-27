@@ -1,10 +1,16 @@
 /* -------------------------------------------------------------------------
-  Compatibility matrix styles - Swift and platform version compatibility.
+  Compatibility matrix styles - This is used for both the compatibility
+  matrices on the package page, and for the full build compatibility report.
 ---------------------------------------------------------------------------- */
 
-ul.matrix {
-  padding: 0;
+.matrices {
+  display: grid;
+  gap: 20px;
+}
+
+.matrix {
   margin: 0;
+  padding: 0;
 
   li {
     margin: 5px 0;
@@ -90,6 +96,7 @@ ul.matrix {
     align-items: center;
     flex-basis: 0;
     flex-grow: 1;
+    font-size: 14px;
     font-weight: 600;
 
     small {
@@ -97,50 +104,78 @@ ul.matrix {
     }
   }
 
-  .result {
-    > div {
-      margin: 0 3px;
-      height: 35px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-basis: 0;
-      flex-grow: 1;
+  .result > div {
+    margin: 0 3px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-basis: 0;
+    flex-grow: 1;
+  }
+
+  &.compatibility {
+    .result {
+      & > div {
+        background-size: 20px;
+        background-repeat: no-repeat;
+        background-position: center center;
+      }
+
+      & > .compatible {
+        background-image: var(--image-compatible);
+        background-color: var(--matrix-result-compatible-background);
+      }
+
+      & > .pending,
+      & > .unknown {
+        background-size: 12px;
+        background-image: var(--image-unknown);
+        background-color: var(--matrix-result-unknown-background);
+      }
+
+      & > .incompatible {
+        background-image: var(--image-incompatible);
+        background-color: var(--matrix-result-incompatible-background);
+      }
+    }
+  }
+
+  &.builds {
+    .column_label > div > span {
+      font-size: 16px;
+      background-position: top 4px right;
     }
 
-    i.icon {
-      margin: 0;
-    }
+    .result > div {
+      &.succeeded > a,
+      &.failed > a {
+        padding-left: 25px;
+        background-size: 18px;
+        background-position: left center;
+        background-repeat: no-repeat;
+      }
 
-    .compatible {
-      background-color: var(--matrix-result-compatible-background);
-      color: var(--matrix-result-compatible-text);
-      font-size: 20px;
-    }
+      &.succeeded {
+        background-color: var(--matrix-result-succeeded-background);
 
-    .pending,
-    .unknown {
-      background-color: var(--matrix-result-unknown-background);
-      color: var(--matrix-result-unknown-text);
-      font-size: 20px;
-    }
+        a {
+          background-image: var(--image-succeeded);
+        }
+      }
 
-    .incompatible {
-      background-color: var(--matrix-result-incompatible-background);
-      color: var(--matrix-result-incompatible-text);
-      font-size: 20px;
-    }
+      &.failed {
+        background-color: var(--matrix-result-failed-background);
 
-    .succeeded {
-      background-color: var(--matrix-result-succeeded-background);
-      color: var(--matrix-result-succeeded-text);
-      font-size: 20px;
-    }
+        a {
+          background-image: var(--image-failed);
+        }
+      }
 
-    .failed {
-      background-color: var(--matrix-result-failed-background);
-      color: var(--matrix-result-failed-text);
-      font-size: 20px;
+      &.pending,
+      &.unknown {
+        background-color: var(--matrix-result-unknown-background);
+      }
     }
   }
 }

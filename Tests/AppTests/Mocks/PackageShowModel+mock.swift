@@ -16,14 +16,16 @@ extension PackageShow.Model {
                 openPullRequests: .init(label: "5 open pull requests",
                                         url: "https://github.com/Alamofire/Alamofire/pulls"),
                 lastIssueClosedAt: "5 days ago",
-                lastPullRequestClosedAt: "6 days ago"),
-            authors: [
-                .init(label: "Christian Noon", url: "https://github.com/cnoon"),
-                .init(label: "Mattt", url: "https://github.com/mattt"),
-                .init(label: "Jon Shier", url: "https://github.com/jshier"),
-                .init(label: "Kevin Harwood", url: "https://github.com/kcharwood"),
-                .init(label: "186 other contributors", url: "https://github.com/Alamofire/Alamofire/graphs/contributors"),
-            ],
+                lastPullRequestClosedAt: "6 days ago"
+            ),
+            // No need for mock authors until we support showing author information!
+            // authors: [
+            //     .init(label: "Christian Noon", url: "https://github.com/cnoon"),
+            //     .init(label: "Mattt", url: "https://github.com/mattt"),
+            //     .init(label: "Jon Shier", url: "https://github.com/jshier"),
+            //     .init(label: "Kevin Harwood", url: "https://github.com/kcharwood"),
+            //     .init(label: "186 other contributors", url: "https://github.com/Alamofire/Alamofire/graphs/contributors"),
+            // ],
             swiftVersionBuildInfo: .init(stable: NamedBuildResults(referenceName: "5.2.3",
                                                                    results: .init(status4_2: .incompatible,
                                                                                   status5_0: .incompatible,
@@ -107,16 +109,5 @@ extension PackageShow.Model {
             score: 10,
             isArchived: false
         )
-    }
-
-    static var unknownLicenseMock: PackageShow.Model {
-        var mock = Self.mock
-        mock.license = .other
-        mock.licenseUrl = "https://github.com/foo/bar/blob/main/LICENSE"
-        mock.repositoryOwner = "PSPDFKit"
-        mock.repositoryName = "PSPDFKit-SP"
-        mock.title = "PSPDFKit"
-        mock.url = "https://github.com/PSPDFKit/PSPDFKit-SP.git"
-        return mock
     }
 }

@@ -137,23 +137,15 @@ class BuildIndexModelTests: AppTestCase {
 
     func test_BuildCell() throws {
         let id = UUID()
-        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok).node.render(indentedBy: .spaces(2)), """
-                        <div class="succeeded">
-                          <i class="icon matrix_succeeded"></i>
-                          <a href="/builds/\(id.uuidString)">View Build Log</a>
-                        </div>
-                        """)
-        XCTAssertEqual(BuildCell("1.2.3", .release, id, .failed).node.render(indentedBy: .spaces(2)), """
-                        <div class="failed">
-                          <i class="icon matrix_failed"></i>
-                          <a href="/builds/\(id.uuidString)">View Build Log</a>
-                        </div>
-                        """)
-        XCTAssertEqual(BuildCell("1.2.3", .release).node.render(indentedBy: .spaces(2)), """
-                        <div class="unknown">
-                          <i class="icon matrix_unknown"></i>
-                        </div>
-                        """)
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .ok).node.render(), """
+            <div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div>
+            """)
+        XCTAssertEqual(BuildCell("1.2.3", .release, id, .failed).node.render(), """
+            <div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div>
+            """)
+        XCTAssertEqual(BuildCell("1.2.3", .release).node.render(), """
+            <div class="unknown"><span>Build Pending</span></div>
+            """)
     }
 
     func test_BuildItem() throws {
@@ -168,45 +160,16 @@ class BuildIndexModelTests: AppTestCase {
         let columnLabels = bi.columnLabels
 
         // validate
-        XCTAssertEqual(columnLabels.render(indentedBy: .spaces(2)), """
-                        <div class="column_label">
-                          <div>
-                            <span class="stable">
-                              <i class="icon stable"></i>1.2.3
-                            </span>
-                          </div>
-                          <div>
-                            <span class="beta">
-                              <i class="icon beta"></i>2.0.0-b1
-                            </span>
-                          </div>
-                          <div>
-                            <span class="branch">
-                              <i class="icon branch"></i>develop
-                            </span>
-                          </div>
-                        </div>
-                        """
-        )
+        XCTAssertEqual(columnLabels.render(), """
+            <div class="column_label"><div><span class="stable">1.2.3</span></div><div><span class="beta">2.0.0-b1</span></div><div><span class="branch">develop</span></div></div>
+            """)
 
         // MUT
         let cells = bi.cells
 
-        XCTAssertEqual(cells.render(indentedBy: .spaces(2)), """
-                        <div class="result">
-                          <div class="succeeded">
-                            <i class="icon matrix_succeeded"></i>
-                            <a href="/builds/\(id.uuidString)">View Build Log</a>
-                          </div>
-                          <div class="unknown">
-                            <i class="icon matrix_unknown"></i>
-                          </div>
-                          <div class="failed">
-                            <i class="icon matrix_failed"></i>
-                            <a href="/builds/\(id.uuidString)">View Build Log</a>
-                          </div>
-                        </div>
-                        """)
+        XCTAssertEqual(cells.render(), """
+            <div class="result"><div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div><div class="unknown"><span>Build Pending</span></div><div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div></div>
+            """)
 
         // MUT - altogether now
         let node = bi.node
@@ -221,17 +184,15 @@ class BuildIndexModelTests: AppTestCase {
                 .class("row_values"),
                 .div(
                     .class("column_label"),
-                    .div(.span(.class("stable"), .i(.class("icon stable")), .text("1.2.3"))),
-                    .div(.span(.class("beta"), .i(.class("icon beta")), .text("2.0.0-b1"))),
-                    .div(.span(.class("branch"), .i(.class("icon branch")), .text("develop")))
+                    .div(.span(.class("stable"), .text("1.2.3"))),
+                    .div(.span(.class("beta"), .text("2.0.0-b1"))),
+                    .div(.span(.class("branch"), .text("develop")))
                 ),
                 .div(
                     .class("result"),
-                    .div(.class("succeeded"), .i(.class("icon matrix_succeeded")),
-                         .a(.href("/builds/\(id.uuidString)"),.text("View Build Log"))),
-                    .div(.class("unknown"), .i(.class("icon matrix_unknown"))),
-                    .div(.class("failed"), .i(.class("icon matrix_failed")),
-                         .a(.href("/builds/\(id.uuidString)"), .text("View Build Log")))
+                    .div(.class("succeeded"), .a(.href("/builds/\(id.uuidString)"), .text("Build Succeeded"))),
+                    .div(.class("unknown"), .span(.text("Build Pending"))),
+                    .div(.class("failed"), .a(.href("/builds/\(id.uuidString)"), .text("Build Failed")))
                 )
             )
         )

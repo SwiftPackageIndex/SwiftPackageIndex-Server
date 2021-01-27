@@ -1,10 +1,17 @@
 @testable import App
 
 import XCTVapor
+import SnapshotTesting
 
 
 class PackageShowModelTests: AppTestCase {
     
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+
+        SnapshotTesting.isRecording = false
+    }
+
     func test_init_no_title() throws {
         // Tests behaviour when we're lacking data
         // setup package without package name
@@ -68,118 +75,80 @@ class PackageShowModelTests: AppTestCase {
         // validate
         XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)
     }
-    
-    func test_lpInfoGroups_by_swiftVersions() throws {
-        // Test grouping by swift versions
-        let lnk = Link(label: "1", url: "1")
-        let v1 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
-        let v2 = Version(link: lnk, swiftVersions: ["2"], platforms: [.macos("10")])
-        let v3 = Version(link: lnk, swiftVersions: ["3"], platforms: [.macos("10")])
-        
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
-                       [[\.stable], [\.beta], [\.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v2)),
-                       [[\.stable], [\.beta, \.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v2)),
-                       [[\.stable, \.beta], [\.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v2, beta: v1, latest: v2)),
-                       [[\.stable, \.latest], [\.beta]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v1)),
-                       [[\.stable, \.beta, \.latest]])
-    }
-    
-    func test_lpInfoGroups_by_platforms() throws {
-        // Test grouping by platforms
-        let lnk = Link(label: "1", url: "1")
-        let v1 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("10")])
-        let v2 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("11")])
-        let v3 = Version(link: lnk, swiftVersions: ["1"], platforms: [.macos("12")])
-        
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
-                       [[\.stable], [\.beta], [\.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v2)),
-                       [[\.stable], [\.beta, \.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v2)),
-                       [[\.stable, \.beta], [\.latest]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v2, beta: v1, latest: v2)),
-                       [[\.stable, \.latest], [\.beta]])
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v1, latest: v1)),
-                       [[\.stable, \.beta, \.latest]])
-    }
-    
-    func test_lpInfoGroups_ignores_link() throws {
-        // Test to ensure the link isn't part of the grouping
-        let l1 = Link(label: "1", url: "1")
-        let l2 = Link(label: "2", url: "2")
-        let l3 = Link(label: "3", url: "3")
-        let v1 = Version(link: l1, swiftVersions: ["1"], platforms: [.macos("10")])
-        let v2 = Version(link: l2, swiftVersions: ["1"], platforms: [.macos("10")])
-        let v3 = Version(link: l3, swiftVersions: ["1"], platforms: [.macos("10")])
-        
-        XCTAssertEqual(lpInfoGroups(.init(stable: v1, beta: v2, latest: v3)),
-                       [[\.stable, \.beta, \.latest]])
-    }
-    
-    func test_lpInfoSection_nil() throws {
-        // Test to ensure lpInfoSection returns nil when there are no swift versions or platforms
-        // setup
-        let lpInfo = PackageShow.Model.LanguagePlatformInfo(
-            stable: .init(link: .init(label: "1", url: "1"), swiftVersions: [], platforms: []),
-            beta: nil,
-            latest: .init(link: .init(label: "2", url: "2"), swiftVersions: [], platforms: [])
+
+    func test_history() throws {
+        var model = PackageShow.Model.mock
+        model.history = .init(
+            since: "7 months",
+            commitCount: .init(label: "12 commits", url: "https://example.com/commits.html"),
+            releaseCount: .init(label: "2 releases", url: "https://example.com/releases.html")
         )
-        
-        // MUT
-        let res = PackageShow.Model.lpInfoSection(keypaths: [\.stable, \.latest],
-                                                  languagePlatforms: lpInfo)
-        
-        // validate
-        XCTAssertNil(res)
+
+        let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedHistory, as: .lines)
     }
-    
-    // Test output of some activity variants without firing up a full snapshot test:
+
+    func test_history_archived_package() throws {
+        var model = PackageShow.Model.mock
+        model.history = .init(
+            since: "7 months",
+            commitCount: .init(label: "12 commits", url: "https://example.com/commits.html"),
+            releaseCount: .init(label: "2 releases", url: "https://example.com/releases.html")
+        )
+        model.isArchived = true
+
+        let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedHistory, as: .lines)
+    }
+
     func test_activity_variants__missing_open_issue() throws {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
-        XCTAssertEqual(model.activityClause()?.render(),
-                       "There are <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
+
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_open_PRs() throws {
         var model = PackageShow.Model.mock
         model.activity?.openPullRequests = nil
-        XCTAssertEqual(model.activityClause()?.render(),
-                       "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
+
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_open_issues_and_PRs() throws {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
         model.activity?.openPullRequests = nil
-        XCTAssertEqual(model.activityClause()?.render(),
-                       "The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.")
+
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_last_closed_issue() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastIssueClosedAt = nil
-        XCTAssertEqual(model.activityClause()?.render(),
-                       "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last pull request was merged/closed 6 days ago.")
+
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_last_closed_PR() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastPullRequestClosedAt = nil
-        XCTAssertEqual(model.activityClause()?.render(),
-                       "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. The last issue was closed 5 days ago.")
+
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_last_closed_issue_and_PR() throws {
         var model = PackageShow.Model.mock
         model.activity?.lastIssueClosedAt = nil
         model.activity?.lastPullRequestClosedAt = nil
-        XCTAssertEqual(model.activityClause()?.render(),
-                       "There are <a href=\"https://github.com/Alamofire/Alamofire/issues\">27 open issues</a> and <a href=\"https://github.com/Alamofire/Alamofire/pulls\">5 open pull requests</a>. ")
+
+        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
     func test_activity_variants__missing_everything() throws {
@@ -188,19 +157,40 @@ class PackageShowModelTests: AppTestCase {
         model.activity?.openPullRequests = nil
         model.activity?.lastIssueClosedAt = nil
         model.activity?.lastPullRequestClosedAt = nil
-        XCTAssertEqual(model.activityClause()?.render(), nil)
+
+        XCTAssertEqual(model.activityListItem().render(), "")
     }
-    
+
     func test_stars_formatting() throws {
         var model = PackageShow.Model.mock
         model.stars = 999
-        XCTAssertEqual(model.starsClause()?.render(), "999 stars.")
+        XCTAssertEqual(model.starsListItem().render(), "<li class=\"stars\">999 stars</li>")
         model.stars = 1_000
-        XCTAssertEqual(model.starsClause()?.render(), "1,000 stars.")
+        XCTAssertEqual(model.starsListItem().render(), "<li class=\"stars\">1,000 stars</li>")
         model.stars = 1_000_000
-        XCTAssertEqual(model.starsClause()?.render(), "1,000,000 stars.")
+        XCTAssertEqual(model.starsListItem().render(), "<li class=\"stars\">1,000,000 stars</li>")
+    }
+
+    func test_num_libraries_formatting() throws {
+        var model = PackageShow.Model.mock
+        model.products?.libraries = 0
+        XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">No libraries</li>")
+        model.products?.libraries = 1
+        XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">1 library</li>")
+        model.products?.libraries = 2
+        XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">2 libraries</li>")
     }
     
+    func test_num_executables_formatting() throws {
+        var model = PackageShow.Model.mock
+        model.products?.executables = 0
+        XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">No executables</li>")
+        model.products?.executables = 1
+        XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">1 executable</li>")
+        model.products?.executables = 2
+        XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">2 executables</li>")
+    }
+
     func test_groupBuildInfo() throws {
         let result1: BuildResults = .init(status4_2: .compatible,
                                           status5_0: .compatible,
@@ -313,4 +303,3 @@ fileprivate typealias Version = PackageShow.Model.Version
 fileprivate typealias BuildInfo = PackageShow.Model.BuildInfo
 fileprivate typealias BuildResults = PackageShow.Model.SwiftVersionResults
 fileprivate typealias BuildStatusRow = PackageShow.Model.BuildStatusRow
-let lpInfoGroups = PackageShow.Model.lpInfoGroups

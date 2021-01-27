@@ -1,23 +1,29 @@
-.readme {
+/* -------------------------------------------------------------------------
+  Styles specific to the readme section of the page.
+---------------------------------------------------------------------------- */
+
+article.readme {
+  overflow: hidden;
+
   h1 {
     font-size: 35px;
   }
-  
+
   h2 {
     font-size: 22px;
     margin-top: 20px;
   }
-  
+
   h3 {
     font-size: 17px;
     margin-top: 18px;
   }
-  
+
   h4 {
     font-size: 15px;
     margin-top: 16px;
   }
-  
+
   img {
     max-width: 100%;
   }

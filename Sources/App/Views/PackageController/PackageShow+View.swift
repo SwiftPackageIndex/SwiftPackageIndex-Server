@@ -38,115 +38,111 @@ enum PackageShow {
         
         override func content() -> Node<HTML.BodyContext> {
             .group(
-                .div(
-                    .class("split"),
-                    .div(
-                        .h2(.text(model.title)),
-                        .element(named: "small", nodes: [ // TODO: Fix after Plot update
-                            .a(
-                                .id("package_url"),
-                                .href(model.url),
-                                .text(model.url)
-                            )
-                        ]),
-                        arenaButton()
-                    ),
-                    licenseMetadata()
+                .h2(.text(model.title)),
+                .small(
+                    .a(
+                        .id("package_url"),
+                        .href(model.url),
+                        .text(model.url)
+                    )
                 ),
-                .hr(),
+                .hr(.class("tight")),
                 .p(
-                    .class("description"),
+                    .class("summary"),
                     .unwrap(model.summary) { summary in
                         .text(summary.replaceShorthandEmojis())
                     }
                 ),
-                .section(
-                    .class("metadata"),
-                    .ul(
-                        .unwrap(model.authorsClause()) {
-                            .li(.class("icon author"), $0)
-                        },
-                        .unwrap(model.historyClause()) {
-                            .li(.class("icon history"), $0)
-                        },
-                        .unwrap(model.activityClause()) {
-                            .li(.class("icon activity"), $0)
-                        },
-                        .unwrap(model.productsClause()) {
-                            .li(.class("icon products"), $0)
-                        },
-                        .unwrap(model.starsClause()) {
-                            .li(.class("icon stars"), $0)
-                        }
-                    )
-                ),
-                .element(named: "hr", nodes:[ // TODO: Fix after Plot update
-                    .attribute(named: "class", value: "short")
-                ]),
-                .section(
-                    .class("releases"),
-                    .ul(
-                        .li(.group(model.stableReleaseClause())),
-                        .li(.group(model.betaReleaseClause())),
-                        .li(.group(model.latestReleaseClause()))
-                    )
-                ),
-                .group(
-                    model.swiftVersionCompatibilitySection(),
-                    model.platformCompatibilitySection()
-                ),
+                detailsSection(),
                 readmeSection()
             )
         }
-        
-        func licenseLozenge() -> Node<HTML.BodyContext> {
-            switch model.license.licenseKind {
-                case .compatibleWithAppStore:
-                    return .div(
-                        .class("lozenge green"),
-                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                        .i(.class("icon osi")),
-                        .text(model.license.shortName)
-                    )
-                case .other:
-                    return .div(
-                        .class("lozenge \(model.license.licenseKind.cssClass)"),
-                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                        .i(.class("icon warning")),
-                        .text(model.license.shortName)
-                    )
-                case .none,
-                     .incompatibleWithAppStore:
-                    return .div(
-                        .class("lozenge \(model.license.licenseKind.cssClass)"),
-                        .attribute(named: "title", value: model.license.fullName), // TODO: Fix after Plot update
-                        .i(.class("icon warning")),
-                        .text(model.license.shortName)
-                    )
-            }
-        }
 
-        func licenseMetadata() -> Node<HTML.BodyContext> {
-            return .div(
-                .class("license"),
-                .a(
-                    .href(SiteURL.faq.relativeURL(anchor: "licenses")),
-                    .i(.class("icon question"))
+        func detailsSection() -> Node<HTML.BodyContext> {
+            .article(
+                .class("details"),
+                .div(
+                    .class("two_column"),
+                    mainColumnMetadata(),
+                    sidebarLinks()
                 ),
-                .unwrap(model.licenseUrl, { licenseUrl in
-                    .a(
-                        href: licenseUrl,
-                        licenseLozenge()
-                    )
-                }, else: licenseLozenge())
+                .hr(
+                    .class("minor")
+                ),
+                .div(
+                    .class("two_column"),
+                    mainColumnCompatibility(),
+                    sidebarVersions()
+                )
             )
         }
 
-        func arenaButton() -> Node<HTML.BodyContext> {
+        func mainColumnMetadata() -> Node<HTML.BodyContext> {
+            .section(
+                .class("main_metadata"),
+                .ul(
+                    model.authorsListItem(),
+                    model.historyListItem(),
+                    model.activityListItem(),
+                    model.licenseListItem(),
+                    model.starsListItem(),
+                    model.librariesListItem(),
+                    model.executablesListItem()
+                )
+            )
+        }
+
+        func mainColumnCompatibility() -> Node<HTML.BodyContext> {
+            .section(
+                .class("main_compatibility"),
+                .h3("Compatibility"),
+                .div(
+                    .class("matrices"),
+                    model.swiftVersionCompatibilitySection(),
+                    model.platformCompatibilitySection()
+                )
+            )
+        }
+
+        func sidebarLinks() -> Node<HTML.BodyContext> {
             let environment = (try? Environment.detect()) ?? .development
-            return .if(environment != .production,
-                       .a(.href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
-                          "🏟")
+            return .section(
+                .class("sidebar_links"),
+                .ul(
+                    .if(environment == .development,
+                        .li(
+                            .a(
+                                .href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
+                                "Try in a Playground"
+                            )
+                        )
+                    ),
+                    .li(
+                        .a(
+                            .href(model.url),
+                            // TODO: Make "GitHub" dynamic.
+                            "View on GitHub"
+                        )
+                    ),
+                    .li(
+                        .a(
+                            .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
+                            "Full Package Compatibility Report"
+                        )
+                    )
+                )
+            )
+        }
+
+        func sidebarVersions() -> Node<HTML.BodyContext> {
+            .section(
+                .class("sidebar_versions"),
+                .h3("Versions"),
+                .ul(
+                    model.stableReleaseMetadata(),
+                    model.betaReleaseMetadata(),
+                    model.defaultBranchMetadata()
+                )
             )
         }
 
@@ -163,17 +159,6 @@ enum PackageShow {
                     .raw(html)
                 )
             )
-        }
-    }
-}
-
-
-private extension License.Kind {
-    var cssClass: String {
-        switch self {
-            case .none: return "red"
-            case .incompatibleWithAppStore, .other: return "orange"
-            case .compatibleWithAppStore: return "green"
         }
     }
 }

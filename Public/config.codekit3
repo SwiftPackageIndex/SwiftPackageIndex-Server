@@ -15,38 +15,12 @@
 		"oAP": "/deploy/deploy",
 		"oF": 0
 		},
-	"/fonts/icomoon.svg": {
-		"ft": 2097152,
-		"miP": 0,
-		"oA": 2,
-		"oAP": "/deploy/fonts/icomoon.svg",
-		"oF": 1,
-		"opt": 1,
-		"plM": 52780316221407,
-		"prP": 0
-		},
-	"/fonts/icomoon.ttf": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 2,
-		"oAP": "/deploy/fonts/icomoon.ttf",
-		"oF": 1
-		},
-	"/fonts/icomoon.woff": {
-		"cB": 0,
-		"ft": 8192,
-		"hM": 0,
-		"oA": 2,
-		"oAP": "/deploy/fonts/icomoon.woff",
-		"oF": 1
-		},
 	"/images/add-package-in-xcode~dark.png": {
 		"ft": 32768,
 		"iS": 28133,
 		"oA": 0,
 		"oAP": "/deploy/images/add-package-in-xcode~dark.png",
-		"oF": 0,
+		"oF": 1,
 		"oIPL": 0,
 		"opt": 1,
 		"oT": 1,
@@ -59,7 +33,7 @@
 		"iS": 13822,
 		"oA": 0,
 		"oAP": "/deploy/images/add-package-in-xcode~light.png",
-		"oF": 0,
+		"oF": 1,
 		"oIPL": 1,
 		"opt": 1,
 		"oT": 1,
@@ -72,7 +46,7 @@
 		"iS": 63176,
 		"oA": 0,
 		"oAP": "/deploy/images/languages-and-platforms~dark.png",
-		"oF": 0,
+		"oF": 1,
 		"oIPL": 0,
 		"opt": 1,
 		"oT": 1,
@@ -85,7 +59,7 @@
 		"iS": 59196,
 		"oA": 0,
 		"oAP": "/deploy/images/languages-and-platforms~light.png",
-		"oF": 0,
+		"oF": 1,
 		"oIPL": 0,
 		"opt": 1,
 		"oT": 1,
@@ -98,7 +72,7 @@
 		"iS": 10085,
 		"oA": 0,
 		"oAP": "/deploy/images/logo-simple.png",
-		"oF": 0,
+		"oF": 1,
 		"oIPL": 1,
 		"opt": 1,
 		"oT": 1,
@@ -111,7 +85,7 @@
 		"iS": 100571,
 		"oA": 0,
 		"oAP": "/deploy/images/logo.png",
-		"oF": 0,
+		"oF": 1,
 		"oIPL": 1,
 		"opt": 1,
 		"oT": 1,
@@ -124,7 +98,7 @@
 		"miP": 0,
 		"oA": 0,
 		"oAP": "/deploy/images/logo.svg",
-		"oF": 0,
+		"oF": 1,
 		"opt": 1,
 		"plM": 52780316221407,
 		"prP": 0
@@ -134,7 +108,7 @@
 		"iS": 499622,
 		"oA": 0,
 		"oAP": "/deploy/images/swiftpm-library.png",
-		"oF": 0,
+		"oF": 1,
 		"oIPL": 0,
 		"opt": 1,
 		"oT": 1,
@@ -335,7 +309,7 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/base.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
@@ -348,20 +322,7 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/build_logs.css",
-		"oF": 0,
-		"oS": 0,
-		"sct": 0
-		},
-	"/stylesheets/builds.scss": {
-		"aP": 0,
-		"bl": 0,
-		"dP": 10,
-		"ec": 1,
-		"ft": 4,
-		"ma": 0,
-		"oA": 1,
-		"oAP": "/deploy/stylesheets/builds.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
@@ -374,7 +335,7 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/colors.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
@@ -387,7 +348,7 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/error.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
@@ -400,7 +361,7 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/header_footer.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
@@ -413,7 +374,7 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/highlight.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
@@ -426,11 +387,11 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/home.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
-	"/stylesheets/icon.scss": {
+	"/stylesheets/images.scss": {
 		"aP": 0,
 		"bl": 0,
 		"dP": 10,
@@ -438,8 +399,8 @@
 		"ft": 4,
 		"ma": 0,
 		"oA": 1,
-		"oAP": "/deploy/stylesheets/icon.css",
-		"oF": 0,
+		"oAP": "/deploy/stylesheets/images.css",
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
@@ -452,7 +413,7 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/layout.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
@@ -478,7 +439,7 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/markdown.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
@@ -491,7 +452,7 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/matrix.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
@@ -504,7 +465,7 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/package.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		},
@@ -517,7 +478,7 @@
 		"ma": 0,
 		"oA": 1,
 		"oAP": "/deploy/stylesheets/readme.css",
-		"oF": 0,
+		"oF": 1,
 		"oS": 0,
 		"sct": 0
 		}
@@ -532,7 +493,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 632143645.53827095
+	"lastBuiltDate": 633451070.904001
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
