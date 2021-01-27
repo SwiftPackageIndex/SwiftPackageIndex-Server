@@ -96,8 +96,11 @@ enum PackageShow {
             .section(
                 .class("main_compatibility"),
                 .h3("Compatibility"),
-                model.swiftVersionCompatibilitySection(),
-                model.platformCompatibilitySection()
+                .div(
+                    .class("matrices"),
+                    model.swiftVersionCompatibilitySection(),
+                    model.platformCompatibilitySection()
+                )
             )
         }
 

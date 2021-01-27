@@ -3,9 +3,14 @@
   matrices on the package page, and for the full build compatibility report.
 ---------------------------------------------------------------------------- */
 
-ul.matrix {
+.matrices {
+  display: grid;
+  gap: 20px;
+}
+
+.matrix {
+  margin: 0;
   padding: 0;
-  margin: 15px 0;
 
   li {
     margin: 5px 0;
