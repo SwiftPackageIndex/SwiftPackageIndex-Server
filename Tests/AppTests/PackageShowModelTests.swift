@@ -161,42 +161,6 @@ class PackageShowModelTests: AppTestCase {
         XCTAssertEqual(model.activityListItem().render(), "")
     }
 
-    func test_license_open_source_license() throws {
-        var model = PackageShow.Model.mock
-        model.license = .mit
-        model.licenseUrl = "https://example.com/license.html"
-
-        let renderedLicense = model.licenseListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedLicense, as: .lines)
-    }
-
-    func test_license_app_store_incompatible_license() throws {
-        var model = PackageShow.Model.mock
-        model.license = .gpl_3_0
-        model.licenseUrl = "https://example.com/license.html"
-
-        let renderedLicense = model.licenseListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedLicense, as: .lines)
-    }
-
-    func test_license_other_license() throws {
-        var model = PackageShow.Model.mock
-        model.license = .other
-        model.licenseUrl = "https://example.com/license.html"
-
-        let renderedLicense = model.licenseListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedLicense, as: .lines)
-
-    }
-
-    func test_license_no_license() throws {
-        var model = PackageShow.Model.mock
-        model.license = .none
-
-        let renderedLicense = model.licenseListItem().render(indentedBy: .spaces(2))
-        assertSnapshot(matching: renderedLicense, as: .lines)
-    }
-
     func test_stars_formatting() throws {
         var model = PackageShow.Model.mock
         model.stars = 999

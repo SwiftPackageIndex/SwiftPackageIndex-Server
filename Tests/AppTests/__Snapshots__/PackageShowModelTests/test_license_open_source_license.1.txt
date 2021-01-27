@@ -1,3 +1,0 @@
-<li class="license">
-  <a href="https://example.com/license.html" title="MIT License">MIT</a> licensed
-</li>

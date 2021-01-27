@@ -1,4 +1,0 @@
-<li class="license warning">
-  <a href="https://example.com/license.html">Unknown license</a>
-  <a id="license_more_info" href="/faq#licenses">Why is this package's license unknown?</a>
-</li>
