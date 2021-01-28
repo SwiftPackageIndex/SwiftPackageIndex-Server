@@ -198,12 +198,31 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
 
     let expectedBuildCount = BuildPair.all.count
 
+    #warning("turn into env variable")
+    let deadTime = 24 // hours
     return db.raw("""
             SELECT package_id, min(created_at) FROM (
                 SELECT v.package_id, v.latest, MIN(v.created_at) created_at
                 FROM versions v
                 LEFT JOIN builds b ON b.version_id = v.id
+                JOIN packages p ON v.package_id = p.id
+                -- select versions, that are
                 WHERE v.latest IS NOT NULL
+                  AND (
+                    -- either tags
+                    v.reference->'tag' IS NOT NULL
+                    OR
+                    -- or branches
+                    (
+                      v.reference->'branch' IS NOT NULL
+                      AND (
+                        -- which are more than interval T old
+                        v.created_at < NOW() - INTERVAL '\(bind: deadTime) hours'
+                        -- or whose package has been created within interval T
+                        OR p.created_at >= NOW() - INTERVAL '\(bind: deadTime) hours'
+                      )
+                    )
+                  )
                 GROUP BY v.package_id, v.latest
                 HAVING COUNT(*) < \(bind: expectedBuildCount)
             ) AS t
@@ -264,6 +283,7 @@ func findMissingBuilds(_ database: Database,
         .filter(\.$latest != nil)
         .all()
 
+    #warning("filter out ineligible branch builds here as well")
     return versions.mapEachCompact { v in
         guard let versionId = v.id else { return nil }
         let existing = v.builds.map { BuildPair($0.platform, $0.swiftVersion) }

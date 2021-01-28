@@ -1,5 +1,6 @@
 @testable import App
 
+import Fluent
 import SQLKit
 import Vapor
 import XCTest
@@ -15,7 +16,9 @@ class BuildTriggerTests: AppTestCase {
         do {  // save package with all builds
             let p = Package(id: pkgIdComplete, url: pkgIdComplete.uuidString.url)
             try p.save(on: app.db).wait()
-            let v = try Version(package: p, latest: .defaultBranch)
+            let v = try Version(package: p,
+                                latest: .defaultBranch,
+                                reference: .branch("main"))
             try v.save(on: app.db).wait()
             try BuildPair.all.forEach { pair in
                 try Build(id: UUID(),
@@ -31,7 +34,11 @@ class BuildTriggerTests: AppTestCase {
             let p = Package(id: id, url: id.uuidString.url)
             try p.save(on: app.db).wait()
             try [Version.Kind.defaultBranch, .release].forEach { kind in
-                let v = try Version(package: p, latest: kind)
+                let v = try Version(package: p,
+                                    latest: kind,
+                                    reference: kind == .release
+                                        ? .tag(1, 2, 3)
+                                        : .branch("main"))
                 try v.save(on: app.db).wait()
                 try BuildPair.all
                     .dropFirst() // skip one platform to create a build gap
@@ -62,7 +69,11 @@ class BuildTriggerTests: AppTestCase {
         let p = Package(id: pkgId, url: pkgId.uuidString.url)
         try p.save(on: app.db).wait()
         try [Version.Kind.defaultBranch, .release].forEach { kind in
-            let v = try Version(package: p, latest: kind)
+            let v = try Version(package: p,
+                                latest: kind,
+                                reference: kind == .release
+                                    ? .tag(1, 2, 3)
+                                    : .branch("main"))
             try v.save(on: app.db).wait()
         }
 
@@ -71,6 +82,72 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(ids, [pkgId])
+    }
+
+    func test_fetchBuildCandidates_branchBuildThrottle_packageAge() throws {
+        // Test build throttling for branch builds, package age based selection
+        // setup
+        let pkgId = UUID()
+        let p = Package(id: pkgId, url: pkgId.uuidString.url)
+        try p.save(on: app.db).wait()
+        let v = try Version(package: p,
+                            latest: .defaultBranch,
+                            reference: .branch("main"))
+        try v.save(on: app.db).wait()
+
+        do {  // first ensure that the package is a candidate when it's new
+            // MUT
+            let ids = try fetchBuildCandidates(app.db).wait()
+
+            // validate
+            XCTAssertEqual(ids, [pkgId])
+        }
+
+        do {  // now artificially "age" the package, which should make it ineligible
+            #warning("use env variable once it's there")
+            let oneDayAgo = Date(timeIntervalSinceNow: -86400)
+            try setAllPackagesCreatedAt(app.db, createdAt: oneDayAgo)
+
+            // MUT
+            let ids = try fetchBuildCandidates(app.db).wait()
+
+            // validate
+            XCTAssertEqual(ids, [])
+        }
+    }
+
+    func test_fetchBuildCandidates_branchBuildThrottle_versionAge() throws {
+        // Test build throttling for branch builds, version age based selection
+        // setup
+        let pkgId = UUID()
+        let p = Package(id: pkgId, url: pkgId.uuidString.url)
+        try p.save(on: app.db).wait()
+        let v = try Version(package: p,
+                            latest: .defaultBranch,
+                            reference: .branch("main"))
+        try v.save(on: app.db).wait()
+        // make sure the package is not new, so we don't select it on that account
+        #warning("use env variable once it's there")
+        let oneDayAgo = Date(timeIntervalSinceNow: -86400)
+        try setAllPackagesCreatedAt(app.db, createdAt: oneDayAgo)
+
+        do {  // first ensure that the package is NOT a candidate when the version is recent
+            // MUT
+            let ids = try fetchBuildCandidates(app.db).wait()
+
+            // validate
+            XCTAssertEqual(ids, [])
+        }
+
+        do {  // now artificially "age" the version, which should make it eligible
+            try setAllVersionsCreatedAt(app.db, createdAt: oneDayAgo)
+
+            // MUT
+            let ids = try fetchBuildCandidates(app.db).wait()
+
+            // validate
+            XCTAssertEqual(ids, [pkgId])
+        }
     }
 
     func test_findMissingBuilds() throws {
@@ -541,4 +618,24 @@ class BuildTriggerTests: AppTestCase {
                        [keepBuildId1, keepBuildId2])
     }
 
+}
+
+
+private func setAllPackagesCreatedAt(_ db: Database, createdAt: Date) throws {
+    let db = db as! SQLDatabase
+    try db.raw("""
+        update packages set created_at = \(bind: createdAt)
+        """)
+        .run()
+        .wait()
+}
+
+
+private func setAllVersionsCreatedAt(_ db: Database, createdAt: Date) throws {
+    let db = db as! SQLDatabase
+    try db.raw("""
+        update versions set created_at = \(bind: createdAt)
+        """)
+        .run()
+        .wait()
 }
