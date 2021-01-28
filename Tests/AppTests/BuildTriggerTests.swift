@@ -104,9 +104,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         do {  // now artificially "age" the package, which should make it ineligible
-            #warning("use env variable once it's there")
-            let oneDayAgo = Date(timeIntervalSinceNow: -86400)
-            try setAllPackagesCreatedAt(app.db, createdAt: oneDayAgo)
+            try setAllPackagesCreatedAt(app.db, createdAt: beforeDeadTime)
 
             // MUT
             let ids = try fetchBuildCandidates(app.db).wait()
@@ -127,9 +125,7 @@ class BuildTriggerTests: AppTestCase {
                             reference: .branch("main"))
         try v.save(on: app.db).wait()
         // make sure the package is not new, so we don't select it on that account
-        #warning("use env variable once it's there")
-        let oneDayAgo = Date(timeIntervalSinceNow: -86400)
-        try setAllPackagesCreatedAt(app.db, createdAt: oneDayAgo)
+        try setAllPackagesCreatedAt(app.db, createdAt: beforeDeadTime)
 
         do {  // first ensure that the package is NOT a candidate when the version is recent
             // MUT
@@ -140,7 +136,7 @@ class BuildTriggerTests: AppTestCase {
         }
 
         do {  // now artificially "age" the version, which should make it eligible
-            try setAllVersionsCreatedAt(app.db, createdAt: oneDayAgo)
+            try setAllVersionsCreatedAt(app.db, createdAt: beforeDeadTime)
 
             // MUT
             let ids = try fetchBuildCandidates(app.db).wait()
@@ -619,6 +615,9 @@ class BuildTriggerTests: AppTestCase {
     }
 
 }
+
+
+let beforeDeadTime = Date(timeIntervalSinceNow: -TimeInterval(Constants.branchBuildDeadTime*3600))
 
 
 private func setAllPackagesCreatedAt(_ db: Database, createdAt: Date) throws {

@@ -34,5 +34,7 @@ enum Constants {
     static let searchLimit = 20
     static let searchLimitLeeway = 5
 
+    // build system settings
     static let trimBuildsGracePeriod = 4  // hours
+    static let branchBuildDeadTime = 24 // hours
 }

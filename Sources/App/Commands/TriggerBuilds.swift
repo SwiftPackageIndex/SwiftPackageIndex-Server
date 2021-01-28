@@ -198,8 +198,6 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
 
     let expectedBuildCount = BuildPair.all.count
 
-    #warning("turn into env variable")
-    let deadTime = 24 // hours
     return db.raw("""
             SELECT package_id, min(created_at) FROM (
                 SELECT v.package_id, v.latest, MIN(v.created_at) created_at
@@ -217,9 +215,9 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
                       v.reference->'branch' IS NOT NULL
                       AND (
                         -- which are more than interval T old
-                        v.created_at < NOW() - INTERVAL '\(bind: deadTime) hours'
+                        v.created_at < NOW() - INTERVAL '\(bind: Constants.branchBuildDeadTime) hours'
                         -- or whose package has been created within interval T
-                        OR p.created_at >= NOW() - INTERVAL '\(bind: deadTime) hours'
+                        OR p.created_at >= NOW() - INTERVAL '\(bind: Constants.branchBuildDeadTime) hours'
                       )
                     )
                   )
