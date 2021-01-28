@@ -160,7 +160,7 @@ class BuildTriggerTests: AppTestCase {
                                 reference: .tag(1, 2, 3))
             try v.save(on: app.db).wait()
             try Build.Platform.allActive
-                .filter { $0 != droppedPlatform } // skip one build to create a build gap
+                .filter { $0 != droppedPlatform } // skip one platform to create a build gap
                 .forEach { platform in
                 try SwiftVersion.allActive.forEach { swiftVersion in
                     try Build(id: UUID(),
@@ -196,7 +196,7 @@ class BuildTriggerTests: AppTestCase {
                                 reference: .branch("main"))
             try v.save(on: app.db).wait()
             try Build.Platform.allActive
-                .filter { $0 != droppedPlatform } // skip one build to create a build gap
+                .filter { $0 != droppedPlatform } // skip one platform to create a build gap
                 .forEach { platform in
                 try SwiftVersion.allActive.forEach { swiftVersion in
                     try Build(id: UUID(),
@@ -243,7 +243,7 @@ class BuildTriggerTests: AppTestCase {
                                 reference: .branch("main"))
             try v.save(on: app.db).wait()
             try Build.Platform.allActive
-                .filter { $0 != droppedPlatform } // skip one build to create a build gap
+                .filter { $0 != droppedPlatform } // skip one platform to create a build gap
                 .forEach { platform in
                 try SwiftVersion.allActive.forEach { swiftVersion in
                     try Build(id: UUID(),
