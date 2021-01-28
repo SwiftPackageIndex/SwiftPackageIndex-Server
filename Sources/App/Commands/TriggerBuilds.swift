@@ -288,16 +288,18 @@ func findMissingBuilds(_ database: Database,
             // because it's not clear how to write
             // v.reference->'tag' IS NOT NULL
             // in Fluent - and the select isn't huge
-            if version.reference?.isTag == true { return version }
             guard
+                let reference = version.reference,
                 let packageCreatedAt = version.package.createdAt,
                 let versionCreatedAt = version.createdAt else {
                 return nil
             }
+            if reference.isTag { return version }
             let isNewPackage = packageCreatedAt >= cutOffDate
             let isOldVersion = versionCreatedAt < cutOffDate
-            if isNewPackage || isOldVersion { return version }
-            return nil
+            return isNewPackage || isOldVersion
+                ? version
+                : nil
         }
 
     return versions.mapEachCompact { v in
