@@ -1,0 +1,16 @@
+variables:
+  api_url: https://gitlab.com/api/v4
+  project_id: 19564054
+
+requests:
+  repos:
+    url: ${api_url}/projects/${project_id}/pipelines
+    query:
+      status: running
+      page: 1
+      per_page: 20
+    headers:
+      Authorization: Bearer ${API_TOKEN}
+    validation:
+      status: 200
+    log: json
