@@ -199,8 +199,8 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
     let expectedBuildCount = BuildPair.all.count
 
     return db.raw("""
-            SELECT package_id, min(updated_at) FROM (
-                SELECT v.package_id, v.latest, MIN(v.updated_at) updated_at
+            SELECT package_id, min(created_at) FROM (
+                SELECT v.package_id, v.latest, MIN(v.created_at) created_at
                 FROM versions v
                 LEFT JOIN builds b ON b.version_id = v.id
                 WHERE v.latest IS NOT NULL
@@ -208,7 +208,7 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
                 HAVING COUNT(*) < \(bind: expectedBuildCount)
             ) AS t
             GROUP BY package_id
-            ORDER BY MIN(updated_at)
+            ORDER BY MIN(created_at)
             """)
         .all(decoding: Row.self)
         .mapEach(\.packageId)
