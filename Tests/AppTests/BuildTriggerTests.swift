@@ -7,7 +7,7 @@ import XCTest
 
 class BuildTriggerTests: AppTestCase {
 
-    func test_fetchBuildCandidates() throws {
+    func test_fetchBuildCandidates_missingBuilds() throws {
         // setup
         let pkgIdComplete = UUID()
         let pkgIdIncomplete1 = UUID()
@@ -51,6 +51,26 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(ids, [pkgIdIncomplete1, pkgIdIncomplete2])
+    }
+
+    func test_fetchBuildCandidates_noBuilds() throws {
+        // Test finding build candidate without any builds (essentially
+        // testing the `LEFT` in `LEFT JOIN builds`
+        // setup
+        // save package without any builds
+        let pkgId = UUID()
+        let p = Package(id: pkgId, url: pkgId.uuidString.url)
+        try p.save(on: app.db).wait()
+        try [Version.Kind.defaultBranch, .release].forEach { kind in
+            let v = try Version(package: p, latest: kind)
+            try v.save(on: app.db).wait()
+        }
+
+        // MUT
+        let ids = try fetchBuildCandidates(app.db).wait()
+
+        // validate
+        XCTAssertEqual(ids, [pkgId])
     }
 
     func test_findMissingBuilds() throws {
