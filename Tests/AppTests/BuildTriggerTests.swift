@@ -150,13 +150,14 @@ class BuildTriggerTests: AppTestCase {
         // setup
         let pkgId = UUID()
         let versionId = UUID()
+        let droppedPlatform = try XCTUnwrap(Build.Platform.allActive.first)
         do {  // save package with partially completed builds
             let p = Package(id: pkgId, url: "1")
             try p.save(on: app.db).wait()
             let v = try Version(id: versionId, package: p, latest: .defaultBranch)
             try v.save(on: app.db).wait()
             try Build.Platform.allActive
-                .dropFirst() // skip one platform to create a build gap
+                .filter { $0 != droppedPlatform } // skip one build to create a build gap
                 .forEach { platform in
                 try SwiftVersion.allActive.forEach { swiftVersion in
                     try Build(id: UUID(),
@@ -171,10 +172,97 @@ class BuildTriggerTests: AppTestCase {
 
         // MUT
         let res = try findMissingBuilds(app.db, packageId: pkgId).wait()
-        let droppedPlatform = try XCTUnwrap(Build.Platform.allActive.first)
         let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
         XCTAssertEqual(res, [.init(versionId: versionId,
                                    pairs: expectedPairs)])
+    }
+
+    func test_findMissingBuilds_branchBuildThrottle_packageAge() throws {
+        // Test build throttling for branch builds, package age based selection
+        // setup
+        let pkgId = UUID()
+        let versionId = UUID()
+        let droppedPlatform = try XCTUnwrap(Build.Platform.allActive.first)
+        do {  // save package with partially completed builds
+            let p = Package(id: pkgId, url: "1")
+            try p.save(on: app.db).wait()
+            let v = try Version(id: versionId, package: p, latest: .defaultBranch)
+            try v.save(on: app.db).wait()
+            try Build.Platform.allActive
+                .filter { $0 != droppedPlatform } // skip one build to create a build gap
+                .forEach { platform in
+                try SwiftVersion.allActive.forEach { swiftVersion in
+                    try Build(id: UUID(),
+                              version: v,
+                              platform: platform,
+                              status: .ok,
+                              swiftVersion: swiftVersion)
+                        .save(on: app.db).wait()
+                }
+            }
+        }
+
+        do { // first ensure builds are being picked up when package is new
+
+            // MUT
+            let res = try findMissingBuilds(app.db, packageId: pkgId).wait()
+            let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
+            XCTAssertEqual(res, [.init(versionId: versionId,
+                                       pairs: expectedPairs)])
+        }
+
+        do { // now "age" the package out of selection - builds should not be selected
+            try setAllPackagesCreatedAt(app.db, createdAt: beforeDeadTime)
+
+            // MUT
+            let res = try findMissingBuilds(app.db, packageId: pkgId).wait()
+            XCTAssertEqual(res, [])
+        }
+    }
+
+    func test_findMissingBuilds_branchBuildThrottle_versionAge() throws {
+        // Test build throttling for branch builds, version age based selection
+        // setup
+        let pkgId = UUID()
+        let versionId = UUID()
+        let droppedPlatform = try XCTUnwrap(Build.Platform.allActive.first)
+        do {  // save package with partially completed builds
+            let p = Package(id: pkgId, url: "1")
+            try p.save(on: app.db).wait()
+            let v = try Version(id: versionId, package: p, latest: .defaultBranch)
+            try v.save(on: app.db).wait()
+            try Build.Platform.allActive
+                .filter { $0 != droppedPlatform } // skip one build to create a build gap
+                .forEach { platform in
+                try SwiftVersion.allActive.forEach { swiftVersion in
+                    try Build(id: UUID(),
+                              version: v,
+                              platform: platform,
+                              status: .ok,
+                              swiftVersion: swiftVersion)
+                        .save(on: app.db).wait()
+                }
+            }
+        }
+        // make sure the package is not new, so we don't select it on that account
+        try setAllPackagesCreatedAt(app.db, createdAt: beforeDeadTime)
+
+        do { // first ensure NO builds are being picked up when the version is new
+
+            // MUT
+            let res = try findMissingBuilds(app.db, packageId: pkgId).wait()
+            XCTAssertEqual(res, [])
+        }
+
+        do {  // now artificially "age" the version, which should make its builds eligible
+            try setAllVersionsCreatedAt(app.db, createdAt: beforeDeadTime)
+
+            // MUT
+            let res = try findMissingBuilds(app.db, packageId: pkgId).wait()
+            let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
+            XCTAssertEqual(res, [.init(versionId: versionId,
+                                       pairs: expectedPairs)])
+        }
     }
 
     func test_triggerBuildsUnchecked() throws {

@@ -275,13 +275,31 @@ struct BuildTriggerInfo: Equatable {
 
 func findMissingBuilds(_ database: Database,
                        packageId: Package.Id) -> EventLoopFuture<[BuildTriggerInfo]> {
+    let cutOffDate = Current.date().addingTimeInterval(-TimeInterval(Constants.branchBuildDeadTime*3600))
+
     let versions = Version.query(on: database)
         .with(\.$builds)
+        .with(\.$package)
         .filter(\.$package.$id == packageId)
         .filter(\.$latest != nil)
         .all()
+        .mapEachCompact { version -> Version? in
+            // filter branch versions against branchBuildDeadTime client side,
+            // because it's not clear how to write
+            // v.reference->'tag' IS NOT NULL
+            // in Fluent - and the select isn't huge
+            if version.reference?.isTag == true { return version }
+            guard
+                let packageCreatedAt = version.package.createdAt,
+                let versionCreatedAt = version.createdAt else {
+                return nil
+            }
+            let isNewPackage = packageCreatedAt >= cutOffDate
+            let isOldVersion = versionCreatedAt < cutOffDate
+            if isNewPackage || isOldVersion { return version }
+            return nil
+        }
 
-    #warning("filter out ineligible branch builds here as well")
     return versions.mapEachCompact { v in
         guard let versionId = v.id else { return nil }
         let existing = v.builds.map { BuildPair($0.platform, $0.swiftVersion) }
