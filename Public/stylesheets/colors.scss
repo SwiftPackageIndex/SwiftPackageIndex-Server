@@ -67,6 +67,8 @@
 
   --blockquote-text: var(--dark-grey);
   --blockquote-border: var(--light-grey);
+  --table-header-background: var(--very-light-grey);
+  --table-row-alt-background: var(--very-very-light-grey);
 
   --header-background: var(--very-dark-blue);
   --header-text: var(--white);
@@ -126,6 +128,8 @@
 
     --blockquote-text: var(--light-grey);
     --blockquote-border: var(--dark-grey);
+    --table-header-background: var(--very-dark-grey);
+    --table-row-alt-background: var(--very-very-dark-grey);
 
     --header-background: var(--very-dark-blue);
     --header-gradient-start: rgba(255, 255, 255, 0.08);
