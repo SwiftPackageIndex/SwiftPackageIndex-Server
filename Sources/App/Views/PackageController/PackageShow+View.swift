@@ -129,6 +129,12 @@ enum PackageShow {
                             .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
                             "Full Package Compatibility Report"
                         )
+                    ),
+                    .li(
+                        .a(
+                            .href(SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
+                            "More from \(model.repositoryOwner)"
+                        )
                     )
                 )
             )
