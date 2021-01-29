@@ -5,7 +5,7 @@ description: The Swift Package Index and your privacy
 
 ### Your Personal Information
 
-This site has no user accounts and will not ask you to identify yourself.
+This site has no user accounts and does not ask you to identify yourself.
 
 ### Data Sources and Storage
 
