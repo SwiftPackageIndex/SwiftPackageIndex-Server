@@ -19,7 +19,7 @@ scrape_configs:
     pipeline_stages:
       - docker: {}
       - regex:
-          expression: "\\[component:\\s*(?P<component>\[\w,-]+)\\]"
+          expression: "\\[component:\\s*(?P<component>[\\w,-]+)\\]"
       - labels:
           component:
       - drop:
