@@ -215,9 +215,9 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
                       v.reference->'branch' IS NOT NULL
                       AND (
                         -- which are more than interval T old
-                        v.created_at < NOW() - INTERVAL '\(bind: Constants.branchBuildDeadTime) hours'
+                        v.created_at < NOW() - INTERVAL '\(raw: String(Constants.branchBuildDeadTime)) hours'
                         -- or whose package has been created within interval T
-                        OR p.created_at >= NOW() - INTERVAL '\(bind: Constants.branchBuildDeadTime) hours'
+                        OR p.created_at >= NOW() - INTERVAL '\(raw: String(Constants.branchBuildDeadTime)) hours'
                       )
                     )
                   )
