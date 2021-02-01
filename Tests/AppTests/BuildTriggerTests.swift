@@ -146,6 +146,34 @@ class BuildTriggerTests: AppTestCase {
         }
     }
 
+    func test_fetchBuildCandidates_bindParam() throws {
+        // Bind parameter issue regression test, details:
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/909
+        // setup
+        let pkgId = UUID()
+        let p = Package(id: pkgId, url: "1")
+        try p.save(on: app.db).wait()
+        let v = try Version(package: p,
+                            latest: .defaultBranch,
+                            reference: .branch("main"))
+        try v.save(on: app.db).wait()
+
+        let db = try XCTUnwrap(app.db as? SQLDatabase)
+
+        // "age" package
+        try db.raw("update packages set created_at = NOW() - interval '1 year'")
+            .run().wait()
+        // "age" version
+        try db.raw("update versions set created_at = NOW() - interval '1 h'")
+            .run().wait()
+
+        // MUT
+        let ids = try fetchBuildCandidates(app.db).wait()
+
+        // validate
+        XCTAssertEqual(ids, [])
+    }
+
     func test_findMissingBuilds() throws {
         // setup
         let pkgId = UUID()
@@ -652,7 +680,6 @@ class BuildTriggerTests: AppTestCase {
     func test_trimBuilds() throws {
         // setup
         let pkgId = UUID()
-        // save package with all builds
         let p = Package(id: pkgId, url: "1")
         try p.save(on: app.db).wait()
         // v1 is a significant version, only old pending builds should be deleted
@@ -714,6 +741,28 @@ class BuildTriggerTests: AppTestCase {
                        [keepBuildId1, keepBuildId2])
     }
 
+    func test_trimBuilds_bindParam() throws {
+        // Bind parameter issue regression test, details:
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/909
+        // setup
+        let pkgId = UUID()
+        let p = Package(id: pkgId, url: "1")
+        try p.save(on: app.db).wait()
+        let v1 = try Version(package: p, latest: .defaultBranch)
+        try v1.save(on: app.db).wait()
+        try Build(version: v1, platform: .ios, status: .pending, swiftVersion: .v5_1)
+            .save(on: app.db).wait()
+
+        let db = try XCTUnwrap(app.db as? SQLDatabase)
+        try db.raw("update builds set created_at = NOW() - interval '1 h'")
+            .run().wait()
+
+        // MUT
+        let deleteCount = try trimBuilds(on: app.db).wait()
+
+        // validate
+        XCTAssertEqual(deleteCount, 0)
+    }
 }
 
 

@@ -215,9 +215,9 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
                       v.reference->'branch' IS NOT NULL
                       AND (
                         -- which are more than interval T old
-                        v.created_at < NOW() - INTERVAL '\(bind: Constants.branchBuildDeadTime) hours'
+                        v.created_at < NOW() - INTERVAL '\(raw: String(Constants.branchBuildDeadTime)) hours'
                         -- or whose package has been created within interval T
-                        OR p.created_at >= NOW() - INTERVAL '\(bind: Constants.branchBuildDeadTime) hours'
+                        OR p.created_at >= NOW() - INTERVAL '\(raw: String(Constants.branchBuildDeadTime)) hours'
                       )
                     )
                   )
@@ -331,7 +331,7 @@ func trimBuilds(on database: Database) -> EventLoopFuture<Int> {
         AND (
             v.latest is null
             OR
-            (b.status = 'pending' AND b.created_at < NOW() - INTERVAL '\(bind: Constants.trimBuildsGracePeriod) hours')
+            (b.status = 'pending' AND b.created_at < NOW() - INTERVAL '\(raw: String(Constants.trimBuildsGracePeriod)) hours')
         )
         RETURNING b.id
         """)
