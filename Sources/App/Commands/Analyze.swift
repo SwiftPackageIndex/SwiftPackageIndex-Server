@@ -249,23 +249,27 @@ func refreshCheckout(eventLoop: EventLoop,
         return eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
     return threadPool.runIfActive(eventLoop: eventLoop) {
-        guard Current.fileManager.fileExists(atPath: cacheDir) else {
-            try clone(logger: logger, cacheDir: cacheDir, url: package.url)
-            return
-        }
-
-        // attempt to fetch - if anything goes wrong we delete the directory
-        // and fall back to cloning
         do {
-            try fetch(logger: logger,
-                      cacheDir: cacheDir,
-                      branch: package.repository?.defaultBranch ?? "master",
-                      url: package.url)
+            guard Current.fileManager.fileExists(atPath: cacheDir) else {
+                try clone(logger: logger, cacheDir: cacheDir, url: package.url)
+                return
+            }
+
+            // attempt to fetch - if anything goes wrong we delete the directory
+            // and fall back to cloning
+            do {
+                try fetch(logger: logger,
+                          cacheDir: cacheDir,
+                          branch: package.repository?.defaultBranch ?? "master",
+                          url: package.url)
+            } catch {
+                logger.info("fetch failed: \(error.localizedDescription)")
+                logger.info("removing directory")
+                try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
+                try clone(logger: logger, cacheDir: cacheDir, url: package.url)
+            }
         } catch {
-            logger.info("fetch failed: \(error.localizedDescription)")
-            logger.info("removing directory")
-            try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
-            try clone(logger: logger, cacheDir: cacheDir, url: package.url)
+            throw AppError.analysisError(package.id, "refreshCheckout failed: \(error.localizedDescription)")
         }
     }
     .map { package }
