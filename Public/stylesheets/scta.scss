@@ -53,3 +53,15 @@
     font-size: 14px;
   }
 }
+
+.scta {
+  margin: 0 auto;
+  padding: 15px 50px 15px 15px;
+  max-width: 700px;
+  background-color: var(--popover-background);
+  border-left: 3px var(--pink) solid;
+  background-image: var(--image-heart);
+  background-size: 30px;
+  background-position: right 15px top 15px;
+  background-repeat: no-repeat;
+}
