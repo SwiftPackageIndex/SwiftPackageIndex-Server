@@ -216,11 +216,21 @@ class PublicPage {
             )
         )
     }
-    
+
     /// List items to be rendered in the site navigation menu.
     /// - Returns: An array of <li> elements.
     func navItems() -> [Node<HTML.ListContext>] {
         [
+            .li(
+                .a(
+                    .id("menu_scta"),
+                    .href("https://github.com/sponsors/SwiftPackageIndex")
+                ),
+                .div(
+                    .id("menu_scta_help"),
+                    .text("The development of this site is funded entirely by community donations. Please consider clicking the heart. Thank you!")
+                )
+            ),
             .li(
                 .a(
                     .href(SiteURL.addAPackage.relativeURL()),

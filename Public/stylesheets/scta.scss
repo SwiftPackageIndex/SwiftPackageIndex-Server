@@ -1,0 +1,55 @@
+/* -------------------------------------------------------------------------
+  Styling for the various sponsorship call-to-action buttons and links.
+---------------------------------------------------------------------------- */
+
+@keyframes scta {
+  from {
+    transform: scale(1, 1);
+  }
+  to {
+    transform: scale(1.25, 1.25);
+  }
+}
+
+#menu_scta {
+  display: block;
+  border: none;
+  width: 30px;
+  height: 30px;
+  background-image: var(--image-heart);
+  background-size: 25px;
+  background-position: center top 3px;
+  background-repeat: no-repeat;
+}
+
+#menu_scta_help {
+  display: none;
+}
+
+// Note: This is min-width, not max-width as usual. This *only* for larger devices.
+@media screen and (min-width: $mobile-breakpoint) {
+  #menu_scta:hover {
+    animation: scta 0.4s ease-in-out alternate infinite;
+
+    & + #menu_scta_help {
+      display: block;
+    }
+  }
+
+  #menu_scta_help {
+    position: absolute;
+    margin-top: 10px;
+    padding: 10px;
+    width: 300px;
+    left: 500px;
+    background-image: var(--image-scta-popover);
+    background-size: 20px;
+    background-position: center top;
+    background-repeat: no-repeat;
+    color: var(--page-text);
+    background-color: var(--popover-background);
+    border-top: 3px var(--pink) solid;
+    box-shadow: 0 3px 6px 2px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+  }
+}
