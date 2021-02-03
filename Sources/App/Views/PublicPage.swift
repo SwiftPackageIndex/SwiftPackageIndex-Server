@@ -228,7 +228,8 @@ class PublicPage {
                 ),
                 .div(
                     .id("menu_scta_help"),
-                    .text("The development of this site is funded entirely by community donations. Please consider clicking the heart. Thank you!")
+                    .text("Development of this site is entirely funded by community donations. Please consider clicking the heart. "),
+                    .strong("Thank you!")
                 )
             ),
             .li(
