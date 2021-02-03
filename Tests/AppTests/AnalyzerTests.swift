@@ -956,6 +956,39 @@ class AnalyzerTests: AppTestCase {
                               packageResults: packageResults).wait()
     }
 
+    func test_issue_914() throws {
+        // Ensure we handle 404 repos properly
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/914
+        // setup
+        try savePackage(on: app.db,
+                        "1".asGithubUrl.url,
+                        processingStage: .ingestion)
+        Current.fileManager.fileExists = { path in
+            if path.hasSuffix("github.com-foo-1") { return false }
+            return true
+        }
+        struct ShellOutError: Error {}
+        Current.shell.run = { cmd, path in
+            if cmd.string.hasPrefix("git clone") {
+                throw ShellOutError()
+            }
+            fatalError("should not be reached")
+        }
+        let lastUpdated = Date()
+
+        // MUT
+        try analyze(client: app.client,
+                    database: app.db,
+                    logger: app.logger,
+                    threadPool: app.threadPool,
+                    limit: 10).wait()
+
+        // validate
+        let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
+        XCTAssertTrue(pkg.updatedAt! > lastUpdated)
+        XCTAssertEqual(pkg.status, .analysisFailed)
+    }
+
 }
 
 
