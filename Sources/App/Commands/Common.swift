@@ -68,6 +68,8 @@ func recordError(database: Database,
     guard let error = error as? AppError else { return database.eventLoop.future() }
     
     switch error {
+        case let .analysisError(id, _):
+            return setStatus(id: id, status: .analysisFailed)
         case .envVariableNotSet, .shellCommandFailed:
             return database.eventLoop.future()
         case let .genericError(id, _):
