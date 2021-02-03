@@ -28,8 +28,12 @@
 
 // Note: This is min-width, not max-width as usual. This *only* for larger devices.
 @media screen and (min-width: $mobile-breakpoint) {
+  li.menu_scta {
+    position: relative;
+  }
+
   #menu_scta:hover {
-    animation: scta 0.4s ease-in-out alternate infinite;
+    animation: scta 0.6s ease-in-out alternate infinite;
 
     & + #menu_scta_help {
       display: block;
@@ -41,27 +45,40 @@
     margin-top: 10px;
     padding: 10px;
     width: 300px;
-    left: 500px;
+    left: calc(-150px + 15px); // Half the div's width - half the heart's width.
     background-image: var(--image-scta-popover);
     background-size: 20px;
-    background-position: center top;
+    background-position: center top -10px;
     background-repeat: no-repeat;
     color: var(--page-text);
     background-color: var(--popover-background);
     border-top: 3px var(--pink) solid;
     box-shadow: 0 3px 6px 2px rgba(0, 0, 0, 0.2);
     font-size: 14px;
+
+    &:before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: -13px;
+      margin-left: -10px;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 10px 10px 10px;
+      border-color: transparent transparent var(--pink) transparent;
+    }
   }
 }
 
 .scta {
   margin: 0 auto;
-  padding: 15px 50px 15px 15px;
+  padding: 15px 15px 15px 60px;
   max-width: 700px;
   background-color: var(--popover-background);
-  border-left: 3px var(--pink) solid;
+  border-top: 3px var(--pink) solid;
   background-image: var(--image-heart);
   background-size: 30px;
-  background-position: right 15px top 15px;
+  background-position: left 15px top 15px;
   background-repeat: no-repeat;
 }

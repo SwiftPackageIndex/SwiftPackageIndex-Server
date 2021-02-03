@@ -54,7 +54,7 @@ enum HomeIndex {
             .group(
                 .div(
                     .class("scta"),
-                    .text("Development of this site is entirely funded by community donations. Please consider supporting the future of this site by "),
+                    .text("This site is entirely funded by community donations. Please consider supporting this project by "),
                     .a(
                         .href("https://github.com/sponsors/SwiftPackageIndex"),
                         "sponsoring the Swift Package Index"

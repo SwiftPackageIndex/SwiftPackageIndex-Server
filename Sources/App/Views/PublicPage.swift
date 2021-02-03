@@ -222,13 +222,14 @@ class PublicPage {
     func navItems() -> [Node<HTML.ListContext>] {
         [
             .li(
+                .class("menu_scta"),
                 .a(
                     .id("menu_scta"),
                     .href("https://github.com/sponsors/SwiftPackageIndex")
                 ),
                 .div(
                     .id("menu_scta_help"),
-                    .text("Development of this site is entirely funded by community donations. Please consider clicking the heart. "),
+                    .text("This site is entirely funded by community donations. Please consider sponsoring this project. "),
                     .strong("Thank you!")
                 )
             ),
@@ -327,12 +328,6 @@ class PublicPage {
                                 .href("https://twitter.com/swiftpackages"),
                                 "Twitter"
                             )
-                        )
-                    ),
-                    .p(
-                        .a(
-                            .href("https://github.com/sponsors/SwiftPackageIndex"),
-                            "Please consider supporting this project"
                         )
                     ),
                     .element(named: "small", nodes: [ // TODO: Fix after Plot update
