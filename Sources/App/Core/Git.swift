@@ -62,12 +62,12 @@ enum Git {
     
     static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
         let safe = sanitizeInput("\(reference)")
-        let dash = "-"
+        let separator = "-"
         let res = try Current.shell.run(
-            command: .init(string: #"git log -n1 --format=format:"%H\#(dash)%ct" "\#(safe)""#),
+            command: .init(string: #"git log -n1 --format=format:"%H\#(separator)%ct" "\#(safe)""#),
             at: path
         )
-        let parts = res.components(separatedBy: dash)
+        let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else { throw GitError.invalidRevisionInfo }
         let hash = parts[0]
         guard let timestamp = TimeInterval(parts[1]) else { throw GitError.invalidTimestamp }
