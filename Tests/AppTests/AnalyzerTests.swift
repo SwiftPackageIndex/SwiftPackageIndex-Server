@@ -451,13 +451,15 @@ class AnalyzerTests: AppTestCase {
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        // fetch relationship, which is what `fetchCandidates` does
+        try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
         let delta = try diffVersions(client: app.client,
-                                        logger: app.logger,
-                                        threadPool: app.threadPool,
-                                        transaction: app.db,
-                                        package: pkg).wait()
+                                     logger: app.logger,
+                                     threadPool: app.threadPool,
+                                     transaction: app.db,
+                                     package: pkg).wait()
 
         // validate
         assertEquals(delta.toAdd, \.reference,
@@ -489,6 +491,8 @@ class AnalyzerTests: AppTestCase {
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success(pkg)
         ]
+        // fetch relationship, which is what `fetchCandidates` does
+        try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
         let results = try diffVersions(client: app.client,

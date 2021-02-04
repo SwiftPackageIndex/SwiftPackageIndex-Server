@@ -363,12 +363,10 @@ func diffVersions(client: Client,
     guard let pkgId = package.id else {
         return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.url)"))
     }
-    
-    let defaultBranch = Repository.defaultBranch(on: transaction, for: package)
-        .map { b -> [Reference] in
-            if let b = b { return [.branch(b)] } else { return [] }  // drop nil default branch
-        }
-    
+
+    let defaultBranch = package.repository?.defaultBranch
+        .map { Reference.branch($0) }
+
     let tags: EventLoopFuture<[Reference]> = threadPool.runIfActive(eventLoop: transaction.eventLoop) {
         logger.info("listing tags for package \(package.url)")
         return try Git.tag(at: cacheDir)
@@ -380,7 +378,7 @@ func diffVersions(client: Client,
             .transform(to: [])
     }
     
-    let references = defaultBranch.and(tags).map { $0 + $1 }
+    let references = tags.map { tags in [defaultBranch].compactMap { $0 } + tags }
     let incoming: EventLoopFuture<[Version]> = references
         .flatMapEachThrowing { ref in
             let revInfo = try Git.revisionInfo(ref, at: cacheDir)
