@@ -66,6 +66,10 @@
     </section>
     <main>
       <div class="inner">
+        <div class="scta">This site is entirely funded by community donations. Please consider supporting this project by 
+          <a href="https://github.com/sponsors/SwiftPackageIndex">sponsoring the Swift Package Index</a>. 
+          <strong>Thank you!</strong>
+        </div>
         <div class="recent">
           <section class="recent_packages">
             <h3>Recently Added</h3>
@@ -157,9 +161,6 @@
               <a href="https://twitter.com/swiftpackages">Twitter</a>
             </li>
           </ul>
-          <p>
-            <a href="https://github.com/sponsors/SwiftPackageIndex">Please consider supporting this project</a>
-          </p>
           <small>Kindly hosted by
             <a href="https://macstadium.com/">MacStadium</a>
           </small>

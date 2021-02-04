@@ -51,17 +51,29 @@ enum HomeIndex {
         }
         
         override func content() -> Node<HTML.BodyContext> {
-            .div(
-                .class("recent"),
-                .section(
-                    .class("recent_packages"),
-                    .h3("Recently Added"),
-                    .ul(model.recentPackagesSection())
+            .group(
+                .div(
+                    .class("scta"),
+                    .text("This site is entirely funded by community donations. Please consider supporting this project by "),
+                    .a(
+                        .href("https://github.com/sponsors/SwiftPackageIndex"),
+                        "sponsoring the Swift Package Index"
+                    ),
+                    .text(". "),
+                    .strong("Thank you!")
                 ),
-                .section(
-                    .class("recent_releases"),
-                    .h3("Recent Releases"),
-                    .ul(model.recentReleasesSection())
+                .div(
+                    .class("recent"),
+                    .section(
+                        .class("recent_packages"),
+                        .h3("Recently Added"),
+                        .ul(model.recentPackagesSection())
+                    ),
+                    .section(
+                        .class("recent_releases"),
+                        .h3("Recent Releases"),
+                        .ul(model.recentReleasesSection())
+                    )
                 )
             )
         }

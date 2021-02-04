@@ -481,6 +481,19 @@
 		"oF": 1,
 		"oS": 0,
 		"sct": 0
+		},
+	"/stylesheets/scta.scss": {
+		"aP": 0,
+		"bl": 0,
+		"dP": 10,
+		"ec": 1,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "/deploy/stylesheets/scta.css",
+		"oF": 0,
+		"oS": 0,
+		"sct": 0
 		}
 	},
 "hooks": [
@@ -493,7 +506,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 633627652.40908396
+	"lastBuiltDate": 634129641.26492095
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
