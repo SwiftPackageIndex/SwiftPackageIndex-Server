@@ -139,6 +139,9 @@ func analyze(client: Client,
                          threadPool: threadPool,
                          transaction: tx,
                          packages: packages)
+                .map { throttleBranchVersions(
+                    packageDeltas: $0,
+                    delay: Constants.branchVersionRefreshDelay) }
                 .flatMap { mergeReleaseInfo(on: tx, packageDeltas: $0) }
                 .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
                 .map { getManifests(packageAndVersions: $0) }
@@ -381,13 +384,53 @@ func diffVersions(client: Client,
                                commit: revInfo.commit,
                                commitDate: revInfo.date,
                                reference: ref,
-                               url: url) }
-    
+                               url: url)
+        }
+
     return Version.query(on: transaction)
         .filter(\.$package.$id == pkgId)
         .all()
         .and(incoming)
         .map(Version.diff)
+}
+
+
+func throttleBranchVersions(packageDeltas: [Result<(Package, VersionDelta), Error>],
+                            delay: TimeInterval) -> [Result<(Package, VersionDelta), Error>] {
+    packageDeltas.map { result in
+        result.map { pkg, deltas in
+            (pkg, throttleBranchVersions(deltas, delay: delay))
+        }
+    }
+}
+
+
+func throttleBranchVersions(_ deltas: VersionDelta,
+                            delay: TimeInterval) -> VersionDelta {
+    let rejectRecentBranchVersions: (Version) -> Bool = { version in
+        // if any value is nil leave unchanged (don't reject)
+        if case .some(.branch) = version.reference,
+           let commitDate = version.commitDate,
+           commitDate >= Current.date().addingTimeInterval(-delay) {
+            return false
+        }
+        return true
+    }
+    let selectRecentBranchVersions: (Version) -> Bool = { version in
+        // if any value is nil leave unchanged (don't select)
+        if case .some(.branch) = version.reference,
+           let commitDate = version.commitDate,
+           commitDate >= Current.date().addingTimeInterval(-delay) {
+            return true
+        }
+        return false
+    }
+
+    return .init(
+        toAdd: deltas.toAdd.filter(rejectRecentBranchVersions),
+        toDelete: deltas.toDelete.filter(rejectRecentBranchVersions),
+        toKeep: deltas.toKeep + deltas.toDelete.filter(selectRecentBranchVersions)
+    )
 }
 
 

@@ -521,6 +521,62 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(delta.toDelete, [])
     }
 
+    func test_throttleBranchVersions() throws {
+        Current.date = { Date(timeIntervalSince1970: 25.hours) }
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+        let deltas = VersionDelta(
+            toAdd: [
+                try Version(
+                    package: pkg,
+                    commit: "sha_new",
+                    commitDate: Date(timeIntervalSince1970: 24.hours),
+                    reference: .branch("main")
+                ),
+                try Version(
+                    package: pkg,
+                    commit: "sha_y",
+                    commitDate: Date(timeIntervalSince1970: 24.hours),
+                    reference: .tag(2, 0, 0)
+                )
+            ],
+            toDelete: [
+                try Version(
+                    package: pkg,
+                    commit: "sha_old",
+                    commitDate: Date(timeIntervalSince1970: 23.hours),
+                    reference: .branch("main")
+                ),
+                try Version(
+                    package: pkg,
+                    commit: "sha_x",
+                    commitDate: Date(timeIntervalSince1970: 23.hours),
+                    reference: .tag(1, 0, 0)
+                )
+            ],
+            toKeep: [
+                try Version(
+                    package: pkg,
+                    commit: "sha_z",
+                    commitDate: Date(timeIntervalSince1970: 10.hours),
+                    reference: .tag(0, 1, 2)
+                )
+            ]
+        )
+        // MUT
+        let res = throttleBranchVersions(deltas, delay: 24.hours)
+
+        // validate
+        XCTAssertEqual(res.toAdd.map(\.reference), [.tag(2, 0, 0)])
+        XCTAssertEqual(res.toDelete.map(\.reference), [.tag(1, 0, 0)])
+        XCTAssertEqual(res.toKeep.map(\.reference), [
+                        .tag(0, 1, 2),
+                        .branch("main")])
+        XCTAssertEqual(res.toKeep.map(\.commit), [
+                        "sha_z",
+                        "sha_old"])
+    }
+
     func test_mergeReleaseInfo() throws {
         // setup
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)

@@ -146,8 +146,9 @@ class ReAnalyzeVersionsTests: AppTestCase {
         // Test to ensure versions are updated even if processing throws errors.
         // This is to ensure our candidate selection shrinks and we don't
         // churn over and over on failing versions.
-        let cutoff = Date(timeIntervalSince1970: 1)
-        Current.date = { Date(timeIntervalSince1970: 2) }
+        let commitDate = 0.hours
+        let cutoff = Date(timeIntervalSince1970: commitDate + 1.hour)
+        Current.date = { Date(timeIntervalSince1970: commitDate + 25.hours) }
         let pkg = try savePackage(on: app.db,
                                   "https://github.com/foo/1".url,
                                   processingStage: .ingestion)
