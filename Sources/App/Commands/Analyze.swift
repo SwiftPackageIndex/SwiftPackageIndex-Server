@@ -407,15 +407,6 @@ func throttleBranchVersions(packageDeltas: [Result<(Package, VersionDelta), Erro
 
 func throttleBranchVersions(_ deltas: VersionDelta,
                             delay: TimeInterval) -> VersionDelta {
-    let rejectRecentBranchVersions: (Version) -> Bool = { version in
-        // if any value is nil leave unchanged (don't reject)
-        if case .some(.branch) = version.reference,
-           let commitDate = version.commitDate,
-           commitDate >= Current.date().addingTimeInterval(-delay) {
-            return false
-        }
-        return true
-    }
     let selectRecentBranchVersions: (Version) -> Bool = { version in
         // if any value is nil leave unchanged (don't select)
         if case .some(.branch) = version.reference,
@@ -424,6 +415,9 @@ func throttleBranchVersions(_ deltas: VersionDelta,
             return true
         }
         return false
+    }
+    let rejectRecentBranchVersions: (Version) -> Bool = {
+        !selectRecentBranchVersions($0)
     }
 
     return .init(
