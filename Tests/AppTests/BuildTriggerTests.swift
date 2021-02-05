@@ -146,34 +146,6 @@ class BuildTriggerTests: AppTestCase {
         }
     }
 
-    func test_fetchBuildCandidates_bindParam() throws {
-        // Bind parameter issue regression test, details:
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/909
-        // setup
-        let pkgId = UUID()
-        let p = Package(id: pkgId, url: "1")
-        try p.save(on: app.db).wait()
-        let v = try Version(package: p,
-                            latest: .defaultBranch,
-                            reference: .branch("main"))
-        try v.save(on: app.db).wait()
-
-        let db = try XCTUnwrap(app.db as? SQLDatabase)
-
-        // "age" package
-        try db.raw("update packages set created_at = NOW() - interval '1 year'")
-            .run().wait()
-        // "age" version
-        try db.raw("update versions set created_at = NOW() - interval '1 h'")
-            .run().wait()
-
-        // MUT
-        let ids = try fetchBuildCandidates(app.db).wait()
-
-        // validate
-        XCTAssertEqual(ids, [])
-    }
-
     func test_findMissingBuilds() throws {
         // setup
         let pkgId = UUID()
