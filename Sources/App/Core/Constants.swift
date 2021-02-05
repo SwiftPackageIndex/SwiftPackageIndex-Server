@@ -36,6 +36,5 @@ enum Constants {
 
     // build system settings
     static let trimBuildsGracePeriod = 4  // hours
-    static let branchBuildDeadTime = 24 // hours
     static let branchVersionRefreshDelay = 24.hours
 }
