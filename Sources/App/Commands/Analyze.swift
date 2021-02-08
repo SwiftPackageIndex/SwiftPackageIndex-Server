@@ -61,11 +61,7 @@ func analyze(client: Client,
              logger: Logger,
              threadPool: NIOThreadPool,
              id: Package.Id) -> EventLoopFuture<Void> {
-    Package.query(on: database)
-        .with(\.$repositories)
-        .filter(\.$id == id)
-        .first()
-        .unwrap(or: Abort(.notFound))
+    Package.fetchCandidate(database, id: id)
         .map { [$0] }
         .flatMap {
             analyze(client: client,

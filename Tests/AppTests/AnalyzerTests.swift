@@ -448,11 +448,13 @@ class AnalyzerTests: AppTestCase {
             if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.2.3""# { return "sha.1.2.3-1" }
             throw TestError.unknownCommand
         }
-        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        // fetch relationship, which is what `fetchCandidates` does
-        try pkg.$repositories.load(on: app.db).wait()
+        let pkgId = UUID()
+        do {
+            let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
+            try pkg.save(on: app.db).wait()
+            try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        }
+        let pkg = try Package.fetchCandidate(app.db, id: pkgId).wait()
 
         // MUT
         let delta = try diffVersions(client: app.client,

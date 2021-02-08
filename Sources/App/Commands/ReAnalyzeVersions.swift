@@ -73,11 +73,7 @@ func reAnalyzeVersions(client: Client,
                        threadPool: NIOThreadPool,
                        versionsLastUpdatedBefore cutOffDate: Date,
                        id: Package.Id) -> EventLoopFuture<Void> {
-    Package.query(on: database)
-        .with(\.$repositories)
-        .filter(\.$id == id)
-        .first()
-        .unwrap(or: Abort(.notFound))
+    Package.fetchCandidate(database, id: id)
         .map { [$0] }
         .flatMap { reAnalyzeVersions(client: client,
                                      database: database,
