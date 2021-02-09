@@ -2,9 +2,9 @@
 
 import Foundation
 
-extension AuthorInfoIndex.Model {
+extension MaintainerInfoIndex.Model {
 
-    static var mock: AuthorInfoIndex.Model {
+    static var mock: MaintainerInfoIndex.Model {
         .init(packageName: "Example Package", repositoryOwner: "example", repositoryName: "package")
     }
 }

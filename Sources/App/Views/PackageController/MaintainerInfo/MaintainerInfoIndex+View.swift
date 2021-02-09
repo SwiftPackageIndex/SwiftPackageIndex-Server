@@ -1,6 +1,6 @@
 import Plot
 
-enum AuthorInfoIndex {
+enum MaintainerInfoIndex {
 
     class View: PublicPage {
 
@@ -13,7 +13,7 @@ enum AuthorInfoIndex {
 
         override func content() -> Node<HTML.BodyContext> {
             .div(
-                .h2("Author Information for \(model.packageName)"),
+                .h2("Information for \(model.packageName) Maintainers"),
                 .p("Are you the author, or a maintainer of \(model.packageName)?")
             )
         }

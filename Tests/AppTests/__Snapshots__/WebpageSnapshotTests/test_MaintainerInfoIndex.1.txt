@@ -63,7 +63,7 @@
     <main>
       <div class="inner">
         <div>
-          <h2>Author Information for Example Package</h2>
+          <h2>Information for Example Package Maintainers</h2>
           <p>Are you the author, or a maintainer of Example Package?</p>
         </div>
       </div>

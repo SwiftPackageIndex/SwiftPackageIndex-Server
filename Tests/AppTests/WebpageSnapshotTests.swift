@@ -314,8 +314,8 @@ class WebpageSnapshotTests: XCTestCase {
         #endif
     }
 
-    func test_AuthorInfoIndex() throws {
-        let page = { AuthorInfoIndex.View(path: "", model: .mock).document() }
+    func test_MaintainerInfoIndex() throws {
+        let page = { MaintainerInfoIndex.View(path: "", model: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
 

@@ -2,7 +2,7 @@ import Foundation
 import Plot
 
 
-extension AuthorInfoIndex {
+extension MaintainerInfoIndex {
 
     struct Model {
         var packageName: String
