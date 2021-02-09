@@ -532,7 +532,7 @@ class AnalyzerTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
 
         // MUT
-        let res = throttle(existing: [old], incoming: [new])
+        let res = throttle(lastestExistingVersion: old, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [old])
@@ -548,7 +548,7 @@ class AnalyzerTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
 
         // MUT
-        let res = throttle(existing: [old], incoming: [new])
+        let res = throttle(lastestExistingVersion: old, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [new])

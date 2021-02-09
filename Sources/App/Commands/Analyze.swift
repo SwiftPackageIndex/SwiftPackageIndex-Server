@@ -357,8 +357,10 @@ func diffVersions(client: Client,
                 transaction: transaction,
                 package: package)
         .map { existing, incoming in
+            // TODO: add test for this path (ensure it's wired up)
             (existing: existing,
-             incoming: throttle(existing: existing, incoming: incoming))
+             incoming: throttle(lastestExistingVersion: latestBranchVersion(existing),
+                                incoming: incoming))
         }
         .map(Version.diff)
 }
@@ -391,7 +393,7 @@ func getVersions(client: Client,
             .transform(to: [])
     }
 
-    
+
     let references = tags.map { tags in [defaultBranch].compactMap { $0 } + tags }
     let incoming: EventLoopFuture<[Version]> = references
         .flatMapEachThrowing { ref in
@@ -412,43 +414,48 @@ func getVersions(client: Client,
 }
 
 
-#warning("change to throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version]")
-func throttle(existing: [Version], incoming: [Version]) -> [Version] {
-    let isBranch: (Version) -> Bool = { $0.reference?.isBranch ?? false }
-    let isNotBranch: (Version) -> Bool = { !isBranch($0) }
+func isBranch(_ version: Version) -> Bool {
+    version.reference?.isBranch ?? false
+}
 
-    let existingBranchVersions = existing
+
+func not<T>(_ block: @escaping (T) -> Bool) -> (T) -> Bool {
+    { !block($0) }
+}
+
+
+func latestBranchVersion(_ versions: [Version]) -> Version? {
+    versions
         .filter(isBranch)
         .filter { $0.commitDate != nil }
         .sorted { $0.commitDate! < $1.commitDate! }
+        .last
+}
 
-    let incomingBranchVersions = incoming
-        .filter(isBranch)
-        .filter { $0.commitDate != nil }
-        .sorted { $0.commitDate! < $1.commitDate! }
 
-    guard let incomingVersion = incomingBranchVersions.last,
-          let latestIncoming = incomingVersion.commitDate else {
-        // there's no incoming branch version -> use incoming as is (will remove)
-        return incoming
-    }
-
-    guard let existingVersion = existingBranchVersions.last,
+func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version] {
+    guard let existingVersion = lastestExistingVersion,
           let latestExisting = existingVersion.commitDate else {
-        // there's no existing branch version -> use incoming as is (will add)
+        // there's no existing branch version -> leave incoming alone (which will lead to addition)
         return incoming
     }
 
-    let delta = latestExisting.distance(to: latestIncoming)
-    if delta < Constants.branchVersionRefreshDelay {
+    guard let incomingVersion = latestBranchVersion(incoming),
+          let latestIncoming = incomingVersion.commitDate else {
+        // there's no incoming branch version -> leave incoming alone (which will lead to removal)
         return incoming
-            .filter(isNotBranch)  // remove all branch versions
-            + [existingVersion]   // keep existing branch version
-    } else {
-        return incoming
-            .filter(isNotBranch)  // remove all branch versions
-            + [incomingVersion]   // add latest incoming branch version
     }
+
+    // TODO: distance to latestIncoming to to Current.date() ?
+    let delta = latestExisting.distance(to: latestIncoming)
+
+    let resultingBranchVersion = delta < Constants.branchVersionRefreshDelay
+        ? existingVersion
+        : incomingVersion
+
+    return incoming
+        .filter(not(isBranch))      // remove all branch versions
+        + [resultingBranchVersion]  // add resulting version
 }
 
 
