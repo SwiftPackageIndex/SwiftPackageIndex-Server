@@ -524,82 +524,123 @@ class AnalyzerTests: AppTestCase {
     func test_throttleBranchVersions() throws {
         // First test keeping branch version out of changes (add/delete) if
         // within the "throttle window"
-        Current.date = { Date(timeIntervalSince1970: 25.hours) }
+        // setup
+        Current.date = { Date(timeIntervalSince1970: 0.hours) }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
-        let deltas = VersionDelta(
-            toAdd: [
-                try Version(
-                    package: pkg,
-                    commit: "sha_new",
-                    commitDate: Date(timeIntervalSince1970: 24.hours),
-                    reference: .branch("main")
-                ),
-                try Version(
-                    package: pkg,
-                    commit: "sha_y",
-                    commitDate: Date(timeIntervalSince1970: 24.hours),
-                    reference: .tag(2, 0, 0)
-                )
-            ],
-            toDelete: [
-                try Version(
-                    package: pkg,
-                    commit: "sha_old",
-                    commitDate: Date(timeIntervalSince1970: 23.hours),
-                    reference: .branch("main")
-                ),
-                try Version(
-                    package: pkg,
-                    commit: "sha_x",
-                    commitDate: Date(timeIntervalSince1970: 23.hours),
-                    reference: .tag(1, 0, 0)
-                )
-            ],
-            toKeep: [
-                try Version(
-                    package: pkg,
-                    commit: "sha_z",
-                    commitDate: Date(timeIntervalSince1970: 10.hours),
-                    reference: .tag(0, 1, 2)
-                )
-            ]
-        )
+        let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("main"))
+        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
+        let deltas = Version.diff(local: [old], incoming: [new])
+        XCTAssertEqual(deltas, .init(toAdd: [new], toDelete: [old], toKeep: []))
 
         do {
             // MUT
             let res = throttleBranchVersions(deltas, delay: 24.hours)
 
             // validate
-            XCTAssertEqual(res.toAdd.map(\.reference), [.tag(2, 0, 0)])
-            XCTAssertEqual(res.toDelete.map(\.reference), [.tag(1, 0, 0)])
-            XCTAssertEqual(res.toKeep.map(\.reference), [
-                            .tag(0, 1, 2),
-                            .branch("main")])
-            XCTAssertEqual(res.toKeep.map(\.commit), [
-                            "sha_z",
-                            "sha_old"])
+            XCTAssertEqual(res.toAdd, [])
+            XCTAssertEqual(res.toDelete, [])
+            XCTAssertEqual(res.toKeep, [old])
         }
 
         // Now test keeping branch version in changes (add/delete) if
         // out of the "throttle window" by advancing time by 24h
-        Current.date = { Date(timeIntervalSince1970: (25 + 24).hours) }
+        Current.date = { Date(timeIntervalSince1970: 24.hours) }
 
         do {
             // MUT
             let res = throttleBranchVersions(deltas, delay: 24.hours)
 
             // validate
-            XCTAssertEqual(res.toAdd.map(\.reference), [
-                            .branch("main"),
-                            .tag(2, 0, 0)])
-            XCTAssertEqual(res.toDelete.map(\.reference), [
-                            .branch("main"),
-                            .tag(1, 0, 0)])
-            XCTAssertEqual(res.toKeep.map(\.reference), [.tag(0, 1, 2)])
-            XCTAssertEqual(res.toKeep.map(\.commit), ["sha_z"])
+            XCTAssertEqual(res.toAdd, [new])
+            XCTAssertEqual(res.toDelete, [old])
+            XCTAssertEqual(res.toKeep, [])
         }
     }
+
+    func test_diffVersions_throttling() throws {
+        // First test keeping branch version out of changes (add/delete) if
+        // within the "throttle window"
+        // setup
+        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+        let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("main"))
+        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
+
+        // MUT
+        let res = diffVersions(existing: [old], incoming: [new])
+
+        // validate
+        XCTAssertEqual(res.toAdd, [])
+        XCTAssertEqual(res.toDelete, [])
+        XCTAssertEqual(res.toKeep, [old])
+    }
+
+    func test_throttleBranchVersions_2() throws {
+        throw XCTSkip("old version")
+        // Update versions when previous version is outside the window
+        // setup
+        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+        let old = try makeVersion(pkg, "sha_old", -25.hours, .branch("main"))
+        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
+        let deltas = Version.diff(local: [old], incoming: [new])
+        XCTAssertEqual(deltas, .init(toAdd: [new], toDelete: [old], toKeep: []))
+
+        // MUT
+        let res = throttleBranchVersions(deltas, delay: 24.hours)
+
+        // validate
+        XCTAssertEqual(res.toAdd, [new])
+        XCTAssertEqual(res.toDelete, [old])
+        XCTAssertEqual(res.toKeep, [])
+    }
+
+    func test_diffVersions_throttling_2() throws {
+        // Update versions when previous version is outside the window
+        // setup
+        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+        let old = try makeVersion(pkg, "sha_old", -26.hours, .branch("main"))
+        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
+
+        // MUT
+        let res = diffVersions(existing: [old], incoming: [new])
+
+        // validate
+        XCTAssertEqual(res.toAdd, [new])
+        XCTAssertEqual(res.toDelete, [old])
+        XCTAssertEqual(res.toKeep, [])
+    }
+
+    func test_throttleBranchVersions_advance() throws {
+        throw XCTSkip("old version")
+        // Simulate a couple of days of processing
+        // setup
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+
+        // start at t0
+        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        let v0 = try makeVersion(pkg, "sha_0", 0.hours, .branch("main"))
+        let deltas = Version.diff(local: [], incoming: [v0])
+        XCTAssertEqual(deltas, .init(toAdd: [v0], toDelete: [], toKeep: []))
+
+        // MUT
+        let res = throttleBranchVersions(deltas, delay: 24.hours)
+
+        // validate
+        XCTAssertEqual(res.toAdd, [v0])
+        XCTAssertEqual(res.toDelete, [])
+        XCTAssertEqual(res.toKeep, [])
+    }
+
+    #warning("add test to ensure we don't touch tags")
+    #warning("test new package which has no existing .branch version")
+    #warning("test branch ref change")
 
     func test_mergeReleaseInfo() throws {
         // setup
@@ -1105,4 +1146,24 @@ private enum TestError: Error {
     case simulatedCheckoutError
     case simulatedFetchError
     case unknownCommand
+}
+
+
+private func makeVersion(_ package: Package,
+                         _ commit: CommitHash,
+                         _ commitDate: TimeInterval,
+                         _ reference: Reference) throws -> Version {
+    try Version(
+        package: package,
+        commit: commit,
+        commitDate: Date(timeIntervalSince1970: commitDate),
+        reference: reference
+    )
+}
+
+
+extension Version: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        commit ?? "nil"
+    }
 }

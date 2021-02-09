@@ -395,6 +395,52 @@ func diffVersions(client: Client,
 }
 
 
+#warning("change to throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version]")
+func diffVersions(existing: [Version], incoming: [Version]) -> VersionDelta {
+    let isBranch: (Version) -> Bool = { $0.reference?.isBranch ?? false }
+    let isNotBranch: (Version) -> Bool = { !isBranch($0) }
+
+    let existingBranchVersions = existing
+        .filter(isBranch)
+        .filter { $0.commitDate != nil }
+        .sorted { $0.commitDate! < $1.commitDate! }
+
+    let incomingBranchVersions = incoming
+        .filter(isBranch)
+        .filter { $0.commitDate != nil }
+        .sorted { $0.commitDate! < $1.commitDate! }
+
+    guard let incomingVersion = incomingBranchVersions.last,
+          let latestIncoming = incomingVersion.commitDate else {
+        // there's no incoming branch version -> use incoming as is (will remove)
+        return Version.diff(local: existing, incoming: incoming)
+    }
+
+    guard let existingVersion = existingBranchVersions.last,
+          let latestExisting = existingVersion.commitDate else {
+        // there's no existing branch version -> use incoming as is (will add)
+        return Version.diff(local: existing, incoming: incoming)
+    }
+
+    let delta = latestExisting.distance(to: latestIncoming)
+    if delta < Constants.branchVersionRefreshDelay {
+        return Version.diff(
+            local: existing,
+            incoming: incoming
+                .filter(isNotBranch)  // remove all branch versions
+                + [existingVersion]   // keep existing branch version
+        )
+    } else {
+        return Version.diff(
+            local: existing,
+            incoming: incoming
+                .filter(isNotBranch)  // remove all branch versions
+                + [incomingVersion]   // add latest incoming branch version
+        )
+    }
+}
+
+
 func throttleBranchVersions(packageDeltas: [Result<(Package, VersionDelta), Error>],
                             delay: TimeInterval) -> [Result<(Package, VersionDelta), Error>] {
     packageDeltas.map { result in
