@@ -10,7 +10,9 @@ export class SPICopyPackageURL {
 
   createCopyPackageButton() {
     const packageURLElement = document.getElementById('package_url')
-    if (!packageURLElement) { return }
+    if (!packageURLElement) {
+      return
+    }
 
     // Given that the button will only work with JavaScript available, we should use JavaScript to create it!
     const copyButtonElement = document.createElement('button')
@@ -23,15 +25,16 @@ export class SPICopyPackageURL {
         copyButtonElement.textContent = 'Copied!'
 
         // Change the text back after a short delay.
-        delay(() => { copyButtonElement.textContent = 'Copy' }, 1000)
+        delay(() => {
+          copyButtonElement.textContent = 'Copy'
+        }, 1000)
 
-        // Log the event to analytics.        
+        // Log the event to analytics.
         measurePlausibleEvent('Copy Package URL Button')
       })
     })
   }
 }
-
 
 // TODO: factor out
 export class SPICopySwiftVersionBadge {
@@ -43,7 +46,9 @@ export class SPICopySwiftVersionBadge {
 
   createCopySwiftVersionBadgeButton() {
     const element = document.getElementById('swift_version_badge')
-    if (!element) { return }
+    if (!element) {
+      return
+    }
 
     // Given that the button will only work with JavaScript available, we should use JavaScript to create it!
     const copyButtonElement = document.createElement('button')
@@ -56,15 +61,16 @@ export class SPICopySwiftVersionBadge {
         copyButtonElement.textContent = 'Copied!'
 
         // Change the text back after a short delay.
-        delay(() => { copyButtonElement.textContent = 'Copy badge' }, 1000)
+        delay(() => {
+          copyButtonElement.textContent = 'Copy badge'
+        }, 1000)
 
-        // Log the event to analytics.        
+        // Log the event to analytics.
         measurePlausibleEvent('Copy Language Badge Button')
       })
     })
   }
 }
-
 
 // TODO: factor out
 export class SPICopyPlatformBadge {
@@ -76,7 +82,9 @@ export class SPICopyPlatformBadge {
 
   createCopyPlatformBadgeButton() {
     const element = document.getElementById('platform_badge')
-    if (!element) { return }
+    if (!element) {
+      return
+    }
 
     // Given that the button will only work with JavaScript available, we should use JavaScript to create it!
     const copyButtonElement = document.createElement('button')
@@ -89,9 +97,11 @@ export class SPICopyPlatformBadge {
         copyButtonElement.textContent = 'Copied!'
 
         // Change the text back after a short delay.
-        delay(() => { copyButtonElement.textContent = 'Copy badge' }, 1000)
+        delay(() => {
+          copyButtonElement.textContent = 'Copy badge'
+        }, 1000)
 
-        // Log the event to analytics.        
+        // Log the event to analytics.
         measurePlausibleEvent('Copy Platform Badge Button')
       })
     })
