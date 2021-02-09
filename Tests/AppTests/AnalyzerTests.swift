@@ -521,43 +521,6 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(delta.toDelete, [])
     }
 
-    func test_throttleBranchVersions() throws {
-        // First test keeping branch version out of changes (add/delete) if
-        // within the "throttle window"
-        // setup
-        Current.date = { Date(timeIntervalSince1970: 0.hours) }
-        let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
-        let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("main"))
-        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
-        let deltas = Version.diff(local: [old], incoming: [new])
-        XCTAssertEqual(deltas, .init(toAdd: [new], toDelete: [old], toKeep: []))
-
-        do {
-            // MUT
-            let res = throttleBranchVersions(deltas, delay: 24.hours)
-
-            // validate
-            XCTAssertEqual(res.toAdd, [])
-            XCTAssertEqual(res.toDelete, [])
-            XCTAssertEqual(res.toKeep, [old])
-        }
-
-        // Now test keeping branch version in changes (add/delete) if
-        // out of the "throttle window" by advancing time by 24h
-        Current.date = { Date(timeIntervalSince1970: 24.hours) }
-
-        do {
-            // MUT
-            let res = throttleBranchVersions(deltas, delay: 24.hours)
-
-            // validate
-            XCTAssertEqual(res.toAdd, [new])
-            XCTAssertEqual(res.toDelete, [old])
-            XCTAssertEqual(res.toKeep, [])
-        }
-    }
-
     func test_diffVersions_throttling() throws {
         // First test keeping branch version out of changes (add/delete) if
         // within the "throttle window"
@@ -569,33 +532,10 @@ class AnalyzerTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
 
         // MUT
-        let res = diffVersions(existing: [old], incoming: [new])
+        let res = throttle(existing: [old], incoming: [new])
 
         // validate
-        XCTAssertEqual(res.toAdd, [])
-        XCTAssertEqual(res.toDelete, [])
-        XCTAssertEqual(res.toKeep, [old])
-    }
-
-    func test_throttleBranchVersions_2() throws {
-        throw XCTSkip("old version")
-        // Update versions when previous version is outside the window
-        // setup
-        Current.date = { Date(timeIntervalSince1970: 0.hours) }
-        let pkg = Package(url: "1")
-        try pkg.save(on: app.db).wait()
-        let old = try makeVersion(pkg, "sha_old", -25.hours, .branch("main"))
-        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
-        let deltas = Version.diff(local: [old], incoming: [new])
-        XCTAssertEqual(deltas, .init(toAdd: [new], toDelete: [old], toKeep: []))
-
-        // MUT
-        let res = throttleBranchVersions(deltas, delay: 24.hours)
-
-        // validate
-        XCTAssertEqual(res.toAdd, [new])
-        XCTAssertEqual(res.toDelete, [old])
-        XCTAssertEqual(res.toKeep, [])
+        XCTAssertEqual(res, [old])
     }
 
     func test_diffVersions_throttling_2() throws {
@@ -608,16 +548,14 @@ class AnalyzerTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
 
         // MUT
-        let res = diffVersions(existing: [old], incoming: [new])
+        let res = throttle(existing: [old], incoming: [new])
 
         // validate
-        XCTAssertEqual(res.toAdd, [new])
-        XCTAssertEqual(res.toDelete, [old])
-        XCTAssertEqual(res.toKeep, [])
+        XCTAssertEqual(res, [new])
     }
 
     func test_throttleBranchVersions_advance() throws {
-        throw XCTSkip("old version")
+        throw XCTSkip("implement this properly")
         // Simulate a couple of days of processing
         // setup
         let pkg = Package(url: "1")
@@ -630,12 +568,12 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(deltas, .init(toAdd: [v0], toDelete: [], toKeep: []))
 
         // MUT
-        let res = throttleBranchVersions(deltas, delay: 24.hours)
+        //        let res = throttleBranchVersions(deltas, delay: 24.hours)
 
         // validate
-        XCTAssertEqual(res.toAdd, [v0])
-        XCTAssertEqual(res.toDelete, [])
-        XCTAssertEqual(res.toKeep, [])
+        //        XCTAssertEqual(res.toAdd, [v0])
+        //        XCTAssertEqual(res.toDelete, [])
+        //        XCTAssertEqual(res.toKeep, [])
     }
 
     #warning("add test to ensure we don't touch tags")

@@ -139,9 +139,6 @@ func analyze(client: Client,
                          threadPool: threadPool,
                          transaction: tx,
                          packages: packages)
-                .map { throttleBranchVersions(
-                    packageDeltas: $0,
-                    delay: Constants.branchVersionRefreshDelay) }
                 .flatMap { mergeReleaseInfo(on: tx, packageDeltas: $0) }
                 .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
                 .map { getManifests(packageAndVersions: $0) }
@@ -354,6 +351,25 @@ func diffVersions(client: Client,
                   threadPool: NIOThreadPool,
                   transaction: Database,
                   package: Package) -> EventLoopFuture<VersionDelta> {
+    getVersions(client: client,
+                logger: logger,
+                threadPool: threadPool,
+                transaction: transaction,
+                package: package)
+        .map { existing, incoming in
+            (existing: existing,
+             incoming: throttle(existing: existing, incoming: incoming))
+        }
+        .map(Version.diff)
+}
+
+
+func getVersions(client: Client,
+                 logger: Logger,
+                 threadPool: NIOThreadPool,
+                 transaction: Database,
+                 package: Package) -> EventLoopFuture<(existing: [Version],
+                                                       incoming: [Version])> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return transaction.eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
@@ -374,6 +390,7 @@ func diffVersions(client: Client,
         return Current.reportError(client, .error, appError)
             .transform(to: [])
     }
+
     
     let references = tags.map { tags in [defaultBranch].compactMap { $0 } + tags }
     let incoming: EventLoopFuture<[Version]> = references
@@ -391,12 +408,12 @@ func diffVersions(client: Client,
         .filter(\.$package.$id == pkgId)
         .all()
         .and(incoming)
-        .map(Version.diff)
+        .map { (existing: $0, incoming: $1) }
 }
 
 
 #warning("change to throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version]")
-func diffVersions(existing: [Version], incoming: [Version]) -> VersionDelta {
+func throttle(existing: [Version], incoming: [Version]) -> [Version] {
     let isBranch: (Version) -> Bool = { $0.reference?.isBranch ?? false }
     let isNotBranch: (Version) -> Bool = { !isBranch($0) }
 
@@ -413,64 +430,25 @@ func diffVersions(existing: [Version], incoming: [Version]) -> VersionDelta {
     guard let incomingVersion = incomingBranchVersions.last,
           let latestIncoming = incomingVersion.commitDate else {
         // there's no incoming branch version -> use incoming as is (will remove)
-        return Version.diff(local: existing, incoming: incoming)
+        return incoming
     }
 
     guard let existingVersion = existingBranchVersions.last,
           let latestExisting = existingVersion.commitDate else {
         // there's no existing branch version -> use incoming as is (will add)
-        return Version.diff(local: existing, incoming: incoming)
+        return incoming
     }
 
     let delta = latestExisting.distance(to: latestIncoming)
     if delta < Constants.branchVersionRefreshDelay {
-        return Version.diff(
-            local: existing,
-            incoming: incoming
-                .filter(isNotBranch)  // remove all branch versions
-                + [existingVersion]   // keep existing branch version
-        )
+        return incoming
+            .filter(isNotBranch)  // remove all branch versions
+            + [existingVersion]   // keep existing branch version
     } else {
-        return Version.diff(
-            local: existing,
-            incoming: incoming
-                .filter(isNotBranch)  // remove all branch versions
-                + [incomingVersion]   // add latest incoming branch version
-        )
+        return incoming
+            .filter(isNotBranch)  // remove all branch versions
+            + [incomingVersion]   // add latest incoming branch version
     }
-}
-
-
-func throttleBranchVersions(packageDeltas: [Result<(Package, VersionDelta), Error>],
-                            delay: TimeInterval) -> [Result<(Package, VersionDelta), Error>] {
-    packageDeltas.map { result in
-        result.map { pkg, deltas in
-            (pkg, throttleBranchVersions(deltas, delay: delay))
-        }
-    }
-}
-
-
-func throttleBranchVersions(_ deltas: VersionDelta,
-                            delay: TimeInterval) -> VersionDelta {
-    let selectRecentBranchVersions: (Version) -> Bool = { version in
-        // if any value is nil leave unchanged (don't select)
-        if case .some(.branch) = version.reference,
-           let commitDate = version.commitDate,
-           commitDate >= Current.date().addingTimeInterval(-delay) {
-            return true
-        }
-        return false
-    }
-    let rejectRecentBranchVersions: (Version) -> Bool = {
-        !selectRecentBranchVersions($0)
-    }
-
-    return .init(
-        toAdd: deltas.toAdd.filter(rejectRecentBranchVersions),
-        toDelete: deltas.toDelete.filter(rejectRecentBranchVersions),
-        toKeep: deltas.toKeep + deltas.toDelete.filter(selectRecentBranchVersions)
-    )
 }
 
 
