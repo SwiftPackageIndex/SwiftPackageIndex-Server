@@ -49,11 +49,7 @@ func ingest(client: Client,
             database: Database,
             logger: Logger,
             id: Package.Id) -> EventLoopFuture<Void> {
-    Package.query(on: database)
-        .with(\.$repositories)
-        .filter(\.$id == id)
-        .first()
-        .unwrap(or: Abort(.notFound))
+    Package.fetchCandidate(database, id: id)
         .map { [$0] }
         .flatMap { packages in
             ingest(client: client,

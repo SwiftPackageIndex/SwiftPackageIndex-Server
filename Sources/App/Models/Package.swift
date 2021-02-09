@@ -220,6 +220,15 @@ extension QueryBuilder where Model == Package {
 
 
 extension Package {
+    static func fetchCandidate(_ database: Database,
+                               id: Id) -> EventLoopFuture<Package> {
+        Package.query(on: database)
+            .with(\.$repositories)
+            .filter(\.$id == id)
+            .first()
+            .unwrap(or: Abort(.notFound))
+    }
+
     static func fetchCandidates(_ database: Database,
                                 for stage: ProcessingStage,
                                 limit: Int) -> EventLoopFuture<[Package]> {

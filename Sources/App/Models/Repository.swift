@@ -148,17 +148,3 @@ extension Repository: Equatable {
         lhs.id == rhs.id
     }
 }
-
-
-extension Repository {
-    static func defaultBranch(on db: Database, for package: Package) -> EventLoopFuture<String?> {
-        do {
-            return try Repository.query(on: db)
-                .filter(\.$package.$id == package.requireID())
-                .first()
-                .map { $0?.defaultBranch }
-        } catch {
-            return db.eventLoop.makeSucceededFuture(nil)
-        }
-    }
-}
