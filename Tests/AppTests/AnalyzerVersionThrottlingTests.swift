@@ -53,6 +53,36 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [new])
     }
 
+    func test_throttle_new_package() throws {
+        // Test picking up a new package's branch
+        // setup
+        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
+
+        // MUT
+        let res = throttle(lastestExistingVersion: nil, incoming: [new])
+
+        // validate
+        XCTAssertEqual(res, [new])
+    }
+
+    func test_throttle_branch_ref_change() throws {
+        // Test behaviour when changing default branch names
+        // setup
+        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+        let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("develop"))
+        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
+
+        // MUT
+        let res = throttle(lastestExistingVersion: nil, incoming: [new])
+
+        // validate
+        XCTAssertEqual(res, [old])
+    }
     func test_throttleBranchVersions_advance() throws {
         throw XCTSkip("implement this properly")
         // Simulate a couple of days of processing
@@ -74,9 +104,6 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         //        XCTAssertEqual(res.toDelete, [])
         //        XCTAssertEqual(res.toKeep, [])
     }
-
-    #warning("test new package which has no existing .branch version")
-    #warning("test branch ref change")
 
 }
 
