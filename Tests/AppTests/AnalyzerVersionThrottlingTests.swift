@@ -8,7 +8,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
     func test_throttle_keep_old() throws {
         // Test keeping old when within throttling window
         // setup
-        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
         let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("main"))
@@ -24,7 +24,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
     func test_throttle_take_new() throws {
         // Test picking new version when old one is outside the window
         // setup
-        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
         let old = try makeVersion(pkg, "sha_old", -26.hours, .branch("main"))
@@ -40,7 +40,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
     func test_throttle_ignore_tags() throws {
         // Test to ensure tags are exempt from throttling
         // setup
-        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
         let old = try makeVersion(pkg, "sha_old", -23.hours, .tag(1, 0, 0))
@@ -56,7 +56,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
     func test_throttle_new_package() throws {
         // Test picking up a new package's branch
         // setup
-        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
         let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
@@ -71,7 +71,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
     func test_throttle_branch_ref_change() throws {
         // Test behaviour when changing default branch names
         // setup
-        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
         let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("develop"))
@@ -89,7 +89,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // NB: this is a theoretical scenario, in practise there should only
         // ever be one branch revision among the incoming revisions.
         // setup
-        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
         let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("main"))
@@ -110,7 +110,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // NB: this is a theoretical scenario, in practise there should only
         // ever be one branch revision among the incoming revisions.
         // setup
-        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
         let old = try makeVersion(pkg, "sha_old", -26.hours, .branch("main"))
@@ -126,7 +126,34 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [new2])
     }
 
-    func test_throttleBranchVersions_advance() throws {
+    func test_diffVersions_keep_old() throws {
+        // Test that diffVersions applies throttling
+        // setup
+        Current.date = { .t0 }
+        Current.fileManager.checkoutsDirectory = { "checkouts" }
+        Current.git.getTags = { _ in [.branch("main")] }
+        Current.git.revisionInfo = { _, _ in
+            .init(commit: "sha_new", date: Date.t0.addingTimeInterval(-1.hours) )
+        }
+        let pkg = Package(url: "1".asGithubUrl.url)
+        try pkg.save(on: app.db).wait()
+        let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("main"))
+        try old.save(on: app.db).wait()
+
+        // MUT
+        let res = try diffVersions(client: app.client,
+                                   logger: app.logger,
+                                   threadPool: app.threadPool,
+                                   transaction: app.db,
+                                   package: pkg).wait()
+
+        // validate
+        XCTAssertEqual(res.toAdd, [])
+        XCTAssertEqual(res.toDelete, [])
+        XCTAssertEqual(res.toKeep, [old])
+    }
+
+    func test_progression() throws {
         throw XCTSkip("implement this properly")
         // Simulate a couple of days of processing
         // setup
@@ -134,7 +161,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         try pkg.save(on: app.db).wait()
 
         // start at t0
-        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        Current.date = { .t0 }
         let v0 = try makeVersion(pkg, "sha_0", 0.hours, .branch("main"))
         let deltas = Version.diff(local: [], incoming: [v0])
         XCTAssertEqual(deltas, .init(toAdd: [v0], toDelete: [], toKeep: []))
@@ -148,9 +175,11 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         //        XCTAssertEqual(res.toKeep, [])
     }
 
+    #warning("test same time/sha with name change")
 }
 
 
+@discardableResult
 private func makeVersion(_ package: Package,
                          _ commit: CommitHash,
                          _ commitDate: TimeInterval,

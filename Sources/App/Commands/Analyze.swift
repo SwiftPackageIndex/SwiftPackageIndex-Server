@@ -363,7 +363,6 @@ func diffVersions(client: Client,
                                        threadPool: threadPool,
                                        transaction: transaction,
                                        package: package)
-    #warning("add test for this path (ensure throttle is wired up)")
     return existing.and(incoming)
         .map { existing, incoming in
             (existing: existing,
