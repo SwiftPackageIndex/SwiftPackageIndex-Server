@@ -363,7 +363,7 @@ func diffVersions(client: Client,
 
     let tags: EventLoopFuture<[Reference]> = threadPool.runIfActive(eventLoop: transaction.eventLoop) {
         logger.info("listing tags for package \(package.url)")
-        return try Git.tag(at: cacheDir)
+        return try Git.getTags(at: cacheDir)
     }
     .flatMapError {
         let appError = AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)")
