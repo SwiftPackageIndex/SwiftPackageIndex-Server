@@ -83,6 +83,49 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // validate
         XCTAssertEqual(res, [old])
     }
+
+    func test_throttle_multiple_incoming_branches_keep_old() throws {
+        // Test behaviour with multiple incoming branch revisions
+        // NB: this is a theoretical scenario, in practise there should only
+        // ever be one branch revision among the incoming revisions.
+        // setup
+        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+        let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("main"))
+        let new0 = try makeVersion(pkg, "sha_new0", -3.hours, .branch("main"))
+        let new1 = try makeVersion(pkg, "sha_new1", -2.hours, .branch("main"))
+        let new2 = try makeVersion(pkg, "sha_new2", -1.hours, .branch("main"))
+
+        // MUT
+        let res = throttle(lastestExistingVersion: old,
+                           incoming: [new0, new1, new2].shuffled())
+
+        // validate
+        XCTAssertEqual(res, [old])
+    }
+
+    func test_throttle_multiple_incoming_branches_take_new() throws {
+        // Test behaviour with multiple incoming branch revisions
+        // NB: this is a theoretical scenario, in practise there should only
+        // ever be one branch revision among the incoming revisions.
+        // setup
+        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+        let old = try makeVersion(pkg, "sha_old", -26.hours, .branch("main"))
+        let new0 = try makeVersion(pkg, "sha_new0", -3.hours, .branch("main"))
+        let new1 = try makeVersion(pkg, "sha_new1", -2.hours, .branch("main"))
+        let new2 = try makeVersion(pkg, "sha_new2", -1.hours, .branch("main"))
+
+        // MUT
+        let res = throttle(lastestExistingVersion: old,
+                           incoming: [new0, new1, new2].shuffled())
+
+        // validate
+        XCTAssertEqual(res, [new2])
+    }
+
     func test_throttleBranchVersions_advance() throws {
         throw XCTSkip("implement this properly")
         // Simulate a couple of days of processing
