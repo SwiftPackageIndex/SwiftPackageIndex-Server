@@ -351,13 +351,21 @@ func diffVersions(client: Client,
                   threadPool: NIOThreadPool,
                   transaction: Database,
                   package: Package) -> EventLoopFuture<VersionDelta> {
-    getVersions(client: client,
-                logger: logger,
-                threadPool: threadPool,
-                transaction: transaction,
-                package: package)
+    guard let pkgId = package.id else {
+        return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.url)"))
+    }
+
+    let existing = Version.query(on: transaction)
+        .filter(\.$package.$id == pkgId)
+        .all()
+    let incoming = getIncomingVersions(client: client,
+                                       logger: logger,
+                                       threadPool: threadPool,
+                                       transaction: transaction,
+                                       package: package)
+    #warning("add test for this path (ensure throttle is wired up)")
+    return existing.and(incoming)
         .map { existing, incoming in
-            // TODO: add test for this path (ensure it's wired up)
             (existing: existing,
              incoming: throttle(lastestExistingVersion: latestBranchVersion(existing),
                                 incoming: incoming))
@@ -366,12 +374,19 @@ func diffVersions(client: Client,
 }
 
 
-func getVersions(client: Client,
-                 logger: Logger,
-                 threadPool: NIOThreadPool,
-                 transaction: Database,
-                 package: Package) -> EventLoopFuture<(existing: [Version],
-                                                       incoming: [Version])> {
+/// Get incoming versions (from git repository)
+/// - Parameters:
+///   - client: `Client` object (for Rollbar error reporting)
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
+///   - transaction: database transaction
+///   - package: `Package` to reconcile
+/// - Returns: future with incoming `Version`s
+func getIncomingVersions(client: Client,
+                         logger: Logger,
+                         threadPool: NIOThreadPool,
+                         transaction: Database,
+                         package: Package) -> EventLoopFuture<[Version]> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return transaction.eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
@@ -393,9 +408,8 @@ func getVersions(client: Client,
             .transform(to: [])
     }
 
-
     let references = tags.map { tags in [defaultBranch].compactMap { $0 } + tags }
-    let incoming: EventLoopFuture<[Version]> = references
+    return references
         .flatMapEachThrowing { ref in
             let revInfo = try Current.git.revisionInfo(ref, cacheDir)
             let url = package.versionUrl(for: ref)
@@ -405,12 +419,6 @@ func getVersions(client: Client,
                                reference: ref,
                                url: url)
         }
-
-    return Version.query(on: transaction)
-        .filter(\.$package.$id == pkgId)
-        .all()
-        .and(incoming)
-        .map { (existing: $0, incoming: $1) }
 }
 
 
