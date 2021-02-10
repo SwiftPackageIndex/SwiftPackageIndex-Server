@@ -150,7 +150,16 @@ extension Version {
 
 }
 
+
 // MARK: - Version reconciliation / diffing
+
+
+struct VersionDelta: Equatable {
+    var toAdd: [Version] = []
+    var toDelete: [Version] = []
+    var toKeep: [Version] = []
+}
+
 
 extension Version {
     struct ImmutableReference: Equatable, Hashable {

@@ -314,13 +314,6 @@ func updateRepository(package: Package) -> Result<Package, Error> {
 }
 
 
-struct VersionDelta {
-    var toAdd: [Version] = []
-    var toDelete: [Version] = []
-    var toKeep: [Version] = []
-}
-
-
 /// Find new and outdated versions for a set of `Package`s, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
 /// - Parameters:
 ///   - client: `Client` object (for Rollbar error reporting)
