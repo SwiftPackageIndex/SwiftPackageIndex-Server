@@ -78,7 +78,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
 
         // MUT
-        let res = throttle(lastestExistingVersion: nil, incoming: [new])
+        let res = throttle(lastestExistingVersion: old, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [old])
@@ -113,6 +113,7 @@ private func makeVersion(_ package: Package,
                          _ commitDate: TimeInterval,
                          _ reference: Reference) throws -> Version {
     try Version(
+        id: UUID(),
         package: package,
         commit: commit,
         commitDate: Date(timeIntervalSince1970: commitDate),

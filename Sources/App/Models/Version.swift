@@ -113,7 +113,13 @@ final class Version: Model, Content {
 
 extension Version: Equatable {
     static func == (lhs: Version, rhs: Version) -> Bool {
-        lhs.id == rhs.id
+        if let id1 = lhs.id, let id2 = rhs.id {
+            return id1 == id2
+        } else {
+            return lhs.commit == rhs.commit
+                && lhs.commitDate == rhs.commitDate
+                && lhs.reference == rhs.reference
+        }
     }
 }
 
