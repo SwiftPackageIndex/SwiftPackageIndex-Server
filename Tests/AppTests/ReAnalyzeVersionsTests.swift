@@ -25,6 +25,13 @@ class ReAnalyzeVersionsTests: AppTestCase {
                        package: pkg,
                        defaultBranch: "main",
                        releases: []).save(on: app.db).wait()
+
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.getTags = { _ in [.tag(1, 2, 3)] }
+        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
+
         var pkgDump = #"""
             {
               "name": "SPI-Server",
@@ -33,14 +40,9 @@ class ReAnalyzeVersionsTests: AppTestCase {
             }
             """#
         Current.shell.run = { cmd, path in
-            if cmd.string == "git tag" { return "1.2.3" }
             if cmd.string.hasSuffix("swift package dump-package") {
                 return pkgDump
             }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
         do {
@@ -151,15 +153,16 @@ class ReAnalyzeVersionsTests: AppTestCase {
                                   processingStage: .ingestion)
         try Repository(package: pkg,
                        defaultBranch: "main").save(on: app.db).wait()
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.getTags = { _ in [] }
+        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("swift package dump-package") {
                 // causing error to be thrown during package dump
                 return "bad dump"
             }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
         try analyze(client: app.client,

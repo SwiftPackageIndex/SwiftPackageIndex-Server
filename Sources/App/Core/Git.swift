@@ -9,8 +9,7 @@ enum GitError: LocalizedError {
     case invalidRevisionInfo
 }
 
-
-enum Git {
+extension Git {
     
     static func commitCount(at path: String) throws -> Int {
         let res = try Current.shell.run(

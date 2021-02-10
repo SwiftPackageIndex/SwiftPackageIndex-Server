@@ -15,6 +15,7 @@ struct AppEnvironment {
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
+    var git: Git
     var githubToken: () -> String?
     var gitlabApiToken: () -> String?
     var gitlabPipelineToken: () -> String?
@@ -68,6 +69,7 @@ extension AppEnvironment {
                 pageSize: 100,
                 maxPageCount: 5)
         },
+        git: .live,
         githubToken: { Environment.get("GITHUB_TOKEN") },
         gitlabApiToken: { Environment.get("GITLAB_API_TOKEN") },
         gitlabPipelineToken: { Environment.get("GITLAB_PIPELINE_TOKEN") },
@@ -135,6 +137,25 @@ extension FileManager {
         guard let dirname = package.cacheDirectoryName else { return nil }
         return checkoutsDirectory() + "/" + dirname
     }
+}
+
+
+struct Git {
+    var commitCount: (String) throws -> Int
+    var firstCommitDate: (String) throws -> Date
+    var lastCommitDate: (String) throws -> Date
+    var getTags: (String) throws -> [Reference]
+    var showDate: (CommitHash, String) throws -> Date
+    var revisionInfo: (Reference, String) throws -> RevisionInfo
+
+    static let live: Self = .init(
+        commitCount: commitCount(at:),
+        firstCommitDate: firstCommitDate(at:),
+        lastCommitDate: lastCommitDate(at:),
+        getTags: getTags(at:),
+        showDate: showDate(_:at:),
+        revisionInfo: revisionInfo(_:at:)
+    )
 }
 
 
