@@ -367,7 +367,7 @@ func diffVersions(client: Client,
     return existing.and(incoming)
         .map { existing, incoming in
             (existing: existing,
-             incoming: throttle(lastestExistingVersion: latestBranchVersion(existing),
+             incoming: throttle(lastestExistingVersion: existing.latestBranchVersion,
                                 incoming: incoming))
         }
         .map(Version.diff)
@@ -422,25 +422,6 @@ func getIncomingVersions(client: Client,
 }
 
 
-func isBranch(_ version: Version) -> Bool {
-    version.reference?.isBranch ?? false
-}
-
-
-func not<T>(_ block: @escaping (T) -> Bool) -> (T) -> Bool {
-    { !block($0) }
-}
-
-
-func latestBranchVersion(_ versions: [Version]) -> Version? {
-    versions
-        .filter(isBranch)
-        .filter { $0.commitDate != nil }
-        .sorted { $0.commitDate! < $1.commitDate! }
-        .last
-}
-
-
 func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version] {
     guard let existingVersion = lastestExistingVersion,
           let latestExisting = existingVersion.commitDate else {
@@ -448,7 +429,7 @@ func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version
         return incoming
     }
 
-    guard let incomingVersion = latestBranchVersion(incoming),
+    guard let incomingVersion = incoming.latestBranchVersion,
           let latestIncoming = incomingVersion.commitDate else {
         // there's no incoming branch version -> leave incoming alone (which will lead to removal)
         return incoming
@@ -463,7 +444,7 @@ func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version
         : incomingVersion
 
     return incoming
-        .filter(not(isBranch))      // remove all branch versions
+        .filter(!\.isBranch)        // remove all branch versions
         + [resultingBranchVersion]  // add resulting version
 }
 

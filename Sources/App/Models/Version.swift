@@ -133,6 +133,15 @@ extension Version {
 }
 
 
+// MARK: - Branch related helpers/properties
+
+extension Version {
+    var isBranch: Bool {
+        reference?.isBranch ?? false
+    }
+}
+
+
 // MARK: - Relationship helpers
 
 extension Version {
@@ -191,5 +200,16 @@ extension Version {
             toDelete: local.filter { $0.immutableReference.map({delta.toDelete.contains($0)}) ?? false },
             toKeep: local.filter { $0.immutableReference.map({delta.toKeep.contains($0)}) ?? false }
         )
+    }
+}
+
+
+extension Array where Element == Version {
+    // Helper to determine latest branch version in a batch
+    var latestBranchVersion: Version? {
+        filter(\.isBranch)
+            .filter { $0.commitDate != nil }
+            .sorted { $0.commitDate! < $1.commitDate! }
+            .last
     }
 }
