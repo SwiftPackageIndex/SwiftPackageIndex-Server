@@ -126,31 +126,53 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [new2])
     }
 
-    func test_diffVersions_keep_old() throws {
+    func test_diffVersions() throws {
         // Test that diffVersions applies throttling
         // setup
         Current.date = { .t0 }
         Current.fileManager.checkoutsDirectory = { "checkouts" }
         Current.git.getTags = { _ in [.branch("main")] }
-        Current.git.revisionInfo = { _, _ in
-            .init(commit: "sha_new", date: Date.t0.addingTimeInterval(-1.hours) )
-        }
         let pkg = Package(url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("main"))
         try old.save(on: app.db).wait()
 
-        // MUT
-        let res = try diffVersions(client: app.client,
-                                   logger: app.logger,
-                                   threadPool: app.threadPool,
-                                   transaction: app.db,
-                                   package: pkg).wait()
+        do {  // keep old version if too soon
+            Current.git.revisionInfo = { _, _ in
+                .init(commit: "sha_new", date: Date.t0.addingTimeInterval(-1.hours) )
+            }
 
-        // validate
-        XCTAssertEqual(res.toAdd, [])
-        XCTAssertEqual(res.toDelete, [])
-        XCTAssertEqual(res.toKeep, [old])
+            // MUT
+            let res = try diffVersions(client: app.client,
+                                       logger: app.logger,
+                                       threadPool: app.threadPool,
+                                       transaction: app.db,
+                                       package: pkg).wait()
+
+            // validate
+            XCTAssertEqual(res.toAdd, [])
+            XCTAssertEqual(res.toDelete, [])
+            XCTAssertEqual(res.toKeep, [old])
+        }
+
+        do {  // new version must come through
+            Current.git.revisionInfo = { _, _ in
+                // now simulate a newer brnach revision
+                .init(commit: "sha_new2", date: Date.t0.addingTimeInterval(1.hour) )
+            }
+
+            // MUT
+            let res = try diffVersions(client: app.client,
+                                       logger: app.logger,
+                                       threadPool: app.threadPool,
+                                       transaction: app.db,
+                                       package: pkg).wait()
+
+            // validate
+            XCTAssertEqual(res.toAdd.map(\.commit), ["sha_new2"])
+            XCTAssertEqual(res.toDelete, [old])
+            XCTAssertEqual(res.toKeep, [])
+        }
     }
 
     func test_progression() throws {
