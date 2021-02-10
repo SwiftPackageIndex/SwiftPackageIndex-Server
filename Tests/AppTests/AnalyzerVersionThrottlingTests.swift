@@ -37,6 +37,22 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [new])
     }
 
+    func test_throttle_ignore_tags() throws {
+        // Test to ensure tags are exempt from throttling
+        // setup
+        Current.date = { Date(timeIntervalSince1970: 0.hours) }
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+        let old = try makeVersion(pkg, "sha_old", -23.hours, .tag(1, 0, 0))
+        let new = try makeVersion(pkg, "sha_new", -1.hours, .tag(2, 0, 0))
+
+        // MUT
+        let res = throttle(lastestExistingVersion: old, incoming: [new])
+
+        // validate
+        XCTAssertEqual(res, [new])
+    }
+
     func test_throttleBranchVersions_advance() throws {
         throw XCTSkip("implement this properly")
         // Simulate a couple of days of processing
@@ -59,7 +75,6 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         //        XCTAssertEqual(res.toKeep, [])
     }
 
-    #warning("add test to ensure we don't touch tags")
     #warning("test new package which has no existing .branch version")
     #warning("test branch ref change")
 
