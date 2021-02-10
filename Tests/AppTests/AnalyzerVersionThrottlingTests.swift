@@ -5,9 +5,8 @@ import XCTest
 
 class AnalyzerVersionThrottlingTests: AppTestCase {
 
-    func test_diffVersions_throttling() throws {
-        // First test keeping branch version out of changes (add/delete) if
-        // within the "throttle window"
+    func test_throttle_keep_old() throws {
+        // Test keeping old when within throttling window
         // setup
         Current.date = { Date(timeIntervalSince1970: 0.hours) }
         let pkg = Package(url: "1")
@@ -22,8 +21,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [old])
     }
 
-    func test_diffVersions_throttling_2() throws {
-        // Update versions when previous version is outside the window
+    func test_throttle_take_new() throws {
+        // Test picking new version when old one is outside the window
         // setup
         Current.date = { Date(timeIntervalSince1970: 0.hours) }
         let pkg = Package(url: "1")
