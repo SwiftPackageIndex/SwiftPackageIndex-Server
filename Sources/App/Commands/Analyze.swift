@@ -306,9 +306,9 @@ func updateRepository(package: Package) -> Result<Package, Error> {
     }
     
     return Result {
-        repo.commitCount = try Git.commitCount(at: gitDirectory)
-        repo.firstCommitDate = try Git.firstCommitDate(at: gitDirectory)
-        repo.lastCommitDate = try Git.lastCommitDate(at: gitDirectory)
+        repo.commitCount = try Current.git.commitCount(gitDirectory)
+        repo.firstCommitDate = try Current.git.firstCommitDate(gitDirectory)
+        repo.lastCommitDate = try Current.git.lastCommitDate(gitDirectory)
         return package
     }
 }
@@ -363,7 +363,7 @@ func diffVersions(client: Client,
 
     let tags: EventLoopFuture<[Reference]> = threadPool.runIfActive(eventLoop: transaction.eventLoop) {
         logger.info("listing tags for package \(package.url)")
-        return try Git.tag(at: cacheDir)
+        return try Current.git.getTags(cacheDir)
     }
     .flatMapError {
         let appError = AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)")
@@ -375,7 +375,7 @@ func diffVersions(client: Client,
     let references = tags.map { tags in [defaultBranch].compactMap { $0 } + tags }
     let incoming: EventLoopFuture<[Version]> = references
         .flatMapEachThrowing { ref in
-            let revInfo = try Git.revisionInfo(ref, at: cacheDir)
+            let revInfo = try Current.git.revisionInfo(ref, cacheDir)
             let url = package.versionUrl(for: ref)
             return try Version(package: package,
                                commit: revInfo.commit,

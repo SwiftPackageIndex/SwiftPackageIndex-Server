@@ -235,20 +235,21 @@ class TwitterTests: AppTestCase {
             return self.app.eventLoopGroup.future()
         }
 
-        var tag = "1.2.3"
+        var tag = Reference.tag(1, 2, 3)
         let url = "https://github.com/foo/bar"
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
         Current.fetchPackageList = { _ in self.future([url.url]) }
+
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t2 }
+        Current.git.getTags = { _ in [tag] }
+        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
+
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("swift package dump-package") {
                 return #"{ "name": "Mock", "products": [], "targets": [] }"#
             }
-            if cmd.string == "git tag" {
-                return tag }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
         // run first two processing steps
@@ -283,7 +284,7 @@ class TwitterTests: AppTestCase {
         XCTAssertNil(message)
 
         // Now simulate receiving a package update: version 2.0.0
-        tag = "2.0.0"
+        tag = .tag(2, 0, 0)
         // fast forward our clock by the deadtime interval again (*2) and re-ingest
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime * 2) }
         try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()

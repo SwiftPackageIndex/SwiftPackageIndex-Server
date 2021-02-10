@@ -121,14 +121,17 @@ class PipelineTests: AppTestCase {
         let urls = ["1", "2", "3"].asGithubUrls
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
         Current.fetchPackageList = { _ in self.future(urls.asURLs) }
+
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.getTags = { _ in [] }
+        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
+
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("swift package dump-package") {
                 return #"{ "name": "Mock", "products": [], "targets": [] }"#
             }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
         
