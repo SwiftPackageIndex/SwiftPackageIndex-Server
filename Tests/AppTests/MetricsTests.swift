@@ -58,7 +58,7 @@ class MetricsTests: AppTestCase {
         try del.save(on: app.db).wait()
 
         // MUT
-        try applyVersionDelta(on: app.db, delta: (toAdd: new, toDelete: del)).wait()
+        try applyVersionDelta(on: app.db, delta: .init(toAdd: new, toDelete: del)).wait()
 
         // validation
         XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")),

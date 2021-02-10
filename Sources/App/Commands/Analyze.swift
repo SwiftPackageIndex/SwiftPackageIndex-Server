@@ -326,14 +326,14 @@ func diffVersions(client: Client,
                   logger: Logger,
                   threadPool: NIOThreadPool,
                   transaction: Database,
-                  packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]> {
+                  packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, VersionDelta), Error>]> {
     packages.whenAllComplete(on: transaction.eventLoop) { pkg in
         diffVersions(client: client,
                      logger: logger,
                      threadPool: threadPool,
                      transaction: transaction,
                      package: pkg)
-            .map { (pkg, ($0.toAdd, $0.toDelete)) }
+            .map { (pkg, $0) }
     }
 }
 
@@ -350,9 +350,7 @@ func diffVersions(client: Client,
                   logger: Logger,
                   threadPool: NIOThreadPool,
                   transaction: Database,
-                  package: Package) -> EventLoopFuture<(toAdd: [Version],
-                                                        toDelete: [Version],
-                                                        toKeep: [Version])> {
+                  package: Package) -> EventLoopFuture<VersionDelta> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return transaction.eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
@@ -399,10 +397,12 @@ func diffVersions(client: Client,
 ///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
 /// - Returns: future with an array of each `Package` paired with its update package delta for further processing
 func mergeReleaseInfo(on transaction: Database,
-                      packageDeltas: [Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]) -> EventLoopFuture<[Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]> {
+                      packageDeltas: [Result<(Package, VersionDelta), Error>]) -> EventLoopFuture<[Result<(Package, VersionDelta), Error>]> {
     packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
         mergeReleaseInfo(on: transaction, package: pkg, versions: delta.toAdd)
-            .map { (pkg, (toAdd: $0, toDelete: delta.toDelete)) }
+            .map { (pkg, .init(toAdd: $0,
+                               toDelete: delta.toDelete,
+                               toKeep: delta.toKeep)) }
     }
 }
 
@@ -442,7 +442,7 @@ func mergeReleaseInfo(on transaction: Database,
 ///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
 /// - Returns: future with an array of each `Package` paired with its new `Version`s
 func applyVersionDelta(on transaction: Database,
-                       packageDeltas: [Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+                       packageDeltas: [Result<(Package, VersionDelta), Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
     packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
         applyVersionDelta(on: transaction, delta: delta)
             .transform(to: (pkg, delta.toAdd))
@@ -456,7 +456,7 @@ func applyVersionDelta(on transaction: Database,
 ///   - delta: tuple containing the versions to add and remove
 /// - Returns: future
 func applyVersionDelta(on transaction: Database,
-                       delta: (toAdd: [Version], toDelete: [Version])) -> EventLoopFuture<Void> {
+                       delta: VersionDelta) -> EventLoopFuture<Void> {
     let delete = delta.toDelete.delete(on: transaction)
     let insert = delta.toAdd.create(on: transaction)
     delta.toAdd.forEach {

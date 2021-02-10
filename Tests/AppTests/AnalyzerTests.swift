@@ -485,16 +485,18 @@ class AnalyzerTests: AppTestCase {
             if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
             return ""
         }
-        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        let pkgId = UUID()
+        do {
+            let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
+            try pkg.save(on: app.db).wait()
+            try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        }
+        let pkg = try Package.fetchCandidate(app.db, id: pkgId).wait()
         let packages: [Result<Package, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success(pkg)
         ]
-        // fetch relationship, which is what `fetchCandidates` does
-        try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
         let results = try diffVersions(client: app.client,
