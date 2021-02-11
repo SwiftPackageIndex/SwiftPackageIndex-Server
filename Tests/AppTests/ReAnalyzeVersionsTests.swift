@@ -118,20 +118,20 @@ class ReAnalyzeVersionsTests: AppTestCase {
         do {
             let p = Package(url: "1")
             try p.save(on: app.db).wait()
-            try createVersion(app.db, p, updatedAt: 0)
-            try createVersion(app.db, p, updatedAt: 1)
+            try createVersion(app.db, p, updatedAt: .t0)
+            try createVersion(app.db, p, updatedAt: .t1)
         }
         do {
             let p = Package(url: "2")
             try p.save(on: app.db).wait()
-            try createVersion(app.db, p, updatedAt: 1)
-            try createVersion(app.db, p, updatedAt: 3)
+            try createVersion(app.db, p, updatedAt: .t1)
+            try createVersion(app.db, p, updatedAt: .t3)
         }
         do {
             let p = Package(url: "3")
             try p.save(on: app.db).wait()
-            try createVersion(app.db, p, updatedAt: 3)
-            try createVersion(app.db, p, updatedAt: 4)
+            try createVersion(app.db, p, updatedAt: .t3)
+            try createVersion(app.db, p, updatedAt: .t4)
         }
 
         // MUT
@@ -146,9 +146,8 @@ class ReAnalyzeVersionsTests: AppTestCase {
         // Test to ensure versions are updated even if processing throws errors.
         // This is to ensure our candidate selection shrinks and we don't
         // churn over and over on failing versions.
-        let commitDate = 0.hours
-        let cutoff = Date(timeIntervalSince1970: commitDate + 1.hour)
-        Current.date = { Date(timeIntervalSince1970: commitDate + 25.hours) }
+        let cutoff = Date.t1
+        Current.date = { .t2 }
         let pkg = try savePackage(on: app.db,
                                   "https://github.com/foo/1".url,
                                   processingStage: .ingestion)
@@ -171,7 +170,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                     logger: app.logger,
                     threadPool: app.threadPool,
                     limit: 10).wait()
-        try setAllVersionsUpdatedAt(app.db, updatedAt: 0)
+        try setAllVersionsUpdatedAt(app.db, updatedAt: .t0)
         do {
             let candidates = try Package
                 .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).wait()
@@ -197,7 +196,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
 
 private func createVersion(_ db: Database,
                            _ package: Package,
-                           updatedAt: Int) throws {
+                           updatedAt: Date) throws {
     let id = UUID()
     try Version(id: id, package: package).save(on: db).wait()
     try setUpdatedAt(db, versionId: id, updatedAt: updatedAt)
@@ -206,10 +205,10 @@ private func createVersion(_ db: Database,
 
 private func setUpdatedAt(_ db: Database,
                           versionId: Version.Id,
-                          updatedAt: Int) throws {
+                          updatedAt: Date) throws {
     let db = db as! SQLDatabase
     try db.raw("""
-        update versions set updated_at = to_timestamp(\(bind: updatedAt))
+        update versions set updated_at = to_timestamp(\(bind: updatedAt.timeIntervalSince1970))
         where id = \(bind: versionId)
         """)
         .run()
@@ -217,10 +216,10 @@ private func setUpdatedAt(_ db: Database,
 }
 
 
-private func setAllVersionsUpdatedAt(_ db: Database, updatedAt: Int) throws {
+private func setAllVersionsUpdatedAt(_ db: Database, updatedAt: Date) throws {
     let db = db as! SQLDatabase
     try db.raw("""
-        update versions set updated_at = to_timestamp(\(bind: updatedAt))
+        update versions set updated_at = to_timestamp(\(bind: updatedAt.timeIntervalSince1970))
         """)
         .run()
         .wait()
