@@ -6,4 +6,5 @@ extension Date {
     static let t1 = Date(timeIntervalSince1970: 1)
     static let t2 = Date(timeIntervalSince1970: 2)
     static let t3 = Date(timeIntervalSince1970: 3)
+    static let t4 = Date(timeIntervalSince1970: 4)
 }

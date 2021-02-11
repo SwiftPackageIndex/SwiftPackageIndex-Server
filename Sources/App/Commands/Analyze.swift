@@ -351,6 +351,41 @@ func diffVersions(client: Client,
                   threadPool: NIOThreadPool,
                   transaction: Database,
                   package: Package) -> EventLoopFuture<VersionDelta> {
+    guard let pkgId = package.id else {
+        return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.url)"))
+    }
+
+    let existing = Version.query(on: transaction)
+        .filter(\.$package.$id == pkgId)
+        .all()
+    let incoming = getIncomingVersions(client: client,
+                                       logger: logger,
+                                       threadPool: threadPool,
+                                       transaction: transaction,
+                                       package: package)
+    return existing.and(incoming)
+        .map { existing, incoming in
+            (existing: existing,
+             incoming: throttle(lastestExistingVersion: existing.latestBranchVersion,
+                                incoming: incoming))
+        }
+        .map(Version.diff)
+}
+
+
+/// Get incoming versions (from git repository)
+/// - Parameters:
+///   - client: `Client` object (for Rollbar error reporting)
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
+///   - transaction: database transaction
+///   - package: `Package` to reconcile
+/// - Returns: future with incoming `Version`s
+func getIncomingVersions(client: Client,
+                         logger: Logger,
+                         threadPool: NIOThreadPool,
+                         transaction: Database,
+                         package: Package) -> EventLoopFuture<[Version]> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return transaction.eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
@@ -371,9 +406,9 @@ func diffVersions(client: Client,
         return Current.reportError(client, .error, appError)
             .transform(to: [])
     }
-    
+
     let references = tags.map { tags in [defaultBranch].compactMap { $0 } + tags }
-    let incoming: EventLoopFuture<[Version]> = references
+    return references
         .flatMapEachThrowing { ref in
             let revInfo = try Current.git.revisionInfo(ref, cacheDir)
             let url = package.versionUrl(for: ref)
@@ -381,13 +416,32 @@ func diffVersions(client: Client,
                                commit: revInfo.commit,
                                commitDate: revInfo.date,
                                reference: ref,
-                               url: url) }
-    
-    return Version.query(on: transaction)
-        .filter(\.$package.$id == pkgId)
-        .all()
-        .and(incoming)
-        .map(Version.diff)
+                               url: url)
+        }
+}
+
+
+func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version] {
+    guard let existingVersion = lastestExistingVersion,
+          let latestExisting = existingVersion.commitDate else {
+        // there's no existing branch version -> leave incoming alone (which will lead to addition)
+        return incoming
+    }
+
+    guard let incomingVersion = incoming.latestBranchVersion else {
+        // there's no incoming branch version -> leave incoming alone (which will lead to removal)
+        return incoming
+    }
+
+    let delta = Current.date().timeIntervalSinceReferenceDate - latestExisting.timeIntervalSinceReferenceDate
+
+    let resultingBranchVersion = delta < Constants.branchVersionRefreshDelay
+        ? existingVersion
+        : incomingVersion
+
+    return incoming
+        .filter(!\.isBranch)        // remove all branch versions
+        + [resultingBranchVersion]  // add resulting version
 }
 
 
