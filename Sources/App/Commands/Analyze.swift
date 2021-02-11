@@ -428,14 +428,12 @@ func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version
         return incoming
     }
 
-    guard let incomingVersion = incoming.latestBranchVersion,
-          let latestIncoming = incomingVersion.commitDate else {
+    guard let incomingVersion = incoming.latestBranchVersion else {
         // there's no incoming branch version -> leave incoming alone (which will lead to removal)
         return incoming
     }
 
-    #warning("distance to latestIncoming to to Current.date() ?")
-    let delta = latestIncoming.timeIntervalSinceReferenceDate - latestExisting.timeIntervalSinceReferenceDate
+    let delta = Current.date().timeIntervalSinceReferenceDate - latestExisting.timeIntervalSinceReferenceDate
 
     let resultingBranchVersion = delta < Constants.branchVersionRefreshDelay
         ? existingVersion

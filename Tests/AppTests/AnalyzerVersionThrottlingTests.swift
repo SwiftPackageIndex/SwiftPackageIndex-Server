@@ -145,7 +145,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
     func test_diffVersions() throws {
         // Test that diffVersions applies throttling
         // setup
-        Current.date = { .t0 }
+        var t: Date = .t0
+        Current.date = { t }
         Current.git.getTags = { _ in [.branch("main")] }
         let pkg = Package(url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
@@ -171,9 +172,11 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
 
         do {  // new version must come through
+            t = t.addingTimeInterval(2.hours)
+
             Current.git.revisionInfo = { _, _ in
                 // now simulate a newer branch revision
-                .init(commit: "sha_new2", date: Date.t0.addingTimeInterval(1.hour) )
+                .init(commit: "sha_new2", date: t )
             }
 
             // MUT
@@ -300,7 +303,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             let res = throttle(lastestExistingVersion: old, incoming: [new])
 
             // validate
-            XCTAssertEqual(res, [old])
+            XCTAssertEqual(res, [new])
         }
     }
 
