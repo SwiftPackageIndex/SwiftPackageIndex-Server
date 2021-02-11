@@ -130,7 +130,6 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // Test that diffVersions applies throttling
         // setup
         Current.date = { .t0 }
-        Current.fileManager.checkoutsDirectory = { "checkouts" }
         Current.git.getTags = { _ in [.branch("main")] }
         let pkg = Package(url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
@@ -157,7 +156,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
         do {  // new version must come through
             Current.git.revisionInfo = { _, _ in
-                // now simulate a newer brnach revision
+                // now simulate a newer branch revision
                 .init(commit: "sha_new2", date: Date.t0.addingTimeInterval(1.hour) )
             }
 
@@ -176,25 +175,75 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
     }
 
     func test_progression() throws {
-        throw XCTSkip("implement this properly")
-        // Simulate a couple of days of processing
+        // Simulate progression through a time span of branch and tag updates
+        // and checking the diffs are as expected.
+        // Leaving tags out of it for simplicity - they are tested specifically
+        // in test_throttle_ignore_tags above.
+
+        // Little helper to simulate minimal version reconciliation
+        func runVersionReconciliation() throws -> VersionDelta {
+            let delta = try diffVersions(client: app.client,
+                                         logger: app.logger,
+                                         threadPool: app.threadPool,
+                                         transaction: app.db,
+                                         package: pkg).wait()
+            // apply the delta to ensure versions are in place for next cycle
+            try applyVersionDelta(on: app.db, delta: delta).wait()
+            return delta
+        }
+
         // setup
-        let pkg = Package(url: "1")
+        let pkg = Package(url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
 
         // start at t0
-        Current.date = { .t0 }
-        let v0 = try makeVersion(pkg, "sha_0", 0.hours, .branch("main"))
-        let deltas = Version.diff(local: [], incoming: [v0])
-        XCTAssertEqual(deltas, .init(toAdd: [v0], toDelete: [], toKeep: []))
+        var t = Date.t0
+        Current.date = { t }
 
-        // MUT
-        //        let res = throttleBranchVersions(deltas, delay: 24.hours)
+        do {  // start with a branch revision
+            Current.git.getTags = { _ in [.branch("main")] }
+            Current.git.revisionInfo = { _, _ in .init(commit: "sha0", date: t ) }
 
-        // validate
-        //        XCTAssertEqual(res.toAdd, [v0])
-        //        XCTAssertEqual(res.toDelete, [])
-        //        XCTAssertEqual(res.toKeep, [])
+            let delta = try runVersionReconciliation()
+            XCTAssertEqual(delta.toAdd.map(\.commit), ["sha0"])
+            XCTAssertEqual(delta.toDelete, [])
+            XCTAssertEqual(delta.toKeep, [])
+        }
+
+        do {  // one hour later a new commit landed - which should be ignored
+            t = t.addingTimeInterval(1.hour)
+            Current.git.getTags = { _ in [.branch("main")] }
+            Current.git.revisionInfo = { _, _ in .init(commit: "sha1", date: t ) }
+
+            let delta = try runVersionReconciliation()
+            XCTAssertEqual(delta.toAdd, [])
+            XCTAssertEqual(delta.toDelete, [])
+            XCTAssertEqual(delta.toKeep.map(\.commit), ["sha0"])
+        }
+
+        do {  // run another 5 commits every four hours - they all should be ignored
+            try (1...5).forEach { idx in
+                t = t.addingTimeInterval(4.hours)
+                Current.git.getTags = { _ in [.branch("main")] }
+                Current.git.revisionInfo = { _, _ in .init(commit: "sha\(idx+1)", date: t ) }
+
+                let delta = try runVersionReconciliation()
+                XCTAssertEqual(delta.toAdd, [])
+                XCTAssertEqual(delta.toDelete, [])
+                XCTAssertEqual(delta.toKeep.map(\.commit), ["sha0"])
+            }
+        }
+
+        do {  // advancing another 4 hours should finally create a new version
+            t = t.addingTimeInterval(4.hours)
+            Current.git.getTags = { _ in [.branch("main")] }
+            Current.git.revisionInfo = { _, _ in .init(commit: "sha7", date: t ) }
+
+            let delta = try runVersionReconciliation()
+            XCTAssertEqual(delta.toAdd.map(\.commit), ["sha7"])
+            XCTAssertEqual(delta.toDelete.map(\.commit), ["sha0"])
+            XCTAssertEqual(delta.toKeep, [])
+        }
     }
 
     #warning("test same time/sha with name change")
