@@ -84,6 +84,22 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         XCTAssertEqual(res, [old])
     }
 
+    func test_throttle_rename() throws {
+        // Ensure incoming branch renames are throttled
+        // setup
+        Current.date = { .t0 }
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+        let old = try makeVersion(pkg, "sha", -1.hours, .branch("main-old"))
+        let new = try makeVersion(pkg, "sha", -1.hours, .branch("main-new"))
+
+        // MUT
+        let res = throttle(lastestExistingVersion: old, incoming: [new])
+
+        // validate
+        XCTAssertEqual(res, [old])
+    }
+
     func test_throttle_multiple_incoming_branches_keep_old() throws {
         // Test behaviour with multiple incoming branch revisions
         // NB: this is a theoretical scenario, in practise there should only
@@ -246,7 +262,6 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
     }
 
-    #warning("test same time/sha with name change")
 }
 
 
