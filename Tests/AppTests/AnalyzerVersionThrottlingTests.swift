@@ -262,6 +262,48 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
     }
 
+    func test_throttle_pathological_cases() throws {
+        // Test the pathological case where we have a newer branch revision in
+        // the db than the incoming version.
+        // setup
+        Current.date = { .t0 }
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+
+        do {  // both within window
+            let old = try makeVersion(pkg, "sha", -1.hours, .branch("main-old"))
+            let new = try makeVersion(pkg, "sha", -23.hours, .branch("main-new"))
+
+            // MUT
+            let res = throttle(lastestExistingVersion: old, incoming: [new])
+
+            // validate
+            XCTAssertEqual(res, [old])
+        }
+
+        do {  // "new" version out of window
+            let old = try makeVersion(pkg, "sha", -1.hours, .branch("main-old"))
+            let new = try makeVersion(pkg, "sha", -26.hours, .branch("main-new"))
+
+            // MUT
+            let res = throttle(lastestExistingVersion: old, incoming: [new])
+
+            // validate
+            XCTAssertEqual(res, [old])
+        }
+
+        do {  // both versions out of window
+            let old = try makeVersion(pkg, "sha", -26.hours, .branch("main-old"))
+            let new = try makeVersion(pkg, "sha", -28.hours, .branch("main-new"))
+
+            // MUT
+            let res = throttle(lastestExistingVersion: old, incoming: [new])
+
+            // validate
+            XCTAssertEqual(res, [old])
+        }
+    }
+
 }
 
 

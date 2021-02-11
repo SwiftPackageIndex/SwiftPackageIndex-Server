@@ -435,7 +435,6 @@ func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version
     }
 
     #warning("distance to latestIncoming to to Current.date() ?")
-    #warning("consider version gaps and what would/should happen if latestExisting was later than latestIncoming, i.e. delta < 0")
     let delta = latestIncoming.timeIntervalSinceReferenceDate - latestExisting.timeIntervalSinceReferenceDate
 
     let resultingBranchVersion = delta < Constants.branchVersionRefreshDelay
