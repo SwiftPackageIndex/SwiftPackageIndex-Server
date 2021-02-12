@@ -29,7 +29,7 @@ enum MaintainerInfoIndex {
                         .href("https://shields.io"),
                         "shields.io"
                     ),
-                    " badges to your package's README file. Display your package's compatibility with different versions of Swift, or with different platforms, or both!"
+                    " badges to your package's README file. Display your package's compatibility with recent versions of Swift, or with different platforms, or both!"
                 ),
                 .strong("Swift Version Compatibility Badge"),
                 .div(
@@ -43,7 +43,23 @@ enum MaintainerInfoIndex {
                     .form(model.badgeMarkdowDisplay(for: .platforms)),
                     .img(.src(model.badgeURL(for: .platforms)))
                 ),
-                .p("Copy the Markdown above into your package's README file to show always-up-to-date compatibility status for your package.")
+                .p("Copy the Markdown above into your package's README file to show always-up-to-date compatibility status for your package."),
+                .h3("Build Compatibility"),
+                .p(
+                    .text("For information on improving your "),
+                    .a(
+                        .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
+                        "package's build results"
+                    ),
+                    .text(", including why you might want to add a "),
+                    .code("_spi.yml"),
+                    .text(" which controls the Swift Package Index build system, see the "),
+                    .a(
+                        .href(SiteURL.docs(.builds).relativeURL()),
+                        "build system documentation"
+                    ),
+                    .text(".")
+                )
             )
         }
     }
