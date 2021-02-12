@@ -95,5 +95,48 @@ class VersionTests: AppTestCase {
         XCTAssertFalse(Version.supportsMajorSwiftVersion(5, values: ["4", "3.0", "3.1", "2"].asSwiftVersions))
         XCTAssert(Version.supportsMajorSwiftVersion(4, values: ["4", "3.0", "3.1", "2"].asSwiftVersions))
     }
-    
+
+    func test_isBranch() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
+        let v1 = try Version(package: pkg, reference: .branch("main"))
+        let v2 = try Version(package: pkg, reference: .tag(1, 2, 3))
+        let v3 = try Version(package: pkg, reference: nil)
+
+        // MUT & validate
+        XCTAssertTrue(v1.isBranch)
+        XCTAssertFalse(v2.isBranch)
+        XCTAssertFalse(v3.isBranch)
+    }
+
+    func test_latestBranchVersion() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
+        let vid = UUID()
+        let v1 = try Version(id: UUID(),
+                             package: pkg,
+                             commitDate: .init(timeIntervalSince1970: 0),
+                             reference: .branch("main"))
+        let v2 = try Version(id: UUID(),
+                             package: pkg,
+                             commitDate: .init(timeIntervalSince1970: 1),
+                             reference: .branch("main"))
+        let v3 = try Version(id: vid,
+                             package: pkg,
+                             commitDate: .init(timeIntervalSince1970: 2),
+                             reference: .branch("main"))
+        let v4 = try Version(id: UUID(),
+                             package: pkg,
+                             commitDate: nil,
+                             reference: .branch("main"))
+        let v5 = try Version(id: UUID(), package: pkg, reference: .tag(1, 2, 3))
+        let v6 = try Version(id: UUID(), package: pkg, reference: nil)
+
+        // MUT
+        let latest = [v1, v2, v3, v4, v5, v6].shuffled().latestBranchVersion
+
+        // validate
+        XCTAssertEqual(latest?.id, vid)
+    }
+
 }

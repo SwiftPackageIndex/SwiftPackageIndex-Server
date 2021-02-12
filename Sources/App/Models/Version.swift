@@ -113,7 +113,13 @@ final class Version: Model, Content {
 
 extension Version: Equatable {
     static func == (lhs: Version, rhs: Version) -> Bool {
-        lhs.id == rhs.id
+        if let id1 = lhs.id, let id2 = rhs.id {
+            return id1 == id2
+        } else {
+            return lhs.commit == rhs.commit
+                && lhs.commitDate == rhs.commitDate
+                && lhs.reference == rhs.reference
+        }
     }
 }
 
@@ -129,6 +135,15 @@ extension Version {
     
     static func supportsMajorSwiftVersion(_ swiftVersion: Int, values: [SwiftVersion]) -> Bool {
         values.first { supportsMajorSwiftVersion(swiftVersion, value: $0) } != nil
+    }
+}
+
+
+// MARK: - Branch related helpers/properties
+
+extension Version {
+    var isBranch: Bool {
+        reference?.isBranch ?? false
     }
 }
 
@@ -150,7 +165,16 @@ extension Version {
 
 }
 
+
 // MARK: - Version reconciliation / diffing
+
+
+struct VersionDelta: Equatable {
+    var toAdd: [Version] = []
+    var toDelete: [Version] = []
+    var toKeep: [Version] = []
+}
+
 
 extension Version {
     struct ImmutableReference: Equatable, Hashable {
@@ -174,15 +198,24 @@ extension Version {
                 toKeep: local.intersection(incoming))
     }
     
-    static func diff(local: [Version], incoming: [Version]) -> (toAdd: [Version],
-                                                                toDelete: [Version],
-                                                                toKeep: [Version]) {
+    static func diff(local: [Version], incoming: [Version]) -> VersionDelta {
         let delta = diff(local: local.compactMap(\.immutableReference),
                          incoming: incoming.compactMap(\.immutableReference))
-        return (
+        return .init(
             toAdd: incoming.filter { $0.immutableReference.map({delta.toAdd.contains($0)}) ?? false },
             toDelete: local.filter { $0.immutableReference.map({delta.toDelete.contains($0)}) ?? false },
             toKeep: local.filter { $0.immutableReference.map({delta.toKeep.contains($0)}) ?? false }
         )
+    }
+}
+
+
+extension Array where Element == Version {
+    // Helper to determine latest branch version in a batch
+    var latestBranchVersion: Version? {
+        filter(\.isBranch)
+            .filter { $0.commitDate != nil }
+            .sorted { $0.commitDate! < $1.commitDate! }
+            .last
     }
 }

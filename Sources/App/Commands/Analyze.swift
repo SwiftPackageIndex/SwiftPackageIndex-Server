@@ -306,9 +306,9 @@ func updateRepository(package: Package) -> Result<Package, Error> {
     }
     
     return Result {
-        repo.commitCount = try Git.commitCount(at: gitDirectory)
-        repo.firstCommitDate = try Git.firstCommitDate(at: gitDirectory)
-        repo.lastCommitDate = try Git.lastCommitDate(at: gitDirectory)
+        repo.commitCount = try Current.git.commitCount(gitDirectory)
+        repo.firstCommitDate = try Current.git.firstCommitDate(gitDirectory)
+        repo.lastCommitDate = try Current.git.lastCommitDate(gitDirectory)
         return package
     }
 }
@@ -326,14 +326,14 @@ func diffVersions(client: Client,
                   logger: Logger,
                   threadPool: NIOThreadPool,
                   transaction: Database,
-                  packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]> {
+                  packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, VersionDelta), Error>]> {
     packages.whenAllComplete(on: transaction.eventLoop) { pkg in
         diffVersions(client: client,
                      logger: logger,
                      threadPool: threadPool,
                      transaction: transaction,
                      package: pkg)
-            .map { (pkg, ($0.toAdd, $0.toDelete)) }
+            .map { (pkg, $0) }
     }
 }
 
@@ -350,9 +350,42 @@ func diffVersions(client: Client,
                   logger: Logger,
                   threadPool: NIOThreadPool,
                   transaction: Database,
-                  package: Package) -> EventLoopFuture<(toAdd: [Version],
-                                                        toDelete: [Version],
-                                                        toKeep: [Version])> {
+                  package: Package) -> EventLoopFuture<VersionDelta> {
+    guard let pkgId = package.id else {
+        return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.url)"))
+    }
+
+    let existing = Version.query(on: transaction)
+        .filter(\.$package.$id == pkgId)
+        .all()
+    let incoming = getIncomingVersions(client: client,
+                                       logger: logger,
+                                       threadPool: threadPool,
+                                       transaction: transaction,
+                                       package: package)
+    return existing.and(incoming)
+        .map { existing, incoming in
+            (existing: existing,
+             incoming: throttle(lastestExistingVersion: existing.latestBranchVersion,
+                                incoming: incoming))
+        }
+        .map(Version.diff)
+}
+
+
+/// Get incoming versions (from git repository)
+/// - Parameters:
+///   - client: `Client` object (for Rollbar error reporting)
+///   - logger: `Logger` object
+///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
+///   - transaction: database transaction
+///   - package: `Package` to reconcile
+/// - Returns: future with incoming `Version`s
+func getIncomingVersions(client: Client,
+                         logger: Logger,
+                         threadPool: NIOThreadPool,
+                         transaction: Database,
+                         package: Package) -> EventLoopFuture<[Version]> {
     guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
         return transaction.eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
     }
@@ -365,7 +398,7 @@ func diffVersions(client: Client,
 
     let tags: EventLoopFuture<[Reference]> = threadPool.runIfActive(eventLoop: transaction.eventLoop) {
         logger.info("listing tags for package \(package.url)")
-        return try Git.tag(at: cacheDir)
+        return try Current.git.getTags(cacheDir)
     }
     .flatMapError {
         let appError = AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)")
@@ -373,23 +406,42 @@ func diffVersions(client: Client,
         return Current.reportError(client, .error, appError)
             .transform(to: [])
     }
-    
+
     let references = tags.map { tags in [defaultBranch].compactMap { $0 } + tags }
-    let incoming: EventLoopFuture<[Version]> = references
+    return references
         .flatMapEachThrowing { ref in
-            let revInfo = try Git.revisionInfo(ref, at: cacheDir)
+            let revInfo = try Current.git.revisionInfo(ref, cacheDir)
             let url = package.versionUrl(for: ref)
             return try Version(package: package,
                                commit: revInfo.commit,
                                commitDate: revInfo.date,
                                reference: ref,
-                               url: url) }
-    
-    return Version.query(on: transaction)
-        .filter(\.$package.$id == pkgId)
-        .all()
-        .and(incoming)
-        .map(Version.diff)
+                               url: url)
+        }
+}
+
+
+func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version] {
+    guard let existingVersion = lastestExistingVersion,
+          let latestExisting = existingVersion.commitDate else {
+        // there's no existing branch version -> leave incoming alone (which will lead to addition)
+        return incoming
+    }
+
+    guard let incomingVersion = incoming.latestBranchVersion else {
+        // there's no incoming branch version -> leave incoming alone (which will lead to removal)
+        return incoming
+    }
+
+    let delta = Current.date().timeIntervalSinceReferenceDate - latestExisting.timeIntervalSinceReferenceDate
+
+    let resultingBranchVersion = delta < Constants.branchVersionRefreshDelay
+        ? existingVersion
+        : incomingVersion
+
+    return incoming
+        .filter(!\.isBranch)        // remove all branch versions
+        + [resultingBranchVersion]  // add resulting version
 }
 
 
@@ -399,10 +451,12 @@ func diffVersions(client: Client,
 ///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
 /// - Returns: future with an array of each `Package` paired with its update package delta for further processing
 func mergeReleaseInfo(on transaction: Database,
-                      packageDeltas: [Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]) -> EventLoopFuture<[Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]> {
+                      packageDeltas: [Result<(Package, VersionDelta), Error>]) -> EventLoopFuture<[Result<(Package, VersionDelta), Error>]> {
     packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
         mergeReleaseInfo(on: transaction, package: pkg, versions: delta.toAdd)
-            .map { (pkg, (toAdd: $0, toDelete: delta.toDelete)) }
+            .map { (pkg, .init(toAdd: $0,
+                               toDelete: delta.toDelete,
+                               toKeep: delta.toKeep)) }
     }
 }
 
@@ -442,7 +496,7 @@ func mergeReleaseInfo(on transaction: Database,
 ///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
 /// - Returns: future with an array of each `Package` paired with its new `Version`s
 func applyVersionDelta(on transaction: Database,
-                       packageDeltas: [Result<(Package, (toAdd: [Version], toDelete: [Version])), Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+                       packageDeltas: [Result<(Package, VersionDelta), Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
     packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
         applyVersionDelta(on: transaction, delta: delta)
             .transform(to: (pkg, delta.toAdd))
@@ -456,7 +510,7 @@ func applyVersionDelta(on transaction: Database,
 ///   - delta: tuple containing the versions to add and remove
 /// - Returns: future
 func applyVersionDelta(on transaction: Database,
-                       delta: (toAdd: [Version], toDelete: [Version])) -> EventLoopFuture<Void> {
+                       delta: VersionDelta) -> EventLoopFuture<Void> {
     let delete = delta.toDelete.delete(on: transaction)
     let insert = delta.toAdd.create(on: transaction)
     delta.toAdd.forEach {

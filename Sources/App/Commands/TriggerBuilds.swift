@@ -203,24 +203,7 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
                 SELECT v.package_id, v.latest, MIN(v.created_at) created_at
                 FROM versions v
                 LEFT JOIN builds b ON b.version_id = v.id
-                JOIN packages p ON v.package_id = p.id
-                -- select versions, that are
                 WHERE v.latest IS NOT NULL
-                  AND (
-                    -- either tags
-                    v.reference->'tag' IS NOT NULL
-                    OR
-                    -- or branches
-                    (
-                      v.reference->'branch' IS NOT NULL
-                      AND (
-                        -- which are more than interval T old
-                        v.created_at < NOW() - INTERVAL '\(raw: String(Constants.branchBuildDeadTime)) hours'
-                        -- or whose package has been created within interval T
-                        OR p.created_at >= NOW() - INTERVAL '\(raw: String(Constants.branchBuildDeadTime)) hours'
-                      )
-                    )
-                  )
                 GROUP BY v.package_id, v.latest
                 HAVING COUNT(*) < \(bind: expectedBuildCount)
             ) AS t
@@ -275,32 +258,11 @@ struct BuildTriggerInfo: Equatable {
 
 func findMissingBuilds(_ database: Database,
                        packageId: Package.Id) -> EventLoopFuture<[BuildTriggerInfo]> {
-    let cutOffDate = Current.date().addingTimeInterval(-TimeInterval(Constants.branchBuildDeadTime*3600))
-
     let versions = Version.query(on: database)
         .with(\.$builds)
-        .with(\.$package)
         .filter(\.$package.$id == packageId)
         .filter(\.$latest != nil)
         .all()
-        .mapEachCompact { version -> Version? in
-            // filter branch versions against branchBuildDeadTime client side,
-            // because it's not clear how to write
-            // v.reference->'tag' IS NOT NULL
-            // in Fluent - and the select isn't huge
-            guard
-                let reference = version.reference,
-                let packageCreatedAt = version.package.createdAt,
-                let versionCreatedAt = version.createdAt else {
-                return nil
-            }
-            if reference.isTag { return version }
-            let isNewPackage = packageCreatedAt >= cutOffDate
-            let isOldVersion = versionCreatedAt < cutOffDate
-            return isNewPackage || isOldVersion
-                ? version
-                : nil
-        }
 
     return versions.mapEachCompact { v in
         guard let versionId = v.id else { return nil }

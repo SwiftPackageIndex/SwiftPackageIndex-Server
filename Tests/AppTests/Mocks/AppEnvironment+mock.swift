@@ -21,6 +21,7 @@ extension AppEnvironment {
             fetchReadme: { _, _ in eventLoop.future(.init(downloadUrl: "https://github.com/foo/bar/blob/main/README.md")) },
             fileManager: .mock,
             getStatusCount: { _, _ in eventLoop.future(100) },
+            git: .mock,
             githubToken: { nil },
             gitlabApiToken: { nil },
             gitlabPipelineToken: { nil },

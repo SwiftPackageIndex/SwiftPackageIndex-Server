@@ -28,7 +28,7 @@ class GitTests: XCTestCase {
             """
         )
         XCTAssertEqual(
-            try Git.tag(at: "ignored"), [
+            try Git.getTags(at: "ignored"), [
                 .tag(.init(1, 0, 0, "pre")),
                 .tag(.init(1, 0, 0)),
                 .tag(.init(1, 0, 1)),

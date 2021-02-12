@@ -9,8 +9,7 @@ enum GitError: LocalizedError {
     case invalidRevisionInfo
 }
 
-
-enum Git {
+extension Git {
     
     static func commitCount(at path: String) throws -> Int {
         let res = try Current.shell.run(
@@ -42,7 +41,7 @@ enum Git {
         return Date(timeIntervalSince1970: timestamp)
     }
     
-    static func tag(at path: String) throws -> [Reference] {
+    static func getTags(at path: String) throws -> [Reference] {
         let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
         return tags.split(separator: "\n")
             .map(String.init)

@@ -10,6 +10,9 @@ import XCTest
 class AnalyzerTests: AppTestCase {
     
     func test_analyze() throws {
+        // End-to-end test, where we mock at the shell command level (i.e. we
+        // don't mock the git commands themselves to ensure we're running the
+        // expected shell commands for the happy path.)
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
@@ -34,6 +37,7 @@ class AnalyzerTests: AppTestCase {
             return false
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
+        Current.git = .live
         let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
@@ -180,20 +184,45 @@ class AnalyzerTests: AppTestCase {
         // add existing versions (to be reconciled)
         try Version(package: pkg,
                     commit: "commit0",
+                    // FIXME: add commitDate after cherry-pick
+                    //                    commitDate: T0,
                     latest: .defaultBranch,
                     packageName: "foo-1",
                     reference: .branch("main")).save(on: app.db).wait()
         try Version(package: pkg,
                     commit: "commit0",
+                    // FIXME: add commitDate after cherry-pick
+                    //                    commitDate: T0,
                     latest: .release,
                     packageName: "foo-1",
                     reference: .tag(1, 0, 0)).save(on: app.db).wait()
 
         Current.fileManager.fileExists = { _ in true }
-        Current.shell.run = { cmd, path in
-            if cmd.string == "git tag" {
-                return ["1.0.0", "1.1.1"].joined(separator: "\n")
+
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t2 }
+        Current.git.getTags = { _ in [.tag(1, 0, 0), .tag(1, 1, 1)] }
+        Current.git.revisionInfo = { ref, _ in
+            // simulate the following scenario:
+            //   - main branch has moved from commit0 -> commit3 (timestamp 3)
+            //   - 1.0.0 has been re-tagged (!) from commit0 -> commit1 (timestamp 1)
+            //   - 1.1.1 has been added at commit2 (timestamp 2)
+            switch ref {
+                // NB: case .tag(1, 0, 0): does not compile, that the reason for the
+                // weird where clause (swift 5.3)
+                case _ where ref == .tag(1, 0, 0):
+                    return .init(commit: "commit1", date: .t1)
+                case _ where ref == .tag(1, 1, 1):
+                    return .init(commit: "commit2", date: .t2)
+                case .branch("main"):
+                    return .init(commit: "commit3", date: .t3)
+                default:
+                    fatalError("unexpected reference: \(ref)")
             }
+        }
+
+        Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("package dump-package") {
                 return #"""
                     {
@@ -211,24 +240,6 @@ class AnalyzerTests: AppTestCase {
                     }
                     """#
             }
-
-            // New Git.revisionInfo (per ref - default branch & tags)
-            // main branch has moved from commit0 -> commit3 (timestamp 3)
-            // 1.0.0 has been re-tagged (!) from commit0 -> commit1 (timestamp 1)
-            // 1.1.1 has been added at commit2 (timestamp 2)
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "main""# { return "commit3-3" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.0.0""# { return "commit1-1" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.1.1""# { return "commit2-2" }
-
-            // Git.commitCount
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-
-            // Git.firstCommitDate
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-
-            // Git.lastCommitDate
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "2" }
-
             return ""
         }
 
@@ -257,8 +268,14 @@ class AnalyzerTests: AppTestCase {
             try Repository(package: $0, defaultBranch: "main").save(on: app.db).wait()
         }
         let lastUpdate = Date()
+
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.getTags = { _ in [.tag(1, 0, 0)] }
+        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
+
         Current.shell.run = { cmd, path in
-            if cmd.string == "git tag" { return "1.0.0" }
             // first package fails
             if cmd.string.hasSuffix("swift package dump-package") && path.hasSuffix("foo-1") {
                 return "bad data"
@@ -267,10 +284,6 @@ class AnalyzerTests: AppTestCase {
             if cmd.string.hasSuffix("swift package dump-package") && path.hasSuffix("foo-2") {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
         
@@ -296,6 +309,7 @@ class AnalyzerTests: AppTestCase {
             try Repository(package: $0, defaultBranch: "main").save(on: app.db).wait()
         }
         var checkoutDir: String? = nil
+
         Current.fileManager.fileExists = { path in
             // let the check for the second repo checkout path succedd to simulate pull
             if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
@@ -303,6 +317,9 @@ class AnalyzerTests: AppTestCase {
             return false
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
+
+        Current.git = .live
+
         let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
@@ -382,12 +399,10 @@ class AnalyzerTests: AppTestCase {
     
     func test_updateRepository() throws {
         // setup
-        Current.shell.run = { cmd, _ in
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
-            throw TestError.unknownCommand
-        }
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
@@ -399,18 +414,16 @@ class AnalyzerTests: AppTestCase {
         // validate
         let repo = try XCTUnwrap(try res.get().repository)
         XCTAssertEqual(repo.commitCount, 12)
-        XCTAssertEqual(repo.firstCommitDate, Date(timeIntervalSince1970: 0))
-        XCTAssertEqual(repo.lastCommitDate, Date(timeIntervalSince1970: 1))
+        XCTAssertEqual(repo.firstCommitDate, .t0)
+        XCTAssertEqual(repo.lastCommitDate, .t1)
     }
     
     func test_updateRepositories() throws {
         // setup
-        Current.shell.run = { cmd, _ in
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
-            throw TestError.unknownCommand
-        }
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
@@ -440,14 +453,13 @@ class AnalyzerTests: AppTestCase {
 
     func test_diffVersions() throws {
         //setup
-        Current.shell.run = { cmd, _ in
-            if cmd.string == "git tag" {
-                return "1.2.3"
-            }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "main""# { return "sha.main-0" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.2.3""# { return "sha.1.2.3-1" }
-            throw TestError.unknownCommand
+        Current.git.getTags = { _ in [.tag(1, 2, 3)] }
+        Current.git.revisionInfo = { ref, _ in
+            if ref == .branch("main") { return . init(commit: "sha.main", date: .t0) }
+            if ref == .tag(1, 2, 3) { return .init(commit: "sha.1.2.3", date: .t1) }
+            fatalError("unknown ref: \(ref)")
         }
+        Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
         let pkgId = UUID()
         do {
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
@@ -478,23 +490,21 @@ class AnalyzerTests: AppTestCase {
 
     func test_diffVersions_package_list() throws {
         //setup
-        Current.shell.run = { cmd, _ in
-            if cmd.string == "git tag" {
-                return "1.2.3"
-            }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            return ""
+        Current.git.getTags = { _ in [.tag(1, 2, 3)] }
+        Current.git.revisionInfo = { ref, _ in .init(commit: "sha", date: .t0) }
+        Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
+        let pkgId = UUID()
+        do {
+            let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
+            try pkg.save(on: app.db).wait()
+            try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         }
-        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        let pkg = try Package.fetchCandidate(app.db, id: pkgId).wait()
         let packages: [Result<Package, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success(pkg)
         ]
-        // fetch relationship, which is what `fetchCandidates` does
-        try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
         let results = try diffVersions(client: app.client,
@@ -737,12 +747,16 @@ class AnalyzerTests: AppTestCase {
         }
     }
     
-    func test_issue_42() throws {
+    func test_issue_29() throws {
+        // Regression test for issue 29
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/29
         // setup
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.getTags = { _ in [.tag(1, 0, 0), .tag(2, 0, 0)] }
+        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.shell.run = { cmd, path in
-            if cmd.string == "git tag" {
-                return ["1.0.0", "2.0.0"].joined(separator: "\n")
-            }
             if cmd.string.hasSuffix("swift package dump-package") {
                 return #"""
                     {
@@ -767,10 +781,6 @@ class AnalyzerTests: AppTestCase {
                     }
                     """#
             }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
         let pkgs = try savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)

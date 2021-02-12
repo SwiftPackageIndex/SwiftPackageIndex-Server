@@ -25,6 +25,13 @@ class ReAnalyzeVersionsTests: AppTestCase {
                        package: pkg,
                        defaultBranch: "main",
                        releases: []).save(on: app.db).wait()
+
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.getTags = { _ in [.tag(1, 2, 3)] }
+        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
+
         var pkgDump = #"""
             {
               "name": "SPI-Server",
@@ -33,14 +40,9 @@ class ReAnalyzeVersionsTests: AppTestCase {
             }
             """#
         Current.shell.run = { cmd, path in
-            if cmd.string == "git tag" { return "1.2.3" }
             if cmd.string.hasSuffix("swift package dump-package") {
                 return pkgDump
             }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
         do {
@@ -116,20 +118,20 @@ class ReAnalyzeVersionsTests: AppTestCase {
         do {
             let p = Package(url: "1")
             try p.save(on: app.db).wait()
-            try createVersion(app.db, p, updatedAt: 0)
-            try createVersion(app.db, p, updatedAt: 1)
+            try createVersion(app.db, p, updatedAt: .t0)
+            try createVersion(app.db, p, updatedAt: .t1)
         }
         do {
             let p = Package(url: "2")
             try p.save(on: app.db).wait()
-            try createVersion(app.db, p, updatedAt: 1)
-            try createVersion(app.db, p, updatedAt: 3)
+            try createVersion(app.db, p, updatedAt: .t1)
+            try createVersion(app.db, p, updatedAt: .t3)
         }
         do {
             let p = Package(url: "3")
             try p.save(on: app.db).wait()
-            try createVersion(app.db, p, updatedAt: 3)
-            try createVersion(app.db, p, updatedAt: 4)
+            try createVersion(app.db, p, updatedAt: .t3)
+            try createVersion(app.db, p, updatedAt: .t4)
         }
 
         // MUT
@@ -144,22 +146,23 @@ class ReAnalyzeVersionsTests: AppTestCase {
         // Test to ensure versions are updated even if processing throws errors.
         // This is to ensure our candidate selection shrinks and we don't
         // churn over and over on failing versions.
-        let cutoff = Date(timeIntervalSince1970: 1)
-        Current.date = { Date(timeIntervalSince1970: 2) }
+        let cutoff = Date.t1
+        Current.date = { .t2 }
         let pkg = try savePackage(on: app.db,
                                   "https://github.com/foo/1".url,
                                   processingStage: .ingestion)
         try Repository(package: pkg,
                        defaultBranch: "main").save(on: app.db).wait()
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in .t0 }
+        Current.git.lastCommitDate = { _ in .t1 }
+        Current.git.getTags = { _ in [] }
+        Current.git.revisionInfo = { _, _ in .init(commit: "sha", date: .t0) }
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("swift package dump-package") {
                 // causing error to be thrown during package dump
                 return "bad dump"
             }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
         try analyze(client: app.client,
@@ -167,7 +170,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                     logger: app.logger,
                     threadPool: app.threadPool,
                     limit: 10).wait()
-        try setAllVersionsUpdatedAt(app.db, updatedAt: 0)
+        try setAllVersionsUpdatedAt(app.db, updatedAt: .t0)
         do {
             let candidates = try Package
                 .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).wait()
@@ -193,7 +196,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
 
 private func createVersion(_ db: Database,
                            _ package: Package,
-                           updatedAt: Int) throws {
+                           updatedAt: Date) throws {
     let id = UUID()
     try Version(id: id, package: package).save(on: db).wait()
     try setUpdatedAt(db, versionId: id, updatedAt: updatedAt)
@@ -202,10 +205,10 @@ private func createVersion(_ db: Database,
 
 private func setUpdatedAt(_ db: Database,
                           versionId: Version.Id,
-                          updatedAt: Int) throws {
+                          updatedAt: Date) throws {
     let db = db as! SQLDatabase
     try db.raw("""
-        update versions set updated_at = to_timestamp(\(bind: updatedAt))
+        update versions set updated_at = to_timestamp(\(bind: updatedAt.timeIntervalSince1970))
         where id = \(bind: versionId)
         """)
         .run()
@@ -213,10 +216,10 @@ private func setUpdatedAt(_ db: Database,
 }
 
 
-private func setAllVersionsUpdatedAt(_ db: Database, updatedAt: Int) throws {
+private func setAllVersionsUpdatedAt(_ db: Database, updatedAt: Date) throws {
     let db = db as! SQLDatabase
     try db.raw("""
-        update versions set updated_at = to_timestamp(\(bind: updatedAt))
+        update versions set updated_at = to_timestamp(\(bind: updatedAt.timeIntervalSince1970))
         """)
         .run()
         .wait()

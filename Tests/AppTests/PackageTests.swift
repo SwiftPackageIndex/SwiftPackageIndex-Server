@@ -778,14 +778,18 @@ final class PackageTests: AppTestCase {
         let url = "1".asGithubUrl
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
         Current.fetchPackageList = { _ in self.future([url.url]) }
+        Current.git.commitCount = { _ in 12 }
+        Current.git.firstCommitDate = { _ in Date(timeIntervalSince1970: 0) }
+        Current.git.getTags = { _ in [] }
+        Current.git.lastCommitDate = { _ in Date(timeIntervalSince1970: 1) }
+        Current.git.revisionInfo = { _, _ in
+            .init(commit: "sha",
+                  date: Date(timeIntervalSince1970: 0))
+        }
         Current.shell.run = { cmd, path in
             if cmd.string.hasSuffix("swift package dump-package") {
                 return #"{ "name": "Mock", "products": [] }"#
             }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
             return ""
         }
         // run reconcile to ingest package
