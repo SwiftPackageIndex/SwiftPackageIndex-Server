@@ -64,7 +64,34 @@
       <div class="inner">
         <div>
           <h2>Information for Example Package Maintainers</h2>
-          <p>Are you the author, or a maintainer of Example Package?</p>
+          <p>Are you the author, or a maintainer of 
+            <a href="http://localhost:8080/example/package">Example Package</a>? Here's what you need to know to make your package's page on the Swift Package Index, and your README both show the best information about your package.
+          </p>
+          <h3>Compatibility Badges</h3>
+          <p>You can add 
+            <a href="https://shields.io">shields.io</a> badges to your package's README file. Display your package's compatibility with recent versions of Swift, or with different platforms, or both!
+          </p>
+          <strong>Swift Version Compatibility Badge</strong>
+          <div class="badge_markdown">
+            <form>
+              <input type="text" class="badge_markdown" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions)](http://localhost:8080/example/package)" readonly="true"/>
+            </form>
+            <img src="https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions"/>
+          </div>
+          <strong>Platform Compatibility Badge</strong>
+          <div class="badge_markdown">
+            <form>
+              <input type="text" class="badge_markdown" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms)](http://localhost:8080/example/package)" readonly="true"/>
+            </form>
+            <img src="https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms"/>
+          </div>
+          <p>Copy the Markdown above into your package's README file to show always-up-to-date compatibility status for your package.</p>
+          <h3>Build Compatibility</h3>
+          <p>For information on improving your 
+            <a href="/example/package/builds">package's build results</a>, including why you might want to add a 
+            <code>_spi.yml</code> which controls the Swift Package Index build system, see the 
+            <a href="/docs/builds">build system documentation</a>.
+          </p>
         </div>
       </div>
     </main>
