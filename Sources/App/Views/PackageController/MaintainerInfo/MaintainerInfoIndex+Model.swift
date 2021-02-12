@@ -34,5 +34,14 @@ extension MaintainerInfoIndex {
             let spiPackageURL = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
             return "[![](\(badgeURL(for: type)))](\(spiPackageURL))"
         }
+
+        func badgeMarkdowDisplay(for type: Package.BadgeType) -> Node<HTML.FormContext> {
+            .input(
+                .type(.text),
+                .class("badge_markdown"),
+                .value(badgeMarkdown(for: type)),
+                .attribute(named: "readonly", value: "true")
+            )
+        }
     }
 }
