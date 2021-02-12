@@ -27,8 +27,8 @@ enum BuildIndex {
                 .p(
                     "If you are the author of this package and see unexpected build failures, please check the ",
                     .a(
-                        .href("https://swiftpackageindex.com/docs/builds"),
-                        "build system FAQ"
+                        .href(SiteURL.docs(.builds).relativeURL()),
+                        "build system documentation"
                     ),
                     " to see how we derive build parameters. If you still see surprising results, please ",
                     .a(
