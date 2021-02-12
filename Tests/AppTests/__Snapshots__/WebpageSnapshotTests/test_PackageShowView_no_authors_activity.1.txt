@@ -96,6 +96,9 @@
                 <li>
                   <a href="/Alamo">More from Alamo</a>
                 </li>
+                <li>
+                  <a href="/Alamo/Alamofire/information-for-package-maintainers">Do you maintain this package?</a>
+                </li>
               </ul>
             </section>
           </div>
