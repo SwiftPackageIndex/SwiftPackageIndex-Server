@@ -1,0 +1,65 @@
+/* -------------------------------------------------------------------------
+  Styles for the Information for Package Maintainers page.
+---------------------------------------------------------------------------- */
+
+.badge_markdown {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 8px 0 15px 0;
+
+  form {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 60%;
+
+    input {
+      flex-grow: 1;
+      margin: 0;
+      padding: 5px 10px 5px 5px;
+      background-color: var(--badge-input-background);
+      color: var(--input-text);
+      border: 1px var(--grey) solid;
+      border-radius: 4px 0 0 4px;
+      border-right: none;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    input:focus {
+      outline: none;
+    }
+
+    button {
+      margin: 0;
+      padding: 0 8px;
+      flex-shrink: 0;
+      font-size: 13px;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      color: var(--button-background); // Flipped standard colours.
+      background-color: var(--button-text);
+    }
+  }
+
+  img {
+    margin-left: 10px;
+  }
+}
+
+@media screen and (max-width: $mobile-breakpoint) {
+  .badge_markdown {
+    flex-direction: column;
+    align-items: flex-start;
+
+    form {
+      margin: 8px 0;
+      width: 100%;
+    }
+
+    img {
+      margin: 0;
+    }
+  }
+}
