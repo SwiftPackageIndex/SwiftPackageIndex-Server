@@ -66,7 +66,7 @@
           <h2>Build Information</h2>
           <div class="two_column">
             <p>
-              <strong class="green">Successful</strong> to build 
+              <strong class="green">Successful</strong> build of 
               <a href="/foo/bar">Bar</a> with 
               <strong>Swift 5.2</strong> for 
               <strong>iOS</strong> using 
