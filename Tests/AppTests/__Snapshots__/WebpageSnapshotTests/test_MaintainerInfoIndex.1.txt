@@ -89,7 +89,7 @@
           <h3>Build Compatibility</h3>
           <p>For information on improving your 
             <a href="/example/package/builds">package's build results</a>, including why you might want to add a 
-            <code>_spi.yml</code> which controls the Swift Package Index build system, see the 
+            <code>.spi.yml</code> which controls the Swift Package Index build system, see the 
             <a href="/docs/builds">build system documentation</a>.
           </p>
         </div>

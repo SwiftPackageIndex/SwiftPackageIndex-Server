@@ -52,7 +52,7 @@ enum MaintainerInfoIndex {
                         "package's build results"
                     ),
                     .text(", including why you might want to add a "),
-                    .code("_spi.yml"),
+                    .code(".spi.yml"),
                     .text(" which controls the Swift Package Index build system, see the "),
                     .a(
                         .href(SiteURL.docs(.builds).relativeURL()),
