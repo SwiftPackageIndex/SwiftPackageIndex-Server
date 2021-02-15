@@ -127,13 +127,13 @@
 		"sC": 3,
 		"tS": 0
 		},
-	"/javascripts/copy_package_url.js": {
+	"/javascripts/copy_buttons.js": {
 		"bF": 0,
 		"ft": 64,
-		"ma": 1,
+		"ma": 0,
 		"mi": 1,
 		"oA": 1,
-		"oAP": "/deploy/javascripts/copy_package_url-min.js",
+		"oAP": "/deploy/javascripts/copy_buttons-min.js",
 		"oF": 0,
 		"sC": 3,
 		"tS": 0
@@ -430,6 +430,19 @@
 		"oS": 3,
 		"sct": 0
 		},
+	"/stylesheets/maintainer_info.scss": {
+		"aP": 0,
+		"bl": 0,
+		"dP": 10,
+		"ec": 1,
+		"ft": 4,
+		"ma": 0,
+		"oA": 1,
+		"oAP": "/deploy/stylesheets/maintainer_info.css",
+		"oF": 0,
+		"oS": 0,
+		"sct": 0
+		},
 	"/stylesheets/markdown.scss": {
 		"aP": 0,
 		"bl": 0,
@@ -506,7 +519,7 @@
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "brackets-silver",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 634129641.26492095
+	"lastBuiltDate": 634850160.12811697
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
