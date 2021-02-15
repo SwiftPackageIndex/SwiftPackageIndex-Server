@@ -26,7 +26,7 @@ enum BuildShow {
                             .class(model.buildInfo.status.cssClass),
                             .text(model.buildInfo.status.text)
                         ),
-                        .text(" to build "),
+                        .text(model.buildInfo.status.joiningClause),
                         .a(
                             .href(model.packageURL),
                             .text(model.packageName)
@@ -79,6 +79,14 @@ private extension Build.Status {
         switch self {
             case .ok: return "Successful"
             case .failed: return "Failed"
+            case .pending: return ""
+        }
+    }
+
+    var joiningClause: String {
+        switch self {
+            case .ok: return " build of "
+            case .failed: return " to build "
             case .pending: return ""
         }
     }
