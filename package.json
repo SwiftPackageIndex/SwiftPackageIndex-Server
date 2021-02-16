@@ -1,14 +1,14 @@
 {
   "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
   "scripts": {
-    "build": "parcel build Resources/Scripts/main.js --dist-dir Public",
-    "serve": "parcel serve Resources/Scripts/main.js --dist-dir Public"
+    "build": "parcel build Resources/Scripts/main.js --experimental-scope-hoisting -d Public",
+    "serve": "parcel serve Resources/Scripts/main.js -d Public"
   },
   "dependencies": {
-    "parcel": "^2.0.0-beta.1",
-    "sass": "^1.32.7",
     "axios": "^0.21.1",
     "highlight.js": "^10.5.0",
-    "lodash": "^4.17.20"
+    "lodash": "^4.17.20",
+    "parcel": "^1.12.4",
+    "sass": "^1.32.7"
   }
 }
