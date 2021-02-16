@@ -78,3 +78,9 @@ db-down-test:
 	docker rm -f spi_test
 
 db-reset: db-down db-up migrate
+
+build-front-end:
+	docker run --rm -it -v $$PWD:/host -w /host --entrypoint yarn node:latest build
+
+serve-front-end:
+	docker run --rm -it -v $$PWD:/host -w /host --entrypoint yarn node:latest serve
