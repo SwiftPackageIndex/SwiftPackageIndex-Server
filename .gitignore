@@ -16,3 +16,7 @@ misc/
 
 node_modules
 .parcel-cache
+Public/main.js
+Public/main.js.map
+Public/main.css
+Public/main.css.map
