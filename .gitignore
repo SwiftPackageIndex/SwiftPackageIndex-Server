@@ -15,6 +15,7 @@ SPI-checkouts/
 misc/
 
 node_modules
+.cache
 .parcel-cache
 Public/main.js
 Public/main.js.map
