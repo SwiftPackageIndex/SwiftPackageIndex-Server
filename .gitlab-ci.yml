@@ -33,7 +33,7 @@ build:
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
     echo 'let appVersion = "'${VERSION}'"' > ./Sources/App/Core/AppVersion.swift
 
-    docker run --rm -it -v $PWD:/host -w /host --entrypoint yarn node:15.8-alpine build
+    docker run --rm -v $PWD:/host -w /host --entrypoint yarn node:15.8-alpine build
     docker build -t $REGISTRY_IMAGE:$VERSION .
 
     retries=3
