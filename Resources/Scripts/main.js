@@ -1,3 +1,5 @@
+import '../Styles/main.scss'
+
 import './find_parent_matching.js'
 import './highlighting.js'
 
