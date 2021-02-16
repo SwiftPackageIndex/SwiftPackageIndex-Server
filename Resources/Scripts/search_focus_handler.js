@@ -12,9 +12,13 @@ export class SPISearchFocusHandler {
     // This needs to be a `mousedown`, not a `click` as it needs to fire *before* `blur` where `click` fires after it.
     document.addEventListener('mousedown', () => {
       const queryFieldElement = document.getElementById('query')
-      if (!queryFieldElement) { return }
+      if (!queryFieldElement) {
+        return
+      }
       const resultsElement = document.getElementById('results')
-      if (!resultsElement) { return }
+      if (!resultsElement) {
+        return
+      }
 
       // Navigate through the DOM to determine if the mouse down is in a child of the `#results` element.
       const clickedElement = event.target
@@ -31,7 +35,9 @@ export class SPISearchFocusHandler {
 
   installQueryFieldEventHandlers() {
     const queryFieldElement = document.getElementById('query')
-    if (!queryFieldElement) { return }
+    if (!queryFieldElement) {
+      return
+    }
 
     // When focus is given to the query field, show the results if there is a query.
     queryFieldElement.addEventListener('focus', (event) => {
@@ -41,7 +47,9 @@ export class SPISearchFocusHandler {
     // When focus is lost, always hide the results div.
     queryFieldElement.addEventListener('blur', () => {
       const queryFieldElement = document.getElementById('query')
-      if (!queryFieldElement) { return }
+      if (!queryFieldElement) {
+        return
+      }
 
       if (queryFieldElement.getAttribute('data-prevent-blur')) {
         queryFieldElement.removeAttribute('data-prevent-blur')

@@ -1,10 +1,10 @@
 export const SessionKey = {
-  searchResults: 'com.swiftpackageindex.searchResults'
+  searchResults: 'com.swiftpackageindex.searchResults',
 }
 
-Storage.prototype.getDeserializedItem = function(key) {
+Storage.prototype.getDeserializedItem = function (key) {
   const value = this.getItem(key)
-  return (value) ? JSON.parse(value) : null
+  return value ? JSON.parse(value) : null
 }
 
 Storage.prototype.setSerializedItem = function (key, value) {

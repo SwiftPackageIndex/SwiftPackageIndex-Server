@@ -17,11 +17,15 @@ export class SPISearchCore {
     // the browser uses autocompletion to restore any search text in the query field.
     window.addEventListener('pageshow', () => {
       const queryFieldElement = document.getElementById('query')
-      if (!queryFieldElement) { return }
+      if (!queryFieldElement) {
+        return
+      }
 
       // If there's already a query, the search results should be cached in session storage.
       const searchQuery = queryFieldElement.value.trim()
-      const searchResults = sessionStorage.getDeserializedItem(SessionKey.searchResults)
+      const searchResults = sessionStorage.getDeserializedItem(
+        SessionKey.searchResults
+      )
       if (searchQuery.length > 0 && searchResults) {
         // Update the search results div to display the cached results.
         this.replaceResultsDivWith(this.searchResultsElement(searchResults))
@@ -34,17 +38,24 @@ export class SPISearchCore {
 
   installQueryFieldEventHandlers() {
     const queryFieldElement = document.getElementById('query')
-    if (!queryFieldElement) { return }
+    if (!queryFieldElement) {
+      return
+    }
 
     // When any input is received by the query field, perform the search.
-    queryFieldElement.addEventListener('input', debounce(() => {
-      this.performSearch()
-    }, 300))
+    queryFieldElement.addEventListener(
+      'input',
+      debounce(() => {
+        this.performSearch()
+      }, 300)
+    )
   }
 
   performSearch() {
     const queryFieldElement = document.getElementById('query')
-    if (!queryFieldElement) { return }
+    if (!queryFieldElement) {
+      return
+    }
 
     const searchQuery = queryFieldElement.value.trim()
     if (searchQuery.length > 0) {
@@ -58,41 +69,51 @@ export class SPISearchCore {
     const searchUrl = '/api/search?query=' + searchQuery
 
     // Cancel any already running search requests.
-    if (this.requestCancelFunction) { this.requestCancelFunction() }
+    if (this.requestCancelFunction) {
+      this.requestCancelFunction()
+    }
 
-    axios.get(searchUrl, {
-      // Create and store a cancellation token for this specific request.
-      cancelToken: new axios.CancelToken((cancelFunction) => {
-        this.requestCancelFunction = cancelFunction
+    axios
+      .get(searchUrl, {
+        // Create and store a cancellation token for this specific request.
+        cancelToken: new axios.CancelToken((cancelFunction) => {
+          this.requestCancelFunction = cancelFunction
+        }),
       })
-    }).then((response) => {
-      // Cache the search results in session storage in case they need to be re-displayed.
-      const searchResults = response.data
-      sessionStorage.setSerializedItem(SessionKey.searchResults, searchResults)
+      .then((response) => {
+        // Cache the search results in session storage in case they need to be re-displayed.
+        const searchResults = response.data
+        sessionStorage.setSerializedItem(
+          SessionKey.searchResults,
+          searchResults
+        )
 
-      // Update the search results div to display the new results.
-      this.replaceResultsDivWith(this.searchResultsElement(searchResults))
+        // Update the search results div to display the new results.
+        this.replaceResultsDivWith(this.searchResultsElement(searchResults))
 
-      // Reset the keyboard navigation selected index as these are new results.
-      if (window.spiSearchKeyboardNavigation) {
-        window.spiSearchKeyboardNavigation.resetSelectedResult()
-      }
-    }).catch((error) => {
-      // Ignore errors as a result of cancellation, but log everything else.
-      if (!axios.isCancel(error)) {
-        console.error(error)
+        // Reset the keyboard navigation selected index as these are new results.
+        if (window.spiSearchKeyboardNavigation) {
+          window.spiSearchKeyboardNavigation.resetSelectedResult()
+        }
+      })
+      .catch((error) => {
+        // Ignore errors as a result of cancellation, but log everything else.
+        if (!axios.isCancel(error)) {
+          console.error(error)
 
-        // Update the search results div to display an error message.
-        this.replaceResultsDivWith(this.searchResultsErrorElement(error))
-      }
-    })
+          // Update the search results div to display an error message.
+          this.replaceResultsDivWith(this.searchResultsErrorElement(error))
+        }
+      })
   }
 
   // -- Search result replacement ---------------------------------------------
 
   replaceResultsDivWith(element) {
     const resultsElement = document.getElementById('results')
-    if (resultsElement) { resultsElement.replaceWith(element) }
+    if (resultsElement) {
+      resultsElement.replaceWith(element)
+    }
   }
 
   // -- Methods that return a new results div ---------------------------------
@@ -158,11 +179,16 @@ export class SPISearchCore {
 
     // Finally, what was the error?
     if (error.response) {
-      errorMessageElement.textContent = error.response.status + ' – ' + error.response.statusText
+      errorMessageElement.textContent =
+        error.response.status + ' – ' + error.response.statusText
 
       // Is there any extra information in the "reason" that might be useful?
-      if (!!error.response.data && !!error.response.data.reason && error.response.data.reason != error.response.statusText) {
-        errorMessageElement.textContent +=  ' – ' + error.response.data.reason
+      if (
+        !!error.response.data &&
+        !!error.response.data.reason &&
+        error.response.data.reason != error.response.statusText
+      ) {
+        errorMessageElement.textContent += ' – ' + error.response.data.reason
       }
     } else {
       errorMessageElement.textContent = 'Unexpected Error.'
@@ -207,7 +233,8 @@ export class SPISearchCore {
 
     // Repository identifier.
     const repositoryElement = document.createElement('small')
-    repositoryElement.textContent = result.repositoryOwner + '/' + result.repositoryName
+    repositoryElement.textContent =
+      result.repositoryOwner + '/' + result.repositoryName
     linkElement.appendChild(repositoryElement)
 
     return searchResultElement
