@@ -89,6 +89,7 @@ enum SiteURL: Resourceable {
     case privacy
     case rssPackages
     case rssReleases
+    case search
     case siteMap
     case stylesheets(String)
     case javascripts(String)
@@ -145,6 +146,9 @@ enum SiteURL: Resourceable {
             case .rssReleases:
                 return "releases.rss"
                 
+            case .search:
+                return "search"
+
             case .siteMap:
                 return "sitemap.xml"
                 
@@ -158,7 +162,7 @@ enum SiteURL: Resourceable {
     
     var pathComponents: [PathComponent] {
         switch self {
-            case .faq, .addAPackage, .home, .privacy, .rssPackages, .rssReleases, .siteMap:
+            case .faq, .addAPackage, .home, .privacy, .rssPackages, .rssReleases, .search, .siteMap:
                 return [.init(stringLiteral: path)]
                 
             case let .api(next):

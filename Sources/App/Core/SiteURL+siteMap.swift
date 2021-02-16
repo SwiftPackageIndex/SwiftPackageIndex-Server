@@ -54,6 +54,8 @@ extension SiteURL {
                 return .hourly
             case .rssReleases:
                 return .hourly
+            case .search:
+                return .hourly
             case .siteMap:
                 return .weekly
             case .stylesheets:
