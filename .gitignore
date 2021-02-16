@@ -15,3 +15,4 @@ SPI-checkouts/
 misc/
 
 node_modules
+.parcel-cache
