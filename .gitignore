@@ -13,3 +13,5 @@ SPI-checkouts/
 .env.testing
 *.dump
 misc/
+
+node_modules
