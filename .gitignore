@@ -13,5 +13,3 @@ SPI-checkouts/
 .env.testing
 *.dump
 misc/
-
-Public/deploy/node_modules/
