@@ -80,7 +80,7 @@ db-down-test:
 db-reset: db-down db-up migrate
 
 build-front-end:
-	docker run --rm -it -v $$PWD:/host -w /host --entrypoint yarn node:latest build
+	docker run --rm -it -v $$PWD:/host -w /host --entrypoint yarn node:15.8-alpine build
 
 serve-front-end:
-	docker run --rm -it -v $$PWD:/host -w /host --entrypoint yarn node:latest serve
+	docker run --rm -it -v $$PWD:/host -w /host --entrypoint yarn node:15.8-alpine serve
