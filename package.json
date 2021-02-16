@@ -10,5 +10,8 @@
     "lodash": "^4.17.20",
     "parcel": "^1.12.4",
     "sass": "^1.32.7"
+  },
+  "devDependencies": {
+    "eslint": "^7.20.0"
   }
 }
