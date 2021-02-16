@@ -114,8 +114,8 @@
         "repositoryURL": "https://github.com/vapor/postgres-nio.git",
         "state": {
           "branch": null,
-          "revision": "072b6850fff26f5dc11caa4d4813da8cf45455fa",
-          "version": "1.4.2"
+          "revision": "7c52814d489b49720e046b91519ac9454ca77f19",
+          "version": "1.4.3"
         }
       },
       {
@@ -150,8 +150,8 @@
         "repositoryURL": "https://github.com/vapor/sql-kit.git",
         "state": {
           "branch": null,
-          "revision": "ea9928b7f4a801b175a00b982034d9c54ecb6167",
-          "version": "3.7.0"
+          "revision": "cc045001a03d1ec8de34b7be2f262d681fef90a1",
+          "version": "3.7.2"
         }
       },
       {
@@ -186,7 +186,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "c94bd6f9e08294eb788be15bc52003076b2c9b9c",
+          "revision": "92a6786f678796ff9c49eff80059f468713f73b4",
           "version": null
         }
       },
@@ -195,7 +195,7 @@
         "repositoryURL": "https://github.com/apple/swift-llbuild.git",
         "state": {
           "branch": "main",
-          "revision": "063f81d2666a02288b3250d8dadd752c8703d0ab",
+          "revision": "1a03ded2f228eb602779add2ddf3f0c665384fbd",
           "version": null
         }
       },
@@ -285,7 +285,7 @@
         "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
           "branch": "main",
-          "revision": "238a305a5c265d8e531f1df2c220cc9277dd7285",
+          "revision": "2954e55faee5bfee928e844bb09e97fcfa8d24af",
           "version": null
         }
       },
@@ -303,8 +303,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "1a1bd69eab970190d4b4ded7c3553221b8abf0f3",
-          "version": "4.39.1"
+          "revision": "e3fe4fdae3aea4c5638bddbea9d038f8d13792ca",
+          "version": "4.40.0"
         }
       },
       {
