@@ -208,7 +208,7 @@ export class SPISearchCore {
 
   moreResultsElement(numResults) {
     const moreResultsElement = document.createElement('p')
-    moreResultsElement.textContent = `More than ${numResults} results match this query. Try a more specific search.`
+    moreResultsElement.textContent = `More than ${numResults} results match this query. Try a more specific search.`
     moreResultsElement.classList.add('more_results')
     return moreResultsElement
   }
