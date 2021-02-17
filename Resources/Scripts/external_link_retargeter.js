@@ -9,7 +9,10 @@ export class ExternalLinkRetargeter {
     document.addEventListener('click', (event) => {
       const clickedElement = event.target
       const matchingElement = clickedElement.findParentMatching((element) => {
-        return element.nodeName.toLowerCase() == 'a' && element.hostname != window.location.hostname
+        return (
+          element.nodeName.toLowerCase() == 'a' &&
+          element.hostname != window.location.hostname
+        )
       })
 
       if (matchingElement) {

@@ -2,9 +2,13 @@ export class SPIReadmeProcessor {
   constructor() {
     document.addEventListener('DOMContentLoaded', () => {
       const readmeNode = document.querySelector('article.readme')
-      if (!readmeNode) { return }
+      if (!readmeNode) {
+        return
+      }
 
-      const readmeBaseUrl = new URL(readmeNode.getAttribute('data-readme-base-url'))
+      const readmeBaseUrl = new URL(
+        readmeNode.getAttribute('data-readme-base-url')
+      )
 
       // Find all relative image URLs and point them at the raw image sources.
       const readmeImages = readmeNode.querySelectorAll('img')
@@ -13,7 +17,7 @@ export class SPIReadmeProcessor {
         try {
           // Relative URLs will *fail* this initialisation.
           new URL(imageSource)
-        } catch(error) {
+        } catch (error) {
           image.src = `${readmeBaseUrl}${imageSource}`
         }
       })
@@ -26,7 +30,7 @@ export class SPIReadmeProcessor {
         try {
           // Relative URLs will *fail* this initialisation.
           new URL(linkTarget)
-        } catch(error) {
+        } catch (error) {
           // First, make a new base URL with 'blob' inserted just before the branch name.
           // This relies on the branch name being the last path component.
           const adjustedBaseUrl = new URL(readmeBaseUrl)
@@ -37,10 +41,10 @@ export class SPIReadmeProcessor {
           // Construct a new URL based on the modified base path and the relative URL.
           // All relative URLs will be resolved during creation of the URL instance.
           const newUrl = new URL(`${adjustedBaseUrl}${linkTarget}`)
-          
+
           // Adjust the host of the newly created URL to be GitHub main, not the raw subdomain.
           newUrl.host = 'github.com'
-          
+
           // Substitute this Frankenstein's monster of a URL.
           link.href = newUrl
         }
