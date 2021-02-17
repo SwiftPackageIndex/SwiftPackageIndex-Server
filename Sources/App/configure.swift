@@ -6,7 +6,7 @@ import Vapor
 public func configure(_ app: Application) throws {
     Current.setLogger(app.logger)
     
-    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory + "deploy/"))
+    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.middleware.use(ErrorMiddleware())
     
     guard

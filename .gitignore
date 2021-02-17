@@ -14,4 +14,10 @@ SPI-checkouts/
 *.dump
 misc/
 
-Public/deploy/node_modules/
+node_modules
+.cache
+.parcel-cache
+Public/main.js
+Public/main.js.map
+Public/main.css
+Public/main.css.map

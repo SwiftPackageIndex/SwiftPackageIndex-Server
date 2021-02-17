@@ -78,3 +78,9 @@ db-down-test:
 	docker rm -f spi_test
 
 db-reset: db-down db-up migrate
+
+build-front-end:
+	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh node:15.8-alpine /usr/local/bin/yarn && /usr/local/bin/yarn build
+
+serve-front-end:
+	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh node:15.8-alpine /usr/local/bin/yarn && /usr/local/bin/yarn serve

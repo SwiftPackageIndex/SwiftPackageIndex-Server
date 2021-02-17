@@ -91,7 +91,8 @@ enum SiteURL: Resourceable {
     case rssReleases
     case siteMap
     case stylesheets(String)
-    
+    case javascripts(String)
+
     var path: String {
         switch self {
             case let .api(next):
@@ -148,7 +149,10 @@ enum SiteURL: Resourceable {
                 return "sitemap.xml"
                 
             case let .stylesheets(name):
-                return "stylesheets/\(name)"
+                return "/\(name).css"
+
+            case let .javascripts(name):
+                return "/\(name).js"
         }
     }
     
@@ -181,7 +185,7 @@ enum SiteURL: Resourceable {
             case .package:
                 fatalError("pathComponents must not be called with a value parameter")
                 
-            case .images, .stylesheets:
+            case .images, .stylesheets, .javascripts:
                 fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
     }

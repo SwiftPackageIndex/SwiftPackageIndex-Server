@@ -58,6 +58,8 @@ extension SiteURL {
                 return .weekly
             case .stylesheets:
                 return .weekly
+            case .javascripts:
+                return .weekly
         }
     }
     

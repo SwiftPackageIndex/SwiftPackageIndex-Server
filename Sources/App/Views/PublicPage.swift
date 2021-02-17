@@ -40,8 +40,7 @@ class PublicPage {
             ),
             .link(
                 .rel(.stylesheet),
-                .href(SiteURL.stylesheets("main.min.css").relativeURL()
-                        + "?\(resourceReloadQueryString())")
+                .href(SiteURL.stylesheets("main").relativeURL() + "?\(resourceReloadQueryString())")
             ),
             .link(
                 .rel(.alternate),
@@ -74,7 +73,7 @@ class PublicPage {
                 .href(SiteURL.rssReleases.absoluteURL(parameters: ["pre": "true"]))
             ),
             .script(
-                .src("/javascripts/main.min.js?\(resourceReloadQueryString())")
+                .src(SiteURL.javascripts("main").relativeURL() + "?\(resourceReloadQueryString())")
             ),
             analyticsHead()
         )

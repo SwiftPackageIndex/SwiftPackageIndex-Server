@@ -26,7 +26,9 @@ extension Snapshotting where Value == () -> HTML, Format == NSImage {
         // ... and ensure we use absolute paths for image + stylesheet urls
         SiteURL.relativeURL = { path in
             switch path {
-                case _ where path.hasPrefix("stylesheets/") || path.hasPrefix("images/"):
+                case _ where path.hasPrefix("images/"):
+                    return Current.siteURL() + SiteURL._relativeURL(path)
+                case _ where path.hasSuffix(".css") || path.hasSuffix(".js"):
                     return Current.siteURL() + SiteURL._relativeURL(path)
                 default:
                     return SiteURL._relativeURL(path)

@@ -32,8 +32,10 @@ build:
   script: |
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
     echo 'let appVersion = "'${VERSION}'"' > ./Sources/App/Core/AppVersion.swift
+
+    docker run --rm -v $PWD:/host -w /host --entrypoint sh node:15.8-alpine /usr/local/bin/yarn && /usr/local/bin/yarn build
     docker build -t $REGISTRY_IMAGE:$VERSION .
-    
+
     retries=3
     until docker push $REGISTRY_IMAGE:$VERSION ; do
       [[ $retries -eq 0 ]] && echo "docker push failed" && exit 1
