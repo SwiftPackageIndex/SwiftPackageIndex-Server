@@ -62,7 +62,10 @@ enum Search {
         }
     }
     
-    private static func query(_ db: SQLDatabase, _ terms: [String]) -> EventLoopFuture<[DBRecord]> {
+    private static func query(_ db: SQLDatabase,
+                              _ terms: [String],
+                              page: Int = 1,
+                              pageSize: Int = Constants.searchPageSize) -> EventLoopFuture<[DBRecord]> {
         let maxSearchTerms = 20  // just to impose some sort of limit
         
         // binds
@@ -93,23 +96,26 @@ enum Search {
             .where(isNotNull(repoName))
             .orderBy(eq(lower(packageName), mergedTerms), .descending)
             .orderBy(score, SQLDirection.descending)
-            .limit(Constants.searchLimit + Constants.searchLimitLeeway)
+            .offset((page - 1) * pageSize)
+            .limit(pageSize + 1)  // fetch one more so the caller can determine `hasMoreResults`
             .all(decoding: DBRecord.self)
     }
     
-    static func run(_ database: Database, _ terms: [String]) -> EventLoopFuture<Search.Result> {
+    static func run(_ database: Database,
+                    _ terms: [String],
+                    page: Int = 1,
+                    pageSize: Int = Constants.searchPageSize) -> EventLoopFuture<Search.Result> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return query(db, terms)
+        return query(db, terms, page: page, pageSize: pageSize)
             .mapEach(\.asRecord)
             .map { results in
                 // allow for a little leeway so we don't cut off with just a few more records
                 // available
-                let hasMoreResults = results.count >= Constants.searchLimit + Constants.searchLimitLeeway
-                let cutOff = hasMoreResults ? Constants.searchLimit : results.count
+                let hasMoreResults = results.count > pageSize
                 return Search.Result(hasMoreResults: hasMoreResults,
-                                     results: Array(results[..<cutOff]))
+                                     results: Array(results.prefix(pageSize)))
             }
     }
     

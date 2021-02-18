@@ -14,11 +14,13 @@ extension API {
 
 extension API {
     static func search(database: Database,
-                       query: String) -> EventLoopFuture<Search.Result> {
+                       query: String,
+                       page: Int = 1,
+                       pageSize: Int = Constants.searchPageSize) -> EventLoopFuture<Search.Result> {
         let terms = query.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
         guard !terms.isEmpty else {
             return database.eventLoop.future(.init(hasMoreResults: false, results: []))
         }
-        return Search.run(database, terms)
+        return Search.run(database, terms, page: page, pageSize: pageSize)
     }
 }

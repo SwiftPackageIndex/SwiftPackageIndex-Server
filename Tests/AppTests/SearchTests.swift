@@ -141,28 +141,6 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res.results.count, 20)
     }
     
-    func test_search_limit_leeway() throws {
-        // Tests leeway: we only start cutting off if we have 25 or more results
-        // setup
-        let packages = (0..<21).map { Package(url: "\($0)".url) }
-        try packages.save(on: app.db).wait()
-        try packages.map { try Repository(package: $0, defaultBranch: "default",
-                                          name: $0.url, owner: "foo") }
-            .save(on: app.db)
-            .wait()
-        try packages.map { try Version(package: $0, packageName: "foo", reference: .branch("default")) }
-            .save(on: app.db)
-            .wait()
-        try Search.refresh(on: app.db).wait()
-        
-        // MUT
-        let res = try API.search(database: app.db, query: "foo").wait()
-        
-        // validate
-        XCTAssertFalse(res.hasMoreResults)
-        XCTAssertEqual(res.results.count, 21)
-    }
-    
     func test_order_by_score() throws {
         // setup
         try (0..<10).shuffled().forEach {
