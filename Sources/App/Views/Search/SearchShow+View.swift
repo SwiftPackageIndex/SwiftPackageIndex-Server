@@ -1,7 +1,7 @@
 import Plot
 
 
-extension Search {
+extension SearchShow {
 
     class View: PublicPage {
 

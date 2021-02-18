@@ -1,4 +1,4 @@
-extension Search {
+enum SearchShow {
 
     struct Model {
         var query: String
