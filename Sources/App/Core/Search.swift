@@ -62,7 +62,19 @@ enum Search {
         }
     }
     
-    private static func query(_ db: SQLDatabase, _ terms: [String]) -> EventLoopFuture<[DBRecord]> {
+    static func query(_ database: Database,
+                      _ terms: [String],
+                      page: Int,
+                      pageSize: Int) -> EventLoopFuture<Search.Result> {
+        let offset = (page - 1) * pageSize
+        guard offset >= 0 else {
+            return database.eventLoop.future(error: AppError.genericError(nil, "page is one-based and must be greater than zero"))
+        }
+
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+
         let maxSearchTerms = 20  // just to impose some sort of limit
         
         // binds
@@ -93,23 +105,14 @@ enum Search {
             .where(isNotNull(repoName))
             .orderBy(eq(lower(packageName), mergedTerms), .descending)
             .orderBy(score, SQLDirection.descending)
-            .limit(Constants.searchLimit + Constants.searchLimitLeeway)
+            .offset(offset)
+            .limit(pageSize + 1)  // fetch one more so we can determine `hasMoreResults`
             .all(decoding: DBRecord.self)
-    }
-    
-    static func run(_ database: Database, _ terms: [String]) -> EventLoopFuture<Search.Result> {
-        guard let db = database as? SQLDatabase else {
-            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
-        }
-        return query(db, terms)
             .mapEach(\.asRecord)
             .map { results in
-                // allow for a little leeway so we don't cut off with just a few more records
-                // available
-                let hasMoreResults = results.count >= Constants.searchLimit + Constants.searchLimitLeeway
-                let cutOff = hasMoreResults ? Constants.searchLimit : results.count
+                let hasMoreResults = results.count > pageSize
                 return Search.Result(hasMoreResults: hasMoreResults,
-                                     results: Array(results[..<cutOff]))
+                                     results: Array(results.prefix(pageSize)))
             }
     }
     

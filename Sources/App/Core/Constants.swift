@@ -31,8 +31,7 @@ enum Constants {
     static let rssFeedMaxItemCount = 100
     static let rssTTL = 60  // minutes
     
-    static let searchLimit = 20
-    static let searchLimitLeeway = 5
+    static let searchPageSize = 20
 
     // build system settings
     static let trimBuildsGracePeriod = 4  // hours

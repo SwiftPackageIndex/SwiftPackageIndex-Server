@@ -16,7 +16,7 @@ class SearchTests: AppTestCase {
                        "/baz/foo%20bar")
     }
     
-    func test_run_single() throws {
+    func test_query_single() throws {
         // Test search with a single term
         // setup
         let p1 = try savePackage(on: app.db, "1")
@@ -32,7 +32,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["bar"]).wait()
+        let res = try Search.query(app.db, ["bar"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res,
@@ -48,7 +48,7 @@ class SearchTests: AppTestCase {
         )
     }
     
-    func test_run_multiple() throws {
+    func test_query_multiple() throws {
         // Test search with multiple terms ("and")
         // setup
         let p1 = try savePackage(on: app.db, "1")
@@ -68,7 +68,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["owner", "bar"]).wait()
+        let res = try Search.query(app.db, ["owner", "bar"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res,
@@ -103,7 +103,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["'"]).wait()
+        let res = try Search.query(app.db, ["'"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res,
@@ -120,9 +120,11 @@ class SearchTests: AppTestCase {
     }
     
     
-    func test_search_limit() throws {
+    func test_search_pagination() throws {
         // setup
-        let packages = (0..<25).map { Package(url: "\($0)".url) }
+        let packages = (0..<9).map { idx in
+            Package(url: "\(idx)".url, score: 15 - idx)
+        }
         try packages.save(on: app.db).wait()
         try packages.map { try Repository(package: $0, defaultBranch: "default",
                                           name: $0.url, owner: "foo") }
@@ -133,18 +135,52 @@ class SearchTests: AppTestCase {
             .wait()
         try Search.refresh(on: app.db).wait()
         
-        // MUT
-        let res = try API.search(database: app.db, query: "foo").wait()
-        
-        // validate
-        XCTAssertTrue(res.hasMoreResults)
-        XCTAssertEqual(res.results.count, 20)
+        do {  // first page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 1,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertTrue(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.repositoryName),
+                           ["0", "1", "2"])
+        }
+
+        do {  // second page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 2,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertTrue(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.repositoryName),
+                           ["3", "4", "5"])
+        }
+
+        do {  // third page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 3,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertFalse(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.repositoryName),
+                           ["6", "7", "8"])
+        }
     }
-    
-    func test_search_limit_leeway() throws {
-        // Tests leeway: we only start cutting off if we have 25 or more results
+
+    func test_search_pagination_invalid_input() throws {
+        // Test invalid pagination inputs
         // setup
-        let packages = (0..<21).map { Package(url: "\($0)".url) }
+        let packages = (0..<9).map { idx in
+            Package(url: "\(idx)".url, score: 15 - idx)
+        }
         try packages.save(on: app.db).wait()
         try packages.map { try Repository(package: $0, defaultBranch: "default",
                                           name: $0.url, owner: "foo") }
@@ -154,15 +190,34 @@ class SearchTests: AppTestCase {
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
-        
-        // MUT
-        let res = try API.search(database: app.db, query: "foo").wait()
-        
-        // validate
-        XCTAssertFalse(res.hasMoreResults)
-        XCTAssertEqual(res.results.count, 21)
+
+        do {  // page out of bounds (too large)
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 4,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertFalse(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.repositoryName),
+                           [])
+        }
+
+        do {  // page out of bounds (too small)
+            // MUT
+            XCTAssertThrowsError(
+                try API.search(database: app.db,
+                               query: "foo",
+                               page: 0,
+                               pageSize: 3).wait()
+            ) { error in
+                XCTAssertEqual(error.localizedDescription,
+                               "Error: page is one-based and must be greater than zero")
+            }
+        }
     }
-    
+
     func test_order_by_score() throws {
         // setup
         try (0..<10).shuffled().forEach {
@@ -175,7 +230,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["foo"]).wait()
+        let res = try Search.query(app.db, ["foo"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res.results.count, 10)
@@ -217,7 +272,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["ink"]).wait()
+        let res = try Search.query(app.db, ["ink"], page: 1, pageSize: 20).wait()
         
         XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
     }
@@ -257,7 +312,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["foo", "bar"]).wait()
+        let res = try Search.query(app.db, ["foo", "bar"], page: 1, pageSize: 20).wait()
         
         XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
     }
@@ -295,7 +350,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["foo"]).wait()
+        let res = try Search.query(app.db, ["foo"], page: 1, pageSize: 20).wait()
         
         XCTAssertEqual(res.results, [])
     }

@@ -43,8 +43,10 @@ enum AppError: LocalizedError {
                     path:    "\(path)"
                     message: "\(message)"
                     """
+            case let .genericError(.none, value):
+                return "Error: \(value)"
             case let .genericError(id, value):
-                return "Generic error: \(value) (id: \(id))"
+                return "Error: \(value) (id: \(id))"
         }
     }
     
