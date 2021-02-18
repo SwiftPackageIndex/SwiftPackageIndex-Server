@@ -120,9 +120,11 @@ class SearchTests: AppTestCase {
     }
     
     
-    func test_search_limit() throws {
+    func test_search_pagination() throws {
         // setup
-        let packages = (0..<25).map { Package(url: "\($0)".url) }
+        let packages = (0..<9).map { idx in
+            Package(url: "\(idx)".url, score: 15 - idx)
+        }
         try packages.save(on: app.db).wait()
         try packages.map { try Repository(package: $0, defaultBranch: "default",
                                           name: $0.url, owner: "foo") }
@@ -133,12 +135,57 @@ class SearchTests: AppTestCase {
             .wait()
         try Search.refresh(on: app.db).wait()
         
-        // MUT
-        let res = try API.search(database: app.db, query: "foo").wait()
-        
-        // validate
-        XCTAssertTrue(res.hasMoreResults)
-        XCTAssertEqual(res.results.count, 20)
+        do {  // first page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 1,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertTrue(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.repositoryName),
+                           ["0", "1", "2"])
+        }
+
+        do {  // second page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 2,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertTrue(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.repositoryName),
+                           ["3", "4", "5"])
+        }
+
+        do {  // third page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 3,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertFalse(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.repositoryName),
+                           ["6", "7", "8"])
+        }
+
+        do {  // invalid page behaviour (no results)
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 4,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertFalse(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.repositoryName),
+                           [])
+        }
     }
     
     func test_order_by_score() throws {
