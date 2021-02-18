@@ -32,7 +32,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["bar"]).wait()
+        let res = try Search.run(app.db, ["bar"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res,
@@ -68,7 +68,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["owner", "bar"]).wait()
+        let res = try Search.run(app.db, ["owner", "bar"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res,
@@ -103,7 +103,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["'"]).wait()
+        let res = try Search.run(app.db, ["'"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res,
@@ -200,7 +200,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["foo"]).wait()
+        let res = try Search.run(app.db, ["foo"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res.results.count, 10)
@@ -242,7 +242,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["ink"]).wait()
+        let res = try Search.run(app.db, ["ink"], page: 1, pageSize: 20).wait()
         
         XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
     }
@@ -282,7 +282,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["foo", "bar"]).wait()
+        let res = try Search.run(app.db, ["foo", "bar"], page: 1, pageSize: 20).wait()
         
         XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
     }
@@ -320,7 +320,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["foo"]).wait()
+        let res = try Search.run(app.db, ["foo"], page: 1, pageSize: 20).wait()
         
         XCTAssertEqual(res.results, [])
     }

@@ -64,8 +64,8 @@ enum Search {
     
     private static func query(_ db: SQLDatabase,
                               _ terms: [String],
-                              page: Int = 1,
-                              pageSize: Int = Constants.searchPageSize) -> EventLoopFuture<[DBRecord]> {
+                              page: Int,
+                              pageSize: Int) -> EventLoopFuture<[DBRecord]> {
         let maxSearchTerms = 20  // just to impose some sort of limit
         
         // binds
@@ -103,8 +103,8 @@ enum Search {
     
     static func run(_ database: Database,
                     _ terms: [String],
-                    page: Int = 1,
-                    pageSize: Int = Constants.searchPageSize) -> EventLoopFuture<Search.Result> {
+                    page: Int,
+                    pageSize: Int) -> EventLoopFuture<Search.Result> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
