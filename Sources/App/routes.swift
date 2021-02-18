@@ -39,6 +39,8 @@ func routes(_ app: Application) throws {
     let buildController = BuildController()
     app.get(SiteURL.builds(.key).pathComponents, use: buildController.show)
 
+    app.get(SiteURL.search.pathComponents, use: SearchController().show)
+
     do {  // api
 
         // public routes
