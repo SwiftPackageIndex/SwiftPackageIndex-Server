@@ -16,7 +16,7 @@ class SearchTests: AppTestCase {
                        "/baz/foo%20bar")
     }
     
-    func test_run_single() throws {
+    func test_query_single() throws {
         // Test search with a single term
         // setup
         let p1 = try savePackage(on: app.db, "1")
@@ -32,7 +32,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["bar"], page: 1, pageSize: 20).wait()
+        let res = try Search.query(app.db, ["bar"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res,
@@ -48,7 +48,7 @@ class SearchTests: AppTestCase {
         )
     }
     
-    func test_run_multiple() throws {
+    func test_query_multiple() throws {
         // Test search with multiple terms ("and")
         // setup
         let p1 = try savePackage(on: app.db, "1")
@@ -68,7 +68,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["owner", "bar"], page: 1, pageSize: 20).wait()
+        let res = try Search.query(app.db, ["owner", "bar"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res,
@@ -103,7 +103,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["'"], page: 1, pageSize: 20).wait()
+        let res = try Search.query(app.db, ["'"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res,
@@ -230,7 +230,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["foo"], page: 1, pageSize: 20).wait()
+        let res = try Search.query(app.db, ["foo"], page: 1, pageSize: 20).wait()
         
         // validation
         XCTAssertEqual(res.results.count, 10)
@@ -272,7 +272,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["ink"], page: 1, pageSize: 20).wait()
+        let res = try Search.query(app.db, ["ink"], page: 1, pageSize: 20).wait()
         
         XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
     }
@@ -312,7 +312,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["foo", "bar"], page: 1, pageSize: 20).wait()
+        let res = try Search.query(app.db, ["foo", "bar"], page: 1, pageSize: 20).wait()
         
         XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
     }
@@ -350,7 +350,7 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        let res = try Search.run(app.db, ["foo"], page: 1, pageSize: 20).wait()
+        let res = try Search.query(app.db, ["foo"], page: 1, pageSize: 20).wait()
         
         XCTAssertEqual(res.results, [])
     }
