@@ -7,11 +7,10 @@ extension API {
         static func get(req: Request) throws -> EventLoopFuture<Search.Result> {
             let query = req.query[String.self, at: "query"] ?? ""
             let page = req.query[Int.self, at: "page"] ?? 1
-            let pageSize = req.query[Int.self, at: "page-size"] ?? Constants.searchPageSize
             return search(database: req.db,
                           query: query,
                           page: page,
-                          pageSize: pageSize)
+                          pageSize: Constants.searchPageSize)
         }
     }
 }
