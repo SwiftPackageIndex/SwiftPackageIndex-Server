@@ -66,6 +66,11 @@ enum Search {
                               _ terms: [String],
                               page: Int,
                               pageSize: Int) -> EventLoopFuture<[DBRecord]> {
+        let offset = (page - 1) * pageSize
+        guard offset >= 0 else {
+            return db.eventLoop.future(error: AppError.genericError(nil, "page is one-based and must be greater than zero"))
+        }
+
         let maxSearchTerms = 20  // just to impose some sort of limit
         
         // binds
@@ -96,7 +101,7 @@ enum Search {
             .where(isNotNull(repoName))
             .orderBy(eq(lower(packageName), mergedTerms), .descending)
             .orderBy(score, SQLDirection.descending)
-            .offset((page - 1) * pageSize)
+            .offset(offset)
             .limit(pageSize + 1)  // fetch one more so the caller can determine `hasMoreResults`
             .all(decoding: DBRecord.self)
     }

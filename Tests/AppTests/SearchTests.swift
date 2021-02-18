@@ -173,8 +173,25 @@ class SearchTests: AppTestCase {
             XCTAssertEqual(res.results.map(\.repositoryName),
                            ["6", "7", "8"])
         }
+    }
 
-        do {  // invalid page behaviour (no results)
+    func test_search_pagination_invalid_input() throws {
+        // Test invalid pagination inputs
+        // setup
+        let packages = (0..<9).map { idx in
+            Package(url: "\(idx)".url, score: 15 - idx)
+        }
+        try packages.save(on: app.db).wait()
+        try packages.map { try Repository(package: $0, defaultBranch: "default",
+                                          name: $0.url, owner: "foo") }
+            .save(on: app.db)
+            .wait()
+        try packages.map { try Version(package: $0, packageName: "foo", reference: .branch("default")) }
+            .save(on: app.db)
+            .wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {  // page out of bounds (too large)
             // MUT
             let res = try API.search(database: app.db,
                                      query: "foo",
@@ -186,8 +203,21 @@ class SearchTests: AppTestCase {
             XCTAssertEqual(res.results.map(\.repositoryName),
                            [])
         }
+
+        do {  // page out of bounds (too small)
+            // MUT
+            XCTAssertThrowsError(
+                try API.search(database: app.db,
+                               query: "foo",
+                               page: 0,
+                               pageSize: 3).wait()
+            ) { error in
+                XCTAssertEqual(error.localizedDescription,
+                               "Error: page is one-based and must be greater than zero")
+            }
+        }
     }
-    
+
     func test_order_by_score() throws {
         // setup
         try (0..<10).shuffled().forEach {
