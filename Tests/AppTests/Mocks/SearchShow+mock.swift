@@ -13,6 +13,8 @@ extension SearchShow.Model {
                 repositoryName: "bar-\(idx)",
                 repositoryOwner: "foo",
                 summary: "Package number \(idx)") }
-        return .init(query: "search query", results: results)
+        return .init(page: 3,
+                     query: "search query",
+                     result: .init(hasMoreResults: true, results: results))
     }
 }
