@@ -105,6 +105,7 @@ enum Search {
             .where(isNotNull(repoName))
             .orderBy(eq(lower(packageName), mergedTerms), .descending)
             .orderBy(score, SQLDirection.descending)
+            .orderBy(packageName, SQLDirection.ascending)
             .offset(offset)
             .limit(pageSize + 1)  // fetch one more so we can determine `hasMoreResults`
             .all(decoding: DBRecord.self)
