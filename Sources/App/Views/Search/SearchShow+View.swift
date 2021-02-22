@@ -18,7 +18,7 @@ extension SearchShow {
                 .ul(
                     .class("list"),
                     .group(
-                        model.results.map { result -> Node<HTML.ListContext> in
+                        model.result.results.map { result -> Node<HTML.ListContext> in
                             .li(
                                 .a(
                                     .href(result.packageURL ?? "-"),
@@ -29,7 +29,20 @@ extension SearchShow {
                         }
                     )
                 ),
-                .p(.text("\(model.results.count) \("result".pluralized(for: model.results.count))."))
+                .if(model.page > 1,
+                    .a(.href(SiteURL.search
+                                .absoluteURL(parameters: ["page": "\(model.page - 1)",
+                                                          "query": model.query])),
+                       "previous")
+                ),
+                .if(model.page > 1 && model.result.hasMoreResults,
+                    " | "),
+                .if(model.result.hasMoreResults,
+                    .a(.href(SiteURL.search
+                                .absoluteURL(parameters: ["page": "\(model.page + 1)",
+                                                          "query": model.query])),
+                       "next")
+                )
             )
         }
     }

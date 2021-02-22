@@ -346,4 +346,20 @@ class WebpageSnapshotTests: XCTestCase {
         #endif
     }
 
+    func test_SearchShow() throws {
+        let page = { SearchShow.View(path: "", model: .mock).document() }
+
+        assertSnapshot(matching: page, as: .html)
+
+        #if os(macOS)
+        if !isRunningInCI {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
+
 }

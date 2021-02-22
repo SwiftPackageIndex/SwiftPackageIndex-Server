@@ -1,12 +1,14 @@
 enum SearchShow {
 
     struct Model {
+        var page: Int
         var query: String
-        var results: [Search.Record]
+        var result: Search.Result
         
-        internal init(query: String, results: [Search.Record]) {
+        internal init(page: Int, query: String, result: Search.Result) {
+            self.page = page
             self.query = query
-            self.results = results
+            self.result = result
         }
     }
 
