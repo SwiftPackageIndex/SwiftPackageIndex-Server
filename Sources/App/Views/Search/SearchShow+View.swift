@@ -29,13 +29,14 @@ extension SearchShow {
                         }
                     )
                 ),
-                .forEach(1..<model.page) { page in
+                .if(model.page > 1,
                     .a(.href(SiteURL.search
-                                .absoluteURL(parameters: ["page": "\(page)",
+                                .absoluteURL(parameters: ["page": "\(model.page - 1)",
                                                           "query": model.query])),
-                       "\(page) ")
-                },
-                .text("[\(model.page)] "),
+                       "previous")
+                ),
+                .if(model.page > 1 && model.result.hasMoreResults,
+                    " | "),
                 .if(model.result.hasMoreResults,
                     .a(.href(SiteURL.search
                                 .absoluteURL(parameters: ["page": "\(model.page + 1)",
