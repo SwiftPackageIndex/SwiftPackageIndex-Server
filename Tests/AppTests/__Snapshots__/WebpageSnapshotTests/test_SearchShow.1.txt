@@ -125,7 +125,9 @@
             </a>
           </li>
         </ul>
-        <p>10 results.</p>
+        <a href="http://localhost:8080/search?page=1&query=search%20query">1 </a>
+        <a href="http://localhost:8080/search?page=2&query=search%20query">2 </a>[3] 
+        <a href="http://localhost:8080/search?page=4&query=search%20query">next</a>
       </div>
     </main>
     <footer>
