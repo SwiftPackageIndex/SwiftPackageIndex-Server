@@ -6,7 +6,7 @@ import XCTest
 import Plot
 
 
-class MarkdownHTMLConverterTests: XCTestCase {
+class MarkdownHTMLConverterTests: WebpageSnapshotTestCase {
     
     class MarkdownConverterPage: PublicPage {
         let markdown: String
@@ -28,20 +28,7 @@ class MarkdownHTMLConverterTests: XCTestCase {
             }
         }
     }
-    
-    override func setUpWithError() throws {
-        try super .setUpWithError()
 
-        try XCTSkipIf((Environment.get("SKIP_SNAPSHOTS") ?? "false") == "true")
-        Current.date = { Date(timeIntervalSince1970: 0) }
-        TempWebRoot.cleanup()
-        SnapshotTesting.isRecording = false
-    }
-    
-    override class func setUp() {
-        TempWebRoot.setup()
-    }
-    
     func test_MarkdownConverter() throws {
         let data = try XCTUnwrap(try loadData(for: "markdown-test.md"))
         let markdown = try XCTUnwrap(String(data: data, encoding: .utf8))

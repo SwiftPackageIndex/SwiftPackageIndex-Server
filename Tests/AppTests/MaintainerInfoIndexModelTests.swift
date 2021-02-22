@@ -4,13 +4,7 @@ import XCTVapor
 import SnapshotTesting
 
 
-class MaintainerInfoIndexModelTests: AppTestCase {
-    
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-
-        SnapshotTesting.isRecording = false
-    }
+class MaintainerInfoIndexModelTests: SnapshotTestCase {
 
     func test_badgeURL() throws {
         Current.siteURL = { "https://spi.com" }
