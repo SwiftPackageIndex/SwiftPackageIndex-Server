@@ -88,6 +88,10 @@ enum AppMetrics {
         counter("spi_build_report_total", Labels.Build.self)
     }
 
+    static var buildThrottleTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_build_throttle_total", EmptyLabels.self)
+    }
+
     static var buildTriggerTotal: PromCounter<Int, Labels.Build>? {
         counter("spi_build_trigger_total", Labels.Build.self)
     }
