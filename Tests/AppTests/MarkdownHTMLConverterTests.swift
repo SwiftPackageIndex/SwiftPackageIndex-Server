@@ -46,7 +46,9 @@ class MarkdownHTMLConverterTests: WebpageSnapshotTestCase {
         if !isRunningInCI {
             configs.forEach {
                 assertSnapshot(matching: { page.document() },
-                               as: .image(size: $0.size, baseURL: TempWebRoot.baseURL),
+                               as: .image(precision: 0.999,
+                                          size: $0.size,
+                                          baseURL: TempWebRoot.baseURL),
                                named: $0.name)
             }
         }
