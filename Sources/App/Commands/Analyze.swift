@@ -365,11 +365,19 @@ func diffVersions(client: Client,
                                        package: package)
     return existing.and(incoming)
         .map { existing, incoming in
-            (existing: existing,
-             incoming: throttle(lastestExistingVersion: existing.latestBranchVersion,
-                                incoming: incoming))
+            let throttled = throttle(
+                lastestExistingVersion: existing.latestBranchVersion,
+                incoming: incoming
+            )
+            let origDiff = Version.diff(local: existing, incoming: incoming)
+            let newDiff = Version.diff(local: existing, incoming: throttled)
+            let delta = origDiff.toAdd.count - newDiff.toAdd.count
+            if delta > 0 {
+                logger.info("throttled \(delta) incoming revisions")
+                AppMetrics.buildThrottleTotal?.inc(delta)
+            }
+            return newDiff
         }
-        .map(Version.diff)
 }
 
 
