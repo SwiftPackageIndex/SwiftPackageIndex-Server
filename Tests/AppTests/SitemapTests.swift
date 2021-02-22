@@ -5,13 +5,8 @@ import SnapshotTesting
 import XCTVapor
 
 
-class SitemapTests: AppTestCase {
-    
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        SnapshotTesting.isRecording = false
-    }
-    
+class SitemapTests: SnapshotTestCase {
+
     func test_fetchPackages() throws {
         // Test fetching all record in the search view
         // setup

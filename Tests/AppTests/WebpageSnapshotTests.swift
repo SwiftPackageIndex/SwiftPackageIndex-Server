@@ -19,21 +19,8 @@ let configs: [(name: String, size: CGSize)] = [
 ]
 
 
-class WebpageSnapshotTests: XCTestCase {
-    
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+class WebpageSnapshotTests: WebpageSnapshotTestCase {
 
-        try XCTSkipIf((Environment.get("SKIP_SNAPSHOTS") ?? "false") == "true")
-        Current.date = { Date(timeIntervalSince1970: 0) }
-        TempWebRoot.cleanup()
-        SnapshotTesting.isRecording = false
-    }
-    
-    override class func setUp() {
-        TempWebRoot.setup()
-    }
-    
     func test_HomeIndexView() throws {
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
         

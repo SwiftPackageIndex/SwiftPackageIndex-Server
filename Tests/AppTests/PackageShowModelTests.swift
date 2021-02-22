@@ -4,13 +4,7 @@ import XCTVapor
 import SnapshotTesting
 
 
-class PackageShowModelTests: AppTestCase {
-    
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-
-        SnapshotTesting.isRecording = false
-    }
+class PackageShowModelTests: SnapshotTestCase {
 
     func test_init_no_title() throws {
         // Tests behaviour when we're lacking data
