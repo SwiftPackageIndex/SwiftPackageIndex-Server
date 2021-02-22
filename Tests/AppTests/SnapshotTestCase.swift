@@ -2,8 +2,9 @@ import SnapshotTesting
 
 
 class SnapshotTestCase: AppTestCase {
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+
+    override class func setUp() {
+        super.setUp()
 
         SnapshotTesting.isRecording = false
         SnapshotTesting.diffTool = "ksdiff"
