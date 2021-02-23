@@ -4,6 +4,8 @@ import XCTVapor
 
 
 class WebpageSnapshotTestCase: SnapshotTestCase {
+    let defaultPrecision: Float = 0.999
+
     override func setUpWithError() throws {
         try super.setUpWithError()
 
