@@ -296,6 +296,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
 
         do {  // both versions out of window
+            // FIXME: is this test correct?
             let old = try makeVersion(pkg, "sha", -26.hours, .branch("main-old"))
             let new = try makeVersion(pkg, "sha", -28.hours, .branch("main-new"))
 
@@ -304,6 +305,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
             // validate
             XCTAssertEqual(res, [new])
+            // XCTAsserEqual(res, [old]) ??
         }
     }
 
