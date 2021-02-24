@@ -441,9 +441,11 @@ func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version
         return incoming
     }
 
-    let delta = Current.date().timeIntervalSinceReferenceDate - latestExisting.timeIntervalSinceReferenceDate
+    let ageOfExistingVersion = Current.date().timeIntervalSinceReferenceDate - latestExisting.timeIntervalSinceReferenceDate
 
-    let resultingBranchVersion = delta < Constants.branchVersionRefreshDelay
+    // if existing version isn't older than our "window", keep it - otherwise
+    // use the latest incoming version
+    let resultingBranchVersion = ageOfExistingVersion < Constants.branchVersionRefreshDelay
         ? existingVersion
         : incomingVersion
 
