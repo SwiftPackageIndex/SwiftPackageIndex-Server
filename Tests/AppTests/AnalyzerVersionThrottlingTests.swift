@@ -265,45 +265,48 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
     }
 
-    func test_throttle_pathological_cases() throws {
-        // Test the pathological case where we have a newer branch revision in
-        // the db than the incoming version.
+    func test_throttle_force_push() throws {
+        // Test the exceptional case where we have a newer branch revision in
+        // the db than the incoming version. This could happen for instance
+        // if an older branch revision is force pushed, effectively removing
+        // the "existing" (ex) revision, replacing it with an older "incoming"
+        // (inc) revision.
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
 
         do {  // both within window
-            let old = try makeVersion(pkg, "sha", -1.hours, .branch("main-old"))
-            let new = try makeVersion(pkg, "sha", -23.hours, .branch("main-new"))
+            let ex = try makeVersion(pkg, "sha-ex", -1.hours, .branch("main"))
+            let inc = try makeVersion(pkg, "sha-inc", -23.hours, .branch("main"))
 
             // MUT
-            let res = throttle(lastestExistingVersion: old, incoming: [new])
+            let res = throttle(lastestExistingVersion: ex, incoming: [inc])
 
             // validate
-            XCTAssertEqual(res, [old])
+            XCTAssertEqual(res, [ex])
         }
 
-        do {  // "new" version out of window
-            let old = try makeVersion(pkg, "sha", -1.hours, .branch("main-old"))
-            let new = try makeVersion(pkg, "sha", -26.hours, .branch("main-new"))
+        do {  // incoming version out of window
+            let ex = try makeVersion(pkg, "sha-ex", -1.hours, .branch("main"))
+            let inc = try makeVersion(pkg, "sha-inc", -26.hours, .branch("main"))
 
             // MUT
-            let res = throttle(lastestExistingVersion: old, incoming: [new])
+            let res = throttle(lastestExistingVersion: ex, incoming: [inc])
 
             // validate
-            XCTAssertEqual(res, [old])
+            XCTAssertEqual(res, [ex])
         }
 
         do {  // both versions out of window
-            let old = try makeVersion(pkg, "sha", -26.hours, .branch("main-old"))
-            let new = try makeVersion(pkg, "sha", -28.hours, .branch("main-new"))
+            let ex = try makeVersion(pkg, "sha-ex", -26.hours, .branch("main"))
+            let inc = try makeVersion(pkg, "sha-inc", -28.hours, .branch("main"))
 
             // MUT
-            let res = throttle(lastestExistingVersion: old, incoming: [new])
+            let res = throttle(lastestExistingVersion: ex, incoming: [inc])
 
             // validate
-            XCTAssertEqual(res, [new])
+            XCTAssertEqual(res, [inc])
         }
     }
 
