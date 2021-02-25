@@ -269,8 +269,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // Test the exceptional case where we have a newer branch revision in
         // the db than the incoming version. This could happen for instance
         // if an older branch revision is force pushed, effectively removing
-        // the "existing" revision, replacing it with an older "incoming"
-        // revision.
+        // the "existing" (ex) revision, replacing it with an older "incoming"
+        // (inc) revision.
         // setup
         Current.date = { .t0 }
         let pkg = Package(url: "1")
