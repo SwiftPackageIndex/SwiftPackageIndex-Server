@@ -9,3 +9,12 @@ extension Node where Context == HTML.BodyContext {
         .selfClosedElement(named: "hr", attributes: attributes)
     }
 }
+
+extension Node where Context == HTML.FormContext {
+    static func submit(text: String? = nil) -> Self {
+        .input(
+            .type(.submit),
+            .unwrap(text) { .value($0) }
+        )
+    }
+}
