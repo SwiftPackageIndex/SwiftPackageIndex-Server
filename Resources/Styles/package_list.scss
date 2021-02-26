@@ -1,0 +1,25 @@
+ul.package_list {
+  padding: 0;
+  display: grid;
+  gap: 5px;
+  list-style: none;
+
+  li {
+    background-color: var(--package-list-background);
+    border-left: 3px var(--package-list-border) solid;
+
+    a {
+      display: block;
+      padding: 10px;
+
+      h4 {
+        margin: 0;
+      }
+
+      p {
+        margin: 5px 0;
+        color: var(--page-text);
+      }
+    }
+  }
+}

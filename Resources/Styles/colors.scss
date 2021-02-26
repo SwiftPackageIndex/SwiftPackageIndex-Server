@@ -84,6 +84,7 @@
 
   --input-background: var(--white);
   --input-text: var(--black);
+  --input-border: var(--light-grey);
   --input-placeholder: var(--light-grey);
   --badge-input-background: var(--very-light-grey);
 
@@ -110,6 +111,7 @@
   --matrix-result-failed-background: var(--very-light-grey);
 
   --package-list-background: var(--very-very-light-grey);
+  --package-list-border: var(--very-light-grey);
 
   --error-background: var(--light-red);
   --error-text: var(--mid-red);
@@ -144,6 +146,7 @@
 
     --input-background: var(--very-dark-grey);
     --input-text: var(--white);
+    --input-border: var(--dark-grey);
     --input-placeholder: var(--grey);
     --badge-input-background: var(--very-dark-grey);
 
@@ -166,6 +169,7 @@
     --matrix-result-failed-background: var(--very-dark-grey);
 
     --package-list-background: var(--very-very-dark-grey);
+    --package-list-border: var(--very-dark-grey);
 
     --error-background: var(--dark-red);
     --error-text: var(--mid-red);
