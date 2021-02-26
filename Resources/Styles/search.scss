@@ -64,3 +64,26 @@ section.search {
     // }
   }
 }
+
+nav form {
+  max-width: 160px;
+  grid-template-columns: 1fr; // TODO: This may be better as flex, not grid.
+
+  input[type='search'] {
+    width: 100%;
+    padding: 3px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--input-text);
+    background-color: var(--input-background);
+    border: 1px var(--input-border) solid;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  input[type='submit'] {
+    display: none;
+  }
+}

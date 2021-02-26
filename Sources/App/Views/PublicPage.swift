@@ -251,10 +251,7 @@ class PublicPage {
                 )
             ),
             .li(
-                .a(
-                    .href(SiteURL.home.relativeURL()),
-                    "Search"
-                )
+                .searchForm()
             )
         ]
     }
