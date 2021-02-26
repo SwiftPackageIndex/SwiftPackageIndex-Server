@@ -27,24 +27,11 @@ enum HomeIndex {
         
         override func preMain() -> Node<HTML.BodyContext> {
             .section(
-                .class("search"),
+                .class("search home"),
                 .div(
                     .class("inner"),
                     .h3("The place to find Swift packages."),
-                    .form(
-                        .textarea(
-                            .id("query"),
-                            .attribute(named: "placeholder", value: "Search"), // TODO: Fix after Plot update
-                            .attribute(named: "spellcheck", value: "false"), // TODO: Fix after Plot update
-                            .attribute(named: "data-gramm", value: "false"),
-                            .autofocus(true),
-                            .rows(1)
-                        ),
-                        .div(
-                            .id("results"),
-                            .attribute(named: "hidden", value: "true") // TODO: Fix after Plot update
-                        )
-                    ),
+                    .searchForm(),
                     .unwrap(model.statsClause()) { $0 }
                 )
             )
