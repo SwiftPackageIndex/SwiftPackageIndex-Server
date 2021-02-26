@@ -10,6 +10,14 @@ extension Node where Context == HTML.BodyContext {
     }
 }
 
+// TODO: Does this really have to be duplicated?
+extension Node where Context == HTML.AnchorContext {
+    static func small(_ nodes: Node<HTML.BodyContext>...) -> Self {
+        .element(named: "small", nodes: nodes)
+    }
+}
+
+
 extension Node where Context == HTML.FormContext {
     static func submit(text: String? = nil) -> Self {
         .input(
