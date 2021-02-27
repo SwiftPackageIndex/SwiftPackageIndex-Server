@@ -84,3 +84,7 @@ build-front-end:
 
 serve-front-end:
 	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh node:15.8-alpine /usr/local/bin/yarn && /usr/local/bin/yarn serve
+
+copy-front-end-resources:
+	@# copy front-end resources from existing image (rather than build them)
+	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh registry.gitlab.com/finestructure/swiftpackageindex:$(VERSION) -c "cp -r /run/Public ."
