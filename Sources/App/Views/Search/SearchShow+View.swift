@@ -59,22 +59,35 @@ extension SearchShow {
                             }
                         )
                     ),
-                    .if(model.page > 1,
-                        .a(.href(SiteURL.search
-                                    .absoluteURL(parameters: ["page": "\(model.page - 1)",
-                                                              "query": model.query])),
-                           "previous")
-                    ),
-                    .if(model.page > 1 && model.result.hasMoreResults,
-                        " | "),
-                    .if(model.result.hasMoreResults,
-                        .a(.href(SiteURL.search
-                                    .absoluteURL(parameters: ["page": "\(model.page + 1)",
-                                                              "query": model.query])),
-                           "next")
+                    .ul(
+                        .class("search_pagination"),
+                        .if(model.page > 1, .previousSearchPage(model)),
+                        .if(model.result.hasMoreResults, .nextSearchPage(model))
                     )
                 )
             )
         }
+    }
+}
+
+fileprivate extension Node where Context == HTML.ListContext {
+    static func previousSearchPage(model: SearchShow.Model) -> Node<HTML.ListContext> {
+        let parameters = ["query": model.query, "page": "\(model.page - 1)"]
+        return .li(
+            .a(
+                .href(SiteURL.search.relativeURL(parameters: parameters)),
+                "Previous Page"
+            )
+        )
+    }
+
+    static func nextSearchPage(model: SearchShow.Model) -> Node<HTML.ListContext> {
+        let parameters = ["query": model.query, "page": "\(model.page + 1)"]
+        return .li(
+            .a(
+                .href(SiteURL.search.relativeURL(parameters: parameters)),
+                "Next Page"
+            )
+        )
     }
 }
