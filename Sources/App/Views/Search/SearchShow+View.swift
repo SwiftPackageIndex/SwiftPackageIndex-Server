@@ -73,8 +73,8 @@ extension SearchShow {
 fileprivate extension Node where Context == HTML.ListContext {
     static func previousSearchPage(model: SearchShow.Model) -> Node<HTML.ListContext> {
         let parameters = [
-            QueryStringParameter(key: "query", value: model.query),
-            QueryStringParameter(key: "page", value: model.page - 1)
+            QueryParameter(key: "query", value: model.query),
+            QueryParameter(key: "page", value: model.page - 1)
         ]
         return .li(
             .class("previous"),
@@ -87,8 +87,8 @@ fileprivate extension Node where Context == HTML.ListContext {
 
     static func nextSearchPage(model: SearchShow.Model) -> Node<HTML.ListContext> {
         let parameters = [
-            QueryStringParameter(key: "query", value: model.query),
-            QueryStringParameter(key: "page", value: model.page + 1)
+            QueryParameter(key: "query", value: model.query),
+            QueryParameter(key: "page", value: model.page + 1)
         ]
         return .li(
             .class("next"),

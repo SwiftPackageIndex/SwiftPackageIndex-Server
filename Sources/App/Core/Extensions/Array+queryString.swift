@@ -1,5 +1,5 @@
 
-extension Array where Element == QueryStringParameter {
+extension Array where Element == QueryParameter {
     func queryString(includeSeparator: Bool = true) -> String {
         guard !isEmpty else { return "" }
         let query: String = self.map { parameter in

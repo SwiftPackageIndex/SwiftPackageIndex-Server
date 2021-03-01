@@ -38,15 +38,10 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.faq.relativeURL(anchor: "hello"), "/faq#hello")
     }
     
-    func test_relativeURL_with_parameter() throws {
-        let url = SiteURL.search.relativeURL(parameters: QueryStringParameter(key: "c d", value: 2))
-        XCTAssertEqual(url, "/search?c%20d=2")
-    }
-
     func test_relativeURL_with_parameters() throws {
         let url = SiteURL.search.relativeURL(parameters: [
-            QueryStringParameter(key: "c d", value: 2),
-            QueryStringParameter(key: "a b", value: 1)
+            QueryParameter(key: "c d", value: 2),
+            QueryParameter(key: "a b", value: 1)
         ])
         XCTAssertEqual(url, "/search?c%20d=2&a%20b=1")
     }
@@ -62,18 +57,12 @@ class SiteURLTests: XCTestCase {
         Current.siteURL = { "https://indexsite.com" }
         XCTAssertEqual(SiteURL.faq.absoluteURL(anchor: "hello"), "https://indexsite.com/faq#hello")
     }
-    
-    func test_absoluteURL_with_parameter() throws {
-        Current.siteURL = { "https://indexsite.com" }
-        let url = SiteURL.rssReleases.absoluteURL(parameters: QueryStringParameter(key: "c d", value: 2))
-        XCTAssertEqual(url, "https://indexsite.com/releases.rss?c%20d=2")
-    }
 
     func test_absoluteURL_with_parameters() throws {
         Current.siteURL = { "https://indexsite.com" }
         let url = SiteURL.rssReleases.absoluteURL(parameters: [
-            QueryStringParameter(key: "c d", value: 2),
-            QueryStringParameter(key: "a b", value: 1)
+            QueryParameter(key: "c d", value: 2),
+            QueryParameter(key: "a b", value: 1)
         ])
         XCTAssertEqual(url, "https://indexsite.com/releases.rss?c%20d=2&a%20b=1")
     }

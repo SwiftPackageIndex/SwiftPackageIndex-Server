@@ -236,11 +236,7 @@ extension Resourceable {
         "\(SiteURL.absoluteURL(path))" + (anchor.map { "#\($0)" } ?? "")
     }
     
-    func absoluteURL(parameters: QueryStringParameter) -> String {
-        "\(SiteURL.absoluteURL(path))\([parameters].queryString())"
-    }
-
-    func absoluteURL(parameters: [QueryStringParameter]) -> String {
+    func absoluteURL(parameters: [QueryParameter]) -> String {
         "\(SiteURL.absoluteURL(path))\(parameters.queryString())"
     }
     
@@ -248,11 +244,7 @@ extension Resourceable {
         "\(SiteURL.relativeURL(path))" + (anchor.map { "#\($0)" } ?? "")
     }
 
-    func relativeURL(parameters: QueryStringParameter) -> String {
-        "\(SiteURL.relativeURL(path))\([parameters].queryString())"
-    }
-
-    func relativeURL(parameters: [QueryStringParameter]) -> String {
+    func relativeURL(parameters: [QueryParameter]) -> String {
         "\(SiteURL.relativeURL(path))\(parameters.queryString())"
     }
 }
@@ -269,7 +261,7 @@ enum Parameter<T> {
     case value(T)
 }
 
-struct QueryStringParameter {
+struct QueryParameter {
     var key: String
     var value: String
 

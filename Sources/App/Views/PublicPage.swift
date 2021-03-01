@@ -58,19 +58,19 @@ class PublicPage {
                 .rel(.alternate),
                 .type("application/rss+xml"),
                 .attribute(named: "title", value: "Swift Package Index – Recent Major Releases"),
-                .href(SiteURL.rssReleases.absoluteURL(parameters: QueryStringParameter(key: "major", value: "true")))
+                .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true")]))
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
                 .attribute(named: "title", value: "Swift Package Index – Recent Major & Minor Releases"),
-                .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryStringParameter(key: "major", value: "true"), QueryStringParameter(key: "minor", value: "true")]))
+                .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true"), QueryParameter(key: "minor", value: "true")]))
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
                 .attribute(named: "title", value: "Swift Package Index – Recent Pre-Releases"),
-                .href(SiteURL.rssReleases.absoluteURL(parameters: QueryStringParameter(key: "pre", value: "true")))
+                .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "pre", value: "true")]))
             ),
             .script(
                 .src(SiteURL.javascripts("main").relativeURL() + "?\(resourceReloadQueryString())")

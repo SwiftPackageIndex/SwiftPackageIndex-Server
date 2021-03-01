@@ -25,7 +25,7 @@ extension MaintainerInfoIndex {
 
         func badgeURL(for type: Package.BadgeType) -> String {
             let characterSet = CharacterSet.urlHostAllowed.subtracting(.init(charactersIn: "=:"))
-            let url = SiteURL.api(.packages(.value(repositoryOwner), .value(repositoryName), .badge)).absoluteURL(parameters: QueryStringParameter(key: "type", value: type.rawValue))
+            let url = SiteURL.api(.packages(.value(repositoryOwner), .value(repositoryName), .badge)).absoluteURL(parameters: [QueryParameter(key: "type", value: type.rawValue)])
             let escaped = url.addingPercentEncoding(withAllowedCharacters: characterSet) ?? url
             return "https://img.shields.io/endpoint?url=\(escaped)"
         }
