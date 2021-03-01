@@ -31,10 +31,11 @@ extension SearchShow {
                 .section(
                     .class("results"),
                     .p(
-                        .text("Results for "),
+                        .if(model.result.results.count > 0, .text("Results for "), else: .text("No packages matched ")),
                         .text("&ldquo;"),
                         .strong(.text(model.query)),
-                        .text("&rdquo;&hellip;")
+                        .text("&rdquo;"),
+                        .if(model.result.results.count > 0, .text("&hellip;"), else: .text("."))
                     ),
                     .ul(
                         .class("package_list"),
