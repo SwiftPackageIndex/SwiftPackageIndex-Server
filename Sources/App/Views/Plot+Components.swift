@@ -21,8 +21,9 @@ extension Node where Context == HTML.FormContext {
             .id("query"),
             .name("query"),
             .type(.search),
-            .attribute(named: "placeholder", value: "Search"), // TODO: Fix after Plot update
-            .attribute(named: "spellcheck", value: "false"), // TODO: Fix after Plot update
+            .attribute(named: "placeholder", value: "Search"),
+            .attribute(named: "spellcheck", value: "false"),
+            .attribute(named: "autofocus", value: "true"),
             .attribute(named: "data-gramm", value: "false"),
             .value(query)
         )
