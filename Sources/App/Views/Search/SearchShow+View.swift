@@ -61,8 +61,8 @@ extension SearchShow {
                     ),
                     .ul(
                         .class("search_pagination"),
-                        .if(model.page > 1, .previousSearchPage(model)),
-                        .if(model.result.hasMoreResults, .nextSearchPage(model))
+                        .if(model.page > 1, .previousSearchPage(model: model)),
+                        .if(model.result.hasMoreResults, .nextSearchPage(model: model))
                     )
                 )
             )
