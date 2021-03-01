@@ -64,31 +64,9 @@ enum HomeIndex {
                 )
             )
         }
-        
-        override func navItems() -> [Node<HTML.ListContext>] {
-            // The default navigation menu, without search.
-            [
-                .li(
-                    .a(
-                        .href(SiteURL.addAPackage.relativeURL()),
-                        "Add a Package"
-                    )
-                ),
-                .li(
-                    .a(
-                        .href("https://blog.swiftpackageindex.com"),
-                        "Blog"
-                    )
-                ),
-                .li(
-                    .a(
-                        .href(SiteURL.faq.relativeURL()),
-                        "FAQ"
-                    )
-                )
-            ]
+
+        override func navMenuItems() -> [NavMenuItem] {
+            [.addPackage, .blog, .faq]
         }
-        
     }
-    
 }
