@@ -77,6 +77,7 @@ fileprivate extension Node where Context == HTML.ListContext {
             QueryStringParameter(key: "page", value: model.page - 1)
         ]
         return .li(
+            .class("previous"),
             .a(
                 .href(SiteURL.search.relativeURL(parameters: parameters)),
                 "Previous Page"
@@ -90,6 +91,7 @@ fileprivate extension Node where Context == HTML.ListContext {
             QueryStringParameter(key: "page", value: model.page + 1)
         ]
         return .li(
+            .class("next"),
             .a(
                 .href(SiteURL.search.relativeURL(parameters: parameters)),
                 "Next Page"
