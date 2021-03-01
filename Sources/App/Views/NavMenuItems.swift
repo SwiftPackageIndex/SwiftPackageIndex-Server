@@ -46,7 +46,7 @@ enum NavMenuItem {
             case .search:
                 return .li(
                     .class("search"),
-                    .searchForm(), // Shown to desktop browsers
+                    .searchForm(autofocus: false), // Shown to desktop browsers
                     .a( // Shown only to mobile browsers
                         .href(SiteURL.search.relativeURL()),
                         .attribute(named: "title", value: "Search")
