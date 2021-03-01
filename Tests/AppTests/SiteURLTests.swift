@@ -28,7 +28,7 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.privacy.relativeURL(), "/privacy")
     }
     
-    func test_relativeURL_with_parameters() throws {
+    func test_relativeURL_for_Package() throws {
         XCTAssertEqual(
             SiteURL.package(.value("foo"), .value("bar"), .none).relativeURL(),
             "/foo/bar")
@@ -38,6 +38,12 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.faq.relativeURL(anchor: "hello"), "/faq#hello")
     }
     
+    func test_relativeURL_with_parameters() throws {
+        Current.siteURL = { "https://indexsite.com" }
+        XCTAssertEqual(SiteURL.search.relativeURL(parameters: ["c d": "2", "a b": "1"]),
+                       "https://indexsite.com/releases.rss?a%20b=1&c%20d=2")
+    }
+
     func test_absoluteURL() throws {
         Current.siteURL = { "https://indexsite.com" }
         XCTAssertEqual(SiteURL.home.absoluteURL(), "https://indexsite.com/")

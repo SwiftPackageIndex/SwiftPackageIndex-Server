@@ -243,6 +243,10 @@ extension Resourceable {
     func relativeURL(anchor: String? = nil) -> String {
         "\(SiteURL.relativeURL(path))" + (anchor.map { "#\($0)" } ?? "")
     }
+
+    func relativeURL(parameters: [String: String]) -> String {
+        "\(SiteURL.relativeURL(path))\(parameters.queryString())"
+    }
 }
 
 
