@@ -16,10 +16,7 @@ extension SearchShow {
             .group(
                 .section(
                     .class("search"),
-                    .div(
-                        .class("inner"),
-                        .searchForm(query: model.query)
-                    )
+                    .searchForm(query: model.query)
                 ),
                 .if(model.query.count > 0, resultsSection())
             )
@@ -30,9 +27,9 @@ extension SearchShow {
         }
 
         func resultsSection() -> Node<HTML.BodyContext> {
-            .section(
-                .div(
-                    .class("inner"),
+            .group(
+                .section(
+                    .class("results"),
                     .p(
                         .text("Results for "),
                         .text("&ldquo;"),

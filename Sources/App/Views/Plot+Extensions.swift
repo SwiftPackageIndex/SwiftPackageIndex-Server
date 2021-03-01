@@ -16,13 +16,3 @@ extension Node where Context == HTML.AnchorContext {
         .element(named: "small", nodes: nodes)
     }
 }
-
-
-extension Node where Context == HTML.FormContext {
-    static func submit(text: String? = nil) -> Self {
-        .input(
-            .type(.submit),
-            .unwrap(text) { .value($0) }
-        )
-    }
-}

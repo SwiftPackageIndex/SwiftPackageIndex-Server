@@ -5,7 +5,12 @@ extension Node where Context == HTML.BodyContext {
         .form(
             .action(SiteURL.search.relativeURL()),
             .searchField(query: query),
-            .submit(text: "Search")
+            .button(
+                .attribute(named: "type", value: "submit"),
+                .div(
+                    .attribute(named: "title", value: "Search")
+                )
+            )
         )
     }
 }

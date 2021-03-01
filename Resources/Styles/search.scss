@@ -3,34 +3,35 @@ section.search {
 
   form {
     display: grid;
-    grid-template-columns: auto 120px;
-    width: 100%;
-  }
-
-  input[type='search'] {
-    padding: 12px;
-    font-size: 25px;
-    font-weight: 600;
-    line-height: 1.2;
-    color: var(--input-text);
-    background-color: var(--input-background);
+    grid-template-columns: auto 50px;
     border: 1px var(--input-border) solid;
+    background-color: var(--input-background);
 
-    &:focus {
-      outline: none;
+    button {
+      margin: 0;
+      border: none;
+      background-color: var(--input-background);
+      background-image: var(--image-magnifying-glass);
+      background-size: 23px;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+
+    input[type='search'] {
+      padding: 12px;
+      font-size: 25px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--input-text);
+      border: none;
+      width: 100%;
+
+      &:focus {
+        outline: none;
+      }
     }
   }
 
-  input[type='submit'] {
-    border: 1px var(--input-border) solid;
-    border-left: none;
-    background-color: var(--button-background);
-    color: var(--button-text);
-    font-size: 20px;
-    font-weight: 600;
-  }
-
-  // Styles specific for the search field in its special position and styling for the home page.
   &.home {
     background-image: radial-gradient(
       var(--header-gradient-start) 0%,
@@ -55,37 +56,75 @@ section.search {
 
     form {
       margin: 30px 0;
+      width: 90%;
       max-width: 600px;
+      border: none;
     }
-
-    // input[type='search'],
-    // input[type='submit'] {
-    //   border: none;
-    // }
   }
 }
 
-nav form {
-  max-width: 160px;
-  grid-template-columns: 1fr; // TODO: This may be better as flex, not grid.
+nav {
+  li.search {
+    & > a {
+      display: none;
+    }
 
-  input[type='search'] {
-    width: 100%;
-    padding: 3px;
-    font-weight: 600;
-    line-height: 1.2;
-    color: var(--input-text);
-    background-color: var(--input-background);
-    border: 1px var(--input-border) solid;
+    & > form {
+      display: grid;
+      grid-template-columns: auto 30px;
+      background-color: var(--input-background);
+      max-width: 160px;
 
-    &:focus {
-      outline: none;
+      input[type='search'] {
+        width: 100%;
+        padding: 5px;
+        font-weight: 600;
+        line-height: 1.2;
+        font-size: 15px;
+        color: var(--input-text);
+        border: none;
+
+        &:focus {
+          outline: none;
+        }
+      }
+
+      button {
+        margin: 0;
+        border: none;
+        background-color: var(--input-background);
+        background-image: var(--image-magnifying-glass);
+        background-size: 14px;
+        background-repeat: no-repeat;
+        background-position: center center;
+      }
     }
   }
+}
 
-  input[type='submit'] {
-    display: none;
+@media screen and (max-width: $mobile-breakpoint) {
+  nav {
+    li.search {
+      & > a {
+        display: block;
+        width: 25px;
+        height: 25px;
+        background-image: var(--image-magnifying-glass);
+        background-size: 20px;
+        background-repeat: no-repeat;
+        background-position: center center;
+        border: none;
+      }
+
+      & > form {
+        display: none;
+      }
+    }
   }
+}
+
+section.results {
+  margin-top: 50px;
 }
 
 ul.pagination {
