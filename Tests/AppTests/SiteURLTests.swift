@@ -135,4 +135,15 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.docs(.builds).pathComponents.map(\.description), ["docs", "builds"])
     }
 
+    func test_QueryParameter_encodedForQueryString() {
+        // String parameter, no encoding needed
+        XCTAssertEqual(QueryParameter(key: "foo", value: "bar").encodedForQueryString, "foo=bar")
+
+        // String parameter, encoding needed
+        XCTAssertEqual(QueryParameter(key: "foo", value: "b a r").encodedForQueryString, "foo=b%20a%20r")
+
+        // Integer parameter
+        XCTAssertEqual(QueryParameter(key: "foo", value: 1).encodedForQueryString, "foo=1")
+    }
+
 }

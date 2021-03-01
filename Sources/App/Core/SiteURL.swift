@@ -273,4 +273,10 @@ struct QueryParameter {
     init(key: String, value: Int) {
         self.init(key: key, value: "\(value)")
     }
+
+    var encodedForQueryString: String {
+        let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        return "\(encodedKey)=\(encodedValue)"
+    }
 }

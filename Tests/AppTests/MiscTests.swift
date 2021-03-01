@@ -7,14 +7,17 @@ import XCTest
 class MiscTests: XCTestCase {
     
     func test_Array_queryString() throws {
-        // basic with string value
+        // Single parameter
         XCTAssertEqual([QueryParameter(key: "foo", value: "bar")].queryString(), "?foo=bar")
-        // no separator
+
+        // Multiple parameters
+        XCTAssertEqual([
+            QueryParameter(key: "foo", value: "bar"),
+            QueryParameter(key: "baz", value: "erp")
+        ].queryString(), "?foo=bar&baz=erp")
+
+        // Single parameter without separator
         XCTAssertEqual([QueryParameter(key: "foo", value: "bar")].queryString(includeSeparator: false), "foo=bar")
-        // multiple parameters and integer value
-        XCTAssertEqual([QueryParameter(key: "b", value: 2), QueryParameter(key: "a", value: 1)].queryString(), "?b=2&a=1")
-        // query string encoding
-        XCTAssertEqual([QueryParameter(key: "foo bar", value: 1)].queryString(), "?foo%20bar=1")
     }
 
     func test_Date_init_yyyyMMdd() throws {
