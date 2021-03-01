@@ -7,6 +7,21 @@ section.search {
     border: 1px var(--input-border) solid;
     background-color: var(--input-background);
 
+    input[type='search'] {
+      padding: 12px;
+      font-size: 25px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--input-text);
+      background-color: var(--input-background);
+      border: none;
+      width: 100%;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
     button {
       margin: 0;
       border: none;
@@ -15,20 +30,6 @@ section.search {
       background-size: 23px;
       background-repeat: no-repeat;
       background-position: center center;
-    }
-
-    input[type='search'] {
-      padding: 12px;
-      font-size: 25px;
-      font-weight: 600;
-      line-height: 1.2;
-      color: var(--input-text);
-      border: none;
-      width: 100%;
-
-      &:focus {
-        outline: none;
-      }
     }
   }
 
@@ -73,6 +74,7 @@ nav {
       display: grid;
       grid-template-columns: auto 30px;
       background-color: var(--input-background);
+      border: 1px var(--input-border) solid;
       max-width: 160px;
 
       input[type='search'] {
@@ -82,6 +84,7 @@ nav {
         line-height: 1.2;
         font-size: 15px;
         color: var(--input-text);
+        background-color: var(--input-background);
         border: none;
 
         &:focus {
