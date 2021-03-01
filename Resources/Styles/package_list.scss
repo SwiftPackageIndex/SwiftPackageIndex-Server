@@ -21,5 +21,9 @@
         color: var(--page-text);
       }
     }
+
+    &.selected {
+      background-color: var(--package-list-selectedbackground);
+    }
   }
 }

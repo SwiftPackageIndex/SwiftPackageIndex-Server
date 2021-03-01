@@ -88,11 +88,6 @@
   --input-placeholder: var(--light-grey);
   --badge-input-background: var(--very-light-grey);
 
-  --results-background: var(--white);
-  --results-selected-background: var(--very-light-blue);
-  --results-separator: var(--light-grey);
-  --results-shadow: rgba(100, 100, 100, 0.2);
-
   --button-background: var(--very-light-blue);
   --button-text: var(--mid-blue);
   --button-border: var(--light-blue);
@@ -110,8 +105,9 @@
   --matrix-result-succeeded-background: var(--very-light-grey);
   --matrix-result-failed-background: var(--very-light-grey);
 
-  --package-list-background: var(--very-very-light-grey);
   --package-list-border: var(--very-light-grey);
+  --package-list-background: var(--very-very-light-grey);
+  --package-list-selectedbackground: var(--very-light-blue);
 
   --error-background: var(--light-red);
   --error-text: var(--mid-red);
@@ -150,11 +146,6 @@
     --input-placeholder: var(--grey);
     --badge-input-background: var(--very-dark-grey);
 
-    --results-background: var(--very-dark-grey);
-    --results-selected-background: var(--dark-blue);
-    --results-separator: var(--very-dark-grey);
-    --results-shadow: rgba(20, 20, 60, 0.3);
-
     --button-background: var(--dark-blue);
     --button-text: var(--mid-blue);
     --button-border: var(--mid-blue);
@@ -168,8 +159,9 @@
     --matrix-result-succeeded-background: var(--very-dark-grey);
     --matrix-result-failed-background: var(--very-dark-grey);
 
-    --package-list-background: var(--very-very-dark-grey);
     --package-list-border: var(--very-dark-grey);
+    --package-list-background: var(--very-very-dark-grey);
+    --package-list-selectedbackground: var(--dark-blue);
 
     --error-background: var(--dark-red);
     --error-text: var(--mid-red);
