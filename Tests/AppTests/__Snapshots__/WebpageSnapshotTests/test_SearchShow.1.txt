@@ -53,80 +53,105 @@
             <li>
               <a href="/faq">FAQ</a>
             </li>
-            <li>
-              <a href="/">Search</a>
-            </li>
           </ul>
         </nav>
       </div>
     </header>
     <main>
       <div class="inner">
-        <h2>Results for search query</h2>
-        <ul class="list">
-          <li>
-            <a href="https://github.com/foo/0">
-              <h4>Package 0</h4>
-              <p>Package number 0</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/foo/1">
-              <h4>Package 1</h4>
-              <p>Package number 1</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/foo/2">
-              <h4>Package 2</h4>
-              <p>Package number 2</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/foo/3">
-              <h4>Package 3</h4>
-              <p>Package number 3</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/foo/4">
-              <h4>Package 4</h4>
-              <p>Package number 4</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/foo/5">
-              <h4>Package 5</h4>
-              <p>Package number 5</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/foo/6">
-              <h4>Package 6</h4>
-              <p>Package number 6</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/foo/7">
-              <h4>Package 7</h4>
-              <p>Package number 7</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/foo/8">
-              <h4>Package 8</h4>
-              <p>Package number 8</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/foo/9">
-              <h4>Package 9</h4>
-              <p>Package number 9</p>
-            </a>
-          </li>
-        </ul>
-        <a href="http://localhost:8080/search?page=2&query=search%20query">previous</a> | 
-        <a href="http://localhost:8080/search?page=4&query=search%20query">next</a>
+        <section class="search">
+          <form action="/search">
+            <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autofocus="true" data-gramm="false" value="search query"/>
+            <button type="submit">
+              <div title="Search"></div>
+            </button>
+          </form>
+        </section>
+        <section class="results">
+          <p>Results for &ldquo;
+            <strong>search query</strong>&rdquo;&hellip;
+          </p>
+          <ul id="package_list">
+            <li>
+              <a href="https://github.com/foo/0">
+                <h4>Package 0</h4>
+                <p>Package number 0</p>
+                <small>foo/bar-0</small>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/foo/1">
+                <h4>Package 1</h4>
+                <p>Package number 1</p>
+                <small>foo/bar-1</small>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/foo/2">
+                <h4>Package 2</h4>
+                <p>Package number 2</p>
+                <small>foo/bar-2</small>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/foo/3">
+                <h4>Package 3</h4>
+                <p>Package number 3</p>
+                <small>foo/bar-3</small>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/foo/4">
+                <h4>Package 4</h4>
+                <p>Package number 4</p>
+                <small>foo/bar-4</small>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/foo/5">
+                <h4>Package 5</h4>
+                <p>Package number 5</p>
+                <small>foo/bar-5</small>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/foo/6">
+                <h4>Package 6</h4>
+                <p>Package number 6</p>
+                <small>foo/bar-6</small>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/foo/7">
+                <h4>Package 7</h4>
+                <p>Package number 7</p>
+                <small>foo/bar-7</small>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/foo/8">
+                <h4>Package 8</h4>
+                <p>Package number 8</p>
+                <small>foo/bar-8</small>
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/foo/9">
+                <h4>Package 9</h4>
+                <p>Package number 9</p>
+                <small>foo/bar-9</small>
+              </a>
+            </li>
+          </ul>
+          <ul class="pagination">
+            <li class="previous">
+              <a href="/search?query=search%20query&page=2">Previous Page</a>
+            </li>
+            <li class="next">
+              <a href="/search?query=search%20query&page=4">Next Page</a>
+            </li>
+          </ul>
+        </section>
       </div>
     </main>
     <footer>

@@ -54,12 +54,14 @@
     <noscript>
       <p>The search function of this site requires JavaScript.</p>
     </noscript>
-    <section class="search">
+    <section class="search home">
       <div class="inner">
         <h3>The place to find Swift packages.</h3>
-        <form>
-          <textarea id="query" placeholder="Search" spellcheck="false" data-gramm="false" autofocus="true" rows="1"></textarea>
-          <div id="results" hidden="true"></div>
+        <form action="/search">
+          <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autofocus="true" data-gramm="false"/>
+          <button type="submit">
+            <div title="Search"></div>
+          </button>
         </form>
         <small>Indexing 2,544 packages and 38,410 versions.</small>
       </div>

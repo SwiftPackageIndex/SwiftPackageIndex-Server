@@ -53,8 +53,14 @@
             <li>
               <a href="/faq">FAQ</a>
             </li>
-            <li>
-              <a href="/">Search</a>
+            <li class="search">
+              <form action="/search">
+                <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" data-gramm="false"/>
+                <button type="submit">
+                  <div title="Search"></div>
+                </button>
+              </form>
+              <a href="/search" title="Search"></a>
             </li>
           </ul>
         </nav>
