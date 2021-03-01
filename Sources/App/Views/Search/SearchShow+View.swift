@@ -38,7 +38,7 @@ extension SearchShow {
                         .if(model.result.results.count > 0, .text("&hellip;"), else: .text("."))
                     ),
                     .ul(
-                        .class("package_list"),
+                        .id("package_list"),
                         .group(
                             model.result.results.map { result -> Node<HTML.ListContext> in
                                 .li(
