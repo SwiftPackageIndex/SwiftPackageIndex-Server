@@ -61,7 +61,7 @@
       <div class="inner">
         <section class="search">
           <form action="/search">
-            <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autofocus="true" data-gramm="false" value="search query"/>
+            <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" data-gramm="false" value="search query" autofocus="true"/>
             <button type="submit">
               <div title="Search"></div>
             </button>
@@ -71,7 +71,7 @@
           <p>Results for &ldquo;
             <strong>search query</strong>&rdquo;&hellip;
           </p>
-          <ul id="package_list">
+          <ul id="package_list" data-focus-query-field="true">
             <li>
               <a href="https://github.com/foo/0">
                 <h4>Package 0</h4>
