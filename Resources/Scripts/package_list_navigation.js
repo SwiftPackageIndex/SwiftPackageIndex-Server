@@ -13,21 +13,18 @@ export class SPIPackageListNavigation {
     if (!packageListElement) return
 
     document.addEventListener('keydown', (event) => {
-      // If a query field has focus and this is an enter keypress, continue submitting the form.
-      const queryElement = document.getElementById('query')
-      if (
-        queryElement &&
-        document.activeElement === queryElement &&
-        event.keyCode == KeyCodes.enter
-      ) {
-        return
-      }
+      // If anything inside a form has focus and this is an enter keypress, continue submitting the form.
+      const activeElement = document.activeElement
+      const formElement = activeElement.findParentMatching((element) => {
+        return element.nodeName.toLowerCase() == 'form'
+      })
+      if (formElement && event.keyCode === KeyCodes.enter) return
 
       // The document should never respond to the keys we are overriding.
       if (
-        event.keyCode == KeyCodes.enter ||
-        event.keyCode == KeyCodes.upArrow ||
-        event.keyCode == KeyCodes.downArrow
+        event.keyCode === KeyCodes.enter ||
+        event.keyCode === KeyCodes.upArrow ||
+        event.keyCode === KeyCodes.downArrow
       ) {
         event.preventDefault()
       }
@@ -35,12 +32,10 @@ export class SPIPackageListNavigation {
       // Process the keyboard event.
       switch (event.keyCode) {
         case KeyCodes.downArrow: {
-          queryElement.blur()
           this.selectNextPackage()
           break
         }
         case KeyCodes.upArrow: {
-          queryElement.blur()
           this.selectPreviousPackage()
           break
         }
@@ -60,9 +55,17 @@ export class SPIPackageListNavigation {
     })
   }
 
+  blurFocusedInputElement() {
+    const activeElement = document.activeElement
+    if (activeElement.nodeName.toLowerCase() === 'input') activeElement.blur()
+  }
+
   selectNextPackage() {
     const packageListElement = document.getElementById('package_list')
     if (!packageListElement) return
+
+    // If the input is still focused, it should not be.
+    this.blurFocusedInputElement()
 
     if (typeof this.selectedPackageIndex !== 'number') {
       // If there is no current selection, start at the top of the list.
@@ -79,6 +82,9 @@ export class SPIPackageListNavigation {
   selectPreviousPackage() {
     const packageListElement = document.getElementById('package_list')
     if (!packageListElement) return
+
+    // If the input is still focused, it should not be.
+    this.blurFocusedInputElement()
 
     if (typeof this.selectedPackageIndex !== 'number') {
       // If there is no current selection, start at the bottom of the list.
