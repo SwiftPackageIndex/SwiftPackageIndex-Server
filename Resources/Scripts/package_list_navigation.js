@@ -45,7 +45,7 @@ export class SPIPackageListNavigation {
         }
         case KeyCodes.escape: {
           this.selectedPackageIndex = null
-          window.scrollTo(0, 0)
+          this.scrollToTop()
           break
         }
       }
@@ -58,6 +58,10 @@ export class SPIPackageListNavigation {
   blurFocusedInputElement() {
     const activeElement = document.activeElement
     if (activeElement.nodeName.toLowerCase() === 'input') activeElement.blur()
+  }
+
+  scrollToTop() {
+    window.scrollTo(0, 0)
   }
 
   selectNextPackage() {
@@ -89,6 +93,12 @@ export class SPIPackageListNavigation {
     if (typeof this.selectedPackageIndex !== 'number') {
       // If there is no current selection, start at the bottom of the list.
       this.selectedPackageIndex = packageListElement.children.length - 1
+    } else if (this.selectedPackageIndex === 0) {
+      // Remove the selection from the package list, re-focus the query input, and scroll to the top of the page.
+      this.selectedPackageIndex = null
+      const queryElement = document.getElementById('query')
+      if (queryElement) queryElement.focus()
+      this.scrollToTop()
     } else {
       // Otherwise, just move up the list, but never beyond the start!
       this.selectedPackageIndex = Math.max(this.selectedPackageIndex - 1, 0)
