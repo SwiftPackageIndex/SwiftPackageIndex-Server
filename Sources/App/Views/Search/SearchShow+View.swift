@@ -39,6 +39,9 @@ extension SearchShow {
                     ),
                     .ul(
                         .id("package_list"),
+                        // Let the JavaScript know that keyboard navigation on this package list should
+                        // also include navigation into and out of the query field.
+                        .attribute(named: "data-focus-query-field", value: "true"),
                         .group(
                             model.result.results.map { result -> Node<HTML.ListContext> in
                                 .li(
