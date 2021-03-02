@@ -46,14 +46,13 @@ extension SearchShow {
                             model.result.results.map { result -> Node<HTML.ListContext> in
                                 .li(
                                     .a(
-                                        // TODO: The view feels like the wrong place to have optional data for these things. Move to view model?
-                                        .href(result.packageURL ?? "-"),
-                                        .h4(.text(result.packageName ?? "-")),
-                                        .p(.text(result.summary ?? "-")),
+                                        .href(result.packageURL),
+                                        .h4(.text(result.packageName)),
+                                        .unwrap(result.summary) { .p(.text($0)) },
                                         .small(
-                                            .text(result.repositoryOwner ?? "-"),
+                                            .text(result.repositoryOwner),
                                             .text("/"),
-                                            .text(result.repositoryName ?? "-")
+                                            .text(result.repositoryName)
                                         )
                                     )
                                 )
