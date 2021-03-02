@@ -45,7 +45,7 @@ export class SPIPackageListNavigation {
         }
         case KeyCodes.escape: {
           this.selectedPackageIndex = null
-          this.scrollToTop()
+          window.scrollToTop()
           break
         }
       }
@@ -55,19 +55,6 @@ export class SPIPackageListNavigation {
     })
   }
 
-  scrollToTop() {
-    window.scrollTo(0, 0)
-  }
-
-  scrollToBottom() {
-    window.scrollTo(0, document.body.scrollHeight)
-  }
-
-  blurFocusedInputElement() {
-    const activeElement = document.activeElement
-    if (activeElement.nodeName.toLowerCase() === 'input') activeElement.blur()
-  }
-
   selectNextPackage() {
     const packageListElement = document.getElementById('package_list')
     if (!packageListElement) return
@@ -75,7 +62,7 @@ export class SPIPackageListNavigation {
     if (typeof this.selectedPackageIndex !== 'number') {
       // If there is no current selection, start at the top of the list.
       this.selectedPackageIndex = 0
-      this.blurFocusedInputElement()
+      document.blurFocusedInputElement()
     } else {
       // Otherwise, just move down the list, but never beyond the end!
       this.selectedPackageIndex = Math.min(
@@ -85,7 +72,7 @@ export class SPIPackageListNavigation {
 
       // When reaching the bottom of the list, scroll to the bottom of the document.
       if (this.selectedPackageIndex == packageListElement.children.length - 1)
-        this.scrollToBottom()
+        window.scrollToBottom()
     }
   }
 
@@ -98,7 +85,7 @@ export class SPIPackageListNavigation {
       return
     } else if (this.selectedPackageIndex === 0) {
       // Always scroll to the top of the page when navigating to the first item.
-      this.scrollToTop()
+      window.scrollToTop()
 
       // Only navigate to the query field if indicated to by the package list.
       if (packageListElement.dataset.focusQueryField === 'true') {

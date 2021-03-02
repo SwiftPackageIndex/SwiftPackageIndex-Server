@@ -8,3 +8,16 @@ HTMLElement.prototype.findParentMatching = function (matches) {
   } while ((element = element.parentElement))
   return null
 }
+
+HTMLDocument.prototype.blurFocusedInputElement = function () {
+  const activeElement = this.activeElement
+  if (activeElement.nodeName.toLowerCase() === 'input') activeElement.blur()
+}
+
+Window.prototype.scrollToTop = function () {
+  window.scrollTo(0, 0)
+}
+
+Window.prototype.scrollToBottom = function () {
+  window.scrollTo(0, this.document.body.scrollHeight)
+}
