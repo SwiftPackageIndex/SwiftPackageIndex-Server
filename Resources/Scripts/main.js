@@ -1,6 +1,6 @@
 import '../Styles/main.scss'
 
-import './find_parent_matching.js'
+import './dom_helpers.js'
 import './highlighting.js'
 
 import { ExternalLinkRetargeter } from './external_link_retargeter.js'
