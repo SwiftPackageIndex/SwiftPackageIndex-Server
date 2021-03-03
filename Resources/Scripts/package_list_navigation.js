@@ -2,7 +2,7 @@ import { KeyCodes } from './keycodes.js'
 
 export class SPIPackageListNavigation {
   constructor() {
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('turbolinks:load', () => {
       this.installDocumentEventHandlers()
 
       // Is the query field going to be focused on page load? If so, and *only*

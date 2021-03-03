@@ -1,6 +1,6 @@
 export class ExternalLinkRetargeter {
   constructor() {
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('turbolinks:load', () => {
       this.installDocumentEventHandlers()
     })
   }

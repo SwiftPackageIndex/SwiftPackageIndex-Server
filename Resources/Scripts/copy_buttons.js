@@ -42,7 +42,7 @@ export class SPICopyPackageURLButton extends SPICopyButton {
   constructor() {
     super()
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('turbolinks:load', () => {
       this.createCopyPackageButton()
     })
   }
@@ -69,7 +69,7 @@ export class SPICopyBadgeMarkdownButtons extends SPICopyButton {
   constructor() {
     super()
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('turbolinks:load', () => {
       this.createCopyBadgeMarkdownButtons()
     })
   }
