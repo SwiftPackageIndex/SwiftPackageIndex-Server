@@ -14,7 +14,7 @@ extension SearchShow.Model {
                 repositoryOwner: "foo",
                 summary: "Package number \(idx)") }
         return .init(page: 3,
-                     query: "search query",
+                     query: "query",
                      result: .init(hasMoreResults: true, results: results))
     }
 }

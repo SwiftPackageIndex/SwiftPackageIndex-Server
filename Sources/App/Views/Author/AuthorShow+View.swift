@@ -16,7 +16,7 @@ enum AuthorShow {
             .group(
                 .h2(.text("Packages from \(model.owner)")),
                 .ul(
-                    .class("package_list"),
+                    .id("package_list"),
                     .group(
                         model.packages.map { package -> Node<HTML.ListContext> in
                             .li(

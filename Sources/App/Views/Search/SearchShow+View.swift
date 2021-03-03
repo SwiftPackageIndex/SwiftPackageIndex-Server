@@ -14,37 +14,88 @@ extension SearchShow {
 
         override func content() -> Node<HTML.BodyContext> {
             .group(
-                .h2(.text("Results for \(model.query)")),
-                .ul(
-                    .class("list"),
-                    .group(
-                        model.result.results.map { result -> Node<HTML.ListContext> in
-                            .li(
-                                .a(
-                                    .href(result.packageURL ?? "-"),
-                                    .h4(.text(result.packageName ?? "-")),
-                                    .p(.text(result.summary ?? "-"))
+                .section(
+                    .class("search"),
+                    .searchForm(query: model.query)
+                ),
+                .if(model.query.count > 0, resultsSection())
+            )
+        }
+
+        override func navMenuItems() -> [NavMenuItem] {
+            [.sponsorCTA, .addPackage, .blog, .faq]
+        }
+
+        func resultsSection() -> Node<HTML.BodyContext> {
+            .group(
+                .section(
+                    .class("results"),
+                    .p(
+                        .if(model.result.results.count > 0, .text("Results for "), else: .text("No packages matched ")),
+                        .text("&ldquo;"),
+                        .strong(.text(model.query)),
+                        .text("&rdquo;"),
+                        .if(model.result.results.count > 0, .text("&hellip;"), else: .text("."))
+                    ),
+                    .ul(
+                        .id("package_list"),
+                        // Let the JavaScript know that keyboard navigation on this package list should
+                        // also include navigation into and out of the query field.
+                        .attribute(named: "data-focus-query-field", value: "true"),
+                        .group(
+                            model.result.results.map { result -> Node<HTML.ListContext> in
+                                .li(
+                                    .a(
+                                        .href(result.packageURL),
+                                        .h4(.text(result.packageName)),
+                                        .unwrap(result.summary) { .p(.text($0)) },
+                                        .small(
+                                            .text(result.repositoryOwner),
+                                            .text("/"),
+                                            .text(result.repositoryName)
+                                        )
+                                    )
                                 )
-                            )
-                        }
+                            }
+                        )
+                    ),
+                    .ul(
+                        .class("pagination"),
+                        .if(model.page > 1, .previousSearchPage(model: model)),
+                        .if(model.result.hasMoreResults, .nextSearchPage(model: model))
                     )
-                ),
-                .if(model.page > 1,
-                    .a(.href(SiteURL.search
-                                .absoluteURL(parameters: ["page": "\(model.page - 1)",
-                                                          "query": model.query])),
-                       "previous")
-                ),
-                .if(model.page > 1 && model.result.hasMoreResults,
-                    " | "),
-                .if(model.result.hasMoreResults,
-                    .a(.href(SiteURL.search
-                                .absoluteURL(parameters: ["page": "\(model.page + 1)",
-                                                          "query": model.query])),
-                       "next")
                 )
             )
         }
     }
+}
 
+fileprivate extension Node where Context == HTML.ListContext {
+    static func previousSearchPage(model: SearchShow.Model) -> Node<HTML.ListContext> {
+        let parameters = [
+            QueryParameter(key: "query", value: model.query),
+            QueryParameter(key: "page", value: model.page - 1)
+        ]
+        return .li(
+            .class("previous"),
+            .a(
+                .href(SiteURL.search.relativeURL(parameters: parameters)),
+                "Previous Page"
+            )
+        )
+    }
+
+    static func nextSearchPage(model: SearchShow.Model) -> Node<HTML.ListContext> {
+        let parameters = [
+            QueryParameter(key: "query", value: model.query),
+            QueryParameter(key: "page", value: model.page + 1)
+        ]
+        return .li(
+            .class("next"),
+            .a(
+                .href(SiteURL.search.relativeURL(parameters: parameters)),
+                "Next Page"
+            )
+        )
+    }
 }

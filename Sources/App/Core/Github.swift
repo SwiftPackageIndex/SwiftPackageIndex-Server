@@ -67,7 +67,7 @@ extension Github {
 
     static func apiUri(for package: Package,
                        resource: Resource,
-                       query: [String: String] = [:]) throws -> URI {
+                       query: [QueryParameter] = []) throws -> URI {
         guard package.url.hasPrefix(Constants.githubComPrefix) else { throw AppError.invalidPackageUrl(package.id, package.url) }
         let queryString = query.queryString()
         let trunk = package.url

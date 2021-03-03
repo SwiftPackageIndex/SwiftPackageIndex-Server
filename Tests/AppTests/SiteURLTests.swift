@@ -28,7 +28,7 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.privacy.relativeURL(), "/privacy")
     }
     
-    func test_relativeURL_with_parameters() throws {
+    func test_relativeURL_for_Package() throws {
         XCTAssertEqual(
             SiteURL.package(.value("foo"), .value("bar"), .none).relativeURL(),
             "/foo/bar")
@@ -38,6 +38,14 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.faq.relativeURL(anchor: "hello"), "/faq#hello")
     }
     
+    func test_relativeURL_with_parameters() throws {
+        let url = SiteURL.search.relativeURL(parameters: [
+            QueryParameter(key: "c d", value: 2),
+            QueryParameter(key: "a b", value: 1)
+        ])
+        XCTAssertEqual(url, "/search?c%20d=2&a%20b=1")
+    }
+
     func test_absoluteURL() throws {
         Current.siteURL = { "https://indexsite.com" }
         XCTAssertEqual(SiteURL.home.absoluteURL(), "https://indexsite.com/")
@@ -49,11 +57,14 @@ class SiteURLTests: XCTestCase {
         Current.siteURL = { "https://indexsite.com" }
         XCTAssertEqual(SiteURL.faq.absoluteURL(anchor: "hello"), "https://indexsite.com/faq#hello")
     }
-    
+
     func test_absoluteURL_with_parameters() throws {
         Current.siteURL = { "https://indexsite.com" }
-        XCTAssertEqual(SiteURL.rssReleases.absoluteURL(parameters: ["c d": "2", "a b": "1"]),
-                       "https://indexsite.com/releases.rss?a%20b=1&c%20d=2")
+        let url = SiteURL.rssReleases.absoluteURL(parameters: [
+            QueryParameter(key: "c d", value: 2),
+            QueryParameter(key: "a b", value: 1)
+        ])
+        XCTAssertEqual(url, "https://indexsite.com/releases.rss?c%20d=2&a%20b=1")
     }
     
     func test_url_escaping() throws {
@@ -122,6 +133,17 @@ class SiteURLTests: XCTestCase {
     func test_docs() throws {
         XCTAssertEqual(SiteURL.docs(.builds).path, "docs/builds")
         XCTAssertEqual(SiteURL.docs(.builds).pathComponents.map(\.description), ["docs", "builds"])
+    }
+
+    func test_QueryParameter_encodedForQueryString() {
+        // String parameter, no encoding needed
+        XCTAssertEqual(QueryParameter(key: "foo", value: "bar").encodedForQueryString, "foo=bar")
+
+        // String parameter, encoding needed
+        XCTAssertEqual(QueryParameter(key: "foo", value: "b a r").encodedForQueryString, "foo=b%20a%20r")
+
+        // Integer parameter
+        XCTAssertEqual(QueryParameter(key: "foo", value: 1).encodedForQueryString, "foo=1")
     }
 
 }

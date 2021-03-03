@@ -58,19 +58,19 @@ class PublicPage {
                 .rel(.alternate),
                 .type("application/rss+xml"),
                 .attribute(named: "title", value: "Swift Package Index – Recent Major Releases"),
-                .href(SiteURL.rssReleases.absoluteURL(parameters: ["major": "true"]))
+                .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true")]))
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
                 .attribute(named: "title", value: "Swift Package Index – Recent Major & Minor Releases"),
-                .href(SiteURL.rssReleases.absoluteURL(parameters: ["major": "true", "minor": "true"]))
+                .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true"), QueryParameter(key: "minor", value: "true")]))
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
                 .attribute(named: "title", value: "Swift Package Index – Recent Pre-Releases"),
-                .href(SiteURL.rssReleases.absoluteURL(parameters: ["pre": "true"]))
+                .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "pre", value: "true")]))
             ),
             .script(
                 .src(SiteURL.javascripts("main").relativeURL() + "?\(resourceReloadQueryString())")
@@ -209,54 +209,17 @@ class PublicPage {
                 ),
                 .nav(
                     .ul(
-                        .group(navItems())
+                        .group(navMenuItems().map { $0.listNode() })
                     )
                 )
             )
         )
     }
 
-    /// List items to be rendered in the site navigation menu.
-    /// - Returns: An array of <li> elements.
-    func navItems() -> [Node<HTML.ListContext>] {
-        [
-            .li(
-                .class("menu_scta"),
-                .a(
-                    .id("menu_scta"),
-                    .href("https://github.com/sponsors/SwiftPackageIndex")
-                ),
-                .div(
-                    .id("menu_scta_help"),
-                    .text("This site is entirely funded by community donations. Please consider sponsoring this project. "),
-                    .strong("Thank you!")
-                )
-            ),
-            .li(
-                .a(
-                    .href(SiteURL.addAPackage.relativeURL()),
-                    "Add a Package"
-                )
-            ),
-            .li(
-                .a(
-                    .href("https://blog.swiftpackageindex.com"),
-                    "Blog"
-                )
-            ),
-            .li(
-                .a(
-                    .href(SiteURL.faq.relativeURL()),
-                    "FAQ"
-                )
-            ),
-            .li(
-                .a(
-                    .href(SiteURL.home.relativeURL()),
-                    "Search"
-                )
-            )
-        ]
+    /// The items to be rendered in the site navigation menu.
+    /// - Returns: An array of `NavMenuItem` items used in `header`.
+    func navMenuItems() -> [NavMenuItem] {
+        [.sponsorCTA, .addPackage, .blog, .faq, .search]
     }
     
     /// A <noscript> element that will only be shown to people with JavaScript disabled.
