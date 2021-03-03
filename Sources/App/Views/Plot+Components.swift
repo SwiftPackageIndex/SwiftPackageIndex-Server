@@ -24,6 +24,7 @@ extension Node where Context == HTML.FormContext {
             .type(.search),
             .attribute(named: "placeholder", value: "Search"),
             .attribute(named: "spellcheck", value: "false"),
+            .attribute(named: "autocomplete", value: "off"),
             .attribute(named: "data-gramm", value: "false"),
             .value(query)
         )
