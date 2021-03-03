@@ -61,7 +61,7 @@
       <div class="inner">
         <section class="search">
           <form action="/search">
-            <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" data-gramm="false" value="search query" autofocus="true"/>
+            <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" data-gramm="false" value="query" autofocus="true"/>
             <button type="submit">
               <div title="Search"></div>
             </button>
@@ -69,7 +69,7 @@
         </section>
         <section class="results">
           <p>Results for &ldquo;
-            <strong>search query</strong>&rdquo;&hellip;
+            <strong>query</strong>&rdquo;&hellip;
           </p>
           <ul id="package_list" data-focus-query-field="true">
             <li>
@@ -145,10 +145,10 @@
           </ul>
           <ul class="pagination">
             <li class="previous">
-              <a href="/search?query=search%20query&page=2">Previous Page</a>
+              <a href="/search?query=query&page=2">Previous Page</a>
             </li>
             <li class="next">
-              <a href="/search?query=search%20query&page=4">Next Page</a>
+              <a href="/search?query=query&page=4">Next Page</a>
             </li>
           </ul>
         </section>
