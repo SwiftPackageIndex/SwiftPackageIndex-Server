@@ -61,7 +61,7 @@
       <div class="inner">
         <section class="search">
           <form action="/search">
-            <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" data-gramm="false" value="query" autofocus="true"/>
+            <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false" value="query" autofocus="true"/>
             <button type="submit">
               <div title="Search"></div>
             </button>
