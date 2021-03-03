@@ -5,10 +5,10 @@ export class SPIPackageListNavigation {
     document.addEventListener('DOMContentLoaded', () => {
       this.installDocumentEventHandlers()
 
-      // Is the query field focused on page load? If so, and *only* on first
-      // page load, position the cursor at the end of the text in the field.
+      // Is the query field going to be focused on page load? If so, and *only*
+      // on first load, position the cursor at the end of the text in the field.
       const queryElement = document.getElementById('query')
-      if (queryElement) {
+      if (queryElement && queryElement.autofocus) {
         queryElement.selectionEnd = queryElement.value.length
         queryElement.selectionStart = queryElement.value.length
       }
