@@ -1,5 +1,3 @@
-import Turbolinks from 'turbolinks'
-
 export class SPITurbolinkForms {
   constructor() {
     // Bind to ALL submit events, regardless of where they come from.
@@ -11,9 +9,9 @@ export class SPITurbolinkForms {
         const params = new URLSearchParams(formData)
         const url = new URL(formElement.action)
         url.search = params.toString()
-        Turbolinks.visit(url.toString())
 
         // Stop the form submission.
+        window.Turbolinks.visit(url.toString())
         event.preventDefault()
       }
     })
