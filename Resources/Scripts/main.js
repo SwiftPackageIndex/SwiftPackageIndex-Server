@@ -1,5 +1,8 @@
 import '../Styles/main.scss'
 
+import Turbolinks from 'turbolinks'
+Turbolinks.start()
+
 import './dom_helpers.js'
 import './highlighting.js'
 
