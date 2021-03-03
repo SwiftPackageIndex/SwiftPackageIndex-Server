@@ -15,7 +15,6 @@ import swift from 'highlight.js/lib/languages/swift'
 import xml from 'highlight.js/lib/languages/xml'
 import yaml from 'highlight.js/lib/languages/yaml'
 
-hljs.initHighlightingOnLoad()
 hljs.registerLanguage('applescript', applescript)
 hljs.registerLanguage('bash', bash)
 hljs.registerLanguage('c', c)
@@ -31,3 +30,7 @@ hljs.registerLanguage('sql', sql)
 hljs.registerLanguage('swift', swift)
 hljs.registerLanguage('xml', xml)
 hljs.registerLanguage('yaml', yaml)
+
+document.addEventListener('DOMContentLoaded', () => {
+  hljs.highlightAll()
+})
