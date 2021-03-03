@@ -23,7 +23,7 @@ enum SearchShow {
 
         struct Record {
             var packageId: Package.Id
-            private var optionalPackageName: String?
+            var packageName: String
             var packageURL: String
             var repositoryName: String
             var repositoryOwner: String
@@ -35,15 +35,11 @@ enum SearchShow {
                 guard let repositoryOwner = record.repositoryOwner else { return nil }
 
                 self.packageId = record.packageId
-                self.optionalPackageName = record.packageName
+                self.packageName = record.packageName ?? "Unknown Package"
                 self.packageURL = packageURL
                 self.repositoryName = repositoryName
                 self.repositoryOwner = repositoryOwner
                 self.summary = record.summary
-            }
-
-            var packageName: String {
-                self.optionalPackageName ?? "Unknown Package"
             }
         }
     }

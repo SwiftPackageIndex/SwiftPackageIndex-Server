@@ -7,7 +7,7 @@ class SearchShowModelTests: AppTestCase {
     func test_SearchShow_Model_init() throws {
         let results = [
             // Valid - All fields populated
-            Search.Record(packageId: .mockId(at: 1),
+            Search.Record(packageId: .id1,
                           packageName: "1",
                           packageURL: "https://example.com/package/one",
                           repositoryName: "one",
@@ -15,7 +15,7 @@ class SearchShowModelTests: AppTestCase {
                           summary: "summary one"
             ),
             // Valid - Optional fields blank
-            Search.Record(packageId: .mockId(at: 2),
+            Search.Record(packageId: .id2,
                           packageName: nil,
                           packageURL: "https://example.com/package/two",
                           repositoryName: "two",
@@ -23,7 +23,7 @@ class SearchShowModelTests: AppTestCase {
                           summary: nil
             ),
             // Invalid - Missing packageURL
-            Search.Record(packageId: .mockId(at: 3),
+            Search.Record(packageId: .id3,
                           packageName: "3",
                           packageURL: nil,
                           repositoryName: "three",
@@ -31,7 +31,7 @@ class SearchShowModelTests: AppTestCase {
                           summary: "summary three"
             ),
             // Invalid - Missing repositoryName
-            Search.Record(packageId: .mockId(at: 4),
+            Search.Record(packageId: .id4,
                           packageName: "4",
                           packageURL: "https://example.com/package/three",
                           repositoryName: nil,
@@ -39,7 +39,7 @@ class SearchShowModelTests: AppTestCase {
                           summary: "summary four"
             ),
             // Invalid - Missing repositoryOwner
-            Search.Record(packageId: .mockId(at: 5),
+            Search.Record(packageId: .id5,
                           packageName: "5",
                           packageURL: "https://example.com/package/three",
                           repositoryName: "five",
