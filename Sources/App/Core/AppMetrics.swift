@@ -84,6 +84,10 @@ enum AppMetrics {
         gauge("spi_build_running_jobs_count", EmptyLabels.self)
     }
 
+    static var githubRateLimitRemainingCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_github_rate_limit_remaining_count", EmptyLabels.self)
+    }
+
     static var buildReportTotal: PromCounter<Int, Labels.Build>? {
         counter("spi_build_report_total", Labels.Build.self)
     }
