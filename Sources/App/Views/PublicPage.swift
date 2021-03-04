@@ -124,12 +124,9 @@ class PublicPage {
 
         // In staging or production appVersion will be set to a commit hash, or a tag name.
         // It will only ever be nil when running in a local development environment.
-        if let appVersion = appVersion {
+        if let appVersion = Current.appVersion() {
             return appVersion
         } else {
-            // Running under test? It's annoying to need to update snapshots every time the CSS or JS is saved.
-            if AppEnvironment.isRunningUnderTest() { return "test" }
-
             // Return the date of the most recently modified between the JavaScript and CSS resources.
             let jsModificationDate = modificationDate(forLocalResource: "main.js")
             let cssModificationDate = modificationDate(forLocalResource: "main.css")

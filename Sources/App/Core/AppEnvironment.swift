@@ -5,6 +5,7 @@ import Vapor
 struct AppEnvironment {
     var allowBuildTriggers: () -> Bool
     var allowTwitterPosts: () -> Bool
+    var appVersion: () -> String?
     var builderToken: () -> String?
     var buildTriggerDownscaling: () -> Double
     var date: () -> Date
@@ -49,6 +50,7 @@ extension AppEnvironment {
                 .flatMap(\.asBool)
                 ?? Constants.defaultAllowTwitterPosts
         },
+        appVersion: { App.appVersion },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerDownscaling: {
             Environment.get("BUILD_TRIGGER_DOWNSCALING")
@@ -108,13 +110,6 @@ extension AppEnvironment {
         twitterPostTweet: Twitter.post(client:tweet:)
     )
 }
-
-extension AppEnvironment {
-    static func isRunningUnderTest() -> Bool {
-        ProcessInfo.processInfo.environment.keys.contains("XCTestSessionIdentifier")
-    }
-}
-
 
 struct FileManager {
     var checkoutsDirectory: () -> String
