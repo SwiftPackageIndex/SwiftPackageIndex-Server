@@ -40,7 +40,8 @@ class PublicPage {
             ),
             .link(
                 .rel(.stylesheet),
-                .href(SiteURL.stylesheets("main").relativeURL() + "?\(resourceReloadQueryString())")
+                .href(SiteURL.stylesheets("main").relativeURL() + "?\(resourceReloadQueryString())"),
+                .attribute(named: "data-turbolinks-track", value: "reload")
             ),
             .link(
                 .rel(.alternate),
@@ -73,7 +74,8 @@ class PublicPage {
                 .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "pre", value: "true")]))
             ),
             .script(
-                .src(SiteURL.javascripts("main").relativeURL() + "?\(resourceReloadQueryString())")
+                .src(SiteURL.javascripts("main").relativeURL() + "?\(resourceReloadQueryString())"),
+                .attribute(named: "data-turbolinks-track", value: "reload")
             ),
             analyticsHead()
         )
