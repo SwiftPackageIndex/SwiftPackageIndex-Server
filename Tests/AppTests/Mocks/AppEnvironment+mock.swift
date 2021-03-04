@@ -9,6 +9,7 @@ extension AppEnvironment {
         .init(
             allowBuildTriggers: { true },
             allowTwitterPosts: { true },
+            appVersion: { "test" },
             builderToken: { nil },
             buildTriggerDownscaling: { 1.0 },
             date: Date.init,
