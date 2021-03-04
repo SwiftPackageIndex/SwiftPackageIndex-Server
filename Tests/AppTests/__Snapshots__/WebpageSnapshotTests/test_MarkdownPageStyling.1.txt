@@ -25,7 +25,7 @@
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Releases" href="http://localhost:8080/releases.rss?major=true"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major & Minor Releases" href="http://localhost:8080/releases.rss?major=true&minor=true"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
-    <script src="/main.js?test" data-turbolinks-track="reload"></script>
+    <script src="/main.js?test" data-turbolinks-track="reload" defer="true"></script>
   </head>
   <body class="markdown">
     <div class="staging">Staging / Development</div>
