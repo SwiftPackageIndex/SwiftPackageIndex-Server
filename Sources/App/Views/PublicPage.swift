@@ -107,7 +107,7 @@ class PublicPage {
 
         // This method is only called in a local development environment, so all paths
         // can be relative to this source file.
-        func modificationDate(for resource: String) -> Date {
+        func modificationDate(forLocalResource resource: String) -> Date {
             let relativePathToPublic = "../../../Public/"
             let url = URL(fileURLWithPath: relativePathToPublic + resource,
                 relativeTo: URL(fileURLWithPath: #file))
@@ -128,8 +128,8 @@ class PublicPage {
             return appVersion
         } else {
             // Return the date of the most recently modified between the JavaScript and CSS resources.
-            let jsModificationDate = modificationDate(for: "main.js")
-            let cssModificationDate = modificationDate(for: "main.css")
+            let jsModificationDate = modificationDate(forLocalResource: "main.js")
+            let cssModificationDate = modificationDate(forLocalResource: "main.css")
             let latestModificationDate = max(jsModificationDate, cssModificationDate)
             return String(Int(latestModificationDate.timeIntervalSince1970))
         }
