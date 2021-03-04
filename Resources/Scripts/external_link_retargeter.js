@@ -1,23 +1,15 @@
 export class ExternalLinkRetargeter {
   constructor() {
-    document.addEventListener('turbolinks:load', () => {
-      this.installDocumentEventHandlers()
-    })
-  }
-
-  installDocumentEventHandlers() {
     document.addEventListener('click', (event) => {
-      const clickedElement = event.target
-      const matchingElement = clickedElement.findParentMatching((element) => {
+      const externalLinkElement = event.target.findParentMatching((element) => {
         return (
           element.nodeName.toLowerCase() == 'a' &&
           element.hostname != window.location.hostname
         )
       })
 
-      if (matchingElement) {
-        matchingElement.setAttribute('target', '_blank')
-      }
+      if (externalLinkElement)
+        externalLinkElement.setAttribute('target', '_blank')
     })
   }
 }
