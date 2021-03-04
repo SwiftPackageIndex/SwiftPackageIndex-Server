@@ -32,6 +32,7 @@ enum Github {
             response.status == .forbidden,
             let header = response.headers.first(name: "X-RateLimit-Remaining"),
             let limit = Int(header) {
+            AppMetrics.githubRateLimitRemainingCount?.set(limit)
             return limit == 0
         }
         return false
