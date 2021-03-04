@@ -113,7 +113,7 @@ class PublicPage {
                 relativeTo: URL(fileURLWithPath: #file))
 
             // Assume the file has been modified *now* if the file can't be found.
-            guard let attributes = try? Foundation.FileManager.default.attributesOfItem(atPath: url.absoluteString)
+            guard let attributes = try? Foundation.FileManager.default.attributesOfItem(atPath: url.path)
             else { return Date() }
 
             // Also assume the file is modified now if the attribute doesn't exist.
