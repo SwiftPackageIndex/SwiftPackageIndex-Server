@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html><!--Version: dev - will be overriden in release builds-->
+<html><!--Version: nil-->
   <head>
     <meta name="robots" content="noindex"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -19,13 +19,13 @@
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
     <link rel="shortcut icon" href="/images/logo-simple.png" type="image/png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
-    <link rel="stylesheet" href="/main.css?0"/>
+    <link rel="stylesheet" href="/main.css?test"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recently Added" href="http://localhost:8080/packages.rss"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Releases" href="http://localhost:8080/releases.rss"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Releases" href="http://localhost:8080/releases.rss?major=true"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major & Minor Releases" href="http://localhost:8080/releases.rss?major=true&minor=true"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
-    <script src="/main.js?0"></script>
+    <script src="/main.js?test"></script>
   </head>
   <body class="package"><!--CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE--><!--10-->
     <div class="staging">Staging / Development</div>

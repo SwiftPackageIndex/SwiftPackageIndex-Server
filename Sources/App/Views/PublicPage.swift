@@ -101,15 +101,37 @@ class PublicPage {
                     """))
     }
 
-    /// A query string that will force resources to reload after they change. In development this is the
-    /// current date, to force a reload every time. In production this is the date of the last deploy.
+    /// A query string that will force resources to reload CSS/JS resources change.
     /// - Returns: A string containing the query string.
     final func resourceReloadQueryString() -> String {
-        let secondsSince1970String = String(Int(Current.date().timeIntervalSince1970))
-        do {
-            return (try Environment.detect() == .development) ? secondsSince1970String : appVersion
-        } catch {
-            return secondsSince1970String
+
+        // This method is only called in a local development environment, so all paths
+        // can be relative to this source file.
+        func modificationDate(forLocalResource resource: String) -> Date {
+            let relativePathToPublic = "../../../Public/"
+            let url = URL(fileURLWithPath: relativePathToPublic + resource,
+                relativeTo: URL(fileURLWithPath: #file))
+
+            // Assume the file has been modified *now* if the file can't be found.
+            guard let attributes = try? Foundation.FileManager.default.attributesOfItem(atPath: url.path)
+            else { return Date() }
+
+            // Also assume the file is modified now if the attribute doesn't exist.
+            let modificationDate = attributes[FileAttributeKey.modificationDate] as? Date
+            return modificationDate ?? Date()
+        }
+
+
+        // In staging or production appVersion will be set to a commit hash, or a tag name.
+        // It will only ever be nil when running in a local development environment.
+        if let appVersion = Current.appVersion() {
+            return appVersion
+        } else {
+            // Return the date of the most recently modified between the JavaScript and CSS resources.
+            let jsModificationDate = modificationDate(forLocalResource: "main.js")
+            let cssModificationDate = modificationDate(forLocalResource: "main.css")
+            let latestModificationDate = max(jsModificationDate, cssModificationDate)
+            return String(Int(latestModificationDate.timeIntervalSince1970))
         }
     }
     
