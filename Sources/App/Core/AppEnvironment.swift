@@ -109,6 +109,12 @@ extension AppEnvironment {
     )
 }
 
+extension AppEnvironment {
+    static func isRunningUnderTest() -> Bool {
+        ProcessInfo.processInfo.environment.keys.contains("XCTestSessionIdentifier")
+    }
+}
+
 
 struct FileManager {
     var checkoutsDirectory: () -> String
