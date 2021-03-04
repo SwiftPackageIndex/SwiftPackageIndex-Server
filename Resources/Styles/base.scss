@@ -135,3 +135,8 @@ button:focus {
   text-align: right;
   justify-items: flex-end;
 }
+
+.turbolinks-progress-bar {
+  height: 3px;
+  background-color: var(--mid-red);
+}
