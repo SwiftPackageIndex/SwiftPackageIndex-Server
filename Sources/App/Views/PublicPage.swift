@@ -75,7 +75,8 @@ class PublicPage {
             ),
             .script(
                 .src(SiteURL.javascripts("main").relativeURL() + "?\(resourceReloadQueryString())"),
-                .attribute(named: "data-turbolinks-track", value: "reload")
+                .attribute(named: "data-turbolinks-track", value: "reload"),
+                .attribute(named: "defer", value: "true")
             ),
             analyticsHead()
         )
