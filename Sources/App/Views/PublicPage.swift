@@ -127,6 +127,9 @@ class PublicPage {
         if let appVersion = appVersion {
             return appVersion
         } else {
+            // Running under test? It's annoying to need to update snapshots every time the CSS or JS is saved.
+            if let _ = NSClassFromString("XCTest") { return "test" }
+
             // Return the date of the most recently modified between the JavaScript and CSS resources.
             let jsModificationDate = modificationDate(forLocalResource: "main.js")
             let cssModificationDate = modificationDate(forLocalResource: "main.css")
