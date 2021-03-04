@@ -44,7 +44,10 @@ func routes(_ app: Application) throws {
     do {  // api
 
         // public routes
-        app.get(SiteURL.api(.version).pathComponents) { req in API.Version(version: appVersion) }
+        app.get(SiteURL.api(.version).pathComponents) { req in
+            API.Version(version: appVersion ?? "Unknown")
+        }
+
         app.get(SiteURL.api(.search).pathComponents, use: API.SearchController.get)
         app.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
                 use: API.PackageController().badge)
