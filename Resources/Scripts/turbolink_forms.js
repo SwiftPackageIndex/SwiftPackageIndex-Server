@@ -24,21 +24,3 @@ export class SPITurbolinkForms {
     })
   }
 }
-
-HTMLDocument.prototype.addTurbolinksEventListener = function (
-  event,
-  listenerFunction
-) {
-  console.log('binding')
-  const unbindListenerFunction = function () {
-    document.removeEventListener(event, listenerFunction)
-    document.removeEventListener(
-      'turbolinks:before-visit',
-      unbindListenerFunction
-    )
-    console.log('unbinding')
-  }
-
-  document.addEventListener(event, listenerFunction)
-  document.addEventListener('turbolinks:before-visit', unbindListenerFunction)
-}
