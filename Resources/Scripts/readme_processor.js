@@ -1,10 +1,8 @@
 export class SPIReadmeProcessor {
   constructor() {
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('turbolinks:load', () => {
       const readmeNode = document.querySelector('article.readme')
-      if (!readmeNode) {
-        return
-      }
+      if (!readmeNode) return
 
       const readmeBaseUrl = new URL(
         readmeNode.getAttribute('data-readme-base-url')

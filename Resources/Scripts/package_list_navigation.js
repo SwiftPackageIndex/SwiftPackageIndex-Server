@@ -2,9 +2,7 @@ import { KeyCodes } from './keycodes.js'
 
 export class SPIPackageListNavigation {
   constructor() {
-    document.addEventListener('DOMContentLoaded', () => {
-      this.installDocumentEventHandlers()
-
+    document.addEventListener('turbolinks:load', () => {
       // Is the query field going to be focused on page load? If so, and *only*
       // on first load, position the cursor at the end of the text in the field.
       const queryElement = document.getElementById('query')
@@ -13,14 +11,12 @@ export class SPIPackageListNavigation {
         queryElement.selectionStart = queryElement.value.length
       }
     })
-  }
-
-  installDocumentEventHandlers() {
-    // Only add package list navigation if there is a package list to navigate!
-    const packageListElement = document.getElementById('package_list')
-    if (!packageListElement) return
 
     document.addEventListener('keydown', (event) => {
+      // Only add package list navigation if there is a package list to navigate!
+      const packageListElement = document.getElementById('package_list')
+      if (!packageListElement) return
+
       // If anything inside a form has focus and this is an enter keypress, continue submitting the form.
       const activeElement = document.activeElement
       const formElement = activeElement.findParentMatching((element) => {
