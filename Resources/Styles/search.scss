@@ -1,3 +1,7 @@
+/* -------------------------------------------------------------------------
+  All styling related to the search field, or search section of a page.
+---------------------------------------------------------------------------- */
+
 section.search {
   margin: 0;
 
@@ -64,6 +68,8 @@ section.search {
   }
 }
 
+/* Search field in the navigation bar. */
+
 nav {
   li.search {
     & > a {
@@ -125,6 +131,8 @@ nav {
     }
   }
 }
+
+/* Results and pagination. */
 
 section.results {
   margin-top: 50px;
