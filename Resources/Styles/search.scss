@@ -2,6 +2,8 @@
   All styling related to the search field, or search section of a page.
 ---------------------------------------------------------------------------- */
 
+/* Search section of the home page. */
+
 section.search {
   margin: 0;
 
@@ -23,6 +25,17 @@ section.search {
 
       &:focus {
         outline: none;
+      }
+
+      &::-webkit-search-cancel-button {
+        -webkit-appearance: none; // remove the default "clear" button style.
+
+        height: 15px;
+        width: 15px;
+        background-image: var(--image-clear-search);
+        background-size: 15px;
+        background-repeat: no-repeat;
+        background-position: center center;
       }
     }
 
@@ -95,6 +108,10 @@ nav {
 
         &:focus {
           outline: none;
+        }
+
+        &::-webkit-search-cancel-button {
+          display: none;
         }
       }
 
