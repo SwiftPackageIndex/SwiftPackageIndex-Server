@@ -45,10 +45,15 @@ export class SPICopyPackageURLButton extends SPICopyButton {
       const packageURLElement = document.getElementById('package_url')
       if (!packageURLElement) return
 
+      // Remove any old buttons from the Turbolinks cache.
+      const parentElement = packageURLElement.parentElement
+      const oldButtonElement = parentElement.querySelector('button')
+      if (oldButtonElement) oldButtonElement.remove()
+
       // Given that the button will only work with JavaScript available, we should use JavaScript to create it!
       const buttonElement = document.createElement('button')
       buttonElement.textContent = 'Copy'
-      packageURLElement.parentNode.appendChild(buttonElement)
+      parentElement.appendChild(buttonElement)
       this.installCopyEvent(
         buttonElement,
         packageURLElement,
@@ -78,6 +83,10 @@ export class SPICopyBadgeMarkdownButtons extends SPICopyButton {
         input.addEventListener('mouseup', (event) => {
           event.target.select()
         })
+
+        // Remove any old buttons from the Turbolinks cache.
+        const oldButtonElement = element.querySelector('button')
+        if (oldButtonElement) oldButtonElement.remove()
 
         // Given that the button will only work with JavaScript available, we should use JavaScript to create it!
         const copyButtonElement = document.createElement('button')
