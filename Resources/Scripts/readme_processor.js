@@ -10,21 +10,21 @@ export class SPIReadmeProcessor {
 
       // Find all relative image URLs and point them at the raw image sources.
       const readmeImages = readmeNode.querySelectorAll('img')
-      readmeImages.forEach((image) => {
-        const imageSource = image.getAttribute('src')
+      readmeImages.forEach((imageElement) => {
+        const imageSource = imageElement.getAttribute('src')
         try {
           // Relative URLs will *fail* this initialisation.
           new URL(imageSource)
         } catch (error) {
-          image.src = `${readmeBaseUrl}${imageSource}`
+          imageElement.src = `${readmeBaseUrl}${imageSource}`
         }
       })
 
       // Find all relative links and point them to the formatted version on GitHub.
-      // Note: This is very brittle code, that relies on everything being hosted with GitHub.
+      // Note: This is very brittle code that relies on everything being hosted with GitHub.
       const links = readmeNode.querySelectorAll('a')
-      links.forEach((link) => {
-        const linkTarget = link.getAttribute('href')
+      links.forEach((linkElement) => {
+        const linkTarget = linkElement.getAttribute('href')
         try {
           // Relative URLs will *fail* this initialisation.
           new URL(linkTarget)
@@ -44,7 +44,7 @@ export class SPIReadmeProcessor {
           newUrl.host = 'github.com'
 
           // Substitute this Frankenstein's monster of a URL.
-          link.href = newUrl
+          linkElement.href = newUrl
         }
       })
     })
