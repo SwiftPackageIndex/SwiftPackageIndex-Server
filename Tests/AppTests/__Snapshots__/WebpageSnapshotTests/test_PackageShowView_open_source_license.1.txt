@@ -106,7 +106,7 @@
                   <a href="/Alamo/Alamofire/builds">Full Package Compatibility Report</a>
                 </li>
                 <li>
-                  <a href="/Alamo">More from Alamo</a>
+                  <a href="/Alamo">More packages from this author</a>
                 </li>
                 <li>
                   <a href="/Alamo/Alamofire/information-for-package-maintainers">Do you maintain this package?</a>
