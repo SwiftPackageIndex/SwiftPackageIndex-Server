@@ -47,6 +47,24 @@ export class SPIReadmeProcessor {
           linkElement.href = newUrl
         }
       })
+
+      // Find all tasklist items and adjust the incorrect markup output from our Markdown parser.
+      const listParagraphElements = readmeNode.querySelectorAll('li>p')
+      listParagraphElements.forEach((paragraphElement) => {
+        const parentElement = paragraphElement.parentNode
+        const firstChildElement = parentElement.firstChild
+        if (
+          firstChildElement &&
+          firstChildElement instanceof HTMLInputElement &&
+          firstChildElement.type == 'checkbox'
+        ) {
+          // We found a paragraph inside a list item where the first child of the list item
+          // is a checkbox. This is the situation in which we want to adjust the markup.
+          // Move the input element inside the paragraph element as the first child.
+          firstChildElement.remove
+          paragraphElement.appendChild(firstChildElement)
+        }
+      })
     })
   }
 }
