@@ -133,7 +133,7 @@ enum PackageShow {
                     .li(
                         .a(
                             .href(SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
-                            "More from \(model.repositoryOwner)"
+                            "More packages from this author"
                         )
                     ),
                     .li(
