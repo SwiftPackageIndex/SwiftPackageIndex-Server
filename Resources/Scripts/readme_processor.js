@@ -62,7 +62,7 @@ export class SPIReadmeProcessor {
           // is a checkbox. This is the situation in which we want to adjust the markup.
           // Move the input element inside the paragraph element as the first child.
           firstChildElement.remove
-          paragraphElement.appendChild(firstChildElement)
+          paragraphElement.prepend(firstChildElement)
         }
       })
     })
