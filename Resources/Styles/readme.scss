@@ -49,4 +49,12 @@ article.readme {
       background-color: var(--table-row-alt-background);
     }
   }
+
+  li > p {
+    margin: 5px 0;
+
+    input {
+      margin-right: 10px;
+    }
+  }
 }
