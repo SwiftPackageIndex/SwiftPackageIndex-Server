@@ -1,8 +1,15 @@
 {
+  "name": "SwiftPackageIndex",
   "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
+  "app": "Public/main.js",
+  "targets": {
+    "app": {
+      "source": "Resources/Scripts/main.js"
+    }
+  },
   "scripts": {
-    "build": "parcel build Resources/Scripts/main.js --dist-dir Public",
-    "serve": "parcel serve Resources/Scripts/main.js --dist-dir Public"
+    "build": "parcel build",
+    "serve": "parcel serve"
   },
   "dependencies": {
     "highlight.js": "^10.5.0",
