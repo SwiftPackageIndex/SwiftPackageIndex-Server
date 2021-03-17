@@ -26,16 +26,19 @@ enum Github {
         decoder.dateDecodingStrategy = .iso8601
         return decoder
     }()
-    
-    static func isRateLimited(_ response: ClientResponse) -> Bool {
-        if
-            response.status == .forbidden,
+
+    static func rateLimit(response: ClientResponse) -> Int? {
+        guard
             let header = response.headers.first(name: "X-RateLimit-Remaining"),
-            let limit = Int(header) {
-            AppMetrics.githubRateLimitRemainingCount?.set(limit)
-            return limit == 0
-        }
-        return false
+            let limit = Int(header)
+        else { return nil }
+        return limit
+    }
+
+    static func isRateLimited(_ response: ClientResponse) -> Bool {
+        guard let limit = rateLimit(response: response) else { return false }
+        AppMetrics.githubRateLimitRemainingCount?.set(limit)
+        return response.status == .forbidden && limit == 0
     }
 
     static func parseOwnerName(url: String) throws -> (owner: String, name: String) {
