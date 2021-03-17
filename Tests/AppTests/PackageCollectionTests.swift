@@ -21,7 +21,9 @@ class PackageCollectionTests: AppTestCase {
         do {
             let v = try Version(package: p,
                                 packageName: "Foo",
+                                publishedAt: Date(timeIntervalSince1970: 0),
                                 reference: .tag(1, 2, 3),
+                                releaseNotes: "Bar",
                                 supportedPlatforms: [.ios("14.0")],
                                 toolsVersion: "5.3")
             try v.save(on: app.db).wait()
@@ -70,26 +72,32 @@ class PackageCollectionTests: AppTestCase {
             )
         )
 
-        // validate
+        // validate the version
         XCTAssertEqual(res.version, "1.2.3")
-        XCTAssertEqual(res.packageName, "Foo")
-        XCTAssertEqual(
-            res.products,
-            [.init(name: "P1", type: .library(.automatic), targets: ["T1"]),
-             .init(name: "P2", type: .library(.automatic), targets: ["T2"])])
-        XCTAssertEqual(
-            res.targets,
-            [.init(name: "T1", moduleName: nil),
-             .init(name: "T2", moduleName: nil)])
-        XCTAssertEqual(res.toolsVersion, "5.3")
-        XCTAssertEqual(res.minimumPlatformVersions,
-                       [.init(name: "ios", version: "14.0")])
+        XCTAssertEqual(res.summary, "Bar")
         XCTAssertEqual(res.verifiedCompatibility, [
             .init(platform: .init(name: "ios"), swiftVersion: .init("5.2")),
             .init(platform: .init(name: "macos"), swiftVersion: .init("5.3")),
         ])
-        XCTAssertEqual(res.license,
-                       .init(name: "MIT", url: URL(string: "https://foo/mit")!))
+        XCTAssertEqual(res.license, .init(name: "MIT", url: URL(string: "https://foo/mit")!))
+        XCTAssertEqual(res.createdAt, Date(timeIntervalSince1970: 0))
+
+        // The spec requires there to be a dictionary keyed by the default tools version.
+        guard let manifest = res.manifests[res.defaultToolsVersion]
+        else { XCTFail(); return; }
+
+        // Validate the manifest.
+        XCTAssertEqual(manifest.packageName, "Foo")
+        XCTAssertEqual(
+            manifest.products,
+            [.init(name: "P1", type: .library(.automatic), targets: ["T1"]),
+             .init(name: "P2", type: .library(.automatic), targets: ["T2"])])
+        XCTAssertEqual(
+            manifest.targets,
+            [.init(name: "T1", moduleName: nil),
+             .init(name: "T2", moduleName: nil)])
+        XCTAssertEqual(manifest.toolsVersion, "5.3")
+        XCTAssertEqual(manifest.minimumPlatformVersions, [.init(name: "ios", version: "14.0")])
     }
 
     func test_Package_init() throws {
