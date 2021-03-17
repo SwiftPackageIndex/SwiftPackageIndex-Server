@@ -1,0 +1,60 @@
+version: '3.7'
+
+# logging & monitoring visualiser
+
+services:
+
+  grafana:
+    # FIXME: unsupported with docker stack
+    build:
+      context: ./infrastructure/grafana
+      args:
+        GRAFANA_VERSION: '7.3.1'
+        GF_INSTALL_IMAGE_RENDERER_PLUGIN: 'true'
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_SERVER_ROOT_URL: "${GF_SERVER_ROOT_URL}"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: always
+    ports:
+      - 3000:3000
+
+  # logging
+
+  loki:
+    # FIXME: unsupported with docker stack
+    build: ./infrastructure/loki
+    command: -config.file=/loki.yaml
+    restart: always
+
+  promtail:
+    # FIXME: unsupported with docker stack
+    build: ./infrastructure/promtail
+    volumes:
+      - /var/lib/docker/containers:/var/log
+    command: -config.file=/promtail.yaml
+    restart: always
+
+  # monitoring
+
+  prometheus:
+    # FIXME: unsupported with docker stack
+    build: ./infrastructure/prometheus
+    volumes:
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/prometheus.yml'
+    restart: always
+
+  pushgateway:
+    image: prom/pushgateway:v1.3.0
+    restart: always
+
+
+volumes:
+  db_data:
+  checkouts:
+  grafana_data:
+  prometheus_data:
