@@ -5,10 +5,10 @@
   "css_target": "./Public/main.css",
   "targets": {
     "js_target": {
-      "source": "./Resources/Scripts/*.js"
+      "source": "./Resources/Scripts/main.js"
     },
     "css_target": {
-      "source": "./Resources/Styles/*.scss"
+      "source": "./Resources/Styles/main.scss"
     }
   },
   "scripts": {
