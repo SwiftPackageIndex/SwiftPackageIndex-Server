@@ -24,33 +24,38 @@
       "url" : "https:\/\/github.com\/foo\/1",
       "versions" : [
         {
+          "defaultToolsVersion" : "5.2",
           "license" : {
             "name" : "MIT",
             "url" : "https:\/\/foo\/mit"
           },
-          "minimumPlatformVersions" : [
+          "manifests" : {
+            "5.2" : {
+              "minimumPlatformVersions" : [
 
-          ],
-          "packageName" : "P1-tag",
-          "products" : [
-            {
-              "name" : "P1Lib",
-              "targets" : [
-                "t1"
               ],
-              "type" : {
-                "library" : [
-                  "automatic"
-                ]
-              }
+              "packageName" : "P1-tag",
+              "products" : [
+                {
+                  "name" : "P1Lib",
+                  "targets" : [
+                    "t1"
+                  ],
+                  "type" : {
+                    "library" : [
+                      "automatic"
+                    ]
+                  }
+                }
+              ],
+              "targets" : [
+                {
+                  "name" : "t1"
+                }
+              ],
+              "toolsVersion" : "5.2"
             }
-          ],
-          "targets" : [
-            {
-              "name" : "t1"
-            }
-          ],
-          "toolsVersion" : "5.2",
+          },
           "verifiedCompatibility" : [
             {
               "platform" : {
@@ -62,33 +67,38 @@
           "version" : "2.0.0"
         },
         {
+          "defaultToolsVersion" : "5.1",
           "license" : {
             "name" : "MIT",
             "url" : "https:\/\/foo\/mit"
           },
-          "minimumPlatformVersions" : [
+          "manifests" : {
+            "5.1" : {
+              "minimumPlatformVersions" : [
 
-          ],
-          "packageName" : "P1-tag",
-          "products" : [
-            {
-              "name" : "P1Lib",
-              "targets" : [
-                "t1"
               ],
-              "type" : {
-                "library" : [
-                  "automatic"
-                ]
-              }
+              "packageName" : "P1-tag",
+              "products" : [
+                {
+                  "name" : "P1Lib",
+                  "targets" : [
+                    "t1"
+                  ],
+                  "type" : {
+                    "library" : [
+                      "automatic"
+                    ]
+                  }
+                }
+              ],
+              "targets" : [
+                {
+                  "name" : "t1"
+                }
+              ],
+              "toolsVersion" : "5.1"
             }
-          ],
-          "targets" : [
-            {
-              "name" : "t1"
-            }
-          ],
-          "toolsVersion" : "5.1",
+          },
           "verifiedCompatibility" : [
 
           ],
@@ -109,33 +119,38 @@
       "url" : "https:\/\/github.com\/foo\/2",
       "versions" : [
         {
+          "defaultToolsVersion" : "5.3",
           "license" : {
             "name" : "MIT",
             "url" : "https:\/\/foo\/mit"
           },
-          "minimumPlatformVersions" : [
+          "manifests" : {
+            "5.3" : {
+              "minimumPlatformVersions" : [
 
-          ],
-          "packageName" : "P2-tag",
-          "products" : [
-            {
-              "name" : "P1Lib",
-              "targets" : [
-                "t2"
               ],
-              "type" : {
-                "library" : [
-                  "automatic"
-                ]
-              }
+              "packageName" : "P2-tag",
+              "products" : [
+                {
+                  "name" : "P1Lib",
+                  "targets" : [
+                    "t2"
+                  ],
+                  "type" : {
+                    "library" : [
+                      "automatic"
+                    ]
+                  }
+                }
+              ],
+              "targets" : [
+                {
+                  "name" : "t2"
+                }
+              ],
+              "toolsVersion" : "5.3"
             }
-          ],
-          "targets" : [
-            {
-              "name" : "t2"
-            }
-          ],
-          "toolsVersion" : "5.3",
+          },
           "verifiedCompatibility" : [
 
           ],
