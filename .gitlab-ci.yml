@@ -118,8 +118,42 @@ deploy dev (ad hoc):  # DEV: deploy any revision manually
     - if: '$ENV == "dev"'
       when: manual
   tags:
-    - spi-dev
-  <<: *deploy-common
+    # FIXME: change back to spi-dev after testing
+    - spi-d1
+  # <<: *deploy-common
+  stage: deploy
+  image: docker
+  script: |
+    set -eu
+    VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
+
+    # FIXME: use real versions
+    rollbar() { echo TEST: rollbar $@ }
+    telegram() { echo TEST: telegram $@ }
+
+    echo Deploying VERSION $VERSION with SITE_URL: ${SITE_URL} ...
+    telegram "🚧 deploying version $VERSION ..."
+
+    # FIXME: also deploy monitoring
+    docker stack deploy --with-registry-auth -c app.yml spi
+
+    if [[ $? == 0 ]]; then
+      telegram "✅ deployed version $VERSION"
+      retries=5
+      until rollbar succeeded ; do
+        sleep 5
+        echo Retrying ...
+        echo $((retries--)) retries left
+      done
+    else
+      telegram "🛑 failed to deploy version $VERSION"
+      retries=5
+      until rollbar failed ; do
+        sleep 5
+        echo Retrying ...
+        echo $((retries--)) retries left
+      done
+    fi
 
 
 smoke-test:
