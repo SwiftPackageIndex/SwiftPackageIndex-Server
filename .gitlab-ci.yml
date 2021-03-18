@@ -135,6 +135,16 @@ deploy dev (ad hoc):  # DEV: deploy any revision manually
       echo TEST: telegram $@
     }
 
+    # pull image (retry for up to 30 minutes to allow builds on another pipeline to complete)
+    echo Pulling image ...
+    retries=180
+    until docker pull $REGISTRY_IMAGE:$VERSION; do
+      [[ $retries -eq 0 ]] && echo "docker pull failed" && exit 1
+      sleep 10
+      echo Retrying ...
+      echo $((retries--)) retries left
+    done
+
     echo Deploying VERSION $VERSION with SITE_URL: ${SITE_URL} ...
     telegram "🚧 deploying version $VERSION ..."
 
