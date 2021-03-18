@@ -44,7 +44,6 @@ services:
     ports:
       - '80:80'
     command: ["serve", "--env", "${ENV}", "--hostname", "0.0.0.0", "--port", "80"]
-    restart: always
 
   reconcile:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -55,7 +54,6 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run reconcile --env ${ENV}; sleep ${RECONCILE_SLEEP:-120}; done"
     ]
-    restart: always
 
   ingest:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -66,7 +64,6 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run ingest --env ${ENV} --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-300}; done"
     ]
-    restart: always
 
   analyze:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -77,7 +74,6 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run analyze --env ${ENV} --limit ${ANALYZE_LIMIT:-25}; sleep ${ANALYZE_SLEEP:-20}; done"
     ]
-    restart: always
 
   trigger_builds:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -88,7 +84,6 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run trigger-builds --env ${ENV} --limit ${BUILD_TRIGGER_LIMIT:-1}; sleep ${BUILD_TRIGGER_SLEEP:-60}; done"
     ]
-    restart: always
   
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -106,7 +101,6 @@ services:
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
-    restart: always
 
 
 volumes:

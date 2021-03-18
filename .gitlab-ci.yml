@@ -124,7 +124,7 @@ deploy dev (ad hoc):  # DEV: deploy any revision manually
   stage: deploy
   image: docker
   script: |
-    set -eux
+    set -eu
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
 
     # FIXME: use real versions
