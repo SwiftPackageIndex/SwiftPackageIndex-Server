@@ -94,6 +94,14 @@ services:
 
   db:
     image: postgres:12.1-alpine
+    sysctls:
+      # NOTES: these values are needed here because docker swarm kills long running idle 
+      # connections by default after 15 minutes see https://github.com/moby/moby/issues/31208
+      # causing Connection reset by peer (errno: 104) leading to 500s
+      # info about these values are here https://tldp.org/HOWTO/TCP-Keepalive-HOWTO/usingkeepalive.html
+      - net.ipv4.tcp_keepalive_intvl=600
+      - net.ipv4.tcp_keepalive_probes=9
+      - net.ipv4.tcp_keepalive_time=600
     volumes:
       - db_data:/var/lib/postgresql/data/pgdata
     environment:
