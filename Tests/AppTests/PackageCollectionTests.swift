@@ -83,8 +83,7 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.createdAt, Date(timeIntervalSince1970: 0))
 
         // The spec requires there to be a dictionary keyed by the default tools version.
-        guard let manifest = res.manifests[res.defaultToolsVersion]
-        else { XCTFail(); return; }
+        let manifest = try XCTUnwrap(res.manifests[res.defaultToolsVersion])
 
         // Validate the manifest.
         XCTAssertEqual(manifest.packageName, "Foo")
