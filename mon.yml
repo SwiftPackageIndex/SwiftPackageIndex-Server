@@ -5,14 +5,9 @@ version: '3.7'
 services:
 
   grafana:
-    # FIXME: unsupported with docker stack
-    build:
-      context: ./infrastructure/grafana
-      args:
-        GRAFANA_VERSION: '7.3.1'
-        GF_INSTALL_IMAGE_RENDERER_PLUGIN: 'true'
+    image: grafana/grafana:7.3.1
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: 'false'
       GF_SERVER_ROOT_URL: "${GF_SERVER_ROOT_URL}"
     volumes:
