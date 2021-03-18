@@ -148,6 +148,10 @@ deploy dev:  # DEV: auto-deploy main
     env VERSION=$VERSION \
       docker stack deploy --with-registry-auth -c app.yml spi
 
+    docker stack deploy --with-registry-auth -c mon.yml mon
+
+    # FIXME: I believe this check makes no sense as GL will bail on any non-0 exit
+    # on any line - confirm this works and remove if it doesn't
     if [[ $? == 0 ]]; then
       telegram "✅ deployed version $VERSION"
       retries=5
