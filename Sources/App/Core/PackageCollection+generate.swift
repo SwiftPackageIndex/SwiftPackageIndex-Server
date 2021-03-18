@@ -115,18 +115,24 @@ extension PackageCollection.Package.Version {
         else {
             return nil
         }
+
+        let manifest = Manifest(
+            toolsVersion: toolsVersion,
+            packageName: packageName,
+            targets: version.targets.map(PackageCollection.Target.init(target:)),
+            products: version.products.compactMap(PackageCollection.Product.init(product:)),
+            minimumPlatformVersions: version.supportedPlatforms
+                .map(PackageCollection.PlatformVersion.init(platform:))
+        )
+
         self.init(
             version: "\(semVer)",
-            packageName: packageName,
-            targets: version.targets
-                .map(PackageCollection.Target.init(target:)),
-            products: version.products
-                .compactMap(PackageCollection.Product.init(product:)),
-            toolsVersion: toolsVersion,
-            minimumPlatformVersions: version.supportedPlatforms
-                .map(PackageCollection.PlatformVersion.init(platform:)),
+            summary: version.releaseNotes,
+            manifests: [toolsVersion: manifest],
+            defaultToolsVersion: toolsVersion,
             verifiedCompatibility: .init(builds: version.builds),
-            license: license
+            license: license,
+            createdAt: version.publishedAt
         )
     }
 }

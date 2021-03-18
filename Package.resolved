@@ -266,8 +266,8 @@
         "package": "SwiftPM",
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
-          "branch": "swift-DEVELOPMENT-SNAPSHOT-2021-01-23-a",
-          "revision": "0e0964a765af8b0cccdb22f4d058d0fdd0d49c61",
+          "branch": "swift-DEVELOPMENT-SNAPSHOT-2021-03-09-a",
+          "revision": "e372f7ad067a68182ccdaabaf0e9b8b1f7e47023",
           "version": null
         }
       },
