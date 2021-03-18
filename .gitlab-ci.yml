@@ -139,7 +139,8 @@ deploy dev (ad hoc):  # DEV: deploy any revision manually
     telegram "🚧 deploying version $VERSION ..."
 
     # FIXME: also deploy monitoring
-    docker stack deploy --with-registry-auth -c app.yml spi
+    env VERSION=$VERSION \
+      docker stack deploy --with-registry-auth -c app.yml spi
 
     if [[ $? == 0 ]]; then
       telegram "✅ deployed version $VERSION"
