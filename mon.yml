@@ -19,28 +19,31 @@ services:
   # logging
 
   loki:
-    # FIXME: unsupported with docker stack
-    build: ./infrastructure/loki
-    command: -config.file=/loki.yaml
-    restart: always
+    image: grafana/loki:2.0.0
+    command: -config.file=/loki.yml
+    configs:
+      - source: loki_cfg
+        target: /loki.yml
 
   promtail:
-    # FIXME: unsupported with docker stack
-    build: ./infrastructure/promtail
+    image: grafana/promtail:2.0.0
+    command: -config.file=/promtail.yml
+    configs:
+      - source: promtail_cfg
+        target: /promtail.yml
     volumes:
       - /var/lib/docker/containers:/var/log
-    command: -config.file=/promtail.yaml
-    restart: always
 
   # monitoring
 
   prometheus:
-    # FIXME: unsupported with docker stack
-    build: ./infrastructure/prometheus
+    image: prom/prometheus:v2.22.1
     volumes:
       - prometheus_data:/prometheus
-    command:
-      - '--config.file=/prometheus.yml'
+    command: --config.file=/prometheus.yml
+    configs:
+      - source: prometheus_cfg
+        target: /prometheus.yml
     restart: always
 
   pushgateway:
@@ -48,8 +51,15 @@ services:
     restart: always
 
 
+configs:
+  loki_cfg:
+    file: ./infrastructure/loki.yml
+  promtail_cfg:
+    file: ./infrastructure/promtail.yml
+  prometheus_cfg:
+    file: ./infrastructure/prometheus.yml
+
+
 volumes:
-  db_data:
-  checkouts:
   grafana_data:
   prometheus_data:
