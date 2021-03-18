@@ -102,37 +102,33 @@ deploy prod:  # PROD: auto-deploy tags
   tags:
     - spi-prod
   <<: *deploy-common
-  
-  
+
+
+
 deploy dev:  # DEV: auto-deploy main
   rules:
     - if: '$ENV == "dev" && $CI_COMMIT_BRANCH == "main"'
     - if: '$ENV == "dev" && $CI_COMMIT_TAG != null'
   tags:
+    # TODO: currently still targeting the existing spi-dev
+    # once we've switched over, update the default pipeline
     - spi-dev
   <<: *deploy-common
 
 
-deploy dev (ad hoc):  # DEV: deploy any revision manually
-  rules:
-    - if: '$ENV == "dev"'
-      when: manual
-  tags:
-    # FIXME: change back to spi-dev after testing
-    - spi-d1
-  # <<: *deploy-common
+# TODO: consolidate with prod deployment once we've moved both envs
+.deploy-common-dev: &deploy-common-dev
   stage: deploy
   image: docker
   script: |
     set -eu
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
 
-    # FIXME: use real versions
     rollbar() {
-      echo TEST: rollbar $@
+      curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "local_username": "CI", "revision": "'"$VERSION"'", "status": "'"$1"'"}' https://api.rollbar.com/api/1/deploy
     }
     telegram() {
-      echo TEST: telegram $@
+      curl -s -X POST https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage -d chat_id=${TELEGRAM_CHAT_ID} -d text="$1"
     }
 
     # pull image (retry for up to 30 minutes to allow builds on another pipeline to complete)
@@ -169,6 +165,16 @@ deploy dev (ad hoc):  # DEV: deploy any revision manually
         echo $((retries--)) retries left
       done
     fi
+
+  
+deploy dev (ad hoc):  # DEV: deploy any revision manually
+  rules:
+    - if: '$ENV == "dev"'
+      when: manual
+  tags:
+    # TODO: change back to spi-dev after switch over
+    - spi-d1
+  <<: *deploy-common-dev
 
 
 smoke-test:
