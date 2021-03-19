@@ -5,56 +5,77 @@ version: '3.7'
 services:
 
   grafana:
-    # FIXME: unsupported with docker stack
-    build:
-      context: ./infrastructure/grafana
-      args:
-        GRAFANA_VERSION: '7.3.1'
-        GF_INSTALL_IMAGE_RENDERER_PLUGIN: 'true'
+    image: grafana/grafana:7.3.1
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: 'false'
       GF_SERVER_ROOT_URL: "${GF_SERVER_ROOT_URL}"
     volumes:
       - grafana_data:/var/lib/grafana
-    restart: always
     ports:
       - 3000:3000
+    networks:
+      - app_backend
+
 
   # logging
 
   loki:
-    # FIXME: unsupported with docker stack
-    build: ./infrastructure/loki
-    command: -config.file=/loki.yaml
-    restart: always
+    image: grafana/loki:2.0.0
+    command: -config.file=/loki.yml
+    configs:
+      - source: loki_cfg
+        target: /loki.yml
+    networks:
+      - app_backend
+
 
   promtail:
-    # FIXME: unsupported with docker stack
-    build: ./infrastructure/promtail
+    image: grafana/promtail:2.0.0
+    command: -config.file=/promtail.yml
+    configs:
+      - source: promtail_cfg
+        target: /promtail.yml
     volumes:
       - /var/lib/docker/containers:/var/log
-    command: -config.file=/promtail.yaml
-    restart: always
+    networks:
+      - app_backend
+
 
   # monitoring
 
   prometheus:
-    # FIXME: unsupported with docker stack
-    build: ./infrastructure/prometheus
+    image: prom/prometheus:v2.22.1
     volumes:
       - prometheus_data:/prometheus
-    command:
-      - '--config.file=/prometheus.yml'
-    restart: always
+    command: --config.file=/prometheus.yml
+    configs:
+      - source: prometheus_cfg
+        target: /prometheus.yml
+    networks:
+      - app_backend
+
 
   pushgateway:
     image: prom/pushgateway:v1.3.0
-    restart: always
+    networks:
+      - app_backend
+
+
+configs:
+  loki_cfg:
+    file: ./infrastructure/loki.yml
+  promtail_cfg:
+    file: ./infrastructure/promtail.yml
+  prometheus_cfg:
+    file: ./infrastructure/prometheus.yml
 
 
 volumes:
-  db_data:
-  checkouts:
   grafana_data:
   prometheus_data:
+
+
+networks:
+  app_backend:
+    external: true
