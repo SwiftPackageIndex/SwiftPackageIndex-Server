@@ -100,7 +100,7 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run trigger-builds --env ${ENV} --limit ${BUILD_TRIGGER_LIMIT:-1}; sleep ${BUILD_TRIGGER_SLEEP:-60}; done"
     ]
-     networks:
+    networks:
       - backend
 
 
