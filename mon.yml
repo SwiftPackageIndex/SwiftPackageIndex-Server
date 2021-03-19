@@ -15,7 +15,7 @@ services:
     ports:
       - 3000:3000
     networks:
-      - backend
+      - app_backend
 
 
   # logging
@@ -27,7 +27,7 @@ services:
       - source: loki_cfg
         target: /loki.yml
     networks:
-      - backend
+      - app_backend
 
 
   promtail:
@@ -39,7 +39,7 @@ services:
     volumes:
       - /var/lib/docker/containers:/var/log
     networks:
-      - backend
+      - app_backend
 
 
   # monitoring
@@ -53,13 +53,13 @@ services:
       - source: prometheus_cfg
         target: /prometheus.yml
     networks:
-      - backend
+      - app_backend
 
 
   pushgateway:
     image: prom/pushgateway:v1.3.0
     networks:
-      - backend
+      - app_backend
 
 
 configs:
