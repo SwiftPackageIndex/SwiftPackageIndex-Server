@@ -146,7 +146,7 @@ deploy dev:  # DEV: auto-deploy main
 
     # FIXME: also deploy monitoring
     env VERSION=$VERSION \
-      docker stack deploy --with-registry-auth -c app.yml spi
+      docker stack deploy --with-registry-auth -c app.yml app
 
     docker stack deploy --with-registry-auth -c mon.yml mon
 
