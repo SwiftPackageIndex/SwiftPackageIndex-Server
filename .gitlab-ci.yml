@@ -121,7 +121,7 @@ deploy dev:  # DEV: auto-deploy main
   stage: deploy
   image: docker
   script: |
-    set -eux
+    set -eu
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
 
     rollbar() {
