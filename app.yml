@@ -44,6 +44,10 @@ services:
     ports:
       - '80:80'
     command: ["serve", "--env", "${ENV}", "--hostname", "0.0.0.0", "--port", "80"]
+    deploy:
+      mode: global
+      update_config:
+        order: start-first
 
   reconcile:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
