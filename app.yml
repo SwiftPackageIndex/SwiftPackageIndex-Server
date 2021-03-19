@@ -48,6 +48,9 @@ services:
       mode: global
       update_config:
         order: start-first
+    networks:
+      - backend
+
 
   reconcile:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -58,6 +61,9 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run reconcile --env ${ENV}; sleep ${RECONCILE_SLEEP:-120}; done"
     ]
+    networks:
+      - backend
+
 
   ingest:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -68,6 +74,9 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run ingest --env ${ENV} --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-300}; done"
     ]
+    networks:
+      - backend
+
 
   analyze:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -78,6 +87,9 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run analyze --env ${ENV} --limit ${ANALYZE_LIMIT:-25}; sleep ${ANALYZE_SLEEP:-20}; done"
     ]
+    networks:
+      - backend
+
 
   trigger_builds:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -88,13 +100,18 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run trigger-builds --env ${ENV} --limit ${BUILD_TRIGGER_LIMIT:-1}; sleep ${BUILD_TRIGGER_SLEEP:-60}; done"
     ]
-  
+     networks:
+      - backend
+
+
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     depends_on:
       - db
     command: ["migrate", "--yes"]
+    networks:
+      - backend
 
   db:
     image: postgres:12.1-alpine
@@ -113,8 +130,14 @@ services:
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
+    networks:
+      - backend
 
 
 volumes:
   db_data:
   checkouts:
+
+
+networks:
+  backend: {}

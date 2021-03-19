@@ -15,6 +15,9 @@ services:
     restart: always
     ports:
       - 3000:3000
+    networks:
+      - backend
+
 
   # logging
 
@@ -24,6 +27,9 @@ services:
     configs:
       - source: loki_cfg
         target: /loki.yml
+    networks:
+      - backend
+
 
   promtail:
     image: grafana/promtail:2.0.0
@@ -33,6 +39,9 @@ services:
         target: /promtail.yml
     volumes:
       - /var/lib/docker/containers:/var/log
+    networks:
+      - backend
+
 
   # monitoring
 
@@ -44,11 +53,14 @@ services:
     configs:
       - source: prometheus_cfg
         target: /prometheus.yml
-    restart: always
+    networks:
+      - backend
+
 
   pushgateway:
     image: prom/pushgateway:v1.3.0
-    restart: always
+    networks:
+      - backend
 
 
 configs:
@@ -63,3 +75,8 @@ configs:
 volumes:
   grafana_data:
   prometheus_data:
+
+
+networks:
+  backend:
+    external: true
