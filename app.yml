@@ -134,6 +134,17 @@ services:
       - backend
 
 
+  # for db connections
+  sshd:
+    image: registry.gitlab.com/finestructure/spi-sshd:0.0.1
+    entrypoint: ["/bin/bash"]
+    command: ["-c", "--", "echo '${authorized_keys}' > /root/.ssh/authorized_keys && chmod 0400 /root/.ssh/authorized_keys && ssh-start ssh-server"]
+    ports:
+      - "2222:22"
+    networks:
+      - backend
+
+
 volumes:
   db_data:
   checkouts:
