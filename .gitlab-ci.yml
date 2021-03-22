@@ -93,6 +93,7 @@ build:
         echo Retrying ...
         echo $((retries--)) retries left
       done
+      exit 1
     fi
   
   
@@ -184,6 +185,7 @@ deploy prod:  # PROD: auto-deploy tags
         echo Retrying ...
         echo $((retries--)) retries left
       done
+      exit 1
     fi
 
 
