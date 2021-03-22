@@ -5,7 +5,9 @@ import Vapor
 
 public func configure(_ app: Application) throws {
     Current.setLogger(app.logger)
-    
+
+    app.logger.info("SPI Server version \(appVersion) starting up ...")
+
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.middleware.use(ErrorMiddleware())
     
