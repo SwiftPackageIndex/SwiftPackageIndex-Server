@@ -6,11 +6,6 @@ import Vapor
 public func configure(_ app: Application) throws {
     Current.setLogger(app.logger)
 
-    if isServeCommand() {
-        // only post this notice for the main `serve` process
-        app.logger.notice("SPI Server v\(appVersion) starting up ...")
-    }
-
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.middleware.use(ErrorMiddleware())
     
@@ -135,9 +130,4 @@ public func configure(_ app: Application) throws {
 
     // bootstrap app metrics
     AppMetrics.bootstrap()
-}
-
-
-private func isServeCommand() -> Bool {
-    CommandLine.arguments.contains("serve")
 }
