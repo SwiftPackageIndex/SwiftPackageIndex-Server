@@ -8,7 +8,7 @@ public func configure(_ app: Application) throws {
 
     if isServeCommand() {
         // only post this notice for the main `serve` process
-        app.logger.notice("SPI Server version \(appVersion) starting up ...")
+        app.logger.notice("SPI Server v\(appVersion) starting up ...")
     }
 
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
