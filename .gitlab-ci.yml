@@ -170,6 +170,7 @@ deploy prod:  # PROD: auto-deploy tags
     done
 
     if [[ "$DEPLOYED_VERSION" == "$VERSION" && "${COUNT[0]}" == "${COUNT[1]}" ]]; then
+      docker service create --name deploy --mode=replicated-job --replicas=1 busybox sh -c "✅ deployed version $VERSION"
       telegram "✅ deployed version $VERSION"
       retries=5
       until rollbar succeeded ; do
