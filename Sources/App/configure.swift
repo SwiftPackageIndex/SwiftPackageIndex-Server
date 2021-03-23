@@ -22,12 +22,17 @@ public func configure(_ app: Application) throws {
         app.logger.error("Incomplete DB configuration:\n\(vars)")
         throw Abort(.internalServerError)
     }
-    
+
+    let environment = (try? Environment.detect()) ?? .development
+    let tlsConfig: TLSConfiguration? = (environment == .development)
+        ? .clientDefault
+        : nil
     app.databases.use(.postgres(hostname: host,
                                 port: port,
                                 username: username,
                                 password: password,
-                                database: database), as: .psql)
+                                database: database,
+                                tlsConfiguration: tlsConfig), as: .psql)
     
     do {  // Migration 001 - schema 1.0
         app.migrations.add(CreatePackage())
