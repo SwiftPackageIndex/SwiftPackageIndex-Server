@@ -170,6 +170,9 @@ deploy prod:  # PROD: auto-deploy tags
     done
 
     if [[ "$DEPLOYED_VERSION" == "$VERSION" && "${COUNT[0]}" == "${COUNT[1]}" ]]; then
+      # we create this weird one-off service command in order to post a 
+      # notification that our monitoring can pick up for a release annotation
+      # in Grafana
       docker service create --name deploy --mode=replicated-job --replicas=1 busybox sh -c "✅ deployed version $VERSION"
       telegram "✅ deployed version $VERSION"
       retries=5
