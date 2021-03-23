@@ -110,6 +110,9 @@ services:
     depends_on:
       - db
     command: ["migrate", "--yes"]
+    deploy:
+      restart_policy:
+        condition: none
     networks:
       - backend
 
