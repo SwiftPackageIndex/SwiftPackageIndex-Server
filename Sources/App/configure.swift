@@ -23,10 +23,9 @@ public func configure(_ app: Application) throws {
         throw Abort(.internalServerError)
     }
 
-    let environment = (try? Environment.detect()) ?? .development
-    let tlsConfig: TLSConfiguration? = (environment == .development)
-        ? .clientDefault
-        : nil
+    let tlsConfig: TLSConfiguration? = Environment.get("DATABASE_USE_TLS")
+        .flatMap(\.asBool)
+        .flatMap { $0 ? .clientDefault : nil }
     app.databases.use(.postgres(hostname: host,
                                 port: port,
                                 username: username,
