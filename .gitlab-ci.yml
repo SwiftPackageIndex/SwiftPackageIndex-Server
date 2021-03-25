@@ -49,7 +49,7 @@ build:
   stage: deploy
   image: docker
   script: |
-    set -eu
+    set -eux
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
 
     rollbar() {
