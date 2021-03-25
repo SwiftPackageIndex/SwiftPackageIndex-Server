@@ -152,6 +152,8 @@ deploy prod (testing):
       when: manual
   tags:
     - spi-p1
+  variables:
+    SITE_URL: http://13.68.174.170
   <<: *deploy-common
 
 
