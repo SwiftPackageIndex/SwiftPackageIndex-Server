@@ -45,6 +45,8 @@ services:
       - /var/lib/docker/containers:/var/log
     networks:
       - app_backend
+    deploy:
+      mode: global
 
 
   # monitoring
