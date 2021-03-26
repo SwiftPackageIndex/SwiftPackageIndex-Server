@@ -72,7 +72,7 @@ build:
       # notification that our monitoring can pick up for a release annotation
       # in Grafana
       docker service rm deploy > /dev/null 2>&1 || true
-      docker service create --name deploy --mode=replicated-job --replicas=1 busybox sh -c "echo $msg"
+      docker service create --quiet --name deploy --mode=replicated-job --replicas=1 busybox sh -c "echo $msg"
       docker service rm deploy > /dev/null 2>&1 || true
     }
 
