@@ -16,6 +16,11 @@ services:
       - 3000:3000
     networks:
       - app_backend
+    deploy:
+      placement:
+        constraints:
+          # placement for data persistence
+          - node.labels.storage_location == grafana_data
 
 
   # logging
@@ -40,6 +45,8 @@ services:
       - /var/lib/docker/containers:/var/log
     networks:
       - app_backend
+    deploy:
+      mode: global
 
 
   # monitoring
@@ -54,6 +61,11 @@ services:
         target: /prometheus.yml
     networks:
       - app_backend
+    deploy:
+      placement:
+        constraints:
+          # placement for data persistence
+          - node.labels.storage_location == prometheus_data
 
 
   pushgateway:

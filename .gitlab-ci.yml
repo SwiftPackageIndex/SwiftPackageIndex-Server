@@ -47,68 +47,6 @@ build:
 
 .deploy-common: &deploy-common
   stage: deploy
-  image: docker/compose:1.25.5
-  script: |
-    set -eu
-    VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
-    # install curl and set up alias to post deployment to rollbar
-    apk add --no-cache curl
-    rollbar() {
-      curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "local_username": "CI", "revision": "'"$VERSION"'", "status": "'"$1"'"}' https://api.rollbar.com/api/1/deploy
-    }
-    telegram() {
-      curl -s -X POST https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage -d chat_id=${TELEGRAM_CHAT_ID} -d text="$1"
-    }
-
-    # pull image (retry for up to 30 minutes to allow builds on another pipeline to complete)
-    echo Pulling image ...
-    retries=180
-    until docker pull $REGISTRY_IMAGE:$VERSION; do
-      [[ $retries -eq 0 ]] && echo "docker pull failed" && exit 1
-      sleep 10
-      echo Retrying ...
-      echo $((retries--)) retries left
-    done
-
-    echo Migrating database ...
-    docker-compose up -d db  # ensure db is up
-    env VERSION=$VERSION docker-compose run migrate
-
-    echo Deploying VERSION $VERSION with SITE_URL: ${SITE_URL} ...
-    telegram "🚧 deploying version $VERSION ..."
-    env VERSION=$VERSION docker-compose up --build -d
-    if [[ $? == 0 ]]; then
-      telegram "✅ deployed version $VERSION"
-      retries=5
-      until rollbar succeeded ; do
-        sleep 5
-        echo Retrying ...
-        echo $((retries--)) retries left
-      done
-    else
-      telegram "🛑 failed to deploy version $VERSION"
-      retries=5
-      until rollbar failed ; do
-        sleep 5
-        echo Retrying ...
-        echo $((retries--)) retries left
-      done
-      exit 1
-    fi
-  
-  
-deploy prod:  # PROD: auto-deploy tags
-  rules:
-    - if: '$ENV == "prod" && $CI_COMMIT_TAG != null'
-  tags:
-    - spi-prod
-  <<: *deploy-common
-
-
-
-# TODO: consolidate with prod deployment once we've moved both envs
-.deploy-common-dev: &deploy-common-dev
-  stage: deploy
   image: docker
   script: |
     set -eu
@@ -134,7 +72,7 @@ deploy prod:  # PROD: auto-deploy tags
       # notification that our monitoring can pick up for a release annotation
       # in Grafana
       docker service rm deploy > /dev/null 2>&1 || true
-      docker service create --name deploy --mode=replicated-job --replicas=1 busybox sh -c "echo $msg"
+      docker service create --quiet --name deploy --mode=replicated-job --replicas=1 busybox sh -c "echo $msg"
       docker service rm deploy > /dev/null 2>&1 || true
     }
 
@@ -199,13 +137,21 @@ deploy prod:  # PROD: auto-deploy tags
     fi
 
 
+deploy prod:  # PROD: auto-deploy tags
+  rules:
+    - if: '$ENV == "prod" && $CI_COMMIT_TAG != null'
+  tags:
+    - spi-p1
+  <<: *deploy-common
+
+
 deploy dev:  # DEV: auto-deploy main
   rules:
     - if: '$ENV == "dev" && $CI_COMMIT_BRANCH == "main"'
     - if: '$ENV == "dev" && $CI_COMMIT_TAG != null'
   tags:
     - spi-d1
-  <<: *deploy-common-dev
+  <<: *deploy-common
 
 
 deploy dev (ad hoc):  # DEV: deploy any revision manually
@@ -214,7 +160,7 @@ deploy dev (ad hoc):  # DEV: deploy any revision manually
       when: manual
   tags:
     - spi-d1
-  <<: *deploy-common-dev
+  <<: *deploy-common
 
 
 smoke-test:
@@ -234,32 +180,3 @@ smoke-test:
     echo "Running full suite of package tests ..."
     docker run finestructure/rester-sitemap:1.0.0 ${SITE_URL}/sitemap.xml > all-packages.restfile
     rester all-packages.restfile
-
-
-.backup-common: &backup-common
-  stage: build
-  tags:
-    - spi-prod-backup
-  script: |
-    TARFILE=spi_${ENV}_$(date +%Y-%m-%d).tgz
-    DUMPFILE=$(basename $TARFILE .tgz).dump
-    ./scripts/db_backup.sh $TARFILE $DUMPFILE
-    ./scripts/convert_to_db_dump.sh $TARFILE $DUMPFILE
-    # copy file to S3
-    S3_BACKUP_DIR=/Users/spi/Desktop/spi-db-backups
-    # mount s3fs just in case (ignoring errors when it's already mounted)
-    s3fs spi-db-backups ${S3_BACKUP_DIR} -o passwd_file=/Users/spi/.passwd-s3fs || true
-    cp $DB_BACKUP_DIR/$DUMPFILE ${S3_BACKUP_DIR}/
-
-db-backup (scheduled):  # PROD: auto-backup on schedule
-  rules:
-    - if: '$ENV == "prod" && $CI_PIPELINE_SOURCE == "schedule"'
-  <<: *backup-common
-
-
-db-backup (manual):     # PROD: allow manual backup any time
-  rules:
-    - if: '$ENV == "prod"'
-      when: manual
-  allow_failure: true
-  <<: *backup-common

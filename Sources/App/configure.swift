@@ -4,6 +4,7 @@ import Vapor
 
 
 public func configure(_ app: Application) throws {
+    app.logger.component = "server"
     Current.setLogger(app.logger)
 
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
