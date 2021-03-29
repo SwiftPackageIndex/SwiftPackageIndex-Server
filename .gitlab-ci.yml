@@ -145,18 +145,6 @@ deploy prod:  # PROD: auto-deploy tags
   <<: *deploy-common
 
 
-# FIXME: remove after testing
-deploy prod (testing):
-  rules:
-    - if: '$ENV == "prod"'
-      when: manual
-  tags:
-    - spi-p1
-  variables:
-    SITE_URL: 'http://13.68.174.170'
-  <<: *deploy-common
-
-
 deploy dev:  # DEV: auto-deploy main
   rules:
     - if: '$ENV == "dev" && $CI_COMMIT_BRANCH == "main"'
@@ -184,8 +172,6 @@ smoke-test:
   tags:
     - ceres
   script: |
-    # FIXME: re-enable
-    exit 0
     rester() {
       docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.7.2 "$1"
     }
@@ -194,33 +180,3 @@ smoke-test:
     echo "Running full suite of package tests ..."
     docker run finestructure/rester-sitemap:1.0.0 ${SITE_URL}/sitemap.xml > all-packages.restfile
     rester all-packages.restfile
-
-
-.backup-common: &backup-common
-  stage: build
-  tags:
-    - spi-prod-backup
-  script: |
-    TARFILE=spi_${ENV}_$(date +%Y-%m-%d).tgz
-    DUMPFILE=$(basename $TARFILE .tgz).dump
-    ./scripts/db_backup.sh $TARFILE $DUMPFILE
-    ./scripts/convert_to_db_dump.sh $TARFILE $DUMPFILE
-    # copy file to S3
-    S3_BACKUP_DIR=/Users/spi/Desktop/spi-db-backups
-    # mount s3fs just in case (ignoring errors when it's already mounted)
-    s3fs spi-db-backups ${S3_BACKUP_DIR} -o passwd_file=/Users/spi/.passwd-s3fs || true
-    cp $DB_BACKUP_DIR/$DUMPFILE ${S3_BACKUP_DIR}/
-
-
-db-backup (scheduled):  # PROD: auto-backup on schedule
-  rules:
-    - if: '$ENV == "prod" && $CI_PIPELINE_SOURCE == "schedule"'
-  <<: *backup-common
-
-
-db-backup (manual):     # PROD: allow manual backup any time
-  rules:
-    - if: '$ENV == "prod"'
-      when: manual
-  allow_failure: true
-  <<: *backup-common
