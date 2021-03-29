@@ -56,7 +56,7 @@ build:
       curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -X POST --data '{"environment": "'"$ENV"'", "local_username": "CI", "revision": "'"$VERSION"'", "status": "'"$1"'"}' https://api.rollbar.com/api/1/deploy
     }
     telegram() {
-      curl -s -X POST https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage -d chat_id=${TELEGRAM_CHAT_ID} -d text="$1"
+      curl -s -X POST https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage&parse_mode=Markdown -d chat_id=${TELEGRAM_CHAT_ID} -d text="$1"
     }
     get_version() {
         url=$1
@@ -87,7 +87,7 @@ build:
     done
 
     echo Deploying VERSION $VERSION with SITE_URL: ${SITE_URL} ...
-    telegram "🚧 deploying version $VERSION ..."
+    telegram "🚧 [deploying version $VERSION]($CI_JOB_URL) ..."
 
     env VERSION=$VERSION \
       docker stack deploy --with-registry-auth -c app.yml app
@@ -118,7 +118,7 @@ build:
 
     if [[ "$DEPLOYED_VERSION" == "$VERSION" && "${COUNT[0]}" == "${COUNT[1]}" ]]; then
       post_annotation "✅ deployed version $VERSION"
-      telegram "✅ deployed version $VERSION"
+      telegram "✅ [deployed version $VERSION]($CI_JOB_URL)"
       retries=5
       until rollbar succeeded ; do
         sleep 5
@@ -126,7 +126,7 @@ build:
         echo $((retries--)) retries left
       done
     else
-      telegram "🛑 failed to deploy version $VERSION"
+      telegram "🛑 [failed to deploy version $VERSION]($CI_JOB_URL)"
       retries=5
       until rollbar failed ; do
         sleep 5
