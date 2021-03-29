@@ -87,7 +87,7 @@ build:
     done
 
     echo Deploying VERSION $VERSION with SITE_URL: ${SITE_URL} ...
-    telegram "🚧 [deploying version $VERSION]($CI_JOB_URL) ..."
+    telegram "🚧 \[deploying version $VERSION\]\($CI_JOB_URL\) ..."
 
     env VERSION=$VERSION \
       docker stack deploy --with-registry-auth -c app.yml app
@@ -118,7 +118,7 @@ build:
 
     if [[ "$DEPLOYED_VERSION" == "$VERSION" && "${COUNT[0]}" == "${COUNT[1]}" ]]; then
       post_annotation "✅ deployed version $VERSION"
-      telegram "✅ [deployed version $VERSION]($CI_JOB_URL)"
+      telegram "✅ \[deployed version $VERSION\]\($CI_JOB_URL\)"
       retries=5
       until rollbar succeeded ; do
         sleep 5
@@ -126,7 +126,7 @@ build:
         echo $((retries--)) retries left
       done
     else
-      telegram "🛑 [failed to deploy version $VERSION]($CI_JOB_URL)"
+      telegram "🛑 \[failed to deploy version $VERSION\]\($CI_JOB_URL\)"
       retries=5
       until rollbar failed ; do
         sleep 5
