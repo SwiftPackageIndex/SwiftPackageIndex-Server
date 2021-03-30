@@ -89,10 +89,20 @@ build:
     echo Deploying VERSION $VERSION with SITE_URL: ${SITE_URL} ...
     telegram "🚧 deploying version $VERSION [↗]($CI_JOB_URL) ..."
 
-    env VERSION=$VERSION \
-      docker stack deploy --with-registry-auth -c app.yml app
+    retries=3
+    until env VERSION=$VERSION \
+      docker stack deploy --with-registry-auth -c app.yml app ; do
+      sleep 5
+      echo Retrying ...
+      echo $((retries--)) retries left
+    done
 
-    docker stack deploy --with-registry-auth -c mon.yml mon
+    retries=3
+    until docker stack deploy --with-registry-auth -c mon.yml mon ; do
+      sleep 5
+      echo Retrying ...
+      echo $((retries--)) retries left
+    done
 
     # poll for new version to be available
     ATTEMPTS=120
