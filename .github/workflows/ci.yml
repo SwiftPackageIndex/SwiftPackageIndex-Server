@@ -10,7 +10,7 @@ jobs:
       image: finestructure/spi-base:0.2.0
     services:
       postgres:
-        image: postgres:12.1-alpine
+        image: postgres:11.6-alpine
         env:
           POSTGRES_DB: spi_test
           POSTGRES_USER: spi_test
@@ -38,7 +38,7 @@ jobs:
   #   runs-on: macOS-latest
   #   services:
   #     postgres:
-  #       image: postgres:12
+  #       image: postgres:11.6
   #       env:
   #         POSTGRES_DB: spi_dev
   #         POSTGRES_USER: spi_dev
