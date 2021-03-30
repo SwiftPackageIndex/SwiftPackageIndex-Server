@@ -322,6 +322,11 @@ class PublicPage {
                         .a(
                             .href("https://macstadium.com/"),
                             "MacStadium"
+                        ),
+                        .text("and"),
+                        .a(
+                            .href("http://azure.microsoft.com"),
+                            "Microsoft Azure"
                         )
                     ])
                  )
