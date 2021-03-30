@@ -325,7 +325,7 @@ class PublicPage {
                         ),
                         .text("and"),
                         .a(
-                            .href("http://azure.microsoft.com"),
+                            .href("https://azure.microsoft.com"),
                             "Microsoft Azure"
                         )
                     ])
