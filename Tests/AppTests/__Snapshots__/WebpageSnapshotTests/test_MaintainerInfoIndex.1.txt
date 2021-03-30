@@ -119,7 +119,8 @@
             </li>
           </ul>
           <small>Kindly hosted by
-            <a href="https://macstadium.com/">MacStadium</a>
+            <a href="https://macstadium.com/">MacStadium</a>and
+            <a href="http://azure.microsoft.com">Microsoft Azure</a>
           </small>
         </nav>
       </div>
