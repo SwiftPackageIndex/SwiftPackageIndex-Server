@@ -1,16 +1,14 @@
 {
   "name": "SwiftPackageIndex",
   "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
-  "js_target": "main.js",
-  "css_target": "main.css",
+  "js_target": "./Public/main.js",
+  "css_target": "./Public/main.css",
   "targets": {
     "js_target": {
-      "source": "./Resources/Scripts/main.js",
-      "distDir": "./Public"
+      "source": "./Resources/Scripts/main.js"
     },
     "css_target": {
-      "source": "./Resources/Styles/main.scss",
-      "distDir": "./Public"
+      "source": "./Resources/Styles/main.scss"
     }
   },
   "scripts": {
