@@ -4,8 +4,9 @@ import Vapor
 
 
 public func configure(_ app: Application) throws {
+    app.logger.component = "server"
     Current.setLogger(app.logger)
-    
+
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.middleware.use(ErrorMiddleware())
     
@@ -22,12 +23,16 @@ public func configure(_ app: Application) throws {
         app.logger.error("Incomplete DB configuration:\n\(vars)")
         throw Abort(.internalServerError)
     }
-    
+
+    let tlsConfig: TLSConfiguration? = Environment.get("DATABASE_USE_TLS")
+        .flatMap(\.asBool)
+        .flatMap { $0 ? .clientDefault : nil }
     app.databases.use(.postgres(hostname: host,
                                 port: port,
                                 username: username,
                                 password: password,
-                                database: database), as: .psql)
+                                database: database,
+                                tlsConfiguration: tlsConfig), as: .psql)
     
     do {  // Migration 001 - schema 1.0
         app.migrations.add(CreatePackage())

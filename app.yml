@@ -1,6 +1,3 @@
-#   Build images: docker-compose build
-#      Start app: docker-compose up app
-
 version: '3.7'
 
 
@@ -20,6 +17,7 @@ x-shared: &shared
     DATABASE_NAME: ${DATABASE_NAME}
     DATABASE_USERNAME: ${DATABASE_USERNAME}
     DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    DATABASE_USE_TLS: ${DATABASE_USE_TLS}
     GITHUB_TOKEN: ${GITHUB_TOKEN}
     GITLAB_API_TOKEN: ${GITLAB_API_TOKEN}
     GITLAB_PIPELINE_LIMIT: ${GITLAB_PIPELINE_LIMIT}
@@ -38,7 +36,8 @@ x-shared: &shared
 
 
 services:
-  app:
+
+  server:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     depends_on:
@@ -46,7 +45,13 @@ services:
     ports:
       - '80:80'
     command: ["serve", "--env", "${ENV}", "--hostname", "0.0.0.0", "--port", "80"]
-    restart: always
+    deploy:
+      mode: global
+      update_config:
+        order: start-first
+    networks:
+      - backend
+
 
   reconcile:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -57,7 +62,9 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run reconcile --env ${ENV}; sleep ${RECONCILE_SLEEP:-120}; done"
     ]
-    restart: always
+    networks:
+      - backend
+
 
   ingest:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -68,7 +75,9 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run ingest --env ${ENV} --limit ${INGEST_LIMIT:-100}; sleep ${INGEST_SLEEP:-300}; done"
     ]
-    restart: always
+    networks:
+      - backend
+
 
   analyze:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -79,7 +88,9 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run analyze --env ${ENV} --limit ${ANALYZE_LIMIT:-25}; sleep ${ANALYZE_SLEEP:-20}; done"
     ]
-    restart: always
+    networks:
+      - backend
+
 
   trigger_builds:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
@@ -90,82 +101,38 @@ services:
     command: ["-c", "--",
       "trap : TERM INT; while true; do ./Run trigger-builds --env ${ENV} --limit ${BUILD_TRIGGER_LIMIT:-1}; sleep ${BUILD_TRIGGER_SLEEP:-60}; done"
     ]
-    restart: always
-  
+    networks:
+      - backend
+
+
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
     depends_on:
       - db
     command: ["migrate", "--yes"]
+    deploy:
+      restart_policy:
+        condition: none
+    networks:
+      - backend
 
-  db:
-    image: postgres:12.1-alpine
-    volumes:
-      - db_data:/var/lib/postgresql/data/pgdata
-    environment:
-      PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_USER: ${DATABASE_USERNAME}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
-    restart: always
 
+  # for db connections
   sshd:
     image: registry.gitlab.com/finestructure/spi-sshd:0.0.1
     entrypoint: ["/bin/bash"]
     command: ["-c", "--", "echo '${authorized_keys}' > /root/.ssh/authorized_keys && chmod 0400 /root/.ssh/authorized_keys && ssh-start ssh-server"]
     ports:
       - "2222:22"
-    restart: always
+    networks:
+      - backend
 
-  # logging & monitoring visualiser
-
-  grafana:
-    build:
-      context: ./infrastructure/grafana
-      args:
-        GRAFANA_VERSION: '7.3.1'
-        GF_INSTALL_IMAGE_RENDERER_PLUGIN: 'true'
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_USERS_ALLOW_SIGN_UP: 'false'
-      GF_SERVER_ROOT_URL: "${GF_SERVER_ROOT_URL}"
-    volumes:
-      - grafana_data:/var/lib/grafana
-    restart: always
-    ports:
-      - 3000:3000
-
-  # logging
-
-  loki:
-    build: ./infrastructure/loki
-    command: -config.file=/loki.yaml
-    restart: always
-
-  promtail:
-    build: ./infrastructure/promtail
-    volumes:
-      - /var/lib/docker/containers:/var/log
-    command: -config.file=/promtail.yaml
-    restart: always
-
-  # monitoring
-
-  prometheus:
-    build: ./infrastructure/prometheus
-    volumes:
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/prometheus.yml'
-    restart: always
-
-  pushgateway:
-    image: prom/pushgateway:v1.3.0
-    restart: always
 
 volumes:
   db_data:
   checkouts:
-  grafana_data:
-  prometheus_data:
+
+
+networks:
+  backend: {}
