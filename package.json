@@ -12,8 +12,8 @@
     }
   },
   "scripts": {
-    "build": "parcel build .",
-    "serve": "parcel serve ."
+    "build": "parcel build . --dist-dir Public",
+    "serve": "parcel serve . --dist-dir Public"
   },
   "dependencies": {
     "highlight.js": "^10.5.0",
