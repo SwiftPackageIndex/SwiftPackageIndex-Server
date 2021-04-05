@@ -21,8 +21,8 @@
     "turbolinks": "^5.2.0"
   },
   "devDependencies": {
-    "@parcel/transformer-sass": "2.0.0-beta.2",
+    "@parcel/transformer-sass": "2.0.0-nightly.636",
     "eslint": "^7.20.0",
-    "parcel": "^2.0.0-beta.2"
+    "parcel": "^2.0.0-nightly.634"
   }
 }
