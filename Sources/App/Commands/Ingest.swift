@@ -183,6 +183,7 @@ func insertOrUpdateRepository(on database: Database,
             repo.openPullRequests = repository.openPullRequests.totalCount
             repo.owner = repository.owner.login
             repo.readmeUrl = readmeInfo?.downloadUrl
+            repo.readmeHtmlUrl = readmeInfo?.htmlUrl
             repo.releases = metadata.repository?.releases.nodes
                 .map(Release.init(from:)) ?? []
             repo.stars = repository.stargazerCount

@@ -68,7 +68,7 @@ class IngestorTests: AppTestCase {
                                          for: pkg,
                                          metadata: .mock(for: pkg),
                                          licenseInfo: .init(htmlUrl: ""),
-                                         readmeInfo: .init(downloadUrl: "")).wait()
+                                         readmeInfo: .init(downloadUrl: "", htmlUrl: "")).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("This is package https://github.com/foo/bar")])
         }
@@ -79,7 +79,7 @@ class IngestorTests: AppTestCase {
                                          for: pkg,
                                          metadata: md,
                                          licenseInfo: .init(htmlUrl: ""),
-                                         readmeInfo: .init(downloadUrl: "")).wait()
+                                         readmeInfo: .init(downloadUrl: "", htmlUrl: "")).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])
         }
@@ -119,7 +119,7 @@ class IngestorTests: AppTestCase {
                             stars: 2,
                             summary: "package desc"),
                       licenseInfo: .init(htmlUrl: "license url"),
-                      readmeInfo: .init(downloadUrl: "readme url")))
+                      readmeInfo: .init(downloadUrl: "readme url", htmlUrl: "readme html url")))
         ]
         
         // MUT
@@ -142,6 +142,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.openPullRequests, 2)
         XCTAssertEqual(repo.owner, "foo")
         XCTAssertEqual(repo.readmeUrl, "readme url")
+        XCTAssertEqual(repo.readmeHtmlUrl, "readme html url")
         XCTAssertEqual(repo.releases, [
             .init(description: "a release",
                   isDraft: false,
@@ -229,7 +230,7 @@ class IngestorTests: AppTestCase {
                                             for: $0.0,
                                             metadata: $0.1,
                                             licenseInfo: .init(htmlUrl: ""),
-                                            readmeInfo: .init(downloadUrl: "")) }
+                                            readmeInfo: .init(downloadUrl: "", htmlUrl: "")) }
             .flatten(on: app.db.eventLoop)
         
         try req.wait()
