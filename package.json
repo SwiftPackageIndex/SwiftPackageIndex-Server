@@ -1,17 +1,28 @@
 {
+  "name": "SwiftPackageIndex",
   "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
+  "js_target": "./Public/main.js",
+  "css_target": "./Public/main.css",
+  "targets": {
+    "js_target": {
+      "source": "./Resources/Scripts/main.js"
+    },
+    "css_target": {
+      "source": "./Resources/Styles/main.scss"
+    }
+  },
   "scripts": {
-    "build": "parcel build Resources/Scripts/main.js --experimental-scope-hoisting -d Public",
-    "serve": "parcel serve Resources/Scripts/main.js -d Public"
+    "build": "parcel build . --dist-dir Public",
+    "serve": "parcel serve . --dist-dir Public"
   },
   "dependencies": {
     "highlight.js": "^10.5.0",
     "lodash": "^4.17.20",
-    "parcel": "1.12.3",
-    "sass": "^1.32.7",
     "turbolinks": "^5.2.0"
   },
   "devDependencies": {
-    "eslint": "^7.20.0"
+    "@parcel/transformer-sass": "2.0.0-nightly.636",
+    "eslint": "^7.20.0",
+    "parcel": "^2.0.0-nightly.634"
   }
 }
