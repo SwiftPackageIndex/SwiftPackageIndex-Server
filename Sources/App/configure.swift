@@ -121,6 +121,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 025 - add targets to products
         app.migrations.add(UpdateProductAddTargets())
     }
+    do {  // Migration 026 - Add rendered README url
+        app.migrations.add(UpdateRepositoriesAddReadmeHtmlUrl())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
