@@ -122,7 +122,7 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateProductAddTargets())
     }
     do {  // Migration 026 - Add rendered README url
-        app.migrations.add(UpdateRepositoriesAddReadmeHtmlUrl())
+        app.migrations.add(UpdateRepositoryAddReadmeHtmlUrl())
     }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")

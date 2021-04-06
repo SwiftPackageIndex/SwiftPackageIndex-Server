@@ -1,7 +1,7 @@
 import Fluent
 
 
-struct UpdateRepositoriesAddReadmeHtmlUrl: Migration {
+struct UpdateRepositoryAddReadmeHtmlUrl: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         database.schema("repositories")
             .field("readme_html_url", .string)
