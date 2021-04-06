@@ -26,6 +26,7 @@ final class RepositoryTests: AppTestCase {
                                   openIssues: 3,
                                   openPullRequests: 4,
                                   readmeUrl: "https://raw.githubusercontent.com/foo/bar/main/README.md",
+                                  readmeHtmlUrl: "https://github.com/foo/bar/blob/main/README.md",
                                   releases: [
                                     .init(description: "a release",
                                           isDraft: false,
@@ -58,6 +59,7 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(r.openIssues, 3)
             XCTAssertEqual(r.openPullRequests, 4)
             XCTAssertEqual(r.readmeUrl, "https://raw.githubusercontent.com/foo/bar/main/README.md")
+            XCTAssertEqual(r.readmeHtmlUrl, "https://github.com/foo/bar/blob/main/README.md")
             XCTAssertEqual(r.releases, [
                 .init(description: "a release",
                       isDraft: false,
