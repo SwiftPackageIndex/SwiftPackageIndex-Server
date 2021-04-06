@@ -25,7 +25,7 @@ final class RepositoryTests: AppTestCase {
                                   licenseUrl: "https://github.com/foo/bar/blob/main/LICENSE",
                                   openIssues: 3,
                                   openPullRequests: 4,
-                                  readmeUrl: "https://github.com/foo/bar/blob/main/README.md",
+                                  readmeUrl: "https://raw.githubusercontent.com/foo/bar/main/README.md",
                                   releases: [
                                     .init(description: "a release",
                                           isDraft: false,
@@ -57,7 +57,7 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(r.licenseUrl, "https://github.com/foo/bar/blob/main/LICENSE")
             XCTAssertEqual(r.openIssues, 3)
             XCTAssertEqual(r.openPullRequests, 4)
-            XCTAssertEqual(r.readmeUrl, "https://github.com/foo/bar/blob/main/README.md")
+            XCTAssertEqual(r.readmeUrl, "https://raw.githubusercontent.com/foo/bar/main/README.md")
             XCTAssertEqual(r.releases, [
                 .init(description: "a release",
                       isDraft: false,
