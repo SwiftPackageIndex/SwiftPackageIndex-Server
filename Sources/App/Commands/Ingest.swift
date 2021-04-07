@@ -90,6 +90,7 @@ func ingest(client: Client,
             database: Database,
             logger: Logger,
             packages: [Package]) -> EventLoopFuture<Void> {
+    logger.debug("Ingesting \(packages.compactMap {$0.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
     let metadata = fetchMetadata(client: client, packages: packages)
     let updates = metadata.flatMap { updateRepositories(on: database, metadata: $0) }
@@ -183,6 +184,7 @@ func insertOrUpdateRepository(on database: Database,
             repo.openPullRequests = repository.openPullRequests.totalCount
             repo.owner = repository.owner.login
             repo.readmeUrl = readmeInfo?.downloadUrl
+            repo.readmeHtmlUrl = readmeInfo?.htmlUrl
             repo.releases = metadata.repository?.releases.nodes
                 .map(Release.init(from:)) ?? []
             repo.stars = repository.stargazerCount

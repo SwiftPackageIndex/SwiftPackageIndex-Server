@@ -248,7 +248,7 @@ class PackageShowModelTests: SnapshotTestCase {
             defaultBranch: "default",
             name: "Alamofire",
             owner: "Alamofire",
-            readmeUrl: "https://github.com/Alamofire/Alamofire/master/README.md"
+            readmeUrl: "https://raw.githubusercontent.com/foo/bar/main/README.md"
         ).save(on: app.db).wait()
         
         try App.Version(
@@ -264,7 +264,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                 repository: "Alamofire").wait()
 
         let model = PackageShow.Model(package: pkg, readme: nil)
-        XCTAssertEqual(model?.readmeBaseUrl, "https://github.com/Alamofire/Alamofire/master/")
+        XCTAssertEqual(model?.readmeBaseUrl, "https://raw.githubusercontent.com/foo/bar/main/")
     }
 
 }
