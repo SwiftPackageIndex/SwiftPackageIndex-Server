@@ -1,6 +1,6 @@
 export class SPIReadmeProcessor {
   constructor() {
-    document.addEventListener('turbolinks:load', () => {
+    document.addEventListener('turbo:load', () => {
       const readmeNode = document.querySelector('article.readme')
       if (!readmeNode) return
 

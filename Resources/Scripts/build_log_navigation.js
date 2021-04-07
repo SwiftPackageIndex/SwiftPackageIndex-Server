@@ -1,6 +1,6 @@
 export class SPIBuildLogNavigation {
   constructor() {
-    document.addEventListener('turbolinks:load', () => {
+    document.addEventListener('turbo:load', () => {
       const buildLogElement = document.getElementById('build_log')
       if (!buildLogElement) return
 

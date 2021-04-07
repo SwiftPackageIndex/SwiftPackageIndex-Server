@@ -1,5 +1,4 @@
-import Turbolinks from 'turbolinks'
-Turbolinks.start()
+import '@hotwired/turbo'
 
 import './dom_helpers.js'
 import './highlighting.js'

@@ -2,7 +2,7 @@ import { KeyCodes } from './keycodes.js'
 
 export class SPIPackageListNavigation {
   constructor() {
-    document.addEventListener('turbolinks:load', () => {
+    document.addEventListener('turbo:load', () => {
       // Is the query field going to be focused on page load? If so, and *only*
       // on first load, position the cursor at the end of the text in the field.
       const queryElement = document.getElementById('query')
