@@ -90,6 +90,7 @@ func ingest(client: Client,
             database: Database,
             logger: Logger,
             packages: [Package]) -> EventLoopFuture<Void> {
+    logger.info("Ingesting \(packages.compactMap {$0.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
     let metadata = fetchMetadata(client: client, packages: packages)
     let updates = metadata.flatMap { updateRepositories(on: database, metadata: $0) }
