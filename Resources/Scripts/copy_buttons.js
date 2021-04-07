@@ -45,7 +45,7 @@ export class SPICopyPackageURLButton extends SPICopyButton {
       const packageURLElement = document.getElementById('package_url')
       if (!packageURLElement) return
 
-      // Remove any old buttons from the Turbo cache.
+      // Remove any old buttons from the Turbo restored page.
       const parentElement = packageURLElement.parentElement
       const oldButtonElement = parentElement.querySelector('button')
       if (oldButtonElement) oldButtonElement.remove()
@@ -84,7 +84,7 @@ export class SPICopyBadgeMarkdownButtons extends SPICopyButton {
           event.target.select()
         })
 
-        // Remove any old buttons from the Turbo cache.
+        // Remove any old buttons from the Turbo restored page.
         const oldButtonElement = element.querySelector('button')
         if (oldButtonElement) oldButtonElement.remove()
 
