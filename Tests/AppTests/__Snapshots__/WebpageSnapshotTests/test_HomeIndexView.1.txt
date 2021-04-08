@@ -58,7 +58,7 @@
       <div class="inner">
         <h3>The place to find Swift packages.</h3>
         <form action="/search">
-          <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false" autofocus="true"/>
+          <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false" data-autofocus="true"/>
           <button type="submit">
             <div title="Search"></div>
           </button>

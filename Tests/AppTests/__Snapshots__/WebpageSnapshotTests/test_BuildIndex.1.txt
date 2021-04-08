@@ -55,7 +55,7 @@
             </li>
             <li class="search">
               <form action="/search">
-                <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false"/>
+                <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false" data-autofocus="false"/>
                 <button type="submit">
                   <div title="Search"></div>
                 </button>

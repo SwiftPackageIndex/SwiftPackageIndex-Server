@@ -18,7 +18,6 @@ extension Node where Context == HTML.BodyContext {
 extension Node where Context == HTML.FormContext {
     static func searchField(query: String = "", autofocus: Bool = true) -> Self {
         .input(
-            autofocus: autofocus,
             .id("query"),
             .name("query"),
             .type(.search),
@@ -26,6 +25,7 @@ extension Node where Context == HTML.FormContext {
             .attribute(named: "spellcheck", value: "false"),
             .attribute(named: "autocomplete", value: "off"),
             .attribute(named: "data-gramm", value: "false"),
+            .attribute(named: "data-autofocus", value: String(describing: autofocus)),
             .value(query)
         )
     }

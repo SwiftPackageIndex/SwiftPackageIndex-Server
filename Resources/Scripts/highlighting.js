@@ -31,6 +31,6 @@ hljs.registerLanguage('swift', swift)
 hljs.registerLanguage('xml', xml)
 hljs.registerLanguage('yaml', yaml)
 
-document.addEventListener('turbolinks:load', () => {
+document.addEventListener('turbo:load', () => {
   hljs.highlightAll()
 })

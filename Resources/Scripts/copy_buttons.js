@@ -40,12 +40,12 @@ export class SPICopyPackageURLButton extends SPICopyButton {
   constructor() {
     super()
 
-    document.addEventListener('turbolinks:load', () => {
+    document.addEventListener('turbo:load', () => {
       // Create the "Copy Package URL" button immediately after the URL element.
       const packageURLElement = document.getElementById('package_url')
       if (!packageURLElement) return
 
-      // Remove any old buttons from the Turbolinks cache.
+      // Remove any old buttons from the Turbo restored page.
       const parentElement = packageURLElement.parentElement
       const oldButtonElement = parentElement.querySelector('button')
       if (oldButtonElement) oldButtonElement.remove()
@@ -67,7 +67,7 @@ export class SPICopyBadgeMarkdownButtons extends SPICopyButton {
   constructor() {
     super()
 
-    document.addEventListener('turbolinks:load', () => {
+    document.addEventListener('turbo:load', () => {
       // Create a "Copy Markdown" inside every relevant form element.
       const elements = document.querySelectorAll('.badge_markdown>form')
       elements.forEach((element) => {
@@ -84,7 +84,7 @@ export class SPICopyBadgeMarkdownButtons extends SPICopyButton {
           event.target.select()
         })
 
-        // Remove any old buttons from the Turbolinks cache.
+        // Remove any old buttons from the Turbo restored page.
         const oldButtonElement = element.querySelector('button')
         if (oldButtonElement) oldButtonElement.remove()
 

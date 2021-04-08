@@ -13,12 +13,12 @@
   },
   "scripts": {
     "build": "parcel build . --dist-dir Public",
-    "serve": "parcel serve . --dist-dir Public"
+    "serve": "parcel serve . --dist-dir Public --no-hmr"
   },
   "dependencies": {
+    "@hotwired/turbo": "^7.0.0-beta.4",
     "highlight.js": "^10.5.0",
-    "lodash": "^4.17.20",
-    "turbolinks": "^5.2.0"
+    "lodash": "^4.17.20"
   },
   "devDependencies": {
     "@parcel/transformer-sass": "2.0.0-nightly.636",

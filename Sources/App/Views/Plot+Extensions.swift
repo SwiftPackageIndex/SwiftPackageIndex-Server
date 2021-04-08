@@ -15,11 +15,3 @@ extension Node where Context == HTML.AnchorContext {
         .element(named: "small", nodes: nodes)
     }
 }
-
-extension Node where Context == HTML.FormContext {
-    public static func input(autofocus: Bool = true, _ attributes: Attribute<HTML.InputContext>...) -> Self {
-        autofocus
-            ? .selfClosedElement(named: "input", attributes: attributes + [.attribute(named: "autofocus", value: "true")])
-            : .selfClosedElement(named: "input", attributes: attributes)
-    }
-}
