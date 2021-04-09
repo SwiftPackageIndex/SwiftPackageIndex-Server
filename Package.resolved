@@ -186,7 +186,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "07729692106c632b19bf1304461d2a31904552e3",
+          "revision": "0606137bbf7f6c62aa5bd30b3e7ae49156982749",
           "version": null
         }
       },
@@ -195,7 +195,7 @@
         "repositoryURL": "https://github.com/apple/swift-llbuild.git",
         "state": {
           "branch": "main",
-          "revision": "4c2e567620b4e22388b1e5b2d33f8f0a212bdfa9",
+          "revision": "b7b4c5eaa798708d6233ca07908a7cab75620040",
           "version": null
         }
       },
@@ -285,7 +285,7 @@
         "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
           "branch": "main",
-          "revision": "4dcf37d820a4eb146bf4c6768317890ae190e036",
+          "revision": "f2de70b5cfab1d320da821b0942486cfbc5fcaf3",
           "version": null
         }
       },
@@ -303,8 +303,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "b6e1bc692de72db5f7c7adc232441cc39c5dee2e",
-          "version": "4.41.6"
+          "revision": "eef16e1a56c04f05d55e775ccf7bfd512edd7d58",
+          "version": "4.43.2"
         }
       },
       {
@@ -321,8 +321,8 @@
         "repositoryURL": "https://github.com/jpsim/Yams.git",
         "state": {
           "branch": null,
-          "revision": "9003d51672e516cc59297b7e96bff1dfdedcb4ea",
-          "version": "4.0.4"
+          "revision": "9ff1cc9327586db4e0c8f46f064b6a82ec1566fa",
+          "version": "4.0.6"
         }
       }
     ]
