@@ -112,7 +112,7 @@ enum PackageShow {
                     .if(environment == .development,
                         .li(
                             .a(
-                                .href("slide://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
+                                .href("spi-playgrounds://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
                                 "Try in a Playground"
                             )
                         )
