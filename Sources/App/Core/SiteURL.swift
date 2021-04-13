@@ -213,6 +213,7 @@ enum SiteURL: Resourceable {
     static var apiBaseURL: String { absoluteURL("api") }
 
     enum PackagePathComponents: String, Resourceable {
+        case readme
         case builds
         case maintainerInfo = "information-for-package-maintainers"
     }

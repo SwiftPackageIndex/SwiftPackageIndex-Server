@@ -20,6 +20,23 @@ struct PackageController {
             .map { PackageShow.View(path: req.url.path, model: $0).document() }
     }
 
+    func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            return req.eventLoop.future(error: Abort(.notFound))
+        }
+
+        return Package.query(on: req.db, owner: owner, repository: repository)
+            .flatMap { package in
+                fetchReadme(client: req.client, package: package).map{ (package, $0) }
+            }
+            .map(PackageReadme.Model.init(package:readme:))
+            .unwrap(or: Abort(.notFound))
+            .map { PackageReadme.View(model: $0).document() }
+    }
+
     func builds(req: Request) throws -> EventLoopFuture<HTML> {
         guard
             let owner = req.parameters.get("owner"),
