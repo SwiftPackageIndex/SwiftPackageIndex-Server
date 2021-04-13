@@ -9,8 +9,12 @@ extension Node where Context == HTML.BodyContext {
         .selfClosedElement(named: "hr", attributes: attributes)
     }
 
-    static func turboFrame(_ nodes: Node<HTML.BodyContext>...) -> Self {
-        .element(named: "turbo-frame", nodes: nodes)
+    static func turboFrame(id: String, source: String? = nil, _ nodes: Node<HTML.BodyContext>...) -> Self {
+        let attributes: [Node<HTML.BodyContext>] = [
+            .attribute(named: "id", value: id),
+            .attribute(named: "src", value: source)
+        ]
+        return .element(named: "turbo-frame", nodes: attributes + nodes)
     }
 }
 
