@@ -12,8 +12,12 @@ enum PackageReadme {
             super.init()
         }
 
+        override func frameIdentifier() -> String {
+            "readme"
+        }
+
         override func frameContent() -> Node<HTML.BodyContext> {
-            .text("Hello, World.")
+            .text("Hello, Dynamic.")
         }
     }
     
