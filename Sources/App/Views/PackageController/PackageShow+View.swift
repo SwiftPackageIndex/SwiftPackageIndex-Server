@@ -163,20 +163,8 @@ enum PackageShow {
                         source: SiteURL.package(.value(model.repositoryOwner),
                                                 .value(model.repositoryName),
                                                 .readme).relativeURL(),
-                        .text("Hello, Static.")
+                        .text("Imagine a spinner here&hellip;")
             )
-//            guard let readme = model.readme,
-//                  let html = try? MarkdownHTMLConverter.html(from: readme)
-//            else { return .empty }
-//
-//            return .group(
-//                .hr(),
-//                .article(
-//                    .class("readme"),
-//                    .attribute(named: "data-readme-base-url", value: model.readmeBaseUrl),
-//                    .raw(html)
-//                )
-//            )
         }
     }
 }
