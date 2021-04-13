@@ -163,7 +163,8 @@ enum PackageShow {
                         source: SiteURL.package(.value(model.repositoryOwner),
                                                 .value(model.repositoryName),
                                                 .readme).relativeURL(),
-                        .text("Imagine a spinner here&hellip;")
+                        // Until the content is loaded, substitute a spinner.
+                        .spinner()
             )
         }
     }
