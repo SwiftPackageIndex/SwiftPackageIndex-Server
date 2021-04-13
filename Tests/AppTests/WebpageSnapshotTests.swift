@@ -233,7 +233,28 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         }
         #endif
     }
-    
+
+    func test_PackageReadmeView() throws {
+        // Test display when all three significant version collapse to a single row
+        let model = PackageReadme.Model.mock
+        let page = { PackageReadme.View(model: model).document() }
+
+        assertSnapshot(matching: page, as: .html)
+
+        #if os(macOS)
+        if !isRunningInCI {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(precision: defaultPrecision,
+                                          size: $0.size,
+                                          baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
+
+
     func test_ErrorPageView() throws {
         let page = { ErrorPage.View(path: "", error: Abort(.notFound)).document() }
         
