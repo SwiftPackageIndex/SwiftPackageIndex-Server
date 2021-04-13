@@ -38,8 +38,6 @@ extension PackageShow {
                       license: License,
                       licenseUrl: String? = nil,
                       products: ProductCounts? = nil,
-                      readme: String? = nil,
-                      readmeBaseUrl: String? = nil,
                       releases: ReleaseInfo,
                       stars: Int? = nil,
                       summary: String?,
