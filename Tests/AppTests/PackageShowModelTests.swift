@@ -240,34 +240,6 @@ class PackageShowModelTests: SnapshotTestCase {
         }
     }
 
-    #warning("Move this test")
-//    func test_readmeBaseURL() throws {
-//        var pkg = try savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
-//
-//        try Repository(
-//            package: pkg,
-//            defaultBranch: "default",
-//            name: "Alamofire",
-//            owner: "Alamofire",
-//            readmeUrl: "https://raw.githubusercontent.com/foo/bar/main/README.md"
-//        ).save(on: app.db).wait()
-//
-//        try App.Version(
-//            package: pkg,
-//            latest: .defaultBranch,
-//            packageName: "Alamofire",
-//            reference: .branch("default")
-//        ).save(on: app.db).wait()
-//
-//        // reload via query to ensure relationships are loaded
-//        pkg = try Package.query(on: app.db,
-//                                owner: "Alamofire",
-//                                repository: "Alamofire").wait()
-//
-//        let model = PackageShow.Model(package: pkg, readme: nil)
-//        XCTAssertEqual(model?.readmeBaseUrl, "https://raw.githubusercontent.com/foo/bar/main/")
-//    }
-
 }
 
 
