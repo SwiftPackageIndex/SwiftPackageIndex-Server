@@ -235,7 +235,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
     }
 
     func test_PackageReadmeView() throws {
-        // Test display when all three significant version collapse to a single row
         let model = PackageReadme.Model.mock
         let page = { PackageReadme.View(model: model).document() }
 
