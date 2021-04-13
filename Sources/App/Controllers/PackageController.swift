@@ -12,10 +12,7 @@ struct PackageController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
         return Package.query(on: req.db, owner: owner, repository: repository)
-            .flatMap { package in
-                fetchReadme(client: req.client, package: package).map{ (package, $0) }
-            }
-            .map(PackageShow.Model.init(package:readme:))
+            .map(PackageShow.Model.init(package:))
             .unwrap(or: Abort(.notFound))
             .map { PackageShow.View(path: req.url.path, model: $0).document() }
     }
