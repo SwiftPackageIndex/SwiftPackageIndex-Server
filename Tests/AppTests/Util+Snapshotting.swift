@@ -19,9 +19,8 @@ extension Snapshotting where Value == () -> HTML, Format == String {
 
 extension Snapshotting where Value == () -> Node<HTML.BodyContext>, Format == String {
     public static var html: Snapshotting {
-        Snapshotting<String, String>.lines.pullback { node in
-            Current.siteURL = { "http://localhost:8080" }
-            return node().render(indentedBy: .spaces(2))
+        Snapshotting<() -> HTML, String>.html.pullback { node in
+            { HTML(.body(node())) }
         }
     }
 }
