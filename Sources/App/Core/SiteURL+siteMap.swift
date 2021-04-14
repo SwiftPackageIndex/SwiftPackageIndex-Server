@@ -62,6 +62,8 @@ extension SiteURL {
                 return .weekly
             case .javascripts:
                 return .weekly
+            case .tryInPlayground:
+                return .monthly
         }
     }
     

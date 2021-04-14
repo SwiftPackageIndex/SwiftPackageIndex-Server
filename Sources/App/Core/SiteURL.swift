@@ -93,6 +93,7 @@ enum SiteURL: Resourceable {
     case siteMap
     case stylesheets(String)
     case javascripts(String)
+    case tryInPlayground
 
     var path: String {
         switch self {
@@ -157,12 +158,16 @@ enum SiteURL: Resourceable {
 
             case let .javascripts(name):
                 return "/\(name).js"
+
+            case .tryInPlayground:
+                return "try-in-a-playground"
         }
     }
     
     var pathComponents: [PathComponent] {
         switch self {
-            case .faq, .addAPackage, .home, .privacy, .rssPackages, .rssReleases, .search, .siteMap:
+            case .faq, .addAPackage, .home, .privacy, .rssPackages, .rssReleases,
+                 .search, .siteMap, .tryInPlayground:
                 return [.init(stringLiteral: path)]
                 
             case let .api(next):
