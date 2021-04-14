@@ -24,21 +24,21 @@ struct ReAnalyzeVersionsCommand: Command {
         let logger = Logger(component: "re-analyze-versions")
         let threadPool = context.application.threadPool
 
-        guard let cutoffDate = signature.before ?? Current.reAnalyzeVersionsBeforeDate() else {
-            logger.info("No cut-off date set, skipping re-analysis")
-            return
-        }
-
         if let id = signature.id {
             logger.info("Re-analyzing versions (id: \(id)) ...")
             try reAnalyzeVersions(client: client,
                                   database: db,
                                   logger: logger,
                                   threadPool: threadPool,
-                                  versionsLastUpdatedBefore: cutoffDate,
+                                  versionsLastUpdatedBefore: Current.date(),
                                   id: id)
                 .wait()
         } else {
+            guard let cutoffDate = signature.before ?? Current.reAnalyzeVersionsBeforeDate() else {
+                logger.info("No cut-off date set, skipping re-analysis")
+                return
+            }
+
             logger.info("Re-analyzing versions (limit: \(limit)) ...")
             try reAnalyzeVersions(client: client,
                                   database: db,
