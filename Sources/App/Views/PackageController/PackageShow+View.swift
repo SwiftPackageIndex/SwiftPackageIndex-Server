@@ -159,17 +159,12 @@ enum PackageShow {
         }
 
         func readmeSection() -> Node<HTML.BodyContext> {
-            guard let readme = model.readme,
-                  let html = try? MarkdownHTMLConverter.html(from: readme)
-            else { return .empty }
-
-            return .group(
-                .hr(),
-                .article(
-                    .class("readme"),
-                    .attribute(named: "data-readme-base-url", value: model.readmeBaseUrl),
-                    .raw(html)
-                )
+            .turboFrame(id: "readme",
+                        source: SiteURL.package(.value(model.repositoryOwner),
+                                                .value(model.repositoryName),
+                                                .readme).relativeURL(),
+                        // Until the content is loaded, substitute a spinner.
+                        .spinner()
             )
         }
     }

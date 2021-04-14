@@ -17,6 +17,13 @@ extension Snapshotting where Value == () -> HTML, Format == String {
     }
 }
 
+extension Snapshotting where Value == () -> Node<HTML.BodyContext>, Format == String {
+    public static var html: Snapshotting {
+        Snapshotting<() -> HTML, String>.html.pullback { node in
+            { HTML(.body(node())) }
+        }
+    }
+}
 
 #if os(macOS)
 extension Snapshotting where Value == () -> HTML, Format == NSImage {
@@ -58,6 +65,16 @@ extension Snapshotting where Value == () -> HTML, Format == NSImage {
             webView.loadFileURL(htmlURL, allowingReadAccessTo: baseURL)
 
             return webView
+        }
+    }
+}
+
+extension Snapshotting where Value == () -> Node<HTML.BodyContext>, Format == NSImage {
+    public static func image(precision: Float = 1, size: CGSize? = nil, baseURL: URL) -> Snapshotting {
+        Snapshotting<() -> HTML, NSImage>.image(precision: precision,
+                                                size: size,
+                                                baseURL: baseURL).pullback { node in
+            { HTML(.body(node())) }
         }
     }
 }

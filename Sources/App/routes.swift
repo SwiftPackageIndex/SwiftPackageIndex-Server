@@ -30,6 +30,7 @@ func routes(_ app: Application) throws {
 
     let packageController = PackageController()
     app.get(SiteURL.package(.key, .key, .none).pathComponents, use: packageController.show)
+    app.get(SiteURL.package(.key, .key, .readme).pathComponents, use: packageController.readme)
     app.get(SiteURL.package(.key, .key, .builds).pathComponents, use: packageController.builds)
     app.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents, use: packageController.maintainerInfo)
 
