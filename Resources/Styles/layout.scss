@@ -13,6 +13,10 @@
   grid-template-columns: 0.75fr 0.25fr;
   grid-auto-flow: column;
   gap: 60px;
+
+  &.even {
+    grid-template-columns: 0.5fr 0.5fr;
+  }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
@@ -20,6 +24,10 @@
     grid-template-columns: 1fr;
     grid-auto-flow: row;
     gap: 10px;
+
+    &.even {
+      grid-template-columns: inherit;
+    }
   }
 }
 

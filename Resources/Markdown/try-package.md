@@ -12,9 +12,10 @@ What’s the best way to know whether a package is right for your project? Try i
   <small>Requires macOS 11 or newer</small>
 </a>
 
-Once downloaded and installed, click “Try in a Playground” from any package page to open Xcode with a Swift playground with the package imported and ready to test.
-
-<picture>
-  <source srcset="/images/spi-playgrounds-download~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/spi-playgrounds-download~light.png" alt="Using the Swift Package Index Playgrounds app.">
-</picture>
+<div class="two_column even">
+  <p>Once downloaded and installed, click <strong>“Try in a Playground”</strong> from any package page to open a Swift playground in Xcode with the package imported and ready to try.</p>
+  <picture>
+    <source srcset="/images/spi-playgrounds-download~dark.png" media="(prefers-color-scheme: dark)">
+    <img src="/images/spi-playgrounds-download~light.png" alt="Using the Swift Package Index Playgrounds app.">
+  </picture>
+</div>
