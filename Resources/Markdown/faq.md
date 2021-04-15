@@ -72,7 +72,7 @@ We’re excited to see the GitHub Package Registry gain support for the Swift pa
 
 The Swift Package Index includes build information which is not able to be derived from the package manifest. Including full coverage of both Swift version compatibility, and platform compatibility, including Linux!
 
-<picture>
+<picture class="shadow">
   <source srcset="/images/languages-and-platforms~dark.png" media="(prefers-color-scheme: dark)">
   <img src="/images/languages-and-platforms~light.png" alt="Language and Platform information on a package page">
 </picture>
@@ -130,7 +130,7 @@ Package releases must use git tags that are *fully qualified* [semantic versions
 
 A good way to check what the latest semantic version release of a package is is to add it to a project in Xcode. By default, Xcode will show the latest semantic version when adding the package to a project. The number you see on this site should match the version Xcode shows when adding the package. If you see something different, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose)!
 
-<picture>
+<picture class="shadow">
   <source srcset="/images/add-package-in-xcode~dark.png" media="(prefers-color-scheme: dark)">
   <img src="/images/add-package-in-xcode~light.png" alt="Adding a package in Xcode">
 </picture>
