@@ -112,7 +112,7 @@ enum PackageShow {
                     .if(environment == .development,
                         .li(
                             .a(
-                                .href("spi-playgrounds://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
+                                .href(SiteURL.tryInPlayground.relativeURL(parameters: [QueryParameter(key: "dependencies", value: "\(model.repositoryOwner)/\(model.repositoryName)")])),
                                 "Try in a Playground"
                             )
                         )

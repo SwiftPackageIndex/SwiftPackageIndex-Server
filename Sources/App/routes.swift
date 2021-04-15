@@ -24,6 +24,10 @@ func routes(_ app: Application) throws {
         MarkdownPage(path: req.url.path, "add-a-package.md").document()
     }
 
+    app.get(SiteURL.tryInPlayground.pathComponents) { req in
+        MarkdownPage(path: req.url.path, "try-package.md").document()
+    }
+
     app.get(SiteURL.docs(.builds).pathComponents) { req in
         MarkdownPage(path: req.url.path, "docs/builds.md").document()
     }

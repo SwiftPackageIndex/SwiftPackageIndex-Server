@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["A42K5AU657.com.swiftpackageindex.playgrounds"],
+        "defaults": { "caseSensitive": false },
+        "components": [
+          {
+            "/": "/try-in-a-playground/",
+            "?": { "dependencies": "*" },
+            "comment": "Launch from a package page's 'Try in a Playground' link."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -95,7 +95,7 @@
             <section class="sidebar_links">
               <ul>
                 <li>
-                  <a href="spi-playgrounds://open?dependencies=Alamo/Alamofire">Try in a Playground</a>
+                  <a href="/try-in-a-playground?dependencies=Alamo/Alamofire">Try in a Playground</a>
                 </li>
                 <li>
                   <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
