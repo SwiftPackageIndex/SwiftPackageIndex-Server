@@ -3,15 +3,18 @@ page-title: Try in a Playground
 description: Try any Swift package in a Swift Playground by downloading the Swift Package Index Playgrounds app for macOS.
 ---
 
-[download-url]: https://github.com/SwiftPackageIndex/SPI-Playgrounds-Releases/raw/main/releases/SPI-Playgrounds-0.2.0.app.zip
+## Try Packages in a Swift Playground
 
-## Download the SPI-Playgrounds app for macOS
+What’s the best way to know whether a package is right for your project? Try it in a Swift Playground! Download the Swift Package Index Playgrounds app for macOS and generate playground files with the dependency already inserted, ready to open with Xcode.
 
-What's the best way to know whether a package is right for your project? Try it! [Download the Swift Package Index Playgrounds app for macOS][download-url], click a single button and it will generate and open a  Swift playground in Xcode, with the package imported and ready to use.
+<a class="download" href="https://github.com/SwiftPackageIndex/SPI-Playgrounds-Releases/raw/main/SPI-Playgrounds.app.zip">
+  Download
+  <small>Requires macOS 11 or newer</small>
+</a>
+
+Once downloaded and installed, click “Try in a Playground” from any package page to open Xcode with a Swift playground with the package imported and ready to test.
 
 <picture>
   <source srcset="/images/spi-playgrounds-download~dark.png" media="(prefers-color-scheme: dark)">
   <img src="/images/spi-playgrounds-download~light.png" alt="Using the Swift Package Index Playgrounds app.">
 </picture>
-
-[Download the Swift Package Index Playgrounds app][download-url] and click "Try in a Playground" from any package page.

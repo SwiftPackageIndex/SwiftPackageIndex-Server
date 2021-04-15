@@ -140,3 +140,29 @@ button:focus {
   height: 3px;
   background-color: var(--mid-red);
 }
+
+a.download {
+  display: block;
+  padding: 20px;
+  padding-right: 50px;
+  margin: 30px auto;
+  max-width: 300px;
+  background-color: var(--mid-green);
+  color: var(--white);
+  font-weight: bold;
+  font-size: 20px;
+  border-left: 3px var(--light-green) solid;
+  background-image: var(--image-download);
+  background-position: right 20px center;
+  background-repeat: no-repeat;
+  background-size: 30px;
+
+  p {
+    margin: 0;
+  }
+
+  small {
+    display: block;
+    font-weight: normal;
+  }
+}
