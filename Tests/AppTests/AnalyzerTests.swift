@@ -594,7 +594,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         XCTAssertEqual(commands, [
             "git checkout \"0.4.2\" --quiet",
-            "/swift-5.3/usr/bin/swift package dump-package"
+            "/swift-5.4/usr/bin/swift package dump-package"
         ])
         XCTAssertEqual(v.id, version.id)
         XCTAssertEqual(m.name, "SPI-Server")
@@ -629,7 +629,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         XCTAssertEqual(commands, [
             "git checkout \"0.4.2\" --quiet",
-            "/swift-5.3/usr/bin/swift package dump-package"
+            "/swift-5.4/usr/bin/swift package dump-package"
         ])
         XCTAssertEqual(results.map(\.isSuccess), [false, true])
         let (_, versionsManifests) = try XCTUnwrap(results.last).get()
@@ -871,8 +871,8 @@ class AnalyzerTests: AppTestCase {
         assertSnapshot(matching: commands, as: .dump)
     }
 
-    func test_dumpPackage_5_3() throws {
-        // Test parsing a Package.swift that requires a 5.3 toolchain
+    func test_dumpPackage_5_4() throws {
+        // Test parsing a Package.swift that requires a 5.4 toolchain
         // NB: If this test fails on macOS with Xcode 12, make sure
         // xcode-select -p points to the correct version of Xcode!
         // setup
