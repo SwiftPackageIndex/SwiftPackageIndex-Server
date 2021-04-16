@@ -563,8 +563,8 @@ func dumpPackage(at path: String) throws -> Manifest {
         // up the tree through parent directories to find one
         throw AppError.invalidRevision(nil, "no Package.swift")
     }
-    let swiftCommand = Current.fileManager.fileExists("/swift-5.3/usr/bin/swift")
-        ? "/swift-5.3/usr/bin/swift"
+    let swiftCommand = Current.fileManager.fileExists("/swift-5.4/usr/bin/swift")
+        ? "/swift-5.4/usr/bin/swift"
         : "swift"
     let json = try Current.shell.run(command: .init(string: "\(swiftCommand) package dump-package"),
                                      at: path)
