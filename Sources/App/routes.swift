@@ -34,7 +34,7 @@ func routes(_ app: Application) throws {
 
     app.get(SiteURL.aasa.pathComponents) { req -> Response in
         let path = Current.fileManager.workingDirectory()
-            .appending("Resources/apple-app-site-association")
+            .appending("Resources/apple-app-site-association.json")
         let response = req.fileio.streamFile(at: path)
         response.headers.add(name: .contentType, value: "application/json")
         return response
