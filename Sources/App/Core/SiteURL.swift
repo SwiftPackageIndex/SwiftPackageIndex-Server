@@ -76,7 +76,8 @@ enum Docs: String, Resourceable {
 
 
 enum SiteURL: Resourceable {
-    
+
+    case aasa
     case api(Api)
     case author(_ owner: Parameter<String>)
     case builds(_ id: Parameter<UUID>)
@@ -97,6 +98,9 @@ enum SiteURL: Resourceable {
 
     var path: String {
         switch self {
+            case .aasa:
+                return ".well-known/apple-app-site-association"
+
             case let .api(next):
                 return "api/\(next.path)"
 
@@ -166,6 +170,9 @@ enum SiteURL: Resourceable {
     
     var pathComponents: [PathComponent] {
         switch self {
+            case .aasa:
+                return [".well-known", "apple-app-site-association"]
+
             case .faq, .addAPackage, .home, .privacy, .rssPackages, .rssReleases,
                  .search, .siteMap, .tryInPlayground:
                 return [.init(stringLiteral: path)]
