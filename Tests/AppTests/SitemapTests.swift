@@ -64,13 +64,13 @@ class SitemapTests: SnapshotTestCase {
         try Search.refresh(on: app.db).wait()
         
         // MUT
-        try app.test(.GET, "sitemap.xml", afterResponse: { res in
+        try app.test(.GET, "sitemap.xml") { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.content.contentType,
                            .some(.init(type: "text", subType: "xml")))
             let xml = try XCTUnwrap(res.body.asString())
             assertSnapshot(matching: xml, as: .init(pathExtension: "xml", diffing: .lines))
-        })
+        }
     }
     
 }

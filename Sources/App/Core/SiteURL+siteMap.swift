@@ -30,6 +30,8 @@ extension SiteURL {
     
     var changefreq: SiteMapChangeFrequency {
         switch self {
+            case .aasa:
+                return .monthly
             case .api:
                 return .weekly
             case .author:
