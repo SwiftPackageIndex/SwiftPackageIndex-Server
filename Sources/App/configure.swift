@@ -26,7 +26,7 @@ public func configure(_ app: Application) throws {
 
     let tlsConfig: TLSConfiguration? = Environment.get("DATABASE_USE_TLS")
         .flatMap(\.asBool)
-        .flatMap { $0 ? .clientDefault : nil }
+        .flatMap { $0 ? .forClient(maximumTLSVersion: .tlsv12) : nil }
     app.databases.use(.postgres(hostname: host,
                                 port: port,
                                 username: username,
