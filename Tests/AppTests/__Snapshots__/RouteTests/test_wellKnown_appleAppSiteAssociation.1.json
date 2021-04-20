@@ -1,11 +1,11 @@
 {
   "applinks": {
-    "apps": [],
-    "details": [
-      {
-        "appID": "A42K5AU657.com.swiftpackageindex.playgrounds",
-        "paths": ["/try-in-a-playground/*"]
-      }
-    ]
+      "apps": [],
+      "details": [
+          {
+              "appID": "A42K5AU657.com.swiftpackageindex.playgrounds",
+              "paths": [ "*" ]
+          }
+      ]
   }
 }
