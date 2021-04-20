@@ -4,7 +4,7 @@
       "details": [
           {
               "appID": "A42K5AU657.com.swiftpackageindex.playgrounds",
-              "paths": [ "*" ]
+              "paths": [ "/try/*" ]
           }
       ]
   }
