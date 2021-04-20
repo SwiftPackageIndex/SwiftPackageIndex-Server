@@ -164,7 +164,7 @@ enum SiteURL: Resourceable {
                 return "/\(name).js"
 
             case .tryInPlayground:
-                return "try/"
+                return "try-in-a-playground/"
         }
     }
     
