@@ -129,7 +129,7 @@ func reAnalyzeVersions(client: Client,
     // Pick essentials parts of companion function `analyze` and run the for
     // re-analysis.
     //
-    // We don't refresh checkouts, because these are being freshed in `analyze`
+    // We don't refresh checkouts, because these are being refreshed in `analyze`
     // and would race unnecessarily if we also tried to refresh them here.
     //
     // Care should be taken to ensure `reAnalyzeVersions` operates on a
