@@ -20,7 +20,7 @@ services:
       placement:
         constraints:
           # placement for data persistence
-          - node.labels.storage_location == grafana_data
+          - node.labels.grafana_node == true
 
 
   # logging
@@ -65,7 +65,7 @@ services:
       placement:
         constraints:
           # placement for data persistence
-          - node.labels.storage_location == prometheus_data
+          - node.labels.prometheus_node == true
 
 
   pushgateway:
