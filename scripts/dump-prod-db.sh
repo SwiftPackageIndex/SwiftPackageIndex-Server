@@ -1,6 +1,5 @@
 #!/bin/bash
-echo "Warning: Dumping the live production database will take the site offline temporarily."
-read -p "Are you sure you want to dump the live production database? (Y/N)" -n 1 -r
+read -p "Are you sure you want to dump the live production database? (Y/N) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then

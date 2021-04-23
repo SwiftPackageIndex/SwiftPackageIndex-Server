@@ -57,10 +57,10 @@
       },
       {
         "package": "Ink",
-        "repositoryURL": "https://github.com/JohnSundell/Ink.git",
+        "repositoryURL": "https://github.com/finestructure/Ink.git",
         "state": {
           "branch": null,
-          "revision": "928ffcfa5edb2f53e3008e95ad2d575821bb1733",
+          "revision": "70b901324d794d88019c299feea737ed0aace3cd",
           "version": null
         }
       },
