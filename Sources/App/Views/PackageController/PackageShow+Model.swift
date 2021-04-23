@@ -68,8 +68,6 @@ extension PackageShow {
         
         init?(package: Package) {
             // we consider certain attributes as essential and return nil (raising .notFound)
-            guard let title = package.name() else { return nil }
-
             guard
                 let repository = package.repository,
                 let repositoryOwner = repository.owner,
@@ -93,7 +91,7 @@ extension PackageShow {
                 releases: package.releaseInfo(),
                 stars: package.repository?.stars,
                 summary: package.repository?.summary,
-                title: title,
+                title: package.name() ?? repositoryName,
                 url: package.url,
                 score: package.score,
                 isArchived: package.repository?.isArchived ?? false

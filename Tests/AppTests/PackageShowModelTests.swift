@@ -6,7 +6,7 @@ import SnapshotTesting
 
 class PackageShowModelTests: SnapshotTestCase {
 
-    func test_init_no_title() throws {
+    func test_init_no_packageName() throws {
         // Tests behaviour when we're lacking data
         // setup package without package name
         var pkg = try savePackage(on: app.db, "1".url)
@@ -31,7 +31,8 @@ class PackageShowModelTests: SnapshotTestCase {
         let m = PackageShow.Model(package: pkg)
         
         // validate
-        XCTAssertNil(m)
+        XCTAssertNotNil(m)
+        XCTAssertEqual(m?.title, "bar")
     }
     
     func test_query_builds() throws {
