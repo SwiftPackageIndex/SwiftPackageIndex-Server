@@ -12,8 +12,8 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0-rc"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0-rc"),
         .package(url: "https://github.com/JohnSundell/Plot.git", from: "0.7.0"),
-        .package(url: "https://github.com/JohnSundell/Ink.git",
-                 .revision("928ffcfa5edb2f53e3008e95ad2d575821bb1733")),  // TODO: temporary pin for Swift 5.3/Linux compatibility
+        .package(url: "https://github.com/finestructure/Ink.git",
+                 .revision("70b901324d794d88019c299feea737ed0aace3cd")),  // TODO: temporary pin for Xcode-12.5 compatibility
         .package(url: "https://github.com/JohnSundell/ShellOut.git", from: "2.0.0"),
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
         .package(name: "SnapshotTesting",
