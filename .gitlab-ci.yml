@@ -34,7 +34,6 @@ build:
     echo 'let appVersion: String? = "'${VERSION}'"' > ./Sources/App/Core/AppVersion.swift
 
     docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:15.8-alpine yarn
-    sudo chown -R $(id -u):$(id -g) .parcel-cache
     docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:15.8-alpine yarn build
     docker build -t $REGISTRY_IMAGE:$VERSION .
 
