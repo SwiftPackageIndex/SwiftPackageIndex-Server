@@ -28,12 +28,13 @@ build:
     - if: '$ENV == "prod"'
   stage: build
   tags:
-    - ceres
+    - spi-ci
   script: |
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
     echo 'let appVersion: String? = "'${VERSION}'"' > ./Sources/App/Core/AppVersion.swift
 
-    docker run --rm -v $PWD:/host -w /host --entrypoint sh node:15.8-alpine /usr/local/bin/yarn && /usr/local/bin/yarn build
+    docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:15.8-alpine yarn
+    docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:15.8-alpine yarn build
     docker build -t $REGISTRY_IMAGE:$VERSION .
 
     retries=3
@@ -180,7 +181,7 @@ smoke-test:
     - if: '$ENV == "dev"'
   stage: smoke-test
   tags:
-    - ceres
+    - spi-ci
   script: |
     rester() {
       docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.7.2 "$1"
