@@ -42,6 +42,7 @@ build:
       [[ $retries -eq 0 ]] && echo "docker push failed" && exit 1
       sleep 5
       echo Retrying ...
+      docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
       echo $((retries--)) retries left
     done
 
