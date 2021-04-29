@@ -118,6 +118,7 @@ enum PackageShow {
                             ),
                             .div(
                                 .id("app_download_explainer"),
+                                .class("hidden"),
                                 .strong("Launching the SPI-Playgrounds app&hellip;"),
                                 .p(
                                     .text("If nothing happens, you may not have the app installed. "),

@@ -9,9 +9,8 @@
 body {
   color: var(--page-text);
   background-color: var(--page-background);
-  font-family: -apple-system, 'BlinkMacSystemFont', 'SF Hello', 'Segoe UI',
-    'Roboto', 'Helvetica Neue', 'Arial', sans-serif, 'Apple Color Emoji',
-    'Segoe UI Emoji';
+  font-family: -apple-system, 'BlinkMacSystemFont', 'SF Hello', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial',
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   font-size: 16px;
   line-height: 1.4;
 }
@@ -165,4 +164,10 @@ a.download {
     display: block;
     font-weight: normal;
   }
+}
+
+.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition: visibility 0s 0.2s, opacity 0.2s linear;
 }
