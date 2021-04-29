@@ -167,6 +167,43 @@
       }
     }
   }
+
+  .try_in_playground {
+    position: relative;
+
+    #app_download_explainer {
+      position: absolute;
+      margin-top: 10px;
+      padding: 10px;
+      width: 150%;
+      left: -25%;
+      color: var(--page-text);
+      background-color: var(--popover-background);
+      border-top: 3px var(--popover-border) solid;
+      box-shadow: var(--popover-shadow);
+      font-size: 14px;
+
+      &:before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: -13px;
+        margin-left: -10px;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 10px 10px 10px;
+        border-color: transparent transparent var(--popover-border) transparent;
+      }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      #app_download_explainer {
+        width: 80%;
+        left: 10%;
+      }
+    }
+  }
 }
 
 /* Branches */

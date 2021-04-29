@@ -58,9 +58,12 @@
 :root {
   --page-text: var(--black);
   --page-background: var(--white);
-  --popover-background: var(--very-light-grey);
   --link-text: var(--mid-blue);
   --link-highlight: var(--mid-red);
+
+  --popover-background: var(--very-light-grey);
+  --popover-border: var(--light-grey);
+  --popover-shadow: 0 3px 6px 3px rgba(0, 0, 0, 0.1);
 
   --green-text: var(--light-green);
   --orange-text: var(--orange);
@@ -123,7 +126,9 @@
   :root {
     --page-text: var(--white);
     --page-background: var(--black);
+
     --popover-background: var(--very-dark-grey);
+    --popover-border: var(--dark-grey);
 
     --green-text: var(--mid-green);
 

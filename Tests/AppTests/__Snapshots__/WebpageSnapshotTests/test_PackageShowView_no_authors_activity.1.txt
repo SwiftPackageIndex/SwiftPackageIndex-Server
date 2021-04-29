@@ -90,8 +90,14 @@
             </section>
             <section class="sidebar_links">
               <ul>
-                <li>
-                  <a href="/try-in-a-playground?dependencies=Alamo/Alamofire">Try in a Playground</a>
+                <li class="try_in_playground">
+                  <a href="spi-playgrounds://open?dependencies=Alamo/Alamofire">Try in a Playground</a>
+                  <div id="app_download_explainer" class="hidden">
+                    <strong>Launching the SPI-Playgrounds app&hellip;</strong>
+                    <p>If nothing happens, you may not have the app installed. 
+                      <a href="/try-in-a-playground?dependencies=Alamo/Alamofire">Download the Swift Package Index Playgrounds app</a> and try again.
+                    </p>
+                  </div>
                 </li>
                 <li>
                   <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
