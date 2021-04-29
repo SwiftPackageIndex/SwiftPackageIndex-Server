@@ -167,6 +167,37 @@
       }
     }
   }
+
+  .try_in_playground {
+    position: relative;
+
+    #app_download_explainer {
+      display: none; // Hidden until shown with JavaScript.
+      position: absolute;
+      margin-top: 10px;
+      padding: 10px;
+      width: 300px;
+      left: -50px;
+      color: var(--page-text);
+      background-color: var(--popover-background);
+      border-top: 3px var(--popover-border) solid;
+      box-shadow: var(--popover-shadow);
+      font-size: 14px;
+
+      &:before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: -13px;
+        margin-left: -10px;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 10px 10px 10px;
+        border-color: transparent transparent var(--popover-border) transparent;
+      }
+    }
+  }
 }
 
 /* Branches */

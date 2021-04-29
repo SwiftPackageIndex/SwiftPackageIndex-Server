@@ -111,9 +111,22 @@ enum PackageShow {
                 .ul(
                     .if(environment == .development,
                         .li(
+                            .class("try_in_playground"),
                             .a(
-                                .href(SiteURL.tryInPlayground.relativeURL(parameters: [QueryParameter(key: "dependencies", value: "\(model.repositoryOwner)/\(model.repositoryName)")])),
+                                .href("spi-playgrounds://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
                                 "Try in a Playground"
+                            ),
+                            .div(
+                                .id("app_download_explainer"),
+                                .strong("Launching the SPI-Playgrounds app&hellip;"),
+                                .p(
+                                    .text("If nothing happens, you may not have the app installed. "),
+                                    .a(
+                                        .href(SiteURL.tryInPlayground.relativeURL(parameters: [QueryParameter(key: "dependencies", value: "\(model.repositoryOwner)/\(model.repositoryName)")])),
+                                        "Download the Swift Package Index Playgrounds app"
+                                    ),
+                                    .text(" and try again.")
+                                )
                             )
                         )
                     ),
