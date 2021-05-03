@@ -218,7 +218,7 @@ class BuildTriggerTests: AppTestCase {
                         "5.0.3": 6,
                         "5.1.5": 6,
                         "5.2.4": 6,
-                        "5.3.0": 8])
+                        "5.3.3": 8])
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
