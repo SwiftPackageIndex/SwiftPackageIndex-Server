@@ -139,6 +139,6 @@ A good way to check what the latest semantic version release of a package is is 
 
 <h3 id="spi-playgrounds-app">What is the SPI-Playgrounds app?</h3>
 
-Have you ever wanted to try out a package in a Swift playground before you make the decision to use it? Click “Try in a Playground” from any package page and have the Swift Package Index Playgrounds app create a playground where the package is automatically imported, ready for you to play with.
+Have you ever wanted to try out a package in a Swift playground before you decide to use it? Click “Try in a Playground” from any package page and have the Swift Package Index Playgrounds app create a playground with the package automatically imported, ready for testing and experimentation.
 
 If you don't have the SPI-Playgrounds app installed, you can [download it for macOS here](/try-in-a-playground).
