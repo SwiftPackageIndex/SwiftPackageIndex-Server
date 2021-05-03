@@ -5,18 +5,19 @@ description: Frequently Asked Questions about the Swift Package Index
 
 ## Frequently Asked Questions
 
-* [What is the Swift Package Index?](#what-is-the-spi)
-* [What is the Swift Package Manager?](#what-is-the-spm)
-* [Who built the Swift Package Index?](#creators)
-* [Can I support the Swift Package Index?](#support)
-* [What happened to the SwiftPM Library?](#swiftpm-library)
-* [How does the Swift Package Index work?](#how-does-it-work)
-* [What about the GitHub Package Registry?](#package-registry)
-* [How is the Swift language and platform support calculated?](#language-and-platforms)
-* [What do the license colours mean?](#licenses)
-* [Can I contribute to the Swift Package Index?](#contributing)
-* [Is there an API?](#api)
-* [Why are package versions missing?](#missing-versions)
+- [What is the Swift Package Index?](#what-is-the-spi)
+- [What is the Swift Package Manager?](#what-is-the-spm)
+- [Who built the Swift Package Index?](#creators)
+- [Can I support the Swift Package Index?](#support)
+- [What happened to the SwiftPM Library?](#swiftpm-library)
+- [How does the Swift Package Index work?](#how-does-it-work)
+- [What about the GitHub Package Registry?](#package-registry)
+- [How is the Swift language and platform support calculated?](#language-and-platforms)
+- [What do the license colours mean?](#licenses)
+- [Can I contribute to the Swift Package Index?](#contributing)
+- [Is there an API?](#api)
+- [Why are package versions missing?](#missing-versions)
+- [What is the SPI-Playgrounds app?](#spi-playgrounds-app)
 
 ---
 
@@ -44,7 +45,7 @@ Thanks for asking! It was built by [Dave Verwer](https://daveverwer.com) and [Sv
 
 <h3 id="support">Can I support the Swift Package Index?</h3>
 
-We'd love to have your support. Thank you! You can read more about [how we are funding this project](https://blog.swiftpackageindex.com/posts/funding-the-future-of-the-swift-package-index/) and [support it via GitHub sponsors](https://github.com/sponsors/SwiftPackageIndex). 
+We'd love to have your support. Thank you! You can read more about [how we are funding this project](https://blog.swiftpackageindex.com/posts/funding-the-future-of-the-swift-package-index/) and [support it via GitHub sponsors](https://github.com/sponsors/SwiftPackageIndex).
 
 ---
 
@@ -77,7 +78,6 @@ The Swift Package Index includes build information which is not able to be deriv
   <img src="/images/languages-and-platforms~light.png" alt="Language and Platform information on a package page">
 </picture>
 
-
 To determine what versions of Swift a package supports, and what platforms it is compatible with, the Swift Package Index runs real-world builds using several Swift compilers targeting several different platforms. You can learn more about how we do this in the [Swift Package Index Build System FAQ](/docs/builds).
 
 ---
@@ -88,11 +88,11 @@ If a package's license shows with a background that is orange or red, it is for 
 
 1. The package does not have a license.
 2. We're unable to detect the software license that the package uses.
-2. The license chosen by the package authors is incompatible with the terms and conditions of the App Store.
+3. The license chosen by the package authors is incompatible with the terms and conditions of the App Store.
 
 #### No License
 
-If the package license is showing as "No License", it means we could not find *any* license information in the package repository.
+If the package license is showing as "No License", it means we could not find _any_ license information in the package repository.
 
 If you are considering using a package that does not have a license, you should be aware that it presents a significant legal risk. Code without a license is not open-source, and the original author reserves all rights by default. For more information, read [this great blog post](https://expressionengine.com/blog/the-truth-about-the-risks-of-unlicensed-software) on the significant risks of using unlicensed code.
 
@@ -106,7 +106,7 @@ If you are the package author of a package showing an unknown license, and you b
 
 #### Incompatible license
 
-If the package license shows with an orange background but does *not* say "No License" or "Unknown License", then the package is using a license which is incompatible with the terms and conditions of the App Store, such as any GPL style license. If you are considering shipping your app to the App Store, you should be aware that using code licensed under one of these licences presents a legal risk.
+If the package license shows with an orange background but does _not_ say "No License" or "Unknown License", then the package is using a license which is incompatible with the terms and conditions of the App Store, such as any GPL style license. If you are considering shipping your app to the App Store, you should be aware that using code licensed under one of these licences presents a legal risk.
 
 ---
 
@@ -126,7 +126,7 @@ Not right now. The Swift Package Index is in a period of rapid development right
 
 <h3 id="missing-versions">Why are package versions missing?</h3>
 
-Package releases must use git tags that are *fully qualified* [semantic versions](https://semver.org). For example, `2.6.0` is a valid semantic version number, and `2.6` is not.
+Package releases must use git tags that are _fully qualified_ [semantic versions](https://semver.org). For example, `2.6.0` is a valid semantic version number, and `2.6` is not.
 
 A good way to check what the latest semantic version release of a package is is to add it to a project in Xcode. By default, Xcode will show the latest semantic version when adding the package to a project. The number you see on this site should match the version Xcode shows when adding the package. If you see something different, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose)!
 
@@ -134,3 +134,11 @@ A good way to check what the latest semantic version release of a package is is 
   <source srcset="/images/add-package-in-xcode~dark.png" media="(prefers-color-scheme: dark)">
   <img src="/images/add-package-in-xcode~light.png" alt="Adding a package in Xcode">
 </picture>
+
+---
+
+<h3 id="spi-playgrounds-app">What is the SPI-Playgrounds app?</h3>
+
+Have you ever wanted to try out a package in a Swift playground before you decide to use it? Click “Try in a Playground” from any package page and have the Swift Package Index Playgrounds app create a playground with the package automatically imported, ready for testing and experimentation.
+
+If you don't have the SPI-Playgrounds app installed, you can [download it for macOS here](/try-in-a-playground).
