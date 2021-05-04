@@ -285,11 +285,11 @@ class BuildTriggerTests: AppTestCase {
                               parameter: .id(pkgId, force: false)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 32)
+            XCTAssertEqual(triggerCount, 40)
             // ensure builds are now in progress
             let v = try Version.find(versionId, on: app.db).wait()
             try v?.$builds.load(on: app.db).wait()
-            XCTAssertEqual(v?.builds.count, 32)
+            XCTAssertEqual(v?.builds.count, 40)
         }
 
         do {  // third run: we are at capacity and using the `force` flag
@@ -312,11 +312,11 @@ class BuildTriggerTests: AppTestCase {
                               parameter: .id(pkgId, force: true)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 32)
+            XCTAssertEqual(triggerCount, 40)
             // ensure builds are now in progress
             let v = try Version.find(versionId, on: app.db).wait()
             try v?.$builds.load(on: app.db).wait()
-            XCTAssertEqual(v?.builds.count, 32)
+            XCTAssertEqual(v?.builds.count, 40)
         }
 
     }
@@ -348,7 +348,7 @@ class BuildTriggerTests: AppTestCase {
                           parameter: .limit(4)).wait()
 
         // validate - only the first batch must be allowed to trigger
-        XCTAssertEqual(triggerCount, 32)
+        XCTAssertEqual(triggerCount, 40)
     }
 
     func test_triggerBuilds_trimming() throws {
@@ -431,7 +431,7 @@ class BuildTriggerTests: AppTestCase {
                               parameter: .id(pkgId, force: false)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 32)
+            XCTAssertEqual(triggerCount, 40)
         }
     }
 
@@ -486,7 +486,7 @@ class BuildTriggerTests: AppTestCase {
                               parameter: .id(pkgId, force: false)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 32)
+            XCTAssertEqual(triggerCount, 40)
         }
 
     }
