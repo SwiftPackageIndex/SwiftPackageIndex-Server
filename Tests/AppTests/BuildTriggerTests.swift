@@ -61,7 +61,7 @@ class BuildTriggerTests: AppTestCase {
 
     func test_fetchBuildCandidates_noBuilds() throws {
         // Test finding build candidate without any builds (essentially
-        // testing the `LEFT` in `LEFT JOIN builds`
+        // testing the `LEFT` in `LEFT JOIN builds`)
         // setup
         // save package without any builds
         let pkgId = UUID()
@@ -197,20 +197,20 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         // ensure Gitlab requests go out
-        XCTAssertEqual(queries.count, 32)
+        XCTAssertEqual(queries.count, 40)
         XCTAssertEqual(queries.map { $0.variables["VERSION_ID"] },
-                       Array(repeating: versionId.uuidString, count: 32))
+                       Array(repeating: versionId.uuidString, count: 40))
         let buildPlatforms = queries.compactMap { $0.variables["BUILD_PLATFORM"] }
         XCTAssertEqual(Dictionary(grouping: buildPlatforms, by: { $0 })
                         .mapValues(\.count),
-                       ["ios": 5,
-                        "macos-spm": 5,
-                        "macos-spm-arm": 1,
-                        "macos-xcodebuild": 5,
-                        "macos-xcodebuild-arm": 1,
-                        "linux": 5,
-                        "watchos": 5,
-                        "tvos": 5])
+                       ["ios": 6,
+                        "macos-spm": 6,
+                        "macos-spm-arm": 2,
+                        "macos-xcodebuild": 6,
+                        "macos-xcodebuild-arm": 2,
+                        "linux": 6,
+                        "watchos": 6,
+                        "tvos": 6])
         let swiftVersions = queries.compactMap { $0.variables["SWIFT_VERSION"] }
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
@@ -218,12 +218,13 @@ class BuildTriggerTests: AppTestCase {
                         "5.0.3": 6,
                         "5.1.5": 6,
                         "5.2.4": 6,
-                        "5.3.3": 8])
+                        "5.3.3": 8,
+                        "5.4.0": 8])
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
         try v?.$builds.load(on: app.db).wait()
-        XCTAssertEqual(v?.builds.count, 32)
+        XCTAssertEqual(v?.builds.count, 40)
 
         // ensure re-selection is empty
         XCTAssertEqual(try fetchBuildCandidates(app.db).wait(), [])
