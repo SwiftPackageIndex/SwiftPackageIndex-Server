@@ -32,14 +32,6 @@ func routes(_ app: Application) throws {
         MarkdownPage(path: req.url.path, "docs/builds.md").document()
     }
 
-    app.get(SiteURL.aasa.pathComponents) { req -> Response in
-        let path = Current.fileManager.workingDirectory()
-            .appending("Resources/apple-app-site-association.json")
-        let response = req.fileio.streamFile(at: path)
-        response.headers.add(name: .contentType, value: "application/json")
-        return response
-    }
-
     let packageController = PackageController()
     app.get(SiteURL.package(.key, .key, .none).pathComponents, use: packageController.show)
     app.get(SiteURL.package(.key, .key, .readme).pathComponents, use: packageController.readme)
