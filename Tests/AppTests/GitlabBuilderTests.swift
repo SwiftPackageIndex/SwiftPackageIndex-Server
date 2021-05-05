@@ -44,7 +44,7 @@ class GitlabBuilderTests: XCTestCase {
                                 "BUILDER_TOKEN": "builder token",
                                 "CLONE_URL": "https://github.com/daveverwer/LeftPad.git",
                                 "REFERENCE": "1.2.3",
-                                "SWIFT_VERSION": "5.2.4",
+                                "SWIFT_VERSION": "5.2",
                                 "VERSION_ID": versionID.uuidString,
                             ]))
         }
@@ -72,7 +72,7 @@ class GitlabBuilderTests: XCTestCase {
             // validate
             let swiftVersion = (try? req.query.decode(Gitlab.Builder.PostDTO.self))
                 .flatMap { $0.variables["SWIFT_VERSION"] }
-            XCTAssertEqual(swiftVersion, "5.0.3")
+            XCTAssertEqual(swiftVersion, "5.0")
         }
 
         // MUT
