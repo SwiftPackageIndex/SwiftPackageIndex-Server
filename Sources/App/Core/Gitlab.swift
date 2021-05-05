@@ -63,7 +63,7 @@ extension Gitlab.Builder {
                         "BUILDER_TOKEN": builderToken,
                         "CLONE_URL": cloneURL,
                         "REFERENCE": "\(reference)",
-                        "SWIFT_VERSION": "\(swiftVersion.major).\(swiftVersion.minor).\(swiftVersion.patch)",
+                        "SWIFT_VERSION": "\(swiftVersion.major).\(swiftVersion.minor)",
                         "VERSION_ID": versionID.uuidString
                     ])
                 try req.query.encode(data)

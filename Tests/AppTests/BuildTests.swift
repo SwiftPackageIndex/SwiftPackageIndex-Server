@@ -125,7 +125,7 @@ class BuildTests: AppTestCase {
                                 "BUILDER_TOKEN": "builder token",
                                 "CLONE_URL": "1",
                                 "REFERENCE": "main",
-                                "SWIFT_VERSION": "5.2.4",
+                                "SWIFT_VERSION": "5.2",
                                 "VERSION_ID": versionID.uuidString,
                             ]))
         }

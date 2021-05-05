@@ -154,7 +154,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(queries.count, 1)
         XCTAssertEqual(queries.map { $0.variables["VERSION_ID"] }, [versionId.uuidString])
         XCTAssertEqual(queries.map { $0.variables["BUILD_PLATFORM"] }, ["ios"])
-        XCTAssertEqual(queries.map { $0.variables["SWIFT_VERSION"] }, ["4.2.3"])
+        XCTAssertEqual(queries.map { $0.variables["SWIFT_VERSION"] }, ["4.2"])
 
         // ensure the Build stubs is created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
@@ -214,12 +214,12 @@ class BuildTriggerTests: AppTestCase {
         let swiftVersions = queries.compactMap { $0.variables["SWIFT_VERSION"] }
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
-                       ["4.2.3": 6,
-                        "5.0.3": 6,
-                        "5.1.5": 6,
-                        "5.2.4": 6,
-                        "5.3.3": 8,
-                        "5.4.0": 8])
+                       ["4.2": 6,
+                        "5.0": 6,
+                        "5.1": 6,
+                        "5.2": 6,
+                        "5.3": 8,
+                        "5.4": 8])
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
