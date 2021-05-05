@@ -12,7 +12,7 @@ enum AppMetrics {
         guard !initialized else { return }
         defer { initialized = true }
         let client = PrometheusClient()
-        MetricsSystem.bootstrap(client)
+        MetricsSystem.bootstrap(PrometheusMetricsFactory(client: client))
     }
 
     // metrics
