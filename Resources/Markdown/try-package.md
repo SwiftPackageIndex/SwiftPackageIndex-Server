@@ -12,4 +12,4 @@ What’s the best way to know whether a package is right for your project? Try i
   <small>Requires macOS 11 or newer</small>
 </a>
 
-Once downloaded and installed, <a href="#" onclick="window.history.back()">navigate back to the package page</a> and click **“Try in a Playground”** to open a Swift playground in Xcode with the package imported and ready to try.
+Once downloaded and installed, click **“Try in a Playground”** from any package page on the Swift Package Index to open a Swift playground in Xcode with the package imported, ready for experimentation and testing.
