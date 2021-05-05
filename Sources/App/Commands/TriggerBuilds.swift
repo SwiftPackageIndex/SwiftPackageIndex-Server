@@ -38,14 +38,10 @@ struct TriggerBuildsCommand: Command {
             logger.info("Triggering builds (limit: \(limit)) ...")
             parameter = .limit(limit)
         }
-        do {
-            try triggerBuilds(on: context.application.db,
-                              client: context.application.client,
-                              logger: logger,
-                              parameter: parameter).wait()
-        } catch {
-            logger.error("triggerBuilds: \(error.localizedDescription)")
-        }
+        try triggerBuilds(on: context.application.db,
+                          client: context.application.client,
+                          logger: logger,
+                          parameter: parameter).wait()
         try AppMetrics.push(client: context.application.client,
                             logger: context.application.logger,
                             jobName: "trigger-builds").wait()
@@ -219,7 +215,7 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
 }
 
 
-struct BuildPair: Equatable, Hashable {
+struct BuildPair {
     var platform: Build.Platform
     var swiftVersion: SwiftVersion
 
@@ -238,6 +234,19 @@ struct BuildPair: Equatable, Hashable {
             }
         }
     }()
+}
+
+
+extension BuildPair: Equatable, Hashable {
+    static func ==(lhs: Self, rhs: Self) -> Bool {
+        return lhs.platform == rhs.platform
+            && lhs.swiftVersion.isCompatible(with: rhs.swiftVersion)
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(platform)
+        hasher.combine(SwiftVersion(swiftVersion.major, swiftVersion.minor, 0))
+    }
 }
 
 
