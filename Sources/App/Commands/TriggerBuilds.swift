@@ -38,14 +38,10 @@ struct TriggerBuildsCommand: Command {
             logger.info("Triggering builds (limit: \(limit)) ...")
             parameter = .limit(limit)
         }
-        do {
-            try triggerBuilds(on: context.application.db,
-                              client: context.application.client,
-                              logger: logger,
-                              parameter: parameter).wait()
-        } catch {
-            logger.error("triggerBuilds: \(error.localizedDescription)")
-        }
+        try triggerBuilds(on: context.application.db,
+                          client: context.application.client,
+                          logger: logger,
+                          parameter: parameter).wait()
         try AppMetrics.push(client: context.application.client,
                             logger: context.application.logger,
                             jobName: "trigger-builds").wait()
