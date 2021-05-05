@@ -623,6 +623,7 @@ class BuildTriggerTests: AppTestCase {
         let res = try findMissingBuilds(app.db, packageId: pkgId).wait()
         XCTAssertEqual(res.count, 1)
         let triggerInfo = try XCTUnwrap(res.first)
+        XCTAssertEqual(triggerInfo.pairs.count, 39)
         XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v5_3)))
     }
 }
