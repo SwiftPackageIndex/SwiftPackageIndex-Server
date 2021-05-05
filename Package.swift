@@ -11,9 +11,8 @@ let package = Package(
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0-rc"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0-rc"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0-rc"),
+        .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
         .package(url: "https://github.com/JohnSundell/Plot.git", from: "0.7.0"),
-        .package(url: "https://github.com/finestructure/Ink.git",
-                 .revision("70b901324d794d88019c299feea737ed0aace3cd")),  // TODO: temporary pin for Xcode-12.5 compatibility
         .package(url: "https://github.com/JohnSundell/ShellOut.git", from: "2.0.0"),
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
         .package(name: "SnapshotTesting",
@@ -23,7 +22,7 @@ let package = Package(
         .package(name: "libcmark_gfm", url: "https://github.com/KristopherGBaker/libcmark_gfm", from: "0.29.3"),
         .package(name: "SwiftPM",
                  url: "https://github.com/apple/swift-package-manager.git",
-                 .revision("swift-DEVELOPMENT-SNAPSHOT-2021-03-09-a"))
+                 .revision("swift-DEVELOPMENT-SNAPSHOT-2021-05-04-a"))
     ],
     targets: [
         .target(name: "App", dependencies: [
