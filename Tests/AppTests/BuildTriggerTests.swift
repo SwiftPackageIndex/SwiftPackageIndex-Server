@@ -577,4 +577,36 @@ class BuildTriggerTests: AppTestCase {
         // validate
         XCTAssertEqual(deleteCount, 0)
     }
+
+    func test_issue_1065() throws {
+        // Regression test for
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1065
+        // addressing a problem with findMissingBuilds not ignoring
+        // Swift patch versions.
+        // setup
+        let pkgId = UUID()
+        let versionId = UUID()
+        do {  // save package with an outdated Swift version
+              // (5.3.0 when SwiftVersion.v5_3 is "5.3.3")
+            let p = Package(id: pkgId, url: "1")
+            try p.save(on: app.db).wait()
+            let v = try Version(id: versionId,
+                                package: p,
+                                latest: .release,
+                                reference: .tag(1, 2, 3))
+            try v.save(on: app.db).wait()
+            try Build(id: UUID(),
+                      version: v,
+                      platform: .ios,
+                      status: .ok,
+                      swiftVersion: .init(5, 3, 0))
+                .save(on: app.db).wait()
+        }
+
+        // MUT
+        let res = try findMissingBuilds(app.db, packageId: pkgId).wait()
+        XCTAssertEqual(res.count, 1)
+        let triggerInfo = try XCTUnwrap(res.first)
+        XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v5_3)))
+    }
 }
