@@ -578,6 +578,22 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(deleteCount, 0)
     }
 
+    func test_BuildPair_Equatable() throws {
+        XCTAssertEqual(BuildPair(.ios, .init(5, 3, 0)),
+                       BuildPair(.ios, .init(5, 3, 3)))
+        XCTAssertFalse(BuildPair(.ios, .init(5, 3, 0))
+                       == BuildPair(.ios, .init(5, 4, 0)))
+        XCTAssertFalse(BuildPair(.ios, .init(5, 3, 0))
+                       == BuildPair(.tvos, .init(5, 3, 0)))
+    }
+
+    func test_BuildPair_Hashable() throws {
+        let set = Set([BuildPair(.ios, .init(5, 3, 0))])
+        XCTAssertTrue(set.contains(BuildPair(.ios, .init(5, 3, 3))))
+        XCTAssertFalse(set.contains(BuildPair(.ios, .init(5, 4, 0))))
+        XCTAssertFalse(set.contains(BuildPair(.macosSpm, .init(5, 3, 0))))
+    }
+
     func test_issue_1065() throws {
         // Regression test for
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1065

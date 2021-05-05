@@ -215,7 +215,7 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
 }
 
 
-struct BuildPair: Equatable, Hashable {
+struct BuildPair {
     var platform: Build.Platform
     var swiftVersion: SwiftVersion
 
@@ -234,6 +234,19 @@ struct BuildPair: Equatable, Hashable {
             }
         }
     }()
+}
+
+
+extension BuildPair: Equatable, Hashable {
+    static func ==(lhs: Self, rhs: Self) -> Bool {
+        return lhs.platform == rhs.platform
+            && lhs.swiftVersion.isCompatible(with: rhs.swiftVersion)
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(platform)
+        hasher.combine(SwiftVersion(swiftVersion.major, swiftVersion.minor, 0))
+    }
 }
 
 
