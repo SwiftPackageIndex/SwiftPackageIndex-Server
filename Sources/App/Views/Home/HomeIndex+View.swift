@@ -26,13 +26,29 @@ enum HomeIndex {
         }
         
         override func preMain() -> Node<HTML.BodyContext> {
-            .section(
-                .class("search home"),
-                .div(
-                    .class("inner"),
-                    .h3("The place to find Swift packages."),
-                    .searchForm(),
-                    .unwrap(model.statsClause()) { $0 }
+            .group(
+                .p(
+                    .class("announcement"),
+                    .text("Hey! 👋 We "),
+                    .a(
+                        .href("https://blog.swiftpackageindex.com/posts/launching-the-swift-package-index-playgrounds-app-for-macos/"),
+                        "just launched our first native app for macOS"
+                    ),
+                    .text("! Check out ”"),
+                    .a(
+                        .href(SiteURL.tryInPlayground.relativeURL()),
+                        "Try in a Playground"
+                    ),
+                    .text("”.")
+                ),
+                .section(
+                    .class("search home"),
+                    .div(
+                        .class("inner"),
+                        .h3("The place to find Swift packages."),
+                        .searchForm(),
+                        .unwrap(model.statsClause()) { $0 }
+                    )
                 )
             )
         }

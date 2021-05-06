@@ -81,6 +81,8 @@
   --header-gradient-start: rgba(255, 255, 255, 0.2);
   --header-gradient-end: rgba(255, 255, 255, 0.05);
 
+  --announcement-background: var(--very-light-grey);
+
   --sidebar-section-background: var(--very-very-light-grey);
   --sidebar-section-hover: var(--very-light-grey);
   --sidebar-section-border: var(--light-grey);
@@ -140,6 +142,8 @@
     --header-background: var(--very-dark-blue);
     --header-gradient-start: rgba(255, 255, 255, 0.08);
     --header-gradient-end: rgba(255, 255, 255, 0.03);
+
+    --announcement-background: var(--very-dark-grey);
 
     --sidebar-section-background: var(--very-very-dark-grey);
     --sidebar-section-hover: var(--very-dark-grey);
