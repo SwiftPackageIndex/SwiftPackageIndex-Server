@@ -54,6 +54,10 @@
     <noscript>
       <p>The search function of this site requires JavaScript.</p>
     </noscript>
+    <p class="announcement">Hey! 👋 We 
+      <a href="https://blog.swiftpackageindex.com/posts/launching-the-swift-package-index-playgrounds-app-for-macos/">just launched our first native app for macOS</a>! Check out ”
+      <a href="/try-in-a-playground">Try in a Playground</a>”.
+    </p>
     <section class="search home">
       <div class="inner">
         <h3>The place to find Swift packages.</h3>
