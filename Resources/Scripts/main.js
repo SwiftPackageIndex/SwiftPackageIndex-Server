@@ -20,3 +20,5 @@ window.buildLogNavigation = new SPIBuildLogNavigation()
 window.spiReadmeProcessor = new SPIReadmeProcessor()
 new SPIAutofocus()
 new SPIPlaygroundsAppLinkFallback()
+
+//# sourceMappingURL=main.js.map
