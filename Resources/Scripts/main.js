@@ -1,7 +1,6 @@
 import '@hotwired/turbo'
 
 import './dom_helpers.js'
-import './highlighting.js'
 
 import { ExternalLinkRetargeter } from './external_link_retargeter.js'
 import { SPIPackageListNavigation } from './package_list_navigation.js'
