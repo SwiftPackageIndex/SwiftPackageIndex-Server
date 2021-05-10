@@ -4,14 +4,11 @@ extension SwiftVersion {
     static let v5_1: Self = .init(5, 1, 5)
     static let v5_2: Self = .init(5, 2, 4)
     static let v5_3: Self = .init(5, 3, 3)
-    // FIXME: temporarily disabling 5.4 builds
-    //    static let v5_4: Self = .init(5, 4, 0)
+    static let v5_4: Self = .init(5, 4, 0)
 
     /// Currently supported swift versions for building
     static var allActive: [Self] {
-        [v4_2, v5_0, v5_1, v5_2, v5_3]
-        // FIXME: temporarily disabling 5.4 builds
-        //        [v4_2, v5_0, v5_1, v5_2, v5_3, v5_4]
+        [v4_2, v5_0, v5_1, v5_2, v5_3, v5_4]
     }
 
     var xcodeVersion: String? {
@@ -28,9 +25,8 @@ extension SwiftVersion {
                 return "Xcode 11.6"
             case .v5_3:
                 return "Xcode 12.2"
-            // FIXME: temporarily disabling 5.4 builds
-            //            case .v5_4:
-            //                return "Xcode 12.5"
+            case .v5_4:
+                return "Xcode 12.5"
             default:
                 return nil
         }
