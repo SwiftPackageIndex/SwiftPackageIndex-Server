@@ -20,9 +20,5 @@
     "highlight.js": "^10.5.0",
     "lodash": "^4.17.20"
   },
-  "devDependencies": {
-    "@parcel/transformer-sass": "2.0.0-nightly.636",
-    "eslint": "^7.20.0",
-    "parcel": "^2.0.0-nightly.634"
-  }
+  "devDependencies": {}
 }
