@@ -2,8 +2,9 @@
   "name": "SwiftPackageIndex",
   "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
   "scripts": {
-    "build": "rollup -c Resources/rollup-prod.js",
-    "serve": "rollup -c Resources/rollup-dev.js --watch"
+    "clean": "rm -f Public/main.css Public/main.css.map Public/main.js Public/main.js.map",
+    "build": "yarn clean && rollup -c Resources/rollup-prod.js",
+    "serve": "yarn clean && rollup -c Resources/rollup-dev.js --watch"
   },
   "dependencies": {
     "@hotwired/turbo": "^7.0.0-beta.4",
