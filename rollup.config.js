@@ -1,9 +1,12 @@
+import { nodeResolve } from '@rollup/plugin-node-resolve'
+import commonjs from '@rollup/plugin-commonjs'
+import { terser } from 'rollup-plugin-terser'
+
 export default {
-  input: './Resources/Scripts/main.js',
+  input: 'Resources/Scripts/main.js',
   output: {
-    file: './Public/main.js',
-    format: 'iife',
+    file: 'Public/main.js',
     sourcemap: true,
   },
-  plugins: [],
+  plugins: [nodeResolve(), commonjs(), terser()],
 }

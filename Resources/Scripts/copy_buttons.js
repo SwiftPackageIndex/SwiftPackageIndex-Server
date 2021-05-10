@@ -1,4 +1,4 @@
-import delay from 'lodash/delay'
+import { delay } from 'lodash'
 import { measurePlausibleEvent } from './plausible_analytics.js'
 
 class SPICopyButton {
@@ -54,11 +54,7 @@ export class SPICopyPackageURLButton extends SPICopyButton {
       const buttonElement = document.createElement('button')
       buttonElement.textContent = 'Copy'
       parentElement.appendChild(buttonElement)
-      this.installCopyEvent(
-        buttonElement,
-        packageURLElement,
-        'Copy Package URL Button'
-      )
+      this.installCopyEvent(buttonElement, packageURLElement, 'Copy Package URL Button')
     })
   }
 }
