@@ -36,7 +36,7 @@ extension Node where Context == HTML.FormContext {
             .attribute(named: "spellcheck", value: "false"),
             .attribute(named: "autocomplete", value: "off"),
             .attribute(named: "data-gramm", value: "false"),
-            .attribute(named: "data-autofocus", value: String(describing: autofocus)),
+            .attribute(named: "data-focus", value: String(describing: autofocus)),
             .value(query)
         )
     }
