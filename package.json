@@ -12,13 +12,14 @@
     }
   },
   "scripts": {
-    "build": "parcel build . --dist-dir Public",
-    "serve": "parcel serve . --dist-dir Public --no-hmr"
+    "build": "rollup -c"
   },
   "dependencies": {
     "@hotwired/turbo": "^7.0.0-beta.4",
     "highlight.js": "^10.5.0",
     "lodash": "^4.17.20"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "rollup": "^2.47.0"
+  }
 }
