@@ -12,7 +12,8 @@
     }
   },
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c Resources/rollup-prod.js",
+    "serve": "rollup -c Resources/rollup-dev.js --watch"
   },
   "dependencies": {
     "@hotwired/turbo": "^7.0.0-beta.4",
