@@ -7,14 +7,12 @@ export default {
   output: {
     file: 'Public/main.js',
     assetFileNames: 'main.css',
-    sourcemap: true,
   },
   plugins: [
     nodeResolve(),
     commonjs(),
     styles({
       mode: ['extract'],
-      sourceMap: true,
     }),
   ],
 }
