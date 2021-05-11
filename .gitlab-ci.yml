@@ -28,7 +28,7 @@ build:
     - if: '$ENV == "prod"'
   stage: build
   tags:
-    - spi-ci
+    - spi-ci-server
   script: |
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
     echo 'let appVersion: String? = "'${VERSION}'"' > ./Sources/App/Core/AppVersion.swift
@@ -182,7 +182,7 @@ smoke-test:
     - if: '$ENV == "dev"'
   stage: smoke-test
   tags:
-    - spi-ci
+    - spi-ci-server
   script: |
     rester() {
       docker run --rm -t -e base_url="$SITE_URL" -v $PWD:/host -w /host finestructure/rester:0.7.2 "$1"
