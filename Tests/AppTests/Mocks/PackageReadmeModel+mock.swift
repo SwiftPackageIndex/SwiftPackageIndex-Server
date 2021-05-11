@@ -5,7 +5,12 @@ import Foundation
 
 extension PackageReadme.Model {
     static var mock: PackageReadme.Model {
-        .init(readme: "This is README content.",
-              readmeBaseUrl: "https://example.com/foo/bar/")
+        .init(readme: """
+            <div id="readme">
+                <article>
+                    <p>This is README content.</p>
+                </article>
+            </div>
+            """, readmeBaseUrl: "https://example.com/foo/bar/")
     }
 }
