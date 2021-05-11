@@ -1,28 +1,21 @@
 {
   "name": "SwiftPackageIndex",
   "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
-  "js_target": "./Public/main.js",
-  "css_target": "./Public/main.css",
-  "targets": {
-    "js_target": {
-      "source": "./Resources/Scripts/main.js"
-    },
-    "css_target": {
-      "source": "./Resources/Styles/main.scss"
-    }
-  },
   "scripts": {
-    "build": "parcel build . --dist-dir Public",
-    "serve": "parcel serve . --dist-dir Public --no-hmr"
+    "clean": "rm -f Public/main.css Public/main.css.map Public/main.js Public/main.js.map",
+    "build": "yarn clean && rollup -c Resources/rollup-prod.js",
+    "serve": "yarn clean && rollup -c Resources/rollup-dev.js --watch"
   },
   "dependencies": {
     "@hotwired/turbo": "^7.0.0-beta.4",
-    "highlight.js": "^10.5.0",
     "lodash": "^4.17.20"
   },
   "devDependencies": {
-    "@parcel/transformer-sass": "2.0.0-nightly.636",
-    "eslint": "^7.20.0",
-    "parcel": "^2.0.0-nightly.634"
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "rollup": "^2.47.0",
+    "rollup-plugin-styles": "^3.14.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "sass": "^1.32.12"
   }
 }

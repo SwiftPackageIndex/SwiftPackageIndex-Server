@@ -80,10 +80,10 @@ db-down-test:
 db-reset: db-down db-up migrate
 
 build-front-end:
-	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh node:15.8-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn build"
+	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh node:16-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn build"
 
 serve-front-end:
-	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh node:15.8-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn serve"
+	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh node:16-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn serve"
 
 copy-front-end-resources:
 	@# copy front-end resources from existing image (rather than build them)

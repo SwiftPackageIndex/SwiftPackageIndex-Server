@@ -1,7 +1,6 @@
 import '@hotwired/turbo'
 
 import './dom_helpers.js'
-import './highlighting.js'
 
 import { ExternalLinkRetargeter } from './external_link_retargeter.js'
 import { SPIPackageListNavigation } from './package_list_navigation.js'
@@ -20,5 +19,7 @@ window.buildLogNavigation = new SPIBuildLogNavigation()
 window.spiReadmeProcessor = new SPIReadmeProcessor()
 new SPIAutofocus()
 new SPIPlaygroundsAppLinkFallback()
+
+import '../Styles/main.scss'
 
 //# sourceMappingURL=main.js.map
