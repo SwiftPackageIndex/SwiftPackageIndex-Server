@@ -36,10 +36,6 @@ class PublicPage {
             .favicon(SiteURL.images("logo-simple.png").relativeURL()),
             .link(
                 .rel(.stylesheet),
-                .href("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css")
-            ),
-            .link(
-                .rel(.stylesheet),
                 .href(SiteURL.stylesheets("main").relativeURL() + "?\(resourceReloadQueryString())"),
                 .attribute(named: "data-turbolinks-track", value: "reload")
             ),

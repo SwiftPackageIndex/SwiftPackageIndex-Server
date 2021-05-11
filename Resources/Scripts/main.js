@@ -20,6 +20,7 @@ window.spiReadmeProcessor = new SPIReadmeProcessor()
 new SPIAutofocus()
 new SPIPlaygroundsAppLinkFallback()
 
+import 'normalize.css'
 import '../Styles/main.scss'
 
 //# sourceMappingURL=main.js.map
