@@ -73,13 +73,13 @@ enum BuildShow {
 
 private extension Build.Status {
 
-    // There should never be pending builds visible on this page so the pending cases are only for completeness.
+    // There should never be pending or timed-out builds visible on this page (they don't have any details to display) so the these cases are only for completeness.
 
     var text: String {
         switch self {
             case .ok: return "Successful"
             case .failed: return "Failed"
-            case .pending: return ""
+            case .pending, .timeout: return ""
         }
     }
 
@@ -87,7 +87,7 @@ private extension Build.Status {
         switch self {
             case .ok: return " build of "
             case .failed: return " to build "
-            case .pending: return ""
+            case .pending, .timeout: return ""
         }
     }
 
@@ -95,7 +95,7 @@ private extension Build.Status {
         switch self {
             case .ok: return "green"
             case .failed: return "red"
-            case .pending: return ""
+            case .pending, .timeout: return ""
         }
     }
 }

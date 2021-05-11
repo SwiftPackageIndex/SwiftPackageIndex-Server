@@ -100,6 +100,7 @@ extension Build {
         case ok
         case failed
         case pending
+        case timeout
     }
 }
 
