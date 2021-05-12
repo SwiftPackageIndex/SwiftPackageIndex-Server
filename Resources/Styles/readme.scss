@@ -61,4 +61,17 @@ article.readme {
     margin-left: -20px;
     line-height: 1;
   }
+
+  .contains-task-list {
+    padding-left: 10px;
+    list-style: none;
+
+    li {
+      margin: 5px;
+
+      input {
+        margin-right: 5px;
+      }
+    }
+  }
 }
