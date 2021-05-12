@@ -20,7 +20,6 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
-        .package(name: "libcmark_gfm", url: "https://github.com/KristopherGBaker/libcmark_gfm", from: "0.29.3"),
         .package(name: "SwiftPM",
                  url: "https://github.com/apple/swift-package-manager.git",
                  .revision("swift-DEVELOPMENT-SNAPSHOT-2021-05-04-a"))
@@ -36,7 +35,6 @@ let package = Package(
             "ShellOut",
             "SwiftPrometheus",
             "OhhAuth",
-            "libcmark_gfm",
             "SwiftSoup",
             .product(name: "PackageCollectionsModel", package: "SwiftPM")
         ]),

@@ -65,15 +65,6 @@
         }
       },
       {
-        "package": "libcmark_gfm",
-        "repositoryURL": "https://github.com/KristopherGBaker/libcmark_gfm",
-        "state": {
-          "branch": null,
-          "revision": "9e4a9a58b5ef145b1dc08c57fb0428dd950132e6",
-          "version": "0.29.3"
-        }
-      },
-      {
         "package": "multipart-kit",
         "repositoryURL": "https://github.com/vapor/multipart-kit.git",
         "state": {
