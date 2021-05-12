@@ -49,4 +49,16 @@ article.readme {
       background-color: var(--table-row-alt-background);
     }
   }
+
+  // GitHub Specific style overrides.
+  .zeroclipboard-container {
+    display: none;
+  }
+
+  .anchor {
+    float: left;
+    padding-right: 4px;
+    margin-left: -20px;
+    line-height: 1;
+  }
 }
