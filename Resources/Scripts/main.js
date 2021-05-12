@@ -19,7 +19,7 @@ window.buildLogNavigation = new SPIBuildLogNavigation()
 new SPIAutofocus()
 new SPIPlaygroundsAppLinkFallback()
 
-customElements.define('spi-readme', SPIReadmeElement, { extends: 'article' })
+customElements.define('spi-readme', SPIReadmeElement)
 
 import 'normalize.css'
 import '../Styles/main.scss'
