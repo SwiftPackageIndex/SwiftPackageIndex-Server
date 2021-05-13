@@ -78,7 +78,6 @@ services:
     image: prom/node-exporter:v1.1.2
     networks:
       - app_backend
-    hostname: node-exporter-{{.Node.Hostname}}
     volumes:
       - /proc:/host/proc
       - /sys:/host/sys
@@ -92,7 +91,6 @@ services:
     image: google/cadvisor:v0.33.0
     networks:
       - app_backend
-    hostname: cadvisor-{{.Node.Hostname}}
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "/:/rootfs:ro"
