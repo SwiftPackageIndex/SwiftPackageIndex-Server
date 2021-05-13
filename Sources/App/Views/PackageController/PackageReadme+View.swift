@@ -23,8 +23,8 @@ enum PackageReadme {
 
             do {
                 let htmlDocument = try SwiftSoup.parse(readme)
-                let cssQuery = try htmlDocument.select("#readme article")
-                guard let articleElement = cssQuery.first()
+                let readmeElements = try htmlDocument.select("#readme article")
+                guard let articleElement = readmeElements.first()
                 else { return .empty }
 
                 return .group(
