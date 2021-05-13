@@ -56,7 +56,8 @@ spi-readme {
   }
 
   .anchor {
-    display: none;
+    visibility: hidden;
+    position: absolute;
   }
 
   .contains-task-list {
