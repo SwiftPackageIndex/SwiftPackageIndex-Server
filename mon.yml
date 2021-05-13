@@ -88,13 +88,6 @@ services:
     command: --path.procfs /host/proc --path.sysfs /host/sys --collector.textfile.directory /etc/node-exporter/ --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($$|/)"
     deploy:
       mode: global
-      resources:
-        limits:
-          cpus: '0.10'
-          memory: 32M
-        reservations:
-          cpus: '0.10'
-          memory: 16M
 
 
   cadvisor:
@@ -111,13 +104,6 @@ services:
       LOGSPOUT: ignore
     deploy:
       mode: global
-      resources:
-        limits:
-          cpus: '0.20'
-          memory: 128M
-        reservations:
-          cpus: '0.10'
-          memory: 64M
 
 
 configs:
