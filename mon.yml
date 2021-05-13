@@ -74,6 +74,34 @@ services:
       - app_backend
 
 
+  node-exporter:
+    image: prom/node-exporter:v1.1.2
+    networks:
+      - app_backend
+    volumes:
+      - /proc:/host/proc
+      - /sys:/host/sys
+      - /:/rootfs
+    command: --path.procfs /host/proc --path.sysfs /host/sys --collector.textfile.directory /etc/node-exporter/ --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($$|/)"
+    deploy:
+      mode: global
+
+
+  cadvisor:
+    image: google/cadvisor:v0.33.0
+    networks:
+      - app_backend
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/dev/disk/:/dev/disk:ro"
+    deploy:
+      mode: global
+
+
 configs:
   loki_cfg:
     file: ./infrastructure/loki.yml
