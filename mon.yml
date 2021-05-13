@@ -95,13 +95,12 @@ services:
     networks:
       - app_backend
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "/:/rootfs:ro"
-      - "/var/run:/var/run:rw"
+      - "/var/run:/var/run:ro"
       - "/sys:/sys:ro"
       - "/var/lib/docker/:/var/lib/docker:ro"
-    environment:
-      LOGSPOUT: ignore
+      - "/dev/disk/:/dev/disk:ro"
     deploy:
       mode: global
 
