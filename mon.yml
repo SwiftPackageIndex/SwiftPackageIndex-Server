@@ -91,11 +91,11 @@ services:
 
 
   cadvisor:
-    image: google/cadvisor:v0.37.5
+    image: google/cadvisor:v0.33.0
     networks:
       - app_backend
     volumes:
-      # - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "/:/rootfs:ro"
       - "/var/run:/var/run:ro"
       - "/sys:/sys:ro"
