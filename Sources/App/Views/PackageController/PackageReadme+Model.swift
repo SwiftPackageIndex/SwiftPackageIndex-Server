@@ -24,6 +24,8 @@ extension PackageReadme {
         func processReadme(_ rawReadme: String?) -> Element? {
             guard let rawReadme = rawReadme else { return nil }
             guard let readmeElement = extractReadmeElement(rawReadme) else { return nil }
+            processRelativeImages(readmeElement)
+            processRelativeLinks(readmeElement)
             return readmeElement
         }
 
@@ -36,6 +38,48 @@ extension PackageReadme {
                 return articleElement
             } catch {
                 return nil
+            }
+        }
+
+        func processRelativeImages(_ element: Element) {
+            do {
+                let imageElements = try element.select("img")
+                for imageElement in imageElements {
+                    guard let imageUrl = URL(string: try imageElement.attr("src"))
+                    else { continue }
+
+                    // Assume all images are relative to GitHub as that's the only current source for README data.
+                    if (imageUrl.host == nil) {
+                        guard let newImageUrl = URL(string: "https://github.com\(imageUrl.absoluteString)")
+                        else { continue }
+                        try imageElement.attr("src", newImageUrl.absoluteString)
+                    }
+                }
+            } catch {
+                // Errors are being intentionally eaten here. The worst that can happen if the
+                // HTML selection/parsing fails is that relative images don't get corrected.
+                return
+            }
+        }
+
+        func processRelativeLinks(_ element: Element) {
+            do {
+                let linkElements = try element.select("a")
+                for linkElement in linkElements {
+                    guard let linkUrl = URL(string: try linkElement.attr("href"))
+                    else { continue }
+
+                    // Assume all links are relative to GitHub as that's the only current source for README data.
+                    if (linkUrl.host == nil) {
+                        guard let newLinkUrl = URL(string: "https://github.com\(linkUrl.absoluteString)")
+                        else { continue }
+                        try linkElement.attr("href", newLinkUrl.absoluteString)
+                    }
+                }
+            } catch {
+                // Errors are being intentionally eaten here. The worst that can happen if the
+                // HTML selection/parsing fails is that relative links don't get corrected.
+                return
             }
         }
     }
