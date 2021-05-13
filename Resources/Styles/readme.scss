@@ -2,7 +2,7 @@
   Styles specific to the readme section of the page.
 ---------------------------------------------------------------------------- */
 
-article.readme {
+spi-readme {
   overflow: hidden;
 
   h1 {
@@ -50,11 +50,30 @@ article.readme {
     }
   }
 
-  li > p {
-    margin: 5px 0;
+  // GitHub Specific style overrides.
+  .zeroclipboard-container {
+    display: none;
+  }
 
-    input {
-      margin-right: 10px;
+  .anchor {
+    visibility: hidden;
+    position: absolute;
+  }
+
+  .contains-task-list {
+    padding-left: 10px;
+    list-style: none;
+
+    li {
+      margin: 5px;
+
+      input {
+        margin-right: 5px;
+      }
     }
+  }
+
+  details {
+    margin: 20px 0;
   }
 }

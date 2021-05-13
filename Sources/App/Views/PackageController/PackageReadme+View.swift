@@ -17,16 +17,13 @@ enum PackageReadme {
         }
 
         override func frameContent() -> Node<HTML.BodyContext> {
-            guard let readme = model.readme,
-                  let html = try? MarkdownHTMLConverter.html(from: readme)
+            guard let readme = model.readme
             else { return .empty }
 
             return .group(
                 .hr(),
-                .article(
-                    .class("readme"),
-                    .attribute(named: "data-readme-base-url", value: model.readmeBaseUrl),
-                    .raw(html)
+                .spiReadme(
+                    .raw(readme)
                 )
             )
         }

@@ -16,6 +16,10 @@ extension Node where Context == HTML.BodyContext {
         ]
         return .element(named: "turbo-frame", nodes: attributes + nodes)
     }
+
+    static func spiReadme(_ nodes: Node<HTML.BodyContext>...) -> Self {
+        .element(named: "spi-readme", nodes: nodes)
+    }
 }
 
 extension Node where Context == HTML.AnchorContext {

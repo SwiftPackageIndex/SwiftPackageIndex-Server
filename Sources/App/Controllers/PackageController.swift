@@ -27,10 +27,9 @@ struct PackageController {
 
         return Package.query(on: req.db, owner: owner, repository: repository)
             .flatMap { package in
-                fetchReadme(client: req.client, package: package).map{ (package, $0) }
+                fetchReadme(client: req.client, package: package)
             }
-            .map(PackageReadme.Model.init(package:readme:))
-            .unwrap(or: Abort(.notFound))
+            .map(PackageReadme.Model.init(readme:))
             .map { PackageReadme.View(model: $0).document() }
     }
 
@@ -64,8 +63,7 @@ struct PackageController {
 
 
 private func fetchReadme(client: Client, package: Package) -> EventLoopFuture<String?> {
-    guard let url = package.repository?.readmeUrl.map(URI.init(string:))
+    guard let url = package.repository?.readmeHtmlUrl.map(URI.init(string:))
     else { return client.eventLoop.future(nil) }
-    return client.get(url)
-        .map { $0.body?.asString() }
+    return client.get(url).map { $0.body?.asString() }
 }

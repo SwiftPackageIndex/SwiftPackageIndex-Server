@@ -7,7 +7,7 @@
     "serve": "yarn clean && rollup -c Resources/rollup-dev.js --watch"
   },
   "dependencies": {
-    "@hotwired/turbo": "^7.0.0-beta.4",
+    "@hotwired/turbo": "^7.0.0-beta.5",
     "lodash": "^4.17.20",
     "normalize.css": "^8.0.1"
   },

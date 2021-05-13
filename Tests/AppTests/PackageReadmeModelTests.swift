@@ -6,25 +6,75 @@ import SnapshotTesting
 
 class PackageReadmeModelTests: SnapshotTestCase {
 
-    func test_readme_model() throws {
-        var pkg = try savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
+    func test_processReadme_extractReadmeElement() throws {
+        let model = PackageReadme.Model(readme: """
+            <html>
+                <head>
+                    <title>README file</title>
+                </head>
+                <body>
+                    <p>Other page content.</p>
+                    <div id="readme">
+                        <article>
+                            <p>README content.</p>
+                        </article>
+                    </div>
+                </body>
+            </html>
+            """)
 
-        try Repository(
-            package: pkg,
-            defaultBranch: "default",
-            name: "Alamofire",
-            owner: "Alamofire",
-            readmeUrl: "https://raw.githubusercontent.com/Alamofire/Alamofire/master/README.md"
-        ).save(on: app.db).wait()
-
-        // reload via query to ensure relationships are loaded
-        pkg = try Package.query(on: app.db,
-                                owner: "Alamofire",
-                                repository: "Alamofire").wait()
-
-        let model = PackageReadme.Model(package: pkg, readme: "README Content.")
-
-        XCTAssertEqual(model?.readmeBaseUrl, "https://raw.githubusercontent.com/Alamofire/Alamofire/master/")
+        let readme = try XCTUnwrap(model.readme)
+        assertSnapshot(matching: readme, as: .lines)
     }
 
+    func test_processReadme_processRelativeImages() throws {
+        let model = PackageReadme.Model(readme: """
+            <html>
+                <head>
+                    <title>README file</title>
+                </head>
+                <body>
+                    <p>Other page content.</p>
+                    <div id="readme">
+                        <article>
+                            <p>README content.</p>
+                            <img src="https://example.com/absolute/image/url.png">
+                            <img src="/root/relative/image/url.png">
+                            <img src="relative/image/url.png">
+                            <img>
+                        </article>
+                    </div>
+                </body>
+            </html>
+            """)
+
+        let readme = try XCTUnwrap(model.readme)
+        assertSnapshot(matching: readme, as: .lines)
+    }
+
+    func test_processReadme_processRelativeLinks() throws {
+        let model = PackageReadme.Model(readme: """
+            <html>
+                <head>
+                    <title>README file</title>
+                </head>
+                <body>
+                    <p>Other page content.</p>
+                    <div id="readme">
+                        <article>
+                            <p>README content.</p>
+                            <a href="https://example.com/absolute/url">Absolute link.</a>
+                            <a href="/root/relative/url">Root relative link.</a>
+                            <a href="relative/url">Relative link.</a>
+                            <a href="#anchor">Anchor link.</a>
+                            <a>Invalid link.</a>
+                        </article>
+                    </div>
+                </body>
+            </html>
+            """)
+
+        let readme = try XCTUnwrap(model.readme)
+        assertSnapshot(matching: readme, as: .lines)
+    }
 }
