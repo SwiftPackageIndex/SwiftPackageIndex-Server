@@ -49,7 +49,7 @@ extension PackageReadme {
                     else { continue }
 
                     // Assume all images are relative to GitHub as that's the only current source for README data.
-                    if (imageUrl.host == nil) {
+                    if (imageUrl.host == nil && imageUrl.path.starts(with: "/")) {
                         guard let newImageUrl = URL(string: "https://github.com\(imageUrl.absoluteString)")
                         else { continue }
                         try imageElement.attr("src", newImageUrl.absoluteString)
@@ -70,7 +70,7 @@ extension PackageReadme {
                     else { continue }
 
                     // Assume all links are relative to GitHub as that's the only current source for README data.
-                    if (linkUrl.host == nil) {
+                    if (linkUrl.host == nil && linkUrl.path.starts(with: "/")) {
                         guard let newLinkUrl = URL(string: "https://github.com\(linkUrl.absoluteString)")
                         else { continue }
                         try linkElement.attr("href", newLinkUrl.absoluteString)

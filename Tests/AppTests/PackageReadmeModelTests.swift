@@ -39,7 +39,8 @@ class PackageReadmeModelTests: SnapshotTestCase {
                         <article>
                             <p>README content.</p>
                             <img src="https://example.com/absolute/image/url.png">
-                            <img src="/relative/image/url.png">
+                            <img src="/root/relative/image/url.png">
+                            <img src="relative/image/url.png">
                             <img>
                         </article>
                     </div>
@@ -63,7 +64,9 @@ class PackageReadmeModelTests: SnapshotTestCase {
                         <article>
                             <p>README content.</p>
                             <a href="https://example.com/absolute/url">Absolute link.</a>
-                            <a href="/relative/url">Relative link.</a>
+                            <a href="/root/relative/url">Root relative link.</a>
+                            <a href="relative/url">Relative link.</a>
+                            <a href="#anchor">Anchor link.</a>
                             <a>Invalid link.</a>
                         </article>
                     </div>
