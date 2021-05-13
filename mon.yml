@@ -78,13 +78,11 @@ services:
     image: prom/node-exporter:v1.1.2
     networks:
       - app_backend
+    hostname: node-exporter-{{.Node.Hostname}}
     volumes:
       - /proc:/host/proc
       - /sys:/host/sys
       - /:/rootfs
-      - /etc/hostname:/etc/host_hostname
-    environment:
-      HOST_HOSTNAME: /etc/host_hostname
     command: --path.procfs /host/proc --path.sysfs /host/sys --collector.textfile.directory /etc/node-exporter/ --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($$|/)"
     deploy:
       mode: global
@@ -94,6 +92,7 @@ services:
     image: google/cadvisor:v0.33.0
     networks:
       - app_backend
+    hostname: cadvisor-{{.Node.Hostname}}
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "/:/rootfs:ro"
