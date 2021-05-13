@@ -27,10 +27,9 @@ struct PackageController {
 
         return Package.query(on: req.db, owner: owner, repository: repository)
             .flatMap { package in
-                fetchReadme(client: req.client, package: package).map{ (package, $0) }
+                fetchReadme(client: req.client, package: package)
             }
-            .map(PackageReadme.Model.init(package:readme:))
-            .unwrap(or: Abort(.notFound))
+            .map(PackageReadme.Model.init(readme:))
             .map { PackageReadme.View(model: $0).document() }
     }
 

@@ -11,6 +11,6 @@ extension PackageReadme.Model {
                     <p>This is README content.</p>
                 </article>
             </div>
-            """, readmeBaseUrl: "https://example.com/foo/bar/")
+            """)
     }
 }

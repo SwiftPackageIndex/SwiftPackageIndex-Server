@@ -30,7 +30,6 @@ enum PackageReadme {
                 return .group(
                     .hr(),
                     .spiReadme(
-                        .attribute(named: "data-readme-base-url", value: model.readmeBaseUrl),
                         .raw(try articleElement.html())
                     )
                 )
