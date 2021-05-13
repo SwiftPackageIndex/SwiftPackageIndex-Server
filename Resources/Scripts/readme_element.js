@@ -30,7 +30,7 @@ export class SPIReadmeElement extends HTMLElement {
         linkElement.addEventListener('click', (event) => {
           const targetAnchor = `user-content-${linkTarget.substring(1)}`
           const destinationElement = document.getElementById(targetAnchor)
-          destinationElement.scrollIntoView()
+          if (destinationElement) destinationElement.scrollIntoView()
           event.preventDefault()
         })
       } else {
