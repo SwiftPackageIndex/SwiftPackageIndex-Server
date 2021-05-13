@@ -75,7 +75,7 @@ services:
 
 
   node-exporter:
-    image: basi/node-exporter:v1.15.0
+    image: prom/node-exporter:v1.1.2
     networks:
       - app_backend
     volumes:
