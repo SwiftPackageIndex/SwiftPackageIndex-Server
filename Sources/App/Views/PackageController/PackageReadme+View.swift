@@ -1,6 +1,5 @@
 import Vapor
 import Plot
-import SwiftSoup
 
 enum PackageReadme {
     
@@ -17,25 +16,16 @@ enum PackageReadme {
             "readme"
         }
 
-        override func frameContent() -> Plot.Node<HTML.BodyContext> {
+        override func frameContent() -> Node<HTML.BodyContext> {
             guard let readme = model.readme
             else { return .empty }
 
-            do {
-                let htmlDocument = try SwiftSoup.parse(readme)
-                let readmeElements = try htmlDocument.select("#readme article")
-                guard let articleElement = readmeElements.first()
-                else { return .empty }
-
-                return .group(
-                    .hr(),
-                    .spiReadme(
-                        .raw(try articleElement.html())
-                    )
+            return .group(
+                .hr(),
+                .spiReadme(
+                    .raw(readme)
                 )
-            } catch {
-                return .empty
-            }
+            )
         }
     }
     

@@ -1,19 +1,42 @@
 import Foundation
-import Plot
 import Vapor
-
-// This class previously had more than one property. We *could* make it a primitive string
-// again at this point, but it has a bit more context this way, and I don't think we're done
-// with readme files yet, so it may still be helpful.
+import SwiftSoup
 
 extension PackageReadme {
     
     struct Model: Equatable {
-        var readme: String?
+        private var readmeElement: Element?
 
         internal init(readme: String?) {
-            self.readme = readme
+            self.readmeElement = processReadme(readme)
+        }
+
+        var readme: String? {
+            guard let readmeElement = readmeElement else { return nil }
+
+            do {
+                return try readmeElement.html()
+            } catch {
+                return nil
+            }
+        }
+
+        func processReadme(_ rawReadme: String?) -> Element? {
+            guard let rawReadme = rawReadme else { return nil }
+            guard let readmeElement = extractReadmeElement(rawReadme) else { return nil }
+            return readmeElement
+        }
+
+        func extractReadmeElement(_ rawReadme: String) -> Element? {
+            do {
+                let htmlDocument = try SwiftSoup.parse(rawReadme)
+                let readmeElements = try htmlDocument.select("#readme article")
+                guard let articleElement = readmeElements.first()
+                else { return nil } // There is no README if this element doesn't exist.
+                return articleElement
+            } catch {
+                return nil
+            }
         }
     }
-
 }
