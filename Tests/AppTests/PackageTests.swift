@@ -575,7 +575,7 @@ final class PackageTests: AppTestCase {
         try makeBuild(.failed, .macosXcodebuild, .v5_0)
         // 5.1 - no data - unknown
         // 5.2 - ok
-        try makeBuild(.ok, .macosXcodebuild, .v4_2)
+        try makeBuild(.ok, .macosXcodebuild, .v5_2)
         // 5.3 - ok
         try makeBuild(.failed, .ios, .v5_3)
         try makeBuild(.ok, .macosXcodebuild, .v5_3)
