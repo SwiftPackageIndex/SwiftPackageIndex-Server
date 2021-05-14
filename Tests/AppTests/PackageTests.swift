@@ -570,18 +570,18 @@ final class PackageTests: AppTestCase {
                 .save(on: app.db)
                 .wait()
         }
-        // 4.2 - failed
-        try makeBuild(.failed, .ios, .init(4, 2, 0))
-        try makeBuild(.failed, .macosXcodebuild, .init(4, 2, 4))
         // 5.0 - failed
-        try makeBuild(.failed, .ios, .init(5, 0, 1))
-        try makeBuild(.failed, .macosXcodebuild, .init(5, 0, 1))
+        try makeBuild(.failed, .ios, .v5_0)
+        try makeBuild(.failed, .macosXcodebuild, .v5_0)
         // 5.1 - no data - unknown
         // 5.2 - ok
-        try makeBuild(.ok, .macosXcodebuild, .init(5, 2, 2))
+        try makeBuild(.ok, .macosXcodebuild, .v4_2)
         // 5.3 - ok
-        try makeBuild(.failed, .ios, .init(5, 3, 0))
-        try makeBuild(.ok, .macosXcodebuild, .init(5, 3, 0))
+        try makeBuild(.failed, .ios, .v5_3)
+        try makeBuild(.ok, .macosXcodebuild, .v5_3)
+        // 5.4 - ok
+        try makeBuild(.failed, .ios, .v5_4)
+        try makeBuild(.ok, .macosXcodebuild, .v5_4)
         try v.$builds.load(on: app.db).wait()
         
         // MUT
@@ -589,11 +589,11 @@ final class PackageTests: AppTestCase {
         
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.v4_2, .init(parameter: .v4_2, status: .incompatible))
         XCTAssertEqual(res?.results.v5_0, .init(parameter: .v5_0, status: .incompatible))
         XCTAssertEqual(res?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
         XCTAssertEqual(res?.results.v5_2, .init(parameter: .v5_2, status: .compatible))
         XCTAssertEqual(res?.results.v5_3, .init(parameter: .v5_3, status: .compatible))
+        XCTAssertEqual(res?.results.v5_4, .init(parameter: .v5_4, status: .compatible))
     }
 
     func test_buildResults_platforms() throws {
@@ -657,11 +657,11 @@ final class PackageTests: AppTestCase {
         
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.v4_2, .init(parameter: .v4_2, status: .unknown))
         XCTAssertEqual(res?.stable?.results.v5_0, .init(parameter: .v5_0, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
         XCTAssertEqual(res?.stable?.results.v5_2, .init(parameter: .v5_2, status: .compatible))
         XCTAssertEqual(res?.stable?.results.v5_3, .init(parameter: .v5_3, status: .unknown))
+        XCTAssertEqual(res?.stable?.results.v5_4, .init(parameter: .v5_4, status: .unknown))
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }

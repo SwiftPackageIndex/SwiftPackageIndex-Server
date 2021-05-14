@@ -179,19 +179,19 @@ extension Package {
         guard let builds = version.$builds.value,
               let referenceName = version.reference?.description else { return nil }
         // For each reported swift version pick major/minor version matches
-        let v4_2 = builds.filter { $0.swiftVersion.isCompatible(with: .v4_2) }
         let v5_0 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_0) }
         let v5_1 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_1) }
         let v5_2 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_2) }
         let v5_3 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_3) }
+        let v5_4 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_4) }
         // ... and report the status
         return
             .init(referenceName: referenceName,
-                  results: .init(status4_2: v4_2.buildStatus,
-                                 status5_0: v5_0.buildStatus,
+                  results: .init(status5_0: v5_0.buildStatus,
                                  status5_1: v5_1.buildStatus,
                                  status5_2: v5_2.buildStatus,
-                                 status5_3: v5_3.buildStatus)
+                                 status5_3: v5_3.buildStatus,
+                                 status5_4: v5_4.buildStatus)
             )
     }
 

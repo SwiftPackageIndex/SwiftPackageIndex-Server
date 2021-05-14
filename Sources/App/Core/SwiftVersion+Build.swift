@@ -1,4 +1,5 @@
 extension SwiftVersion {
+    // FIXME: remove v4_2 as a final step, to stop triggering 4.2 builds
     static let v4_2: Self = .init(4, 2, 3)
     static let v5_0: Self = .init(5, 0, 3)
     static let v5_1: Self = .init(5, 1, 5)
