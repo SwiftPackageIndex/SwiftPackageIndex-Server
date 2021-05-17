@@ -356,13 +356,12 @@ class SearchTests: AppTestCase {
     }
 
     func test_sanitize() throws {
-        XCTAssertEqual(Search.sanitize(["a*b"]), ["ab"])
-        XCTAssertEqual(Search.sanitize(["a?b"]), ["ab"])
-        XCTAssertEqual(Search.sanitize(["a(b"]), ["ab"])
-        XCTAssertEqual(Search.sanitize(["a)b"]), ["ab"])
-        XCTAssertEqual(Search.sanitize(["a[b"]), ["ab"])
-        XCTAssertEqual(Search.sanitize(["a]b"]), ["ab"])
-        XCTAssertEqual(Search.sanitize(["*"]), [])
+        XCTAssertEqual(Search.sanitize(["*"]), ["\\*"])
+        XCTAssertEqual(Search.sanitize(["?"]), ["\\?"])
+        XCTAssertEqual(Search.sanitize(["("]), ["\\("])
+        XCTAssertEqual(Search.sanitize([")"]), ["\\)"])
+        XCTAssertEqual(Search.sanitize(["["]), ["\\["])
+        XCTAssertEqual(Search.sanitize(["]"]), ["\\]"])
     }
 
     func test_invalid_characters() throws {
