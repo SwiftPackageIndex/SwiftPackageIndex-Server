@@ -187,21 +187,21 @@ class PackageShowModelTests: SnapshotTestCase {
     }
 
     func test_groupBuildInfo() throws {
-        let result1: BuildResults = .init(status4_2: .compatible,
-                                          status5_0: .compatible,
+        let result1: BuildResults = .init(status5_0: .compatible,
                                           status5_1: .compatible,
                                           status5_2: .compatible,
-                                          status5_3: .compatible)
-        let result2: BuildResults = .init(status4_2: .incompatible,
-                                          status5_0: .incompatible,
+                                          status5_3: .compatible,
+                                          status5_4: .compatible)
+        let result2: BuildResults = .init(status5_0: .incompatible,
                                           status5_1: .incompatible,
                                           status5_2: .incompatible,
-                                          status5_3: .incompatible)
-        let result3: BuildResults = .init(status4_2: .unknown,
-                                          status5_0: .unknown,
+                                          status5_3: .incompatible,
+                                          status5_4: .incompatible)
+        let result3: BuildResults = .init(status5_0: .unknown,
                                           status5_1: .unknown,
                                           status5_2: .unknown,
-                                          status5_3: .unknown)
+                                          status5_3: .unknown,
+                                          status5_4: .unknown)
         do {  // three distinct groups
             let buildInfo: BuildInfo = .init(stable: .init(referenceName: "1.2.3",
                                                            results: result1),
