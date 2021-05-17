@@ -357,6 +357,7 @@ class SearchTests: AppTestCase {
 
     func test_sanitize() throws {
         XCTAssertEqual(Search.sanitize(["a*b"]), ["ab"])
+        XCTAssertEqual(Search.sanitize(["a?b"]), ["ab"])
         XCTAssertEqual(Search.sanitize(["a(b"]), ["ab"])
         XCTAssertEqual(Search.sanitize(["a)b"]), ["ab"])
         XCTAssertEqual(Search.sanitize(["a[b"]), ["ab"])
