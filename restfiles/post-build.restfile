@@ -1,6 +1,6 @@
 variables:
-    # base_url: http://localhost:8080/api
-    base_url: https://staging.swiftpackageindex.com/api
+    base_url: http://localhost:8080/api
+    # base_url: https://staging.swiftpackageindex.com/api
     # set here or via env variables:
     # env version_id=... builder_token=... rester ...
     # version_id: 
@@ -15,10 +15,9 @@ requests:
             Authorization: Bearer ${builder_token}
         body:
             json:
-                logs: some logs
-                platform:
-                    name: unknown
-                    version: test
+                logUrl: http://localhost/logurl
+                jobUrl: http://localhost/joburl
+                platform: ios
                 status: ok
                 swiftVersion:
                     major: 5
