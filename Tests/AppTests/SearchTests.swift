@@ -354,5 +354,26 @@ class SearchTests: AppTestCase {
         
         XCTAssertEqual(res.results, [])
     }
-    
+
+    func test_sanitize() throws {
+        XCTAssertEqual(Search.sanitize(["*"]), ["\\*"])
+        XCTAssertEqual(Search.sanitize(["?"]), ["\\?"])
+        XCTAssertEqual(Search.sanitize(["("]), ["\\("])
+        XCTAssertEqual(Search.sanitize([")"]), ["\\)"])
+        XCTAssertEqual(Search.sanitize(["["]), ["\\["])
+        XCTAssertEqual(Search.sanitize(["]"]), ["\\]"])
+    }
+
+    func test_invalid_characters() throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/974
+        // Ensure we don't raise a 500 for certain characters
+        // "server: invalid regular expression: quantifier operand invalid"
+
+        // MUT
+        let res = try Search.query(app.db, ["*"], page: 1, pageSize: 20).wait()
+
+        // validation
+        XCTAssertEqual(res, .init(hasMoreResults: false, results: []))
+    }
+
 }

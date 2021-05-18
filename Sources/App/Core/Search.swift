@@ -61,7 +61,18 @@ enum Search {
                   summary: summary?.replaceShorthandEmojis())
         }
     }
-    
+
+    static func sanitize(_ terms: [String]) -> [String] {
+        terms
+            .map { $0.replacingOccurrences(of: "*", with: "\\*") }
+            .map { $0.replacingOccurrences(of: "?", with: "\\?") }
+            .map { $0.replacingOccurrences(of: "(", with: "\\(") }
+            .map { $0.replacingOccurrences(of: ")", with: "\\)") }
+            .map { $0.replacingOccurrences(of: "[", with: "\\[") }
+            .map { $0.replacingOccurrences(of: "]", with: "\\]") }
+            .filter { !$0.isEmpty }
+    }
+
     static func query(_ database: Database,
                       _ terms: [String],
                       page: Int,
@@ -78,8 +89,17 @@ enum Search {
         let maxSearchTerms = 20  // just to impose some sort of limit
         
         // binds
-        let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
-        let binds = terms[..<min(terms.count, maxSearchTerms)].map(SQLBind.init)
+        let sanitizedTerms = sanitize(terms)
+        guard !sanitizedTerms.isEmpty else {
+            return database.eventLoop.future(.init(hasMoreResults: false,
+                                                   results: []))
+        }
+        let mergedTerms = SQLBind(
+            sanitizedTerms.joined(separator: " ").lowercased()
+        )
+        let binds = sanitizedTerms[
+            ..<min(sanitizedTerms.count, maxSearchTerms)
+        ].map(SQLBind.init)
         
         // constants
         let empty = SQLLiteral.string("")
