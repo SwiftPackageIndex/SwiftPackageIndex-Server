@@ -12,6 +12,14 @@ enum BuildShow {
             super.init(path: path)
         }
 
+        override func pageTitle() -> String? {
+            "\(model.packageName) &ndash; Build Information"
+        }
+
+        override func pageDescription() -> String? {
+            "Compatibility information for \(model.packageName). Check compatibility with \(model.buildInfo.swiftVersion.longDisplayName) on \(model.buildInfo.platform.displayName) with full build logs."
+        }
+
         override func bodyComments() -> Node<HTML.BodyContext> {
             .comment(model.versionId.uuidString)
         }

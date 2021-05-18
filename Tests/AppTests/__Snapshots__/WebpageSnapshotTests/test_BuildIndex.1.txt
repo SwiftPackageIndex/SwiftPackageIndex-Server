@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html><!--Version: nil-->
+<html lang="en"><!--Version: nil-->
   <head>
     <meta name="robots" content="noindex"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -8,12 +8,12 @@
     <link rel="canonical" href="http://localhost:8080/"/>
     <meta name="twitter:url" content="http://localhost:8080/"/>
     <meta name="og:url" content="http://localhost:8080/"/>
-    <title>Swift Package Index</title>
-    <meta name="twitter:title" content="Swift Package Index"/>
-    <meta name="og:title" content="Swift Package Index"/>
-    <meta name="description" content="The Swift Package Index is the place to find the best Swift packages."/>
-    <meta name="twitter:description" content="The Swift Package Index is the place to find the best Swift packages."/>
-    <meta name="og:description" content="The Swift Package Index is the place to find the best Swift packages."/>
+    <title>foobar &ndash; Build Results &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="foobar &ndash; Build Results &ndash; Swift Package Index"/>
+    <meta name="og:title" content="foobar &ndash; Build Results &ndash; Swift Package Index"/>
+    <meta name="description" content="The latest compatibility build results for foobar, showing compatibility across 8 platforms with 5 versions of Swift."/>
+    <meta name="twitter:description" content="The latest compatibility build results for foobar, showing compatibility across 8 platforms with 5 versions of Swift."/>
+    <meta name="og:description" content="The latest compatibility build results for foobar, showing compatibility across 8 platforms with 5 versions of Swift."/>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
@@ -32,7 +32,7 @@
       <div class="inner">
         <a href="/">
           <h1>
-            <img src="/images/logo.svg"/>Swift Package Index
+            <img alt="The Swift Package Index logo." src="/images/logo.svg"/>Swift Package Index
           </h1>
         </a>
         <nav>
@@ -1240,8 +1240,8 @@
             </li>
           </ul>
           <small>Kindly hosted by
-            <a href="https://macstadium.com/">MacStadium</a>and
-            <a href="https://azure.microsoft.com">Microsoft Azure</a>
+            <a href="https://www.macstadium.com/">MacStadium</a>and
+            <a href="https://azure.microsoft.com/en-us/">Microsoft Azure</a>
           </small>
         </nav>
       </div>

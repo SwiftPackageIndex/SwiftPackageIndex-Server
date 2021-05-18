@@ -11,8 +11,11 @@ enum ErrorPage {
             self.model = Model(error)
             super.init(path: path)
         }
-        
-        
+
+        override func pageTitle() -> String? {
+            "\(model.errorMessage) &ndash; Error"
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .section(
                 .class("error_message"),

@@ -14,6 +14,7 @@ class PublicPage {
     /// - Returns: A fully formed page inside a <html> element.
     final func document() -> HTML {
         HTML(
+            .lang(.english),
             .comment("Version: \(appVersion)"),
             head(),
             body()
@@ -224,7 +225,10 @@ class PublicPage {
                 .a(
                     .href(SiteURL.home.relativeURL()),
                     .h1(
-                        .img(.src(SiteURL.images("logo.svg").relativeURL())),
+                        .img(
+                            .alt("The Swift Package Index logo."),
+                            .src(SiteURL.images("logo.svg").relativeURL())
+                        ),
                         "Swift Package Index"
                     )
                 ),
@@ -316,12 +320,12 @@ class PublicPage {
                     .element(named: "small", nodes: [ // TODO: Fix after Plot update
                         .text("Kindly hosted by"),
                         .a(
-                            .href("https://macstadium.com/"),
+                            .href("https://www.macstadium.com/"),
                             "MacStadium"
                         ),
                         .text("and"),
                         .a(
-                            .href("https://azure.microsoft.com"),
+                            .href("https://azure.microsoft.com/en-us/"),
                             "Microsoft Azure"
                         )
                     ])

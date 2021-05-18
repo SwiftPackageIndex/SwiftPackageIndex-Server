@@ -11,6 +11,14 @@ enum MaintainerInfoIndex {
             super.init(path: path)
         }
 
+        override func pageTitle() -> String? {
+            "\(model.packageName) &ndash Maintainer Information"
+        }
+
+        override func pageDescription() -> String? {
+            "Are you a maintainer of \(model.packageName)? Get information on how to present your package on the Swift Package Index in the best way."
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .h2("Information for \(model.packageName) Maintainers"),
@@ -35,13 +43,19 @@ enum MaintainerInfoIndex {
                 .div(
                     .class("badge_markdown"),
                     .form(model.badgeMarkdowDisplay(for: .swiftVersions)),
-                    .img(.src(model.badgeURL(for: .swiftVersions)))
+                    .img(
+                        .alt("Swift Version Compatibility for \(model.packageName)"),
+                        .src(model.badgeURL(for: .swiftVersions))
+                    )
                 ),
                 .strong("Platform Compatibility Badge"),
                 .div(
                     .class("badge_markdown"),
                     .form(model.badgeMarkdowDisplay(for: .platforms)),
-                    .img(.src(model.badgeURL(for: .platforms)))
+                    .img(
+                        .alt("Platform Compatibility for \(model.packageName)"),
+                        .src(model.badgeURL(for: .platforms))
+                    )
                 ),
                 .p("Copy the Markdown above into your package's README file to show always-up-to-date compatibility status for your package."),
                 .h3("Build Compatibility"),

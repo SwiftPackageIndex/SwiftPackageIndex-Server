@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html><!--Version: nil-->
+<html lang="en"><!--Version: nil-->
   <head>
     <meta name="robots" content="noindex"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -8,12 +8,12 @@
     <link rel="canonical" href="http://localhost:8080/"/>
     <meta name="twitter:url" content="http://localhost:8080/"/>
     <meta name="og:url" content="http://localhost:8080/"/>
-    <title>Swift Package Index</title>
-    <meta name="twitter:title" content="Swift Package Index"/>
-    <meta name="og:title" content="Swift Package Index"/>
-    <meta name="description" content="The Swift Package Index is the place to find the best Swift packages."/>
-    <meta name="twitter:description" content="The Swift Package Index is the place to find the best Swift packages."/>
-    <meta name="og:description" content="The Swift Package Index is the place to find the best Swift packages."/>
+    <title>Example Package &amp;ndash Maintainer Information &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="Example Package &ndash Maintainer Information &ndash; Swift Package Index"/>
+    <meta name="og:title" content="Example Package &ndash Maintainer Information &ndash; Swift Package Index"/>
+    <meta name="description" content="Are you a maintainer of Example Package? Get information on how to present your package on the Swift Package Index in the best way."/>
+    <meta name="twitter:description" content="Are you a maintainer of Example Package? Get information on how to present your package on the Swift Package Index in the best way."/>
+    <meta name="og:description" content="Are you a maintainer of Example Package? Get information on how to present your package on the Swift Package Index in the best way."/>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
@@ -32,7 +32,7 @@
       <div class="inner">
         <a href="/">
           <h1>
-            <img src="/images/logo.svg"/>Swift Package Index
+            <img alt="The Swift Package Index logo." src="/images/logo.svg"/>Swift Package Index
           </h1>
         </a>
         <nav>
@@ -81,14 +81,14 @@
             <form>
               <input type="text" class="badge_markdown" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions)](http://localhost:8080/example/package)" readonly="true"/>
             </form>
-            <img src="https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions"/>
+            <img alt="Swift Version Compatibility for Example Package" src="https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions"/>
           </div>
           <strong>Platform Compatibility Badge</strong>
           <div class="badge_markdown">
             <form>
               <input type="text" class="badge_markdown" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms)](http://localhost:8080/example/package)" readonly="true"/>
             </form>
-            <img src="https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms"/>
+            <img alt="Platform Compatibility for Example Package" src="https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms"/>
           </div>
           <p>Copy the Markdown above into your package's README file to show always-up-to-date compatibility status for your package.</p>
           <h3>Build Compatibility</h3>
@@ -118,8 +118,8 @@
             </li>
           </ul>
           <small>Kindly hosted by
-            <a href="https://macstadium.com/">MacStadium</a>and
-            <a href="https://azure.microsoft.com">Microsoft Azure</a>
+            <a href="https://www.macstadium.com/">MacStadium</a>and
+            <a href="https://azure.microsoft.com/en-us/">Microsoft Azure</a>
           </small>
         </nav>
       </div>
