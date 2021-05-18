@@ -701,7 +701,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_badgeMessage_swiftVersions() throws {
-        XCTAssertEqual(_badgeMessage(swiftVersions: [.v4_2, .v5_2, .v5_1]), "5.2 | 5.1 | 4.2")
+        XCTAssertEqual(_badgeMessage(swiftVersions: [.v5_2, .v5_1, .v5_4]), "5.4 | 5.2 | 5.1")
         XCTAssertEqual(_badgeMessage(swiftVersions: []), "unavailable")
     }
 
