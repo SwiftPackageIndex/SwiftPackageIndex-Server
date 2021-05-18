@@ -16,6 +16,10 @@ enum BuildIndex {
             "\(model.packageName) &ndash; Build Results"
         }
 
+        override func pageDescription() -> String? {
+            "The latest compatibility build results for \(model.packageName), showing compatibility across \(Build.Platform.allActive.count) platforms with \(SwiftVersion.allActive.count) versions of Swift."
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .h2("Build Results"),

@@ -1,6 +1,6 @@
 ---
 page-title: Builds FAQ
-description: Frequently Asked Questions about the Build System
+description: Frequently Asked Questions about the Swift Package Index Build System
 ---
 
 ## The Swift Package Index Build System

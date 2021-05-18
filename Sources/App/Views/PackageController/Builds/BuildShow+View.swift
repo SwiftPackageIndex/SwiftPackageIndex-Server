@@ -13,7 +13,11 @@ enum BuildShow {
         }
 
         override func pageTitle() -> String? {
-            "\(model.packageName) &ndash; \(model.buildInfo.swiftVersion.longDisplayName) on \(model.buildInfo.platform.displayName) &ndash; Build Information"
+            "\(model.packageName) &ndash; Build Information"
+        }
+
+        override func pageDescription() -> String? {
+            "Compatibility information for \(model.packageName). Check compatibility with \(model.buildInfo.swiftVersion.longDisplayName) on \(model.buildInfo.platform.displayName) with full build logs."
         }
 
         override func bodyComments() -> Node<HTML.BodyContext> {

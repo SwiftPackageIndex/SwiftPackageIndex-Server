@@ -18,7 +18,7 @@ enum PackageShow {
         }
         
         override func pageDescription() -> String? {
-            var description = "\(model.title) on the Swift Package Index"
+            var description = "\(model.title) by \(model.repositoryOwner) on the Swift Package Index"
             if let summary = model.summary {
                 description += " – \(summary)"
             }

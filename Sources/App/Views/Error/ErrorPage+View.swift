@@ -15,7 +15,7 @@ enum ErrorPage {
         override func pageTitle() -> String? {
             "\(model.errorMessage) &ndash; Error"
         }
-        
+
         override func content() -> Node<HTML.BodyContext> {
             .section(
                 .class("error_message"),
