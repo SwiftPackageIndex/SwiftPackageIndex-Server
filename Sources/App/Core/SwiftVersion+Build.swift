@@ -1,6 +1,4 @@
 extension SwiftVersion {
-    // FIXME: remove v4_2 as a final step, to stop triggering 4.2 builds
-    static let v4_2: Self = .init(4, 2, 3)
     static let v5_0: Self = .init(5, 0, 3)
     static let v5_1: Self = .init(5, 1, 5)
     static let v5_2: Self = .init(5, 2, 4)
@@ -9,15 +7,13 @@ extension SwiftVersion {
 
     /// Currently supported swift versions for building
     static var allActive: [Self] {
-        [v4_2, v5_0, v5_1, v5_2, v5_3, v5_4]
+        [v5_0, v5_1, v5_2, v5_3, v5_4]
     }
 
     var xcodeVersion: String? {
         // Match with https://gitlab.com/finestructure/swiftpackageindex-builder/-/blob/main/Sources/BuilderCore/ArgumentTypes.swift#L36
         // NB: this is used for display purposes and not critical for compiler selection
         switch self {
-            case .v4_2:
-                return "Xcode 10.1"
             case .v5_0:
                 return "Xcode 10.3"
             case .v5_1:
