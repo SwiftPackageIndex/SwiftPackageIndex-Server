@@ -1,6 +1,6 @@
 import Plot
 
-extension Node where Context == HTML.BodyContext {
+extension Node where Context: HTML.BodyContext {
     static func small(_ nodes: Node<HTML.BodyContext>...) -> Self {
         .element(named: "small", nodes: nodes)
     }
@@ -19,11 +19,5 @@ extension Node where Context == HTML.BodyContext {
 
     static func spiReadme(_ nodes: Node<HTML.BodyContext>...) -> Self {
         .element(named: "spi-readme", nodes: nodes)
-    }
-}
-
-extension Node where Context == HTML.AnchorContext {
-    static func small(_ nodes: Node<HTML.BodyContext>...) -> Self {
-        .element(named: "small", nodes: nodes)
     }
 }
