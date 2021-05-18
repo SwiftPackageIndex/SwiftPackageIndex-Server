@@ -33,7 +33,7 @@ But this site isn't simply a search tool. Choosing the right dependencies is abo
 
 The [Swift Package Manager](https://swift.org/package-manager/) is a tool built by Apple as part of [the Swift project](https://swift.org) for integrating libraries and frameworks into your Swift apps. It launched in 2015 and gained integration with Xcode 11 in 2019.
 
-To find out more about the Swift Package Manager, there's [documentation on the Apple developer site](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app).
+To find out more about the Swift Package Manager, there's [documentation on the Apple developer site](https://developer.apple.com/documentation/swift_packages/adding_package_dependencies_to_your_app).
 
 ---
 
@@ -102,7 +102,7 @@ If you are the package author, you can fix this by adding a `LICENSE` file with 
 
 If the package license is showing as "Unknown License", it means we have been unable to detect the license. It may be an open-source license where GitHub's license detection algorithm has failed, or it could be a completely different type of license, such as a commercial license. If you are considering using a package with an unidentified license, you should check the package's repository for the license details.
 
-If you are the package author of a package showing an unknown license, and you believe it should show a valid open-source license, please [see GitHub's documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
+If you are the package author of a package showing an unknown license, and you believe it should show a valid open-source license, please [see GitHub's documentation](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#detecting-a-license). The Swift Package Index will update licenses a few hours after GitHub recognises a valid license.
 
 #### Incompatible license
 
