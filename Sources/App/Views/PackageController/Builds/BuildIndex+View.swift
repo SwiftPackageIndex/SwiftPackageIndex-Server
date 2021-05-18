@@ -12,6 +12,10 @@ enum BuildIndex {
             super.init(path: path)
         }
 
+        override func pageTitle() -> String? {
+            "\(model.packageName) &ndash; Build Results"
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .h2("Build Results"),

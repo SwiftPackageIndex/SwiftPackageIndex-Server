@@ -11,6 +11,10 @@ enum MaintainerInfoIndex {
             super.init(path: path)
         }
 
+        override func pageTitle() -> String? {
+            "\(model.packageName) &ndash Maintainer Information"
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .h2("Information for \(model.packageName) Maintainers"),

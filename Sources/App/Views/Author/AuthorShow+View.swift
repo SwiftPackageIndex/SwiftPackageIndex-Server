@@ -12,9 +12,13 @@ enum AuthorShow {
             super.init(path: path)
         }
 
+        override func pageTitle() -> String? {
+            "Packages by \(model.owner)"
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .group(
-                .h2(.text("Packages from \(model.owner)")),
+                .h2(.text("Packages authored by \(model.owner)")),
                 .ul(
                     .id("package_list"),
                     .group(

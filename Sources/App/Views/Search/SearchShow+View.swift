@@ -12,6 +12,14 @@ extension SearchShow {
             super.init(path: path)
         }
 
+        override func pageTitle() -> String? {
+            if model.query.count > 0 {
+                return "Search Results for &ldquo;\(model.query)&rdquo;"
+            } else {
+                return "Search"
+            }
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .section(
