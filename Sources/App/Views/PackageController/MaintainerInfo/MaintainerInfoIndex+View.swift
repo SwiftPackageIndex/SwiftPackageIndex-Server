@@ -43,13 +43,19 @@ enum MaintainerInfoIndex {
                 .div(
                     .class("badge_markdown"),
                     .form(model.badgeMarkdowDisplay(for: .swiftVersions)),
-                    .img(.src(model.badgeURL(for: .swiftVersions)))
+                    .img(
+                        .alt("Swift Version Compatibility for \(model.packageName)"),
+                        .src(model.badgeURL(for: .swiftVersions))
+                    )
                 ),
                 .strong("Platform Compatibility Badge"),
                 .div(
                     .class("badge_markdown"),
                     .form(model.badgeMarkdowDisplay(for: .platforms)),
-                    .img(.src(model.badgeURL(for: .platforms)))
+                    .img(
+                        .alt("Platform Compatibility for \(model.packageName)"),
+                        .src(model.badgeURL(for: .platforms))
+                    )
                 ),
                 .p("Copy the Markdown above into your package's README file to show always-up-to-date compatibility status for your package."),
                 .h3("Build Compatibility"),

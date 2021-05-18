@@ -225,7 +225,10 @@ class PublicPage {
                 .a(
                     .href(SiteURL.home.relativeURL()),
                     .h1(
-                        .img(.src(SiteURL.images("logo.svg").relativeURL())),
+                        .img(
+                            .alt("The Swift Package Index logo."),
+                            .src(SiteURL.images("logo.svg").relativeURL())
+                        ),
                         "Swift Package Index"
                     )
                 ),
