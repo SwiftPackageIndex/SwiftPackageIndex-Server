@@ -1,7 +1,7 @@
 # ================================
 # Build image
 # ================================
-FROM finestructure/spi-base:0.3.1 as build
+FROM finestructure/spi-base:0.4.0 as build
 WORKDIR /build
 
 # First just resolve dependencies.
@@ -24,7 +24,7 @@ RUN swift build \
 # Run image
 # ================================
 # we need a special base image so that we can run `swift dump-package`
-FROM finestructure/spi-base:0.3.1
+FROM finestructure/spi-base:0.4.0
 
 WORKDIR /run
 

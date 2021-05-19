@@ -29,8 +29,8 @@ docker-push:
 
 test-docker:
 	@# run tests inside a docker container
-	docker run --rm -v "$(PWD)":/host -w /host --network="host" finestructure/spi-base:0.3.1 \
-	  bash -c "apt-get update && apt-get install -y unzip && make test"
+	docker run --rm -v "$(PWD)":/host -w /host --network="host" finestructure/spi-base:0.4.0 \
+	  make test
 
 test-e2e: db-reset reconcile ingest analyze
 	@# run import sequence test
