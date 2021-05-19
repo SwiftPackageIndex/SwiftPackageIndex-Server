@@ -184,15 +184,13 @@ class AnalyzerTests: AppTestCase {
         // add existing versions (to be reconciled)
         try Version(package: pkg,
                     commit: "commit0",
-                    // FIXME: add commitDate after cherry-pick
-                    //                    commitDate: T0,
+                    commitDate: .t0,
                     latest: .defaultBranch,
                     packageName: "foo-1",
                     reference: .branch("main")).save(on: app.db).wait()
         try Version(package: pkg,
                     commit: "commit0",
-                    // FIXME: add commitDate after cherry-pick
-                    //                    commitDate: T0,
+                    commitDate: .t0,
                     latest: .release,
                     packageName: "foo-1",
                     reference: .tag(1, 0, 0)).save(on: app.db).wait()
@@ -205,12 +203,10 @@ class AnalyzerTests: AppTestCase {
         Current.git.getTags = { _ in [.tag(1, 0, 0), .tag(1, 1, 1)] }
         Current.git.revisionInfo = { ref, _ in
             // simulate the following scenario:
-            //   - main branch has moved from commit0 -> commit3 (timestamp 3)
-            //   - 1.0.0 has been re-tagged (!) from commit0 -> commit1 (timestamp 1)
-            //   - 1.1.1 has been added at commit2 (timestamp 2)
+            //   - main branch has moved from commit0 -> commit3 (timestamp t3)
+            //   - 1.0.0 has been re-tagged (!) from commit0 -> commit1 (timestamp t1)
+            //   - 1.1.1 has been added at commit2 (timestamp t2)
             switch ref {
-                // NB: case .tag(1, 0, 0): does not compile, that the reason for the
-                // weird where clause (swift 5.3)
                 case _ where ref == .tag(1, 0, 0):
                     return .init(commit: "commit1", date: .t1)
                 case _ where ref == .tag(1, 1, 1):
@@ -253,10 +249,11 @@ class AnalyzerTests: AppTestCase {
         // validate versions
         let p = try XCTUnwrap(Package.find(pkgId, on: app.db).wait())
         try p.$versions.load(on: app.db).wait()
-        let versions = p.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-        XCTAssertEqual(versions.map(\.reference?.description), ["main", "1.0.0", "1.1.1"])
-        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, nil, .release])
-        XCTAssertEqual(versions.map(\.commit), ["commit3", "commit1", "commit2"])
+        let versions = p.versions.sorted(by: { $0.commitDate! < $1.commitDate! })
+        XCTAssertEqual(versions.map(\.commitDate), [.t1, .t2, .t3])
+        XCTAssertEqual(versions.map(\.reference?.description), ["1.0.0", "1.1.1", "main"])
+        XCTAssertEqual(versions.map(\.latest), [nil, .release, .defaultBranch])
+        XCTAssertEqual(versions.map(\.commit), ["commit1", "commit2", "commit3"])
     }
 
     func test_package_status() throws {

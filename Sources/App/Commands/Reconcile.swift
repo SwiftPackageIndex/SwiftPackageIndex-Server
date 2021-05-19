@@ -31,7 +31,6 @@ func liveFetchPackageList(_ client: Client) throws -> EventLoopFuture<[URL]> {
     client
         .get(Constants.packageListUri)
         .flatMapThrowing { try $0.content.decode([String].self, using: JSONDecoder()) }
-        // TODO: send error notification for failing URLs
         .flatMapEachCompactThrowing(URL.init(string:))
 }
 

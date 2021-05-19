@@ -131,7 +131,6 @@ enum PackageShow {
                     .li(
                         .a(
                             .href(model.url),
-                            // TODO: Make "GitHub" dynamic.
                             "View on GitHub"
                         )
                     ),

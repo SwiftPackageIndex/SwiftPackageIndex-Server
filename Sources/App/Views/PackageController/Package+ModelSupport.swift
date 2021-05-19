@@ -13,18 +13,8 @@ extension Package {
                 $0.with(\.$builds)
             }
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
-            // TODO: make less verbose once fixed in Fluent:
-            // https://github.com/vapor/fluent-kit/issues/310
-            .filter(
-                DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
-                DatabaseQuery.Filter.Method.custom("ilike"),
-                DatabaseQuery.Value.bind(owner)
-            )
-            .filter(
-                DatabaseQuery.Field.path(Repository.path(for: \.$name), schema: Repository.schema),
-                DatabaseQuery.Filter.Method.custom("ilike"),
-                DatabaseQuery.Value.bind(repository)
-            )
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
             .first()
             .unwrap(or: Abort(.notFound))
     }
@@ -111,7 +101,6 @@ extension Package {
     
     func makeLink(_ version: Version) -> Link? {
         guard
-            // FIXME: test eager loading resolution
             let fault = version.$reference.value,
             let ref = fault
         else { return nil }
