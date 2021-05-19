@@ -12,7 +12,7 @@ enum MaintainerInfoIndex {
         }
 
         override func pageTitle() -> String? {
-            "\(model.packageName) &ndash Maintainer Information"
+            "\(model.packageName) &ndash; Maintainer Information"
         }
 
         override func pageDescription() -> String? {

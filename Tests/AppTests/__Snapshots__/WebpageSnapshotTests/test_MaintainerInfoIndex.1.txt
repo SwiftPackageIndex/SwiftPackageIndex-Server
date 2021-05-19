@@ -8,9 +8,9 @@
     <link rel="canonical" href="http://localhost:8080/"/>
     <meta name="twitter:url" content="http://localhost:8080/"/>
     <meta name="og:url" content="http://localhost:8080/"/>
-    <title>Example Package &amp;ndash Maintainer Information &ndash; Swift Package Index</title>
-    <meta name="twitter:title" content="Example Package &ndash Maintainer Information &ndash; Swift Package Index"/>
-    <meta name="og:title" content="Example Package &ndash Maintainer Information &ndash; Swift Package Index"/>
+    <title>Example Package &ndash; Maintainer Information &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="Example Package &ndash; Maintainer Information &ndash; Swift Package Index"/>
+    <meta name="og:title" content="Example Package &ndash; Maintainer Information &ndash; Swift Package Index"/>
     <meta name="description" content="Are you a maintainer of Example Package? Get information on how to present your package on the Swift Package Index in the best way."/>
     <meta name="twitter:description" content="Are you a maintainer of Example Package? Get information on how to present your package on the Swift Package Index in the best way."/>
     <meta name="og:description" content="Are you a maintainer of Example Package? Get information on how to present your package on the Swift Package Index in the best way."/>
