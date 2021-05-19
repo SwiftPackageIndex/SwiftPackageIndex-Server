@@ -189,7 +189,6 @@ func insertOrUpdateRepository(on database: Database,
                 .map(Release.init(from:)) ?? []
             repo.stars = repository.stargazerCount
             repo.summary = repository.description
-            // TODO: find and assign parent repo
             return repo.save(on: database)
         }
 }
