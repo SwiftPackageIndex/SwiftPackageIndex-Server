@@ -101,7 +101,6 @@ extension Package {
     
     func makeLink(_ version: Version) -> Link? {
         guard
-            // FIXME: test eager loading resolution
             let fault = version.$reference.value,
             let ref = fault
         else { return nil }
