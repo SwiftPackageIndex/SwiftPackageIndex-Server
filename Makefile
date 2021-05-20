@@ -29,7 +29,7 @@ docker-push:
 
 test-docker:
 	@# run tests inside a docker container
-	docker run --rm -v "$(PWD)":/host -w /host --network="host" finestructure/spi-base:0.5.1 \
+	docker run --rm -v "$(PWD)":/host -w /host --network="host" finestructure/spi-base:0.5.2 \
 	  make test
 
 test-e2e: db-reset reconcile ingest analyze
