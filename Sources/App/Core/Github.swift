@@ -260,6 +260,12 @@ extension Github {
                     owner {
                       login
                       avatarUrl
+                      ... on User {
+                        name
+                      }
+                      ... on Organization {
+                        name
+                      }
                     }
                     releases(first: 20, orderBy: {field: CREATED_AT, direction: DESC}) {
                       nodes {
@@ -338,6 +344,7 @@ extension Github {
 
         struct Owner: Decodable, Equatable {
             var login: String
+            var name: String
             var avatarUrl: String
         }
 
