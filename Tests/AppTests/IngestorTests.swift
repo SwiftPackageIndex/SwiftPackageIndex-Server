@@ -117,7 +117,8 @@ class IngestorTests: AppTestCase {
                             ],
                             name: "bar",
                             stars: 2,
-                            summary: "package desc"),
+                            summary: "package desc",
+                            isInOrganization: false),
                       licenseInfo: .init(htmlUrl: "license url"),
                       readmeInfo: .init(downloadUrl: "readme url", htmlUrl: "readme html url")))
         ]
@@ -294,7 +295,8 @@ class IngestorTests: AppTestCase {
                                                     pullRequestsClosedAtDates: [],
                                                     name: "name",
                                                     stars: 0,
-                                                    summary: "desc"))
+                                                    summary: "desc",
+                                                    isInOrganization: false))
         }
         var reportedLevel: AppError.Level? = nil
         var reportedError: String? = nil

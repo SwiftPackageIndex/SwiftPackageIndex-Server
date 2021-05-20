@@ -933,7 +933,9 @@
         "totalCount": 6
       },
       "owner": {
-        "login": "Alamofire"
+        "login": "Alamofire",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/7774181?v=4",
+        "name": "Alamofire"
       },
       "releases": {
         "nodes": [
@@ -1009,7 +1011,8 @@
           }
         ]
       },
-      "stargazerCount": 34720
+      "stargazerCount": 34720,
+      "isInOrganization": true
     }
   }
 }

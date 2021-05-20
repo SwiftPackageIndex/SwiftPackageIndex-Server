@@ -32,7 +32,7 @@ class GithubTests: AppTestCase {
         }
         do {
             let data = """
-            {"data":{"repository":{"closedIssues":{"nodes":[]},"closedPullRequests":{"nodes":[]},"createdAt":"2019-04-23T09:26:22Z","defaultBranchRef":{"name":"master"},"description":null,"forkCount":0,"isArchived":false,"isFork":false,"licenseInfo":null,"mergedPullRequests":{"nodes":[]},"name":"CRToastSwift","openIssues":{"totalCount":0},"openPullRequests":{"totalCount":0},"owner":{"login":"krugazor"},"releases":{"nodes":[]},"stargazerCount":3},"rateLimit":{"remaining":4753}}}
+            {"data":{"repository":{"closedIssues":{"nodes":[]},"closedPullRequests":{"nodes":[]},"createdAt":"2019-04-23T09:26:22Z","defaultBranchRef":{"name":"master"},"description":null,"forkCount":0,"isArchived":false,"isFork":false,"licenseInfo":null,"mergedPullRequests":{"nodes":[]},"name":"CRToastSwift","openIssues":{"totalCount":0},"openPullRequests":{"totalCount":0},"owner":{"login":"krugazor","avatarUrl": "https://avatars.githubusercontent.com/u/2742179?u=28d2ccb6a27c975e663738fe86af579ff74203ac&v=4","name": "Nicolas Zinovieff"},"releases":{"nodes":[]},"stargazerCount":3,"isInOrganization":false},"rateLimit":{"remaining":4753}}}
             """
             _ = try Github.decoder.decode(Response.self, from: Data(data.utf8))
         }
@@ -87,6 +87,9 @@ class GithubTests: AppTestCase {
         XCTAssertEqual(res.repository?.mergedPullRequests.nodes.first!.closedAt,
                        iso8601.date(from: "2020-11-04T21:27:43Z"))
         XCTAssertEqual(res.repository?.name, "Alamofire")
+        XCTAssertEqual(res.repository?.owner.name, "Alamofire")
+        XCTAssertEqual(res.repository?.owner.login, "Alamofire")
+        XCTAssertEqual(res.repository?.owner.avatarUrl, "https://avatars.githubusercontent.com/u/7774181?v=4")
         XCTAssertEqual(res.repository?.openIssues.totalCount, 30)
         XCTAssertEqual(res.repository?.openPullRequests.totalCount, 6)
         XCTAssertEqual(res.repository?.releases.nodes.count, 10)
@@ -98,6 +101,7 @@ class GithubTests: AppTestCase {
                               url: "https://github.com/Alamofire/Alamofire/releases/tag/5.4.0")
         ))
         XCTAssertEqual(res.repository?.stargazerCount, 34720)
+        XCTAssertEqual(res.repository?.isInOrganization, true)
         // derived properties
         XCTAssertEqual(res.repository?.lastIssueClosedAt,
                        iso8601.date(from: "2020-11-24T16:00:07Z"))
