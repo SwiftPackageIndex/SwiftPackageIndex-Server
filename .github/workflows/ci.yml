@@ -31,7 +31,8 @@ jobs:
         run:
           - make build
           - git diff --quiet Package.resolved
-          - cp .env.testing.template .env.testing && make test
+          - cp .env.testing.template .env.testing
+          - make test
         env:
           DATABASE_HOST: postgres
           DATABASE_PORT: '5432'
