@@ -67,6 +67,7 @@
     </header>
     <main>
       <div class="inner">
+        <script type="application/ld+json">{"@context":"https:\/\/schema.org","@type":"SoftwareSourceCode","codeRepository":"https:\/\/github.com\/Alamofire\/Alamofire.git"}</script>
         <h2>Alamofire</h2>
         <small>
           <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>

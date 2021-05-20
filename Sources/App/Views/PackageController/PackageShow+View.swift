@@ -38,6 +38,7 @@ enum PackageShow {
         
         override func content() -> Node<HTML.BodyContext> {
             .group(
+                .structuredData(PackageSchema(model: model)),
                 .h2(.text(model.title)),
                 .small(
                     .a(
