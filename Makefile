@@ -19,7 +19,7 @@ run:
 	swift run
 
 test:
-	swift test --enable-test-discovery --enable-code-coverage
+	swift test --enable-code-coverage
 
 docker-build: version
 	docker build -t $(DOCKER_IMAGE):$(VERSION) .
