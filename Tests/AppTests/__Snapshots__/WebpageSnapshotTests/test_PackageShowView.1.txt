@@ -67,7 +67,7 @@
     </header>
     <main>
       <div class="inner">
-        <script type="application/ld+json">{"@context":"https:\/\/schema.org","@type":"SoftwareSourceCode","codeRepository":"https:\/\/github.com\/Alamofire\/Alamofire.git"}</script>
+        <script type="application/ld+json">{"@context":"https:\/\/schema.org","@type":"SoftwareSourceCode","identifier":"Alamo\/Alamofire","version":"5.2.0","description":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.","name":"Alamofire","codeRepository":"https:\/\/github.com\/Alamofire\/Alamofire"}</script>
         <h2>Alamofire</h2>
         <small>
           <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
