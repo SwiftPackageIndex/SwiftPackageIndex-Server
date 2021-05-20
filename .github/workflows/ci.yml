@@ -28,11 +28,10 @@ jobs:
       - name: Install unzip
         run: apt-get update && apt-get install -y unzip
       - name: Run tests
-        run:
-          - make build
-          - git diff --quiet Package.resolved
-          - cp .env.testing.template .env.testing
-          - make test
+        run: make build \
+          && git diff --quiet Package.resolved \
+          && cp .env.testing.template .env.testing \
+          && make test
         env:
           DATABASE_HOST: postgres
           DATABASE_PORT: '5432'
