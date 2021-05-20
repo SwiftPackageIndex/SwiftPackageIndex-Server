@@ -259,6 +259,7 @@ extension Github {
                     }
                     owner {
                       login
+                      avatarUrl
                     }
                     releases(first: 20, orderBy: {field: CREATED_AT, direction: DESC}) {
                       nodes {
@@ -270,6 +271,7 @@ extension Github {
                       }
                     }
                     stargazerCount
+                    isInOrganization
                   }
                 }
                 """)
@@ -292,6 +294,7 @@ extension Github {
             var owner: Owner
             var releases: ReleaseNodes
             var stargazerCount: Int
+            var isInOrganization: Bool
             // derived properties
             var defaultBranch: String? { defaultBranchRef?.name }
             var lastIssueClosedAt: Date? {
@@ -335,6 +338,7 @@ extension Github {
 
         struct Owner: Decodable, Equatable {
             var login: String
+            var avatarUrl: String
         }
 
         struct OpenPullRequests: Decodable, Equatable {
