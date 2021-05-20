@@ -1,12 +1,12 @@
 # Build:
 # docker build -t finestructure/spi-base:x.y.z -f Dockerfile.base .
 # docker push finestructure/spi-base:x.y.z
-FROM swift:5.4-bionic
+FROM swift:5.4-focal
 # FROM ubuntu:18.04  # fails (missing system libxml2.so.2)
 # FROM vapor/ubuntu:18.04  # fails with invalid linker name in argument '-fuse-ld=gold'
 
 # install required tools
-RUN apt-get update && apt-get install -y git curl unzip
+RUN apt-get update && apt-get install -y curl git make unzip
 
 # install swift toolchain so we can run `swift package dump-package`
 # (enable this whenever we need to support an upcoming Swift version before updating the
