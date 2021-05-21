@@ -13,13 +13,13 @@ else
 endif
 
 build:
-	swift build
+	swift build --disable-automatic-resolution
 
 run:
 	swift run
 
 test:
-	swift test --enable-code-coverage
+	swift test --enable-code-coverage --disable-automatic-resolution
 
 docker-build: version
 	docker build -t $(DOCKER_IMAGE):$(VERSION) .
