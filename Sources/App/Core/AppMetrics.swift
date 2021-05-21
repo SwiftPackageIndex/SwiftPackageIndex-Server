@@ -96,12 +96,12 @@ enum AppMetrics {
         gauge("spi_build_throttle_count", EmptyLabels.self)
     }
 
-    static var buildTriggerTotal: PromCounter<Int, Labels.Build>? {
-        counter("spi_build_trigger_total", Labels.Build.self)
+    static var buildTriggerCount: PromGauge<Int, Labels.Build>? {
+        gauge("spi_build_trigger_count", Labels.Build.self)
     }
 
-    static var buildTrimTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_build_trim_total", EmptyLabels.self)
+    static var buildTrimCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_build_trim_count", EmptyLabels.self)
     }
 
     static var ingestCandidatesCount: PromGauge<Int, EmptyLabels>? {
