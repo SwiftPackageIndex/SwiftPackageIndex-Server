@@ -23,6 +23,8 @@ struct AnalyzeCommand: Command {
         let logger = Logger(component: "analyze")
         let threadPool = context.application.threadPool
 
+        Self.resetMetrics()
+
         if let id = signature.id {
             logger.info("Analyzing (id: \(id)) ...")
             try analyze(client: client,
@@ -44,6 +46,17 @@ struct AnalyzeCommand: Command {
                             logger: logger,
                             jobName: "analyze")
             .wait()
+    }
+}
+
+
+extension AnalyzeCommand {
+    static func resetMetrics() {
+        AppMetrics.analyzeUpdateRepositorySuccessCount?.set(0)
+        AppMetrics.analyzeUpdateRepositoryFailureCount?.set(0)
+        AppMetrics.buildThrottleCount?.set(0)
+        AppMetrics.analyzeVersionsAddedCount?.set(0)
+        AppMetrics.analyzeVersionsDeletedCount?.set(0)
     }
 }
 
@@ -283,10 +296,10 @@ func updateRepositories(on database: Database,
         let updatedPackage = result.flatMap(updateRepository(package:))
         switch updatedPackage {
             case .success(let pkg):
-                AppMetrics.analyzeUpdateRepositorySuccessTotal?.inc()
+                AppMetrics.analyzeUpdateRepositorySuccessCount?.inc()
                 return pkg.repositories.update(on: database).transform(to: pkg)
             case .failure(let error):
-                AppMetrics.analyzeUpdateRepositoryFailureTotal?.inc()
+                AppMetrics.analyzeUpdateRepositoryFailureCount?.inc()
                 return database.eventLoop.future(error: error)
         }
     }
@@ -374,7 +387,7 @@ func diffVersions(client: Client,
             let delta = origDiff.toAdd.count - newDiff.toAdd.count
             if delta > 0 {
                 logger.info("throttled \(delta) incoming revisions")
-                AppMetrics.buildThrottleTotal?.inc(delta)
+                AppMetrics.buildThrottleCount?.inc(delta)
             }
             return newDiff
         }
