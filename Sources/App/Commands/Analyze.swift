@@ -23,7 +23,7 @@ struct AnalyzeCommand: Command {
         let logger = Logger(component: "analyze")
         let threadPool = context.application.threadPool
 
-        resetMetrics()
+        Self.resetMetrics()
 
         if let id = signature.id {
             logger.info("Analyzing (id: \(id)) ...")
@@ -50,12 +50,14 @@ struct AnalyzeCommand: Command {
 }
 
 
-func resetMetrics() {
-    AppMetrics.analyzeUpdateRepositorySuccessCount?.set(0)
-    AppMetrics.analyzeUpdateRepositoryFailureCount?.set(0)
-    AppMetrics.buildThrottleCount?.set(0)
-    AppMetrics.analyzeVersionsAddedCount?.set(0)
-    AppMetrics.analyzeVersionsDeletedCount?.set(0)
+extension AnalyzeCommand {
+    static func resetMetrics() {
+        AppMetrics.analyzeUpdateRepositorySuccessCount?.set(0)
+        AppMetrics.analyzeUpdateRepositoryFailureCount?.set(0)
+        AppMetrics.buildThrottleCount?.set(0)
+        AppMetrics.analyzeVersionsAddedCount?.set(0)
+        AppMetrics.analyzeVersionsDeletedCount?.set(0)
+    }
 }
 
 

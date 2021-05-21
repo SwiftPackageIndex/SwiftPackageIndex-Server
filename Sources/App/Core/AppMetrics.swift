@@ -108,12 +108,12 @@ enum AppMetrics {
         gauge("spi_ingest_candidates_count", EmptyLabels.self)
     }
 
-    static var ingestMetadataSuccessTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_ingest_metadata_success_total", EmptyLabels.self)
+    static var ingestMetadataSuccessCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_ingest_metadata_success_count", EmptyLabels.self)
     }
 
-    static var ingestMetadataFailureTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_ingest_metadata_failure_total", EmptyLabels.self)
+    static var ingestMetadataFailureCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_ingest_metadata_failure_count", EmptyLabels.self)
     }
 }
 
