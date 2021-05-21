@@ -124,6 +124,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 026 - Add rendered README url
         app.migrations.add(UpdateRepositoryAddReadmeHtmlUrl())
     }
+    do {  // Migration 027 - add owner name, owner avatar url, and is in organization metadata to repositories
+        app.migrations.add(UpdateRepositoryAddOwnerNameAndOwnerAvatarUrlAndIsInOrganizationFlag())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
