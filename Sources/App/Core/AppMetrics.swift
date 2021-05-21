@@ -56,12 +56,12 @@ enum AppMetrics {
         gauge("spi_analyze_candidates_count", EmptyLabels.self)
     }
 
-    static var analyzeUpdateRepositorySuccessTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_analyze_update_repository_success_total", EmptyLabels.self)
+    static var analyzeUpdateRepositorySuccessCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_analyze_update_repository_success_count", EmptyLabels.self)
     }
 
-    static var analyzeUpdateRepositoryFailureTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_analyze_update_repository_failure_total", EmptyLabels.self)
+    static var analyzeUpdateRepositoryFailureCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_analyze_update_repository_failure_count", EmptyLabels.self)
     }
 
     static var analyzeVersionsAddedCount: PromGauge<Int, Labels.Version>? {
@@ -92,8 +92,8 @@ enum AppMetrics {
         counter("spi_build_report_total", Labels.Build.self)
     }
 
-    static var buildThrottleTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_build_throttle_total", EmptyLabels.self)
+    static var buildThrottleCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_build_throttle_count", EmptyLabels.self)
     }
 
     static var buildTriggerTotal: PromCounter<Int, Labels.Build>? {
