@@ -1,7 +1,7 @@
 import Fluent
 
 
-struct UpdateRepositoryAddOwnerNameAndOwnerAvatarUrlAndIsInOrganizationFlag: Migration {
+struct UpdateRepositoryAddOwnerFields: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         database.schema("repositories")
             .field("owner_name", .string)

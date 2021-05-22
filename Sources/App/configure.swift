@@ -125,7 +125,7 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateRepositoryAddReadmeHtmlUrl())
     }
     do {  // Migration 027 - add owner name, owner avatar url, and is in organization metadata to repositories
-        app.migrations.add(UpdateRepositoryAddOwnerNameAndOwnerAvatarUrlAndIsInOrganizationFlag())
+        app.migrations.add(UpdateRepositoryAddOwnerFields())
     }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
