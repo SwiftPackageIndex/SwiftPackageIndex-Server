@@ -344,7 +344,7 @@ extension Github {
 
         struct Owner: Decodable, Equatable {
             var login: String
-            var name: String
+            var name: String?
             var avatarUrl: String
         }
 
