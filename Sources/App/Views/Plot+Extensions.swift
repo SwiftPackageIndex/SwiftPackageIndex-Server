@@ -1,10 +1,6 @@
 import Plot
 
 extension Node where Context: HTML.BodyContext {
-    static func hr(_ attributes: Attribute<HTML.BodyContext>...) -> Node {
-        .selfClosedElement(named: "hr", attributes: attributes)
-    }
-
     static func turboFrame(id: String, source: String? = nil, _ nodes: Node<HTML.BodyContext>...) -> Self {
         let attributes: [Node<HTML.BodyContext>] = [
             .attribute(named: "id", value: id),
