@@ -13,3 +13,11 @@ extension Node where Context: HTML.BodyContext {
         .element(named: "spi-readme", nodes: nodes)
     }
 }
+
+extension Node where Context: RSSItemContext {
+    static func description(_ nodes: Node<HTML.BodyContext>...) -> Node {
+        .element(named: "description",
+                 nodes: [Node.raw("<![CDATA[\(nodes.render())]]>")])
+    }
+}
+
