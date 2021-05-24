@@ -192,11 +192,14 @@ func insertOrUpdateRepository(on database: Database,
             repo.openIssues = repository.openIssues.totalCount
             repo.openPullRequests = repository.openPullRequests.totalCount
             repo.owner = repository.owner.login
+            repo.ownerName = repository.owner.name
+            repo.ownerAvatarUrl = repository.owner.avatarUrl
             repo.readmeUrl = readmeInfo?.downloadUrl
             repo.readmeHtmlUrl = readmeInfo?.htmlUrl
             repo.releases = metadata.repository?.releases.nodes
                 .map(Release.init(from:)) ?? []
             repo.stars = repository.stargazerCount
+            repo.isInOrganization = repository.isInOrganization
             repo.summary = repository.description
             return repo.save(on: database)
         }

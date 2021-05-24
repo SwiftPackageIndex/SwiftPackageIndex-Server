@@ -117,7 +117,8 @@ class IngestorTests: AppTestCase {
                             ],
                             name: "bar",
                             stars: 2,
-                            summary: "package desc"),
+                            summary: "package desc",
+                            isInOrganization: true),
                       licenseInfo: .init(htmlUrl: "license url"),
                       readmeInfo: .init(downloadUrl: "readme url", htmlUrl: "readme html url")))
         ]
@@ -141,6 +142,8 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.openIssues, 1)
         XCTAssertEqual(repo.openPullRequests, 2)
         XCTAssertEqual(repo.owner, "foo")
+        XCTAssertEqual(repo.ownerName, "foo")
+        XCTAssertEqual(repo.ownerAvatarUrl, "https://avatars.githubusercontent.com/u/61124617?s=200&v=4")
         XCTAssertEqual(repo.readmeUrl, "readme url")
         XCTAssertEqual(repo.readmeHtmlUrl, "readme html url")
         XCTAssertEqual(repo.releases, [
@@ -152,6 +155,7 @@ class IngestorTests: AppTestCase {
         ])
         XCTAssertEqual(repo.name, "bar")
         XCTAssertEqual(repo.stars, 2)
+        XCTAssertEqual(repo.isInOrganization, true)
         XCTAssertEqual(repo.summary, "package desc")
     }
     
@@ -294,7 +298,8 @@ class IngestorTests: AppTestCase {
                                                     pullRequestsClosedAtDates: [],
                                                     name: "name",
                                                     stars: 0,
-                                                    summary: "desc"))
+                                                    summary: "desc",
+                                                    isInOrganization: false))
         }
         var reportedLevel: AppError.Level? = nil
         var reportedError: String? = nil

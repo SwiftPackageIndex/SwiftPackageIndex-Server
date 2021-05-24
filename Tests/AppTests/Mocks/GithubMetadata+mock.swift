@@ -15,7 +15,8 @@ extension Github.Metadata {
                                   releases: [],
                                   name: "packageName",
                                   stars: 2,
-                                  summary: "desc")
+                                  summary: "desc",
+                                  isInOrganization: false)
 
     static func mock(for package: Package) -> Self {
         let (owner, name) = try! Github.parseOwnerName(url: package.url)
@@ -30,7 +31,8 @@ extension Github.Metadata {
               releases: [],
               name: name,
               stars: package.url.count + 1,
-              summary: "This is package " + package.url)
+              summary: "This is package " + package.url,
+              isInOrganization: false)
     }
 
     init(defaultBranch: String,
@@ -44,7 +46,9 @@ extension Github.Metadata {
          releases: [ReleaseNodes.ReleaseNode] = [],
          name: String,
          stars: Int,
-         summary: String) {
+         summary: String,
+         isInOrganization: Bool
+    ) {
         self = .init(
             repository: .init(closedIssues: .init(closedAtDates: issuesClosedAtDates),
                               closedPullRequests: .init(closedAtDates: pullRequestsClosedAtDates),
@@ -58,9 +62,10 @@ extension Github.Metadata {
                               name: name,
                               openIssues: .init(totalCount: openIssues),
                               openPullRequests: .init(totalCount: openPullRequests),
-                              owner: .init(login: owner),
+                              owner: .init(login: owner, name: owner, avatarUrl: "https://avatars.githubusercontent.com/u/61124617?s=200&v=4"),
                               releases: .init(nodes: releases),
-                              stargazerCount: stars)
+                              stargazerCount: stars,
+                              isInOrganization: isInOrganization)
         )
     }
 }

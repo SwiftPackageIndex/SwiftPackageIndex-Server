@@ -72,6 +72,12 @@ final class Repository: Model, Content {
     
     @Field(key: "owner")
     var owner: String?
+
+    @Field(key: "owner_name")
+    var ownerName: String?
+
+    @Field(key: "owner_avatar_url")
+    var ownerAvatarUrl: String?
     
     @Field(key: "readme_url")
     var readmeUrl: String?
@@ -84,6 +90,9 @@ final class Repository: Model, Content {
 
     @Field(key: "stars")
     var stars: Int?
+
+    @Field(key: "is_in_organization")
+    var isInOrganization: Bool?
     
     @Field(key: "summary")
     var summary: String?
@@ -108,11 +117,14 @@ final class Repository: Model, Content {
          openIssues: Int? = nil,
          openPullRequests: Int? = nil,
          owner: String? = nil,
+         ownerName: String? = nil,
+         ownerAvatarUrl: String? = nil,
          readmeUrl: String? = nil,
          readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
          isArchived: Bool? = nil,
          stars: Int? = nil,
+         isInOrganization: Bool? = nil,
          forks: Int? = nil,
          forkedFrom: Repository? = nil) throws {
         self.id = id
@@ -131,11 +143,14 @@ final class Repository: Model, Content {
         self.openIssues = openIssues
         self.openPullRequests = openPullRequests
         self.owner = owner
+        self.ownerName = ownerName
+        self.ownerAvatarUrl = ownerAvatarUrl
         self.readmeUrl = readmeUrl
         self.readmeHtmlUrl = readmeHtmlUrl
         self.releases = releases
         self.isArchived = isArchived
         self.stars = stars
+        self.isInOrganization = isInOrganization
         self.forks = forks
         if let forkId = forkedFrom?.id {
             self.$forkedFrom.id = forkId
