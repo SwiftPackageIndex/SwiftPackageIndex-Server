@@ -66,12 +66,12 @@ extension RecentPackage {
             .pubDate(createdAt, timeZone: .utc),
             .description(
                 .p(.text(packageSummary ?? "")),
-                .element(named: "small", nodes: [
+                .small(
                     .a(
                         .href(link),
                         .text("\(repositoryOwner)/\(repositoryName)")
                     )
-                ])
+                )
             )
         )
     }
@@ -94,21 +94,21 @@ extension RecentRelease {
                         .href(packageUrl),
                         .text(packageName)
                     ),
-                    .element(named: "small", nodes: [
+                    .small(
                         " – ",
                         .a(
                             .href(releaseUrl ?? packageUrl),
                             .text("Version \(version) release notes. ")
-                        ),
-                    ])
+                        )
+                    )
                 ),
                 .p(.text(packageSummary ?? "")),
-                .element(named: "small", nodes: [
+                .small(
                     .a(
                         .href(packageUrl),
                         .text("\(repositoryOwner)/\(repositoryName)")
                     )
-                ])
+                )
             )
         )
     }

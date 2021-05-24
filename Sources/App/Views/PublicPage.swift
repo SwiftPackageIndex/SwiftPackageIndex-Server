@@ -317,7 +317,7 @@ class PublicPage {
                             )
                         )
                     ),
-                    .element(named: "small", nodes: [ // TODO: Fix after Plot update
+                    .small(
                         .text("Kindly hosted by"),
                         .a(
                             .href("https://www.macstadium.com/"),
@@ -328,7 +328,7 @@ class PublicPage {
                             .href("https://azure.microsoft.com/en-us/"),
                             "Microsoft Azure"
                         )
-                    ])
+                    )
                  )
             )
         )
