@@ -14,7 +14,7 @@ extension Node where Context: HTML.BodyContext {
     }
 }
 
-extension Node where Context: RSSItemContext {
+extension Node where Context: RSSContentContext {
     static func description(_ nodes: Node<HTML.BodyContext>...) -> Node {
         .element(named: "description",
                  nodes: [Node.raw("<![CDATA[\(nodes.render())]]>")])
