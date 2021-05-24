@@ -14,6 +14,7 @@ extension Node where Context: HTML.BodyContext {
     }
 }
 
+// Awaiting upstreaming in https://github.com/JohnSundell/Plot/pull/66
 extension Node where Context: RSSContentContext {
     static func description(_ nodes: Node<HTML.BodyContext>...) -> Node {
         .element(named: "description",
