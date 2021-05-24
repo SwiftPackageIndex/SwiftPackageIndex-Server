@@ -1,3 +1,5 @@
+import { measurePlausibleEvent } from './plausible_analytics.js'
+
 export class SPIPlaygroundsAppLinkFallback {
   constructor() {
     document.addEventListener('click', (event) => {
@@ -29,6 +31,11 @@ export class SPIPlaygroundsAppLinkFallback {
         setTimeout(() => {
           explainerElement.classList.add('hidden')
         }, 5000)
+
+        // Trigger an analytics event and pass the dependency as a custom property
+        const targetUrl = new URL(linkElement.href)
+        const dependencies = targetUrl.searchParams.get('dependencies')
+        measurePlausibleEvent('SPI Playgrounds Launch', { props: { dependency: dependencies } })
       }
     })
   }
