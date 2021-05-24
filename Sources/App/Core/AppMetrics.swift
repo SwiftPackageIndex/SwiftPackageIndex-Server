@@ -56,12 +56,12 @@ enum AppMetrics {
         gauge("spi_analyze_candidates_count", EmptyLabels.self)
     }
 
-    static var analyzeUpdateRepositorySuccessTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_analyze_update_repository_success_total", EmptyLabels.self)
+    static var analyzeUpdateRepositorySuccessCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_analyze_update_repository_success_count", EmptyLabels.self)
     }
 
-    static var analyzeUpdateRepositoryFailureTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_analyze_update_repository_failure_total", EmptyLabels.self)
+    static var analyzeUpdateRepositoryFailureCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_analyze_update_repository_failure_count", EmptyLabels.self)
     }
 
     static var analyzeVersionsAddedCount: PromGauge<Int, Labels.Version>? {
@@ -92,28 +92,28 @@ enum AppMetrics {
         counter("spi_build_report_total", Labels.Build.self)
     }
 
-    static var buildThrottleTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_build_throttle_total", EmptyLabels.self)
+    static var buildThrottleCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_build_throttle_count", EmptyLabels.self)
     }
 
-    static var buildTriggerTotal: PromCounter<Int, Labels.Build>? {
-        counter("spi_build_trigger_total", Labels.Build.self)
+    static var buildTriggerCount: PromGauge<Int, Labels.Build>? {
+        gauge("spi_build_trigger_count", Labels.Build.self)
     }
 
-    static var buildTrimTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_build_trim_total", EmptyLabels.self)
+    static var buildTrimCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_build_trim_count", EmptyLabels.self)
     }
 
     static var ingestCandidatesCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_ingest_candidates_count", EmptyLabels.self)
     }
 
-    static var ingestMetadataSuccessTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_ingest_metadata_success_total", EmptyLabels.self)
+    static var ingestMetadataSuccessCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_ingest_metadata_success_count", EmptyLabels.self)
     }
 
-    static var ingestMetadataFailureTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_ingest_metadata_failure_total", EmptyLabels.self)
+    static var ingestMetadataFailureCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_ingest_metadata_failure_count", EmptyLabels.self)
     }
 }
 

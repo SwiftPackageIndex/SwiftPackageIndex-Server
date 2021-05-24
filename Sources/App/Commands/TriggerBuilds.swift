@@ -27,6 +27,8 @@ struct TriggerBuildsCommand: Command {
         let force = signature.force
         let logger = Logger(component: "trigger-builds")
 
+        Self.resetMetrics()
+
         let parameter: Parameter
         if let id = signature.id {
             logger.info("Triggering builds (id: \(id)) ...")
@@ -45,6 +47,14 @@ struct TriggerBuildsCommand: Command {
         try AppMetrics.push(client: context.application.client,
                             logger: context.application.logger,
                             jobName: "trigger-builds").wait()
+    }
+}
+
+
+extension TriggerBuildsCommand {
+    static func resetMetrics() {
+        AppMetrics.buildTriggerCount?.set(0)
+        AppMetrics.buildTrimCount?.set(0)
     }
 }
 
@@ -144,7 +154,7 @@ func triggerBuilds(on database: Database,
         }
         .flatMap { trimBuilds(on: database) }
         .map {
-            AppMetrics.buildTrimTotal?.inc($0)
+            AppMetrics.buildTrimCount?.inc($0)
         }
 }
 
@@ -164,7 +174,7 @@ func triggerBuildsUnchecked(on database: Database,
     triggers.flatMap { trigger -> [EventLoopFuture<Void>] in
         logger.info("Triggering \(trigger.pairs.count) builds for package name: \(trigger.packageName), ref: \(trigger.reference)")
         return trigger.pairs.map { pair in
-            AppMetrics.buildTriggerTotal?.inc(1, .init(pair.platform, pair.swiftVersion))
+            AppMetrics.buildTriggerCount?.inc(1, .init(pair.platform, pair.swiftVersion))
             return Build.trigger(database: database,
                           client: client,
                           platform: pair.platform,

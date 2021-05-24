@@ -22,6 +22,8 @@ struct IngestCommand: Command {
         let db = context.application.db
         let logger = Logger(component: "ingest")
 
+        Self.resetMetrics()
+
         if let id = signature.id {
             logger.info("Ingesting (id: \(id)) ...")
             try ingest(client: client, database: db, logger: logger, id: id)
@@ -37,6 +39,13 @@ struct IngestCommand: Command {
     }
 }
 
+
+extension IngestCommand {
+    static func resetMetrics() {
+        AppMetrics.ingestMetadataSuccessCount?.set(0)
+        AppMetrics.ingestMetadataFailureCount?.set(0)
+    }
+}
 
 /// Ingest given `Package` identified by its `Id`.
 /// - Parameters:
@@ -132,7 +141,7 @@ func updateRepositories(
     let ops = metadata.map { result -> EventLoopFuture<Package> in
         switch result {
             case let .success((pkg, metadata, licenseInfo, readmeInfo)):
-                AppMetrics.ingestMetadataSuccessTotal?.inc()
+                AppMetrics.ingestMetadataSuccessCount?.inc()
                 return insertOrUpdateRepository(on: database,
                                                 for: pkg,
                                                 metadata: metadata,
@@ -140,7 +149,7 @@ func updateRepositories(
                                                 readmeInfo: readmeInfo)
                     .map { pkg }
             case let .failure(error):
-                AppMetrics.ingestMetadataFailureTotal?.inc()
+                AppMetrics.ingestMetadataFailureCount?.inc()
                 return database.eventLoop.future(error: error)
         }
     }
