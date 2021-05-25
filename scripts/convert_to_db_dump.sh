@@ -16,7 +16,7 @@ docker network create backup || true
 
 echo "Unpacking ..."
 
-tar xfz $TARFILE
+tar xfz "$TARFILE"
 
 echo "Launching backup db ..."
 
@@ -31,10 +31,10 @@ RETRIES=30
 until docker run --rm --name pg_dump \
     -v "$PWD":/host \
     --network backup \
-    --env PGPASSWORD=$DATABASE_PASSWORD \
+    --env PGPASSWORD="$DATABASE_PASSWORD" \
     $PG_IMAGE \
-    pg_dump --no-owner -Fc -f /host/$DUMPFILE \
-        -h backup-db -U spi_${ENV} spi_${ENV} \
+    pg_dump --no-owner -Fc -f /host/"$DUMPFILE" \
+        -h backup-db -U spi_"${ENV}" spi_"${ENV}" \
     || [ $RETRIES -eq 0 ]; do
     echo "Waiting for postgres server, $((RETRIES-=1)) remaining attempts..."
     sleep 5
@@ -42,9 +42,9 @@ until docker run --rm --name pg_dump \
 done
 
 echo "Moving file"
-mv $DUMPFILE $DB_BACKUP_DIR
+mv "$DUMPFILE" "$DB_BACKUP_DIR"
 
 echo "Cleaning up"
-rm $TARFILE
+rm "$TARFILE"
 rm -rf db_data
 docker rm -f backup-db
