@@ -24,7 +24,7 @@ class GitlabBuilderTests: XCTestCase {
                        ["ref=ref", "token=token", "variables[FOO]=bar"])
     }
 
-    func test_post_trigger() throws {
+    func test_triggerBuild() throws {
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
@@ -50,12 +50,12 @@ class GitlabBuilderTests: XCTestCase {
         }
         
         // MUT
-        _ = try Gitlab.Builder.postTrigger(client: client,
-                                           cloneURL: "https://github.com/daveverwer/LeftPad.git",
-                                           platform: .macosSpm,
-                                           reference: .tag(.init(1, 2, 3)),
-                                           swiftVersion: .init(5, 2, 4),
-                                           versionID: versionID).wait()
+        _ = try Gitlab.Builder.triggerBuild(client: client,
+                                            cloneURL: "https://github.com/daveverwer/LeftPad.git",
+                                            platform: .macosSpm,
+                                            reference: .tag(.init(1, 2, 3)),
+                                            swiftVersion: .init(5, 2, 4),
+                                            versionID: versionID).wait()
         XCTAssertTrue(called)
     }
 
@@ -76,12 +76,12 @@ class GitlabBuilderTests: XCTestCase {
         }
 
         // MUT
-        _ = try Gitlab.Builder.postTrigger(client: client,
-                                           cloneURL: "https://github.com/daveverwer/LeftPad.git",
-                                           platform: .macosSpm,
-                                           reference: .tag(.init(1, 2, 3)),
-                                           swiftVersion: .v5_0,
-                                           versionID: versionID).wait()
+        _ = try Gitlab.Builder.triggerBuild(client: client,
+                                            cloneURL: "https://github.com/daveverwer/LeftPad.git",
+                                            platform: .macosSpm,
+                                            reference: .tag(.init(1, 2, 3)),
+                                            swiftVersion: .v5_0,
+                                            versionID: versionID).wait()
         XCTAssertTrue(called)
     }
 

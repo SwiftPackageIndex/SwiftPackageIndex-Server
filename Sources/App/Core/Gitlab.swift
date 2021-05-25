@@ -41,12 +41,12 @@ extension Gitlab.Builder {
 
     static let branch = "main"
 
-    static func postTrigger(client: Client,
-                            cloneURL: String,
-                            platform: Build.Platform,
-                            reference: Reference,
-                            swiftVersion: SwiftVersion,
-                            versionID: Version.Id) -> EventLoopFuture<ClientResponse> {
+    static func triggerBuild(client: Client,
+                             cloneURL: String,
+                             platform: Build.Platform,
+                             reference: Reference,
+                             swiftVersion: SwiftVersion,
+                             versionID: Version.Id) -> EventLoopFuture<ClientResponse> {
         guard let pipelineToken = Current.gitlabPipelineToken(),
               let builderToken = Current.builderToken()
         else { return client.eventLoop.future(error: Gitlab.Error.missingToken) }

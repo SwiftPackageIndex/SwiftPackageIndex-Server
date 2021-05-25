@@ -132,12 +132,12 @@ extension Build {
             guard let reference = $0.reference else {
                 return database.eventLoop.future(error: Abort(.internalServerError))
             }
-            return Gitlab.Builder.postTrigger(client: client,
-                                              cloneURL: $0.package.url,
-                                              platform: platform,
-                                              reference: reference,
-                                              swiftVersion: swiftVersion,
-                                              versionID: versionId)
+            return Gitlab.Builder.triggerBuild(client: client,
+                                               cloneURL: $0.package.url,
+                                               platform: platform,
+                                               reference: reference,
+                                               swiftVersion: swiftVersion,
+                                               versionID: versionId)
                 .map { $0.status }
         }
     }
