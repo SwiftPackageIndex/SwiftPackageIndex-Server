@@ -125,6 +125,38 @@ class ApiTests: AppTestCase {
         }
 
     }
+    func test_post_build_infrastructureError() throws {
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p)
+        try v.save(on: app.db).wait()
+        let versionId = try XCTUnwrap(v.id)
+
+        let dto: API.PostCreateBuildDTO = .init(
+            buildCommand: "xcodebuild -scheme Foo",
+            jobUrl: "https://example.com/jobs/1",
+            logUrl: "log url",
+            platform: .macosXcodebuild,
+            status: .infrastructureError,
+            swiftVersion: .init(5, 2, 0))
+        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+        try app.test(
+            .POST,
+            "api/versions/\(versionId)/builds",
+            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+            body: body,
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .ok)
+                struct DTO: Decodable {
+                    var id: Build.Id?
+                }
+                let dto = try JSONDecoder().decode(DTO.self, from: res.body)
+                let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                XCTAssertEqual(b.status, .infrastructureError)
+            })
+    }
 
     func test_post_build_unauthenticated() throws {
         // Ensure unauthenticated access raises a 401
