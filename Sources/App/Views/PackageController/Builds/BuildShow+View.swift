@@ -87,7 +87,7 @@ private extension Build.Status {
         switch self {
             case .ok: return "Successful"
             case .failed: return "Failed"
-            case .pending, .timeout: return ""
+            case .infrastructureError, .pending, .timeout: return ""
         }
     }
 
@@ -95,7 +95,7 @@ private extension Build.Status {
         switch self {
             case .ok: return " build of "
             case .failed: return " to build "
-            case .pending, .timeout: return ""
+            case .infrastructureError, .pending, .timeout: return ""
         }
     }
 
@@ -103,7 +103,7 @@ private extension Build.Status {
         switch self {
             case .ok: return "green"
             case .failed: return "red"
-            case .pending, .timeout: return ""
+            case .infrastructureError, .pending, .timeout: return ""
         }
     }
 }

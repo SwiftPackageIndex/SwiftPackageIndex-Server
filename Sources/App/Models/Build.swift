@@ -99,6 +99,7 @@ extension Build {
     enum Status: String, Codable {
         case ok
         case failed
+        case infrastructureError
         case pending
         case timeout
     }
