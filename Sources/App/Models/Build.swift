@@ -138,7 +138,6 @@ extension Build {
                                                reference: reference,
                                                swiftVersion: swiftVersion,
                                                versionID: versionId)
-                .map { $0.status }
         }
     }
     
