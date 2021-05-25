@@ -577,6 +577,43 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(deleteCount, 0)
     }
 
+    func test_trimBuilds_timeout() throws {
+        // Ensure timouts are not deleted
+        // setup
+        let pkgId = UUID()
+        let p = Package(id: pkgId, url: "1")
+        try p.save(on: app.db).wait()
+        let v = try Version(package: p, latest: .defaultBranch)
+        try v.save(on: app.db).wait()
+
+        let buildId = UUID()
+        try Build(id: buildId,
+                  version: v,
+                  platform: .ios,
+                  status: .timeout,
+                  swiftVersion: .v5_4)
+            .save(on: app.db).wait()
+
+        // MUT
+        var deleteCount = try trimBuilds(on: app.db).wait()
+
+        // validate
+        XCTAssertEqual(deleteCount, 0)
+        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+
+        do { // make build "old" by resetting "created_at"
+            let sql = "update builds set created_at = created_at - interval '4 hours' where id = '\(buildId.uuidString)'"
+            try (app.db as! SQLDatabase).raw(.init(sql)).run().wait()
+        }
+
+        // MUT
+        deleteCount = try trimBuilds(on: app.db).wait()
+
+        // validate
+        XCTAssertEqual(deleteCount, 0)
+        XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+    }
+
     func test_trimBuilds_infrastructureError() throws {
         // Ensure infrastructerErrors are deleted
         // setup
@@ -587,7 +624,6 @@ class BuildTriggerTests: AppTestCase {
         try v.save(on: app.db).wait()
 
         let buildId = UUID()
-
         try Build(id: buildId,
                   version: v,
                   platform: .ios,
@@ -595,7 +631,10 @@ class BuildTriggerTests: AppTestCase {
                   swiftVersion: .v5_4)
             .save(on: app.db).wait()
 
+        // MUT
         var deleteCount = try trimBuilds(on: app.db).wait()
+
+        // validate
         XCTAssertEqual(deleteCount, 0)
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 
@@ -604,7 +643,10 @@ class BuildTriggerTests: AppTestCase {
             try (app.db as! SQLDatabase).raw(.init(sql)).run().wait()
         }
 
+        // MUT
         deleteCount = try trimBuilds(on: app.db).wait()
+
+        // validate
         XCTAssertEqual(deleteCount, 1)
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
     }
