@@ -235,7 +235,7 @@ class ApiTests: AppTestCase {
     }
     
     func test_post_build_trigger() throws {
-        // Ensure unauthenticated access raises a 401
+        // Test basic build trigger (high level API, details tested in GitlabBuilderTests)
         // setup
         Current.builderToken = { "secr3t" }
         Current.gitlabPipelineToken = { "ptoken" }
@@ -249,9 +249,10 @@ class ApiTests: AppTestCase {
         // we're testing the exact Gitlab trigger post request in detail in
         // GitlabBuilderTests - so here we just ensure a request is being made
         var requestSent = false
-        app.clients.use( { _ in MockClient { req, _ in
+        Current.triggerBuild = { _, _, _, _, _, _ in
             requestSent = true
-        }})
+            return self.app.eventLoopGroup.future(.ok)
+        }
         
         // MUT
         try app.test(
@@ -261,7 +262,6 @@ class ApiTests: AppTestCase {
             body: body,
             afterResponse: { res in
                 // validation
-                XCTAssertEqual(res.status, .ok)
                 XCTAssertTrue(requestSent)
             })
     }
@@ -302,7 +302,6 @@ class ApiTests: AppTestCase {
     
     func test_post_build_trigger_package_name() throws {
         // Test POST /packages/{owner}/{repo}/trigger-builds
-        // Ensure unauthenticated access raises a 401
         // setup
         Current.builderToken = { "secr3t" }
         Current.gitlabPipelineToken = { "ptoken" }
@@ -328,10 +327,11 @@ class ApiTests: AppTestCase {
         // GitlabBuilderTests - so here we just ensure two requests are being
         // made (one for each version to build)
         var requestsSent = 0
-        app.clients.use( { _ in MockClient { req, _ in
+        Current.triggerBuild = { _, _, _, _, _, _ in
             requestsSent += 1
-        }})
-        
+            return self.app.eventLoopGroup.future(.ok)
+        }
+
         // MUT
         try app.test(
             .POST,
@@ -340,7 +340,6 @@ class ApiTests: AppTestCase {
             body: body,
             afterResponse: { res in
                 // validation
-                XCTAssertEqual(res.status, .ok)
                 XCTAssertEqual(requestsSent, 2)
             })
     }

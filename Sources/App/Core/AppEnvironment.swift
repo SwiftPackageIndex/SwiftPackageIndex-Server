@@ -32,6 +32,12 @@ struct AppEnvironment {
     var setLogger: (Logger) -> Void
     var shell: Shell
     var siteURL: () -> String
+    var triggerBuild: (_ client: Client,
+                       _ cloneURL: String,
+                       _ platform: Build.Platform,
+                       _ reference: Reference,
+                       _ swiftVersion: SwiftVersion,
+                       _ versionID: Version.Id) -> EventLoopFuture<HTTPStatus>
     var twitterCredentials: () -> Twitter.Credentials?
     var twitterPostTweet: (_ client: Client, _ tweet: String) -> EventLoopFuture<Void>
 }
@@ -98,6 +104,7 @@ extension AppEnvironment {
         setLogger: { logger in Self.logger = logger },
         shell: .live,
         siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
+        triggerBuild: Gitlab.Builder.triggerBuild,
         twitterCredentials: {
             guard let apiKey = Environment.get("TWITTER_API_KEY"),
                   let apiKeySecret = Environment.get("TWITTER_API_SECRET"),
