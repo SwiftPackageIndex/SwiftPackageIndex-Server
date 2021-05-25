@@ -109,7 +109,10 @@ class BuildTests: AppTestCase {
         let v = try Version(package: p, reference: .branch("main"))
         try v.save(on: app.db).wait()
         let versionID = try XCTUnwrap(v.id)
-        
+
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
         var called = false
         let client = MockClient { req, res in
             called = true

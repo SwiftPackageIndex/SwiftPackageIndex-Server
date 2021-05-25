@@ -124,6 +124,9 @@ class BuildTriggerTests: AppTestCase {
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
 
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
         let queue = DispatchQueue(label: "serial")
         var queries = [Gitlab.Builder.PostDTO]()
         let client = MockClient { req, res in
@@ -170,6 +173,9 @@ class BuildTriggerTests: AppTestCase {
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
 
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
         let queue = DispatchQueue(label: "serial")
         var queries = [Gitlab.Builder.PostDTO]()
         let client = MockClient { req, res in
@@ -236,12 +242,14 @@ class BuildTriggerTests: AppTestCase {
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
         Current.gitlabPipelineLimit = { 300 }
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
+        var triggerCount = 0
+        let client = MockClient { _, _ in triggerCount += 1 }
 
         do {  // fist run: we are at capacity and should not be triggering more builds
             Current.getStatusCount = { _, _ in self.future(300) }
-
-            var triggerCount = 0
-            let client = MockClient { _, _ in triggerCount += 1 }
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -264,11 +272,10 @@ class BuildTriggerTests: AppTestCase {
             XCTAssertEqual(v?.builds.count, 0)
         }
 
+        triggerCount = 0
+
         do {  // second run: we are just below capacity and allow more builds to be triggered
             Current.getStatusCount = { _, _ in self.future(299) }
-
-            var triggerCount = 0
-            let client = MockClient { _, _ in triggerCount += 1 }
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -327,7 +334,9 @@ class BuildTriggerTests: AppTestCase {
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
         Current.gitlabPipelineLimit = { 300 }
-
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
         var triggerCount = 0
         let client = MockClient { _, _ in triggerCount += 1 }
         Current.getStatusCount = { _, _ in self.future(299 + triggerCount) }
@@ -386,12 +395,15 @@ class BuildTriggerTests: AppTestCase {
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
+        var triggerCount = 0
+        let client = MockClient { _, _ in triggerCount += 1 }
 
         do {  // confirm that the off switch prevents triggers
             Current.allowBuildTriggers = { false }
 
-            var triggerCount = 0
-            let client = MockClient { _, _ in triggerCount += 1 }
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -410,11 +422,10 @@ class BuildTriggerTests: AppTestCase {
             XCTAssertEqual(triggerCount, 0)
         }
 
+        triggerCount = 0
+
         do {  // flipping the switch to on should allow triggers to proceed
             Current.allowBuildTriggers = { true }
-
-            var triggerCount = 0
-            let client = MockClient { _, _ in triggerCount += 1 }
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -441,12 +452,14 @@ class BuildTriggerTests: AppTestCase {
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
         Current.buildTriggerDownscaling = { 0.05 }  // 5% downscaling rate
+        // Use live dependency but replace actual client with a mock so we can
+        // assert on the details being sent without actually making a request
+        Current.triggerBuild = Gitlab.Builder.triggerBuild
+        var triggerCount = 0
+        let client = MockClient { _, _ in triggerCount += 1 }
 
         do {  // confirm that bad luck prevents triggers
             Current.random = { _ in 0.05 }  // rolling a 0.05 ... so close!
-
-            var triggerCount = 0
-            let client = MockClient { _, _ in triggerCount += 1 }
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -465,11 +478,10 @@ class BuildTriggerTests: AppTestCase {
             XCTAssertEqual(triggerCount, 0)
         }
 
+        triggerCount = 0
+
         do {  // if we get lucky however...
             Current.random = { _ in 0.049 }  // rolling a 0.05 gets you in
-
-            var triggerCount = 0
-            let client = MockClient { _, _ in triggerCount += 1 }
 
             let pkgId = UUID()
             let versionId = UUID()
