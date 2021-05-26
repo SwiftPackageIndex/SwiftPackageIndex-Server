@@ -40,7 +40,7 @@ extension MaintainerInfoIndex {
                 .type(.text),
                 .class("badge_markdown"),
                 .value(badgeMarkdown(for: type)),
-                .attribute(named: "readonly", value: "true")
+                .readonly(true)
             )
         }
     }

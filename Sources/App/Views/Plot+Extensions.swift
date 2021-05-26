@@ -70,3 +70,10 @@ extension Node where Context: RSSContentContext {
     }
 }
 
+// Awaiting upstreaming in https://github.com/JohnSundell/Plot/pull/68
+extension Attribute where Context == HTML.InputContext {
+    static func readonly(_ isReadonly: Bool) -> Attribute {
+        isReadonly ? Attribute(name: "readonly", value: nil, ignoreIfValueIsEmpty: false) : .empty
+    }
+}
+
