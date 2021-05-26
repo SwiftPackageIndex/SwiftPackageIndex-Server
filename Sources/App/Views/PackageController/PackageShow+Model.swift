@@ -8,6 +8,7 @@ extension PackageShow {
     struct Model: Equatable {
         var packageId: Package.Id
         var repositoryOwner: String
+        var repositoryOwnerName: String
         var repositoryName: String
         var activity: Activity?
         var authors: [Link]?
@@ -28,6 +29,7 @@ extension PackageShow {
         
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
+                      repositoryOwnerName: String,
                       repositoryName: String,
                       activity: Activity? = nil,
                       authors: [Link]? = nil,
@@ -47,6 +49,7 @@ extension PackageShow {
                       isArchived: Bool) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
+            self.repositoryOwnerName = repositoryOwnerName
             self.repositoryName = repositoryName
             self.activity = activity
             self.authors = authors
@@ -71,6 +74,7 @@ extension PackageShow {
             guard
                 let repository = package.repository,
                 let repositoryOwner = repository.owner,
+                let repositoryOwnerName = repository.ownerDisplayName,
                 let repositoryName = repository.name,
                 let packageId = package.id
             else { return nil }
@@ -78,6 +82,7 @@ extension PackageShow {
             self.init(
                 packageId: packageId,
                 repositoryOwner: repositoryOwner,
+                repositoryOwnerName: repositoryOwnerName,
                 repositoryName: repositoryName,
                 activity: package.activity(),
                 authors: package.authors(),

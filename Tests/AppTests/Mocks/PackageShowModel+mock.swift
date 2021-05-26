@@ -8,6 +8,7 @@ extension PackageShow.Model {
         .init(
             packageId: UUID("cafecafe-cafe-cafe-cafe-cafecafecafe")!,
             repositoryOwner: "Alamo",
+            repositoryOwnerName: "Alamo",
             repositoryName: "Alamofire",
             activity: .init(
                 openIssuesCount: 27,

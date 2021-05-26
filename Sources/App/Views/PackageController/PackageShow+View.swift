@@ -18,7 +18,7 @@ enum PackageShow {
         }
         
         override func pageDescription() -> String? {
-            var description = "\(model.title) by \(model.repositoryOwner) on the Swift Package Index"
+            var description = "\(model.title) by \(model.repositoryOwnerName) on the Swift Package Index"
             if let summary = model.summary {
                 description += " – \(summary)"
             }
@@ -143,7 +143,7 @@ enum PackageShow {
                     .li(
                         .a(
                             .href(SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
-                            "More packages from this author"
+                            "More packages from \(model.repositoryOwnerName)"
                         )
                     ),
                     .li(
