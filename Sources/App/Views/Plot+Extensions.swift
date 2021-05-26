@@ -49,7 +49,7 @@ extension Node where Context == HTML.FormContext {
             .spellcheck(false),
             .autocomplete(false),
             .enableGrammarly(false),
-            .attribute(named: "data-focus", value: String(autofocus)),
+            .data(named: "focus", value: String(autofocus)),
             .value(query)
         )
     }
@@ -59,7 +59,7 @@ extension Node where Context == HTML.FormContext {
 
 extension Attribute where Context == HTML.InputContext {
     static func enableGrammarly(_ isEnabled: Bool) -> Attribute {
-        Attribute(name: "data-gramm", value: String(isEnabled))
+        .data(named: "gramm", value: String(isEnabled))
     }
 }
 

@@ -38,7 +38,7 @@ class PublicPage {
             .link(
                 .rel(.stylesheet),
                 .href(SiteURL.stylesheets("main").relativeURL() + "?\(resourceReloadQueryString())"),
-                .attribute(named: "data-turbolinks-track", value: "reload")
+                .data(named: "turbolinks-track", value: "reload")
             ),
             .link(
                 .rel(.alternate),
@@ -72,7 +72,7 @@ class PublicPage {
             ),
             .script(
                 .src(SiteURL.javascripts("main").relativeURL() + "?\(resourceReloadQueryString())"),
-                .attribute(named: "data-turbolinks-track", value: "reload"),
+                .data(named: "turbolinks-track", value: "reload"),
                 .attribute(named: "defer", value: "true")
             ),
             analyticsHead()
