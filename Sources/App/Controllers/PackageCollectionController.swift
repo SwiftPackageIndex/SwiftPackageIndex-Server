@@ -10,8 +10,8 @@ struct PackageCollectionController {
         return PackageCollection.generate(
             db: req.db,
             owner: owner,
-            authorName: "\(owner) via Swift Package Index",
-            collectionName: "\(owner) package collection"
+            authorName: "\(owner) via the Swift Package Index",
+            collectionName: "Packages by \(owner)"
         )
     }
 }
