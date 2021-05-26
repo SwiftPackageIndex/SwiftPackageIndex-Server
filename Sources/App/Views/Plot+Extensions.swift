@@ -80,18 +80,18 @@ extension Attribute where Context == HTML.InputContext {
 // Awaiting upstreaming in XXX
 extension Attribute where Context: HTML.BodyContext {
     static func spellcheck(_ isEnabled: Bool) -> Attribute {
-        Attribute(name: "readonly", value: String(isEnabled))
+        Attribute(name: "spellcheck", value: String(isEnabled))
     }
 }
 
 extension Node where Context: HTML.BodyContext {
     static func spellcheck(_ isEnabled: Bool) -> Node {
-        .attribute(named: "readonly", value: String(isEnabled))
+        .attribute(named: "spellcheck", value: String(isEnabled))
     }
 }
 
 extension Attribute where Context == HTML.InputContext {
     static func spellcheck(_ isEnabled: Bool) -> Attribute {
-        Attribute(name: "readonly", value: String(isEnabled))
+        Attribute(name: "spellcheck", value: String(isEnabled))
     }
 }
