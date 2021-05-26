@@ -31,7 +31,7 @@ enum Constants {
     static let reIngestionDeadtime: TimeInterval = .minutes(90)
     
     static let rssFeedMaxItemCount = 100
-    static let rssTTL = 60  // minutes
+    static let rssTTL: TimeInterval = .minutes(60)
     
     static let searchPageSize = 20
 
@@ -39,6 +39,6 @@ enum Constants {
     static let gitCheckoutMaxAge: TimeInterval = .days(30)
 
     // build system settings
-    static let trimBuildsGracePeriod = 4  // hours
+    static let trimBuildsGracePeriod: TimeInterval = .hours(4)
     static let branchVersionRefreshDelay: TimeInterval = .hours(24)
 }

@@ -317,7 +317,7 @@ func trimBuilds(on database: Database) -> EventLoopFuture<Int> {
           v.latest is null
           OR (
             b.status IN ('pending', 'infrastructureError')
-            AND b.created_at < NOW() - INTERVAL '\(raw: String(Constants.trimBuildsGracePeriod)) hours'
+            AND b.created_at < NOW() - INTERVAL '\(raw: String(Constants.trimBuildsGracePeriod.inHours)) hours'
           )
         )
         RETURNING b.id
