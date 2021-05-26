@@ -48,6 +48,8 @@ extension SiteURL {
                 return .weekly
             case .package:
                 return .daily
+            case .packageCollection:
+                return .daily
             case .privacy:
                 return .monthly
             case .rssPackages:
