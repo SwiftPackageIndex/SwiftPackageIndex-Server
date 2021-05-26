@@ -11,8 +11,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
-        let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("main"))
-        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
+        let old = try makeVersion(pkg, "sha_old", -.hours(23), .branch("main"))
+        let new = try makeVersion(pkg, "sha_new", -.hours(1), .branch("main"))
 
         // MUT
         let res = throttle(lastestExistingVersion: old, incoming: [new])
@@ -27,8 +27,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
-        let old = try makeVersion(pkg, "sha_old", -26.hours, .branch("main"))
-        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
+        let old = try makeVersion(pkg, "sha_old", .hours(-26), .branch("main"))
+        let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
         // MUT
         let res = throttle(lastestExistingVersion: old, incoming: [new])
@@ -43,8 +43,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
-        let old = try makeVersion(pkg, "sha_old", -23.hours, .tag(1, 0, 0))
-        let new = try makeVersion(pkg, "sha_new", -1.hours, .tag(2, 0, 0))
+        let old = try makeVersion(pkg, "sha_old", .hours(-23), .tag(1, 0, 0))
+        let new = try makeVersion(pkg, "sha_new", .hours(-1), .tag(2, 0, 0))
 
         // MUT
         let res = throttle(lastestExistingVersion: old, incoming: [new])
@@ -59,7 +59,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
-        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
+        let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
         // MUT
         let res = throttle(lastestExistingVersion: nil, incoming: [new])
@@ -74,8 +74,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
-        let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("develop"))
-        let new = try makeVersion(pkg, "sha_new", -1.hours, .branch("main"))
+        let old = try makeVersion(pkg, "sha_old", .hours(-23), .branch("develop"))
+        let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
         // MUT
         let res = throttle(lastestExistingVersion: old, incoming: [new])
@@ -90,8 +90,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
-        let old = try makeVersion(pkg, "sha", -1.hours, .branch("main-old"))
-        let new = try makeVersion(pkg, "sha", -1.hours, .branch("main-new"))
+        let old = try makeVersion(pkg, "sha", .hours(-1), .branch("main-old"))
+        let new = try makeVersion(pkg, "sha", .hours(-1), .branch("main-new"))
 
         // MUT
         let res = throttle(lastestExistingVersion: old, incoming: [new])
@@ -108,10 +108,10 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
-        let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("main"))
-        let new0 = try makeVersion(pkg, "sha_new0", -3.hours, .branch("main"))
-        let new1 = try makeVersion(pkg, "sha_new1", -2.hours, .branch("main"))
-        let new2 = try makeVersion(pkg, "sha_new2", -1.hours, .branch("main"))
+        let old = try makeVersion(pkg, "sha_old", .hours(-23), .branch("main"))
+        let new0 = try makeVersion(pkg, "sha_new0", .hours(-3), .branch("main"))
+        let new1 = try makeVersion(pkg, "sha_new1", .hours(-2), .branch("main"))
+        let new2 = try makeVersion(pkg, "sha_new2", .hours(-1), .branch("main"))
 
         // MUT
         let res = throttle(lastestExistingVersion: old,
@@ -129,10 +129,10 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         Current.date = { .t0 }
         let pkg = Package(url: "1")
         try pkg.save(on: app.db).wait()
-        let old = try makeVersion(pkg, "sha_old", -26.hours, .branch("main"))
-        let new0 = try makeVersion(pkg, "sha_new0", -3.hours, .branch("main"))
-        let new1 = try makeVersion(pkg, "sha_new1", -2.hours, .branch("main"))
-        let new2 = try makeVersion(pkg, "sha_new2", -1.hours, .branch("main"))
+        let old = try makeVersion(pkg, "sha_old", .hours(-26), .branch("main"))
+        let new0 = try makeVersion(pkg, "sha_new0", .hours(-3), .branch("main"))
+        let new1 = try makeVersion(pkg, "sha_new1", .hours(-2), .branch("main"))
+        let new2 = try makeVersion(pkg, "sha_new2", .hours(-1), .branch("main"))
 
         // MUT
         let res = throttle(lastestExistingVersion: old,
@@ -150,12 +150,12 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         Current.git.getTags = { _ in [.branch("main")] }
         let pkg = Package(url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
-        let old = try makeVersion(pkg, "sha_old", -23.hours, .branch("main"))
+        let old = try makeVersion(pkg, "sha_old", .hours(-23), .branch("main"))
         try old.save(on: app.db).wait()
 
         do {  // keep old version if too soon
             Current.git.revisionInfo = { _, _ in
-                .init(commit: "sha_new", date: Date.t0.addingTimeInterval(-1.hours) )
+                .init(commit: "sha_new", date: Date.t0.addingTimeInterval(.hours(-1)) )
             }
 
             // MUT
@@ -172,7 +172,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
 
         do {  // new version must come through
-            t = t.addingTimeInterval(2.hours)
+            t = t.addingTimeInterval(.hours(2))
 
             Current.git.revisionInfo = { _, _ in
                 // now simulate a newer branch revision
@@ -230,7 +230,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
 
         do {  // one hour later a new commit landed - which should be ignored
-            t = t.addingTimeInterval(1.hour)
+            t = t.addingTimeInterval(.hours(1))
             Current.git.getTags = { _ in [.branch("main")] }
             Current.git.revisionInfo = { _, _ in .init(commit: "sha1", date: t ) }
 
@@ -242,7 +242,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
         do {  // run another 5 commits every four hours - they all should be ignored
             try (1...5).forEach { idx in
-                t = t.addingTimeInterval(4.hours)
+                t = t.addingTimeInterval(.hours(4))
                 Current.git.getTags = { _ in [.branch("main")] }
                 Current.git.revisionInfo = { _, _ in .init(commit: "sha\(idx+1)", date: t ) }
 
@@ -254,7 +254,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
 
         do {  // advancing another 4 hours should finally create a new version
-            t = t.addingTimeInterval(4.hours)
+            t = t.addingTimeInterval(.hours(4))
             Current.git.getTags = { _ in [.branch("main")] }
             Current.git.revisionInfo = { _, _ in .init(commit: "sha7", date: t ) }
 
@@ -277,8 +277,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         try pkg.save(on: app.db).wait()
 
         do {  // both within window
-            let ex = try makeVersion(pkg, "sha-ex", -1.hours, .branch("main"))
-            let inc = try makeVersion(pkg, "sha-inc", -23.hours, .branch("main"))
+            let ex = try makeVersion(pkg, "sha-ex", .hours(-1), .branch("main"))
+            let inc = try makeVersion(pkg, "sha-inc", .hours(-23), .branch("main"))
 
             // MUT
             let res = throttle(lastestExistingVersion: ex, incoming: [inc])
@@ -288,8 +288,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
 
         do {  // incoming version out of window
-            let ex = try makeVersion(pkg, "sha-ex", -1.hours, .branch("main"))
-            let inc = try makeVersion(pkg, "sha-inc", -26.hours, .branch("main"))
+            let ex = try makeVersion(pkg, "sha-ex", .hours(-1), .branch("main"))
+            let inc = try makeVersion(pkg, "sha-inc", .hours(-26), .branch("main"))
 
             // MUT
             let res = throttle(lastestExistingVersion: ex, incoming: [inc])
@@ -299,8 +299,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         }
 
         do {  // both versions out of window
-            let ex = try makeVersion(pkg, "sha-ex", -26.hours, .branch("main"))
-            let inc = try makeVersion(pkg, "sha-inc", -28.hours, .branch("main"))
+            let ex = try makeVersion(pkg, "sha-ex", .hours(-26), .branch("main"))
+            let inc = try makeVersion(pkg, "sha-inc", .hours(-28), .branch("main"))
 
             // MUT
             let res = throttle(lastestExistingVersion: ex, incoming: [inc])

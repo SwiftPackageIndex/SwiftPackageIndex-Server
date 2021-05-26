@@ -42,6 +42,9 @@ struct AnalyzeCommand: Command {
                         limit: limit)
                 .wait()
         }
+
+        try Self.trimCheckouts()
+
         try AppMetrics.push(client: client,
                             logger: logger,
                             jobName: "analyze")
@@ -52,11 +55,36 @@ struct AnalyzeCommand: Command {
 
 extension AnalyzeCommand {
     static func resetMetrics() {
+        AppMetrics.analyzeTrimCheckoutsCount?.set(0)
         AppMetrics.analyzeUpdateRepositorySuccessCount?.set(0)
         AppMetrics.analyzeUpdateRepositoryFailureCount?.set(0)
         AppMetrics.buildThrottleCount?.set(0)
         AppMetrics.analyzeVersionsAddedCount?.set(0)
         AppMetrics.analyzeVersionsDeletedCount?.set(0)
+    }
+
+    static func trimCheckouts() throws {
+        let checkoutDir = URL(
+            fileURLWithPath: Current.fileManager.checkoutsDirectory(),
+            isDirectory: true
+        )
+        try Current.fileManager.contentsOfDirectory(atPath: checkoutDir.path)
+            .map { dir -> (String, Date)? in
+                let url = checkoutDir.appendingPathComponent(dir)
+                guard let mod = try Current.fileManager
+                        .attributesOfItem(atPath: url.path)[.modificationDate] as? Date
+                else { return nil }
+                return (url.path, mod)
+            }
+            .forEach { pair in
+                guard let (path, mod) = pair else { return }
+                let cutoff = Current.date()
+                    .addingTimeInterval(-Constants.gitCheckoutMaxAge)
+                if mod < cutoff {
+                    try Current.fileManager.removeItem(atPath: path)
+                    AppMetrics.analyzeTrimCheckoutsCount?.inc()
+                }
+            }
     }
 }
 

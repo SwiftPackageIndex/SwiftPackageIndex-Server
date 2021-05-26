@@ -1002,6 +1002,26 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg.status, .analysisFailed)
     }
 
+    func test_trimCheckouts() throws {
+        // setup
+        Current.fileManager.checkoutsDirectory = { "/checkouts" }
+        Current.fileManager.contentsOfDirectory = { _ in ["foo", "bar"] }
+        Current.fileManager.attributesOfItem = { path in
+            [
+                "/checkouts/foo": [FileAttributeKey.modificationDate: daysAgo(31)],
+                "/checkouts/bar": [FileAttributeKey.modificationDate: daysAgo(29)],
+            ][path]!
+        }
+        var removedPaths = [String]()
+        Current.fileManager.removeItem = { removedPaths.append($0) }
+
+        // MUT
+        try AnalyzeCommand.trimCheckouts()
+
+        // validate
+        XCTAssertEqual(removedPaths, ["/checkouts/foo"])
+    }
+
 }
 
 
