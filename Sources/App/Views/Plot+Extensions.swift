@@ -29,6 +29,7 @@ extension Node where Context: HTML.BodyContext {
             .action(SiteURL.search.relativeURL()),
             .searchField(query: query, autofocus: autofocus),
             .button(
+                // TODO: Fix after Plot#69 is merged.
                 .attribute(named: "type", value: "submit"),
                 .div(
                     .attribute(named: "title", value: "Search")
