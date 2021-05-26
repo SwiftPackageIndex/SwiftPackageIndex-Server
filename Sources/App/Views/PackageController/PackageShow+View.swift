@@ -141,7 +141,9 @@ enum PackageShow {
                         )
                     ),
                     .li(
+                        .class("collapsable"),
                         .a(
+                            .class("trimmed"),
                             .href(SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
                             "More packages from \(model.repositoryOwnerName)"
                         )

@@ -178,3 +178,12 @@ a.download {
   visibility: hidden;
   transition: visibility 0s 0.2s, opacity 0.2s linear;
 }
+
+.trimmed {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collapsable {
+  min-width: 0;
+}

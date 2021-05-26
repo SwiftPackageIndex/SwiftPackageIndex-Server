@@ -23,7 +23,10 @@ enum AuthorShow {
 
         override func content() -> Node<HTML.BodyContext> {
             .group(
-                .h2(.text("Packages authored by \(model.ownerName)")),
+                .h2(
+                    .class("trimmed"),
+                    .text("Packages authored by \(model.ownerName)")
+                ),
                 .ul(
                     .id("package_list"),
                     .group(
