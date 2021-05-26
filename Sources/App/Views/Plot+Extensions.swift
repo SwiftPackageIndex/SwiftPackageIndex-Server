@@ -44,11 +44,11 @@ extension Node where Context == HTML.FormContext {
             .id("query"),
             .name("query"),
             .type(.search),
-            .attribute(named: "placeholder", value: "Search"),
-            .attribute(named: "autocomplete", value: "off"),
-            .attribute(named: "data-focus", value: String(describing: autofocus)),
+            .placeholder("Search"),
             .spellcheck(false),
+            .autocomplete(false),
             .enableGrammarly(false),
+            .attribute(named: "data-focus", value: String(autofocus)),
             .value(query)
         )
     }
