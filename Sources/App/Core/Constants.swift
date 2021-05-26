@@ -26,7 +26,7 @@ enum Constants {
     static let recentPackagesLimit = 7
     static let recentReleasesLimit = 7
     
-    static let reIngestionDeadtime: TimeInterval = 90 * 60  // in seconds
+    static let reIngestionDeadtime: TimeInterval = .minutes(90)
     
     static let rssFeedMaxItemCount = 100
     static let rssTTL = 60  // minutes
@@ -35,5 +35,5 @@ enum Constants {
 
     // build system settings
     static let trimBuildsGracePeriod = 4  // hours
-    static let branchVersionRefreshDelay = 24.hours
+    static let branchVersionRefreshDelay: TimeInterval = .hours(24)
 }
