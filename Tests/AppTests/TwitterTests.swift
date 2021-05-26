@@ -10,7 +10,7 @@ class TwitterTests: AppTestCase {
         XCTAssertEqual(
             Twitter.versionUpdateMessage(
                 packageName: "packageName",
-                repositoryOwner: "owner",
+                repositoryOwnerName: "owner",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: "This is a test package"),
@@ -25,7 +25,7 @@ class TwitterTests: AppTestCase {
         XCTAssertEqual(
             Twitter.versionUpdateMessage(
                 packageName: "packageName",
-                repositoryOwner: "owner",
+                repositoryOwnerName: "owner",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: nil),
@@ -40,7 +40,7 @@ class TwitterTests: AppTestCase {
         XCTAssertEqual(
             Twitter.versionUpdateMessage(
                 packageName: "packageName",
-                repositoryOwner: "owner",
+                repositoryOwnerName: "owner",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: ""),
@@ -55,7 +55,7 @@ class TwitterTests: AppTestCase {
         XCTAssertEqual(
             Twitter.versionUpdateMessage(
                 packageName: "packageName",
-                repositoryOwner: "owner",
+                repositoryOwnerName: "owner",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 version: .init(2, 6, 4),
                 summary: " \n"),
@@ -70,7 +70,7 @@ class TwitterTests: AppTestCase {
     func test_versionUpdateMessage_trimming() throws {
         let msg = Twitter.versionUpdateMessage(
             packageName: "packageName",
-            repositoryOwner: "owner",
+            repositoryOwnerName: "owner",
             url: "http://localhost:8080/owner/SuperAwesomePackage",
             version: .init(2, 6, 4),
             summary: String(repeating: "x", count: 280)
@@ -88,7 +88,7 @@ class TwitterTests: AppTestCase {
         XCTAssertEqual(
             Twitter.newPackageMessage(
                 packageName: "packageName",
-                repositoryOwner: "owner",
+                repositoryOwnerName: "owner",
                 url: "http://localhost:8080/owner/SuperAwesomePackage",
                 summary: "This is a test package"),
             """
