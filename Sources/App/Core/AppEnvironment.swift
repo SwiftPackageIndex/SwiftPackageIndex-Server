@@ -129,7 +129,7 @@ struct FileManager {
 
     // pass-through methods to preserve argument labels
     func attributesOfItem(atPath path: String) throws -> [FileAttributeKey : Any] {
-        try attributesOfItem(atPath: path)
+        try attributesOfItem(path)
     }
     func contentsOfDirectory(atPath path: String) throws -> [String] {
         try contentsOfDirectory(path)
