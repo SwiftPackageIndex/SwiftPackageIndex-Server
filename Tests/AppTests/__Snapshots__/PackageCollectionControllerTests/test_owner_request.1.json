@@ -1,0 +1,63 @@
+{
+  "formatVersion" : "1.0",
+  "generatedAt" : "1970-01-01T00:00:00Z",
+  "generatedBy" : {
+    "name" : "foo via Swift Package Index"
+  },
+  "name" : "foo package collection",
+  "packages" : [
+    {
+      "license" : {
+        "name" : "MIT",
+        "url" : "https:\/\/foo\/mit"
+      },
+      "summary" : "summary 1",
+      "url" : "https:\/\/github.com\/foo\/1",
+      "versions" : [
+        {
+          "defaultToolsVersion" : "5.1",
+          "license" : {
+            "name" : "MIT",
+            "url" : "https:\/\/foo\/mit"
+          },
+          "manifests" : {
+            "5.1" : {
+              "minimumPlatformVersions" : [
+
+              ],
+              "packageName" : "P1-tag",
+              "products" : [
+                {
+                  "name" : "P1Lib",
+                  "targets" : [
+                    "t1"
+                  ],
+                  "type" : {
+                    "library" : [
+                      "automatic"
+                    ]
+                  }
+                }
+              ],
+              "targets" : [
+                {
+                  "name" : "t1"
+                }
+              ],
+              "toolsVersion" : "5.1"
+            }
+          },
+          "verifiedCompatibility" : [
+            {
+              "platform" : {
+                "name" : "ios"
+              },
+              "swiftVersion" : "5.2"
+            }
+          ],
+          "version" : "1.2.3"
+        }
+      ]
+    }
+  ]
+}
