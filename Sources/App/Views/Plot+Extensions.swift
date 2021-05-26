@@ -47,10 +47,18 @@ extension Node where Context == HTML.FormContext {
             .attribute(named: "placeholder", value: "Search"),
             .attribute(named: "spellcheck", value: "false"),
             .attribute(named: "autocomplete", value: "off"),
-            .attribute(named: "data-gramm", value: "false"),
             .attribute(named: "data-focus", value: String(describing: autofocus)),
+            .enableGrammarly(false),
             .value(query)
         )
+    }
+}
+
+// Custom attributes specific to the Swift Package Index
+
+extension Attribute where Context == HTML.InputContext {
+    static func enableGrammarly(_ isEnabled: Bool) -> Attribute {
+        Attribute(name: "data-gramm", value: String(isEnabled))
     }
 }
 
