@@ -45,9 +45,9 @@ extension Node where Context == HTML.FormContext {
             .name("query"),
             .type(.search),
             .attribute(named: "placeholder", value: "Search"),
-            .attribute(named: "spellcheck", value: "false"),
             .attribute(named: "autocomplete", value: "off"),
             .attribute(named: "data-focus", value: String(describing: autofocus)),
+            .spellcheck(false),
             .enableGrammarly(false),
             .value(query)
         )
@@ -77,3 +77,21 @@ extension Attribute where Context == HTML.InputContext {
     }
 }
 
+// Awaiting upstreaming in XXX
+extension Attribute where Context: HTML.BodyContext {
+    static func spellcheck(_ isEnabled: Bool) -> Attribute {
+        Attribute(name: "readonly", value: String(isEnabled))
+    }
+}
+
+extension Node where Context: HTML.BodyContext {
+    static func spellcheck(_ isEnabled: Bool) -> Node {
+        .attribute(named: "readonly", value: String(isEnabled))
+    }
+}
+
+extension Attribute where Context == HTML.InputContext {
+    static func spellcheck(_ isEnabled: Bool) -> Attribute {
+        Attribute(name: "readonly", value: String(isEnabled))
+    }
+}
