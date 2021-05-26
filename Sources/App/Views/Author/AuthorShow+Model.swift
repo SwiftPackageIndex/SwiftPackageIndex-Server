@@ -1,15 +1,19 @@
 extension AuthorShow {
     struct Model {
         var owner: String
+        var ownerName: String
         var packages: [PackageInfo]
         
         var count: Int {
             packages.count
         }
         
-        internal init(owner: String,
-                      packages: [PackageInfo]) {
+        internal init(
+            owner: String,
+            ownerName: String,
+            packages: [PackageInfo]) {
             self.owner = owner
+            self.ownerName = ownerName
             self.packages = packages
         }
     }

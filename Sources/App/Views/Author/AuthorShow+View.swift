@@ -13,17 +13,17 @@ enum AuthorShow {
         }
 
         override func pageTitle() -> String? {
-            "Packages by \(model.owner)"
+            "Packages by \(model.ownerName)"
         }
 
         override func pageDescription() -> String? {
             let packagesClause = model.packages.count > 1 ? "1 package" : "\(model.packages.count) packages"
-            return "The Swift Package Index is indexing \(packagesClause) authored by \(model.owner)."
+            return "The Swift Package Index is indexing \(packagesClause) authored by \(model.ownerName)."
         }
 
         override func content() -> Node<HTML.BodyContext> {
             .group(
-                .h2(.text("Packages authored by \(model.owner)")),
+                .h2(.text("Packages authored by \(model.ownerName)")),
                 .ul(
                     .id("package_list"),
                     .group(

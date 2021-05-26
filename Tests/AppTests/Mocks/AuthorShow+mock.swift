@@ -10,6 +10,6 @@ extension AuthorShow.Model {
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.",
             url: ""
         ) }
-        return .init(owner: "test-author", packages: packages)
+        return .init(owner: "test-author", ownerName: "Test Author", packages: packages)
     }
 }
