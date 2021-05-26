@@ -78,7 +78,8 @@ extension AnalyzeCommand {
             }
             .forEach { pair in
                 guard let (path, mod) = pair else { return }
-                let cutoff = Date().addingTimeInterval(-Constants.gitCheckoutMaxAge)
+                let cutoff = Current.date()
+                    .addingTimeInterval(-Constants.gitCheckoutMaxAge)
                 if mod < cutoff {
                     AppMetrics.analyzeTrimCheckoutsCount?.inc()
                     try Current.fileManager.removeItem(atPath: path)
