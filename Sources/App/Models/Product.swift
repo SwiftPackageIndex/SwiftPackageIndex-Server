@@ -54,6 +54,7 @@ extension Product {
     enum `Type`: String, Codable {
         case executable
         case library
+        case test
 
         init(manifestProductType: Manifest.Product.`Type`) {
             switch manifestProductType {

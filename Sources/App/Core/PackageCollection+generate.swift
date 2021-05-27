@@ -191,6 +191,8 @@ private extension PackageCollection.ProductType {
                 self = .executable
             case .library:  // TODO: wire up detailed data
                 self = .library(.automatic)
+            case .test:
+                self = .test
         }
     }
 }
