@@ -119,22 +119,36 @@ extension AppEnvironment {
 }
 
 struct FileManager {
+    var attributesOfItem: (_ path: String) throws -> [FileAttributeKey : Any]
+    var contentsOfDirectory: (_ path: String) throws -> [String]
     var checkoutsDirectory: () -> String
     var createDirectory: (String, Bool, [FileAttributeKey : Any]?) throws -> Void
     var fileExists: (String) -> Bool
+    var removeItem: (_ path: String) throws -> Void
     var workingDirectory: () -> String
-    // also provide pass-through methods to preserve argument labels
+
+    // pass-through methods to preserve argument labels
+    func attributesOfItem(atPath path: String) throws -> [FileAttributeKey : Any] {
+        try attributesOfItem(path)
+    }
+    func contentsOfDirectory(atPath path: String) throws -> [String] {
+        try contentsOfDirectory(path)
+    }
     func createDirectory(atPath path: String,
                          withIntermediateDirectories createIntermediates: Bool,
                          attributes: [FileAttributeKey : Any]?) throws {
         try createDirectory(path, createIntermediates, attributes)
     }
     func fileExists(atPath path: String) -> Bool { fileExists(path) }
+    func removeItem(atPath path: String) throws { try removeItem(path) }
     
     static let live: Self = .init(
+        attributesOfItem: Foundation.FileManager.default.attributesOfItem,
+        contentsOfDirectory: Foundation.FileManager.default.contentsOfDirectory,
         checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
-        createDirectory: Foundation.FileManager.default.createDirectory(atPath:withIntermediateDirectories:attributes:),
-        fileExists: Foundation.FileManager.default.fileExists(atPath:),
+        createDirectory: Foundation.FileManager.default.createDirectory,
+        fileExists: Foundation.FileManager.default.fileExists,
+        removeItem: Foundation.FileManager.default.removeItem,
         workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
     )
 }

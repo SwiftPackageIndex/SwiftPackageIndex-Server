@@ -86,6 +86,7 @@ enum SiteURL: Resourceable {
     case home
     case images(String)
     case package(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagePathComponents?)
+    case packageCollection(_ owner: Parameter<String>)
     case privacy
     case rssPackages
     case rssReleases
@@ -137,7 +138,13 @@ enum SiteURL: Resourceable {
 
             case .package:
                 fatalError("invalid path: \(self)")
-                
+
+            case let .packageCollection(.value(owner)):
+                return "\(owner)/collection.json"
+
+            case .packageCollection(.key):
+                fatalError("invalid path: \(self)")
+
             case .privacy:
                 return "privacy"
                 
@@ -193,7 +200,13 @@ enum SiteURL: Resourceable {
 
             case .package:
                 fatalError("pathComponents must not be called with a value parameter")
-                
+
+            case .packageCollection(.key):
+                return [":owner", "collection.json"]
+
+            case .packageCollection(.value):
+                fatalError("pathComponents must not be called with a value parameter")
+
             case .images, .stylesheets, .javascripts:
                 fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
