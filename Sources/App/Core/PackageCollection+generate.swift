@@ -185,7 +185,7 @@ private extension PackageCollection.Product {
 
 
 private extension PackageCollection.ProductType {
-    init?(productType: App.Product.`Type`) {
+    init?(productType: App.ProductType) {
         switch productType {
             case .executable:
                 self = .executable
