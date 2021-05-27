@@ -2,9 +2,9 @@
   "formatVersion" : "1.0",
   "generatedAt" : "1970-01-01T00:00:00Z",
   "generatedBy" : {
-    "name" : "foo via Swift Package Index"
+    "name" : "foo via the Swift Package Index"
   },
-  "name" : "foo package collection",
+  "name" : "Packages by foo",
   "packages" : [
     {
       "license" : {
