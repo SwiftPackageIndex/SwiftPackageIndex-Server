@@ -31,7 +31,7 @@ extension Node where Context: HTML.BodyContext {
             .button(
                 .type(.submit),
                 .div(
-                    .attribute(named: "title", value: "Search")
+                    .title("Search")
                 )
             )
         )

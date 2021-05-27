@@ -43,31 +43,31 @@ class PublicPage {
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .attribute(named: "title", value: "Swift Package Index – Recently Added"),
+                .title("Swift Package Index – Recently Added"),
                 .href(SiteURL.rssPackages.absoluteURL())
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .attribute(named: "title", value: "Swift Package Index – Recent Releases"),
+                .title("Swift Package Index – Recent Releases"),
                 .href(SiteURL.rssReleases.absoluteURL())
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .attribute(named: "title", value: "Swift Package Index – Recent Major Releases"),
+                .title("Swift Package Index – Recent Major Releases"),
                 .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true")]))
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .attribute(named: "title", value: "Swift Package Index – Recent Major & Minor Releases"),
+                .title("Swift Package Index – Recent Major & Minor Releases"),
                 .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true"), QueryParameter(key: "minor", value: "true")]))
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .attribute(named: "title", value: "Swift Package Index – Recent Pre-Releases"),
+                .title("Swift Package Index – Recent Pre-Releases"),
                 .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "pre", value: "true")]))
             ),
             .script(
