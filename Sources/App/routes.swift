@@ -6,45 +6,66 @@ import Vapor
 
 
 func routes(_ app: Application) throws {
-    app.get { req in
-        HomeIndex.Model.query(database: req.db).map {
-            HomeIndex.View(path: req.url.path, model: $0).document()
+    do {  // home page
+        app.get { req in
+            HomeIndex.Model.query(database: req.db).map {
+                HomeIndex.View(path: req.url.path, model: $0).document()
+            }
         }
     }
-    
-    app.get(SiteURL.privacy.pathComponents) { req in
-        MarkdownPage(path: req.url.path, "privacy.md").document()
+
+    do {  // static pages
+        app.get(SiteURL.privacy.pathComponents) { req in
+            MarkdownPage(path: req.url.path, "privacy.md").document()
+        }
+
+        app.get(SiteURL.faq.pathComponents) { req in
+            MarkdownPage(path: req.url.path, "faq.md").document()
+        }
+
+        app.get(SiteURL.addAPackage.pathComponents) { req in
+            MarkdownPage(path: req.url.path, "add-a-package.md").document()
+        }
+
+        app.get(SiteURL.tryInPlayground.pathComponents) { req in
+            MarkdownPage(path: req.url.path, "try-package.md").document()
+        }
+
+        app.get(SiteURL.docs(.builds).pathComponents) { req in
+            MarkdownPage(path: req.url.path, "docs/builds.md").document()
+        }
     }
-    
-    app.get(SiteURL.faq.pathComponents) { req in
-        MarkdownPage(path: req.url.path, "faq.md").document()
-    }
-    
-    app.get(SiteURL.addAPackage.pathComponents) { req in
-        MarkdownPage(path: req.url.path, "add-a-package.md").document()
-    }
 
-    app.get(SiteURL.tryInPlayground.pathComponents) { req in
-        MarkdownPage(path: req.url.path, "try-package.md").document()
-    }
-
-    app.get(SiteURL.docs(.builds).pathComponents) { req in
-        MarkdownPage(path: req.url.path, "docs/builds.md").document()
+    do {  // package pages
+        let packageController = PackageController()
+        app.get(SiteURL.package(.key, .key, .none).pathComponents,
+                use: packageController.show)
+        app.get(SiteURL.package(.key, .key, .readme).pathComponents,
+                use: packageController.readme)
+        app.get(SiteURL.package(.key, .key, .builds).pathComponents,
+                use: packageController.builds)
+        app.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents,
+                use: packageController.maintainerInfo)
     }
 
-    let packageController = PackageController()
-    app.get(SiteURL.package(.key, .key, .none).pathComponents, use: packageController.show)
-    app.get(SiteURL.package(.key, .key, .readme).pathComponents, use: packageController.readme)
-    app.get(SiteURL.package(.key, .key, .builds).pathComponents, use: packageController.builds)
-    app.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents, use: packageController.maintainerInfo)
+    do {  // package collection page
+        app.get(SiteURL.packageCollection(.key).pathComponents,
+                use: PackageCollectionController().generate)
+    }
 
-    let authorController = AuthorController()
-    app.get(SiteURL.author(.key).pathComponents, use: authorController.show)
+    do {  // author page
+        let authorController = AuthorController()
+        app.get(SiteURL.author(.key).pathComponents, use: authorController.show)
+    }
 
-    let buildController = BuildController()
-    app.get(SiteURL.builds(.key).pathComponents, use: buildController.show)
+    do {  // build details page
+        let buildController = BuildController()
+        app.get(SiteURL.builds(.key).pathComponents, use: buildController.show)
+    }
 
-    app.get(SiteURL.search.pathComponents, use: SearchController().show)
+    do {  // search page
+        app.get(SiteURL.search.pathComponents, use: SearchController().show)
+    }
 
     do {  // api
 

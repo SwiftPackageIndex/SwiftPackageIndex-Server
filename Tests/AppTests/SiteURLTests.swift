@@ -130,6 +130,14 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.builds(.key).pathComponents.map(\.description), ["builds", ":id"])
     }
 
+    func test_packageCollectionURL() throws {
+        XCTAssertEqual(SiteURL.packageCollection(.value("foo")).path,
+                       "foo/collection.json")
+        XCTAssertEqual(SiteURL.packageCollection(.key).pathComponents
+                        .map(\.description),
+                       [":owner", "collection.json"])
+    }
+
     func test_docs() throws {
         XCTAssertEqual(SiteURL.docs(.builds).path, "docs/builds")
         XCTAssertEqual(SiteURL.docs(.builds).pathComponents.map(\.description), ["docs", "builds"])
