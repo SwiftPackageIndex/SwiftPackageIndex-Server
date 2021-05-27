@@ -168,3 +168,9 @@ extension Repository: Equatable {
         lhs.id == rhs.id
     }
 }
+
+extension Repository {
+    var ownerDisplayName: String? {
+        ownerName ?? owner
+    }
+}

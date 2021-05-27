@@ -33,6 +33,7 @@ struct AuthorController {
             .map {
                 AuthorShow.Model(
                     owner: $0.first?.repository?.owner ?? owner,
+                    ownerName: $0.first?.repository?.ownerDisplayName ?? owner,
                     packages: $0.sorted(by: { $0.score ?? 0 > $1.score ?? 0 })
                                 .compactMap { AuthorShow.PackageInfo(package: $0) }
                 )

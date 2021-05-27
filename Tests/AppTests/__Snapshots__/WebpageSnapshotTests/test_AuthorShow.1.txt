@@ -8,12 +8,12 @@
     <link rel="canonical" href="http://localhost:8080/"/>
     <meta name="twitter:url" content="http://localhost:8080/"/>
     <meta name="og:url" content="http://localhost:8080/"/>
-    <title>Packages by test-author &ndash; Swift Package Index</title>
-    <meta name="twitter:title" content="Packages by test-author &ndash; Swift Package Index"/>
-    <meta name="og:title" content="Packages by test-author &ndash; Swift Package Index"/>
-    <meta name="description" content="The Swift Package Index is indexing 1 package authored by test-author."/>
-    <meta name="twitter:description" content="The Swift Package Index is indexing 1 package authored by test-author."/>
-    <meta name="og:description" content="The Swift Package Index is indexing 1 package authored by test-author."/>
+    <title>Packages by Test Author &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="Packages by Test Author &ndash; Swift Package Index"/>
+    <meta name="og:title" content="Packages by Test Author &ndash; Swift Package Index"/>
+    <meta name="description" content="The Swift Package Index is indexing 1 package authored by Test Author."/>
+    <meta name="twitter:description" content="The Swift Package Index is indexing 1 package authored by Test Author."/>
+    <meta name="og:description" content="The Swift Package Index is indexing 1 package authored by Test Author."/>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
@@ -67,7 +67,7 @@
     </header>
     <main>
       <div class="inner">
-        <h2>Packages authored by test-author</h2>
+        <h2 class="trimmed">Packages authored by Test Author</h2>
         <ul id="package_list">
           <li>
             <a>

@@ -73,20 +73,20 @@ extension Twitter {
     }
 
     static func newPackageMessage(packageName: String,
-                                  repositoryOwner: String,
+                                  repositoryOwnerName: String,
                                   url: String,
                                   summary: String?) -> String {
-        createMessage(preamble: "📦 \(repositoryOwner) just added a new package, \(packageName)",
+        createMessage(preamble: "📦 \(repositoryOwnerName) just added a new package, \(packageName)",
                       summary: summary,
                       url: url)
     }
 
     static func versionUpdateMessage(packageName: String,
-                                     repositoryOwner: String,
+                                     repositoryOwnerName: String,
                                      url: String,
                                      version: SemanticVersion,
                                      summary: String?) -> String {
-        createMessage(preamble: "⬆️ \(repositoryOwner) just released \(packageName) v\(version)",
+        createMessage(preamble: "⬆️ \(repositoryOwnerName) just released \(packageName) v\(version)",
                       summary: summary,
                       url: url)
     }
@@ -100,16 +100,17 @@ extension Twitter {
                 guard let packageName = version.packageName,
                       let repoName = repo?.name,
                       let owner = repo?.owner,
+                      let ownerName = repo?.ownerDisplayName,
                       let semVer = version.reference?.semVer
                 else { return nil }
                 let url = SiteURL.package(.value(owner), .value(repoName), .none).absoluteURL()
                 return pkg.isNew
                     ? newPackageMessage(packageName: packageName,
-                                        repositoryOwner: owner,
+                                        repositoryOwnerName: ownerName,
                                         url: url,
                                         summary: repo?.summary)
                     : versionUpdateMessage(packageName: packageName,
-                                           repositoryOwner: owner,
+                                           repositoryOwnerName: ownerName,
                                            url: url,
                                            version: semVer,
                                            summary: repo?.summary)
