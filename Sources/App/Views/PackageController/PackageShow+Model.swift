@@ -115,9 +115,11 @@ extension PackageShow.Model {
                 case .compatibleWithAppStore, .incompatibleWithAppStore:
                     return .group(
                         .unwrap(licenseUrl, {
-                            .a(.href($0),
-                               .attribute(named: "title", value: license.fullName),
-                               .text(license.shortName))
+                            .a(
+                                .href($0),
+                                .title(license.fullName),
+                                .text(license.shortName)
+                            )
                         }),
                         .text(" licensed")
                     )

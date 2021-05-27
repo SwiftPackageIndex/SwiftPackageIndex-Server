@@ -219,7 +219,7 @@ extension PackageShow.Model {
         var cellNode: Node<HTML.BodyContext> {
             .div(
                 .class("\(status.cssClass)"),
-                .attribute(named: "title", value: title)
+                .title(title)
             )
         }
         
