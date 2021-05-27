@@ -29,8 +29,7 @@ extension Node where Context: HTML.BodyContext {
             .action(SiteURL.search.relativeURL()),
             .searchField(query: query, autofocus: autofocus),
             .button(
-                // TODO: Fix after Plot#69 is merged.
-                .attribute(named: "type", value: "submit"),
+                .type(.submit),
                 .div(
                     .attribute(named: "title", value: "Search")
                 )
@@ -101,4 +100,27 @@ public extension Node where Context: HTMLContext {
     static func spellcheck(_ isEnabled: Bool) -> Node {
         .attribute(named: "spellcheck", value: String(isEnabled))
     }
+}
+
+// Awaiting upstreaming in https://github.com/JohnSundell/Plot/pull/69
+public extension Attribute where Context == HTML.ButtonContext {
+    /// Assign a button type to the element.
+    /// - parameter type: The button type to assign.
+    static func type(_ type: HTMLButtonType) -> Attribute {
+        Attribute(name: "type", value: type.rawValue)
+    }
+}
+
+public extension Node where Context == HTML.ButtonContext {
+    /// Assign a button type to the element.
+    /// - parameter type: The button type to assign.
+    static func type(_ type: HTMLButtonType) -> Node {
+        .attribute(named: "type", value: type.rawValue)
+    }
+}
+
+public enum HTMLButtonType: String {
+    case button
+    case reset
+    case submit
 }
