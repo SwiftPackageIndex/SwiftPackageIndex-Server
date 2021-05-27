@@ -24,7 +24,7 @@
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Releases" href="http://localhost:8080/releases.rss?major=true"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major & Minor Releases" href="http://localhost:8080/releases.rss?major=true&minor=true"/>
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
-    <script src="/main.js?test" data-turbolinks-track="reload" defer="true"></script>
+    <script src="/main.js?test" data-turbolinks-track="reload" defer></script>
   </head>
   <body>
     <div class="staging">Staging / Development</div>
@@ -79,14 +79,14 @@
           <strong>Swift Version Compatibility Badge</strong>
           <div class="badge_markdown">
             <form>
-              <input type="text" class="badge_markdown" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions)](http://localhost:8080/example/package)" readonly="true"/>
+              <input type="text" class="badge_markdown" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions)](http://localhost:8080/example/package)" readonly/>
             </form>
             <img alt="Swift Version Compatibility for Example Package" src="https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions"/>
           </div>
           <strong>Platform Compatibility Badge</strong>
           <div class="badge_markdown">
             <form>
-              <input type="text" class="badge_markdown" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms)](http://localhost:8080/example/package)" readonly="true"/>
+              <input type="text" class="badge_markdown" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms)](http://localhost:8080/example/package)" readonly/>
             </form>
             <img alt="Platform Compatibility for Example Package" src="https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms"/>
           </div>
