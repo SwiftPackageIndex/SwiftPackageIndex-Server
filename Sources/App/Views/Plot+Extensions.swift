@@ -63,6 +63,10 @@ extension Attribute where Context == HTML.InputContext {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Changes awaiting upstreaming into Plot
+// ---------------------------------------------------------------------------
+
 // Awaiting upstreaming in https://github.com/JohnSundell/Plot/pull/66
 extension Node where Context: RSSContentContext {
     static func description(_ nodes: Node<HTML.BodyContext>...) -> Node {
@@ -78,21 +82,23 @@ extension Attribute where Context == HTML.InputContext {
     }
 }
 
-// Awaiting upstreaming in XXX
-extension Attribute where Context: HTML.BodyContext {
+// Awaiting upstreaming in https://github.com/JohnSundell/Plot/pull/70 and https://github.com/JohnSundell/Plot/pull/71
+public extension Attribute where Context: HTMLContext {
+    static func title(_ title: String) -> Attribute {
+        Attribute(name: "title", value: title)
+    }
+
     static func spellcheck(_ isEnabled: Bool) -> Attribute {
         Attribute(name: "spellcheck", value: String(isEnabled))
     }
 }
 
-extension Node where Context: HTML.BodyContext {
+public extension Node where Context: HTMLContext {
+    static func title(_ title: String) -> Node {
+        .attribute(named: "title", value: title)
+    }
+
     static func spellcheck(_ isEnabled: Bool) -> Node {
         .attribute(named: "spellcheck", value: String(isEnabled))
-    }
-}
-
-extension Attribute where Context == HTML.InputContext {
-    static func spellcheck(_ isEnabled: Bool) -> Attribute {
-        Attribute(name: "spellcheck", value: String(isEnabled))
     }
 }
