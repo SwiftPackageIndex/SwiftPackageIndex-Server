@@ -51,7 +51,7 @@ enum NavMenuItem {
                     // The link is shown only to mobile browsers only through CSS.
                     .a(
                         .href(SiteURL.search.relativeURL()),
-                        .attribute(named: "title", value: "Search")
+                        .title("Search")
                     )
                 )
         }

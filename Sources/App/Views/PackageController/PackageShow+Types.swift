@@ -212,14 +212,14 @@ extension PackageShow.Model {
         var headerNode: Node<HTML.BodyContext> {
             .div(
                 .text(parameter.displayName),
-                .unwrap(parameter.note) { .element(named: "small", text: "(\($0))") }
+                .unwrap(parameter.note) { .small(.text("(\($0))")) }
             )
         }
         
         var cellNode: Node<HTML.BodyContext> {
             .div(
                 .class("\(status.cssClass)"),
-                .attribute(named: "title", value: title)
+                .title(title)
             )
         }
         

@@ -39,7 +39,7 @@ extension HomeIndex.Model {
     
     func statsClause() -> Node<HTML.BodyContext>? {
         guard let description = statsDescription() else { return nil }
-        return .element(named: "small", text: description)
+        return .small(.text(description))
     }
     
     func recentPackagesSection() -> Node<HTML.ListContext> {
@@ -50,7 +50,7 @@ extension HomeIndex.Model {
                         .href(datedLink.link.url),
                         .text(datedLink.link.label)
                     ),
-                    .element(named: "small", text: "Added \(datedLink.date)") // TODO: Fix after Plot update
+                    .small(.text("Added \(datedLink.date)"))
                 )
             }
         )
@@ -63,9 +63,9 @@ extension HomeIndex.Model {
                     .a(
                         .href(release.url),
                         .text("\(release.packageName) "),
-                        .element(named: "small", text: release.version)
+                        .small(.text(release.version))
                     ),
-                    .element(named: "small", text: "Released \(release.date)") // TODO: Fix after Plot update
+                    .small(.text("Released \(release.date)"))
                 )
             }
         )

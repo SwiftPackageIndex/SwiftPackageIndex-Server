@@ -38,42 +38,42 @@ class PublicPage {
             .link(
                 .rel(.stylesheet),
                 .href(SiteURL.stylesheets("main").relativeURL() + "?\(resourceReloadQueryString())"),
-                .attribute(named: "data-turbolinks-track", value: "reload")
+                .data(named: "turbolinks-track", value: "reload")
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .attribute(named: "title", value: "Swift Package Index – Recently Added"),
+                .title("Swift Package Index – Recently Added"),
                 .href(SiteURL.rssPackages.absoluteURL())
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .attribute(named: "title", value: "Swift Package Index – Recent Releases"),
+                .title("Swift Package Index – Recent Releases"),
                 .href(SiteURL.rssReleases.absoluteURL())
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .attribute(named: "title", value: "Swift Package Index – Recent Major Releases"),
+                .title("Swift Package Index – Recent Major Releases"),
                 .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true")]))
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .attribute(named: "title", value: "Swift Package Index – Recent Major & Minor Releases"),
+                .title("Swift Package Index – Recent Major & Minor Releases"),
                 .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "major", value: "true"), QueryParameter(key: "minor", value: "true")]))
             ),
             .link(
                 .rel(.alternate),
                 .type("application/rss+xml"),
-                .attribute(named: "title", value: "Swift Package Index – Recent Pre-Releases"),
+                .title("Swift Package Index – Recent Pre-Releases"),
                 .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "pre", value: "true")]))
             ),
             .script(
                 .src(SiteURL.javascripts("main").relativeURL() + "?\(resourceReloadQueryString())"),
-                .attribute(named: "data-turbolinks-track", value: "reload"),
-                .attribute(named: "defer", value: "true")
+                .data(named: "turbolinks-track", value: "reload"),
+                .defer()
             ),
             analyticsHead()
         )
@@ -317,7 +317,7 @@ class PublicPage {
                             )
                         )
                     ),
-                    .element(named: "small", nodes: [ // TODO: Fix after Plot update
+                    .small(
                         .text("Kindly hosted by"),
                         .a(
                             .href("https://www.macstadium.com/"),
@@ -328,7 +328,7 @@ class PublicPage {
                             .href("https://azure.microsoft.com/en-us/"),
                             "Microsoft Azure"
                         )
-                    ])
+                    )
                  )
             )
         )
