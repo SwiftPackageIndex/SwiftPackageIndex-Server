@@ -27,6 +27,16 @@ enum AuthorShow {
                     .class("trimmed"),
                     .text("Packages authored by \(model.ownerName)")
                 ),
+                .p(
+                    .text("All "),
+                    .strong("\(model.count) \("package".pluralized(for: model.count)) "),
+                    .text("listed here are available as a "),
+                    .a(
+                        .href(SiteURL.packageCollection(.value(model.owner)).relativeURL()),
+                        "package collection"
+                    ),
+                    .text(".")
+                ),
                 .ul(
                     .id("package_list"),
                     .group(
@@ -40,8 +50,7 @@ enum AuthorShow {
                             )
                         }
                     )
-                ),
-                .p(.text("\(model.count) \("package".pluralized(for: model.count))."))
+                )
             )
         }
     }
