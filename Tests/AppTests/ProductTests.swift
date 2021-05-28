@@ -42,7 +42,6 @@ class ProductTests: AppTestCase {
                     from: Data(#"{"test":{}}"#.utf8)),
                 test)
         }
-
     }
     
     func test_Product_save() throws {
