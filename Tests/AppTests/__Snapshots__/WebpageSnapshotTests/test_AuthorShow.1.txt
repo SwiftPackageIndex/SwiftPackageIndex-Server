@@ -68,6 +68,10 @@
     <main>
       <div class="inner">
         <h2 class="trimmed">Packages authored by Test Author</h2>
+        <p>All 
+          <strong>10 packages </strong>listed here are available as a 
+          <a href="/test-author/collection.json">package collection</a>.
+        </p>
         <ul id="package_list">
           <li>
             <a>
@@ -130,7 +134,6 @@
             </a>
           </li>
         </ul>
-        <p>10 packages.</p>
       </div>
     </main>
     <footer>
