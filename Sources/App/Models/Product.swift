@@ -26,7 +26,7 @@ final class Product: Model, Content {
     // data fields
     
     @Field(key: "type")
-    var type: ProductType
+    var type: ProductType?
     
     @Field(key: "name")
     var name: String
@@ -78,12 +78,14 @@ extension Product {
         switch type {
             case .library: return true
             case .executable, .test: return false
+            case .none: return false
         }
     }
     var isExecutable: Bool {
         switch type {
             case .executable: return true
             case .library, .test: return false
+            case .none: return false
         }
     }
 }

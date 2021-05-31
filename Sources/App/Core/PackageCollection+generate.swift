@@ -174,8 +174,8 @@ private extension PackageCollection.Target {
 
 private extension PackageCollection.Product {
     init?(product: App.Product) {
-        guard let type = PackageCollection
-                .ProductType(productType: product.type)
+        guard let type = product.type
+                .flatMap(PackageCollection.ProductType.init(productType:))
         else { return nil }
         self.init(name: product.name,
                   type: type,
