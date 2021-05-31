@@ -96,7 +96,6 @@ extension Product: Equatable {
 }
 
 
-
 // https://github.com/apple/swift-evolution/blob/main/proposals/0295-codable-synthesis-for-enums-with-associated-values.md
 @available(swift, deprecated: 5.5, message: "Remove when Codable synthesis for enums with associated values (SE-0295) ships")
 extension ProductType: Codable {
@@ -148,3 +147,8 @@ extension ProductType: Codable {
     }
 
 }
+
+
+// PostgresKit.PostgresJSONBCodable is a workaround for https://github.com/vapor/postgres-kit/issues/207
+import PostgresKit
+extension ProductType: PostgresJSONBCodable { }
