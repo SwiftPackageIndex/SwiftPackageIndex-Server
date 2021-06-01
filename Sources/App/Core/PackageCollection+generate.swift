@@ -189,8 +189,12 @@ private extension PackageCollection.ProductType {
         switch productType {
             case .executable:
                 self = .executable
-            case .library:  // TODO: wire up detailed data
+            case .library(.automatic):
                 self = .library(.automatic)
+            case .library(.dynamic):
+                self = .library(.dynamic)
+            case .library(.static):
+                self = .library(.static)
             case .test:
                 self = .test
         }
