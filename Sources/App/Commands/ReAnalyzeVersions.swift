@@ -40,13 +40,20 @@ struct ReAnalyzeVersionsCommand: Command {
             }
 
             logger.info("Re-analyzing versions (limit: \(limit)) ...")
-            try reAnalyzeVersions(client: client,
-                                  database: db,
-                                  logger: logger,
-                                  threadPool: threadPool,
-                                  before: cutoffDate,
-                                  limit: limit)
+            let batchSize = 100
+            var processed = 0
+            while processed < limit {
+                let currentBatchSize = min(batchSize, limit - processed)
+                logger.info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize) ...")
+                try reAnalyzeVersions(client: client,
+                                      database: db,
+                                      logger: logger,
+                                      threadPool: threadPool,
+                                      before: cutoffDate,
+                                      limit: currentBatchSize)
                 .wait()
+                processed += currentBatchSize
+            }
         }
         try AppMetrics.push(client: client,
                             logger: logger,
