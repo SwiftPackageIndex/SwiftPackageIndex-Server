@@ -7,35 +7,77 @@ import XCTest
 class ManifestTests: XCTestCase {
     
     func test_decode_Product_Type() throws {
+        // Test product type decoding.
+        // JSON snippets via `swift package dump-package` from the following
+        // Package.swift `products` definition:
+        //        products: [
+        //            .executable(name: "foo", targets: ["spm-test"]),
+        //            .library(name: "spm-test-automatic",
+        //                     targets: ["spm-test"]),
+        //            .library(name: "spm-test-dynamic",
+        //                     type: .dynamic, targets: ["spm-test"]),
+        //            .library(name: "spm-test-static",
+        //                     type: .static, targets: ["spm-test"])
+        //        ],
+
+        struct Test: Decodable, Equatable {
+            var type: Manifest.ProductType
+        }
+        
         do { // exe
-            let json = """
+            let data = Data("""
             {
                 "type": {
                     "executable": null
                 }
             }
-            """
-            let data = Data(json.utf8)
-            struct Test: Decodable, Equatable {
-                var type: Manifest.ProductType
-            }
+            """.utf8)
             XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
                            .init(type: .executable))
         }
-        do { // lib
-            let json = """
+        do { // lib - automatic
+            let data = Data("""
             {
                 "type": {
                     "library": ["automatic"]
                 }
             }
-            """
-            let data = Data(json.utf8)
-            struct Test: Decodable, Equatable {
-                var type: Manifest.ProductType
-            }
+            """.utf8)
             XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
                            .init(type: .library(.automatic)))
+        }
+        do { // lib - dynamic
+            let data = Data("""
+            {
+                "type": {
+                    "library": ["dynamic"]
+                }
+            }
+            """.utf8)
+            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
+                           .init(type: .library(.dynamic)))
+        }
+        do { // lib - static
+            let data = Data("""
+            {
+                "type": {
+                    "library": ["static"]
+                }
+            }
+            """.utf8)
+            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
+                           .init(type: .library(.static)))
+        }
+        do { // test
+            let data = Data("""
+            {
+                "type": {
+                    "test": null
+                }
+            }
+            """.utf8)
+            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
+                           .init(type: .test))
         }
     }
     
