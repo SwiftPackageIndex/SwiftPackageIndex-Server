@@ -37,7 +37,7 @@ struct ReAnalyzeVersionsCommand: Command {
                                   id: id)
                 .wait()
         } else {
-            guard let cutoffDate = signature.before ?? Current.reAnalyzeVersionsBeforeDate() else {
+            guard let cutoffDate = signature.before else {
                 logger.info("No cut-off date set, skipping re-analysis")
                 return
             }
