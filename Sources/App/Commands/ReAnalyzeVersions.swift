@@ -3,9 +3,12 @@ import Fluent
 
 
 struct ReAnalyzeVersionsCommand: Command {
+    let defaultBatchSize = 10
     let defaultLimit = 1
 
     struct Signature: CommandSignature {
+        @Option(name: "batchSize", short: "b")
+        var batchSize: Int?
         @Option(name: "limit", short: "l")
         var limit: Int?
         @Option(name: "id")
@@ -40,10 +43,10 @@ struct ReAnalyzeVersionsCommand: Command {
             }
 
             logger.info("Re-analyzing versions (limit: \(limit)) ...")
-            let batchSize = 100
             var processed = 0
             while processed < limit {
-                let currentBatchSize = min(batchSize, limit - processed)
+                let currentBatchSize = min(signature.batchSize ?? defaultBatchSize,
+                                           limit - processed)
                 logger.info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize) ...")
                 try reAnalyzeVersions(client: client,
                                       database: db,
