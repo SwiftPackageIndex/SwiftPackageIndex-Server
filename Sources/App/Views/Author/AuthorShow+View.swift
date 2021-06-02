@@ -35,6 +35,11 @@ enum AuthorShow {
                         .href(SiteURL.packageCollection(.value(model.owner)).relativeURL()),
                         "package collection"
                     ),
+                    .text(". Learn more about "),
+                    .a(
+                        .href(SiteURL.packageCollections.relativeURL()),
+                        "package collections"
+                    ),
                     .text(".")
                 ),
                 .ul(
