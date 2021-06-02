@@ -115,6 +115,7 @@ class PackageCollectionTests: AppTestCase {
             }
             do {
                 let v = try Version(package: p,
+                                    latest: .release,
                                     packageName: "Foo",
                                     reference: .tag(1, 2, 3),
                                     toolsVersion: "5.3")
@@ -186,17 +187,7 @@ class PackageCollectionTests: AppTestCase {
         do {
             let v = try Version(id: UUID(),
                                 package: p1,
-                                packageName: "P1-tag",
-                                reference: .tag(1, 2, 3),
-                                toolsVersion: "5.1")
-            try v.save(on: app.db).wait()
-            try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
-                .save(on: app.db).wait()
-            try Target(version: v, name: "t1").save(on: app.db).wait()
-        }
-        do {
-            let v = try Version(id: UUID(),
-                                package: p1,
+                                latest: .release,
                                 packageName: "P1-tag",
                                 reference: .tag(2, 0, 0),
                                 toolsVersion: "5.2")
@@ -224,6 +215,7 @@ class PackageCollectionTests: AppTestCase {
         do {
             let v = try Version(id: UUID(),
                                 package: p2,
+                                latest: .release,
                                 packageName: "P2-tag",
                                 reference: .tag(1, 2, 3),
                                 toolsVersion: "5.3")
@@ -260,4 +252,89 @@ class PackageCollectionTests: AppTestCase {
         assertSnapshot(matching: res, as: .json(encoder))
     }
 
+    func test_includes_significant_versions_only() throws {
+        // Ensure we only export significant versions
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1147
+        // setup
+        let p = try savePackage(on: app.db, "https://github.com/foo/1")
+        try Repository(package: p,
+                       summary: "summary",
+                       defaultBranch: "main",
+                       license: .mit,
+                       licenseUrl: "https://foo/mit",
+                       owner: "foo").create(on: app.db).wait()
+        do {  // default branch revision
+            let v = try Version(id: UUID(),
+                                package: p,
+                                latest: .defaultBranch,
+                                packageName: "P1-main",
+                                reference: .branch("main"),
+                                toolsVersion: "5.0")
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "P1Lib")
+                .save(on: app.db).wait()
+            try Target(version: v, name: "t1").save(on: app.db).wait()
+        }
+        do {  // latest release
+            let v = try Version(id: UUID(),
+                                package: p,
+                                latest: .release,
+                                packageName: "P1-main",
+                                reference: .tag(1, 2, 3),
+                                toolsVersion: "5.0")
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "P1Lib")
+                .save(on: app.db).wait()
+            try Target(version: v, name: "t1").save(on: app.db).wait()
+        }
+        do {  // older release
+            let v = try Version(id: UUID(),
+                                package: p,
+                                latest: nil,
+                                packageName: "P1-main",
+                                reference: .tag(1, 0, 0),
+                                toolsVersion: "5.0")
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "P1Lib")
+                .save(on: app.db).wait()
+            try Target(version: v, name: "t1").save(on: app.db).wait()
+        }
+        do {  // latest beta release
+            let v = try Version(id: UUID(),
+                                package: p,
+                                latest: .preRelease,
+                                packageName: "P1-main",
+                                reference: .tag(2, 0, 0, "b1"),
+                                toolsVersion: "5.0")
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "P1Lib")
+                .save(on: app.db).wait()
+            try Target(version: v, name: "t1").save(on: app.db).wait()
+        }
+        do {  // older beta release
+            let v = try Version(id: UUID(),
+                                package: p,
+                                latest: nil,
+                                packageName: "P1-main",
+                                reference: .tag(1, 5, 0, "b1"),
+                                toolsVersion: "5.0")
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "P1Lib")
+                .save(on: app.db).wait()
+            try Target(version: v, name: "t1").save(on: app.db).wait()
+        }
+
+        // MUT
+        let res = try PackageCollection.generate(db: self.app.db,
+                                                 owner: "foo",
+                                                 authorName: "Foo",
+                                                 collectionName: "Foo",
+                                                 keywords: ["key", "word"],
+                                                 overview: "overview")
+            .wait()
+
+        // validate
+        XCTAssertEqual(res.packages.flatMap { $0.versions.map({$0.version}) },
+                       ["2.0.0-b1", "1.2.3"])
+    }
 }

@@ -94,11 +94,13 @@ extension PackageCollection.Package {
 
         guard let url = URL(string: package.url) else { return nil }
 
+        let versions = package.versions.filter { $0.latest != nil }
+
         self.init(
             url: url,
             summary: package.repository?.summary,
             keywords: keywords,
-            versions: .init(versions: package.versions, license: license),
+            versions: .init(versions: versions, license: license),
             readmeURL: package.repository?.readmeUrl.flatMap(URL.init(string:)),
             license: license
         )

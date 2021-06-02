@@ -65,44 +65,6 @@
             }
           ],
           "version" : "2.0.0"
-        },
-        {
-          "defaultToolsVersion" : "5.1",
-          "license" : {
-            "name" : "MIT",
-            "url" : "https:\/\/foo\/mit"
-          },
-          "manifests" : {
-            "5.1" : {
-              "minimumPlatformVersions" : [
-
-              ],
-              "packageName" : "P1-tag",
-              "products" : [
-                {
-                  "name" : "P1Lib",
-                  "targets" : [
-                    "t1"
-                  ],
-                  "type" : {
-                    "library" : [
-                      "automatic"
-                    ]
-                  }
-                }
-              ],
-              "targets" : [
-                {
-                  "name" : "t1"
-                }
-              ],
-              "toolsVersion" : "5.1"
-            }
-          },
-          "verifiedCompatibility" : [
-
-          ],
-          "version" : "1.2.3"
         }
       ]
     },
