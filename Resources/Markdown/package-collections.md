@@ -5,7 +5,7 @@ description: The Swift Package Index supports the generation of package collecti
 
 ## Package Collections
 
-Package Collections are a new feature in the [Swift 5.5 release](XXX-LINK-TO-SWIFT-55-RELEASE-POST-XXX) of the Swift Package Manager allowing packages to be grouped together, searched, and have their metadata inspected.
+Package Collections are a new feature in the [Swift 5.5 release](XXX-LINK-TO-SWIFT-55-RELEASE-POST-XXX) of the Swift Package Manager allowing packages to be grouped, searched, and have their metadata inspected.
 
 The Swift Package Index supports dynamically generated Package Collections containing all packages from each author in the index. Every author page in the index includes a link to a [package collection](/apple/collection.json). For example, from the [Apple author page on the Swift Package Index](/apple):
 
@@ -20,7 +20,7 @@ To add this package collection to your Swift Package Manager, use the `swift pac
 swift package-collection add https://swiftpackageindex.com/apple/collection.json
 ```
 
-> Note: If you get an error `unable to invoke subcommand` when running `swift package-collection`, ensure you have at least Swift 5.5 installed. You can check which version of Swift you're running with `swift --version`.
+> Note: If you see an error `unable to invoke subcommand` when running `swift package-collection`, ensure you have at least Swift 5.5 installed. You can check which version of Swift you're running with `swift --version`.
 
 Then, to describe a package in that collection:
 
