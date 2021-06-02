@@ -115,6 +115,7 @@ class PackageCollectionTests: AppTestCase {
             }
             do {
                 let v = try Version(package: p,
+                                    latest: .release,
                                     packageName: "Foo",
                                     reference: .tag(1, 2, 3),
                                     toolsVersion: "5.3")
@@ -186,17 +187,7 @@ class PackageCollectionTests: AppTestCase {
         do {
             let v = try Version(id: UUID(),
                                 package: p1,
-                                packageName: "P1-tag",
-                                reference: .tag(1, 2, 3),
-                                toolsVersion: "5.1")
-            try v.save(on: app.db).wait()
-            try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
-                .save(on: app.db).wait()
-            try Target(version: v, name: "t1").save(on: app.db).wait()
-        }
-        do {
-            let v = try Version(id: UUID(),
-                                package: p1,
+                                latest: .release,
                                 packageName: "P1-tag",
                                 reference: .tag(2, 0, 0),
                                 toolsVersion: "5.2")
@@ -224,6 +215,7 @@ class PackageCollectionTests: AppTestCase {
         do {
             let v = try Version(id: UUID(),
                                 package: p2,
+                                latest: .release,
                                 packageName: "P2-tag",
                                 reference: .tag(1, 2, 3),
                                 toolsVersion: "5.3")

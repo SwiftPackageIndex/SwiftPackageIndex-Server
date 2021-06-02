@@ -22,6 +22,7 @@ class PackageCollectionControllerTests: AppTestCase {
         do {
             let v = try Version(id: UUID(),
                                 package: p,
+                                latest: .release,
                                 packageName: "P1-tag",
                                 reference: .tag(1, 2, 3),
                                 toolsVersion: "5.1")
