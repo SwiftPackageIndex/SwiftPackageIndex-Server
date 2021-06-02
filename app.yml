@@ -66,8 +66,8 @@ services:
       resources:
         limits:
           memory: 4GB
-        restart_policy:
-          max_attempts: 5
+      restart_policy:
+        max_attempts: 5
     networks:
       - backend
 
@@ -85,8 +85,8 @@ services:
       resources:
         limits:
           memory: 4GB
-        restart_policy:
-          max_attempts: 5
+      restart_policy:
+        max_attempts: 5
     networks:
       - backend
 
@@ -104,8 +104,8 @@ services:
       resources:
         limits:
           memory: 4GB
-        restart_policy:
-          max_attempts: 5
+      restart_policy:
+        max_attempts: 5
     networks:
       - backend
 
@@ -123,8 +123,8 @@ services:
       resources:
         limits:
           memory: 4GB
-        restart_policy:
-          max_attempts: 5
+      restart_policy:
+        max_attempts: 5
     networks:
       - backend
 
