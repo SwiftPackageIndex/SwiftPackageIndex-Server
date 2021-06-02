@@ -77,27 +77,31 @@ enum Docs: String, Resourceable {
 
 enum SiteURL: Resourceable {
 
+    case addAPackage
     case api(Api)
     case author(_ owner: Parameter<String>)
     case builds(_ id: Parameter<UUID>)
     case docs(Docs)
     case faq
-    case addAPackage
     case home
     case images(String)
+    case javascripts(String)
     case package(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagePathComponents?)
     case packageCollection(_ owner: Parameter<String>)
+    case packageCollections
     case privacy
     case rssPackages
     case rssReleases
     case search
     case siteMap
     case stylesheets(String)
-    case javascripts(String)
     case tryInPlayground
 
     var path: String {
         switch self {
+            case .addAPackage:
+                return "add-a-package"
+
             case let .api(next):
                 return "api/\(next.path)"
 
@@ -118,16 +122,16 @@ enum SiteURL: Resourceable {
 
             case .faq:
                 return "faq"
-                
-            case .addAPackage:
-                return "add-a-package"
-                
+
             case .home:
                 return ""
                 
             case let .images(name):
                 return "images/\(name)"
                 
+            case let .javascripts(name):
+                return "/\(name).js"
+
             case let .package(.value(owner), .value(repo), .none):
                 let owner = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? owner
                 let repo = repo.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? repo
@@ -145,26 +149,26 @@ enum SiteURL: Resourceable {
             case .packageCollection(.key):
                 fatalError("invalid path: \(self)")
 
+            case .packageCollections:
+                return "package-collections"
+
             case .privacy:
                 return "privacy"
-                
+
             case .rssPackages:
                 return "packages.rss"
-                
+
             case .rssReleases:
                 return "releases.rss"
-                
+
             case .search:
                 return "search"
 
             case .siteMap:
                 return "sitemap.xml"
-                
+
             case let .stylesheets(name):
                 return "/\(name).css"
-
-            case let .javascripts(name):
-                return "/\(name).js"
 
             case .tryInPlayground:
                 return "try-in-a-playground"
@@ -173,7 +177,7 @@ enum SiteURL: Resourceable {
     
     var pathComponents: [PathComponent] {
         switch self {
-            case .faq, .addAPackage, .home, .privacy, .rssPackages, .rssReleases,
+            case .addAPackage, .faq, .home, .packageCollections, .privacy, .rssPackages, .rssReleases,
                  .search, .siteMap, .tryInPlayground:
                 return [.init(stringLiteral: path)]
                 
@@ -207,7 +211,7 @@ enum SiteURL: Resourceable {
             case .packageCollection(.value):
                 fatalError("pathComponents must not be called with a value parameter")
 
-            case .images, .stylesheets, .javascripts:
+            case .images, .javascripts, .stylesheets:
                 fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
     }

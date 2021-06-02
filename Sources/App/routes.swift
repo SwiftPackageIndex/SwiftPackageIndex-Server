@@ -15,24 +15,28 @@ func routes(_ app: Application) throws {
     }
 
     do {  // static pages
-        app.get(SiteURL.privacy.pathComponents) { req in
-            MarkdownPage(path: req.url.path, "privacy.md").document()
+        app.get(SiteURL.addAPackage.pathComponents) { req in
+            MarkdownPage(path: req.url.path, "add-a-package.md").document()
+        }
+
+        app.get(SiteURL.docs(.builds).pathComponents) { req in
+            MarkdownPage(path: req.url.path, "docs/builds.md").document()
         }
 
         app.get(SiteURL.faq.pathComponents) { req in
             MarkdownPage(path: req.url.path, "faq.md").document()
         }
 
-        app.get(SiteURL.addAPackage.pathComponents) { req in
-            MarkdownPage(path: req.url.path, "add-a-package.md").document()
+        app.get(SiteURL.packageCollections.pathComponents) { req in
+            MarkdownPage(path: req.url.path, "package-collections.md").document()
+        }
+
+        app.get(SiteURL.privacy.pathComponents) { req in
+            MarkdownPage(path: req.url.path, "privacy.md").document()
         }
 
         app.get(SiteURL.tryInPlayground.pathComponents) { req in
             MarkdownPage(path: req.url.path, "try-package.md").document()
-        }
-
-        app.get(SiteURL.docs(.builds).pathComponents) { req in
-            MarkdownPage(path: req.url.path, "docs/builds.md").document()
         }
     }
 
