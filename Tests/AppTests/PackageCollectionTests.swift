@@ -256,7 +256,6 @@ class PackageCollectionTests: AppTestCase {
         // Ensure we only export significant versions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1147
         // setup
-        Current.date = { Date(timeIntervalSince1970: 1610112345) }
         let p = try savePackage(on: app.db, "https://github.com/foo/1")
         try Repository(package: p,
                        summary: "summary",
