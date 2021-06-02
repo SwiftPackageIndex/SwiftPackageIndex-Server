@@ -23,7 +23,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                       reference: .branch("main"))
         try version.save(on: app.db).wait()
         try Product(version: version,
-                    type: .library, name: "lib 1").save(on: app.db).wait()
+                    type: .library(.automatic), name: "lib 1").save(on: app.db).wait()
         // reload via query to ensure relationships are loaded
         pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
         

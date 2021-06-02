@@ -127,6 +127,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 027 - add owner name, owner avatar url, and is in organization metadata to repositories
         app.migrations.add(UpdateRepositoryAddOwnerFields())
     }
+    do {  // Migration 028 - change products.type from string to json
+        app.migrations.add(UpdateProductType())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

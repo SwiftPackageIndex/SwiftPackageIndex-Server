@@ -25,7 +25,6 @@ struct AppEnvironment {
     var logger: () -> Logger?
     var metricsPushGatewayUrl: () -> String?
     var random: (_ range: ClosedRange<Double>) -> Double
-    var reAnalyzeVersionsBeforeDate: () -> Date?
     var reportError: (_ client: Client, _ level: AppError.Level, _ error: Error) -> EventLoopFuture<Void>
     var rollbarToken: () -> String?
     var rollbarLogLevel: () -> AppError.Level
@@ -92,9 +91,6 @@ extension AppEnvironment {
         logger: { logger },
         metricsPushGatewayUrl: { Environment.get("METRICS_PUSHGATEWAY_URL") },
         random: Double.random,
-        reAnalyzeVersionsBeforeDate: { Environment.get("RE_ANALYZE_VERSIONS_BEFORE_DATE")
-            .flatMap(Date.init(yyyyMMdd:))
-        },
         reportError: AppError.report,
         rollbarToken: { Environment.get("ROLLBAR_TOKEN") },
         rollbarLogLevel: {

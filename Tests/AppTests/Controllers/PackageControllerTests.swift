@@ -24,7 +24,7 @@ class PackageControllerTests: AppTestCase {
                                   package: package,
                                   packageName: "Test package",
                                   reference: .branch("main"))
-        let product = try Product(id: UUID(), version: version, type: .library, name: "Library")
+        let product = try Product(id: UUID(), version: version, type: .library(.automatic), name: "Library")
         
         try package.save(on: app.db).wait()
         try repository.save(on: app.db).wait()

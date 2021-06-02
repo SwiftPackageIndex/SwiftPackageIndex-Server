@@ -9,6 +9,6 @@ extension Manifest {
 
 extension Manifest.Product {
     static var mock: Self {
-        .init(name: "MockProduct", type: .library)
+        .init(name: "MockProduct", type: .library(.automatic))
     }
 }

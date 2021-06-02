@@ -21,14 +21,21 @@ class MiscTests: XCTestCase {
     }
 
     func test_Date_init_yyyyMMdd() throws {
-        XCTAssertEqual(Date(yyyyMMdd: "1970-01-01"),
+        XCTAssertEqual(Date("1970-01-01"),
                        Date(timeIntervalSince1970: 0))
-        XCTAssertEqual(Date(yyyyMMdd: "foo"), nil)
+        XCTAssertEqual(Date("foo"), nil)
+    }
+
+    func test_Date_iso8691() throws {
+        XCTAssertEqual(Date("1970-01-01T0:01:23Z"),
+                       Date(timeIntervalSince1970: 83))
     }
 
     func test_Date_LosslessStringConvertible() throws {
         XCTAssertEqual(Date("1970-01-01"),
                        Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(Date("1970-01-01T0:01:23Z"),
+                       Date(timeIntervalSince1970: 83))
         XCTAssertEqual(Date("foo"), nil)
     }
 

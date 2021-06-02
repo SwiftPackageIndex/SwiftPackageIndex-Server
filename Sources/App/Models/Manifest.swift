@@ -29,24 +29,42 @@ struct Manifest: Decodable, Equatable {
         var platformName: Name
         var version: String
     }
-    struct Product: Decodable, Equatable {
-        enum `Type`: String, CodingKey, CaseIterable {
+
+    enum LibraryType: String, Decodable {
+        case automatic
+        case `dynamic`
+        case `static`
+    }
+
+    enum ProductType: Equatable {
+        case executable
+        case library(LibraryType)
+        case test
+
+        enum CodingKeys: CodingKey {
             case executable
             case library
+            case test
         }
+    }
+
+    struct Product: Decodable, Equatable {
         var name: String
         var targets: [String] = []
-        var type: `Type`
+        var type: ProductType
     }
+
     struct Target: Decodable, Equatable {
         var name: String
     }
+
     struct ToolsVersion: Decodable, Equatable {
         enum CodingKeys: String, CodingKey {
             case version = "_version"
         }
         var version: String
     }
+
     var name: String
     var platforms: [Platform]?
     var products: [Product]
@@ -56,18 +74,21 @@ struct Manifest: Decodable, Equatable {
 }
 
 
-extension Manifest.Product.`Type`: Decodable {
+extension Manifest.ProductType: Decodable {
     init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: Self.self)
-        for k in Self.allCases {
-            if let _ = try? container.decodeNil(forKey: k) {
-                self = k
-                return
-            }
-            
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        guard let key = container.allKeys.first(where: container.contains) else {
+            throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Did not find a matching key"))
         }
-        throw DecodingError.dataCorrupted(
-            DecodingError.Context(codingPath: container.codingPath,
-                                  debugDescription: "none of the required keys found"))
+        switch key {
+            case .executable:
+                self = .executable
+            case .library:
+                var unkeyedValues = try container.nestedUnkeyedContainer(forKey: key)
+                let value = try unkeyedValues.decode(Manifest.LibraryType.self)
+                self = .library(value)
+            case .test:
+                self = .test
+        }
     }
 }

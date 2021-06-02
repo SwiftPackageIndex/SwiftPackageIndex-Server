@@ -29,11 +29,11 @@ class PackageCollectionTests: AppTestCase {
             try v.save(on: app.db).wait()
             do {
                 try Product(version: v,
-                            type: .library,
+                            type: .library(.automatic),
                             name: "P1",
                             targets: ["T1"]).save(on: app.db).wait()
                 try Product(version: v,
-                            type: .library,
+                            type: .library(.automatic),
                             name: "P2",
                             targets: ["T2"]).save(on: app.db).wait()
             }
@@ -180,7 +180,7 @@ class PackageCollectionTests: AppTestCase {
                                 reference: .branch("main"),
                                 toolsVersion: "5.0")
             try v.save(on: app.db).wait()
-            try Product(version: v, type: .library, name: "P1Lib")
+            try Product(version: v, type: .library(.automatic), name: "P1Lib")
                 .save(on: app.db).wait()
         }
         do {
@@ -190,7 +190,7 @@ class PackageCollectionTests: AppTestCase {
                                 reference: .tag(1, 2, 3),
                                 toolsVersion: "5.1")
             try v.save(on: app.db).wait()
-            try Product(version: v, type: .library, name: "P1Lib", targets: ["t1"])
+            try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
                 .save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()
         }
@@ -201,7 +201,7 @@ class PackageCollectionTests: AppTestCase {
                                 reference: .tag(2, 0, 0),
                                 toolsVersion: "5.2")
             try v.save(on: app.db).wait()
-            try Product(version: v, type: .library, name: "P1Lib", targets: ["t1"])
+            try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
                 .save(on: app.db).wait()
             try Build(version: v,
                       platform: .ios,
@@ -218,7 +218,7 @@ class PackageCollectionTests: AppTestCase {
                                 reference: .branch("main"),
                                 toolsVersion: "5.3")
             try v.save(on: app.db).wait()
-            try Product(version: v, type: .library, name: "P1Lib")
+            try Product(version: v, type: .library(.automatic), name: "P1Lib")
                 .save(on: app.db).wait()
         }
         do {
@@ -228,7 +228,7 @@ class PackageCollectionTests: AppTestCase {
                                 reference: .tag(1, 2, 3),
                                 toolsVersion: "5.3")
             try v.save(on: app.db).wait()
-            try Product(version: v, type: .library, name: "P1Lib", targets: ["t2"])
+            try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t2"])
                 .save(on: app.db).wait()
             try Target(version: v, name: "t2").save(on: app.db).wait()
         }

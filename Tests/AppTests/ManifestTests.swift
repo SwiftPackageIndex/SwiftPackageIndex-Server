@@ -7,33 +7,77 @@ import XCTest
 class ManifestTests: XCTestCase {
     
     func test_decode_Product_Type() throws {
+        // Test product type decoding.
+        // JSON snippets via `swift package dump-package` from the following
+        // Package.swift `products` definition:
+        //        products: [
+        //            .executable(name: "foo", targets: ["spm-test"]),
+        //            .library(name: "spm-test-automatic",
+        //                     targets: ["spm-test"]),
+        //            .library(name: "spm-test-dynamic",
+        //                     type: .dynamic, targets: ["spm-test"]),
+        //            .library(name: "spm-test-static",
+        //                     type: .static, targets: ["spm-test"])
+        //        ],
+
+        struct Test: Decodable, Equatable {
+            var type: Manifest.ProductType
+        }
+        
         do { // exe
-            let json = """
+            let data = Data("""
             {
                 "type": {
                     "executable": null
                 }
             }
-            """
-            let data = Data(json.utf8)
-            struct Test: Decodable, Equatable {
-                var type: Manifest.Product.`Type`
-            }
-            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data), .init(type: .executable))
+            """.utf8)
+            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
+                           .init(type: .executable))
         }
-        do { // lib
-            let json = """
+        do { // lib - automatic
+            let data = Data("""
             {
                 "type": {
                     "library": ["automatic"]
                 }
             }
-            """
-            let data = Data(json.utf8)
-            struct Test: Decodable, Equatable {
-                var type: Manifest.Product.`Type`
+            """.utf8)
+            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
+                           .init(type: .library(.automatic)))
+        }
+        do { // lib - dynamic
+            let data = Data("""
+            {
+                "type": {
+                    "library": ["dynamic"]
+                }
             }
-            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data), .init(type: .library))
+            """.utf8)
+            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
+                           .init(type: .library(.dynamic)))
+        }
+        do { // lib - static
+            let data = Data("""
+            {
+                "type": {
+                    "library": ["static"]
+                }
+            }
+            """.utf8)
+            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
+                           .init(type: .library(.static)))
+        }
+        do { // test
+            let data = Data("""
+            {
+                "type": {
+                    "test": null
+                }
+            }
+            """.utf8)
+            XCTAssertEqual(try JSONDecoder().decode(Test.self, from: data),
+                           .init(type: .test))
         }
     }
     
@@ -44,7 +88,7 @@ class ManifestTests: XCTestCase {
         XCTAssertEqual(m.platforms, [.init(platformName: .macos, version: "10.15")])
         XCTAssertEqual(m.products, [.init(name: "Some Product",
                                           targets: ["t1", "t2"],
-                                          type: .library)])
+                                          type: .library(.automatic))])
         XCTAssertEqual(m.swiftLanguageVersions, ["4", "4.2", "5"])
         XCTAssertEqual(m.targets, [.init(name: "App"),
                                    .init(name: "Run"),
@@ -94,28 +138,28 @@ class ManifestTests: XCTestCase {
                   type: .executable),
             .init(name: "NIO",
                   targets: ["NIO"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "_NIO1APIShims",
                   targets: ["_NIO1APIShims"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOTLS",
                   targets: ["NIOTLS"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOHTTP1",
                   targets: ["NIOHTTP1"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOConcurrencyHelpers",
                   targets: ["NIOConcurrencyHelpers"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOFoundationCompat",
                   targets: ["NIOFoundationCompat"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOWebSocket",
                   targets: ["NIOWebSocket"],
-                  type: .library),
+                  type: .library(.automatic)),
             .init(name: "NIOTestUtils",
                   targets: ["NIOTestUtils"],
-                  type: .library),
+                  type: .library(.automatic)),
         ])
     }
     

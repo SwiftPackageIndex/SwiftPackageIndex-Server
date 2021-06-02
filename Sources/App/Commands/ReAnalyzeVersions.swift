@@ -3,9 +3,12 @@ import Fluent
 
 
 struct ReAnalyzeVersionsCommand: Command {
+    let defaultBatchSize = 10
     let defaultLimit = 1
 
     struct Signature: CommandSignature {
+        @Option(name: "batchSize", short: "b")
+        var batchSize: Int?
         @Option(name: "limit", short: "l")
         var limit: Int?
         @Option(name: "id")
@@ -34,19 +37,26 @@ struct ReAnalyzeVersionsCommand: Command {
                                   id: id)
                 .wait()
         } else {
-            guard let cutoffDate = signature.before ?? Current.reAnalyzeVersionsBeforeDate() else {
+            guard let cutoffDate = signature.before else {
                 logger.info("No cut-off date set, skipping re-analysis")
                 return
             }
 
             logger.info("Re-analyzing versions (limit: \(limit)) ...")
-            try reAnalyzeVersions(client: client,
-                                  database: db,
-                                  logger: logger,
-                                  threadPool: threadPool,
-                                  before: cutoffDate,
-                                  limit: limit)
+            var processed = 0
+            while processed < limit {
+                let currentBatchSize = min(signature.batchSize ?? defaultBatchSize,
+                                           limit - processed)
+                logger.info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize) ...")
+                try reAnalyzeVersions(client: client,
+                                      database: db,
+                                      logger: logger,
+                                      threadPool: threadPool,
+                                      before: cutoffDate,
+                                      limit: currentBatchSize)
                 .wait()
+                processed += currentBatchSize
+            }
         }
         try AppMetrics.push(client: client,
                             logger: logger,

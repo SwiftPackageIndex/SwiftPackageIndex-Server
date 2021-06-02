@@ -3,6 +3,7 @@ import Foundation
 
 // LosslessStringConvertible conformance is required by @Option command line argument conversion
 extension Date: LosslessStringConvertible {
+    private static let iso8601: ISO8601DateFormatter = ISO8601DateFormatter()
     private static let ymd: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -11,12 +12,15 @@ extension Date: LosslessStringConvertible {
         return formatter
     }()
 
-    public init?(yyyyMMdd: String) {
-        guard let date = Self.ymd.date(from: yyyyMMdd) else { return nil }
-        self = date
-    }
-
     public init?(_ string: String) {
-        self.init(yyyyMMdd: string)
+        if let date = Self.ymd.date(from: string) {
+            self = date
+            return
+        }
+        if let date = Self.iso8601.date(from: string) {
+            self = date
+            return
+        }
+        return nil
     }
 }

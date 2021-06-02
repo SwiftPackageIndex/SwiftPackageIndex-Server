@@ -16,7 +16,7 @@ class PackageCollectionControllerTests: AppTestCase {
                                 reference: .branch("main"),
                                 toolsVersion: "5.0")
             try v.save(on: app.db).wait()
-            try Product(version: v, type: .library, name: "P1Lib")
+            try Product(version: v, type: .library(.automatic), name: "P1Lib")
                 .save(on: app.db).wait()
         }
         do {
@@ -26,7 +26,7 @@ class PackageCollectionControllerTests: AppTestCase {
                                 reference: .tag(1, 2, 3),
                                 toolsVersion: "5.1")
             try v.save(on: app.db).wait()
-            try Product(version: v, type: .library, name: "P1Lib", targets: ["t1"])
+            try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
                 .save(on: app.db).wait()
             try Build(version: v,
                       platform: .ios,

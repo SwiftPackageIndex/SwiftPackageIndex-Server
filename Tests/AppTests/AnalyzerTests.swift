@@ -78,7 +78,7 @@ class AnalyzerTests: AppTestCase {
                           "name": "p2",
                           "targets": ["t2"],
                           "type": {
-                            "library": []
+                            "library": ["automatic"]
                           }
                         }
                       ],
@@ -152,7 +152,7 @@ class AnalyzerTests: AppTestCase {
         assertEquals(products, \.name, ["p1", "p1", "p1", "p2", "p2", "p2"])
         assertEquals(products, \.targets,
                      [["t1"], ["t1"], ["t1"], ["t2"], ["t2"], ["t2"]])
-        assertEquals(products, \.type, [.executable, .executable, .executable, .library, .library, .library])
+        assertEquals(products, \.type, [.executable, .executable, .executable, .library(.automatic), .library(.automatic), .library(.automatic)])
 
         // validate targets
         // (2 packages with 3 versions with 1 target each = 6 targets)
@@ -682,7 +682,7 @@ class AnalyzerTests: AppTestCase {
         let m = Manifest(name: "1",
                          products: [.init(name: "p1",
                                           targets: ["t1", "t2"],
-                                          type: .library),
+                                          type: .library(.automatic)),
                                     .init(name: "p2",
                                           targets: ["t3", "t4"],
                                           type: .executable)],
@@ -698,7 +698,7 @@ class AnalyzerTests: AppTestCase {
         let products = try Product.query(on: app.db).sort(\.$createdAt).all().wait()
         XCTAssertEqual(products.map(\.name), ["p1", "p2"])
         XCTAssertEqual(products.map(\.targets), [["t1", "t2"], ["t3", "t4"]])
-        XCTAssertEqual(products.map(\.type), [.library, .executable])
+        XCTAssertEqual(products.map(\.type), [.library(.automatic), .executable])
     }
     
     func test_createTargets() throws {

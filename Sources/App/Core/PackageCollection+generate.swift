@@ -174,8 +174,8 @@ private extension PackageCollection.Target {
 
 private extension PackageCollection.Product {
     init?(product: App.Product) {
-        guard let type = PackageCollection
-                .ProductType(productType: product.type)
+        guard let type = product.type
+                .flatMap(PackageCollection.ProductType.init(productType:))
         else { return nil }
         self.init(name: product.name,
                   type: type,
@@ -185,12 +185,18 @@ private extension PackageCollection.Product {
 
 
 private extension PackageCollection.ProductType {
-    init?(productType: App.Product.`Type`) {
+    init?(productType: App.ProductType) {
         switch productType {
             case .executable:
                 self = .executable
-            case .library:  // TODO: wire up detailed data
+            case .library(.automatic):
                 self = .library(.automatic)
+            case .library(.dynamic):
+                self = .library(.dynamic)
+            case .library(.static):
+                self = .library(.static)
+            case .test:
+                self = .test
         }
     }
 }

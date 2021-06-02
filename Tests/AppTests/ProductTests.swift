@@ -4,13 +4,52 @@ import XCTVapor
 
 
 class ProductTests: AppTestCase {
+
+    func test_ProductType_Codable() throws {
+        // Ensure ProductType is Codable in a way that's forward compatible with Swift 5.5's Codable synthesis for enums with associated types (SE-0295)
+        let exe: ProductType = .executable
+        let lib: ProductType = .library(.automatic)
+        let test: ProductType = .test
+        do {  // encoding
+            XCTAssertEqual(
+                String(decoding: try JSONEncoder().encode(exe), as: UTF8.self),
+                #"{"executable":{}}"#
+            )
+            XCTAssertEqual(
+                String(decoding: try JSONEncoder().encode(lib), as: UTF8.self),
+                #"{"library":{"_0":"automatic"}}"#
+            )
+            XCTAssertEqual(
+                String(decoding: try JSONEncoder().encode(test), as: UTF8.self),
+                #"{"test":{}}"#
+            )
+        }
+        do {  // decoding
+            XCTAssertEqual(
+                try JSONDecoder().decode(
+                    ProductType.self,
+                    from: Data(#"{"executable":{}}"#.utf8)),
+                exe)
+            XCTAssertEqual(
+                try JSONDecoder().decode(
+                    ProductType.self,
+                    from: Data(#"{"library":{"_0":"automatic"}}"#.utf8)),
+                lib
+            )
+            XCTAssertEqual(
+                try JSONDecoder().decode(
+                    ProductType.self,
+                    from: Data(#"{"test":{}}"#.utf8)),
+                test)
+        }
+    }
     
     func test_Product_save() throws {
         let pkg = Package(id: UUID(), url: "1")
         let ver = try Version(id: UUID(), package: pkg)
         let prod = try Product(id: UUID(),
                                version: ver,
-                               type: .library,
+                               type: .library(.automatic),
                                name: "p1",
                                targets: ["t1", "t2"])
         try pkg.save(on: app.db).wait()
@@ -19,7 +58,7 @@ class ProductTests: AppTestCase {
         do {
             let p = try XCTUnwrap(Product.find(prod.id, on: app.db).wait())
             XCTAssertEqual(p.$version.id, ver.id)
-            XCTAssertEqual(p.type, .library)
+            XCTAssertEqual(p.type, .library(.automatic))
             XCTAssertEqual(p.name, "p1")
             XCTAssertEqual(p.targets, ["t1", "t2"])
         }
@@ -29,7 +68,7 @@ class ProductTests: AppTestCase {
         // delete version must delete products
         let pkg = Package(id: UUID(), url: "1")
         let ver = try Version(id: UUID(), package: pkg)
-        let prod = try Product(id: UUID(), version: ver, type: .library, name: "p1")
+        let prod = try Product(id: UUID(), version: ver, type: .library(.automatic), name: "p1")
         try pkg.save(on: app.db).wait()
         try ver.save(on: app.db).wait()
         try prod.save(on: app.db).wait()
@@ -46,4 +85,5 @@ class ProductTests: AppTestCase {
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 0)
         XCTAssertEqual(try Product.query(on: app.db).count().wait(), 0)
     }
+
 }
