@@ -263,11 +263,11 @@ final class PackageTests: AppTestCase {
                        "https://github.com/foo/bar/releases/tag/1.2.3")
     }
 
-    func test_isNew() throws {
+    func test_isNew() async throws {
         // setup
         let url = "1".asGithubUrl
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
-        Current.fetchPackageList = { _ in self.future([url.url]) }
+        Current.fetchPackageList = { _ in [url.url] }
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in Date(timeIntervalSince1970: 0) }
         Current.git.getTags = { _ in [] }
@@ -283,7 +283,7 @@ final class PackageTests: AppTestCase {
             return ""
         }
         // run reconcile to ingest package
-        try reconcile(client: app.client, database: app.db).wait()
+        try await reconcile(client: app.client, database: app.db)
         XCTAssertEqual(try Package.query(on: app.db).count().wait(), 1)
 
         // MUT & validate
@@ -316,7 +316,7 @@ final class PackageTests: AppTestCase {
 
         // run stages again to simulate the cycle...
 
-        try reconcile(client: app.client, database: app.db).wait()
+        try await reconcile(client: app.client, database: app.db)
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
             XCTAssertFalse(pkg.isNew)

@@ -20,11 +20,11 @@ import XCTest
 
 class ReconcilerTests: AppTestCase {
     
-    func test_basic_reconciliation() throws {
+    func test_basic_reconciliation() async throws {
         let urls = ["1", "2", "3"]
-        Current.fetchPackageList = { _ in self.future(urls.asURLs) }
+        Current.fetchPackageList = { _ in urls.asURLs }
         
-        try reconcile(client: app.client, database: app.db).wait()
+        try await reconcile(client: app.client, database: app.db)
         
         let packages = try Package.query(on: app.db).all().wait()
         XCTAssertEqual(packages.map(\.url).sorted(), urls.sorted())
@@ -37,16 +37,16 @@ class ReconcilerTests: AppTestCase {
         }
     }
     
-    func test_adds_and_deletes() throws {
+    func test_adds_and_deletes() async throws {
         // save intial set of packages 1, 2, 3
         try savePackages(on: app.db, ["1", "2", "3"].asURLs)
         
         // new package list drops 2, 3, adds 4, 5
         let urls = ["1", "4", "5"]
-        Current.fetchPackageList = { _ in self.future(urls.asURLs) }
+        Current.fetchPackageList = { _ in urls.asURLs }
         
         // MUT
-        try reconcile(client: app.client, database: app.db).wait()
+        try await reconcile(client: app.client, database: app.db)
         
         // validate
         let packages = try Package.query(on: app.db).all().wait()

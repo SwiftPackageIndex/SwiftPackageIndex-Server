@@ -85,11 +85,13 @@ extension API {
             let limit = req.query[Int.self, at: "limit"] ?? 10
             switch cmd {
                 case .reconcile:
-                    return try reconcile(client: req.client, database: req.db)
-                        .flatMap {
-                            Package.query(on: req.db).count()
-                                .map { Command.Response.init(status: "ok", rows: $0) }
-                        }
+                    // FIXME: just remove this whole API
+//                    return try reconcile(client: req.client, database: req.db)
+//                        .flatMap {
+//                            Package.query(on: req.db).count()
+//                                .map { Command.Response.init(status: "ok", rows: $0) }
+//                        }
+                    return req.eventLoop.makeSucceededFuture(.init(status: "ok", rows: 0))
                 case .ingest:
                     return ingest(client: req.application.client,
                                   database: req.application.db,
