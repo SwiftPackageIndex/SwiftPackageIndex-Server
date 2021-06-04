@@ -30,6 +30,8 @@ extension SiteURL {
     
     var changefreq: SiteMapChangeFrequency {
         switch self {
+            case .addAPackage:
+                return .weekly
             case .api:
                 return .weekly
             case .author:
@@ -40,13 +42,15 @@ extension SiteURL {
                 return .weekly
             case .faq:
                 return .weekly
-            case .addAPackage:
-                return .weekly
             case .home:
                 return .hourly
             case .images:
                 return .weekly
+            case .javascripts:
+                return .weekly
             case .package:
+                return .daily
+            case .packageCollections:
                 return .daily
             case .packageCollection:
                 return .daily
@@ -61,8 +65,6 @@ extension SiteURL {
             case .siteMap:
                 return .weekly
             case .stylesheets:
-                return .weekly
-            case .javascripts:
                 return .weekly
             case .tryInPlayground:
                 return .monthly
