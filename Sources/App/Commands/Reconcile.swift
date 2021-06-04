@@ -35,8 +35,8 @@ struct ReconcileCommand: Command {
 
 
 func reconcile(client: Client, database: Database) async throws {
-    let packageList = try await Current.fetchPackageList(client)
-    let currentList = try await fetchCurrentPackageList(database)
+    async let packageList = try Current.fetchPackageList(client)
+    async let currentList = try fetchCurrentPackageList(database)
     return try await reconcileLists(db: database,
                                     source: packageList,
                                     target: currentList)
