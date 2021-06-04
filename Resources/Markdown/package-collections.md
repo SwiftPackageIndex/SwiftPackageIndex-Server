@@ -5,7 +5,7 @@ description: The Swift Package Index supports the generation of package collecti
 
 ## Package Collections
 
-Package Collections are a new feature in the [Swift 5.5 release](XXX-LINK-TO-SWIFT-55-RELEASE-POST-XXX) of the Swift Package Manager allowing packages to be grouped, searched, and have their metadata inspected.
+Package Collections are a new feature in the Swift 5.5 release of the Swift Package Manager allowing packages to be grouped, searched, and have their metadata inspected.
 
 The Swift Package Index supports dynamically generated Package Collections containing all packages from each author in the index. Every author page in the index includes a link to a [package collection](/apple/collection.json). For example, from the [Apple author page on the Swift Package Index](/apple):
 
@@ -35,5 +35,3 @@ Finally, if you'd like to remove this package collection, call `swift package-co
 ```
 swift package-collection remove https://swiftpackageindex.com/apple/collection.json
 ```
-
-For more information about Swift Package Collections, [see the Apple documentation](XXX-LINK-TO-APPLE-DOCUMENTATION-XXX).
