@@ -138,6 +138,7 @@ public func configure(_ app: Application) throws {
     app.commands.use(ReconcileCommand(), as: "reconcile")
     app.commands.use(TriggerBuildsCommand(), as: "trigger-builds")
     app.commands.use(ReAnalyzeVersionsCommand(), as: "re-analyze-versions")
+    app.commands.use(CrashCommand(), as: "crash")
     
     // register routes
     try routes(app)

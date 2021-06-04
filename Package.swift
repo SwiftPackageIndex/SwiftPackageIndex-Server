@@ -22,7 +22,8 @@ let package = Package(
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
         .package(name: "SwiftPM",
                  url: "https://github.com/apple/swift-package-manager.git",
-                 .revision("swift-DEVELOPMENT-SNAPSHOT-2021-05-04-a"))
+                 .revision("swift-DEVELOPMENT-SNAPSHOT-2021-05-04-a")),
+        .package(url: "https://github.com/swift-server/swift-backtrace.git", from: "1.2.0")
     ],
     targets: [
         .target(name: "App", dependencies: [
@@ -36,7 +37,8 @@ let package = Package(
             "SwiftPrometheus",
             "OhhAuth",
             "SwiftSoup",
-            .product(name: "PackageCollectionsModel", package: "SwiftPM")
+            .product(name: "PackageCollectionsModel", package: "SwiftPM"),
+            .product(name: "Backtrace", package: "swift-backtrace")
         ]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [
