@@ -35,3 +35,5 @@ Finally, if you'd like to remove this package collection, call `swift package-co
 ```
 swift package-collection remove https://swiftpackageindex.com/vapor/collection.json
 ```
+
+For more information about package collections, [see the documentation](https://github.com/apple/swift-package-manager/blob/main/Documentation/PackageCollections.md).
