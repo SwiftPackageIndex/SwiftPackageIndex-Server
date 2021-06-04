@@ -20,7 +20,7 @@ struct ReconcileCommand: Command {
     struct Signature: CommandSignature { }
     
     var help: String { "Reconcile package list with server" }
-    
+
     func run(using context: CommandContext, signature: Signature) throws {
         let logger = Logger(component: "reconcile")
 
@@ -38,8 +38,8 @@ func reconcile(client: Client, database: Database) async throws {
     let packageList = try await Current.fetchPackageList(client)
     let currentList = try await fetchCurrentPackageList(database)
     return try await reconcileLists(db: database,
-                                source: packageList,
-                                target: currentList)
+                                    source: packageList,
+                                    target: currentList)
 }
 
 
