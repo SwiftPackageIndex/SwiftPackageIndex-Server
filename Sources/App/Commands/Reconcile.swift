@@ -22,14 +22,17 @@ struct ReconcileCommand: Command {
     var help: String { "Reconcile package list with server" }
 
     func run(using context: CommandContext, signature: Signature) throws {
-        let logger = Logger(component: "reconcile")
-
-        logger.info("Reconciling ...")
+        let group = DispatchGroup()
+        group.enter()
         detach {
-            try await reconcile(client: context.application.client,
-                                database: context.application.db)
+            let logger = Logger(component: "reconcile")
+            logger.info("Reconciling ...")
+            try? await reconcile(client: context.application.client,
+                                 database: context.application.db)
+            logger.info("done.")
+            group.leave()
         }
-        RunLoop.main.run(until: .distantFuture)
+        group.wait()
     }
 }
 
