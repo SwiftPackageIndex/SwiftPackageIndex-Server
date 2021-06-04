@@ -14,8 +14,8 @@ extension AppEnvironment {
             buildTriggerDownscaling: { 1.0 },
             date: Date.init,
             fetchPackageList: { _ in
-                eventLoop.future(["https://github.com/finestructure/Gala",
-                                      "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"].asURLs)
+                ["https://github.com/finestructure/Gala",
+                 "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"].asURLs
             },
             fetchLicense: { _, _ in eventLoop.future(.init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE")) },
             fetchMetadata: { _, _ in eventLoop.future(.mock) },
