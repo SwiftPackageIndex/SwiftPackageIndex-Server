@@ -22,6 +22,29 @@
       ▿ summary: Optional<String>
         - some: "some package"
       - url: 1
-      - versions: 0 elements
+      ▿ versions: 1 element
+        ▿ Version
+          - createdAt: Optional<Date>.none
+          - defaultToolsVersion: "5.3"
+          - license: Optional<License>.none
+          ▿ manifests: 1 key/value pair
+            ▿ (2 elements)
+              - key: "5.3"
+              ▿ value: Manifest
+                ▿ minimumPlatformVersions: Optional<Array<PlatformVersion>>
+                  - some: 0 elements
+                - packageName: "Foo"
+                ▿ products: 1 element
+                  ▿ Product
+                    - name: "p1"
+                    - targets: 0 elements
+                    ▿ type: ProductType
+                      - library: LibraryType.automatic
+                - targets: 0 elements
+                - toolsVersion: "5.3"
+          - summary: Optional<String>.none
+          ▿ verifiedCompatibility: Optional<Array<Compatibility>>
+            - some: 0 elements
+          - version: "1.2.3"
   ▿ revision: Optional<Int>
     - some: 3

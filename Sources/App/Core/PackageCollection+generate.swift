@@ -92,15 +92,18 @@ extension PackageCollection.Package {
             url: package.repository?.licenseUrl
         )
 
-        guard let url = URL(string: package.url) else { return nil }
+        let appVersions = package.versions.filter { $0.latest != nil }
+        let versions = [Version].init(versions: appVersions, license: license)
 
-        let versions = package.versions.filter { $0.latest != nil }
+        guard let url = URL(string: package.url),
+              !versions.isEmpty
+        else { return nil }
 
         self.init(
             url: url,
             summary: package.repository?.summary,
             keywords: keywords,
-            versions: .init(versions: versions, license: license),
+            versions: versions,
             readmeURL: package.repository?.readmeUrl.flatMap(URL.init(string:)),
             license: license
         )
@@ -110,19 +113,20 @@ extension PackageCollection.Package {
 
 extension PackageCollection.Package.Version {
     init?(version: App.Version, license: PackageCollection.License?) {
+        let products = version.products
+            .compactMap(PackageCollection.Product.init(product:))
         guard
             let semVer = version.reference?.semVer,
             let packageName = version.packageName,
-            let toolsVersion = version.toolsVersion
-        else {
-            return nil
-        }
+            let toolsVersion = version.toolsVersion,
+            !products.isEmpty
+        else { return nil }
 
         let manifest = Manifest(
             toolsVersion: toolsVersion,
             packageName: packageName,
             targets: version.targets.map(PackageCollection.Target.init(target:)),
-            products: version.products.compactMap(PackageCollection.Product.init(product:)),
+            products: products,
             minimumPlatformVersions: version.supportedPlatforms
                 .map(PackageCollection.PlatformVersion.init(platform:))
         )

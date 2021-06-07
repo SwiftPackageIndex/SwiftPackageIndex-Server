@@ -120,6 +120,9 @@ class PackageCollectionTests: AppTestCase {
                                     reference: .tag(1, 2, 3),
                                     toolsVersion: "5.3")
                 try v.save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library(.automatic),
+                            name: "product").save(on: app.db).wait()
             }
         }
         let p = try Package.query(on: app.db)
@@ -151,6 +154,16 @@ class PackageCollectionTests: AppTestCase {
         // setup
         Current.date = { Date(timeIntervalSince1970: 1610112345) }
         let pkg = try savePackage(on: app.db, "1")
+        do {
+            let v = try Version(package: pkg,
+                                latest: .release,
+                                packageName: "package",
+                                reference: .tag(1, 2, 3),
+                                toolsVersion: "5.4")
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "product")
+                .save(on: app.db).wait()
+        }
         try Repository(package: pkg,
                        summary: "summary",
                        license: .mit,
@@ -337,4 +350,54 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.packages.flatMap { $0.versions.map({$0.version}) },
                        ["2.0.0-b1", "1.2.3"])
     }
+
+    func test_require_products() throws {
+        // Ensure we don't include versions without products (by ensuring
+        // init? returns nil, which will be compact mapped away)
+        let p = Package(url: "1".asGithubUrl.url)
+        try p.save(on: app.db).wait()
+        let v = try Version(package: p,
+                            packageName: "pkg",
+                            reference: .tag(1,2,3),
+                            toolsVersion: "5.3")
+        try v.save(on: app.db).wait()
+        try v.$builds.load(on: app.db).wait()
+        try v.$products.load(on: app.db).wait()
+        try v.$targets.load(on: app.db).wait()
+        XCTAssertNil(PackageCollection.Package.Version(version: v,
+                                                       license: nil))
+    }
+
+    func test_require_versions() throws {
+        // Ensure we don't include packages without versions (by ensuring
+        // init? returns nil, which will be compact mapped away)
+        do {  // no versions at all
+            let p = Package(url: "1".asGithubUrl.url)
+            try p.save(on: app.db).wait()
+            try p.$versions.load(on: app.db).wait()
+
+            XCTAssertNil(PackageCollection.Package(package: p,
+                                                   keywords: nil))
+        }
+        do {  // only invalid versions
+            do {  // setup
+                let p = Package(url: "2".asGithubUrl.url)
+                try p.save(on: app.db).wait()
+                let v = try Version(package: p, latest: .release)
+                try v.save(on: app.db).wait()
+            }
+            let p = try XCTUnwrap(
+                Package.query(on: app.db)
+                    .with(\.$versions) {
+                        $0.with(\.$products)
+                    }
+                    .first()
+                    .wait()
+            )
+            XCTAssertNil(PackageCollection.Package(package: p,
+                                                   keywords: nil))
+
+        }
+    }
+
 }
