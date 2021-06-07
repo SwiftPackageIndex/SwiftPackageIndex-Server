@@ -516,8 +516,26 @@ class ApiTests: AppTestCase {
                        defaultBranch: "main",
                        name: "name 2",
                        owner: "foo").save(on: app.db).wait()
-        try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
-        try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
+        do {
+            let v = try Version(package: p1,
+                                latest: .release,
+                                packageName: "Foo",
+                                reference: .tag(1, 2, 3),
+                                toolsVersion: "5.3")
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "p1")
+                .save(on: app.db).wait()
+        }
+        do {
+            let v = try Version(package: p2,
+                                latest: .release,
+                                packageName: "Bar",
+                                reference: .tag(2, 0, 0),
+                                toolsVersion: "5.4")
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "p2")
+                .save(on: app.db).wait()
+        }
         try Search.refresh(on: app.db).wait()
 
         do {  // MUT

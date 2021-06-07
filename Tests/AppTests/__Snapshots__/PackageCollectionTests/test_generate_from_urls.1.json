@@ -23,7 +23,42 @@
       "summary" : "summary",
       "url" : "1",
       "versions" : [
+        {
+          "defaultToolsVersion" : "5.4",
+          "license" : {
+            "name" : "MIT",
+            "url" : "https:\/\/foo\/mit"
+          },
+          "manifests" : {
+            "5.4" : {
+              "minimumPlatformVersions" : [
 
+              ],
+              "packageName" : "package",
+              "products" : [
+                {
+                  "name" : "product",
+                  "targets" : [
+
+                  ],
+                  "type" : {
+                    "library" : [
+                      "automatic"
+                    ]
+                  }
+                }
+              ],
+              "targets" : [
+
+              ],
+              "toolsVersion" : "5.4"
+            }
+          },
+          "verifiedCompatibility" : [
+
+          ],
+          "version" : "1.2.3"
+        }
       ]
     }
   ]

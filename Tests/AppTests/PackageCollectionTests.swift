@@ -120,6 +120,9 @@ class PackageCollectionTests: AppTestCase {
                                     reference: .tag(1, 2, 3),
                                     toolsVersion: "5.3")
                 try v.save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library(.automatic),
+                            name: "product").save(on: app.db).wait()
             }
         }
         let p = try Package.query(on: app.db)
@@ -151,6 +154,16 @@ class PackageCollectionTests: AppTestCase {
         // setup
         Current.date = { Date(timeIntervalSince1970: 1610112345) }
         let pkg = try savePackage(on: app.db, "1")
+        do {
+            let v = try Version(package: pkg,
+                                latest: .release,
+                                packageName: "package",
+                                reference: .tag(1, 2, 3),
+                                toolsVersion: "5.4")
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "product")
+                .save(on: app.db).wait()
+        }
         try Repository(package: pkg,
                        summary: "summary",
                        license: .mit,
@@ -362,7 +375,7 @@ class PackageCollectionTests: AppTestCase {
             let p = Package(url: "1".asGithubUrl.url)
             try p.save(on: app.db).wait()
             try p.$versions.load(on: app.db).wait()
-            
+
             XCTAssertNil(PackageCollection.Package(package: p,
                                                    keywords: nil))
         }
