@@ -10,8 +10,8 @@ Package Collections are a new feature in the Swift 5.5 release of the Swift Pack
 The Swift Package Index supports dynamically generated Package Collections containing all packages from each author in the index. Every author page in the index includes a link to a [package collection](/vapor/collection.json). For example, from the [Vapor project's author page on the Swift Package Index](/vapor):
 
 <picture class="shadow">
-  <source srcset="/images/author-page-package-collection~dark.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/author-page-package-collection~light.png" alt="Package Collection support on the Swift Package Index">
+  <source srcset="/images/author-page-vapor-packages~dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/author-page-vapor-packages~light.png" alt="Package Collection support on the Swift Package Index">
 </picture>
 
 To add this package collection to your Swift Package Manager, use the `swift package-collection add` command:
