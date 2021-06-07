@@ -337,4 +337,33 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.packages.flatMap { $0.versions.map({$0.version}) },
                        ["2.0.0-b1", "1.2.3"])
     }
+
+    func test_require_products() throws {
+        // Ensure we don't include versions without products (by ensuring
+        // init? returns nil, which will be compact mapped away)
+        let p = Package(url: "1".asGithubUrl.url)
+        try p.save(on: app.db).wait()
+        let v = try Version(package: p,
+                            packageName: "pkg",
+                            reference: .tag(1,2,3),
+                            toolsVersion: "5.3")
+        try v.save(on: app.db).wait()
+        try v.$builds.load(on: app.db).wait()
+        try v.$products.load(on: app.db).wait()
+        try v.$targets.load(on: app.db).wait()
+        XCTAssertNil(PackageCollection.Package.Version(version: v,
+                                                       license: nil))
+    }
+
+    func test_require_versions() throws {
+        // Ensure we don't include packages without versions (by ensuring
+        // init? returns nil, which will be compact mapped away)
+        let p = Package(url: "1".asGithubUrl.url)
+        try p.save(on: app.db).wait()
+        try p.$versions.load(on: app.db).wait()
+
+        XCTAssertNil(PackageCollection.Package(package: p,
+                                               keywords: nil))
+    }
+
 }
