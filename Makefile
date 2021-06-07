@@ -35,11 +35,6 @@ test-docker:
 test-e2e: db-reset reconcile ingest analyze
 	@# run import sequence test
 
-crash-docker:
-	@# run crash inside a docker container
-	docker run --rm -v "$(PWD)":/host -w /host --network="host" finestructure/spi-base:0.5.2 \
-	  swift run -c release -Xswiftc -g Run crash
-
 migrate:
 	echo y | swift run Run migrate
 
