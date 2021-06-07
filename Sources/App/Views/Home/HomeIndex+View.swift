@@ -29,17 +29,12 @@ enum HomeIndex {
             .group(
                 .p(
                     .class("announcement"),
-                    .text("Hey! 👋 We "),
+                    .text("Package Collections are new in Swift 5.5 and "),
                     .a(
-                        .href("https://blog.swiftpackageindex.com/posts/launching-the-swift-package-index-playgrounds-app-for-macos/"),
-                        "just launched our first native app for macOS"
+                        .href(SiteURL.packageCollections.relativeURL()),
+                        "the Swift Package Index supports them TODAY"
                     ),
-                    .text("! Check out ”"),
-                    .a(
-                        .href(SiteURL.tryInPlayground.relativeURL()),
-                        "Try in a Playground"
-                    ),
-                    .text("”.")
+                    .text("! 🚀")
                 ),
                 .section(
                     .class("search home"),
