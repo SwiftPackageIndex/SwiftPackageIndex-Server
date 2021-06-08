@@ -400,4 +400,37 @@ class PackageCollectionTests: AppTestCase {
         }
     }
 
+    func test_case_insensitive_owner_matching() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
+        do {
+            let v = try Version(id: UUID(),
+                                package: pkg,
+                                latest: .release,
+                                packageName: "P1-tag",
+                                reference: .tag(2, 0, 0),
+                                toolsVersion: "5.2")
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
+                .save(on: app.db).wait()
+        }
+        // Owner "Foo"
+        try Repository(package: pkg,
+                       summary: "summary 1",
+                       defaultBranch: "main",
+                       license: .mit,
+                       licenseUrl: "https://foo/mit",
+                       owner: "Foo").create(on: app.db).wait()
+
+        // MUT
+        let res = try PackageCollection.generate(db: self.app.db,
+                                                 // looking for owner "foo"
+                                                 owner: "foo",
+                                                 collectionName: "collection")
+            .wait()
+
+        // validate
+        XCTAssertEqual(res.packages.count, 1)
+    }
+
 }
