@@ -68,11 +68,13 @@
     <main>
       <div class="inner">
         <h2 class="trimmed">Packages authored by Test Author</h2>
-        <p>All 
-          <strong>10 packages </strong>listed here are available as a 
-          <a href="/test-author/collection.json">package collection</a>. Learn more about 
-          <a href="/package-collections">package collections</a>.
+        <p>These packages are available as a package collection, 
+          <a href="/package-collections">usable in Xcode 13 or the Swift Package Manager 5.5</a>.
         </p>
+        <form class="copyable_input">
+          <input type="text" data-button-name="Copy Package Collection URL" data-event-name="Copy Package Collection URL Button" value="http://localhost:8080/test-author/collection.json" readonly/>
+        </form>
+        <hr class="minor"/>
         <ul id="package_list">
           <li>
             <a>
@@ -135,6 +137,9 @@
             </a>
           </li>
         </ul>
+        <p>
+          <strong>10 packages.</strong>
+        </p>
       </div>
     </main>
     <footer>
