@@ -48,7 +48,7 @@ extension PackageCollection {
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
         packageQuery(db: db)
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
-            .filter(Repository.self, \.$owner == owner)
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .all()
             .mapEachCompact { Package.init(package:$0, keywords: keywords) }
             .map {
