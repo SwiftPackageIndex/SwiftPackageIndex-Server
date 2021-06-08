@@ -2,62 +2,20 @@
   Styles for the Information for Package Maintainers page.
 ---------------------------------------------------------------------------- */
 
-form.copyable_input {
+.markdown_badges {
   display: flex;
-  flex-direction: row;
-
-  input {
-    margin: 0;
-    padding: 5px 10px 5px 5px;
-    color: var(--input-text);
-    background-color: var(--badge-input-background);
-    border: 1px var(--grey) solid;
-    border-radius: 4px 0 0 4px;
-    border-right: none;
-    font-family: monospace;
-    font-size: 12px;
-    flex-grow: 1;
-  }
-
-  input:focus {
-    outline: none;
-  }
-
-  button {
-    margin: 0;
-    padding: 0 8px;
-    color: var(--button-background); // Flipped standard colours.
-    background-color: var(--button-text);
-    border: none;
-    border-radius: 0 4px 4px 0;
-    font-size: 13px;
-    flex-shrink: 0;
-  }
-}
-
-.old {
-  display: flex;
-  flex-direction: row;
   align-items: center;
-  margin: 8px 0 15px 0;
+  margin: 5px 0 15px 0;
+  gap: 10px;
 
-  img {
-    margin-left: 10px;
+  form {
+    flex-grow: 1;
   }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  .badge_markdown {
+  .markdown_badges {
     flex-direction: column;
     align-items: flex-start;
-
-    form {
-      margin: 8px 0;
-      width: 100%;
-    }
-
-    img {
-      margin: 0;
-    }
   }
 }
