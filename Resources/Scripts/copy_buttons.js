@@ -88,7 +88,7 @@ export class SPICopyableInput extends SPICopyButton {
         formElement.appendChild(buttonElement)
 
         // Add the copy event to the newly created button.
-        this.installCopyEvent(buttonElement, inputElement, formElement.dataset.eventName)
+        this.installCopyEvent(buttonElement, inputElement, inputElement.dataset.eventName)
       })
     })
   }
