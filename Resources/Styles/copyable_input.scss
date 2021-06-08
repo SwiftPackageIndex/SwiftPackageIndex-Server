@@ -1,0 +1,36 @@
+/* -------------------------------------------------------------------------
+  Styles for copyable inputs, where a button is appended after an input.
+---------------------------------------------------------------------------- */
+
+form.copyable_input {
+  display: flex;
+  flex-direction: row;
+
+  input {
+    margin: 0;
+    padding: 5px 10px 5px 5px;
+    color: var(--input-text);
+    background-color: var(--badge-input-background);
+    border: 1px var(--grey) solid;
+    border-radius: 4px 0 0 4px;
+    border-right: none;
+    font-family: monospace;
+    font-size: 12px;
+    flex-grow: 1;
+  }
+
+  input:focus {
+    outline: none;
+  }
+
+  button {
+    margin: 0;
+    padding: 0 8px;
+    color: var(--button-background); // Flipped standard colours.
+    background-color: var(--button-text);
+    border: none;
+    border-radius: 0 4px 4px 0;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+}
