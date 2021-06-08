@@ -5,7 +5,7 @@ description: The Swift Package Index supports the generation of package collecti
 
 ## Package Collections
 
-Package Collections are a new feature in the Swift 5.5 release of the Swift Package Manager allowing packages to be grouped, searched, and have their metadata inspected.
+Package collections are a new feature of Swift 5.5 that let Swift packages to be grouped together, searched, and have their metadata inspected. You can also add package collections into Xcode 13, giving you a much easier way to add your favourite, or commonly used packages into your app.
 
 The Swift Package Index supports dynamically generated Package Collections containing all packages from each author in the index. Every author page in the index includes a link to a [package collection](/vapor/collection.json). For example, from the [Vapor project's author page on the Swift Package Index](/vapor):
 
