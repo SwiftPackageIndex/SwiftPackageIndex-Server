@@ -28,20 +28,24 @@ enum AuthorShow {
                     .text("Packages authored by \(model.ownerName)")
                 ),
                 .p(
-                    .text("All "),
-                    .strong("\(model.count) \("package".pluralized(for: model.count)) "),
-                    .text("listed here are available as a "),
-                    .a(
-                        .href(SiteURL.packageCollection(.value(model.owner)).relativeURL()),
-                        "package collection"
-                    ),
-                    .text(". Learn more about "),
+                    .text("These packages are available as a package collection, "),
                     .a(
                         .href(SiteURL.packageCollections.relativeURL()),
-                        "package collections"
+                        "usable in Xcode 13 or the Swift Package Manager 5.5"
                     ),
                     .text(".")
                 ),
+                .form(
+                    .class("copyable_input"),
+                    .input(
+                        .type(.text),
+                        .data(named: "button-name", value: "Copy Package Collection URL"),
+                        .data(named: "event-name", value: "Copy Package Collection URL Button"),
+                        .value(SiteURL.packageCollection(.value(model.owner)).absoluteURL()),
+                        .readonly(true)
+                    )
+                ),
+                .hr(.class("minor")),
                 .ul(
                     .id("package_list"),
                     .group(
@@ -55,6 +59,9 @@ enum AuthorShow {
                             )
                         }
                     )
+                ),
+                .p(
+                    .strong("\(model.count) \("package".pluralized(for: model.count)).")
                 )
             )
         }
