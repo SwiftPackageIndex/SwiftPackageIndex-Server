@@ -38,8 +38,9 @@ extension MaintainerInfoIndex {
         func badgeMarkdowDisplay(for type: Package.BadgeType) -> Node<HTML.FormContext> {
             .input(
                 .type(.text),
-                .class("badge_markdown"),
                 .value(badgeMarkdown(for: type)),
+                .data(named: "button-name", value: "Copy Markdown"),
+                .data(named: "event-name", value: "Copy Markdown Button"),
                 .readonly(true)
             )
         }
