@@ -22,10 +22,15 @@ extension PackageCollection {
                          keywords: [String]? = nil,
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
-        packageQuery(db: db)
+        versionQuery(db: db)
             .filter(\.$url ~~ packageURLs)
             .all()
-            .mapEachCompact { Package.init(package:$0, keywords: keywords) }
+            .map { versions -> [App.Package: [App.Version]] in
+                Dictionary(grouping: versions, by: { $0.package })
+            }
+            .mapEachCompact { Package.init(package: $0.key,
+                                           versions: $0.value,
+                                           keywords: keywords) }
             .map {
                 PackageCollection.init(
                     name: collectionName,
@@ -46,11 +51,15 @@ extension PackageCollection {
                          keywords: [String]? = nil,
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
-        packageQuery(db: db)
-            .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
+        versionQuery(db: db)
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .all()
-            .mapEachCompact { Package.init(package:$0, keywords: keywords) }
+            .map { versions -> [App.Package: [App.Version]] in
+                Dictionary(grouping: versions, by: { $0.package })
+            }
+            .mapEachCompact { Package.init(package: $0.key,
+                                           versions: $0.value,
+                                           keywords: keywords) }
             .map {
                 PackageCollection.init(
                     name: collectionName,
@@ -67,18 +76,31 @@ extension PackageCollection {
 }
 
 
-extension PackageCollection {
-
-    private static func packageQuery(db: Database) -> QueryBuilder<App.Package> {
-        App.Package.query(on: db)
-            .with(\.$repositories)
-            .with(\.$versions) {
-                $0.with(\.$builds)
-                $0.with(\.$products)
-                $0.with(\.$targets)
-            }
+// FIXME: avoid making Package Hashable by wrapping in a container
+extension App.Package: Equatable, Hashable {
+    static func == (lhs: Package, rhs: Package) -> Bool {
+        lhs.id == rhs.id
     }
 
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
+
+extension PackageCollection {
+    private static func versionQuery(db: Database) -> QueryBuilder<App.Version> {
+        App.Version.query(on: db)
+            .with(\.$builds)
+            .with(\.$products)
+            .with(\.$targets)
+            .with(\.$package) {
+                $0.with(\.$repositories)
+            }
+            .join(App.Package.self, on: \App.Package.$id == \Version.$package.$id)
+            .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
+            .filter(Version.self, \.$latest ~~ [.release, .preRelease])
+    }
 }
 
 
@@ -86,14 +108,13 @@ extension PackageCollection {
 
 
 extension PackageCollection.Package {
-    init?(package: App.Package, keywords: [String]?) {
+    init?(package: App.Package, versions: [App.Version], keywords: [String]?) {
         let license = PackageCollection.License(
             name: package.repository?.license.shortName,
             url: package.repository?.licenseUrl
         )
 
-        let appVersions = package.versions.filter { $0.latest != nil }
-        let versions = [Version].init(versions: appVersions, license: license)
+        let versions = [Version].init(versions: versions, license: license)
 
         guard let url = URL(string: package.url),
               !versions.isEmpty
