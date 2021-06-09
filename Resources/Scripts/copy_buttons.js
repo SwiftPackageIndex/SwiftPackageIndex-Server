@@ -59,36 +59,36 @@ export class SPICopyPackageURLButton extends SPICopyButton {
   }
 }
 
-export class SPICopyBadgeMarkdownButtons extends SPICopyButton {
+export class SPICopyableInput extends SPICopyButton {
   constructor() {
     super()
 
     document.addEventListener('turbo:load', () => {
-      // Create a "Copy Markdown" inside every relevant form element.
-      const elements = document.querySelectorAll('.badge_markdown>form')
-      elements.forEach((element) => {
-        // Get the input element inside the form.
-        const input = element.querySelector('input')
-        if (!input) {
-          return
-        }
+      // Create a copy button inside every relevant form element.
+      const elements = document.querySelectorAll('form.copyable_input')
+      elements.forEach((formElement) => {
+        // Get the first/only input element inside the form.
+        const inputElement = formElement.querySelector('input')
+        if (!inputElement) return
 
         // Whenever the input is clicked, select all text. Don't attach to the `focus` event
         // here, as `mouseup` happens after and placing the event on `focus` means it's too
         // easy to accidentally select all the text.
-        input.addEventListener('mouseup', (event) => {
+        inputElement.addEventListener('mouseup', (event) => {
           event.target.select()
         })
 
-        // Remove any old buttons from the Turbo restored page.
-        const oldButtonElement = element.querySelector('button')
+        // Remove the old button, if it exists, from the Turbo restored page.
+        const oldButtonElement = formElement.querySelector('button')
         if (oldButtonElement) oldButtonElement.remove()
 
         // Given that the button will only work with JavaScript available, we should use JavaScript to create it!
-        const copyButtonElement = document.createElement('button')
-        copyButtonElement.textContent = 'Copy Markdown'
-        element.appendChild(copyButtonElement)
-        this.installCopyEvent(copyButtonElement, input, 'Copy Markdown Button')
+        const buttonElement = document.createElement('button')
+        buttonElement.textContent = inputElement.dataset.buttonName
+        formElement.appendChild(buttonElement)
+
+        // Add the copy event to the newly created button.
+        this.installCopyEvent(buttonElement, inputElement, inputElement.dataset.eventName)
       })
     })
   }
