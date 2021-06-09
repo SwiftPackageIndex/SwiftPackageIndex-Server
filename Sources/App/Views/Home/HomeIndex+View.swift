@@ -29,7 +29,7 @@ enum HomeIndex {
             .group(
                 .p(
                     .class("announcement"),
-                    .text("Package Collections are new in Swift 5.5 and "),
+                    .text("Package collections are new in Swift 5.5 and Xcode 13 beta and "),
                     .a(
                         .href(SiteURL.packageCollections.relativeURL()),
                         "the Swift Package Index supports them TODAY"
