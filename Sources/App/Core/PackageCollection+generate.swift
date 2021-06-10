@@ -52,11 +52,14 @@ extension PackageCollection {
 
         return query.all()
             .map { versions in
+                // Multiple versions can reference the same package, therefore
+                // we need to group them so we don't create duplicate packages.
+                // This requires App.Package to be Hashable and Equatable.
                 Dictionary(grouping: versions, by: { $0.package })
                     .sorted(by: { $0.key.url < $1.key.url })
             }
             .mapEachCompact { Package.init(package: $0.key,
-                                           versions: $0.value,
+                                           prunedVersions: $0.value,
                                            keywords: keywords) }
             .map {
                 PackageCollection.init(
@@ -77,13 +80,23 @@ extension PackageCollection {
 
 
 extension PackageCollection.Package {
-    init?(package: App.Package, versions: [App.Version], keywords: [String]?) {
+
+    /// Create a PackageCollections.Package from an App.Package (a database record, essentially).
+    /// Note that we pass in an array of "pruned" `Version`s instead of using `package.versions`, because the latter would add *all* versions to the package collection, negating the filtering we've done to only include `release` and `preRelease` versions.
+    /// - Parameters:
+    ///   - package: package model
+    ///   - prunedVersions: filtered array of this package's versions to include in the collection
+    ///   - keywords: array of keywords to include in the collection
+    init?(package: App.Package,
+          prunedVersions: [App.Version],
+          keywords: [String]?) {
         let license = PackageCollection.License(
             name: package.repository?.license.shortName,
             url: package.repository?.licenseUrl
         )
 
-        let versions = [Version].init(versions: versions, license: license)
+        let versions = [Version].init(versions: prunedVersions,
+                                      license: license)
 
         guard let url = URL(string: package.url),
               !versions.isEmpty
@@ -98,6 +111,7 @@ extension PackageCollection.Package {
             license: license
         )
     }
+
 }
 
 

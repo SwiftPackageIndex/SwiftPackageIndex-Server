@@ -138,7 +138,7 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try XCTUnwrap(PackageCollection.Package(package: p,
-                                                          versions: p.versions,
+                                                          prunedVersions: p.versions,
                                                           keywords: ["a", "b"]))
 
         // validate
@@ -379,7 +379,7 @@ class PackageCollectionTests: AppTestCase {
             try p.$versions.load(on: app.db).wait()
 
             XCTAssertNil(PackageCollection.Package(package: p,
-                                                   versions: p.versions,
+                                                   prunedVersions: p.versions,
                                                    keywords: nil))
         }
         do {  // only invalid versions
@@ -398,7 +398,7 @@ class PackageCollectionTests: AppTestCase {
                     .wait()
             )
             XCTAssertNil(PackageCollection.Package(package: p,
-                                                   versions: p.versions,
+                                                   prunedVersions: p.versions,
                                                    keywords: nil))
 
         }
