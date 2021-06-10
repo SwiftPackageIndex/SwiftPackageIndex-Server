@@ -172,7 +172,7 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
-                                                 packageURLs: ["1"],
+                                                 filterBy: .urls(["1"]),
                                                  authorName: "Foo",
                                                  collectionName: "Foo",
                                                  keywords: ["key", "word"],
@@ -255,7 +255,7 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
-                                                 owner: "foo",
+                                                 filterBy: .author("foo"),
                                                  authorName: "Foo",
                                                  collectionName: "Foo",
                                                  keywords: ["key", "word"],
@@ -340,7 +340,7 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
-                                                 owner: "foo",
+                                                 filterBy: .author("foo"),
                                                  authorName: "Foo",
                                                  collectionName: "Foo",
                                                  keywords: ["key", "word"],
@@ -429,7 +429,7 @@ class PackageCollectionTests: AppTestCase {
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
                                                  // looking for owner "foo"
-                                                 owner: "foo",
+                                                 filterBy: .author("foo"),
                                                  collectionName: "collection")
             .wait()
 

@@ -14,67 +14,6 @@ extension PackageCollection {
     typealias Product = PackageCollectionModel.V1.Product
     typealias ProductType = PackageCollectionModel.V1.ProductType
     typealias Target = PackageCollectionModel.V1.Target
-
-    static func generate(db: Database,
-                         packageURLs: [String],
-                         authorName: String? = nil,
-                         collectionName: String,
-                         keywords: [String]? = nil,
-                         overview: String? = nil,
-                         revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
-        versionQuery(db: db)
-            .filter(App.Package.self, \.$url ~~ packageURLs)
-            .all()
-            .map { versions in
-                Dictionary(grouping: versions, by: { $0.package })
-                    .sorted(by: { $0.key.url < $1.key.url })
-            }
-            .mapEachCompact { Package.init(package: $0.key,
-                                           versions: $0.value,
-                                           keywords: keywords) }
-            .map {
-                PackageCollection.init(
-                    name: collectionName,
-                    overview: overview,
-                    keywords: keywords,
-                    packages: $0,
-                    formatVersion: .v1_0,
-                    revision: revision,
-                    generatedAt: Current.date(),
-                    generatedBy: authorName.map(Author.init(name:)))
-            }
-    }
-
-    static func generate(db: Database,
-                         owner: String,
-                         authorName: String? = nil,
-                         collectionName: String,
-                         keywords: [String]? = nil,
-                         overview: String? = nil,
-                         revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
-        versionQuery(db: db)
-            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            .all()
-            .map { versions in
-                Dictionary(grouping: versions, by: { $0.package })
-                    .sorted(by: { $0.key.url < $1.key.url })
-            }
-            .mapEachCompact { Package.init(package: $0.key,
-                                           versions: $0.value,
-                                           keywords: keywords) }
-            .map {
-                PackageCollection.init(
-                    name: collectionName,
-                    overview: overview,
-                    keywords: keywords,
-                    packages: $0,
-                    formatVersion: .v1_0,
-                    revision: revision,
-                    generatedAt: Current.date(),
-                    generatedBy: authorName.map(Author.init(name:)))
-            }
-    }
-
 }
 
 
@@ -91,8 +30,19 @@ extension App.Package: Equatable, Hashable {
 
 
 extension PackageCollection {
-    private static func versionQuery(db: Database) -> QueryBuilder<App.Version> {
-        App.Version.query(on: db)
+    enum Filter {
+        case urls([String])
+        case author(String)
+    }
+
+    static func generate(db: Database,
+                         filterBy filter: Filter,
+                         authorName: String? = nil,
+                         collectionName: String,
+                         keywords: [String]? = nil,
+                         overview: String? = nil,
+                         revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
+        var query = App.Version.query(on: db)
             .with(\.$builds)
             .with(\.$products)
             .with(\.$targets)
@@ -102,6 +52,35 @@ extension PackageCollection {
             .join(App.Package.self, on: \App.Package.$id == \Version.$package.$id)
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
             .filter(Version.self, \.$latest ~~ [.release, .preRelease])
+
+        switch filter {
+            case let .author(owner):
+                query = query
+                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            case let .urls(packageURLs):
+                query = query
+                    .filter(App.Package.self, \.$url ~~ packageURLs)
+        }
+
+        return query.all()
+            .map { versions in
+                Dictionary(grouping: versions, by: { $0.package })
+                    .sorted(by: { $0.key.url < $1.key.url })
+            }
+            .mapEachCompact { Package.init(package: $0.key,
+                                           versions: $0.value,
+                                           keywords: keywords) }
+            .map {
+                PackageCollection.init(
+                    name: collectionName,
+                    overview: overview,
+                    keywords: keywords,
+                    packages: $0,
+                    formatVersion: .v1_0,
+                    revision: revision,
+                    generatedAt: Current.date(),
+                    generatedBy: authorName.map(Author.init(name:)))
+            }
     }
 }
 

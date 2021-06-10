@@ -11,7 +11,7 @@ extension API {
             if let dto = try? req.content.decode(PostPackageCollectionOwnerDTO.self) {
                 return PackageCollection.generate(
                     db: req.db,
-                    owner: dto.owner,
+                    filterBy: .author(dto.owner),
                     authorName: dto.authorName ?? "Swift Package Index",
                     collectionName: dto.collectionName ?? dto.owner,
                     keywords: dto.keywords,
@@ -27,7 +27,7 @@ extension API {
             }
             return PackageCollection.generate(
                 db: req.db,
-                packageURLs: dto.packageUrls,
+                filterBy: .urls(dto.packageUrls),
                 authorName: dto.authorName ?? "Swift Package Index",
                 collectionName: dto.collectionName ?? "Package List",
                 keywords: dto.keywords,
