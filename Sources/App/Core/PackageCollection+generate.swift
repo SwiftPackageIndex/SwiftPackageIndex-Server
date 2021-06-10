@@ -23,7 +23,7 @@ extension PackageCollection {
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
         versionQuery(db: db)
-            .filter(\.$url ~~ packageURLs)
+            .filter(App.Package.self, \.$url ~~ packageURLs)
             .all()
             .map { versions in
                 Dictionary(grouping: versions, by: { $0.package })
