@@ -17,18 +17,6 @@ extension PackageCollection {
 }
 
 
-// FIXME: avoid making Package Hashable by wrapping in a container
-extension App.Package: Equatable, Hashable {
-    static func == (lhs: Package, rhs: Package) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-}
-
-
 extension PackageCollection {
     enum Filter {
         case urls([String])

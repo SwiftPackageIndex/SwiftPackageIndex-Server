@@ -6,7 +6,27 @@ import XCTVapor
 
 
 final class PackageTests: AppTestCase {
-    
+
+    func test_Equatable() throws {
+        XCTAssertEqual(Package(id: .id0, url: "1".url),
+                       Package(id: .id0, url: "2".url))
+        XCTAssertFalse(Package() == Package())
+        XCTAssertFalse(Package(id: .id0, url: "1".url) == Package())
+    }
+
+    func test_Hashable() throws {
+        let packages: Set = [
+            Package(id: .id0, url: "1".url),
+            Package(id: .id0, url: "2".url),
+            Package(url: "3".url),
+            Package(url: "4".url)
+        ]
+        XCTAssertEqual(packages.map { "\($0.id)" }.sorted(),
+                       [UUID.id0.uuidString, "nil", "nil"])
+        XCTAssertEqual(packages.map { "\($0.url)" }.sorted(),
+                       ["1", "3", "4"])
+    }
+
     func test_cacheDirectoryName() throws {
         XCTAssertEqual(
             Package(url: "https://github.com/finestructure/Arena").cacheDirectoryName,
