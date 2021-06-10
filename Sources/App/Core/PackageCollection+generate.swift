@@ -14,10 +14,7 @@ extension PackageCollection {
     typealias Product = PackageCollectionModel.V1.Product
     typealias ProductType = PackageCollectionModel.V1.ProductType
     typealias Target = PackageCollectionModel.V1.Target
-}
 
-
-extension PackageCollection {
     enum Filter {
         case urls([String])
         case author(String)
