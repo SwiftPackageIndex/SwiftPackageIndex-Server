@@ -25,8 +25,9 @@ extension PackageCollection {
         versionQuery(db: db)
             .filter(\.$url ~~ packageURLs)
             .all()
-            .map { versions -> [App.Package: [App.Version]] in
+            .map { versions in
                 Dictionary(grouping: versions, by: { $0.package })
+                    .sorted(by: { $0.key.url < $1.key.url })
             }
             .mapEachCompact { Package.init(package: $0.key,
                                            versions: $0.value,
@@ -54,8 +55,9 @@ extension PackageCollection {
         versionQuery(db: db)
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .all()
-            .map { versions -> [App.Package: [App.Version]] in
+            .map { versions in
                 Dictionary(grouping: versions, by: { $0.package })
+                    .sorted(by: { $0.key.url < $1.key.url })
             }
             .mapEachCompact { Package.init(package: $0.key,
                                            versions: $0.value,
