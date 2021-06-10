@@ -15,42 +15,49 @@ extension PackageCollection {
     typealias ProductType = PackageCollectionModel.V1.ProductType
     typealias Target = PackageCollectionModel.V1.Target
 
-    static func generate(db: Database,
-                         packageURLs: [String],
-                         authorName: String? = nil,
-                         collectionName: String,
-                         keywords: [String]? = nil,
-                         overview: String? = nil,
-                         revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
-        packageQuery(db: db)
-            .filter(\.$url ~~ packageURLs)
-            .all()
-            .mapEachCompact { Package.init(package:$0, keywords: keywords) }
-            .map {
-                PackageCollection.init(
-                    name: collectionName,
-                    overview: overview,
-                    keywords: keywords,
-                    packages: $0,
-                    formatVersion: .v1_0,
-                    revision: revision,
-                    generatedAt: Current.date(),
-                    generatedBy: authorName.map(Author.init(name:)))
-            }
+    enum Filter {
+        case urls([String])
+        case author(String)
     }
 
     static func generate(db: Database,
-                         owner: String,
+                         filterBy filter: Filter,
                          authorName: String? = nil,
                          collectionName: String,
                          keywords: [String]? = nil,
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
-        packageQuery(db: db)
+        var query = App.Version.query(on: db)
+            .with(\.$builds)
+            .with(\.$products)
+            .with(\.$targets)
+            .with(\.$package) {
+                $0.with(\.$repositories)
+            }
+            .join(App.Package.self, on: \App.Package.$id == \Version.$package.$id)
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
-            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            .all()
-            .mapEachCompact { Package.init(package:$0, keywords: keywords) }
+            .filter(Version.self, \.$latest ~~ [.release, .preRelease])
+
+        switch filter {
+            case let .author(owner):
+                query = query
+                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            case let .urls(packageURLs):
+                query = query
+                    .filter(App.Package.self, \.$url ~~ packageURLs)
+        }
+
+        return query.all()
+            .map { versions in
+                // Multiple versions can reference the same package, therefore
+                // we need to group them so we don't create duplicate packages.
+                // This requires App.Package to be Hashable and Equatable.
+                Dictionary(grouping: versions, by: { $0.package })
+                    .sorted(by: { $0.key.url < $1.key.url })
+            }
+            .mapEachCompact { Package.init(package: $0.key,
+                                           prunedVersions: $0.value,
+                                           keywords: keywords) }
             .map {
                 PackageCollection.init(
                     name: collectionName,
@@ -63,22 +70,6 @@ extension PackageCollection {
                     generatedBy: authorName.map(Author.init(name:)))
             }
     }
-
-}
-
-
-extension PackageCollection {
-
-    private static func packageQuery(db: Database) -> QueryBuilder<App.Package> {
-        App.Package.query(on: db)
-            .with(\.$repositories)
-            .with(\.$versions) {
-                $0.with(\.$builds)
-                $0.with(\.$products)
-                $0.with(\.$targets)
-            }
-    }
-
 }
 
 
@@ -86,14 +77,23 @@ extension PackageCollection {
 
 
 extension PackageCollection.Package {
-    init?(package: App.Package, keywords: [String]?) {
+
+    /// Create a PackageCollections.Package from an App.Package (a database record, essentially).
+    /// Note that we pass in an array of "pruned" `Version`s instead of using `package.versions`, because the latter would add *all* versions to the package collection, negating the filtering we've done to only include `release` and `preRelease` versions.
+    /// - Parameters:
+    ///   - package: package model
+    ///   - prunedVersions: filtered array of this package's versions to include in the collection
+    ///   - keywords: array of keywords to include in the collection
+    init?(package: App.Package,
+          prunedVersions: [App.Version],
+          keywords: [String]?) {
         let license = PackageCollection.License(
             name: package.repository?.license.shortName,
             url: package.repository?.licenseUrl
         )
 
-        let appVersions = package.versions.filter { $0.latest != nil }
-        let versions = [Version].init(versions: appVersions, license: license)
+        let versions = [Version].init(versions: prunedVersions,
+                                      license: license)
 
         guard let url = URL(string: package.url),
               !versions.isEmpty
@@ -108,6 +108,7 @@ extension PackageCollection.Package {
             license: license
         )
     }
+
 }
 
 

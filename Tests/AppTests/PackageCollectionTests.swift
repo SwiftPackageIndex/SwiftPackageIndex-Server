@@ -138,6 +138,7 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try XCTUnwrap(PackageCollection.Package(package: p,
+                                                          prunedVersions: p.versions,
                                                           keywords: ["a", "b"]))
 
         // validate
@@ -171,7 +172,7 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
-                                                 packageURLs: ["1"],
+                                                 filterBy: .urls(["1"]),
                                                  authorName: "Foo",
                                                  collectionName: "Foo",
                                                  keywords: ["key", "word"],
@@ -254,7 +255,7 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
-                                                 owner: "foo",
+                                                 filterBy: .author("foo"),
                                                  authorName: "Foo",
                                                  collectionName: "Foo",
                                                  keywords: ["key", "word"],
@@ -339,7 +340,7 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
-                                                 owner: "foo",
+                                                 filterBy: .author("foo"),
                                                  authorName: "Foo",
                                                  collectionName: "Foo",
                                                  keywords: ["key", "word"],
@@ -347,6 +348,7 @@ class PackageCollectionTests: AppTestCase {
             .wait()
 
         // validate
+        XCTAssertEqual(res.packages.count, 1)
         XCTAssertEqual(res.packages.flatMap { $0.versions.map({$0.version}) },
                        ["2.0.0-b1", "1.2.3"])
     }
@@ -377,6 +379,7 @@ class PackageCollectionTests: AppTestCase {
             try p.$versions.load(on: app.db).wait()
 
             XCTAssertNil(PackageCollection.Package(package: p,
+                                                   prunedVersions: p.versions,
                                                    keywords: nil))
         }
         do {  // only invalid versions
@@ -395,6 +398,7 @@ class PackageCollectionTests: AppTestCase {
                     .wait()
             )
             XCTAssertNil(PackageCollection.Package(package: p,
+                                                   prunedVersions: p.versions,
                                                    keywords: nil))
 
         }
@@ -425,7 +429,7 @@ class PackageCollectionTests: AppTestCase {
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
                                                  // looking for owner "foo"
-                                                 owner: "foo",
+                                                 filterBy: .author("foo"),
                                                  collectionName: "collection")
             .wait()
 

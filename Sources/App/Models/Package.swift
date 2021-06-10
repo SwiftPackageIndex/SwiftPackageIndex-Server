@@ -56,6 +56,21 @@ final class Package: Model, Content {
     }
 }
 
+extension Package: Equatable {
+    static func == (lhs: Package, rhs: Package) -> Bool {
+        guard let id1 = lhs.id,
+              let id2 = rhs.id
+        else { return false }
+        return id1 == id2
+    }
+}
+
+extension Package: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
 
 extension Package {
     enum Status: String, Codable {
@@ -71,15 +86,17 @@ extension Package {
         case noValidVersions = "no_valid_versions"
         case shellCommandFailed = "shell_command_failed"
     }
-    
+
+    var isNew: Bool { status == .new }
+}
+
+
+extension Package {
     enum ProcessingStage: String, Codable {
         case reconciliation
         case ingestion
         case analysis
     }
-
-    var isNew: Bool { status == .new }
-
 }
 
 
