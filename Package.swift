@@ -22,7 +22,10 @@ let package = Package(
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
         .package(name: "SwiftPM",
                  url: "https://github.com/apple/swift-package-manager.git",
-                 .revision("swift-DEVELOPMENT-SNAPSHOT-2021-05-04-a"))
+                 .revision("swift-DEVELOPMENT-SNAPSHOT-2021-05-04-a")),
+        .package(name: "swift-tools-support-core",
+                 url: "https://github.com/apple/swift-tools-support-core.git", from:"0.2.2")
+
     ],
     targets: [
         .target(name: "App", dependencies: [
@@ -36,7 +39,8 @@ let package = Package(
             "SwiftPrometheus",
             "OhhAuth",
             "SwiftSoup",
-            .product(name: "PackageCollectionsModel", package: "SwiftPM")
+            .product(name: "PackageCollectionsModel", package: "SwiftPM"),
+            .product(name: "SwiftToolsSupport", package: "swift-tools-support-core")
         ]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [
