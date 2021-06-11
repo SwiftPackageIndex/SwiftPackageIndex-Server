@@ -41,6 +41,7 @@
               ],
               "targets" : [
                 {
+                  "moduleName" : "t1",
                   "name" : "t1"
                 }
               ],

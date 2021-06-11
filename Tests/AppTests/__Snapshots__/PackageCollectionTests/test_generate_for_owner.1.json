@@ -50,6 +50,7 @@
               ],
               "targets" : [
                 {
+                  "moduleName" : "t1",
                   "name" : "t1"
                 }
               ],
@@ -107,6 +108,7 @@
               ],
               "targets" : [
                 {
+                  "moduleName" : "t2",
                   "name" : "t2"
                 }
               ],
