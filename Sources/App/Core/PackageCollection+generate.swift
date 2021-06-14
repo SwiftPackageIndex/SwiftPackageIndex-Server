@@ -174,7 +174,8 @@ extension PackageCollection.PlatformVersion {
 
 private extension PackageCollection.Target {
     init(target: App.Target) {
-        self.init(name: target.name, moduleName: nil)
+        self.init(name: target.name,
+                  moduleName: target.name.spm_mangledToC99ExtendedIdentifier())
     }
 }
 

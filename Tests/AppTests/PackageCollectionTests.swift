@@ -39,7 +39,7 @@ class PackageCollectionTests: AppTestCase {
             }
             do {
                 try Target(version: v, name: "T1").save(on: app.db).wait()
-                try Target(version: v, name: "T2").save(on: app.db).wait()
+                try Target(version: v, name: "T-2").save(on: app.db).wait()
             }
             do {
                 try Build(version: v,
@@ -93,8 +93,8 @@ class PackageCollectionTests: AppTestCase {
              .init(name: "P2", type: .library(.automatic), targets: ["T2"])])
         XCTAssertEqual(
             manifest.targets,
-            [.init(name: "T1", moduleName: nil),
-             .init(name: "T2", moduleName: nil)])
+            [.init(name: "T1", moduleName: "T1"),
+             .init(name: "T-2", moduleName: "T_2")])
         XCTAssertEqual(manifest.toolsVersion, "5.3")
         XCTAssertEqual(manifest.minimumPlatformVersions, [.init(name: "ios", version: "14.0")])
     }
