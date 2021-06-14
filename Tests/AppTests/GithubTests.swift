@@ -101,6 +101,9 @@ class GithubTests: AppTestCase {
                               tagName: "5.4.3",
                               url: "https://github.com/Alamofire/Alamofire/releases/tag/5.4.3")
         ))
+        XCTAssertEqual(res.repository?.repositoryTopics.totalCount, 15)
+        XCTAssertEqual(res.repository?.repositoryTopics.nodes.first?.topic.name,
+                       "networking")
         XCTAssertEqual(res.repository?.stargazerCount, 35831)
         XCTAssertEqual(res.repository?.isInOrganization, true)
         // derived properties
