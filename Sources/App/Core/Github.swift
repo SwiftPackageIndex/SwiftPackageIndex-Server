@@ -267,6 +267,14 @@ extension Github {
                         name
                       }
                     }
+                    repositoryTopics(first: 20) {
+                      totalCount
+                      nodes {
+                        topic {
+                          name
+                        }
+                      }
+                    }
                     releases(first: 20, orderBy: {field: CREATED_AT, direction: DESC}) {
                       nodes {
                         description
