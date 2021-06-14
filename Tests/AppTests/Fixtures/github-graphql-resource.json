@@ -937,86 +937,6 @@
         "avatarUrl": "https://avatars.githubusercontent.com/u/7774181?v=4",
         "name": "Alamofire"
       },
-      "repositoryTopics": {
-        "totalCount": 15,
-        "nodes": [
-          {
-            "topic": {
-              "name": "networking"
-            }
-          },
-          {
-            "topic": {
-              "name": "urlsession"
-            }
-          },
-          {
-            "topic": {
-              "name": "urlrequest"
-            }
-          },
-          {
-            "topic": {
-              "name": "httpurlresponse"
-            }
-          },
-          {
-            "topic": {
-              "name": "request"
-            }
-          },
-          {
-            "topic": {
-              "name": "response"
-            }
-          },
-          {
-            "topic": {
-              "name": "swift"
-            }
-          },
-          {
-            "topic": {
-              "name": "xcode"
-            }
-          },
-          {
-            "topic": {
-              "name": "certificate-pinning"
-            }
-          },
-          {
-            "topic": {
-              "name": "public-key-pinning"
-            }
-          },
-          {
-            "topic": {
-              "name": "parameter-encoding"
-            }
-          },
-          {
-            "topic": {
-              "name": "alamofire"
-            }
-          },
-          {
-            "topic": {
-              "name": "cocoapods"
-            }
-          },
-          {
-            "topic": {
-              "name": "carthage"
-            }
-          },
-          {
-            "topic": {
-              "name": "swift-package-manager"
-            }
-          }
-        ]
-      },
       "releases": {
         "nodes": [
           {
@@ -1168,6 +1088,86 @@
             "publishedAt": "2019-09-04T00:47:09Z",
             "tagName": "4.9.0",
             "url": "https://github.com/Alamofire/Alamofire/releases/tag/4.9.0"
+          }
+        ]
+      },
+      "repositoryTopics": {
+        "totalCount": 15,
+        "nodes": [
+          {
+            "topic": {
+              "name": "networking"
+            }
+          },
+          {
+            "topic": {
+              "name": "urlsession"
+            }
+          },
+          {
+            "topic": {
+              "name": "urlrequest"
+            }
+          },
+          {
+            "topic": {
+              "name": "httpurlresponse"
+            }
+          },
+          {
+            "topic": {
+              "name": "request"
+            }
+          },
+          {
+            "topic": {
+              "name": "response"
+            }
+          },
+          {
+            "topic": {
+              "name": "swift"
+            }
+          },
+          {
+            "topic": {
+              "name": "xcode"
+            }
+          },
+          {
+            "topic": {
+              "name": "certificate-pinning"
+            }
+          },
+          {
+            "topic": {
+              "name": "public-key-pinning"
+            }
+          },
+          {
+            "topic": {
+              "name": "parameter-encoding"
+            }
+          },
+          {
+            "topic": {
+              "name": "alamofire"
+            }
+          },
+          {
+            "topic": {
+              "name": "cocoapods"
+            }
+          },
+          {
+            "topic": {
+              "name": "carthage"
+            }
+          },
+          {
+            "topic": {
+              "name": "swift-package-manager"
+            }
           }
         ]
       },
