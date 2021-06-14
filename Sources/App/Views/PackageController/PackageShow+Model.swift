@@ -213,7 +213,7 @@ extension PackageShow.Model {
         var releasesSentenceFragments: [Node<HTML.BodyContext>] = []
         if isArchived {
             releasesSentenceFragments.append(contentsOf: [
-                .strong("No longer in active development."),
+                .strong("⚠️ No longer in active development."),
                 " The package author has archived this project and the repository is read-only. It had ",
                 commitsLinkNode, " and ", releasesLinkNode,
                 " before being archived."
