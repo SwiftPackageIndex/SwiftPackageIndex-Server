@@ -448,9 +448,35 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res, .init(hasMoreResults: false, results: []))
     }
 
-    func renderSQL(_ query: SQLExpression?) -> String {
-        var serializer = SQLSerializer(database: app.db as! SQLDatabase)
-        query?.serialize(to: &serializer)
-        return serializer.sql
+    func test_search_topic() throws {
+        // Test searching for a topic
+        // setup
+        // p1: decoy
+        // p2: match
+        let p1 = Package(id: UUID(), url: "1", score: 10)
+        let p2 = Package(id: UUID(), url: "2", score: 20)
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       keywords: ["keyword"],
+                       name: "2",
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try Search.fetch(app.db, ["keyword"], page: 1, pageSize: 20).wait()
+
+        XCTAssertEqual(res.results.map(\.repositoryName), ["2"])
     }
+
 }

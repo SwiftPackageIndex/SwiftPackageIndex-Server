@@ -1,3 +1,4 @@
+import SQLKit
 import XCTVapor
 
 
@@ -20,5 +21,14 @@ class AppTestCase: XCTestCase {
     override func tearDownWithError() throws {
         app.shutdown()
         try super.tearDownWithError()
+    }
+}
+
+
+extension AppTestCase {
+        func renderSQL(_ query: SQLExpression?) -> String {
+        var serializer = SQLSerializer(database: app.db as! SQLDatabase)
+        query?.serialize(to: &serializer)
+        return serializer.sql
     }
 }
