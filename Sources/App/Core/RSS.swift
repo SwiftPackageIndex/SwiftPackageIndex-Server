@@ -109,6 +109,17 @@ extension RecentRelease {
                         .text("\(repositoryOwner)/\(repositoryName)")
                     )
                 )
+            ),
+            .content(
+                .unwrap(releaseNotes) { notes in
+                    .div(
+                        .a(
+                            .href(releaseUrl ?? packageUrl),
+                            .text("Version \(version) release notes. ")
+                        ),
+                        .div(.raw(notes))
+                    )
+                }
             )
         )
     }
