@@ -69,6 +69,18 @@ db-up-test:
 		-d \
 		postgres:11.6-alpine
 
+db-up-test-log-statement:
+	docker run --name spi_test \
+		-e POSTGRES_DB=spi_test \
+		-e POSTGRES_USER=spi_test \
+		-e POSTGRES_PASSWORD=xxx \
+		-e PGDATA=/pgdata \
+		--tmpfs /pgdata:rw,noexec,nosuid,size=1024m \
+		-p 5432:5432 \
+		--rm \
+		postgres:11.6-alpine \
+		postgres -c log_statement=all
+
 db-down: db-down-dev db-down-test
 
 db-down-dev:
