@@ -76,11 +76,9 @@ enum Search {
     static func query(_ database: Database,
                       _ terms: [String],
                       page: Int,
-                      pageSize: Int) -> EventLoopFuture<Search.Result> {
-        let offset = (page - 1) * pageSize
-        guard offset >= 0 else {
-            return database.eventLoop.future(error: AppError.genericError(nil, "page is one-based and must be greater than zero"))
-        }
+                      pageSize: Int) -> SQLSelectBuilder? {
+        // page is one-based and must be >= 0
+        let offset = max(0, (page - 1) * pageSize)
 
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
@@ -91,8 +89,7 @@ enum Search {
         // binds
         let sanitizedTerms = sanitize(terms)
         guard !sanitizedTerms.isEmpty else {
-            return database.eventLoop.future(.init(hasMoreResults: false,
-                                                   results: []))
+            return nil
         }
         let mergedTerms = SQLBind(
             sanitizedTerms.joined(separator: " ").lowercased()
@@ -128,7 +125,20 @@ enum Search {
             .orderBy(packageName, SQLDirection.ascending)
             .offset(offset)
             .limit(pageSize + 1)  // fetch one more so we can determine `hasMoreResults`
-            .all(decoding: DBRecord.self)
+    }
+
+    static func fetch(_ database: Database,
+                      _ terms: [String],
+                      page: Int,
+                      pageSize: Int) -> EventLoopFuture<Search.Result> {
+        guard let query = query(database,
+                                terms,
+                                page: page,
+                                pageSize: pageSize) else {
+            return database.eventLoop.future(.init(hasMoreResults: false,
+                                                   results: []))
+        }
+        return query.all(decoding: DBRecord.self)
             .mapEach(\.asRecord)
             .map { results in
                 let hasMoreResults = results.count > pageSize
