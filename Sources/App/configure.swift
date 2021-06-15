@@ -130,6 +130,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 028 - change products.type from string to json
         app.migrations.add(UpdateProductType())
     }
+    do {  // Migration 029 - add release_notes to recent_releases
+        app.migrations.add(UpdateRecentReleases6())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
