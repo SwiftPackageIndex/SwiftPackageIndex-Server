@@ -25,6 +25,6 @@ extension API {
         guard !terms.isEmpty else {
             return database.eventLoop.future(.init(hasMoreResults: false, results: []))
         }
-        return Search.query(database, terms, page: page, pageSize: pageSize)
+        return Search.fetch(database, terms, page: page, pageSize: pageSize)
     }
 }
