@@ -12,6 +12,7 @@
       <link>http://localhost:8080/owner-10/pkg-10</link>
       <pubDate>Thu, 1 Jan 1970 00:00:10 +0000</pubDate>
       <description><![CDATA[<p><a href="http://localhost:8080/owner-10/pkg-10">pkg-10</a><small> – <a href="https://example.com/release-url">Version 10.0.0 release notes. </a></small></p><p>Summary</p><small><a href="http://localhost:8080/owner-10/pkg-10">owner-10/pkg-10</a></small>]]></description>
+      <content:encoded><![CDATA[<div><a href="https://example.com/release-url">Version 10.0.0 release notes. </a><div><p>Awesome Release Notes</p></div></div>]]></content:encoded>
     </item>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner-9/pkg-9</guid>
@@ -19,6 +20,7 @@
       <link>http://localhost:8080/owner-9/pkg-9</link>
       <pubDate>Thu, 1 Jan 1970 00:00:09 +0000</pubDate>
       <description><![CDATA[<p><a href="http://localhost:8080/owner-9/pkg-9">pkg-9</a><small> – <a href="https://example.com/release-url">Version 9.0.0 release notes. </a></small></p><p>Summary</p><small><a href="http://localhost:8080/owner-9/pkg-9">owner-9/pkg-9</a></small>]]></description>
+      <content:encoded><![CDATA[<div><a href="https://example.com/release-url">Version 9.0.0 release notes. </a><div><p>Awesome Release Notes</p></div></div>]]></content:encoded>
     </item>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner-8/pkg-8</guid>
@@ -26,6 +28,7 @@
       <link>http://localhost:8080/owner-8/pkg-8</link>
       <pubDate>Thu, 1 Jan 1970 00:00:08 +0000</pubDate>
       <description><![CDATA[<p><a href="http://localhost:8080/owner-8/pkg-8">pkg-8</a><small> – <a href="https://example.com/release-url">Version 8.0.0 release notes. </a></small></p><p>Summary</p><small><a href="http://localhost:8080/owner-8/pkg-8">owner-8/pkg-8</a></small>]]></description>
+      <content:encoded><![CDATA[<div><a href="https://example.com/release-url">Version 8.0.0 release notes. </a><div><p>Awesome Release Notes</p></div></div>]]></content:encoded>
     </item>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner-7/pkg-7</guid>
@@ -33,6 +36,7 @@
       <link>http://localhost:8080/owner-7/pkg-7</link>
       <pubDate>Thu, 1 Jan 1970 00:00:07 +0000</pubDate>
       <description><![CDATA[<p><a href="http://localhost:8080/owner-7/pkg-7">pkg-7</a><small> – <a href="https://example.com/release-url">Version 7.0.0 release notes. </a></small></p><p>Summary</p><small><a href="http://localhost:8080/owner-7/pkg-7">owner-7/pkg-7</a></small>]]></description>
+      <content:encoded><![CDATA[<div><a href="https://example.com/release-url">Version 7.0.0 release notes. </a><div><p>Awesome Release Notes</p></div></div>]]></content:encoded>
     </item>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner-6/pkg-6</guid>
@@ -40,6 +44,7 @@
       <link>http://localhost:8080/owner-6/pkg-6</link>
       <pubDate>Thu, 1 Jan 1970 00:00:06 +0000</pubDate>
       <description><![CDATA[<p><a href="http://localhost:8080/owner-6/pkg-6">pkg-6</a><small> – <a href="https://example.com/release-url">Version 6.0.0 release notes. </a></small></p><p>Summary</p><small><a href="http://localhost:8080/owner-6/pkg-6">owner-6/pkg-6</a></small>]]></description>
+      <content:encoded><![CDATA[<div><a href="https://example.com/release-url">Version 6.0.0 release notes. </a><div><p>Awesome Release Notes</p></div></div>]]></content:encoded>
     </item>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner-5/pkg-5</guid>
@@ -47,6 +52,7 @@
       <link>http://localhost:8080/owner-5/pkg-5</link>
       <pubDate>Thu, 1 Jan 1970 00:00:05 +0000</pubDate>
       <description><![CDATA[<p><a href="http://localhost:8080/owner-5/pkg-5">pkg-5</a><small> – <a href="https://example.com/release-url">Version 5.0.0 release notes. </a></small></p><p>Summary</p><small><a href="http://localhost:8080/owner-5/pkg-5">owner-5/pkg-5</a></small>]]></description>
+      <content:encoded><![CDATA[<div><a href="https://example.com/release-url">Version 5.0.0 release notes. </a><div><p>Awesome Release Notes</p></div></div>]]></content:encoded>
     </item>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner-4/pkg-4</guid>
@@ -54,6 +60,7 @@
       <link>http://localhost:8080/owner-4/pkg-4</link>
       <pubDate>Thu, 1 Jan 1970 00:00:04 +0000</pubDate>
       <description><![CDATA[<p><a href="http://localhost:8080/owner-4/pkg-4">pkg-4</a><small> – <a href="https://example.com/release-url">Version 4.0.0 release notes. </a></small></p><p>Summary</p><small><a href="http://localhost:8080/owner-4/pkg-4">owner-4/pkg-4</a></small>]]></description>
+      <content:encoded><![CDATA[<div><a href="https://example.com/release-url">Version 4.0.0 release notes. </a><div><p>Awesome Release Notes</p></div></div>]]></content:encoded>
     </item>
     <item>
       <guid isPermaLink="true">http://localhost:8080/owner-3/pkg-3</guid>
@@ -61,6 +68,7 @@
       <link>http://localhost:8080/owner-3/pkg-3</link>
       <pubDate>Thu, 1 Jan 1970 00:00:03 +0000</pubDate>
       <description><![CDATA[<p><a href="http://localhost:8080/owner-3/pkg-3">pkg-3</a><small> – <a href="https://example.com/release-url">Version 3.0.0 release notes. </a></small></p><p>Summary</p><small><a href="http://localhost:8080/owner-3/pkg-3">owner-3/pkg-3</a></small>]]></description>
+      <content:encoded><![CDATA[<div><a href="https://example.com/release-url">Version 3.0.0 release notes. </a><div><p>Awesome Release Notes</p></div></div>]]></content:encoded>
     </item>
   </channel>
 </rss>

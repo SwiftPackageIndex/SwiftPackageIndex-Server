@@ -109,7 +109,7 @@ class IngestorTests: AppTestCase {
                                 Date(timeIntervalSince1970: 2),
                             ],
                             releases: [
-                                .init(description: "a release",
+                                .init(descriptionHTML: "a release",
                                       isDraft: false,
                                       publishedAt: Date(timeIntervalSince1970: 5),
                                       tagName: "1.2.3",

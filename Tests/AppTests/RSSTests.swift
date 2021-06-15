@@ -77,6 +77,7 @@ class RSSTests: SnapshotTestCase {
                         commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
                         reference: .tag(.init($0, 0, 0), "\($0).0.0"),
+                        releaseNotes: "<p>Awesome Release Notes</p>",
                         url: "https://example.com/release-url")
                 .save(on: app.db).wait()
         }
