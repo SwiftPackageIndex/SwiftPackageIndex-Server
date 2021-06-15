@@ -12,7 +12,7 @@ struct Release: Codable, Equatable {
 
 extension Release {
     init(from node: Github.Metadata.ReleaseNodes.ReleaseNode) {
-        description = node.description
+        description = node.descriptionHTML
         isDraft = node.isDraft
         publishedAt = node.publishedAt
         tagName = node.tagName
