@@ -319,6 +319,9 @@ extension Github {
             var lastPullRequestClosedAt: Date? {
                 (closedPullRequests.nodes + mergedPullRequests.nodes).map(\.closedAt).sorted().last
             }
+            var topics: [String] {
+                repositoryTopics.nodes.map(\.topic.name)
+            }
         }
 
         struct IssueNodes: Decodable, Equatable {

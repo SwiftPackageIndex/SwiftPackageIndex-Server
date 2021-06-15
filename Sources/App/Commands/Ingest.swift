@@ -184,6 +184,7 @@ func insertOrUpdateRepository(on database: Database,
             repo.defaultBranch = repository.defaultBranch
             repo.forks = repository.forkCount
             repo.isArchived = repository.isArchived
+            repo.isInOrganization = repository.isInOrganization
             repo.lastIssueClosedAt = repository.lastIssueClosedAt
             repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
             repo.license = .init(from: repository.licenseInfo)
@@ -199,8 +200,8 @@ func insertOrUpdateRepository(on database: Database,
             repo.releases = metadata.repository?.releases.nodes
                 .map(Release.init(from:)) ?? []
             repo.stars = repository.stargazerCount
-            repo.isInOrganization = repository.isInOrganization
             repo.summary = repository.description
+            repo.topics = repository.topics
             return repo.save(on: database)
         }
 }
