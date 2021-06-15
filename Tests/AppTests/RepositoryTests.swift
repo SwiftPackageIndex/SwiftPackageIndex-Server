@@ -14,13 +14,15 @@ final class RepositoryTests: AppTestCase {
                                   authors: [
                                     .init(name: "Foo", url: "fooUrl"),
                                     .init(name: "Bar", url: "barUrl")],
-                                  summary: "desc",
                                   commitCount: 123,
+                                  defaultBranch: "branch",
                                   firstCommitDate: Date(timeIntervalSince1970: 0),
+                                  forks: 17,
+                                  forkedFrom: nil,
+                                  isArchived: true,
                                   lastCommitDate: Date(timeIntervalSince1970: 1),
                                   lastIssueClosedAt: Date(timeIntervalSince1970: 2),
                                   lastPullRequestClosedAt: Date(timeIntervalSince1970: 3),
-                                  defaultBranch: "branch",
                                   license: .mit,
                                   licenseUrl: "https://github.com/foo/bar/blob/main/LICENSE",
                                   openIssues: 3,
@@ -34,10 +36,9 @@ final class RepositoryTests: AppTestCase {
                                           tagName: "1.2.3",
                                           url: "https://example.com/release/1.2.3")
                                   ],
-                                  isArchived: true,
                                   stars: 42,
-                                  forks: 17,
-                                  forkedFrom: nil)
+                                  summary: "desc",
+                                  topics: ["foo", "bar"])
         
         try repo.save(on: app.db).wait()
         
@@ -47,9 +48,11 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(r.authors, [
                             .init(name: "Foo", url: "fooUrl"),
                             .init(name: "Bar", url: "barUrl")])
-            XCTAssertEqual(r.summary, "desc")
             XCTAssertEqual(r.commitCount, 123)
             XCTAssertEqual(r.firstCommitDate, Date(timeIntervalSince1970: 0))
+            XCTAssertEqual(r.forks, 17)
+            XCTAssertEqual(r.forkedFrom, nil)
+            XCTAssertEqual(r.isArchived, true)
             XCTAssertEqual(r.lastCommitDate, Date(timeIntervalSince1970: 1))
             XCTAssertEqual(r.lastIssueClosedAt, Date(timeIntervalSince1970: 2))
             XCTAssertEqual(r.lastPullRequestClosedAt, Date(timeIntervalSince1970: 3))
@@ -67,10 +70,9 @@ final class RepositoryTests: AppTestCase {
                       tagName: "1.2.3",
                       url: "https://example.com/release/1.2.3")
             ])
-            XCTAssertEqual(r.isArchived, true)
             XCTAssertEqual(r.stars, 42)
-            XCTAssertEqual(r.forks, 17)
-            XCTAssertEqual(r.forkedFrom, nil)
+            XCTAssertEqual(r.summary, "desc")
+            XCTAssertEqual(r.topics, ["foo", "bar"])
         }
     }
     

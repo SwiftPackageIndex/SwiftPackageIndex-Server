@@ -13,13 +13,13 @@ class AuthorControllerTests: AppTestCase {
         let package = Package(id: testPackageId, url: "https://github.com/user/package.git")
         let repository = try Repository(id: UUID(),
                                         package: package,
-                                        summary: "This is a test package",
                                         defaultBranch: "main",
+                                        forks: 2,
                                         license: .mit,
                                         name: "package",
                                         owner: "owner",
                                         stars: 3,
-                                        forks: 2)
+                                        summary: "This is a test package")
         let version = try Version(id: UUID(),
                                   package: package,
                                   packageName: "Test package",

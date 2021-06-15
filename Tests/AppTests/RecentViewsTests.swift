@@ -11,27 +11,27 @@ class RecentViewsTests: AppTestCase {
             let pkg = Package(id: UUID(), url: "1")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "pkg 1",
                            name: "1",
-                           owner: "foo").create(on: app.db).wait()
+                           owner: "foo",
+                           summary: "pkg 1").create(on: app.db).wait()
             try Version(package: pkg, packageName: "1").save(on: app.db).wait()
         }
         do {  // 2nd package should not be selected, because it has no package name
             let pkg = Package(id: UUID(), url: "2")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "pkg 2",
                            name: "2",
-                           owner: "foo").create(on: app.db).wait()
+                           owner: "foo",
+                           summary: "pkg 2").create(on: app.db).wait()
             try Version(package: pkg).save(on: app.db).wait()
         }
         do {  // 3rd package is eligible
             let pkg = Package(id: UUID(), url: "3")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "pkg 3",
                            name: "3",
-                           owner: "foo").create(on: app.db).wait()
+                           owner: "foo",
+                           summary: "pkg 3").create(on: app.db).wait()
             try Version(package: pkg, packageName: "3").save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
@@ -51,10 +51,10 @@ class RecentViewsTests: AppTestCase {
             let pkg = Package(id: UUID(), url: "1")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "pkg 1",
                            defaultBranch: "default",
                            name: "1",
-                           owner: "foo").create(on: app.db).wait()
+                           owner: "foo",
+                           summary: "pkg 1").create(on: app.db).wait()
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: 0),
                         packageName: "1",
@@ -65,10 +65,10 @@ class RecentViewsTests: AppTestCase {
             let pkg = Package(id: UUID(), url: "2")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "pkg 2",
                            defaultBranch: "default",
                            name: "2",
-                           owner: "foo").create(on: app.db).wait()
+                           owner: "foo",
+                           summary: "pkg 2").create(on: app.db).wait()
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: 0),
                         packageName: "2",
@@ -79,10 +79,10 @@ class RecentViewsTests: AppTestCase {
             let pkg = Package(id: UUID(), url: "3")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "pkg 3",
                            defaultBranch: "default",
                            name: "3",
-                           owner: "foo").create(on: app.db).wait()
+                           owner: "foo",
+                           summary: "pkg 3").create(on: app.db).wait()
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: 0),
                         reference: .branch("default"),
@@ -92,10 +92,10 @@ class RecentViewsTests: AppTestCase {
             let pkg = Package(id: UUID(), url: "4")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "pkg 4",
                            defaultBranch: "default",
                            name: "4",
-                           owner: "foo").create(on: app.db).wait()
+                           owner: "foo",
+                           summary: "pkg 4").create(on: app.db).wait()
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: 0),
                         packageName: "4").save(on: app.db).wait()
@@ -104,10 +104,10 @@ class RecentViewsTests: AppTestCase {
             let pkg = Package(id: UUID(), url: "5")
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "pkg 5",
                            defaultBranch: "default",
                            name: "5",
-                           owner: "foo").create(on: app.db).wait()
+                           owner: "foo",
+                           summary: "pkg 5").create(on: app.db).wait()
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: 1),
                         packageName: "5",
@@ -183,9 +183,9 @@ class RecentViewsTests: AppTestCase {
         let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
-                       summary: "pkg summary",
                        name: "bar",
-                       owner: "foo").create(on: app.db).wait()
+                       owner: "foo",
+                       summary: "pkg summary").create(on: app.db).wait()
         try Version(package: pkg,
                     commitDate: Date(timeIntervalSince1970: 0),
                     packageName: "pkg-bar").save(on: app.db).wait()
@@ -208,9 +208,9 @@ class RecentViewsTests: AppTestCase {
         let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
-                       summary: "pkg summary",
                        name: "bar",
-                       owner: "foo").create(on: app.db).wait()
+                       owner: "foo",
+                       summary: "pkg summary").create(on: app.db).wait()
         try Version(package: pkg,
                     commitDate: Date(timeIntervalSince1970: 0),
                     packageName: "pkg-bar",

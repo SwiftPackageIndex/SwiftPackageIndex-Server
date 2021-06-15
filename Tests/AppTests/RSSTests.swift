@@ -53,7 +53,10 @@ class RSSTests: SnapshotTestCase {
             // re-write creation date to something stable for snapshotting
             pkg.createdAt = Date(timeIntervalSince1970: TimeInterval(100*$0))
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, summary: "Summary", name: "pkg-\($0)", owner: "owner-\($0)").create(on: app.db).wait()
+            try Repository(package: pkg,
+                           name: "pkg-\($0)",
+                           owner: "owner-\($0)",
+                           summary: "Summary").create(on: app.db).wait()
             try Version(package: pkg, packageName: "pkg-\($0)").save(on: app.db).wait()
         }
         // make sure to refresh the materialized view
@@ -72,7 +75,10 @@ class RSSTests: SnapshotTestCase {
         try (1...10).forEach {
             let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, summary: "Summary", name: "pkg-\($0)", owner: "owner-\($0)").create(on: app.db).wait()
+            try Repository(package: pkg,
+                           name: "pkg-\($0)",
+                           owner: "owner-\($0)",
+                           summary: "Summary").create(on: app.db).wait()
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
                         packageName: "pkg-\($0)",
@@ -113,9 +119,9 @@ class RSSTests: SnapshotTestCase {
             let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "Summary",
                            name: "pkg-\($0)",
-                           owner: "owner-\($0)")
+                           owner: "owner-\($0)",
+                           summary: "Summary")
                 .create(on: app.db).wait()
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
@@ -149,9 +155,9 @@ class RSSTests: SnapshotTestCase {
             let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "Summary",
                            name: "pkg-\($0)",
-                           owner: "owner-\($0)")
+                           owner: "owner-\($0)",
+                           summary: "Summary")
                 .create(on: app.db).wait()
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
@@ -185,9 +191,9 @@ class RSSTests: SnapshotTestCase {
             let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "Summary",
                            name: "pkg-\($0)",
-                           owner: "owner-\($0)")
+                           owner: "owner-\($0)",
+                           summary: "Summary")
                 .create(on: app.db).wait()
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: TimeInterval($0)),
@@ -222,9 +228,9 @@ class RSSTests: SnapshotTestCase {
             let pkg = Package(id: UUID(), url: "\($0)".asGithubUrl.url)
             try pkg.save(on: app.db).wait()
             try Repository(package: pkg,
-                           summary: "Summary",
                            name: "pkg-\($0)",
-                           owner: "owner-\($0)")
+                           owner: "owner-\($0)",
+                           summary: "Summary")
                 .create(on: app.db).wait()
             try Version(package: pkg,
                         commitDate: Date(timeIntervalSince1970: TimeInterval($0)),

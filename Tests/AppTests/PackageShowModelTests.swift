@@ -11,13 +11,13 @@ class PackageShowModelTests: SnapshotTestCase {
         // setup package without package name
         var pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
-                       summary: "summary",
                        defaultBranch: "main",
+                       forks: 42,
                        license: .mit,
                        name: "bar",
                        owner: "foo",
                        stars: 17,
-                       forks: 42).save(on: app.db).wait()
+                       summary: "summary").save(on: app.db).wait()
         let version = try App.Version(package: pkg,
                                       packageName: nil,
                                       reference: .branch("main"))
@@ -40,13 +40,13 @@ class PackageShowModelTests: SnapshotTestCase {
         // setup
         var pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
-                       summary: "summary",
                        defaultBranch: "main",
+                       forks: 42,
                        license: .mit,
                        name: "bar",
                        owner: "foo",
                        stars: 17,
-                       forks: 42).save(on: app.db).wait()
+                       summary: "summary").save(on: app.db).wait()
         let version = try App.Version(package: pkg,
                                       packageName: "test package",
                                       reference: .branch("main"))

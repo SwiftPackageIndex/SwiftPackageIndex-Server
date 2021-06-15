@@ -36,11 +36,11 @@ class PackageCollectionControllerTests: AppTestCase {
             try Target(version: v, name: "t1").save(on: app.db).wait()
         }
         try Repository(package: p,
-                       summary: "summary 1",
                        defaultBranch: "main",
                        license: .mit,
                        licenseUrl: "https://foo/mit",
-                       owner: "foo").create(on: app.db).wait()
+                       owner: "foo",
+                       summary: "summary 1").create(on: app.db).wait()
 
         // MUT
         try app.test(

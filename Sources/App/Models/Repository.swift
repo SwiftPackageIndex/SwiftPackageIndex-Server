@@ -46,6 +46,9 @@ final class Repository: Model, Content {
     @Field(key: "is_archived")
     var isArchived: Bool?
 
+    @Field(key: "is_in_organization")
+    var isInOrganization: Bool?
+
     @Field(key: "last_commit_date")
     var lastCommitDate: Date?
     
@@ -91,12 +94,12 @@ final class Repository: Model, Content {
     @Field(key: "stars")
     var stars: Int?
 
-    @Field(key: "is_in_organization")
-    var isInOrganization: Bool?
-    
     @Field(key: "summary")
     var summary: String?
-    
+
+    @Field(key: "topics")
+    var topics: [String]
+
     // initializers
     
     init() { }
@@ -104,13 +107,16 @@ final class Repository: Model, Content {
     init(id: Id? = nil,
          package: Package,
          authors: [Author] = [],
-         summary: String? = nil,
          commitCount: Int? = nil,
+         defaultBranch: String? = nil,
          firstCommitDate: Date? = nil,
+         forks: Int? = nil,
+         forkedFrom: Repository? = nil,
+         isArchived: Bool? = nil,
+         isInOrganization: Bool? = nil,
          lastCommitDate: Date? = nil,
          lastIssueClosedAt: Date? = nil,
          lastPullRequestClosedAt: Date? = nil,
-         defaultBranch: String? = nil,
          license: License = .none,
          licenseUrl: String? = nil,
          name: String? = nil,
@@ -122,17 +128,22 @@ final class Repository: Model, Content {
          readmeUrl: String? = nil,
          readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
-         isArchived: Bool? = nil,
          stars: Int? = nil,
-         isInOrganization: Bool? = nil,
-         forks: Int? = nil,
-         forkedFrom: Repository? = nil) throws {
+         summary: String? = nil,
+         topics: [String] = []
+    ) throws {
         self.id = id
         self.$package.id = try package.requireID()
         self.authors = authors
         self.summary = summary
         self.commitCount = commitCount
         self.firstCommitDate = firstCommitDate
+        self.forks = forks
+        if let forkId = forkedFrom?.id {
+            self.$forkedFrom.id = forkId
+        }
+        self.isArchived = isArchived
+        self.isInOrganization = isInOrganization
         self.lastCommitDate = lastCommitDate
         self.lastIssueClosedAt = lastIssueClosedAt
         self.lastPullRequestClosedAt = lastPullRequestClosedAt
@@ -148,13 +159,8 @@ final class Repository: Model, Content {
         self.readmeUrl = readmeUrl
         self.readmeHtmlUrl = readmeHtmlUrl
         self.releases = releases
-        self.isArchived = isArchived
         self.stars = stars
-        self.isInOrganization = isInOrganization
-        self.forks = forks
-        if let forkId = forkedFrom?.id {
-            self.$forkedFrom.id = forkId
-        }
+        self.topics = topics
     }
     
     init(packageId: Package.Id) {

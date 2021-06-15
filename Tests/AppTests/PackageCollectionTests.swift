@@ -107,10 +107,10 @@ class PackageCollectionTests: AppTestCase {
             try p.save(on: app.db).wait()
             do {
                 let r = try Repository(package: p,
-                                       summary: "summary",
                                        license: .mit,
                                        licenseUrl: "https://foo/mit",
-                                       readmeUrl: "readmeUrl")
+                                       readmeUrl: "readmeUrl",
+                                       summary: "summary")
                 try r.save(on: app.db).wait()
             }
             do {
@@ -166,9 +166,9 @@ class PackageCollectionTests: AppTestCase {
                 .save(on: app.db).wait()
         }
         try Repository(package: pkg,
-                       summary: "summary",
                        license: .mit,
-                       licenseUrl: "https://foo/mit").create(on: app.db).wait()
+                       licenseUrl: "https://foo/mit",
+                       summary: "summary").create(on: app.db).wait()
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
@@ -241,17 +241,17 @@ class PackageCollectionTests: AppTestCase {
         // unrelated package
         _ = try savePackage(on: app.db, "https://github.com/bar/1")
         try Repository(package: p1,
-                       summary: "summary 1",
                        defaultBranch: "main",
                        license: .mit,
                        licenseUrl: "https://foo/mit",
-                       owner: "foo").create(on: app.db).wait()
+                       owner: "foo",
+                       summary: "summary 1").create(on: app.db).wait()
         try Repository(package: p2,
-                       summary: "summary 2",
                        defaultBranch: "main",
                        license: .mit,
                        licenseUrl: "https://foo/mit",
-                       owner: "foo").create(on: app.db).wait()
+                       owner: "foo",
+                       summary: "summary 2").create(on: app.db).wait()
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
@@ -272,11 +272,11 @@ class PackageCollectionTests: AppTestCase {
         // setup
         let p = try savePackage(on: app.db, "https://github.com/foo/1")
         try Repository(package: p,
-                       summary: "summary",
                        defaultBranch: "main",
                        license: .mit,
                        licenseUrl: "https://foo/mit",
-                       owner: "foo").create(on: app.db).wait()
+                       owner: "foo",
+                       summary: "summary").create(on: app.db).wait()
         do {  // default branch revision
             let v = try Version(id: UUID(),
                                 package: p,
@@ -420,11 +420,11 @@ class PackageCollectionTests: AppTestCase {
         }
         // Owner "Foo"
         try Repository(package: pkg,
-                       summary: "summary 1",
                        defaultBranch: "main",
                        license: .mit,
                        licenseUrl: "https://foo/mit",
-                       owner: "Foo").create(on: app.db).wait()
+                       owner: "Foo",
+                       summary: "summary 1").create(on: app.db).wait()
 
         // MUT
         let res = try PackageCollection.generate(db: self.app.db,
