@@ -2,22 +2,22 @@ import SQLKit
 
 
 func concat(_ args: SQLExpression...) -> SQLFunction {
-    SQLFunction("concat", args: args)
+    SQLFunction("CONCAT", args: args)
 }
 
 
 func count(_ args: SQLExpression...) -> SQLFunction {
-    SQLFunction("count", args: args)
+    SQLFunction("COUNT", args: args)
 }
 
 
 func coalesce(_ args: SQLExpression...) -> SQLFunction {
-    SQLFunction("coalesce", args: args)
+    SQLFunction("COALESCE", args: args)
 }
 
 
 func lower(_ arg: SQLExpression) -> SQLFunction {
-    SQLFunction("lower", args: arg)
+    SQLFunction("LOWER", args: arg)
 }
 
 

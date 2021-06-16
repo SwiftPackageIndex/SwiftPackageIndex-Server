@@ -23,13 +23,13 @@ class SearchTests: AppTestCase {
             // MUT
             let query = Search.query(app.db, ["foo"], page: 1, pageSize: 20)
             // validate
-            assertSQL(query?.query, #"SELECT "id", "package_name", "name", "owner", "summary" FROM "search" WHERE concat("package_name", ' ', coalesce("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY lower("package_name") = $2 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0"#)
+            XCTAssertEqual(renderSQL(query?.select), #"SELECT "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0"#)
         }
         do {  // multiple search terms
             // MUT
             let query = Search.query(app.db, ["foo", "bar"], page: 1, pageSize: 20)
             // validate
-            assertSQL(query?.query, #"SELECT "id", "package_name", "name", "owner", "summary" FROM "search" WHERE concat("package_name", ' ', coalesce("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND concat("package_name", ' ', coalesce("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY lower("package_name") = $3 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0"#)
+            XCTAssertEqual(renderSQL(query?.select), #"SELECT "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0"#)
         }
     }
 
@@ -391,14 +391,9 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res, .init(hasMoreResults: false, results: []))
     }
 
-    func assertSQL(_ query: SQLExpression?,
-                   _ expectation: String,
-                   file: StaticString = #file,
-                   line: UInt = #line) {
+    func renderSQL(_ query: SQLExpression?) -> String {
         var serializer = SQLSerializer(database: app.db as! SQLDatabase)
         query?.serialize(to: &serializer)
-        XCTAssertEqual(serializer.sql, expectation, file: file, line: line)
+        return serializer.sql
     }
 }
-
-
