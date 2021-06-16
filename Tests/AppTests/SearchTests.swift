@@ -17,19 +17,33 @@ class SearchTests: AppTestCase {
                        "/baz/foo%20bar")
     }
 
+    func test_defaultMatchQuery_single_term() throws {
+        let q = Search.defaultMatchQuery(app.db, ["a"])
+        XCTAssertEqual(renderSQL(q), #"SELECT "default" AS "match_type", "id", "package_name", "name", "owner", "score", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
+    }
+
+    func test_defaultMatchQuery_multiple_terms() throws {
+        let q = Search.defaultMatchQuery(app.db, ["a", "b"])
+        XCTAssertEqual(renderSQL(q), #"SELECT "default" AS "match_type", "id", "package_name", "name", "owner", "score", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
+    }
+
     func test_query_sql() throws {
         // Test to confirm shape of rendered search SQL
         do {  // single search term
             // MUT
-            let query = Search.query(app.db, ["foo"], page: 1, pageSize: 20)
+            let query = Search.query(app.db, ["a"], page: 1, pageSize: 20)
             // validate
-            XCTAssertEqual(renderSQL(query?.select), #"SELECT "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0"#)
+            let inner = Search.defaultMatchQuery(app.db, ["a"])
+            XCTAssertEqual(renderSQL(query?.select),
+                           #"SELECT * FROM (\#(renderSQL(inner))) AS "t" ORDER BY "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0"#)
         }
         do {  // multiple search terms
             // MUT
-            let query = Search.query(app.db, ["foo", "bar"], page: 1, pageSize: 20)
+            let query = Search.query(app.db, ["a", "b"], page: 1, pageSize: 20)
             // validate
-            XCTAssertEqual(renderSQL(query?.select), #"SELECT "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0"#)
+            let inner = Search.defaultMatchQuery(app.db, ["a", "b"])
+            XCTAssertEqual(renderSQL(query?.select),
+                           #"SELECT * FROM (\#(renderSQL(inner))) AS "t" ORDER BY "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0"#)
         }
     }
 
