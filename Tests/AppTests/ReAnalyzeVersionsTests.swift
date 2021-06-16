@@ -74,7 +74,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
             // also, update release notes to ensure mergeReleaseInfo is being called
             let r = try XCTUnwrap(Repository.find(repoId, on: app.db).wait())
             r.releases = [
-                .mock(descripton: "rel 1.2.3", tagName: "1.2.3")
+                .mock(description: "rel 1.2.3", tagName: "1.2.3")
             ]
             try r.save(on: app.db).wait()
         }
