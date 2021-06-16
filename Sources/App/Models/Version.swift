@@ -49,6 +49,9 @@ final class Version: Model, Content {
     @Field(key: "release_notes")
     var releaseNotes: String?
 
+    @Field(key: "release_notes_html")
+    var releaseNotesHTML: String?
+
     // TODO: rename to minimumPlatformVersions?
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
@@ -84,6 +87,7 @@ final class Version: Model, Content {
          publishedAt: Date? = nil,
          reference: Reference? = nil,
          releaseNotes: String? = nil,
+         releaseNotesHTML: String? = nil,
          supportedPlatforms: [Platform] = [],
          swiftVersions: [SwiftVersion] = [],
          toolsVersion: String? = nil,
@@ -97,6 +101,7 @@ final class Version: Model, Content {
         self.publishedAt = publishedAt
         self.reference = reference
         self.releaseNotes = releaseNotes
+        self.releaseNotesHTML = releaseNotesHTML
         self.supportedPlatforms = supportedPlatforms
         self.swiftVersions = swiftVersions
         self.toolsVersion = toolsVersion

@@ -23,7 +23,7 @@ struct UpdateRecentReleases6: Migration {
                 reference->'tag'->>'tagName' AS version,
                 commit_date AS released_at,
                 v.url AS release_url,
-                v.release_notes as release_notes
+                v.release_notes_html as release_notes_html
               FROM versions v
               JOIN repositories r ON v.package_id = r.package_id
               WHERE commit_date IS NOT NULL
