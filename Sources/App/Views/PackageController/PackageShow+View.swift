@@ -7,9 +7,11 @@ enum PackageShow {
     class View: PublicPage {
         
         let model: Model
+        let packageSchema: PackageSchema?
 
-        init(path: String, model: Model) {
+        init(path: String, model: Model, packageSchema: PackageSchema?) {
             self.model = model
+            self.packageSchema = packageSchema
             super.init(path: path)
         }
         
@@ -38,7 +40,9 @@ enum PackageShow {
         
         override func content() -> Node<HTML.BodyContext> {
             .group(
-                .structuredData(PackageSchema(model: model)),
+                .unwrap(packageSchema) {
+                    .structuredData($0)
+                },
                 .h2(.text(model.title)),
                 .small(
                     .a(

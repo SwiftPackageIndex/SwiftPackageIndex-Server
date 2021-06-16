@@ -12,9 +12,18 @@ struct PackageController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
         return Package.query(on: req.db, owner: owner, repository: repository)
-            .map(PackageShow.Model.init(package:))
+            .map { package -> (PackageShow.Model, PackageShow.PackageSchema)? in
+                guard
+                    let model = PackageShow.Model(package: package),
+                    let schema = PackageShow.PackageSchema(package: package)
+                else {
+                    return nil
+                }
+                
+                return (model, schema)
+            }
             .unwrap(or: Abort(.notFound))
-            .map { PackageShow.View(path: req.url.path, model: $0).document() }
+            .map { PackageShow.View(path: req.url.path, model: $0.0, packageSchema: $0.1).document() }
     }
 
     func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
