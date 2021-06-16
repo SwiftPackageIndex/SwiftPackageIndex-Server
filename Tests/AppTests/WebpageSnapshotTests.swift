@@ -40,7 +40,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
     }
     
     func test_PackageShowView() throws {
-        let page = { PackageShow.View(path: "", model: .mock, packageSchema: nil).document() }
+        let page = { PackageShow.View(path: "", model: .mock, packageSchema: .mock).document() }
         
         assertSnapshot(matching: page, as: .html)
         

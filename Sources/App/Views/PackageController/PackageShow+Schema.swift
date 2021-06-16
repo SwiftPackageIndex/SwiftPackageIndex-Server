@@ -21,6 +21,32 @@ extension PackageShow {
         let url: String
         let dateCreated: Date?
         let dateModified: Date?
+        let sourceOrganization: OrganisationSchema
+        
+        init(
+            repositoryOwner: String,
+            repositoryName: String,
+            organisationName: String?,
+            summary: String?,
+            licenseUrl: String?,
+            version: String?,
+            repositoryUrl: String,
+            dateCreated: Date?,
+            dateModified: Date?
+        ) {
+            self.identifier = "\(repositoryOwner)/\(repositoryName)"
+            self.name = repositoryName
+            self.description = summary
+            self.license = licenseUrl
+            self.version = version
+            self.codeRepository = repositoryUrl
+            self.url = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
+            self.dateCreated = dateCreated
+            self.dateModified = dateModified
+            self.sourceOrganization = OrganisationSchema(legalName: organisationName ?? repositoryOwner)
+            
+            
+        }
         
         init?(package: Package) {
             guard
@@ -30,22 +56,22 @@ extension PackageShow {
             else {
                 return nil
             }
-            
-            identifier = "\(repositoryOwner)/\(repositoryName)"
-            name = repositoryName
-            description = repository.summary
-            license = repository.licenseUrl
-            version = package.releaseInfo().stable?.link.label
-            codeRepository = package.url.droppingGitExtension
-            url = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
-            dateCreated = repository.firstCommitDate
-            dateModified = repository.lastCommitDate
-            
-//            OrganisationSchema(legalName: repository.owner)
+                
+            self.init(
+                repositoryOwner: repositoryOwner,
+                repositoryName: repositoryName,
+                organisationName: repository.ownerName,
+                summary: repository.summary,
+                licenseUrl: repository.licenseUrl,
+                version: package.releaseInfo().stable?.link.label,
+                repositoryUrl: package.url.droppingGitExtension,
+                dateCreated: repository.firstCommitDate,
+                dateModified: repository.lastCommitDate
+            )
         }
     }
     
-    fileprivate struct OrganisationSchema: Schema {
+    struct OrganisationSchema: Schema {
         
         enum CodingKeys: String, CodingKey {
             case context = "@context", type = "@type"
