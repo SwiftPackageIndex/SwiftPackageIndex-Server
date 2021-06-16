@@ -67,7 +67,7 @@
     </header>
     <main>
       <div class="inner">
-        <script type="application/ld+json">{"codeRepository":"https:\/\/github.com\/Alamofire\/Alamofire","url":"http:\/\/localhost:8080\/Owner\/Name","dateModified":"2001-01-01T00:00:00Z","@type":"SoftwareSourceCode","dateCreated":"1970-01-01T00:00:00Z","identifier":"Owner\/Name","version":"5.2.0","description":"This is an amazing package.","license":"https:\/\/github.com\/Alamofire\/Alamofire\/blob\/master\/LICENSE","name":"Name","@context":"https:\/\/schema.org"}</script>
+        <script type="application/ld+json">{"@context":"https:\/\/schema.org","@type":"SoftwareSourceCode","codeRepository":"https:\/\/github.com\/Alamofire\/Alamofire","dateCreated":"1970-01-01T00:00:00Z","dateModified":"2001-01-01T00:00:00Z","description":"This is an amazing package.","identifier":"Owner\/Name","license":"https:\/\/github.com\/Alamofire\/Alamofire\/blob\/master\/LICENSE","name":"Name","url":"http:\/\/localhost:8080\/Owner\/Name","version":"5.2.0"}</script>
         <h2>Alamofire</h2>
         <small>
           <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
