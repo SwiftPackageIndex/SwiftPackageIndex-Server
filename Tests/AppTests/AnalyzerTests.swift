@@ -21,7 +21,7 @@ class AnalyzerTests: AppTestCase {
                        name: "1",
                        owner: "foo",
                        releases: [
-                        .mock(descripton: "rel 1.0.0", tagName: "1.0.0")
+                        .mock(description: "rel 1.0.0", tagName: "1.0.0")
                        ],
                        stars: 25).save(on: app.db).wait()
         try Repository(package: pkgs[1],
@@ -523,12 +523,12 @@ class AnalyzerTests: AppTestCase {
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, releases:[
-            .mock(descripton: "rel 1.2.3", publishedAt: 1, tagName: "1.2.3"),
-            .mock(descripton: "rel 2.0.0", publishedAt: 2, tagName: "2.0.0"),
+            .mock(description: "rel 1.2.3", publishedAt: 1, tagName: "1.2.3"),
+            .mock(description: "rel 2.0.0", publishedAt: 2, tagName: "2.0.0"),
             // 2.1.0 release note is missing on purpose
-            .mock(descripton: "rel 2.2.0", isDraft: true, publishedAt: 3, tagName: "2.2.0"),
-            .mock(descripton: "rel 2.3.0", publishedAt: 4, tagName: "2.3.0", url: "some url"),
-            .mock(descripton: nil, tagName: "2.4.0")
+            .mock(description: "rel 2.2.0", isDraft: true, publishedAt: 3, tagName: "2.2.0"),
+            .mock(description: "rel 2.3.0", publishedAt: 4, tagName: "2.3.0", url: "some url"),
+            .mock(description: nil, tagName: "2.4.0")
         ]).save(on: app.db).wait()
         try pkg.$repositories.load(on: app.db).wait()
         let versions: [Version] = try [

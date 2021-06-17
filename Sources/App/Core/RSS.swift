@@ -2,13 +2,12 @@ import Fluent
 import Foundation
 import Plot
 
-
 struct RSSFeed {
     var title: String
     var description: String
     var link: String
     var items: [Node<RSS.ChannelContext>]
-    
+
     var rss: RSS {
         RSS(
             .title(title),
@@ -22,9 +21,7 @@ struct RSSFeed {
             .group(items)
         )
     }
-    
 }
-
 
 extension RSSFeed {
     static func recentPackages(on database: Database,
@@ -38,7 +35,7 @@ extension RSSFeed {
                         items: $0)
             }
     }
-    
+
     static func recentReleases(on database: Database,
                                limit: Int = Constants.rssFeedMaxItemCount,
                                filter: RecentRelease.Filter = .all) -> EventLoopFuture<Self> {
@@ -52,7 +49,6 @@ extension RSSFeed {
             }
     }
 }
-
 
 extension RecentPackage {
     var rssItem: Node<RSS.ChannelContext> {
@@ -77,18 +73,14 @@ extension RecentPackage {
     }
 }
 
-
 extension RecentRelease {
     var rssItem: Node<RSS.ChannelContext> {
         let packageUrl = SiteURL.package(.value(repositoryOwner),
                                          .value(repositoryName),
                                          .none).absoluteURL()
-        return .item(
-            .guid(.text(packageUrl), .isPermaLink(true)),
-            .title("\(packageName) - \(version)"),
-            .link(packageUrl),
-            .pubDate(releasedAt, timeZone: .utc),
-            .description(
+
+        func layout(_ body: Node<HTML.BodyContext>) -> Node<HTML.BodyContext> {
+            .div(
                 .p(
                     .a(
                         .href(packageUrl),
@@ -102,7 +94,7 @@ extension RecentRelease {
                         )
                     )
                 ),
-                .p(.text(packageSummary ?? "")),
+                body,
                 .small(
                     .a(
                         .href(packageUrl),
@@ -110,6 +102,25 @@ extension RecentRelease {
                     )
                 )
             )
+        }
+
+        return .item(
+            .guid(.text(packageUrl), .isPermaLink(true)),
+            .title("\(packageName) - \(version)"),
+            .link(packageUrl),
+            .pubDate(releasedAt, timeZone: .utc),
+            .description(
+                layout(
+                    .p(.text(packageSummary ?? ""))
+                )
+            ),
+            .unwrap(releaseNotesHTML) { notes in
+                .content(
+                    layout(
+                        .div(.raw(notes))
+                    )
+                )
+            }
         )
     }
 }

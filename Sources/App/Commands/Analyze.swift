@@ -535,6 +535,7 @@ func mergeReleaseInfo(on transaction: Database,
         }
         version.publishedAt = rel.publishedAt
         version.releaseNotes = rel.description
+        version.releaseNotesHTML = rel.descriptionHTML
         version.url = rel.url
     }
     return transaction.eventLoop.future(versions)

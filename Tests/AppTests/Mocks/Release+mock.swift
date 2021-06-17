@@ -3,12 +3,14 @@ import Foundation
 
 
 extension Release {
-    static func mock(descripton: String?,
+    static func mock(description: String?,
+                     descriptionHTML: String? = nil,
                      isDraft: Bool = false,
                      publishedAt: Int? = nil,
                      tagName: String,
                      url: String = "") -> Self {
-        .init(description: descripton,
+        .init(description: description,
+              descriptionHTML: descriptionHTML,
               isDraft: isDraft,
               publishedAt: publishedAt
                 .map(TimeInterval.init)
