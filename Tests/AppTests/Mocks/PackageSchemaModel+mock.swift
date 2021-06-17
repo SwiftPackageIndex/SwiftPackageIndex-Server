@@ -14,8 +14,7 @@ extension PackageShow.PackageSchema {
             version: "5.2.0",
             repositoryUrl: "https://github.com/Alamofire/Alamofire",
             dateCreated: .init(timeIntervalSince1970: 0),
-            dateModified: .init(timeIntervalSinceReferenceDate: 0),
-            platforms: ["iOS", "watchOS"]
+            dateModified: .init(timeIntervalSinceReferenceDate: 0)
         )
     }
 }

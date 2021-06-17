@@ -11,7 +11,7 @@ extension Node where Context == HTML.BodyContext {
     static func structuredData<T>(_ model: T) -> Node<HTML.BodyContext> where T: Schema {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
-        encoder.outputFormatting = .sortedKeys
+        encoder.outputFormatting = [ .sortedKeys, .withoutEscapingSlashes ]
         
         do {
             let data = try encoder.encode(model)

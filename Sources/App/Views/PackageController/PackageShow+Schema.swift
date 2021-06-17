@@ -7,7 +7,7 @@ extension PackageShow {
             case context = "@context", type = "@type"
             case identifier, name, description, license, version,
                  codeRepository, url, dateCreated, dateModified,
-                 programmingLanguage, targetProduct
+                 programmingLanguage
         }
         
         var context: String = "https://schema.org"
@@ -24,7 +24,6 @@ extension PackageShow {
         let dateModified: Date?
         let sourceOrganization: OrganisationSchema
         let programmingLanguage: ComputerLanguageSchema
-        let targetProduct: [SoftwareApplicationSchema]
         
         init(
             repositoryOwner: String,
@@ -35,8 +34,7 @@ extension PackageShow {
             version: String?,
             repositoryUrl: String,
             dateCreated: Date?,
-            dateModified: Date?,
-            platforms: [String]
+            dateModified: Date?
         ) {
             self.identifier = "\(repositoryOwner)/\(repositoryName)"
             self.name = repositoryName
@@ -49,7 +47,6 @@ extension PackageShow {
             self.dateModified = dateModified
             self.sourceOrganization = OrganisationSchema(legalName: organisationName ?? repositoryOwner)
             self.programmingLanguage = ComputerLanguageSchema(name: "Swift", url: "https://swift.org/")
-            self.targetProduct = platforms.map(SoftwareApplicationSchema.init(operatingSystem:))
         }
         
         init?(package: Package) {
@@ -70,8 +67,7 @@ extension PackageShow {
                 version: package.releaseInfo().stable?.link.label,
                 repositoryUrl: package.url.droppingGitExtension,
                 dateCreated: repository.firstCommitDate,
-                dateModified: repository.lastCommitDate,
-                platforms: package.platformCompatibility().map { $0.displayName }
+                dateModified: repository.lastCommitDate
             )
         }
     }
@@ -107,23 +103,6 @@ extension PackageShow {
         init(name: String, url: String) {
             self.name = name
             self.url = url
-        }
-    }
-    
-    struct SoftwareApplicationSchema: Schema {
-        enum CodingKeys: String, CodingKey {
-            case context = "@context", type = "@type"
-            case operatingSystem, applicationCategory
-        }
-        
-        var context: String = "https://schema.org"
-        var type: String = "SoftwareApplication"
-        
-        let operatingSystem: String
-        let applicationCategory = "DeveloperApplication"
-        
-        init(operatingSystem: String) {
-            self.operatingSystem = operatingSystem
         }
     }
 }
