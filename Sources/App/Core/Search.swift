@@ -14,7 +14,7 @@ enum Search {
     static let summary = SQLIdentifier("summary")
     static let score = SQLIdentifier("score")
     static let searchView = SQLIdentifier("search")
-    static let defaultMatch = SQLAlias(SQLIdentifier("default"),
+    static let defaultMatch = SQLAlias(SQLRaw("'default'"),
                                        as: SQLIdentifier("match_type"))
 
     struct Result: Content, Equatable {

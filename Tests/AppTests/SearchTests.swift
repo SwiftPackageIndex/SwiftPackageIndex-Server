@@ -50,12 +50,12 @@ class SearchTests: AppTestCase {
 
     func test_defaultMatchQuery_single_term() throws {
         let q = Search.defaultMatchQuery(app.db, ["a"])
-        XCTAssertEqual(renderSQL(q), #"SELECT "default" AS "match_type", "id", "package_name", "name", "owner", "score", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
+        XCTAssertEqual(renderSQL(q), #"SELECT 'default' AS "match_type", "id", "package_name", "name", "owner", "score", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
     }
 
     func test_defaultMatchQuery_multiple_terms() throws {
         let q = Search.defaultMatchQuery(app.db, ["a", "b"])
-        XCTAssertEqual(renderSQL(q), #"SELECT "default" AS "match_type", "id", "package_name", "name", "owner", "score", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
+        XCTAssertEqual(renderSQL(q), #"SELECT 'default' AS "match_type", "id", "package_name", "name", "owner", "score", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
     }
 
     func test_query_sql() throws {
