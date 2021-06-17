@@ -114,13 +114,13 @@ extension RecentRelease {
                     .p(.text(packageSummary ?? ""))
                 )
             ),
-            .content(
-                .unwrap(releaseNotesHTML) { notes in
+            .unwrap(releaseNotesHTML) { notes in
+                .content(
                     layout(
                         .div(.raw(notes))
                     )
-                }
-            )
+                )
+            }
         )
     }
 }
