@@ -75,8 +75,10 @@ enum Search {
             .filter { !$0.isEmpty }
     }
 
-    static func packageMatchQuery(_ database: Database,
-                                  _ terms: [String]) -> SQLSelect? {
+    static func packageMatchQuery(on database: Database,
+                                  terms: [String],
+                                  offset: Int? = nil,
+                                  limit: Int? = nil) -> SQLSelect? {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
@@ -121,6 +123,8 @@ enum Search {
             .orderBy(eq(lower(packageName), mergedTerms), .descending)
             .orderBy(score, SQLDirection.descending)
             .orderBy(packageName, SQLDirection.ascending)
+            .offset(offset)
+            .limit(limit)
             .select
     }
 
@@ -132,20 +136,22 @@ enum Search {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        guard let inner = packageMatchQuery(database, terms) else {
-            return nil
-        }
-
         // page is one-based and must be >= 0
         let offset = max(0, (page - 1) * pageSize)
+        let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
+
+        guard let inner = packageMatchQuery(on: database,
+                                            terms: terms,
+                                            offset: offset,
+                                            limit: limit) else {
+            return nil
+        }
 
         return db.select()
             .column("*")
             .from(
                 SQLAlias(SQLGroupExpression(inner), as: SQLIdentifier("t"))
             )
-            .offset(offset)
-            .limit(pageSize + 1)  // fetch one more so we can determine `hasMoreResults`
     }
 
     static func fetch(_ database: Database,
