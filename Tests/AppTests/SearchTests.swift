@@ -50,12 +50,12 @@ class SearchTests: AppTestCase {
 
     func test_defaultMatchQuery_single_term() throws {
         let q = Search.defaultMatchQuery(app.db, ["a"])
-        XCTAssertEqual(renderSQL(q), #"SELECT 'default' AS "match_type", "id", "package_name", "name", "owner", "score", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
+        XCTAssertEqual(renderSQL(q), #"SELECT 'default' AS "match_type", "id", "package_name", "name", "owner", "score", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
     }
 
     func test_defaultMatchQuery_multiple_terms() throws {
         let q = Search.defaultMatchQuery(app.db, ["a", "b"])
-        XCTAssertEqual(renderSQL(q), #"SELECT 'default' AS "match_type", "id", "package_name", "name", "owner", "score", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
+        XCTAssertEqual(renderSQL(q), #"SELECT 'default' AS "match_type", "id", "package_name", "name", "owner", "score", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
     }
 
     func test_query_sql() throws {
@@ -66,7 +66,7 @@ class SearchTests: AppTestCase {
             // validate
             let inner = Search.defaultMatchQuery(app.db, ["a"])
             XCTAssertEqual(renderSQL(query?.select),
-                           #"SELECT * FROM (\#(renderSQL(inner))) AS "t" ORDER BY "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0"#)
+                           #"SELECT * FROM (\#(renderSQL(inner))) AS "t" LIMIT 21 OFFSET 0"#)
         }
         do {  // multiple search terms
             // MUT
@@ -74,7 +74,7 @@ class SearchTests: AppTestCase {
             // validate
             let inner = Search.defaultMatchQuery(app.db, ["a", "b"])
             XCTAssertEqual(renderSQL(query?.select),
-                           #"SELECT * FROM (\#(renderSQL(inner))) AS "t" ORDER BY "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0"#)
+                           #"SELECT * FROM (\#(renderSQL(inner))) AS "t" LIMIT 21 OFFSET 0"#)
         }
     }
 

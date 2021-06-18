@@ -88,6 +88,9 @@ enum Search {
         guard !sanitizedTerms.isEmpty else {
             return nil
         }
+        let mergedTerms = SQLBind(
+            sanitizedTerms.joined(separator: " ").lowercased()
+        )
         let binds = sanitizedTerms[
             ..<min(sanitizedTerms.count, maxSearchTerms)
         ].map(SQLBind.init)
@@ -116,6 +119,9 @@ enum Search {
             .where(isNotNull(packageName))
             .where(isNotNull(repoOwner))
             .where(isNotNull(repoName))
+            .orderBy(eq(lower(packageName), mergedTerms), .descending)
+            .orderBy(score, SQLDirection.descending)
+            .orderBy(packageName, SQLDirection.ascending)
             .select
     }
 
@@ -139,12 +145,6 @@ enum Search {
             .from(
                 SQLAlias(SQLGroupExpression(inner), as: SQLIdentifier("t"))
             )
-        // FIXME: union select exact package matches
-        // FIXME: also order by (first position)
-        //   match_type = 'package_name' desc
-        //            .orderBy(eq(, mergedTerms), .descending)
-            .orderBy(score, SQLDirection.descending)
-            .orderBy(packageName, SQLDirection.ascending)
             .offset(offset)
             .limit(pageSize + 1)  // fetch one more so we can determine `hasMoreResults`
     }
