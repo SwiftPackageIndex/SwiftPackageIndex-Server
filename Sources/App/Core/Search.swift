@@ -111,7 +111,6 @@ enum Search {
             .column(packageName)
             .column(repoName)
             .column(repoOwner)
-            .column(score)
             .column(summary)
             .from(searchView)
 
