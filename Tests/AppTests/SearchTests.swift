@@ -48,13 +48,13 @@ class SearchTests: AppTestCase {
                        #"(SELECT "id" FROM "t1") UNION (SELECT "id" FROM "t2") UNION (SELECT "id" FROM "t3")"#)
     }
 
-    func test_defaultMatchQuery_single_term() throws {
-        let q = Search.defaultMatchQuery(app.db, ["a"])
+    func test_packageMatchQuery_single_term() throws {
+        let q = Search.packageMatchQuery(app.db, ["a"])
         XCTAssertEqual(renderSQL(q), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
     }
 
-    func test_defaultMatchQuery_multiple_terms() throws {
-        let q = Search.defaultMatchQuery(app.db, ["a", "b"])
+    func test_packageMatchQuery_multiple_terms() throws {
+        let q = Search.packageMatchQuery(app.db, ["a", "b"])
         XCTAssertEqual(renderSQL(q), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
     }
 
@@ -64,7 +64,7 @@ class SearchTests: AppTestCase {
             // MUT
             let query = Search.query(app.db, ["a"], page: 1, pageSize: 20)
             // validate
-            let inner = Search.defaultMatchQuery(app.db, ["a"])
+            let inner = Search.packageMatchQuery(app.db, ["a"])
             XCTAssertEqual(renderSQL(query?.select),
                            #"SELECT * FROM (\#(renderSQL(inner))) AS "t" LIMIT 21 OFFSET 0"#)
         }
@@ -72,7 +72,7 @@ class SearchTests: AppTestCase {
             // MUT
             let query = Search.query(app.db, ["a", "b"], page: 1, pageSize: 20)
             // validate
-            let inner = Search.defaultMatchQuery(app.db, ["a", "b"])
+            let inner = Search.packageMatchQuery(app.db, ["a", "b"])
             XCTAssertEqual(renderSQL(query?.select),
                            #"SELECT * FROM (\#(renderSQL(inner))) AS "t" LIMIT 21 OFFSET 0"#)
         }

@@ -75,7 +75,7 @@ enum Search {
             .filter { !$0.isEmpty }
     }
 
-    static func defaultMatchQuery(_ database: Database,
+    static func packageMatchQuery(_ database: Database,
                                   _ terms: [String]) -> SQLSelect? {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
@@ -132,7 +132,7 @@ enum Search {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        guard let inner = defaultMatchQuery(database, terms) else {
+        guard let inner = packageMatchQuery(database, terms) else {
             return nil
         }
 
