@@ -17,14 +17,71 @@ class SearchTests: AppTestCase {
                        "/baz/foo%20bar")
     }
 
+    // TODO: remove once once https://github.com/vapor/sql-kit/pull/133 has been merged
+    func test_union_two_arguments() throws {
+        let db = app.db as! SQLDatabase
+        let union = db.union(
+            db.select()
+                .column("id")
+                .from("t1")
+                .where("f1", .equal, "foo")
+                .limit(2),
+            db.select()
+                .column("id")
+                .from("t2")
+                .where("f2", .equal, "bar")
+                .limit(3)
+        )
+        XCTAssertEqual(renderSQL(union.query),
+                       #"(SELECT "id" FROM "t1" WHERE "f1" = $1 LIMIT 2) UNION (SELECT "id" FROM "t2" WHERE "f2" = $2 LIMIT 3)"#)
+    }
+
+    // TODO: remove once once https://github.com/vapor/sql-kit/pull/133 has been merged
+    func test_union_multiple_arguments() throws {
+        let db = app.db as! SQLDatabase
+        let union = db.union(
+            db.select().column("id").from("t1"),
+            db.select().column("id").from("t2"),
+            db.select().column("id").from("t3")
+        )
+        XCTAssertEqual(renderSQL(union.query),
+                       #"(SELECT "id" FROM "t1") UNION (SELECT "id" FROM "t2") UNION (SELECT "id" FROM "t3")"#)
+    }
+
+    func test_packageMatchQuery_single_term() throws {
+        let q = Search.packageMatchQuery(on: app.db, terms: ["a"])
+        XCTAssertEqual(renderSQL(q), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
+    }
+
+    func test_packageMatchQuery_multiple_terms() throws {
+        let q = Search.packageMatchQuery(on: app.db, terms: ["a", "b"])
+        XCTAssertEqual(renderSQL(q), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
+    }
+
     func test_query_sql() throws {
         // Test to confirm shape of rendered search SQL
-        // MUT
-        let query = Search.query(app.db, ["foo"], page: 1, pageSize: 20)
-        // validate
-        var serializer = SQLSerializer(database: app.db as! SQLDatabase)
-        query?.query.serialize(to: &serializer)
-        XCTAssertEqual(serializer.sql, #"SELECT "id", "package_name", "name", "owner", "summary" FROM "search" WHERE concat("package_name", ' ', coalesce("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY lower("package_name") = $2 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0"#)
+        do {  // single search term
+            // MUT
+            let query = Search.query(app.db, ["a"], page: 1, pageSize: 20)
+            // validate
+            let inner = Search.packageMatchQuery(on: app.db,
+                                                 terms: ["a"],
+                                                 offset: 0,
+                                                 limit: 21)
+            XCTAssertEqual(renderSQL(query?.select),
+                           #"SELECT * FROM (\#(renderSQL(inner))) AS "t""#)
+        }
+        do {  // multiple search terms
+            // MUT
+            let query = Search.query(app.db, ["a", "b"], page: 1, pageSize: 20)
+            // validate
+            let inner = Search.packageMatchQuery(on: app.db,
+                                                 terms: ["a", "b"],
+                                                 offset: 0,
+                                                 limit: 21)
+            XCTAssertEqual(renderSQL(query?.select),
+                           #"SELECT * FROM (\#(renderSQL(inner))) AS "t""#)
+        }
     }
 
     func test_fetch_single() throws {
@@ -385,4 +442,9 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res, .init(hasMoreResults: false, results: []))
     }
 
+    func renderSQL(_ query: SQLExpression?) -> String {
+        var serializer = SQLSerializer(database: app.db as! SQLDatabase)
+        query?.serialize(to: &serializer)
+        return serializer.sql
+    }
 }
