@@ -14,7 +14,7 @@ enum Search {
     static let summary = SQLIdentifier("summary")
     static let score = SQLIdentifier("score")
     static let searchView = SQLIdentifier("search")
-    static let defaultMatch = SQLAlias(SQLRaw("'default'"),
+    static let packageMatch = SQLAlias(SQLRaw("'package'"),
                                        as: SQLIdentifier("match_type"))
 
     struct Result: Content, Equatable {
@@ -106,7 +106,7 @@ enum Search {
 
         let preamble = db
             .select()
-            .column(defaultMatch)
+            .column(packageMatch)
             .column(id)
             .column(packageName)
             .column(repoName)
