@@ -94,12 +94,12 @@ class GithubTests: AppTestCase {
         XCTAssertEqual(res.repository?.openPullRequests.totalCount, 6)
         XCTAssertEqual(res.repository?.releases.nodes.count, 20)
         XCTAssertEqual(res.repository?.releases.nodes.first, .some(
-                        .init(description: "Released on 2020-11-04. All issues associated with this milestone can be found using this [filter](https://github.com/Alamofire/Alamofire/milestone/74?closed=1).\r\n\r\n#### Added\r\n- `URLResponseSerializer` and attendant convenience methods so downloads can produce a non-optional `URL`.\r\n  - Added by[Jon Shier](https://github.com/jshier) in Pull Request [#3343](https://github.com/Alamofire/Alamofire/pull/3343).\r\n\r\n#### Updated\r\n- Handing of `file://` `URL`s, removing error added in 5.3.0 and adding support for `DownloadRequest`.\r\n  - Updated by [Jon Shier](https://github.com/jshier) in Pull Request [#3342](https://github.com/Alamofire/Alamofire/pull/3342).",
-                            descriptionHTML: "<p>Released on 2020-11-04. All issues associated with this milestone can be found using this <a href=\"https://github.com/Alamofire/Alamofire/milestone/74?closed=1\">filter</a>.</p>\n<h4>Added</h4>\n<ul>\n<li><code>URLResponseSerializer</code> and attendant convenience methods so downloads can produce a non-optional <code>URL</code>.\n<ul>\n<li>Added by<a href=\"https://github.com/jshier\">Jon Shier</a> in Pull Request <a href=\"https://github.com/Alamofire/Alamofire/pull/3343\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/Alamofire/Alamofire/pull/3343/hovercard\">#3343</a>.</li>\n</ul>\n</li>\n</ul>\n<h4>Updated</h4>\n<ul>\n<li>Handing of <code>file://</code> <code>URL</code>s, removing error added in 5.3.0 and adding support for <code>DownloadRequest</code>.\n<ul>\n<li>Updated by <a href=\"https://github.com/jshier\">Jon Shier</a> in Pull Request <a href=\"https://github.com/Alamofire/Alamofire/pull/3342\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/Alamofire/Alamofire/pull/3342/hovercard\">#3342</a>.</li>\n</ul>\n</li>\n</ul>",
-                              isDraft: false,
-                              publishedAt: iso8601.date(from: "2021-04-22T02:50:05Z")!,
-                              tagName: "5.4.3",
-                              url: "https://github.com/Alamofire/Alamofire/releases/tag/5.4.3")
+            .init(description: "Released on 2020-04-21. All issues associated with this milestone can be found using this [filter](https://github.com/Alamofire/Alamofire/milestone/77?closed=1).\r\n\r\n#### Fixed\r\n- Change in multipart upload creation order.\r\n  - Fixed by [Christian Noon](https://github.com/cnoon) in Pull Request [#3438](https://github.com/Alamofire/Alamofire/pull/3438).\r\n- Typo in Alamofire 5 migration guide.\r\n  - Fixed by [DevYeom](https://github.com/DevYeom) in Pull Request [#3431](https://github.com/Alamofire/Alamofire/pull/3431).",
+                  descriptionHTML: "<p>mock descriptionHTML</>",
+                  isDraft: false,
+                  publishedAt: iso8601.date(from: "2021-04-22T02:50:05Z")!,
+                  tagName: "5.4.3",
+                  url: "https://github.com/Alamofire/Alamofire/releases/tag/5.4.3")
         ))
         XCTAssertEqual(res.repository?.repositoryTopics.totalCount, 15)
         XCTAssertEqual(res.repository?.repositoryTopics.nodes.first?.topic.name,

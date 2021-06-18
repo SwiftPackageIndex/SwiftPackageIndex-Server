@@ -941,6 +941,7 @@
         "nodes": [
           {
             "description": "Released on 2020-04-21. All issues associated with this milestone can be found using this [filter](https://github.com/Alamofire/Alamofire/milestone/77?closed=1).\r\n\r\n#### Fixed\r\n- Change in multipart upload creation order.\r\n  - Fixed by [Christian Noon](https://github.com/cnoon) in Pull Request [#3438](https://github.com/Alamofire/Alamofire/pull/3438).\r\n- Typo in Alamofire 5 migration guide.\r\n  - Fixed by [DevYeom](https://github.com/DevYeom) in Pull Request [#3431](https://github.com/Alamofire/Alamofire/pull/3431).",
+            "descriptionHTML": "<p>mock descriptionHTML</>",
             "isDraft": false,
             "publishedAt": "2021-04-22T02:50:05Z",
             "tagName": "5.4.3",
