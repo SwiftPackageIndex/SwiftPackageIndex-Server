@@ -137,7 +137,7 @@ enum Search {
         }
 
         // page is one-based, clamp it to 0-based offset
-        let offset = max(0, (page - 1) * pageSize)
+        let offset = ((page - 1) * pageSize).clamped(to: 0...)
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
 
         guard let inner = packageMatchQuery(on: database,
