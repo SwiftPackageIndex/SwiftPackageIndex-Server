@@ -136,7 +136,7 @@ enum Search {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        // page is one-based and must be >= 0
+        // page is one-based, clamp it to 0-based offset
         let offset = max(0, (page - 1) * pageSize)
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
 
