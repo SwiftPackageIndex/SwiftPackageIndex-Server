@@ -7,11 +7,13 @@ import XCTVapor
 class SearchTests: AppTestCase {
     
     func test_DBRecord_packageURL() throws {
-        XCTAssertEqual(Search.DBRecord(packageId: UUID(),
+        XCTAssertEqual(Search.DBRecord(matchType: .package,
+                                       packageId: UUID(),
                                        repositoryName: "bar",
                                        repositoryOwner: "foo").packageURL,
                        "/foo/bar")
-        XCTAssertEqual(Search.DBRecord(packageId: UUID(),
+        XCTAssertEqual(Search.DBRecord(matchType: .package,
+                                       packageId: UUID(),
                                        repositoryName: "foo bar",
                                        repositoryOwner: "baz").packageURL,
                        "/baz/foo%20bar")

@@ -17,12 +17,13 @@ enum Search {
     static let searchView = SQLIdentifier("search")
     static let null = SQLRaw("NULL")
 
-    enum MatchType: String {
+    enum MatchType: String, Codable, Equatable {
         case package
         case keyword
 
         var sqlAlias: SQLAlias {
-            SQLAlias(SQLRaw("'\(rawValue)'"), as: SQLIdentifier("match_type"))
+            SQLAlias(SQLRaw("'\(rawValue)'"),
+                     as: SQLIdentifier(DBRecord.CodingKeys.matchType.rawValue))
         }
     }
 
@@ -41,6 +42,7 @@ enum Search {
     }
     
     struct DBRecord: Content, Equatable {
+        var matchType: MatchType
         var packageId: Package.Id
         var packageName: String?
         var repositoryName: String?
@@ -48,6 +50,7 @@ enum Search {
         var summary: String?
         
         enum CodingKeys: String, CodingKey {
+            case matchType = "match_type"
             case packageId = "id"
             case packageName = "package_name"
             case repositoryName = "name"
