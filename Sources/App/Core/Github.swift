@@ -277,6 +277,14 @@ extension Github {
                         url
                       }
                     }
+                    repositoryTopics(first: 20) {
+                      totalCount
+                      nodes {
+                        topic {
+                          name
+                        }
+                      }
+                    }
                     stargazerCount
                     isInOrganization
                   }
@@ -300,6 +308,7 @@ extension Github {
             var openPullRequests: OpenPullRequests
             var owner: Owner
             var releases: ReleaseNodes
+            var repositoryTopics: RepositoryTopicNodes
             var stargazerCount: Int
             var isInOrganization: Bool
             // derived properties
@@ -309,6 +318,9 @@ extension Github {
             }
             var lastPullRequestClosedAt: Date? {
                 (closedPullRequests.nodes + mergedPullRequests.nodes).map(\.closedAt).sorted().last
+            }
+            var topics: [String] {
+                repositoryTopics.nodes.map(\.topic.name)
             }
         }
 
@@ -363,6 +375,19 @@ extension Github {
                 var publishedAt: Date?
                 var tagName: String
                 var url: String
+            }
+        }
+
+        struct RepositoryTopicNodes: Decodable, Equatable {
+            var totalCount: Int
+            var nodes: [RepositoryTopic]
+
+            struct RepositoryTopic: Decodable, Equatable {
+                var topic: Topic
+
+                struct Topic: Decodable, Equatable {
+                    var name: String
+                }
             }
         }
     }

@@ -11,13 +11,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup package without package name
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
-                       summary: "summary",
                        defaultBranch: "main",
+                       forks: 42,
                        license: .mit,
                        name: "bar",
                        owner: "foo",
                        stars: 17,
-                       forks: 42).save(on: app.db).wait()
+                       summary: "summary").save(on: app.db).wait()
 
         // MUT
         let m = BuildIndex.Model(package: pkg)

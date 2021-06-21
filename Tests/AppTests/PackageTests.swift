@@ -181,13 +181,13 @@ final class PackageTests: AppTestCase {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
-                       summary: "summary",
                        defaultBranch: "main",
+                       forks: 42,
                        license: .mit,
                        name: "bar",
                        owner: "foo",
                        stars: 17,
-                       forks: 42).save(on: app.db).wait()
+                       summary: "summary").save(on: app.db).wait()
         let version = try App.Version(package: pkg,
                                       packageName: "test package",
                                       reference: .branch("main"))
@@ -204,13 +204,13 @@ final class PackageTests: AppTestCase {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
-                       summary: "summary",
                        defaultBranch: "main",
+                       forks: 42,
                        license: .mit,
                        name: "bar",
                        owner: "foo",
                        stars: 17,
-                       forks: 42).save(on: app.db).wait()
+                       summary: "summary").save(on: app.db).wait()
         let version = try App.Version(package: pkg,
                                       packageName: "test package",
                                       reference: .branch("main"))
@@ -506,8 +506,8 @@ final class PackageTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg,
                        commitCount: 1433,
-                       firstCommitDate: Date(timeIntervalSince1970: 0),
-                       defaultBranch: "default").create(on: app.db).wait()
+                       defaultBranch: "default",
+                       firstCommitDate: .t0).create(on: app.db).wait()
         try (0..<10).forEach {
             try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
         }

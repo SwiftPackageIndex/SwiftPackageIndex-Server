@@ -89,12 +89,14 @@ class SearchTests: AppTestCase {
         // setup
         let p1 = try savePackage(on: app.db, "1")
         let p2 = try savePackage(on: app.db, "2")
-        try Repository(package: p1, summary: "some package", defaultBranch: "main").save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       summary: "some package").save(on: app.db).wait()
         try Repository(package: p2,
-                       summary: "bar package",
                        defaultBranch: "main",
                        name: "name 2",
-                       owner: "owner 2").save(on: app.db).wait()
+                       owner: "owner 2",
+                       summary: "bar package").save(on: app.db).wait()
         try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
@@ -122,15 +124,15 @@ class SearchTests: AppTestCase {
         let p1 = try savePackage(on: app.db, "1")
         let p2 = try savePackage(on: app.db, "2")
         try Repository(package: p1,
-                       summary: "package 1 description",
                        defaultBranch: "main",
                        name: "package 1",
-                       owner: "owner").save(on: app.db).wait()
+                       owner: "owner",
+                       summary: "package 1 description").save(on: app.db).wait()
         try Repository(package: p2,
-                       summary: "package 2 description",
                        defaultBranch: "main",
                        name: "package 2",
-                       owner: "owner").save(on: app.db).wait()
+                       owner: "owner",
+                       summary: "package 2 description").save(on: app.db).wait()
         try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
@@ -157,15 +159,16 @@ class SearchTests: AppTestCase {
         // setup
         let p1 = try savePackage(on: app.db, "1")
         let p2 = try savePackage(on: app.db, "2")
-        try Repository(package: p1, summary: "some 'package'",
+        try Repository(package: p1,
                        defaultBranch: "main",
                        name: "name 1",
-                       owner: "owner 1").save(on: app.db).wait()
+                       owner: "owner 1",
+                       summary: "some 'package'").save(on: app.db).wait()
         try Repository(package: p2,
-                       summary: "bar package",
                        defaultBranch: "main",
                        name: "name 2",
-                       owner: "owner 2").save(on: app.db).wait()
+                       owner: "owner 2",
+                       summary: "bar package").save(on: app.db).wait()
         try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
@@ -289,8 +292,11 @@ class SearchTests: AppTestCase {
         try (0..<10).shuffled().forEach {
             let p = Package(id: UUID(), url: "\($0)".url, score: $0)
             try p.save(on: app.db).wait()
-            try Repository(package: p, summary: "\($0)", defaultBranch: "main",
-                           name: "\($0)", owner: "foo").save(on: app.db).wait()
+            try Repository(package: p,
+                           defaultBranch: "main",
+                           name: "\($0)",
+                           owner: "foo",
+                           summary: "\($0)").save(on: app.db).wait()
             try Version(package: p, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         }
         try Search.refresh(on: app.db).wait()
@@ -315,20 +321,20 @@ class SearchTests: AppTestCase {
         let p3 = Package(id: UUID(), url: "3", score: 30)
         try [p1, p2, p3].save(on: app.db).wait()
         try Repository(package: p1,
-                       summary: "",
                        defaultBranch: "main",
                        name: "1",
-                       owner: "foo").save(on: app.db).wait()
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
         try Repository(package: p2,
-                       summary: "",
                        defaultBranch: "main",
                        name: "2",
-                       owner: "foo").save(on: app.db).wait()
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
         try Repository(package: p3,
-                       summary: "link",
                        defaultBranch: "main",
                        name: "3",
-                       owner: "foo").save(on: app.db).wait()
+                       owner: "foo",
+                       summary: "link").save(on: app.db).wait()
         try Version(package: p1, packageName: "Ink", reference: .branch("main"))
             .save(on: app.db).wait()
         try Version(package: p2, packageName: "inkInName", reference: .branch("main"))
@@ -355,20 +361,20 @@ class SearchTests: AppTestCase {
         let p3 = Package(id: UUID(), url: "3", score: 30)
         try [p1, p2, p3].save(on: app.db).wait()
         try Repository(package: p1,
-                       summary: "",
                        defaultBranch: "main",
                        name: "1",
-                       owner: "foo").save(on: app.db).wait()
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
         try Repository(package: p2,
-                       summary: "",
                        defaultBranch: "main",
                        name: "2",
-                       owner: "foo").save(on: app.db).wait()
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
         try Repository(package: p3,
-                       summary: "foo bar",
                        defaultBranch: "main",
                        name: "3",
-                       owner: "foo").save(on: app.db).wait()
+                       owner: "foo",
+                       summary: "foo bar").save(on: app.db).wait()
         try Version(package: p1, packageName: "Foo bar", reference: .branch("main"))
             .save(on: app.db).wait()
         try Version(package: p2, packageName: "foobar", reference: .branch("main"))
@@ -393,20 +399,20 @@ class SearchTests: AppTestCase {
         let p3 = Package(id: UUID(), url: "3", score: 30)
         try [p1, p2, p3].save(on: app.db).wait()
         try Repository(package: p1,
-                       summary: "",
                        defaultBranch: "main",
                        name: "1",
-                       owner: "foo").save(on: app.db).wait()
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
         try Repository(package: p2,
-                       summary: "",
                        defaultBranch: "main",
                        name: nil,
-                       owner: "foo").save(on: app.db).wait()
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
         try Repository(package: p3,
-                       summary: "foo bar",
                        defaultBranch: "main",
                        name: "3",
-                       owner: nil).save(on: app.db).wait()
+                       owner: nil,
+                       summary: "foo bar").save(on: app.db).wait()
         try Version(package: p1, packageName: nil, reference: .branch("main"))
             .save(on: app.db).wait()
         try Version(package: p2, packageName: "foo2", reference: .branch("main"))

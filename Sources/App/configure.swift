@@ -134,6 +134,9 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateVersionAddReleaseNotesHTML())
         app.migrations.add(UpdateRecentReleases6())
     }
+    do {  // Migration 030 - add repositories.keywords
+        app.migrations.add(UpdateRepositoryAddKeywords())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

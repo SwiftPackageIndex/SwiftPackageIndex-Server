@@ -32,7 +32,7 @@ class GithubTests: AppTestCase {
         }
         do {
             let data = """
-            {"data":{"repository":{"closedIssues":{"nodes":[]},"closedPullRequests":{"nodes":[]},"createdAt":"2019-04-23T09:26:22Z","defaultBranchRef":{"name":"master"},"description":null,"forkCount":0,"isArchived":false,"isFork":false,"licenseInfo":null,"mergedPullRequests":{"nodes":[]},"name":"CRToastSwift","openIssues":{"totalCount":0},"openPullRequests":{"totalCount":0},"owner":{"login":"krugazor","avatarUrl": "https://avatars.githubusercontent.com/u/2742179?u=28d2ccb6a27c975e663738fe86af579ff74203ac&v=4","name": "Nicolas Zinovieff"},"releases":{"nodes":[]},"stargazerCount":3,"isInOrganization":false},"rateLimit":{"remaining":4753}}}
+            {"data":{"repository":{"closedIssues":{"nodes":[]},"closedPullRequests":{"nodes":[]},"createdAt":"2019-04-23T09:26:22Z","defaultBranchRef":{"name":"master"},"description":null,"forkCount":0,"isArchived":false,"isFork":false,"licenseInfo":null,"mergedPullRequests":{"nodes":[]},"name":"CRToastSwift","openIssues":{"totalCount":0},"openPullRequests":{"totalCount":0},"owner":{"login":"krugazor","avatarUrl": "https://avatars.githubusercontent.com/u/2742179?u=28d2ccb6a27c975e663738fe86af579ff74203ac&v=4","name": "Nicolas Zinovieff"},"releases":{"nodes":[]},"repositoryTopics":{"totalCount":0,"nodes":[]},"stargazerCount":3,"isInOrganization":false},"rateLimit":{"remaining":4753}}}
             """
             _ = try Github.decoder.decode(Response.self, from: Data(data.utf8))
         }
@@ -80,35 +80,38 @@ class GithubTests: AppTestCase {
 
         // validation
         XCTAssertEqual(res.repository?.closedIssues.nodes.first!.closedAt,
-                       iso8601.date(from: "2020-11-24T16:00:07Z"))
+                       iso8601.date(from: "2020-07-17T16:27:10Z"))
         XCTAssertEqual(res.repository?.closedPullRequests.nodes.first!.closedAt,
-                       iso8601.date(from: "2020-08-13T19:10:08Z"))
-        XCTAssertEqual(res.repository?.forkCount, 6480)
+                       iso8601.date(from: "2021-05-28T15:50:17Z"))
+        XCTAssertEqual(res.repository?.forkCount, 6727)
         XCTAssertEqual(res.repository?.mergedPullRequests.nodes.first!.closedAt,
-                       iso8601.date(from: "2020-11-04T21:27:43Z"))
+                       iso8601.date(from: "2021-06-07T22:47:01Z"))
         XCTAssertEqual(res.repository?.name, "Alamofire")
         XCTAssertEqual(res.repository?.owner.name, "Alamofire")
         XCTAssertEqual(res.repository?.owner.login, "Alamofire")
         XCTAssertEqual(res.repository?.owner.avatarUrl, "https://avatars.githubusercontent.com/u/7774181?v=4")
         XCTAssertEqual(res.repository?.openIssues.totalCount, 30)
         XCTAssertEqual(res.repository?.openPullRequests.totalCount, 6)
-        XCTAssertEqual(res.repository?.releases.nodes.count, 10)
+        XCTAssertEqual(res.repository?.releases.nodes.count, 20)
         XCTAssertEqual(res.repository?.releases.nodes.first, .some(
-                        .init(description: "Released on 2020-11-04. All issues associated with this milestone can be found using this [filter](https://github.com/Alamofire/Alamofire/milestone/74?closed=1).\r\n\r\n#### Added\r\n- `URLResponseSerializer` and attendant convenience methods so downloads can produce a non-optional `URL`.\r\n  - Added by[Jon Shier](https://github.com/jshier) in Pull Request [#3343](https://github.com/Alamofire/Alamofire/pull/3343).\r\n\r\n#### Updated\r\n- Handing of `file://` `URL`s, removing error added in 5.3.0 and adding support for `DownloadRequest`.\r\n  - Updated by [Jon Shier](https://github.com/jshier) in Pull Request [#3342](https://github.com/Alamofire/Alamofire/pull/3342).",
-                            descriptionHTML: "<p>Released on 2020-11-04. All issues associated with this milestone can be found using this <a href=\"https://github.com/Alamofire/Alamofire/milestone/74?closed=1\">filter</a>.</p>\n<h4>Added</h4>\n<ul>\n<li><code>URLResponseSerializer</code> and attendant convenience methods so downloads can produce a non-optional <code>URL</code>.\n<ul>\n<li>Added by<a href=\"https://github.com/jshier\">Jon Shier</a> in Pull Request <a href=\"https://github.com/Alamofire/Alamofire/pull/3343\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/Alamofire/Alamofire/pull/3343/hovercard\">#3343</a>.</li>\n</ul>\n</li>\n</ul>\n<h4>Updated</h4>\n<ul>\n<li>Handing of <code>file://</code> <code>URL</code>s, removing error added in 5.3.0 and adding support for <code>DownloadRequest</code>.\n<ul>\n<li>Updated by <a href=\"https://github.com/jshier\">Jon Shier</a> in Pull Request <a href=\"https://github.com/Alamofire/Alamofire/pull/3342\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/Alamofire/Alamofire/pull/3342/hovercard\">#3342</a>.</li>\n</ul>\n</li>\n</ul>",
-                              isDraft: false,
-                              publishedAt: iso8601.date(from: "2020-11-04T21:40:10Z")!,
-                              tagName: "5.4.0",
-                              url: "https://github.com/Alamofire/Alamofire/releases/tag/5.4.0")
+            .init(description: "Released on 2020-04-21. All issues associated with this milestone can be found using this [filter](https://github.com/Alamofire/Alamofire/milestone/77?closed=1).\r\n\r\n#### Fixed\r\n- Change in multipart upload creation order.\r\n  - Fixed by [Christian Noon](https://github.com/cnoon) in Pull Request [#3438](https://github.com/Alamofire/Alamofire/pull/3438).\r\n- Typo in Alamofire 5 migration guide.\r\n  - Fixed by [DevYeom](https://github.com/DevYeom) in Pull Request [#3431](https://github.com/Alamofire/Alamofire/pull/3431).",
+                  descriptionHTML: "<p>mock descriptionHTML</>",
+                  isDraft: false,
+                  publishedAt: iso8601.date(from: "2021-04-22T02:50:05Z")!,
+                  tagName: "5.4.3",
+                  url: "https://github.com/Alamofire/Alamofire/releases/tag/5.4.3")
         ))
-        XCTAssertEqual(res.repository?.stargazerCount, 34720)
+        XCTAssertEqual(res.repository?.repositoryTopics.totalCount, 15)
+        XCTAssertEqual(res.repository?.repositoryTopics.nodes.first?.topic.name,
+                       "networking")
+        XCTAssertEqual(res.repository?.stargazerCount, 35831)
         XCTAssertEqual(res.repository?.isInOrganization, true)
         // derived properties
         XCTAssertEqual(res.repository?.lastIssueClosedAt,
-                       iso8601.date(from: "2020-11-24T16:00:07Z"))
+                       iso8601.date(from: "2021-06-09T00:59:39Z"))
         // merged date is latest - expect that one to be reported back
         XCTAssertEqual(res.repository?.lastPullRequestClosedAt,
-                       iso8601.date(from: "2020-11-04T21:27:43Z"))
+                       iso8601.date(from: "2021-06-07T22:47:01Z"))
     }
 
     func test_fetchMetadata_badRequest() throws {

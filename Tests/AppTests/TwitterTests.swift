@@ -104,9 +104,9 @@ class TwitterTests: AppTestCase {
         let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
-                       summary: "This is a test package",
                        name: "repoName",
-                       owner: "owner").save(on: app.db).wait()
+                       owner: "owner",
+                       summary: "This is a test package").save(on: app.db).wait()
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try version.save(on: app.db).wait()
 
@@ -126,9 +126,9 @@ class TwitterTests: AppTestCase {
         let pkg = Package(url: "1".asGithubUrl.url, status: .new)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
-                       summary: "This is a test package",
                        name: "repoName",
-                       owner: "owner").save(on: app.db).wait()
+                       owner: "owner",
+                       summary: "This is a test package").save(on: app.db).wait()
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try version.save(on: app.db).wait()
 
@@ -149,9 +149,9 @@ class TwitterTests: AppTestCase {
         let pkg = Package(url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
-                       summary: "This is a test package",
                        name: "repoName",
-                       owner: "repoOwner").save(on: app.db).wait()
+                       owner: "repoOwner",
+                       summary: "This is a test package").save(on: app.db).wait()
         let v1 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try v1.save(on: app.db).wait()
         let v2 = try Version(package: pkg,
@@ -188,9 +188,9 @@ class TwitterTests: AppTestCase {
         let pkg = Package(url: "1".asGithubUrl.url, status: .ok)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
-                       summary: "This is a test package",
                        name: "repoName",
-                       owner: "repoOwner").save(on: app.db).wait()
+                       owner: "repoOwner",
+                       summary: "This is a test package").save(on: app.db).wait()
         let v1 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try v1.save(on: app.db).wait()
         let v2 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0))
@@ -307,9 +307,9 @@ class TwitterTests: AppTestCase {
         let pkg = Package(url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg,
-                       summary: "This is a test package",
                        name: "repoName",
-                       owner: "repoOwner").save(on: app.db).wait()
+                       owner: "repoOwner",
+                       summary: "This is a test package").save(on: app.db).wait()
         let v = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try v.save(on: app.db).wait()
         Current.twitterCredentials = {
