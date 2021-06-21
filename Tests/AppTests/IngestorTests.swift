@@ -116,7 +116,7 @@ class IngestorTests: AppTestCase {
                                       tagName: "1.2.3",
                                       url: "https://example.com/1.2.3")
                             ],
-                            repositoryTopics: ["foo", "bar"],
+                            repositoryTopics: ["foo", "bar", "Bar", "baz"],
                             name: "bar",
                             stars: 2,
                             summary: "package desc",
@@ -160,7 +160,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.name, "bar")
         XCTAssertEqual(repo.stars, 2)
         XCTAssertEqual(repo.summary, "package desc")
-        XCTAssertEqual(repo.topics, ["foo", "bar"])
+        XCTAssertEqual(repo.topics, ["bar", "baz", "foo"])
     }
     
     func test_updatePackage() throws {
