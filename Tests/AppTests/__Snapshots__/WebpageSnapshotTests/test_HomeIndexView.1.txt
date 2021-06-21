@@ -59,6 +59,7 @@
     <section class="search home">
       <div class="inner">
         <h3>The place to find Swift packages.</h3>
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","potentialAction":{"@context":"https://schema.org","@type":"SearchAction","query-input":"required name=search_term_string","target":{"@context":"https://schema.org","@type":"EntryPoint","urlTemplate":"http://localhost:8080/search?query=%7Bsearch_term_string%7D"}},"url":"http://localhost:8080/"}</script>
         <form action="/search">
           <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false" data-focus="true"/>
           <button type="submit">

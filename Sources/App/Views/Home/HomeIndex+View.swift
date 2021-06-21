@@ -41,6 +41,7 @@ enum HomeIndex {
                     .div(
                         .class("inner"),
                         .h3("The place to find Swift packages."),
+                        .structuredData(IndexSchema()),
                         .searchForm(),
                         .unwrap(model.statsClause()) { $0 }
                     )
