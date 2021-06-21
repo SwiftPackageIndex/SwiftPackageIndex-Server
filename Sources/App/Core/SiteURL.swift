@@ -259,8 +259,8 @@ extension Resourceable {
         "\(SiteURL.absoluteURL(path))" + (anchor.map { "#\($0)" } ?? "")
     }
     
-    func absoluteURL(parameters: [QueryParameter]) -> String {
-        "\(SiteURL.absoluteURL(path))\(parameters.queryString())"
+    func absoluteURL(parameters: [QueryParameter], encodeParameters: Bool = true) -> String {
+        "\(SiteURL.absoluteURL(path))\(parameters.queryString(encoded: encodeParameters))"
     }
     
     func relativeURL(anchor: String? = nil) -> String {
@@ -301,5 +301,9 @@ struct QueryParameter {
         let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         return "\(encodedKey)=\(encodedValue)"
+    }
+    
+    var unencodedQueryString: String {
+        return "\(key)=\(value)"
     }
 }

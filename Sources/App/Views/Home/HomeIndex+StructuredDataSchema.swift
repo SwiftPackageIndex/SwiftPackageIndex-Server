@@ -20,7 +20,7 @@ extension HomeIndex {
                 target: .init(
                     urlTemplate: SiteURL.search.absoluteURL(parameters: [
                         .init(key: "query", value: "{search_term_string}")
-                    ])
+                    ], encodeParameters: false)
                 ),
                 queryInput: "required name=search_term_string"
             )
