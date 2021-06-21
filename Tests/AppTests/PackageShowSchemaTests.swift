@@ -13,7 +13,8 @@ class PackageShowSchemaTests: SnapshotTestCase {
             version: "Version",
             repositoryUrl: "URL",
             dateCreated: Date(timeIntervalSince1970: 0),
-            dateModified: Date(timeIntervalSinceReferenceDate: 0)
+            dateModified: Date(timeIntervalSinceReferenceDate: 0),
+            keywords: ["foo", "bar", "baz"]
         )
         
         XCTAssertEqual(schema.context, "https://schema.org")
@@ -27,6 +28,7 @@ class PackageShowSchemaTests: SnapshotTestCase {
         XCTAssertEqual(schema.url, "http://localhost:8080/Owner/Name")
         XCTAssertEqual(schema.dateCreated, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(schema.dateModified, Date(timeIntervalSinceReferenceDate: 0))
+        XCTAssertEqual(schema.keywords, ["foo", "bar", "baz"])
         
         XCTAssertEqual(schema.sourceOrganization.type, "Organization")
         XCTAssertEqual(schema.sourceOrganization.legalName, "OrganisationName")
