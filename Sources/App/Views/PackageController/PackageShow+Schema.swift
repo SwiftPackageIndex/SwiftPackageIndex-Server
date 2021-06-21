@@ -1,5 +1,10 @@
 import Foundation
 
+protocol StructuredDataSchema: Encodable {
+    var context: String { get }
+    var type: String { get }
+}
+
 extension PackageShow {
     
     struct PackageSchema: StructuredDataSchema {

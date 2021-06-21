@@ -1,11 +1,6 @@
 import Foundation
 import Plot
 
-protocol StructuredDataSchema: Encodable {
-    var context: String { get }
-    var type: String { get }
-}
-
 extension Node where Context: HTML.BodyContext {
     static func turboFrame(id: String, source: String? = nil, _ nodes: Node<HTML.BodyContext>...) -> Self {
         let attributes: [Node<HTML.BodyContext>] = [
