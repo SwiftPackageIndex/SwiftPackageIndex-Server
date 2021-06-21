@@ -1,18 +1,13 @@
 import Foundation
 
-protocol StructuredDataSchema: Encodable {
-    var context: String { get }
-    var type: String { get }
-}
-
 extension PackageShow {
     
-    struct PackageSchema: StructuredDataSchema {
+    struct PackageSchema: Encodable {
         enum CodingKeys: String, CodingKey {
             case context = "@context", type = "@type"
             case identifier, name, description, license, version,
                  codeRepository, url, dateCreated, dateModified,
-                 programmingLanguage
+                 sourceOrganization, programmingLanguage
         }
         
         var context: String = "https://schema.org"
@@ -77,7 +72,7 @@ extension PackageShow {
         }
     }
     
-    struct OrganisationSchema: StructuredDataSchema {
+    struct OrganisationSchema: Encodable {
         enum CodingKeys: String, CodingKey {
             case context = "@context", type = "@type"
             case legalName
@@ -93,7 +88,7 @@ extension PackageShow {
         }
     }
     
-    struct ComputerLanguageSchema: StructuredDataSchema {
+    struct ComputerLanguageSchema: Encodable {
         enum CodingKeys: String, CodingKey {
             case context = "@context", type = "@type"
             case name, url

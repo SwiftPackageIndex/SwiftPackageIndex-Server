@@ -10,7 +10,7 @@ extension Node where Context: HTML.BodyContext {
         return .element(named: "turbo-frame", nodes: attributes + nodes)
     }
 
-    static func structuredData<T>(_ model: T) -> Node<HTML.BodyContext> where T: StructuredDataSchema {
+    static func structuredData<T>(_ model: T) -> Node<HTML.BodyContext> where T: Encodable {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = [ .sortedKeys, .withoutEscapingSlashes ]
