@@ -2,7 +2,7 @@ import Foundation
 
 extension PackageShow {
     
-    struct PackageSchema: Schema {
+    struct PackageSchema: StructuredDataSchema {
         enum CodingKeys: String, CodingKey {
             case context = "@context", type = "@type"
             case identifier, name, description, license, version,
@@ -72,7 +72,7 @@ extension PackageShow {
         }
     }
     
-    struct OrganisationSchema: Schema {
+    struct OrganisationSchema: StructuredDataSchema {
         enum CodingKeys: String, CodingKey {
             case context = "@context", type = "@type"
             case legalName
@@ -88,7 +88,7 @@ extension PackageShow {
         }
     }
     
-    struct ComputerLanguageSchema: Schema {
+    struct ComputerLanguageSchema: StructuredDataSchema {
         enum CodingKeys: String, CodingKey {
             case context = "@context", type = "@type"
             case name, url
