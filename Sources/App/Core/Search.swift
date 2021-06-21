@@ -8,14 +8,23 @@ enum Search {
     
     // identifiers
     static let id = SQLIdentifier("id")
+    static let keywords = SQLIdentifier("keywords")
     static let packageName = SQLIdentifier("package_name")
     static let repoName = SQLIdentifier("name")
     static let repoOwner = SQLIdentifier("owner")
     static let summary = SQLIdentifier("summary")
     static let score = SQLIdentifier("score")
     static let searchView = SQLIdentifier("search")
-    static let packageMatch = SQLAlias(SQLRaw("'package'"),
-                                       as: SQLIdentifier("match_type"))
+    static let null = SQLRaw("NULL")
+
+    enum MatchType: String {
+        case package
+        case keyword
+
+        var sqlAlias: SQLAlias {
+            SQLAlias(SQLRaw("'\(rawValue)'"), as: SQLIdentifier("match_type"))
+        }
+    }
 
     struct Result: Content, Equatable {
         var hasMoreResults: Bool
@@ -100,7 +109,7 @@ enum Search {
 
         let preamble = db
             .select()
-            .column(packageMatch)
+            .column(.package)
             .column(id)
             .column(packageName)
             .column(repoName)
@@ -117,6 +126,28 @@ enum Search {
             .orderBy(packageName, SQLDirection.ascending)
             .offset(offset)
             .limit(limit)
+            .select
+    }
+
+    static func keywordMatchQuery(on database: Database,
+                                  terms: [String]) -> SQLSelect {
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+        let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
+        // FIXME: bookend with `%`
+
+        return db
+            .select()
+            .column(.keyword)
+            .column(null)
+            .column(null)
+            .column(null)
+            .column(null)
+            .column(null)
+            .column(null)
+            .from(searchView)
+            .where(mergedTerms, .like, SQLFunction("ANY", args: keywords))
             .select
     }
 
@@ -183,5 +214,9 @@ private extension SQLSelectBuilder {
     // (should be SQLDirection)
     func orderBy(_ expression: SQLExpression, _ direction: SQLDirection = .ascending) -> Self {
         return self.orderBy(SQLOrderBy(expression: expression, direction: direction))
+    }
+
+    func column(_ matchType: Search.MatchType) -> Self {
+        column(matchType.sqlAlias)
     }
 }
