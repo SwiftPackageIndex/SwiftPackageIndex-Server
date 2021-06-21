@@ -19,6 +19,10 @@ enum HomeIndex {
             """
         }
         
+        override func bodyComments() -> Node<HTML.BodyContext> {
+            .structuredData(IndexSchema())
+        }
+        
         override func noScript() -> Node<HTML.BodyContext> {
             .noscript(
                 .p("The search function of this site requires JavaScript.")
@@ -41,7 +45,6 @@ enum HomeIndex {
                     .div(
                         .class("inner"),
                         .h3("The place to find Swift packages."),
-                        .structuredData(IndexSchema()),
                         .searchForm(),
                         .unwrap(model.statsClause()) { $0 }
                     )
