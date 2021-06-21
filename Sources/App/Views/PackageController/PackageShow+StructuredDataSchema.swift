@@ -7,7 +7,7 @@ extension PackageShow {
             case context = "@context", type = "@type"
             case identifier, name, description, license, version,
                  codeRepository, url, dateCreated, dateModified,
-                 sourceOrganization, programmingLanguage
+                 sourceOrganization, programmingLanguage, keywords
         }
         
         var context: String = "https://schema.org"
@@ -24,6 +24,7 @@ extension PackageShow {
         let dateModified: Date?
         let sourceOrganization: OrganisationSchema
         let programmingLanguage: ComputerLanguageSchema
+        let keywords: [String]
         
         init(
             repositoryOwner: String,
@@ -34,7 +35,8 @@ extension PackageShow {
             version: String?,
             repositoryUrl: String,
             dateCreated: Date?,
-            dateModified: Date?
+            dateModified: Date?,
+            keywords: [String]
         ) {
             self.identifier = "\(repositoryOwner)/\(repositoryName)"
             self.name = repositoryName
@@ -47,6 +49,7 @@ extension PackageShow {
             self.dateModified = dateModified
             self.sourceOrganization = OrganisationSchema(legalName: organisationName ?? repositoryOwner)
             self.programmingLanguage = ComputerLanguageSchema(name: "Swift", url: "https://swift.org/")
+            self.keywords = keywords
         }
         
         init?(package: Package) {
@@ -67,7 +70,8 @@ extension PackageShow {
                 version: package.releaseInfo().stable?.link.label,
                 repositoryUrl: package.url.droppingGitExtension,
                 dateCreated: repository.firstCommitDate,
-                dateModified: repository.lastCommitDate
+                dateModified: repository.lastCommitDate,
+                keywords: repository.keywords
             )
         }
     }
