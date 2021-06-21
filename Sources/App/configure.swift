@@ -135,7 +135,7 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateRecentReleases6())
     }
     do {  // Migration 030 - add repositories.topics
-        app.migrations.add(UpdateRepositoryAddTopics())
+        app.migrations.add(UpdateRepositoryAddKeywords())
     }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")

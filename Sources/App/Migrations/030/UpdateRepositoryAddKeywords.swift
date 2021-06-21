@@ -1,16 +1,16 @@
 import Fluent
 
 
-struct UpdateRepositoryAddTopics: Migration {
+struct UpdateRepositoryAddKeywords: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         database.schema("repositories")
-            .field("topics", .array(of: .string), .sql(.default("{}")))
+            .field("keywords", .array(of: .string), .sql(.default("{}")))
             .update()
     }
 
     func revert(on database: Database) -> EventLoopFuture<Void> {
         database.schema("repositories")
-            .deleteField("topics")
+            .deleteField("keywords")
             .update()
     }
 }

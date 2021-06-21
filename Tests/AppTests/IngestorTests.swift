@@ -138,6 +138,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.defaultBranch, "main")
         XCTAssertEqual(repo.forks, 1)
         XCTAssertEqual(repo.isInOrganization, true)
+        XCTAssertEqual(repo.keywords, ["bar", "baz", "foo"])
         XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 2))
         XCTAssertEqual(repo.lastPullRequestClosedAt, Date(timeIntervalSince1970: 3))
         XCTAssertEqual(repo.license, .mit)
@@ -160,7 +161,6 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.name, "bar")
         XCTAssertEqual(repo.stars, 2)
         XCTAssertEqual(repo.summary, "package desc")
-        XCTAssertEqual(repo.topics, ["bar", "baz", "foo"])
     }
     
     func test_updatePackage() throws {

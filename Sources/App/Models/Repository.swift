@@ -49,15 +49,18 @@ final class Repository: Model, Content {
     @Field(key: "is_in_organization")
     var isInOrganization: Bool?
 
+    @Field(key: "keywords")
+    var keywords: [String]
+
     @Field(key: "last_commit_date")
     var lastCommitDate: Date?
-    
+
     @Field(key: "last_issue_closed_at")
     var lastIssueClosedAt: Date?
-    
+
     @Field(key: "last_pull_request_closed_at")
     var lastPullRequestClosedAt: Date?
-    
+
     @Field(key: "license")
     var license: License
 
@@ -66,13 +69,13 @@ final class Repository: Model, Content {
 
     @Field(key: "name")
     var name: String?
-    
+
     @Field(key: "open_issues")
     var openIssues: Int?
-    
+
     @Field(key: "open_pull_requests")
     var openPullRequests: Int?
-    
+
     @Field(key: "owner")
     var owner: String?
 
@@ -81,7 +84,7 @@ final class Repository: Model, Content {
 
     @Field(key: "owner_avatar_url")
     var ownerAvatarUrl: String?
-    
+
     @Field(key: "readme_url")
     var readmeUrl: String?
 
@@ -97,9 +100,6 @@ final class Repository: Model, Content {
     @Field(key: "summary")
     var summary: String?
 
-    @Field(key: "topics")
-    var topics: [String]
-
     // initializers
     
     init() { }
@@ -114,6 +114,7 @@ final class Repository: Model, Content {
          forkedFrom: Repository? = nil,
          isArchived: Bool? = nil,
          isInOrganization: Bool? = nil,
+         keywords: [String] = [],
          lastCommitDate: Date? = nil,
          lastIssueClosedAt: Date? = nil,
          lastPullRequestClosedAt: Date? = nil,
@@ -129,8 +130,7 @@ final class Repository: Model, Content {
          readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
          stars: Int? = nil,
-         summary: String? = nil,
-         topics: [String] = []
+         summary: String? = nil
     ) throws {
         self.id = id
         self.$package.id = try package.requireID()
@@ -144,6 +144,7 @@ final class Repository: Model, Content {
         }
         self.isArchived = isArchived
         self.isInOrganization = isInOrganization
+        self.keywords = keywords
         self.lastCommitDate = lastCommitDate
         self.lastIssueClosedAt = lastIssueClosedAt
         self.lastPullRequestClosedAt = lastPullRequestClosedAt
@@ -160,7 +161,6 @@ final class Repository: Model, Content {
         self.readmeHtmlUrl = readmeHtmlUrl
         self.releases = releases
         self.stars = stars
-        self.topics = topics
     }
     
     init(packageId: Package.Id) {

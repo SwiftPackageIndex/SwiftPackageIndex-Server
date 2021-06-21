@@ -201,7 +201,7 @@ func insertOrUpdateRepository(on database: Database,
                 .map(Release.init(from:)) ?? []
             repo.stars = repository.stargazerCount
             repo.summary = repository.description
-            repo.topics = Set(repository.topics.map { $0.lowercased() }).sorted()
+            repo.keywords = Set(repository.topics.map { $0.lowercased() }).sorted()
             return repo.save(on: database)
         }
 }
