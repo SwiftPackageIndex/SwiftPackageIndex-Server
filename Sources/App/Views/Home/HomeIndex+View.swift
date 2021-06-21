@@ -19,7 +19,7 @@ enum HomeIndex {
             """
         }
         
-        override func bodyComments() -> Node<HTML.BodyContext> {
+        override func postBody() -> Node<HTML.BodyContext> {
             .structuredData(IndexSchema())
         }
         
