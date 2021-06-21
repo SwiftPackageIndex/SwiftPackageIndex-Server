@@ -78,7 +78,7 @@ enum Search {
     static func packageMatchQuery(on database: Database,
                                   terms: [String],
                                   offset: Int? = nil,
-                                  limit: Int? = nil) -> SQLSelect? {
+                                  limit: Int? = nil) -> SQLSelect {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
@@ -86,16 +86,8 @@ enum Search {
         let maxSearchTerms = 20  // just to impose some sort of limit
 
         // binds
-        let sanitizedTerms = sanitize(terms)
-        guard !sanitizedTerms.isEmpty else {
-            return nil
-        }
-        let mergedTerms = SQLBind(
-            sanitizedTerms.joined(separator: " ").lowercased()
-        )
-        let binds = sanitizedTerms[
-            ..<min(sanitizedTerms.count, maxSearchTerms)
-        ].map(SQLBind.init)
+        let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
+        let binds = terms[..<min(terms.count, maxSearchTerms)].map(SQLBind.init)
 
         // constants
         let empty = SQLLiteral.string("")
@@ -136,16 +128,19 @@ enum Search {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
+        let sanitizedTerms = sanitize(terms)
+        guard !sanitizedTerms.isEmpty else {
+            return nil
+        }
+
         // page is one-based, clamp it to 0-based offset
         let offset = ((page - 1) * pageSize).clamped(to: 0...)
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
 
-        guard let inner = packageMatchQuery(on: database,
-                                            terms: terms,
-                                            offset: offset,
-                                            limit: limit) else {
-            return nil
-        }
+        let inner = packageMatchQuery(on: database,
+                                      terms: sanitizedTerms,
+                                      offset: offset,
+                                      limit: limit)
 
         return db.select()
             .column("*")
