@@ -40,7 +40,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
     }
     
     func test_PackageShowView() throws {
-        let page = { PackageShow.View(path: "", model: .mock).document() }
+        let page = { PackageShow.View(path: "", model: .mock, packageSchema: .mock).document() }
         
         assertSnapshot(matching: page, as: .html)
         
@@ -61,7 +61,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         var model = PackageShow.Model.mock
         model.summary = ":package: Nothing but Cache. :octocat:"
         
-        let page = { PackageShow.View(path: "", model: model).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         
         assertSnapshot(matching: page, as: .html)
         
@@ -83,7 +83,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         model.license = .mit
         model.licenseUrl = "https://example.com/license.html"
 
-        let page = { PackageShow.View(path: "", model: model).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
@@ -104,7 +104,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         model.license = .gpl_3_0
         model.licenseUrl = "https://example.com/license.html"
 
-        let page = { PackageShow.View(path: "", model: model).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
@@ -125,7 +125,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         model.license = .other
         model.licenseUrl = "https://example.com/license.html"
 
-        let page = { PackageShow.View(path: "", model: model).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
@@ -146,7 +146,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         model.license = .none
         model.licenseUrl = nil
 
-        let page = { PackageShow.View(path: "", model: model).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
@@ -168,7 +168,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         var model = PackageShow.Model.mock
         model.authors = nil
         model.activity = nil
-        let page = { PackageShow.View(path: "", model: model).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         
         assertSnapshot(matching: page, as: .html)
         
@@ -217,7 +217,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                 latest: .init(referenceName: "main", results: compatible)
             )
         }
-        let page = { PackageShow.View(path: "", model: model).document() }
+        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         
         assertSnapshot(matching: page, as: .html)
         

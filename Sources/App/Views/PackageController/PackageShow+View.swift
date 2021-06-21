@@ -7,9 +7,11 @@ enum PackageShow {
     class View: PublicPage {
         
         let model: Model
+        let packageSchema: PackageSchema?
 
-        init(path: String, model: Model) {
+        init(path: String, model: Model, packageSchema: PackageSchema?) {
             self.model = model
+            self.packageSchema = packageSchema
             super.init(path: path)
         }
         
@@ -32,7 +34,10 @@ enum PackageShow {
         override func bodyComments() -> Node<HTML.BodyContext> {
             .group(
                 .comment(model.packageId.uuidString),
-                .comment(model.score.map(String.init) ?? "unknown")
+                .comment(model.score.map(String.init) ?? "unknown"),
+                .unwrap(packageSchema) {
+                    .structuredData($0)
+                }
             )
         }
         
