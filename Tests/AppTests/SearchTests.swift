@@ -64,13 +64,13 @@ class SearchTests: AppTestCase {
 
     func test_keywordMatchQuery_single_term() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", NULL, NULL, NULL, NULL, NULL, NULL FROM "search" WHERE $1 LIKE ANY("keywords")"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", NULL AS "id", NULL AS "package_name", NULL AS "name", NULL AS "owner", NULL AS "summary", NULL AS "keywords" FROM "search" WHERE $1 LIKE ANY("keywords")"#)
         XCTAssertEqual(binds(b), ["a"])
     }
 
     func test_keywordMatchQuery_multiple_terms() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", NULL, NULL, NULL, NULL, NULL, NULL FROM "search" WHERE $1 LIKE ANY("keywords")"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", NULL AS "id", NULL AS "package_name", NULL AS "name", NULL AS "owner", NULL AS "summary", NULL AS "keywords" FROM "search" WHERE $1 LIKE ANY("keywords")"#)
         XCTAssertEqual(binds(b), ["a b"])
     }
 

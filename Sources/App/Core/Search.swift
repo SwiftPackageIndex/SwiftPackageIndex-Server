@@ -143,12 +143,12 @@ enum Search {
         return db
             .select()
             .column(.keyword)
-            .column(null)
-            .column(null)
-            .column(null)
-            .column(null)
-            .column(null)
-            .column(null)
+            .column(null, as: id)
+            .column(null, as: packageName)
+            .column(null, as: repoName)
+            .column(null, as: repoOwner)
+            .column(null, as: summary)
+            .column(null, as: keywords)
             .from(searchView)
             .where(mergedTerms, .like, SQLFunction("ANY", args: keywords))
     }
@@ -221,5 +221,9 @@ private extension SQLSelectBuilder {
 
     func column(_ matchType: Search.MatchType) -> Self {
         column(matchType.sqlAlias)
+    }
+
+    func column(_ expression: SQLExpression, as alias: SQLExpression) -> Self {
+        column(SQLAlias(expression, as: alias))
     }
 }
