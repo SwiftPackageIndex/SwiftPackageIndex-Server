@@ -118,6 +118,7 @@ enum Search {
             .column(repoName)
             .column(repoOwner)
             .column(summary)
+            .column(keywords)
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }

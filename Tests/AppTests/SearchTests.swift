@@ -52,13 +52,13 @@ class SearchTests: AppTestCase {
 
     func test_packageMatchQuery_single_term() throws {
         let q = Search.packageMatchQuery(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(q), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
+        XCTAssertEqual(renderSQL(q), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary", "keywords" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(q), ["a", "a"])
     }
 
     func test_packageMatchQuery_multiple_terms() throws {
         let q = Search.packageMatchQuery(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(q), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
+        XCTAssertEqual(renderSQL(q), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary", "keywords" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(q), ["a", "b", "a b"])
     }
 
