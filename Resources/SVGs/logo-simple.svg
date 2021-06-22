@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512px" height="512px" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Logo Simple</title>
+    <defs>
+        <filter x="-5.3%" y="-5.3%" width="110.6%" height="110.6%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="3" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.303840691 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+        <linearGradient x1="100%" y1="0%" x2="0%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#F88A36" offset="0%"></stop>
+            <stop stop-color="#FD2020" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
+            <stop stop-color="#F88A36" offset="0%"></stop>
+            <stop stop-color="#FD2020" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Logo-Simple" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Boxes" filter="url(#filter-1)" transform="translate(16.000000, 16.000000)" fill="#FDFAFA" stroke="url(#linearGradient-2)" stroke-width="10">
+            <rect id="Box-5" transform="translate(240.000000, 240.000000) rotate(-300.000000) translate(-240.000000, -240.000000) " x="70" y="70" width="340" height="340"></rect>
+            <rect id="Box-3" transform="translate(240.000000, 240.000000) rotate(-330.000000) translate(-240.000000, -240.000000) " x="70" y="70" width="340" height="340"></rect>
+            <rect id="Box-1-(Frontmost)" x="70" y="70" width="340" height="340"></rect>
+        </g>
+        <path d="M296.103605,323.6154 C272.66263,337.208055 240.431918,338.60463 208.00532,324.654008 C181.750123,313.441076 159.965135,293.813403 146,271.387538 C152.703305,276.994004 160.52366,281.481194 168.90254,285.403704 C202.389934,301.159285 235.870295,300.080343 259.431815,285.444038 C259.416747,285.428912 259.406701,285.418829 259.396656,285.403704 C225.880131,259.609926 197.391336,225.966088 176.165375,198.493395 C171.694663,194.007214 168.343011,188.399739 164.991358,183.353416 C190.687026,206.903599 231.466888,236.619886 245.987535,245.034627 C215.268657,212.510065 187.894903,172.140484 189.009944,173.25976 C237.609659,222.60372 282.859228,250.641093 282.859228,250.641093 C284.355995,251.488113 285.511218,252.193963 286.440418,252.824186 C287.419846,250.32346 288.278729,247.72694 289.001999,245.034627 C296.822354,216.437616 287.886958,183.913054 268.333559,157 C313.578105,184.475213 340.394339,236.060247 329.218816,279.238103 C328.927499,280.402756 328.611068,281.552283 328.269524,282.681643 C328.400114,282.837939 328.530705,282.999276 328.661295,283.165655 C351.002297,311.203027 344.859526,340.919314 342.066901,335.312848 C329.947108,311.505534 307.510675,318.785873 296.104107,323.615904 L296.103605,323.6154 Z" id="Swift-Bird" fill="url(#linearGradient-3)" fill-rule="nonzero"></path>
+    </g>
+</svg>
