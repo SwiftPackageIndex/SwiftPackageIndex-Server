@@ -170,10 +170,10 @@ enum Search {
         let offset = ((page - 1) * pageSize).clamped(to: 0...)
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
 
-        let union = db.union(
+        let union = db.unionAll(
             keywordMatchQueryBuilder(on: database, terms: sanitizedTerms),
             packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
-                              offset: offset, limit: limit)
+                                     offset: offset, limit: limit)
         )
 
         return db.select()
