@@ -87,10 +87,10 @@ enum Search {
             .filter { !$0.isEmpty }
     }
 
-    static func packageMatchQuery(on database: Database,
-                                  terms: [String],
-                                  offset: Int? = nil,
-                                  limit: Int? = nil) -> SQLSelect {
+    static func packageMatchQueryBuilder(on database: Database,
+                                         terms: [String],
+                                         offset: Int? = nil,
+                                         limit: Int? = nil) -> SQLSelectBuilder {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
@@ -130,11 +130,10 @@ enum Search {
             .orderBy(packageName, SQLDirection.ascending)
             .offset(offset)
             .limit(limit)
-            .select
     }
 
-    static func keywordMatchQuery(on database: Database,
-                                  terms: [String]) -> SQLSelect {
+    static func keywordMatchQueryBuilder(on database: Database,
+                                         terms: [String]) -> SQLSelectBuilder {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
@@ -152,7 +151,6 @@ enum Search {
             .column(null)
             .from(searchView)
             .where(mergedTerms, .like, SQLFunction("ANY", args: keywords))
-            .select
     }
 
     static func query(_ database: Database,
@@ -172,15 +170,16 @@ enum Search {
         let offset = ((page - 1) * pageSize).clamped(to: 0...)
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
 
-        let inner = packageMatchQuery(on: database,
-                                      terms: sanitizedTerms,
-                                      offset: offset,
-                                      limit: limit)
+        let union = db.union(
+            keywordMatchQueryBuilder(on: database, terms: sanitizedTerms),
+            packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
+                              offset: offset, limit: limit)
+        )
 
         return db.select()
             .column("*")
             .from(
-                SQLAlias(SQLGroupExpression(inner), as: SQLIdentifier("t"))
+                SQLAlias(SQLGroupExpression(union.query), as: SQLIdentifier("t"))
             )
     }
 

@@ -26,10 +26,24 @@ class AppTestCase: XCTestCase {
 
 
 extension AppTestCase {
-    func renderSQL(_ query: SQLExpression?) -> String {
+    func renderSQL(_ query: SQLSelectBuilder?, resolveBinds: Bool = false) -> String {
+        renderSQL(query?.query, resolveBinds: resolveBinds)
+    }
+
+    func renderSQL(_ query: SQLExpression?, resolveBinds: Bool = false) -> String {
         var serializer = SQLSerializer(database: app.db as! SQLDatabase)
         query?.serialize(to: &serializer)
-        return serializer.sql
+        var sql = serializer.sql
+        if resolveBinds {
+            for (idx, bind) in binds(query).enumerated() {
+                sql = sql.replacingOccurrences(of: "$\(idx+1)", with: "'\(bind)'")
+            }
+        }
+        return sql
+    }
+
+    func binds(_ query: SQLSelectBuilder?) -> [String] {
+        binds(query?.query)
     }
 
     func binds(_ query: SQLExpression?) -> [String] {
