@@ -34,7 +34,7 @@ class PublicPage {
             .description(description()),
             .twitterCardType(.summary),
             .socialImageLink(SiteURL.images("logo.png").absoluteURL()),
-            .favicon(SiteURL.images("logo-simple.png").relativeURL()),
+            .favicon(SiteURL.images("logo-small.png").relativeURL()),
             .link(
                 .rel(.stylesheet),
                 .href(SiteURL.stylesheets("main").relativeURL() + "?\(resourceReloadQueryString())"),

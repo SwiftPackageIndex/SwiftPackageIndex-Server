@@ -102,7 +102,7 @@ extension Package {
     
     static private func loadSVGLogo() -> String? {
         let pathToFile = Current.fileManager.workingDirectory()
-            .appending("Resources/SVGs/logo-simple.svg")
+            .appending("Public/images/logo-tiny.svg")
         
         return try? String(contentsOfFile: pathToFile)
     }
