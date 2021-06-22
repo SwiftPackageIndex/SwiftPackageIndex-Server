@@ -479,7 +479,6 @@ class SearchTests: AppTestCase {
     }
 
     func test_search_topic() throws {
-        throw XCTSkip("WIP")
         // Test searching for a topic
         // setup
         // p1: decoy
