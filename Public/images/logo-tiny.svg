@@ -1,1 +1,30 @@
-<svg height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><filter id="a" height="110.3%" width="110.3%" x="-5.1%" y="-5.1%"><feOffset dx="0" dy="3" in="SourceAlpha" result="shadowOffsetOuter1"/><feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="5"/><feColorMatrix in="shadowBlurOuter1" result="shadowMatrixOuter1" type="matrix" values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.303840691 0"/><feMerge><feMergeNode in="shadowMatrixOuter1"/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="b"><stop offset="0" stop-color="#f88a36"/><stop offset="1" stop-color="#fd2020"/></linearGradient><linearGradient id="c" x1="100%" x2="0%" xlink:href="#b" y1="0%" y2="100%"/><linearGradient id="d" x1="50%" x2="50%" xlink:href="#b" y1="0%" y2="100%"/><g fill="none" fill-rule="evenodd"><g fill="#fdfafa" filter="url(#a)" stroke="url(#c)" stroke-width="10" transform="translate(8 8)"><path d="m78 78h340v340h-340z" transform="matrix(.70710678 .70710678 -.70710678 .70710678 248 -102.724963)"/><path d="m78 78h340v340h-340z"/></g><path d="m324.058289 364.042568c-35.927122 20.806634-85.325952 22.944408-135.025009 1.589824-40.240378-17.163929-73.62943-47.208524-95.03328-81.536384 10.27391 8.581965 22.259881 15.450624 35.101883 21.454913 51.3249 24.117482 102.639022 22.465917 138.750899.06174-.023095-.023152-.038491-.038588-.053887-.06174-51.369549-39.483213-95.03328-90.98272-127.565531-133.035891-6.852096-6.867116-11.989051-15.450624-17.126006-23.175164 39.382807 36.048883 101.884606 81.536384 124.139868 94.417049-47.081696-49.786201-89.036445-111.580979-87.327462-109.867673 74.487 75.532095 143.839355 118.449637 143.839355 118.449637 2.294039 1.296556 4.064606 2.377019 5.488758 3.341719 1.501134-3.827927 2.817512-7.802488 3.926041-11.923683 11.985972-43.774195-1.708982-93.560396-31.67776-134.756915 69.344657 42.05703 110.444915 121.019597 93.3166 187.113074-.446491 1.782765-.931473 3.542376-1.454945 5.271117.200151.239246.400302.486209.600454.740889 34.241233 42.917542 24.826434 88.405043 20.546279 79.823079-18.575561-36.442481-52.963059-25.298275-70.445487-17.904819z" fill="url(#d)" fill-rule="nonzero"/></g></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512px" height="512px" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Logo Tiny</title>
+    <defs>
+        <filter x="-5.1%" y="-5.1%" width="110.3%" height="110.3%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="3" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.303840691 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+        <linearGradient x1="100%" y1="0%" x2="0%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#F88A36" offset="0%"></stop>
+            <stop stop-color="#FD2020" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
+            <stop stop-color="#F88A36" offset="0%"></stop>
+            <stop stop-color="#FD2020" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Logo-Tiny" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Boxes" filter="url(#filter-1)" transform="translate(8.000000, 8.000000)" fill="#FDFAFA" stroke="url(#linearGradient-2)" stroke-width="10">
+            <rect id="Box-4" transform="translate(248.000000, 248.000000) rotate(-315.000000) translate(-248.000000, -248.000000) " x="78" y="78" width="340" height="340"></rect>
+            <rect id="Box-1-(Frontmost)" x="78" y="78" width="340" height="340"></rect>
+        </g>
+        <path d="M308.818078,342.501953 C279.487412,359.511757 239.158531,361.259426 198.584547,343.801664 C165.732566,329.769838 138.473963,305.207834 121,277.144182 C129.387553,284.160095 139.172821,289.775349 149.656947,294.683964 C191.558259,314.400446 233.450772,313.050261 262.932271,294.734438 C262.913417,294.715511 262.900848,294.702892 262.888278,294.683964 C220.950515,262.405717 185.303731,220.303931 158.744615,185.924696 C153.150609,180.310704 148.956833,173.293529 144.763056,166.978576 C176.914922,196.449196 227.940981,233.636058 246.110031,244.166237 C207.672843,203.465109 173.421261,152.94675 174.816463,154.347409 C235.627161,216.096276 292.245969,251.18215 292.245969,251.18215 C294.118808,252.242108 295.564287,253.125406 296.726956,253.914065 C297.952471,250.784665 299.027154,247.535389 299.93215,244.166237 C309.717418,208.380033 298.536948,167.678906 274.070634,134 C330.683157,168.38239 364.237138,232.935729 350.253694,286.968353 C349.889182,288.425795 349.493246,289.86431 349.065887,291.277587 C349.229289,291.473175 349.392691,291.675071 349.556093,291.883277 C377.510412,326.969151 369.824231,364.156013 366.329941,357.1401 C351.164975,327.347708 323.091247,336.4583 308.818707,342.502584 L308.818078,342.501953 Z" id="Swift-Bird" fill="url(#linearGradient-3)" fill-rule="nonzero"></path>
+    </g>
+</svg>
