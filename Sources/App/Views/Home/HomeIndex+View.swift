@@ -19,6 +19,10 @@ enum HomeIndex {
             """
         }
         
+        override func postBody() -> Node<HTML.BodyContext> {
+            .structuredData(IndexSchema())
+        }
+        
         override func noScript() -> Node<HTML.BodyContext> {
             .noscript(
                 .p("The search function of this site requires JavaScript.")

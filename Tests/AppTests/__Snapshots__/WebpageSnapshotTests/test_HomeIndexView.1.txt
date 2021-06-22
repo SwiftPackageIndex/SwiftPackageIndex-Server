@@ -173,5 +173,6 @@
       </div>
     </footer>
     <div class="staging">Staging / Development</div>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","potentialAction":{"@context":"https://schema.org","@type":"SearchAction","query-input":"required name=search_term_string","target":{"@context":"https://schema.org","@type":"EntryPoint","urlTemplate":"http://localhost:8080/search?query={search_term_string}"}},"url":"http://localhost:8080/"}</script>
   </body>
 </html>

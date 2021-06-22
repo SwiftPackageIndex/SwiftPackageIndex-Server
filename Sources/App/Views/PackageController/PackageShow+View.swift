@@ -34,11 +34,14 @@ enum PackageShow {
         override func bodyComments() -> Node<HTML.BodyContext> {
             .group(
                 .comment(model.packageId.uuidString),
-                .comment(model.score.map(String.init) ?? "unknown"),
-                .unwrap(packageSchema) {
-                    .structuredData($0)
-                }
+                .comment(model.score.map(String.init) ?? "unknown")
             )
+        }
+        
+        override func postBody() -> Node<HTML.BodyContext> {
+            .unwrap(packageSchema) {
+                .structuredData($0)
+            }
         }
         
         override func content() -> Node<HTML.BodyContext> {

@@ -183,6 +183,7 @@ class PublicPage {
     final func body() -> Node<HTML.DocumentContext> {
         .body(
             .class(bodyClass() ?? ""),
+            preBody(),
             bodyComments(),
             stagingBanner(),
             header(),
@@ -191,7 +192,8 @@ class PublicPage {
             main(),
             postMain(),
             footer(),
-            stagingBanner()
+            stagingBanner(),
+            postBody()
         )
     }
 
@@ -272,6 +274,18 @@ class PublicPage {
     /// Optional content that will be inserted in between the main content for the page and the page footer.
     /// - Returns: An optional element, or group of elements.
     func postMain() -> Node<HTML.BodyContext> {
+        .empty
+    }
+    
+    /// Optional content that will be inserted just after the start of the body.
+    /// - Returns: An optional element, or group of elements.
+    func preBody() -> Node<HTML.BodyContext> {
+        .empty
+    }
+    
+    /// Optional content that will be inserted just before the end of the body.
+    /// - Returns: An optional element, or group of elements.
+    func postBody() -> Node<HTML.BodyContext> {
         .empty
     }
     
