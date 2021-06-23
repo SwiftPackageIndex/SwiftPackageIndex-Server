@@ -109,6 +109,9 @@ enum Search {
         let haystack = concat(
             packageName, space, coalesce(summary, empty), space, repoName, space, repoOwner
         )
+        let orderBy = SQLOrderBy(eq(lower(packageName), mergedTerms), .descending)
+            .then(score, .descending)
+            .then(packageName, .ascending)
 
         let preamble = db
             .select()
@@ -119,15 +122,13 @@ enum Search {
             .column(repoOwner)
             .column(summary)
             .column(keywords)
+            .column(SQLFunction.rowNumber.over(orderBy: orderBy))
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(packageName))
             .where(isNotNull(repoOwner))
             .where(isNotNull(repoName))
-            .orderBy(eq(lower(packageName), mergedTerms), .descending)
-            .orderBy(score, SQLDirection.descending)
-            .orderBy(packageName, SQLDirection.ascending)
             .offset(offset)
             .limit(limit)
     }
@@ -225,5 +226,102 @@ private extension SQLSelectBuilder {
 
     func column(_ expression: SQLExpression, as alias: SQLExpression) -> Self {
         column(SQLAlias(expression, as: alias))
+    }
+}
+
+
+public struct SQLOver: SQLExpression {
+    public let windowFunction: SQLFunction
+    public let orderBy: SQLExpression?
+
+    public init(_ windowFunction: SQLFunction) {
+        self.windowFunction = windowFunction
+        self.orderBy = nil
+    }
+
+    public init(_ windowFunction: SQLFunction, orderBy: SQLOrderBy) {
+        self.windowFunction = windowFunction
+        self.orderBy = orderBy
+    }
+
+    public init(_ windowFunction: SQLFunction, orderBy: SQLOrderByGroup) {
+        self.windowFunction = windowFunction
+        self.orderBy = orderBy
+    }
+
+    public func serialize(to serializer: inout SQLSerializer) {
+        windowFunction.serialize(to: &serializer)
+        serializer.write(" OVER (")
+        if let expr = orderBy {
+            serializer.write("ORDER BY ")
+            expr.serialize(to: &serializer)
+        }
+        serializer.write(")")
+    }
+}
+
+
+extension SQLFunction {
+    func over(orderBy identifier: String, _ direction: SQLDirection = .ascending) -> SQLOver {
+        over(orderBy: SQLIdentifier(identifier), direction)
+    }
+
+    func over(orderBy expression: SQLExpression, _ direction: SQLDirection = .ascending) -> SQLOver {
+        over(orderBy: SQLOrderBy(expression, direction))
+    }
+
+    func over(orderBy expression: SQLOrderBy) -> SQLOver {
+        SQLOver(self, orderBy: expression)
+    }
+
+    func over(orderBy expression: SQLOrderByGroup) -> SQLOver {
+        SQLOver(self, orderBy: expression)
+    }
+
+    static var rowNumber: Self { .init("ROW_NUMBER") }
+}
+
+
+public struct SQLOrderByGroup: SQLExpression {
+    public let orderByClauses: [SQLOrderBy]
+
+    public init(_ orderby: SQLOrderBy...) {
+        self.orderByClauses = orderby
+    }
+
+    public init(_ orderby: [SQLOrderBy]) {
+        self.orderByClauses = orderby
+    }
+
+    public func serialize(to serializer: inout SQLSerializer) {
+        guard let first = orderByClauses.first else { return }
+        first.serialize(to: &serializer)
+        for clause in orderByClauses.dropFirst() {
+            serializer.write(", ")
+            clause.serialize(to: &serializer)
+        }
+    }
+
+    func then(_ expression: SQLExpression, _ direction: SQLDirection = .ascending) -> Self {
+        SQLOrderByGroup(orderByClauses + [SQLOrderBy(expression, direction)])
+    }
+
+    func then(_ expression: SQLOrderBy) -> Self {
+        SQLOrderByGroup(orderByClauses + [expression])
+    }
+}
+
+
+extension SQLOrderBy {
+    init(_ expression: SQLExpression, _ direction: SQLDirection) {
+        self.init(expression: expression, direction: direction)
+    }
+
+    func then(_ expression: SQLExpression, _ direction: SQLDirection = .ascending) -> SQLOrderByGroup {
+        SQLOrderByGroup([self, SQLOrderBy(expression, direction)])
+    }
+
+    func then(_ expression: SQLOrderBy) -> SQLOrderByGroup {
+        SQLOrderByGroup([self, expression])
     }
 }

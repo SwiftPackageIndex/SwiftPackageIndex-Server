@@ -50,16 +50,56 @@ class SearchTests: AppTestCase {
                        #"(SELECT "id" FROM "t1") UNION (SELECT "id" FROM "t2") UNION (SELECT "id" FROM "t3")"#)
     }
 
+    func test_over() throws {
+        let db = app.db as! SQLDatabase
+        let b = db.select()
+            .column(SQLFunction.rowNumber.over(orderBy: "id", .descending))
+            .from("test")
+        XCTAssertEqual(renderSQL(b),
+                       #"SELECT ROW_NUMBER() OVER (ORDER BY "id" DESC) FROM "test""#)
+    }
+
+    func test_OrderByGroup() throws {
+        let b = SQLOrderBy(SQLIdentifier("id"), .ascending)
+            .then(SQLIdentifier("foo"), .descending)
+        XCTAssertEqual(renderSQL(b), #""id" ASC, "foo" DESC"#)
+    }
+
+    func test_OrderByGroup_complex() throws {
+        let packageName = SQLIdentifier("package_name")
+        let mergedTerms = SQLBind("a b")
+        let score = SQLIdentifier("score")
+
+        let orderBy = SQLOrderBy(eq(lower(packageName), mergedTerms), .descending)
+            .then(score, .descending)
+            .then(packageName, .ascending)
+        XCTAssertEqual(renderSQL(orderBy),
+                       #"LOWER("package_name") = $1 DESC, "score" DESC, "package_name" ASC"#)
+    }
+
+    func test_over_complex() throws {
+        let packageName = SQLIdentifier("package_name")
+        let mergedTerms = SQLBind("a b")
+        let score = SQLIdentifier("score")
+
+        let orderBy = SQLOrderBy(eq(lower(packageName), mergedTerms), .descending)
+            .then(score, .descending)
+            .then(packageName, .ascending)
+        let over = SQLFunction.rowNumber.over(orderBy: orderBy)
+        XCTAssertEqual(renderSQL(over),
+                       #"ROW_NUMBER() OVER (ORDER BY LOWER("package_name") = $1 DESC, "score" DESC, "package_name" ASC)"#)
+    }
+
     func test_packageMatchQuery_single_term() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary", "keywords" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary", "keywords", ROW_NUMBER() OVER (ORDER BY LOWER("package_name") = $1 DESC, "score" DESC, "package_name" ASC) FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
         XCTAssertEqual(binds(b), ["a", "a"])
     }
 
     func test_packageMatchQuery_multiple_terms() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary", "keywords" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
-        XCTAssertEqual(binds(b), ["a", "b", "a b"])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary", "keywords", ROW_NUMBER() OVER (ORDER BY LOWER("package_name") = $1 DESC, "score" DESC, "package_name" ASC) FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $3 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
+        XCTAssertEqual(binds(b), ["a b", "a", "b"])
     }
 
     func test_keywordMatchQuery_single_term() throws {
@@ -92,7 +132,7 @@ class SearchTests: AppTestCase {
                 resolveBinds: true
             )
             XCTAssertEqual(renderSQL(query, resolveBinds: true),
-                           #"SELECT * FROM ((\#(keywords)) UNION (\#(packages))) AS "t""#)
+                           #"SELECT * FROM ((\#(keywords)) UNION (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC, "t.row_number""#)
         }
         do {  // multiple search terms
             // MUT
