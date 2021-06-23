@@ -39,11 +39,11 @@ extension SearchShow {
                 .section(
                     .class("results"),
                     .p(
-                        .if(model.result.results.count > 0, .text("Results for "), else: .text("No packages matched ")),
+                        .if(model.response.results.count > 0, .text("Results for "), else: .text("No packages matched ")),
                         .text("&ldquo;"),
                         .strong(.text(model.query)),
                         .text("&rdquo;"),
-                        .if(model.result.results.count > 0, .text("&hellip;"), else: .text("."))
+                        .if(model.response.results.count > 0, .text("&hellip;"), else: .text("."))
                     ),
                     .ul(
                         .id("package_list"),
@@ -51,7 +51,7 @@ extension SearchShow {
                         // also include navigation into and out of the query field.
                         .data(named: "focus-query-field", value: String(true)),
                         .group(
-                            model.result.results.map { result -> Node<HTML.ListContext> in
+                            model.response.results.map { result -> Node<HTML.ListContext> in
                                 .li(
                                     .a(
                                         .href(result.packageURL),
@@ -70,7 +70,7 @@ extension SearchShow {
                     .ul(
                         .class("pagination"),
                         .if(model.page > 1, .previousSearchPage(model: model)),
-                        .if(model.result.hasMoreResults, .nextSearchPage(model: model))
+                        .if(model.response.hasMoreResults, .nextSearchPage(model: model))
                     )
                 )
             )

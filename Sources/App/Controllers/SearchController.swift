@@ -12,7 +12,7 @@ struct SearchController {
                           query: query,
                           page: page,
                           pageSize: Constants.searchPageSize)
-            .map { SearchShow.Model.init(page: page, query: query, result: $0) }
+            .map { SearchShow.Model.init(page: page, query: query, response: $0) }
             .map { SearchShow.View.init(path: req.url.path, model: $0).document() }
     }
 

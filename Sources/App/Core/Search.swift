@@ -39,19 +39,11 @@ enum Search {
 
     struct Response: Content, Equatable {
         var hasMoreResults: Bool
-        var results: [Search.Record]
+        var results: [Search.Result]
     }
-    
-    struct Record: Content, Equatable {
-        var packageId: Package.Id?
-        var packageName: String?
-        var packageURL: String?
-        var repositoryName: String?
-        var repositoryOwner: String?
-        var summary: String?
-    }
-    
+
     struct DBRecord: Content, Equatable {
+        var keyword: String?
         var matchType: MatchType
         var packageId: Package.Id?
         var packageName: String?
@@ -60,6 +52,7 @@ enum Search {
         var summary: String?
         
         enum CodingKeys: String, CodingKey {
+            case keyword
             case matchType = "match_type"
             case packageId = "id"
             case packageName = "package_name"
@@ -74,15 +67,6 @@ enum Search {
                 let name = repositoryName
             else { return nil }
             return SiteURL.package(.value(owner), .value(name), .none).relativeURL()
-        }
-        
-        var asRecord: Record {
-            .init(packageId: packageId,
-                  packageName: packageName,
-                  packageURL: packageURL,
-                  repositoryName: repositoryName,
-                  repositoryOwner: repositoryOwner,
-                  summary: summary?.replaceShorthandEmojis())
         }
     }
 
@@ -211,7 +195,7 @@ enum Search {
                                                    results: []))
         }
         return query.all(decoding: DBRecord.self)
-            .mapEach(\.asRecord)
+            .mapEachCompact(Result.init)
             .map { results in
                 let hasMoreResults = results.count > pageSize
                 return Search.Response(hasMoreResults: hasMoreResults,

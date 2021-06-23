@@ -178,12 +178,14 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
                              results: [
-                                .init(packageId: try p2.requireID(),
-                                      packageName: "Bar",
-                                      packageURL: "/owner%202/name%202",
-                                      repositoryName: "name 2",
-                                      repositoryOwner: "owner 2",
-                                      summary: "bar package")
+                                .package(
+                                    .init(packageId: try p2.requireID(),
+                                          packageName: "Bar",
+                                          packageURL: "/owner%202/name%202",
+                                          repositoryName: "name 2",
+                                          repositoryOwner: "owner 2",
+                                          summary: "bar package")
+                                )
                              ])
         )
     }
@@ -214,12 +216,14 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
                              results: [
-                                .init(packageId: try p2.requireID(),
-                                      packageName: "Bar",
-                                      packageURL: "/owner/package%202",
-                                      repositoryName: "package 2",
-                                      repositoryOwner: "owner",
-                                      summary: "package 2 description")
+                                .package(
+                                    .init(packageId: try p2.requireID(),
+                                          packageName: "Bar",
+                                          packageURL: "/owner/package%202",
+                                          repositoryName: "package 2",
+                                          repositoryOwner: "owner",
+                                          summary: "package 2 description")
+                                )
                              ])
         )
     }
@@ -250,12 +254,14 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
                              results: [
-                                .init(packageId: try p1.requireID(),
-                                      packageName: "Foo",
-                                      packageURL: "/owner%201/name%201",
-                                      repositoryName: "name 1",
-                                      repositoryOwner: "owner 1",
-                                      summary: "some 'package'")
+                                .package(
+                                    .init(packageId: try p1.requireID(),
+                                          packageName: "Foo",
+                                          packageURL: "/owner%201/name%201",
+                                          repositoryName: "name 1",
+                                          repositoryOwner: "owner 1",
+                                          summary: "some 'package'")
+                                    )
                              ])
         )
     }
@@ -519,6 +525,7 @@ class SearchTests: AppTestCase {
     }
 
     func test_search_topic() throws {
+        try XCTSkip("to be implemented")
         // Test searching for a topic
         // setup
         // p1: decoy
@@ -546,7 +553,8 @@ class SearchTests: AppTestCase {
         // MUT
         let res = try Search.fetch(app.db, ["keyword"], page: 1, pageSize: 20).wait()
 
-        XCTAssertEqual(res.results.map(\.repositoryName), ["2"])
+        XCTAssertEqual(res.results.count, 2)  // p2 for the keyword match and "keyword" as a result
+//        XCTAssertEqual(res.results.map(\.repositoryName), ["2"])
     }
 
 }
