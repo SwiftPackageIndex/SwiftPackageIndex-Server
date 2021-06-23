@@ -722,13 +722,13 @@ final class PackageTests: AppTestCase {
 
     func test_badgeMessage_swiftVersions() throws {
         XCTAssertEqual(_badgeMessage(swiftVersions: [.v5_2, .v5_1, .v5_4]), "5.4 | 5.2 | 5.1")
-        XCTAssertEqual(_badgeMessage(swiftVersions: []), "unavailable")
+        XCTAssertNil(_badgeMessage(swiftVersions: []))
     }
 
     func test_badgeMessage_platforms() throws {
         XCTAssertEqual(_badgeMessage(platforms: [.linux, .ios, .macosXcodebuild, .macosSpm]),
                        "iOS | macOS | Linux")
-        XCTAssertEqual(_badgeMessage(platforms: []), "unavailable")
+        XCTAssertNil(_badgeMessage(platforms: []))
     }
 
     func test_swiftVersionCompatibility() throws {

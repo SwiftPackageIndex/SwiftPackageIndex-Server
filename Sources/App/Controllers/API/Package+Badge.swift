@@ -51,8 +51,10 @@ extension Package {
         var schemaVersion: Int
         var label: String
         var message: String
+        var isError: Bool
         var color: String
         var cacheSeconds: Int
+        var logoSvg: String?
     }
 
 
@@ -67,15 +69,18 @@ extension Package {
                 label = "Swift Compatibility"
         }
 
+        let message = badgeMessage(badgeType: badgeType)
         return Badge(schemaVersion: 1,
                      label: label,
-                     message: badgeMessage(badgeType: badgeType),
-                     color: "blue",
-                     cacheSeconds: cacheSeconds)
+                     message: message ?? "unavailable",
+                     isError: message == nil,
+                     color: message == nil ? "inactive" : "F05138",
+                     cacheSeconds: cacheSeconds,
+                     logoSvg: Package.loadSVGLogo())
     }
 
 
-    func badgeMessage(badgeType: BadgeType) -> String {
+    func badgeMessage(badgeType: BadgeType) -> String? {
         switch badgeType {
             case .platforms:
                 return _badgeMessage(platforms: platformCompatibility())
@@ -94,12 +99,19 @@ extension Package {
             $0.append(contentsOf: $1.$builds.value ?? [])
         }
     }
+    
+    static private func loadSVGLogo() -> String? {
+        let pathToFile = Current.fileManager.workingDirectory()
+            .appending("Public/images/logo-tiny.svg")
+        
+        return try? String(contentsOfFile: pathToFile)
+    }
 
 }
 
 
-func _badgeMessage(platforms: [Build.Platform]) -> String {
-    guard !platforms.isEmpty else { return "unavailable" }
+func _badgeMessage(platforms: [Build.Platform]) -> String? {
+    guard !platforms.isEmpty else { return nil }
     struct Value: Hashable {
         var index: Int
         var value: String
@@ -135,8 +147,8 @@ func _badgeMessage(platforms: [Build.Platform]) -> String {
 }
 
 
-func _badgeMessage(swiftVersions: [SwiftVersion]) -> String {
-    guard !swiftVersions.isEmpty else { return "unavailable" }
+func _badgeMessage(swiftVersions: [SwiftVersion]) -> String? {
+    guard !swiftVersions.isEmpty else { return nil }
     return swiftVersions
         .map(\.displayName)
         .sorted { $0 > $1 }

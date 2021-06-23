@@ -412,12 +412,14 @@ class ApiTests: AppTestCase {
                 // validation
                 XCTAssertEqual(res.status, .ok)
 
-                XCTAssertEqual(try res.content.decode(Package.Badge.self),
-                               Package.Badge(schemaVersion: 1,
-                                             label: "Swift Compatibility",
-                                             message: "5.3 | 5.2",
-                                             color: "blue",
-                                             cacheSeconds: 6*3600))
+                let badge = try res.content.decode(Package.Badge.self)
+                XCTAssertEqual(badge.schemaVersion, 1)
+                XCTAssertEqual(badge.label, "Swift Compatibility")
+                XCTAssertEqual(badge.message, "5.3 | 5.2")
+                XCTAssertEqual(badge.isError, false)
+                XCTAssertEqual(badge.color, "F05138")
+                XCTAssertEqual(badge.cacheSeconds, 6*3600)
+                XCTAssertNotNil(badge.logoSvg)
             })
 
         // MUT - platforms
@@ -428,12 +430,14 @@ class ApiTests: AppTestCase {
                 // validation
                 XCTAssertEqual(res.status, .ok)
 
-                XCTAssertEqual(try res.content.decode(Package.Badge.self),
-                               Package.Badge(schemaVersion: 1,
-                                             label: "Platform Compatibility",
-                                             message: "macOS | Linux",
-                                             color: "blue",
-                                             cacheSeconds: 6*3600))
+                let badge = try res.content.decode(Package.Badge.self)
+                XCTAssertEqual(badge.schemaVersion, 1)
+                XCTAssertEqual(badge.label, "Platform Compatibility")
+                XCTAssertEqual(badge.message, "macOS | Linux")
+                XCTAssertEqual(badge.isError, false)
+                XCTAssertEqual(badge.color, "F05138")
+                XCTAssertEqual(badge.cacheSeconds, 6*3600)
+                XCTAssertNotNil(badge.logoSvg)
             })
 
     }
