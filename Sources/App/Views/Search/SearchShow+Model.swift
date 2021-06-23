@@ -5,7 +5,7 @@ enum SearchShow {
         var query: String
         var result: Result
         
-        internal init(page: Int, query: String, result: Search.Result) {
+        internal init(page: Int, query: String, result: Search.Response) {
             self.page = page
             self.query = query
             self.result = Result(result: result)
@@ -15,7 +15,7 @@ enum SearchShow {
             var hasMoreResults: Bool
             var results: [Record]
 
-            init(result: Search.Result) {
+            init(result: Search.Response) {
                 self.hasMoreResults = result.hasMoreResults
                 self.results = result.results.compactMap(Record.init)
             }

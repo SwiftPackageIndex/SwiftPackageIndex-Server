@@ -37,7 +37,7 @@ enum Search {
         }
     }
 
-    struct Result: Content, Equatable {
+    struct Response: Content, Equatable {
         var hasMoreResults: Bool
         var results: [Search.Record]
     }
@@ -202,7 +202,7 @@ enum Search {
     static func fetch(_ database: Database,
                       _ terms: [String],
                       page: Int,
-                      pageSize: Int) -> EventLoopFuture<Search.Result> {
+                      pageSize: Int) -> EventLoopFuture<Search.Response> {
         guard let query = query(database,
                                 terms,
                                 page: page,
@@ -214,8 +214,8 @@ enum Search {
             .mapEach(\.asRecord)
             .map { results in
                 let hasMoreResults = results.count > pageSize
-                return Search.Result(hasMoreResults: hasMoreResults,
-                                     results: Array(results.prefix(pageSize)))
+                return Search.Response(hasMoreResults: hasMoreResults,
+                                       results: Array(results.prefix(pageSize)))
             }
     }
     
