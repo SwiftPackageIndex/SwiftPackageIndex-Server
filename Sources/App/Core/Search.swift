@@ -43,7 +43,7 @@ enum Search {
     }
     
     struct Record: Content, Equatable {
-        var packageId: Package.Id
+        var packageId: Package.Id?
         var packageName: String?
         var packageURL: String?
         var repositoryName: String?
@@ -53,7 +53,7 @@ enum Search {
     
     struct DBRecord: Content, Equatable {
         var matchType: MatchType
-        var packageId: Package.Id
+        var packageId: Package.Id?
         var packageName: String?
         var repositoryName: String?
         var repositoryOwner: String?

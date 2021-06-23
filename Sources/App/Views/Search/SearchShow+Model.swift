@@ -22,7 +22,7 @@ enum SearchShow {
         }
 
         struct Record {
-            var packageId: Package.Id
+            var packageId: Package.Id?
             var packageName: String
             var packageURL: String
             var repositoryName: String
