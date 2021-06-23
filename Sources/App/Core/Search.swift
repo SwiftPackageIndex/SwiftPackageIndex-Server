@@ -12,6 +12,7 @@ enum Search {
     static let packageName = SQLIdentifier("package_name")
     static let repoName = SQLIdentifier("name")
     static let repoOwner = SQLIdentifier("owner")
+    static let rowNumber = SQLIdentifier("row_number")
     static let summary = SQLIdentifier("summary")
     static let score = SQLIdentifier("score")
     static let searchView = SQLIdentifier("search")
@@ -21,9 +22,18 @@ enum Search {
         case package
         case keyword
 
+        static let identifier = SQLIdentifier(DBRecord.CodingKeys.matchType.rawValue)
+
+        var literal: SQLRaw {
+            SQLRaw("'\(rawValue)'")
+        }
+
         var sqlAlias: SQLAlias {
-            SQLAlias(SQLRaw("'\(rawValue)'"),
-                     as: SQLIdentifier(DBRecord.CodingKeys.matchType.rawValue))
+            SQLAlias(literal,as: Self.identifier)
+        }
+
+        static func equals(_ value: MatchType) -> SQLExpression {
+            eq(MatchType.identifier, value.literal)
         }
     }
 
@@ -122,7 +132,7 @@ enum Search {
             .column(repoOwner)
             .column(summary)
             .column(keywords)
-            .column(SQLFunction.rowNumber.over(orderBy: orderBy))
+            .column(SQLFunction.rowNumber.over(orderBy: orderBy), as: rowNumber)
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
@@ -150,8 +160,10 @@ enum Search {
             .column(null, as: repoOwner)
             .column(null, as: summary)
             .column(null, as: keywords)
+            .column(SQLFunction.rowNumber.over(), as: rowNumber)
             .from(searchView)
             .where(mergedTerms, .like, SQLFunction("ANY", args: keywords))
+        // TODO: limit?
     }
 
     static func query(_ database: Database,
@@ -182,6 +194,9 @@ enum Search {
             .from(
                 SQLAlias(SQLGroupExpression(union.query), as: SQLIdentifier("t"))
             )
+            .orderBy(SQLOrderBy(MatchType.equals(.keyword), .descending))
+            .orderBy(SQLOrderBy(MatchType.equals(.package), .descending))
+            .orderBy(rowNumber)
     }
 
     static func fetch(_ database: Database,
@@ -262,6 +277,10 @@ public struct SQLOver: SQLExpression {
 
 
 extension SQLFunction {
+    func over() -> SQLOver {
+        SQLOver(self)
+    }
+
     func over(orderBy identifier: String, _ direction: SQLDirection = .ascending) -> SQLOver {
         over(orderBy: SQLIdentifier(identifier), direction)
     }
