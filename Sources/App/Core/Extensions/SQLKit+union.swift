@@ -48,7 +48,7 @@ public struct SQLUnion: SQLExpression {
         guard let first = args.first else { return }
         first.serialize(to: &serializer)
         for arg in args.dropFirst() {
-            serializer.write(" UNION ")
+            serializer.write(all ? " UNION ALL " : " UNION ")
             arg.serialize(to: &serializer)
         }
     }

@@ -110,7 +110,7 @@ class SearchTests: AppTestCase {
                 resolveBinds: true
             )
             XCTAssertEqual(renderSQL(query, resolveBinds: true),
-                           #"SELECT * FROM ((\#(keywords)) UNION (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC, LOWER("package_name") = 'a' DESC, "score" DESC, "package_name" ASC"#)
+                           #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC, LOWER("package_name") = 'a' DESC, "score" DESC, "package_name" ASC"#)
         }
         do {  // multiple search terms
             // MUT
@@ -128,7 +128,7 @@ class SearchTests: AppTestCase {
                 resolveBinds: true
             )
             XCTAssertEqual(renderSQL(query, resolveBinds: true),
-                           #"SELECT * FROM ((\#(keywords)) UNION (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC, LOWER("package_name") = 'a b' DESC, "score" DESC, "package_name" ASC"#)
+                           #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC, LOWER("package_name") = 'a b' DESC, "score" DESC, "package_name" ASC"#)
         }
     }
 
