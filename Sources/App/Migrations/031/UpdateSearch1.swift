@@ -13,11 +13,11 @@ struct UpdateSearch1: Migration {
             """
             CREATE MATERIALIZED VIEW search AS
             SELECT
-              p.id,
+              p.id AS package_id,
               p.score,
               v.package_name,
-              r.name,
-              r.owner,
+              r.name AS repo_name,
+              r.owner AS repo_owner,
               r.summary,
               r.keywords
             FROM packages p
