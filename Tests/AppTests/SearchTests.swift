@@ -507,8 +507,8 @@ class SearchTests: AppTestCase {
         // setup
         // p1: decoy
         // p2: match
-        let p1 = Package(id: UUID(), url: "1", score: 10)
-        let p2 = Package(id: UUID(), url: "2", score: 20)
+        let p1 = Package(id: .id1, url: "1", score: 10)
+        let p2 = Package(id: .id2, url: "2", score: 20)
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
@@ -517,7 +517,7 @@ class SearchTests: AppTestCase {
                        summary: "").save(on: app.db).wait()
         try Repository(package: p2,
                        defaultBranch: "main",
-                       keywords: ["keyword"],
+                       keywords: ["topic"],
                        name: "2",
                        owner: "foo",
                        summary: "").save(on: app.db).wait()
@@ -528,10 +528,18 @@ class SearchTests: AppTestCase {
         try Search.refresh(on: app.db).wait()
 
         // MUT
-        let res = try Search.fetch(app.db, ["keyword"], page: 1, pageSize: 20).wait()
+        let res = try Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).wait()
 
-        XCTAssertEqual(res.results.count, 2)  // p2 for the keyword match and "keyword" as a result
-//        XCTAssertEqual(res.results.map(\.repositoryName), ["2"])
+        XCTAssertEqual(res.results.count, 2)
+        XCTAssertEqual(res.results, [
+            .keyword(.init(keyword: "topic")),
+            .package(.init(packageId: .id2,
+                           packageName: "2",
+                           packageURL: "2",
+                           repositoryName: "2",
+                           repositoryOwner: "foo",
+                           summary: ""))
+        ])
     }
 
 }
