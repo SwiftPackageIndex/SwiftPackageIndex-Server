@@ -24,6 +24,7 @@ extension PackageCollection {
                          filterBy filter: Filter,
                          authorName: String? = nil,
                          collectionName: String,
+                         ownerName: String? = nil,
                          keywords: [String]? = nil,
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
@@ -37,6 +38,9 @@ extension PackageCollection {
             .join(App.Package.self, on: \App.Package.$id == \Version.$package.$id)
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
             .filter(Version.self, \.$latest ~~ [.release, .preRelease])
+        
+        let ownerQuery = App.Repository.query(on: db)
+            .filter(\.$owner, .custom("ilike"), ownerName ?? "")
 
         switch filter {
             case let .author(owner):
@@ -58,12 +62,18 @@ extension PackageCollection {
             .mapEachCompact { Package.init(package: $0.key,
                                            prunedVersions: $0.value,
                                            keywords: keywords) }
-            .map {
-                PackageCollection.init(
-                    name: collectionName,
+            .and(ownerQuery.first())
+            .map { packages, repository in
+                var name = collectionName
+                if let ownerName = repository?.ownerName {
+                    name = "Packages by \(ownerName)"
+                }
+                
+                return PackageCollection.init(
+                    name: name,
                     overview: overview,
                     keywords: keywords,
-                    packages: $0,
+                    packages: packages,
                     formatVersion: .v1_0,
                     revision: revision,
                     generatedAt: Current.date(),
