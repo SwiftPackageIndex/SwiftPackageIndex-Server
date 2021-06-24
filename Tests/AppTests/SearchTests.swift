@@ -70,25 +70,25 @@ class SearchTests: AppTestCase {
 
     func test_packageMatchQuery_single_term() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "score", "summary", "keywords" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL"#)
         XCTAssertEqual(binds(b), ["a"])
     }
 
     func test_packageMatchQuery_multiple_terms() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "score", "summary", "keywords" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL"#)
         XCTAssertEqual(binds(b), ["a", "b"])
     }
 
     func test_keywordMatchQuery_single_term() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", NULL AS "id", NULL AS "package_name", NULL AS "name", NULL AS "owner", NULL AS "score", NULL AS "summary", NULL AS "keywords" FROM "search" WHERE $1 LIKE ANY("keywords")"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a"])
     }
 
     func test_keywordMatchQuery_multiple_terms() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", NULL AS "id", NULL AS "package_name", NULL AS "name", NULL AS "owner", NULL AS "score", NULL AS "summary", NULL AS "keywords" FROM "search" WHERE $1 LIKE ANY("keywords")"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a b"])
     }
 

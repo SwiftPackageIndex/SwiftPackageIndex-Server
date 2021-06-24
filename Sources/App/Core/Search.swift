@@ -7,14 +7,16 @@ enum Search {
     static let schema = "search"
     
     // identifiers
-    static let id = SQLIdentifier("id")
+    static let keyword = SQLIdentifier("keyword")
     static let keywords = SQLIdentifier("keywords")
+    static let packageId = SQLIdentifier("package_id")
     static let packageName = SQLIdentifier("package_name")
-    static let repoName = SQLIdentifier("name")
-    static let repoOwner = SQLIdentifier("owner")
-    static let summary = SQLIdentifier("summary")
+    static let repoName = SQLIdentifier("repo_name")
+    static let repoOwner = SQLIdentifier("repo_owner")
     static let score = SQLIdentifier("score")
     static let searchView = SQLIdentifier("search")
+    static let summary = SQLIdentifier("summary")
+
     static let null = SQLRaw("NULL")
 
     enum MatchType: String, Codable, Equatable {
@@ -42,8 +44,8 @@ enum Search {
     }
 
     struct DBRecord: Content, Equatable {
-        var keyword: String?
         var matchType: MatchType
+        var keyword: String?
         var packageId: Package.Id?
         var packageName: String?
         var repositoryName: String?
@@ -51,12 +53,12 @@ enum Search {
         var summary: String?
         
         enum CodingKeys: String, CodingKey {
-            case keyword
             case matchType = "match_type"
-            case packageId = "id"
+            case keyword
+            case packageId = "package_id"
             case packageName = "package_name"
-            case repositoryName = "name"
-            case repositoryOwner = "owner"
+            case repositoryName = "repo_name"
+            case repositoryOwner = "repo_owner"
             case summary
         }
         
@@ -95,23 +97,23 @@ enum Search {
 
         // constants
         let empty = SQLLiteral.string("")
-        let space = SQLLiteral.string(" ")
         let contains = SQLRaw("~*")
 
         let haystack = concat(
-            packageName, space, coalesce(summary, empty), space, repoName, space, repoOwner
+            with: " ",
+            packageName, coalesce(summary, empty), repoName, repoOwner
         )
 
         let preamble = db
             .select()
             .column(.package)
-            .column(id)
+            .column(null, as: keyword)
+            .column(packageId)
             .column(packageName)
             .column(repoName)
             .column(repoOwner)
             .column(score)
             .column(summary)
-            .column(keywords)
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
@@ -133,16 +135,18 @@ enum Search {
         return db
             .select()
             .column(.keyword)
-            .column(null, as: id)
+            .column(keyword)
+            .column(null, as: packageId)
             .column(null, as: packageName)
             .column(null, as: repoName)
             .column(null, as: repoOwner)
             .column(null, as: score)
             .column(null, as: summary)
-            .column(null, as: keywords)
             .from(searchView)
-            .where(mergedTerms, .like, SQLFunction("ANY", args: keywords))
-        // TODO: limit?
+            .from(SQLFunction("UNNEST", args: keywords), as: keyword)
+            .where(keyword, .equal, mergedTerms)
+            .limit(1)
+        // TODO: increase limit when we do % matching
     }
 
     static func query(_ database: Database,
