@@ -65,8 +65,10 @@ extension PackageCollection {
             .and(ownerQuery.first())
             .map { packages, repository in
                 var name = collectionName
+                var overview = String()
                 if let ownerName = repository?.ownerName {
                     name = "Packages by \(ownerName)"
+                    overview = "A collection of packages authored by \(ownerName) from the Swift Package Index"
                 }
                 
                 return PackageCollection.init(
