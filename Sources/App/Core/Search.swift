@@ -12,7 +12,6 @@ enum Search {
     static let packageName = SQLIdentifier("package_name")
     static let repoName = SQLIdentifier("name")
     static let repoOwner = SQLIdentifier("owner")
-    static let rowNumber = SQLIdentifier("row_number")
     static let summary = SQLIdentifier("summary")
     static let score = SQLIdentifier("score")
     static let searchView = SQLIdentifier("search")
@@ -92,7 +91,6 @@ enum Search {
         let maxSearchTerms = 20  // just to impose some sort of limit
 
         // binds
-        let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
         let binds = terms[..<min(terms.count, maxSearchTerms)].map(SQLBind.init)
 
         // constants
@@ -103,9 +101,6 @@ enum Search {
         let haystack = concat(
             packageName, space, coalesce(summary, empty), space, repoName, space, repoOwner
         )
-        let orderBy = SQLOrderBy(eq(lower(packageName), mergedTerms), .descending)
-            .then(score, .descending)
-            .then(packageName, .ascending)
 
         let preamble = db
             .select()
@@ -114,9 +109,9 @@ enum Search {
             .column(packageName)
             .column(repoName)
             .column(repoOwner)
+            .column(score)
             .column(summary)
             .column(keywords)
-            .column(SQLFunction.rowNumber.over(orderBy: orderBy), as: rowNumber)
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
@@ -142,9 +137,9 @@ enum Search {
             .column(null, as: packageName)
             .column(null, as: repoName)
             .column(null, as: repoOwner)
+            .column(null, as: score)
             .column(null, as: summary)
             .column(null, as: keywords)
-            .column(SQLFunction.rowNumber.over(), as: rowNumber)
             .from(searchView)
             .where(mergedTerms, .like, SQLFunction("ANY", args: keywords))
         // TODO: limit?
@@ -162,6 +157,7 @@ enum Search {
         guard !sanitizedTerms.isEmpty else {
             return nil
         }
+        let mergedTerms = SQLBind(sanitizedTerms.joined(separator: " ").lowercased())
 
         // page is one-based, clamp it to 0-based offset
         let offset = ((page - 1) * pageSize).clamped(to: 0...)
@@ -172,6 +168,10 @@ enum Search {
             packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
                                      offset: offset, limit: limit)
         )
+        let packageOrder = SQLOrderBy(eq(lower(packageName), mergedTerms),
+                                      .descending)
+            .then(score, .descending)
+            .then(packageName, .ascending)
 
         return db.select()
             .column("*")
@@ -180,7 +180,7 @@ enum Search {
             )
             .orderBy(SQLOrderBy(MatchType.equals(.keyword), .descending))
             .orderBy(SQLOrderBy(MatchType.equals(.package), .descending))
-            .orderBy(rowNumber)
+            .orderBy(packageOrder)
     }
 
     static func fetch(_ database: Database,
@@ -226,62 +226,6 @@ private extension SQLSelectBuilder {
     func column(_ expression: SQLExpression, as alias: SQLExpression) -> Self {
         column(SQLAlias(expression, as: alias))
     }
-}
-
-
-public struct SQLOver: SQLExpression {
-    public let windowFunction: SQLFunction
-    public let orderBy: SQLExpression?
-
-    public init(_ windowFunction: SQLFunction) {
-        self.windowFunction = windowFunction
-        self.orderBy = nil
-    }
-
-    public init(_ windowFunction: SQLFunction, orderBy: SQLOrderBy) {
-        self.windowFunction = windowFunction
-        self.orderBy = orderBy
-    }
-
-    public init(_ windowFunction: SQLFunction, orderBy: SQLOrderByGroup) {
-        self.windowFunction = windowFunction
-        self.orderBy = orderBy
-    }
-
-    public func serialize(to serializer: inout SQLSerializer) {
-        windowFunction.serialize(to: &serializer)
-        serializer.write(" OVER (")
-        if let expr = orderBy {
-            serializer.write("ORDER BY ")
-            expr.serialize(to: &serializer)
-        }
-        serializer.write(")")
-    }
-}
-
-
-extension SQLFunction {
-    func over() -> SQLOver {
-        SQLOver(self)
-    }
-
-    func over(orderBy identifier: String, _ direction: SQLDirection = .ascending) -> SQLOver {
-        over(orderBy: SQLIdentifier(identifier), direction)
-    }
-
-    func over(orderBy expression: SQLExpression, _ direction: SQLDirection = .ascending) -> SQLOver {
-        over(orderBy: SQLOrderBy(expression, direction))
-    }
-
-    func over(orderBy expression: SQLOrderBy) -> SQLOver {
-        SQLOver(self, orderBy: expression)
-    }
-
-    func over(orderBy expression: SQLOrderByGroup) -> SQLOver {
-        SQLOver(self, orderBy: expression)
-    }
-
-    static var rowNumber: Self { .init("ROW_NUMBER") }
 }
 
 
