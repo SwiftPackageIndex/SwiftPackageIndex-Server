@@ -503,7 +503,6 @@ class SearchTests: AppTestCase {
     }
 
     func test_search_topic() throws {
-        try XCTSkip("to be implemented")
         // Test searching for a topic
         // setup
         // p1: decoy
