@@ -94,6 +94,7 @@ enum Search {
 
         // binds
         let binds = terms[..<min(terms.count, maxSearchTerms)].map(SQLBind.init)
+        let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
 
         // constants
         let empty = SQLLiteral.string("")
@@ -103,6 +104,10 @@ enum Search {
             with: " ",
             packageName, coalesce(summary, empty), repoName, repoOwner
         )
+        let sortOrder = SQLOrderBy(eq(lower(packageName), mergedTerms),
+                                   .descending)
+            .then(score, .descending)
+            .then(packageName, .ascending)
 
         let preamble = db
             .select()
@@ -120,6 +125,7 @@ enum Search {
             .where(isNotNull(packageName))
             .where(isNotNull(repoOwner))
             .where(isNotNull(repoName))
+            .orderBy(sortOrder)
             .offset(offset)
             .limit(limit)
     }
@@ -161,7 +167,6 @@ enum Search {
         guard !sanitizedTerms.isEmpty else {
             return nil
         }
-        let mergedTerms = SQLBind(sanitizedTerms.joined(separator: " ").lowercased())
 
         // page is one-based, clamp it to 0-based offset
         let offset = ((page - 1) * pageSize).clamped(to: 0...)
@@ -172,10 +177,6 @@ enum Search {
             packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
                                      offset: offset, limit: limit)
         )
-        let packageOrder = SQLOrderBy(eq(lower(packageName), mergedTerms),
-                                      .descending)
-            .then(score, .descending)
-            .then(packageName, .ascending)
 
         return db.select()
             .column("*")
@@ -184,7 +185,6 @@ enum Search {
             )
             .orderBy(SQLOrderBy(MatchType.equals(.keyword), .descending))
             .orderBy(SQLOrderBy(MatchType.equals(.package), .descending))
-            .orderBy(packageOrder)
     }
 
     static func fetch(_ database: Database,

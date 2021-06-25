@@ -70,14 +70,14 @@ class SearchTests: AppTestCase {
 
     func test_packageMatchQuery_single_term() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL"#)
-        XCTAssertEqual(binds(b), ["a"])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
+        XCTAssertEqual(binds(b), ["a", "a"])
     }
 
     func test_packageMatchQuery_multiple_terms() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL"#)
-        XCTAssertEqual(binds(b), ["a", "b"])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
+        XCTAssertEqual(binds(b), ["a", "b", "a b"])
     }
 
     func test_keywordMatchQuery_single_term() throws {
@@ -110,7 +110,7 @@ class SearchTests: AppTestCase {
                 resolveBinds: true
             )
             XCTAssertEqual(renderSQL(query, resolveBinds: true),
-                           #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC, LOWER("package_name") = 'a' DESC, "score" DESC, "package_name" ASC"#)
+                           #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC"#)
         }
         do {  // multiple search terms
             // MUT
@@ -128,7 +128,7 @@ class SearchTests: AppTestCase {
                 resolveBinds: true
             )
             XCTAssertEqual(renderSQL(query, resolveBinds: true),
-                           #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC, LOWER("package_name") = 'a b' DESC, "score" DESC, "package_name" ASC"#)
+                           #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC"#)
         }
     }
 
