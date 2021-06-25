@@ -45,42 +45,24 @@ class SearchTests: AppTestCase {
 
     func test_query_sql() throws {
         // Test to confirm shape of rendered search SQL
-        do {  // single search term
-            // MUT
-            let query = Search.query(app.db, ["a"], page: 1, pageSize: 20)
-            // validate
-            let packages = renderSQL(
-                Search.packageMatchQueryBuilder(on: app.db,
-                                                terms: ["a"],
-                                                offset: 0,
-                                                limit: 21),
-                resolveBinds: true
-            )
-            let keywords = renderSQL(
-                Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"]),
-                resolveBinds: true
-            )
-            XCTAssertEqual(renderSQL(query, resolveBinds: true),
-                           #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC"#)
-        }
-        do {  // multiple search terms
-            // MUT
-            let query = Search.query(app.db, ["a", "b"], page: 1, pageSize: 20)
-            // validate
-            let packages = renderSQL(
-                Search.packageMatchQueryBuilder(on: app.db,
-                                                terms: ["a", "b"],
-                                                offset: 0,
-                                                limit: 21),
-                resolveBinds: true
-            )
-            let keywords = renderSQL(
-                Search.keywordMatchQueryBuilder(on: app.db, terms: ["a", "b"]),
-                resolveBinds: true
-            )
-            XCTAssertEqual(renderSQL(query, resolveBinds: true),
-                           #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC"#)
-        }
+        // MUT
+        let query = Search.query(app.db, ["a"], page: 1, pageSize: 20)
+        // validate
+        // generate subqueries for validation to avoid repetition (these are tested separately above)
+        // we only want to test the `UNION ALL` glue query
+        let packages = renderSQL(
+            Search.packageMatchQueryBuilder(on: app.db,
+                                            terms: ["a"],
+                                            offset: 0,
+                                            limit: 21),
+            resolveBinds: true
+        )
+        let keywords = renderSQL(
+            Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"]),
+            resolveBinds: true
+        )
+        XCTAssertEqual(renderSQL(query, resolveBinds: true),
+                       #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC"#)
     }
 
     func test_fetch_single() throws {
