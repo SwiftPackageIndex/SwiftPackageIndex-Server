@@ -1,5 +1,6 @@
 @testable import App
 
+import SnapshotTesting
 import SQLKit
 import XCTVapor
 
@@ -46,23 +47,24 @@ class SearchTests: AppTestCase {
     func test_query_sql() throws {
         // Test to confirm shape of rendered search SQL
         // MUT
-        let query = Search.query(app.db, ["a"], page: 1, pageSize: 20)
+        let query = Search.query(app.db, ["test"], page: 1, pageSize: 20)
         // validate
         // generate subqueries for validation to avoid repetition (these are tested separately above)
         // we only want to test the `UNION ALL` glue query
         let packages = renderSQL(
             Search.packageMatchQueryBuilder(on: app.db,
-                                            terms: ["a"],
+                                            terms: ["test"],
                                             offset: 0,
                                             limit: 21),
             resolveBinds: true
         )
         let keywords = renderSQL(
-            Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"]),
+            Search.keywordMatchQueryBuilder(on: app.db, terms: ["test"]),
             resolveBinds: true
         )
         XCTAssertEqual(renderSQL(query, resolveBinds: true),
                        #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC"#)
+        assertSnapshot(matching: renderSQL(query, resolveBinds: true), as: .lines)
     }
 
     func test_fetch_single() throws {
