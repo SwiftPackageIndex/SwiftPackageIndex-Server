@@ -204,7 +204,7 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.repositoryName),
+            XCTAssertEqual(res.results.map(\.package?.repositoryName),
                            ["0", "1", "2"])
         }
 
@@ -217,7 +217,7 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.repositoryName),
+            XCTAssertEqual(res.results.map(\.package?.repositoryName),
                            ["3", "4", "5"])
         }
 
@@ -230,7 +230,7 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertFalse(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.repositoryName),
+            XCTAssertEqual(res.results.map(\.package?.repositoryName),
                            ["6", "7", "8"])
         }
     }
@@ -260,7 +260,7 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertFalse(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.repositoryName),
+            XCTAssertEqual(res.results.map(\.package?.repositoryName),
                            [])
         }
 
@@ -271,7 +271,7 @@ class SearchTests: AppTestCase {
                                      page: 0,
                                      pageSize: 3).wait()
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.repositoryName),
+            XCTAssertEqual(res.results.map(\.package?.repositoryName),
                            ["0", "1", "2"])
         }
     }
@@ -295,7 +295,8 @@ class SearchTests: AppTestCase {
         
         // validation
         XCTAssertEqual(res.results.count, 10)
-        XCTAssertEqual(res.results.map(\.summary), ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"])
+        XCTAssertEqual(res.results.map(\.package?.summary),
+                       ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"])
     }
     
     func test_exact_name_match() throws {
@@ -335,7 +336,8 @@ class SearchTests: AppTestCase {
         // MUT
         let res = try Search.fetch(app.db, ["ink"], page: 1, pageSize: 20).wait()
         
-        XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
+        XCTAssertEqual(res.results.map(\.package?.repositoryName),
+                       ["1", "3", "2"])
     }
     
     func test_exact_name_match_whitespace() throws {
@@ -375,7 +377,8 @@ class SearchTests: AppTestCase {
         // MUT
         let res = try Search.fetch(app.db, ["foo", "bar"], page: 1, pageSize: 20).wait()
         
-        XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
+        XCTAssertEqual(res.results.map(\.package?.repositoryName),
+                       ["1", "3", "2"])
     }
     
     func test_exclude_null_fields() throws {
@@ -477,4 +480,16 @@ class SearchTests: AppTestCase {
         ])
     }
 
+}
+
+
+extension Search.Result {
+    var package: Search.PackageResult? {
+        switch self {
+            case .keyword:
+                return nil
+            case .package(let result):
+                return result
+        }
+    }
 }

@@ -30,16 +30,17 @@ enum SearchShow {
             var summary: String?
 
             init?(result: Search.Result) {
-                guard let packageURL = result.packageURL else { return nil }
-                guard let repositoryName = result.repositoryName else { return nil }
-                guard let repositoryOwner = result.repositoryOwner else { return nil }
+                guard case let .package(pkg) = result else { return nil }
+                guard let packageURL = pkg.packageURL else { return nil }
+                guard let repositoryName = pkg.repositoryName else { return nil }
+                guard let repositoryOwner = pkg.repositoryOwner else { return nil }
 
-                self.packageId = result.packageId
-                self.packageName = result.packageName ?? "Unknown Package"
+                self.packageId = pkg.packageId
+                self.packageName = pkg.packageName ?? "Unknown Package"
                 self.packageURL = packageURL
                 self.repositoryName = repositoryName
                 self.repositoryOwner = repositoryOwner
-                self.summary = result.summary
+                self.summary = pkg.summary
             }
         }
     }
