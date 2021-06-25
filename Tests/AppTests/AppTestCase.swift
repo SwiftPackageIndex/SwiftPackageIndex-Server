@@ -26,8 +26,8 @@ class AppTestCase: XCTestCase {
 
 
 extension AppTestCase {
-    func renderSQL(_ query: SQLSelectBuilder?, resolveBinds: Bool = false) -> String {
-        renderSQL(query?.query, resolveBinds: resolveBinds)
+    func renderSQL(_ builder: SQLSelectBuilder?, resolveBinds: Bool = false) -> String {
+        renderSQL(builder?.query, resolveBinds: resolveBinds)
     }
 
     func renderSQL(_ query: SQLExpression?, resolveBinds: Bool = false) -> String {
@@ -42,8 +42,8 @@ extension AppTestCase {
         return sql
     }
 
-    func binds(_ query: SQLSelectBuilder?) -> [String] {
-        binds(query?.query)
+    func binds(_ builder: SQLSelectBuilder?) -> [String] {
+        binds(builder?.query)
     }
 
     func binds(_ query: SQLExpression?) -> [String] {
