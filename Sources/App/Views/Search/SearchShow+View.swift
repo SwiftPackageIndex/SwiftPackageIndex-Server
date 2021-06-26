@@ -39,7 +39,7 @@ extension SearchShow {
                 .section(
                     .class("results"),
                     .p(
-                        .if(model.response.results.count > 0, .text("Results for "), else: .text("No packages matched ")),
+                        .if(model.response.results.count > 0, .text("Results for "), else: .text("No results for ")),
                         .text("&ldquo;"),
                         .strong(.text(model.query)),
                         .text("&rdquo;"),
@@ -54,13 +54,11 @@ extension SearchShow {
                             model.response.results.map { result -> Node<HTML.ListContext> in
                                 .li(
                                     .a(
-                                        .href(result.packageURL),
-                                        .h4(.text(result.packageName)),
+                                        .href(result.link),
+                                        .h4(.text(result.title)),
                                         .unwrap(result.summary) { .p(.text($0)) },
                                         .small(
-                                            .text(result.repositoryOwner),
-                                            .text("/"),
-                                            .text(result.repositoryName)
+                                            .text(result.footer)
                                         )
                                     )
                                 )
