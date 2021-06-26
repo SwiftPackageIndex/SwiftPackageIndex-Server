@@ -38,7 +38,7 @@ enum SearchShow {
                               let repositoryName = pkg.repositoryName,
                               let repositoryOwner = pkg.repositoryOwner
                         else { return nil }
-                        title = pkg.packageName ?? "Unknown package name"
+                        title = pkg.packageName ?? "Unknown Package"
                         summary = pkg.summary
                         footer = "\(repositoryOwner)/\(repositoryName)"
                         link = packageURL
