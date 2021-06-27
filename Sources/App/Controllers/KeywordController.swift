@@ -5,7 +5,7 @@ import Vapor
 
 struct KeywordController {
 
-    private func query(on database: Database, keyword: String) -> EventLoopFuture<[Package]> {
+    static func query(on database: Database, keyword: String) -> EventLoopFuture<[Package]> {
         Package.query(on: database)
             .with(\.$repositories)
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
@@ -29,7 +29,7 @@ struct KeywordController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return query(on: req.db, keyword: keyword)
+        return Self.query(on: req.db, keyword: keyword)
             .map {
                 KeywordShow.Model(
                     keyword: keyword,

@@ -62,6 +62,11 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.author(.key).pathComponents, use: authorController.show)
     }
 
+    do {  // keyword page
+        let controller = KeywordController()
+        app.get(SiteURL.keywords(.key).pathComponents, use: controller.show)
+    }
+
     do {  // build details page
         let buildController = BuildController()
         app.get(SiteURL.builds(.key).pathComponents, use: buildController.show)
