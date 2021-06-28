@@ -13,7 +13,7 @@ enum KeywordShow {
         }
 
         override func pageTitle() -> String? {
-            "Packages for \(model.keyword)"
+            "Packages for keyword \(model.keyword)"
         }
 
         override func pageDescription() -> String? {

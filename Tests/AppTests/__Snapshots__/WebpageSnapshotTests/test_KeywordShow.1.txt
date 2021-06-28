@@ -8,9 +8,9 @@
     <link rel="canonical" href="http://localhost:8080/"/>
     <meta name="twitter:url" content="http://localhost:8080/"/>
     <meta name="og:url" content="http://localhost:8080/"/>
-    <title>Packages for networking &ndash; Swift Package Index</title>
-    <meta name="twitter:title" content="Packages for networking &ndash; Swift Package Index"/>
-    <meta name="og:title" content="Packages for networking &ndash; Swift Package Index"/>
+    <title>Packages for keyword networking &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="Packages for keyword networking &ndash; Swift Package Index"/>
+    <meta name="og:title" content="Packages for keyword networking &ndash; Swift Package Index"/>
     <meta name="description" content="The Swift Package Index is indexing 1 package for networking."/>
     <meta name="twitter:description" content="The Swift Package Index is indexing 1 package for networking."/>
     <meta name="og:description" content="The Swift Package Index is indexing 1 package for networking."/>
