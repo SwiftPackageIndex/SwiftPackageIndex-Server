@@ -179,7 +179,6 @@ class SearchTests: AppTestCase {
         )
     }
     
-    
     func test_search_pagination() throws {
         // setup
         let packages = (0..<9).map { idx in
@@ -232,6 +231,65 @@ class SearchTests: AppTestCase {
             XCTAssertFalse(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.package?.repositoryName),
                            ["6", "7", "8"])
+        }
+    }
+
+    func test_search_pagination_with_keyword_results() throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1198
+        // setup
+        let packages = (0..<9).map { idx in
+            Package(url: "\(idx)".url, score: 15 - idx)
+        }
+        try packages.save(on: app.db).wait()
+        try packages.map { try Repository(package: $0,
+                                          defaultBranch: "default",
+                                          keywords: ["foo"],
+                                          name: $0.url,
+                                          owner: "foo") }
+            .save(on: app.db)
+            .wait()
+        try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
+            .save(on: app.db)
+            .wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {  // first page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 1,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertTrue(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["foo", "0", "1"])
+        }
+
+        do {  // second page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 2,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertTrue(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["2", "3", "4"])
+        }
+
+        do {  // third page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 3,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertFalse(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["5", "6", "7"])
         }
     }
 
@@ -490,6 +548,15 @@ extension Search.Result {
                 return nil
             case .package(let result):
                 return result
+        }
+    }
+
+    var testDescription: String {
+        switch self {
+            case .keyword(let res):
+                return res.keyword
+            case .package(let res):
+                return res.packageName ?? "nil"
         }
     }
 }
