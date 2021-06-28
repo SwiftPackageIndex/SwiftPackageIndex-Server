@@ -14,16 +14,16 @@ extension Search {
                 return nil
             }
             // -- end --
-            switch (record.matchType, record.keyword) {
-                case let (.author, .some(repoOwner)):
+            switch (record.matchType, record.repositoryOwner, record.keyword) {
+                case let (.author, .some(repoOwner), _):
                     self = .author(.init(name: repoOwner))
-                case (.author, .none):
+                case (.author, _, _):
                     return nil
-                case let (.keyword, .some(kw)):
+                case let (.keyword, _, .some(kw)):
                     self = .keyword(.init(keyword: kw))
-                case (.keyword, .none):
+                case (.keyword, _, _):
                     return nil
-                case (.package, _):
+                case (.package, _, _):
                     self = .package(
                         .init(packageId: record.packageId,
                               packageName: record.packageName,
