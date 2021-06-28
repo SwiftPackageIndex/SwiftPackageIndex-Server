@@ -50,7 +50,11 @@ extension PackageCollection {
         // generate ownerName from [App.Package]
         
         func ownerName(packages: [App.Package]) -> String {
-            let names = packages.map { $0.repository?.ownerName ?? $0.repository?.owner ?? "" }
+            let groupedPackagesByName = Dictionary(
+                grouping: packages,
+                by: { $0.repository?.ownerName ?? $0.repository?.owner })
+            
+            let names = groupedPackagesByName.enumerated().compactMap { $0.element.key }
             switch names.count {
             case 0:
                 // shouldn't be possible really
