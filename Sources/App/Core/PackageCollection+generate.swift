@@ -24,7 +24,6 @@ extension PackageCollection {
                          filterBy filter: Filter,
                          authorName: String? = nil,
                          collectionName: String,
-                         ownerName: String? = nil,
                          keywords: [String]? = nil,
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
@@ -39,9 +38,6 @@ extension PackageCollection {
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
             .filter(Version.self, \.$latest ~~ [.release, .preRelease])
         
-        let ownerQuery = App.Repository.query(on: db)
-            .filter(\.$owner, .custom("ilike"), ownerName ?? "")
-
         switch filter {
             case let .author(owner):
                 query = query
@@ -49,6 +45,23 @@ extension PackageCollection {
             case let .urls(packageURLs):
                 query = query
                     .filter(App.Package.self, \.$url ~~ packageURLs)
+        }
+        
+        // generate ownerName from [App.Package]
+        
+        func ownerName(packages: [App.Package]) -> String {
+            let names = packages.map { $0.repository?.ownerName ?? $0.repository?.owner ?? "" }
+            switch names.count {
+            case 0:
+                // shouldn't be possible really
+                return ""
+            case 1:
+                return names.first!
+            case 2:
+                return names.joined(separator: " and ")
+            default:
+                return "multiple authors"
+            }
         }
 
         return query.all()
@@ -59,21 +72,20 @@ extension PackageCollection {
                 Dictionary(grouping: versions, by: { $0.package })
                     .sorted(by: { $0.key.url < $1.key.url })
             }
-            .mapEachCompact { Package.init(package: $0.key,
-                                           prunedVersions: $0.value,
-                                           keywords: keywords) }
-            .and(ownerQuery.first())
-            .map { packages, repository in
-                var name = collectionName
-                var overview = String()
-                if let ownerName = repository?.ownerName {
-                    name = "Packages by \(ownerName)"
-                    overview = "A collection of packages authored by \(ownerName) from the Swift Package Index"
-                }
-                
-                return PackageCollection.init(
-                    name: name,
-                    overview: overview,
+            .map { packageToVersions in
+                (packageToVersions, ownerName(packages: packageToVersions.map { $0.key }))
+            }
+            .map { (packageToVersions, ownerName) in
+                let packages = packageToVersions.compactMap {
+                    Package.init(package: $0.key,
+                                 prunedVersions: $0.value,
+                                 keywords: keywords) }
+                return (packages, ownerName)
+            }
+            .map { (packages: [Package], ownerName: String) -> PackageCollection in
+                PackageCollection.init(
+                    name: "Packages by \(ownerName)",
+                    overview: "A collection of packages authored by \(ownerName) from the Swift Package Index",
                     keywords: keywords,
                     packages: packages,
                     formatVersion: .v1_0,
