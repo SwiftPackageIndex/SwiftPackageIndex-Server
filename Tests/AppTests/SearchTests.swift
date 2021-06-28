@@ -46,13 +46,13 @@ class SearchTests: AppTestCase {
 
     func test_authorMatchQuery_single_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" = $1 LIMIT 1"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" = $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a"])
     }
 
     func test_authorMatchQuery_multiple_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" = $1 LIMIT 1"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" = $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a b"])
     }
 
@@ -79,7 +79,7 @@ class SearchTests: AppTestCase {
             resolveBinds: true
         )
         XCTAssertEqual(renderSQL(query, resolveBinds: true),
-                       #"SELECT * FROM ((\#(packages)) UNION ALL (\#(authors)) UNION ALL (\#(keywords))) AS "t" ORDER BY "match_type" = 'author' DESC, "match_type" = 'keyword' DESC, "match_type" = 'package' DESC"#)
+                       #"SELECT * FROM ((\#(authors)) UNION ALL (\#(keywords)) UNION ALL (\#(packages))) AS "t""#)
         assertSnapshot(matching: renderSQL(query, resolveBinds: true), as: .lines)
     }
 
@@ -279,7 +279,7 @@ class SearchTests: AppTestCase {
             // validate
             XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["foo", "0", "1", "2"])
+                           ["k:foo", "p:0", "p:1", "p:2"])
         }
 
         do {  // second page
@@ -292,7 +292,7 @@ class SearchTests: AppTestCase {
             // validate
             XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["3", "4", "5"])
+                           ["p:3", "p:4", "p:5"])
         }
 
         do {  // third page
@@ -305,7 +305,7 @@ class SearchTests: AppTestCase {
             // validate
             XCTAssertFalse(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["6", "7", "8"])
+                           ["p:6", "p:7", "p:8"])
         }
     }
 
@@ -360,7 +360,7 @@ class SearchTests: AppTestCase {
                            name: "\($0)",
                            owner: "foo",
                            summary: "\($0)").save(on: app.db).wait()
-            try Version(package: p, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
+            try Version(package: p, packageName: "\($0)", reference: .branch("main")).save(on: app.db).wait()
         }
         try Search.refresh(on: app.db).wait()
         
@@ -369,8 +369,8 @@ class SearchTests: AppTestCase {
         
         // validation
         XCTAssertEqual(res.results.count, 10)
-        XCTAssertEqual(res.results.map(\.package?.summary),
-                       ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"])
+        XCTAssertEqual(res.results.map(\.testDescription),
+                       ["p:9", "p:8", "p:7", "p:6", "p:5", "p:4", "p:3", "p:2", "p:1", "p:0"])
     }
     
     func test_exact_name_match() throws {
@@ -570,11 +570,11 @@ extension Search.Result {
     var testDescription: String {
         switch self {
             case .author(let res):
-                return res.name
+                return "a:\(res.name)"
             case .keyword(let res):
-                return res.keyword
+                return "k:\(res.keyword)"
             case .package(let res):
-                return res.packageName ?? "nil"
+                return "p:\(res.packageName ?? "nil")"
         }
     }
 }

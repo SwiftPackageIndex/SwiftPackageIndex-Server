@@ -19,6 +19,8 @@ enum Search {
     static let summary = SQLIdentifier("summary")
 
     static let null = SQLRaw("NULL")
+    static let nullInt = SQLRaw("NULL::INT")
+    static let nullUUID = SQLRaw("NULL::UUID")
 
     enum MatchType: String, Codable, Equatable {
         case author
@@ -178,11 +180,11 @@ enum Search {
             .select()
             .column(.author)
             .column(null, as: keyword)
-            .column(null, as: packageId)
+            .column(nullUUID, as: packageId)
             .column(null, as: packageName)
             .column(null, as: repoName)
             .column(repoOwner)
-            .column(null, as: score)
+            .column(nullInt, as: score)
             .column(null, as: summary)
             .from(searchView)
             .where(repoOwner, .equal, mergedTerms)
@@ -211,10 +213,10 @@ enum Search {
         // only include non-package results on first page
         let query = (page == 1)
         ? db.unionAll(
-            packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
-                                     offset: offset, limit: limit),
             authorMatchQueryBuilder(on: database, terms: sanitizedTerms),
-            keywordMatchQueryBuilder(on: database, terms: sanitizedTerms)
+            keywordMatchQueryBuilder(on: database, terms: sanitizedTerms),
+            packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
+                                     offset: offset, limit: limit)
         ).query
         : packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
                                    offset: offset, limit: limit).query
@@ -224,9 +226,6 @@ enum Search {
             .from(
                 SQLAlias(SQLGroupExpression(query), as: SQLIdentifier("t"))
             )
-            .orderBy(SQLOrderBy(MatchType.equals(.author), .descending))
-            .orderBy(SQLOrderBy(MatchType.equals(.keyword), .descending))
-            .orderBy(SQLOrderBy(MatchType.equals(.package), .descending))
     }
 
     static func fetch(_ database: Database,
