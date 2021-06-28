@@ -7,6 +7,7 @@ enum Search {
     static let schema = "search"
     
     // identifiers
+    static let author = SQLIdentifier("author")
     static let keyword = SQLIdentifier("keyword")
     static let keywords = SQLIdentifier("keywords")
     static let packageId = SQLIdentifier("package_id")
@@ -20,8 +21,9 @@ enum Search {
     static let null = SQLRaw("NULL")
 
     enum MatchType: String, Codable, Equatable {
-        case package
+        case author
         case keyword
+        case package
 
         static let identifier = SQLIdentifier(DBRecord.CodingKeys.matchType.rawValue)
 
@@ -72,7 +74,7 @@ enum Search {
 
         var isPackage: Bool {
             switch matchType {
-                case .keyword:
+                case .author, .keyword:
                     return false
                 case .package:
                     return true
@@ -160,6 +162,30 @@ enum Search {
             .from(searchView)
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
             .where(keyword, .equal, mergedTerms)
+            .limit(1)
+        // TODO: increase limit when we do % matching
+    }
+
+    static func authorMatchQueryBuilder(on database: Database,
+                                        terms: [String]) -> SQLSelectBuilder {
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+        let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
+        // FIXME: bookend with `%`
+
+        return db
+            .select()
+            .column(.author)
+            .column(null, as: keyword)
+            .column(null, as: packageId)
+            .column(null, as: packageName)
+            .column(null, as: repoName)
+            .column(repoOwner)
+            .column(null, as: score)
+            .column(null, as: summary)
+            .from(searchView)
+            .where(repoOwner, .equal, mergedTerms)
             .limit(1)
         // TODO: increase limit when we do % matching
     }

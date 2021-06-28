@@ -44,6 +44,18 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(binds(b), ["a b"])
     }
 
+    func test_authorMatchQuery_single_term() throws {
+        let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" = $1 LIMIT 1"#)
+        XCTAssertEqual(binds(b), ["a"])
+    }
+
+    func test_authorMatchQuery_multiple_term() throws {
+        let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a", "b"])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" = $1 LIMIT 1"#)
+        XCTAssertEqual(binds(b), ["a b"])
+    }
+
     func test_query_sql() throws {
         // Test to confirm shape of rendered search SQL
         // MUT
@@ -544,7 +556,7 @@ class SearchTests: AppTestCase {
 extension Search.Result {
     var package: Search.PackageResult? {
         switch self {
-            case .keyword:
+            case .author, .keyword:
                 return nil
             case .package(let result):
                 return result
@@ -553,6 +565,8 @@ extension Search.Result {
 
     var testDescription: String {
         switch self {
+            case .author(let res):
+                return res.name
             case .keyword(let res):
                 return res.keyword
             case .package(let res):
