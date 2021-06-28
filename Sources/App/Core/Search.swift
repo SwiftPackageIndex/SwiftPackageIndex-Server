@@ -208,12 +208,14 @@ enum Search {
         let offset = (page - 1) * pageSize
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
 
-        // only include keyword results on first page
+        // only include non-package results on first page
         let query = (page == 1)
         ? db.unionAll(
-            keywordMatchQueryBuilder(on: database, terms: sanitizedTerms),
             packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
-                                     offset: offset, limit: limit)).query
+                                     offset: offset, limit: limit),
+            authorMatchQueryBuilder(on: database, terms: sanitizedTerms),
+            keywordMatchQueryBuilder(on: database, terms: sanitizedTerms)
+        ).query
         : packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
                                    offset: offset, limit: limit).query
 
@@ -222,6 +224,7 @@ enum Search {
             .from(
                 SQLAlias(SQLGroupExpression(query), as: SQLIdentifier("t"))
             )
+            .orderBy(SQLOrderBy(MatchType.equals(.author), .descending))
             .orderBy(SQLOrderBy(MatchType.equals(.keyword), .descending))
             .orderBy(SQLOrderBy(MatchType.equals(.package), .descending))
     }

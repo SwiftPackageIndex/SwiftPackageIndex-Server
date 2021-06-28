@@ -70,12 +70,16 @@ class SearchTests: AppTestCase {
                                             limit: 21),
             resolveBinds: true
         )
+        let authors = renderSQL(
+            Search.authorMatchQueryBuilder(on: app.db, terms: ["test"]),
+            resolveBinds: true
+        )
         let keywords = renderSQL(
             Search.keywordMatchQueryBuilder(on: app.db, terms: ["test"]),
             resolveBinds: true
         )
         XCTAssertEqual(renderSQL(query, resolveBinds: true),
-                       #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC"#)
+                       #"SELECT * FROM ((\#(packages)) UNION ALL (\#(authors)) UNION ALL (\#(keywords))) AS "t" ORDER BY "match_type" = 'author' DESC, "match_type" = 'keyword' DESC, "match_type" = 'package' DESC"#)
         assertSnapshot(matching: renderSQL(query, resolveBinds: true), as: .lines)
     }
 
