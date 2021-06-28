@@ -202,10 +202,10 @@ class SearchTests: AppTestCase {
         }
         try packages.save(on: app.db).wait()
         try packages.map { try Repository(package: $0, defaultBranch: "default",
-                                          name: $0.url, owner: "foo") }
+                                          name: $0.url, owner: "foobar") }
             .save(on: app.db)
             .wait()
-        try packages.map { try Version(package: $0, packageName: "foo", reference: .branch("default")) }
+        try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
@@ -219,8 +219,8 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.package?.repositoryName),
-                           ["0", "1", "2"])
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["p:0", "p:1", "p:2"])
         }
 
         do {  // second page
@@ -232,8 +232,8 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.package?.repositoryName),
-                           ["3", "4", "5"])
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["p:3", "p:4", "p:5"])
         }
 
         do {  // third page
@@ -245,8 +245,8 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertFalse(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.package?.repositoryName),
-                           ["6", "7", "8"])
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["p:6", "p:7", "p:8"])
         }
     }
 
@@ -261,7 +261,7 @@ class SearchTests: AppTestCase {
                                           defaultBranch: "default",
                                           keywords: ["foo"],
                                           name: $0.url,
-                                          owner: "foo") }
+                                          owner: "foobar") }
             .save(on: app.db)
             .wait()
         try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
@@ -317,10 +317,10 @@ class SearchTests: AppTestCase {
         }
         try packages.save(on: app.db).wait()
         try packages.map { try Repository(package: $0, defaultBranch: "default",
-                                          name: $0.url, owner: "foo") }
+                                          name: $0.url, owner: "foobar") }
             .save(on: app.db)
             .wait()
-        try packages.map { try Version(package: $0, packageName: "foo", reference: .branch("default")) }
+        try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
@@ -345,8 +345,8 @@ class SearchTests: AppTestCase {
                                      page: 0,
                                      pageSize: 3).wait()
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.package?.repositoryName),
-                           ["0", "1", "2"])
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["p:0", "p:1", "p:2"])
         }
     }
 
@@ -358,7 +358,7 @@ class SearchTests: AppTestCase {
             try Repository(package: p,
                            defaultBranch: "main",
                            name: "\($0)",
-                           owner: "foo",
+                           owner: "foobar",
                            summary: "\($0)").save(on: app.db).wait()
             try Version(package: p, packageName: "\($0)", reference: .branch("main")).save(on: app.db).wait()
         }
@@ -467,12 +467,12 @@ class SearchTests: AppTestCase {
         try Repository(package: p1,
                        defaultBranch: "main",
                        name: "1",
-                       owner: "foo",
+                       owner: "foobar",
                        summary: "").save(on: app.db).wait()
         try Repository(package: p2,
                        defaultBranch: "main",
                        name: nil,
-                       owner: "foo",
+                       owner: "foobar",
                        summary: "").save(on: app.db).wait()
         try Repository(package: p3,
                        defaultBranch: "main",
