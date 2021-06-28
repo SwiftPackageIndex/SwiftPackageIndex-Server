@@ -31,7 +31,7 @@ enum SearchShow {
                 switch result {
                     case let .keyword(kw):
                         title = "🏷 \(kw.keyword)"
-                        link = kw.keyword  // FIXME
+                        link = SiteURL.keywords(.value(kw.keyword)).relativeURL()
                         footer = "Keyword results"
                     case let .package(pkg):
                         guard let packageURL = pkg.packageURL,
