@@ -11,8 +11,7 @@ struct PackageCollectionController {
             db: req.db,
             filterBy: .author(owner),
             authorName: "\(owner) via the Swift Package Index",
-            collectionName: "Packages by \(owner)",
-            ownerName: owner
+            collectionName: "Packages by \(owner)"
         )
     }
 }
