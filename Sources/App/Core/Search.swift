@@ -245,9 +245,9 @@ enum Search {
             .mapEachCompact(Result.init)
             .map { results in
                 let hasMoreResults = results.filter(\.isPackage).count > pageSize
-                // first page has keyword results prepended, extend prefix for them
+                // first page has non-package results prepended, extend prefix for them
                 let keep = (page == 1)
-                ? pageSize + results.filter(\.isKeyword).count
+                ? pageSize + results.filter{ !$0.isPackage }.count
                 : pageSize
                 return Search.Response(hasMoreResults: hasMoreResults,
                                        results: Array(results.prefix(keep)))

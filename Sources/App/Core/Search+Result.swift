@@ -35,15 +35,6 @@ extension Search {
             }
         }
 
-        var isKeyword: Bool {
-            switch self {
-                case .author, .package:
-                    return false
-                case .keyword:
-                    return true
-            }
-        }
-
         var isPackage: Bool {
             switch self {
                 case .author, .keyword:
