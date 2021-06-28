@@ -6,6 +6,11 @@ func concat(_ args: SQLExpression...) -> SQLFunction {
 }
 
 
+func concat(with separator: String, _ args: SQLExpression...) -> SQLFunction {
+    SQLFunction("CONCAT_WS", args: [SQLLiteral.string(separator)] + args)
+}
+
+
 func count(_ args: SQLExpression...) -> SQLFunction {
     SQLFunction("COUNT", args: args)
 }

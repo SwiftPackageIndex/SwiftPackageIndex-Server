@@ -1,3 +1,4 @@
+import SQLKit
 import XCTVapor
 
 
@@ -20,5 +21,34 @@ class AppTestCase: XCTestCase {
     override func tearDownWithError() throws {
         app.shutdown()
         try super.tearDownWithError()
+    }
+}
+
+
+extension AppTestCase {
+    func renderSQL(_ builder: SQLSelectBuilder?, resolveBinds: Bool = false) -> String {
+        renderSQL(builder?.query, resolveBinds: resolveBinds)
+    }
+
+    func renderSQL(_ query: SQLExpression?, resolveBinds: Bool = false) -> String {
+        var serializer = SQLSerializer(database: app.db as! SQLDatabase)
+        query?.serialize(to: &serializer)
+        var sql = serializer.sql
+        if resolveBinds {
+            for (idx, bind) in binds(query).enumerated() {
+                sql = sql.replacingOccurrences(of: "$\(idx+1)", with: "'\(bind)'")
+            }
+        }
+        return sql
+    }
+
+    func binds(_ builder: SQLSelectBuilder?) -> [String] {
+        binds(builder?.query)
+    }
+
+    func binds(_ query: SQLExpression?) -> [String] {
+        var serializer = SQLSerializer(database: app.db as! SQLDatabase)
+        query?.serialize(to: &serializer)
+        return serializer.binds as! [String]
     }
 }

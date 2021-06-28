@@ -137,6 +137,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 030 - add repositories.keywords
         app.migrations.add(UpdateRepositoryAddKeywords())
     }
+    do {  // Migration 031 - add search.keywords
+        app.migrations.add(UpdateSearch1())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

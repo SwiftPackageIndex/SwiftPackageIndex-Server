@@ -1,5 +1,6 @@
 @testable import App
 
+import SnapshotTesting
 import SQLKit
 import XCTVapor
 
@@ -7,81 +8,63 @@ import XCTVapor
 class SearchTests: AppTestCase {
     
     func test_DBRecord_packageURL() throws {
-        XCTAssertEqual(Search.DBRecord(packageId: UUID(),
+        XCTAssertEqual(Search.DBRecord(matchType: .package,
+                                       packageId: UUID(),
                                        repositoryName: "bar",
                                        repositoryOwner: "foo").packageURL,
                        "/foo/bar")
-        XCTAssertEqual(Search.DBRecord(packageId: UUID(),
+        XCTAssertEqual(Search.DBRecord(matchType: .package,
+                                       packageId: UUID(),
                                        repositoryName: "foo bar",
                                        repositoryOwner: "baz").packageURL,
                        "/baz/foo%20bar")
     }
 
-    // TODO: remove once once https://github.com/vapor/sql-kit/pull/133 has been merged
-    func test_union_two_arguments() throws {
-        let db = app.db as! SQLDatabase
-        let union = db.union(
-            db.select()
-                .column("id")
-                .from("t1")
-                .where("f1", .equal, "foo")
-                .limit(2),
-            db.select()
-                .column("id")
-                .from("t2")
-                .where("f2", .equal, "bar")
-                .limit(3)
-        )
-        XCTAssertEqual(renderSQL(union.query),
-                       #"(SELECT "id" FROM "t1" WHERE "f1" = $1 LIMIT 2) UNION (SELECT "id" FROM "t2" WHERE "f2" = $2 LIMIT 3)"#)
-    }
-
-    // TODO: remove once once https://github.com/vapor/sql-kit/pull/133 has been merged
-    func test_union_multiple_arguments() throws {
-        let db = app.db as! SQLDatabase
-        let union = db.union(
-            db.select().column("id").from("t1"),
-            db.select().column("id").from("t2"),
-            db.select().column("id").from("t3")
-        )
-        XCTAssertEqual(renderSQL(union.query),
-                       #"(SELECT "id" FROM "t1") UNION (SELECT "id" FROM "t2") UNION (SELECT "id" FROM "t3")"#)
-    }
-
     func test_packageMatchQuery_single_term() throws {
-        let q = Search.packageMatchQuery(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(q), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
+        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
+        XCTAssertEqual(binds(b), ["a", "a"])
     }
 
     func test_packageMatchQuery_multiple_terms() throws {
-        let q = Search.packageMatchQuery(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(q), #"SELECT 'package' AS "match_type", "id", "package_name", "name", "owner", "summary" FROM "search" WHERE CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $1 AND CONCAT("package_name", ' ', COALESCE("summary", ''), ' ', "name", ' ', "owner") ~* $2 AND "package_name" IS NOT NULL AND "owner" IS NOT NULL AND "name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
+        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
+        XCTAssertEqual(binds(b), ["a", "b", "a b"])
+    }
+
+    func test_keywordMatchQuery_single_term() throws {
+        let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
+        XCTAssertEqual(binds(b), ["a"])
+    }
+
+    func test_keywordMatchQuery_multiple_terms() throws {
+        let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a", "b"])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
+        XCTAssertEqual(binds(b), ["a b"])
     }
 
     func test_query_sql() throws {
         // Test to confirm shape of rendered search SQL
-        do {  // single search term
-            // MUT
-            let query = Search.query(app.db, ["a"], page: 1, pageSize: 20)
-            // validate
-            let inner = Search.packageMatchQuery(on: app.db,
-                                                 terms: ["a"],
-                                                 offset: 0,
-                                                 limit: 21)
-            XCTAssertEqual(renderSQL(query?.select),
-                           #"SELECT * FROM (\#(renderSQL(inner))) AS "t""#)
-        }
-        do {  // multiple search terms
-            // MUT
-            let query = Search.query(app.db, ["a", "b"], page: 1, pageSize: 20)
-            // validate
-            let inner = Search.packageMatchQuery(on: app.db,
-                                                 terms: ["a", "b"],
-                                                 offset: 0,
-                                                 limit: 21)
-            XCTAssertEqual(renderSQL(query?.select),
-                           #"SELECT * FROM (\#(renderSQL(inner))) AS "t""#)
-        }
+        // MUT
+        let query = Search.query(app.db, ["test"], page: 1, pageSize: 20)
+        // validate
+        // generate subqueries for validation to avoid repetition (these are tested separately above)
+        // we only want to test the `UNION ALL` glue query
+        let packages = renderSQL(
+            Search.packageMatchQueryBuilder(on: app.db,
+                                            terms: ["test"],
+                                            offset: 0,
+                                            limit: 21),
+            resolveBinds: true
+        )
+        let keywords = renderSQL(
+            Search.keywordMatchQueryBuilder(on: app.db, terms: ["test"]),
+            resolveBinds: true
+        )
+        XCTAssertEqual(renderSQL(query, resolveBinds: true),
+                       #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC"#)
+        assertSnapshot(matching: renderSQL(query, resolveBinds: true), as: .lines)
     }
 
     func test_fetch_single() throws {
@@ -108,12 +91,14 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
                              results: [
-                                .init(packageId: try p2.requireID(),
-                                      packageName: "Bar",
-                                      packageURL: "/owner%202/name%202",
-                                      repositoryName: "name 2",
-                                      repositoryOwner: "owner 2",
-                                      summary: "bar package")
+                                .package(
+                                    .init(packageId: try p2.requireID(),
+                                          packageName: "Bar",
+                                          packageURL: "/owner%202/name%202",
+                                          repositoryName: "name 2",
+                                          repositoryOwner: "owner 2",
+                                          summary: "bar package")
+                                )
                              ])
         )
     }
@@ -144,12 +129,14 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
                              results: [
-                                .init(packageId: try p2.requireID(),
-                                      packageName: "Bar",
-                                      packageURL: "/owner/package%202",
-                                      repositoryName: "package 2",
-                                      repositoryOwner: "owner",
-                                      summary: "package 2 description")
+                                .package(
+                                    .init(packageId: try p2.requireID(),
+                                          packageName: "Bar",
+                                          packageURL: "/owner/package%202",
+                                          repositoryName: "package 2",
+                                          repositoryOwner: "owner",
+                                          summary: "package 2 description")
+                                )
                              ])
         )
     }
@@ -180,12 +167,14 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
                              results: [
-                                .init(packageId: try p1.requireID(),
-                                      packageName: "Foo",
-                                      packageURL: "/owner%201/name%201",
-                                      repositoryName: "name 1",
-                                      repositoryOwner: "owner 1",
-                                      summary: "some 'package'")
+                                .package(
+                                    .init(packageId: try p1.requireID(),
+                                          packageName: "Foo",
+                                          packageURL: "/owner%201/name%201",
+                                          repositoryName: "name 1",
+                                          repositoryOwner: "owner 1",
+                                          summary: "some 'package'")
+                                    )
                              ])
         )
     }
@@ -215,7 +204,7 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.repositoryName),
+            XCTAssertEqual(res.results.map(\.package?.repositoryName),
                            ["0", "1", "2"])
         }
 
@@ -228,7 +217,7 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.repositoryName),
+            XCTAssertEqual(res.results.map(\.package?.repositoryName),
                            ["3", "4", "5"])
         }
 
@@ -241,7 +230,7 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertFalse(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.repositoryName),
+            XCTAssertEqual(res.results.map(\.package?.repositoryName),
                            ["6", "7", "8"])
         }
     }
@@ -271,7 +260,7 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertFalse(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.repositoryName),
+            XCTAssertEqual(res.results.map(\.package?.repositoryName),
                            [])
         }
 
@@ -282,7 +271,7 @@ class SearchTests: AppTestCase {
                                      page: 0,
                                      pageSize: 3).wait()
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.repositoryName),
+            XCTAssertEqual(res.results.map(\.package?.repositoryName),
                            ["0", "1", "2"])
         }
     }
@@ -306,7 +295,8 @@ class SearchTests: AppTestCase {
         
         // validation
         XCTAssertEqual(res.results.count, 10)
-        XCTAssertEqual(res.results.map(\.summary), ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"])
+        XCTAssertEqual(res.results.map(\.package?.summary),
+                       ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"])
     }
     
     func test_exact_name_match() throws {
@@ -346,7 +336,8 @@ class SearchTests: AppTestCase {
         // MUT
         let res = try Search.fetch(app.db, ["ink"], page: 1, pageSize: 20).wait()
         
-        XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
+        XCTAssertEqual(res.results.map(\.package?.repositoryName),
+                       ["1", "3", "2"])
     }
     
     func test_exact_name_match_whitespace() throws {
@@ -386,7 +377,8 @@ class SearchTests: AppTestCase {
         // MUT
         let res = try Search.fetch(app.db, ["foo", "bar"], page: 1, pageSize: 20).wait()
         
-        XCTAssertEqual(res.results.map(\.repositoryName), ["1", "3", "2"])
+        XCTAssertEqual(res.results.map(\.package?.repositoryName),
+                       ["1", "3", "2"])
     }
     
     func test_exclude_null_fields() throws {
@@ -448,9 +440,56 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res, .init(hasMoreResults: false, results: []))
     }
 
-    func renderSQL(_ query: SQLExpression?) -> String {
-        var serializer = SQLSerializer(database: app.db as! SQLDatabase)
-        query?.serialize(to: &serializer)
-        return serializer.sql
+    func test_search_topic() throws {
+        // Test searching for a topic
+        // setup
+        // p1: decoy
+        // p2: match
+        let p1 = Package(id: .id1, url: "1", score: 10)
+        let p2 = Package(id: .id2, url: "2", score: 20)
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       keywords: ["topic"],
+                       name: "2",
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).wait()
+
+        XCTAssertEqual(res.results, [
+            .keyword(.init(keyword: "topic")),
+            // TODO: also match against package keywords
+            //            .package(.init(packageId: .id2,
+            //                           packageName: "2",
+            //                           packageURL: "2",
+            //                           repositoryName: "2",
+            //                           repositoryOwner: "foo",
+            //                           summary: ""))
+        ])
+    }
+
+}
+
+
+extension Search.Result {
+    var package: Search.PackageResult? {
+        switch self {
+            case .keyword:
+                return nil
+            case .package(let result):
+                return result
+        }
     }
 }

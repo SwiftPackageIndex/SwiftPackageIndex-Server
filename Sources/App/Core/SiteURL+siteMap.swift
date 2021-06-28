@@ -94,8 +94,8 @@ extension SiteMap {
         // 1) access is fast
         // 2) packages listed are valid for presentation
         let query = db.select()
-            .column(Search.repoName)
-            .column(Search.repoOwner)
+            .column(Search.repoName, as: "name")
+            .column(Search.repoOwner, as: "owner")
             .from(Search.searchView)
             .orderBy(Search.repoName)
             .orderBy(Search.repoOwner)
