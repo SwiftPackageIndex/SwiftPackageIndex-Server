@@ -8,8 +8,9 @@ let package = Package(
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0-rc"),
-        .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0-rc"),
+        .package(url: "https://github.com/vapor/vapor.git", .branch("async-await")),
+        .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/fluent-kit", .branch("async-await")),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0-rc"),
         .package(url: "https://github.com/JohnSundell/Ink.git", from: "0.5.1"),
         .package(url: "https://github.com/JohnSundell/Plot.git", from: "0.10.0"),
@@ -27,6 +28,7 @@ let package = Package(
     targets: [
         .target(name: "App", dependencies: [
             .product(name: "Fluent", package: "fluent"),
+            .product(name: "FluentKit", package: "fluent-kit"),
             .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             .product(name: "Vapor", package: "vapor"),
             "Plot",
@@ -37,6 +39,12 @@ let package = Package(
             "OhhAuth",
             "SwiftSoup",
             .product(name: "PackageCollectionsModel", package: "SwiftPM")
+        ],
+        swiftSettings: [
+            .unsafeFlags([
+                "-Xfrontend", "-disable-availability-checking",
+                "-Xfrontend", "-enable-experimental-concurrency",
+            ])
         ]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [

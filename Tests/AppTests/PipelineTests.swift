@@ -115,12 +115,12 @@ class PipelineTests: AppTestCase {
         XCTAssertEqual(batch.map(\.url), ["4", "1", "2", "3"])
     }
     
-    func test_processing_pipeline() throws {
+    func test_processing_pipeline() async throws {
         // Test pipeline pick-up end to end
         // setup
         let urls = ["1", "2", "3"].asGithubUrls
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
-        Current.fetchPackageList = { _ in self.future(urls.asURLs) }
+        Current.fetchPackageList = { _ in urls.asURLs }
 
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
@@ -136,7 +136,7 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - first stage
-        try reconcile(client: app.client, database: app.db).wait()
+        try await reconcile(client: app.client, database: app.db)
         
         do {  // validate
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
@@ -173,10 +173,10 @@ class PipelineTests: AppTestCase {
         }
         
         // Now we've got a new package and a deletion
-        Current.fetchPackageList = { _ in self.future(["1", "3", "4"].asGithubUrls.asURLs) }
+        Current.fetchPackageList = { _ in ["1", "3", "4"].asGithubUrls.asURLs }
         
         // MUT - reconcile again
-        try reconcile(client: app.client, database: app.db).wait()
+        try await reconcile(client: app.client, database: app.db)
         
         do {  // validate - only new package moves to .reconciliation stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()

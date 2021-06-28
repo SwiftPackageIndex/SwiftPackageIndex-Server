@@ -9,7 +9,7 @@ struct AppEnvironment {
     var builderToken: () -> String?
     var buildTriggerDownscaling: () -> Double
     var date: () -> Date
-    var fetchPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
+    var fetchPackageList: (_ client: Client) async throws -> [URL]
     var fetchLicense: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.License?>
     var fetchMetadata: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Metadata>
     var fetchReadme: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Readme?>

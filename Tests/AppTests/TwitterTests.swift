@@ -220,7 +220,7 @@ class TwitterTests: AppTestCase {
         XCTAssertTrue(message?.contains("v2.0.0") ?? false)
     }
 
-    func test_endToEnd() throws {
+    func test_endToEnd() async throws {
         // setup
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
@@ -238,7 +238,7 @@ class TwitterTests: AppTestCase {
         var tag = Reference.tag(1, 2, 3)
         let url = "https://github.com/foo/bar"
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
-        Current.fetchPackageList = { _ in self.future([url.url]) }
+        Current.fetchPackageList = { _ in [url.url] }
 
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
@@ -253,7 +253,7 @@ class TwitterTests: AppTestCase {
             return ""
         }
         // run first two processing steps
-        try reconcile(client: app.client, database: app.db).wait()
+        try await reconcile(client: app.client, database: app.db)
         try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
 
         // MUT - analyze, triggering the tweet
@@ -269,7 +269,7 @@ class TwitterTests: AppTestCase {
 
         // run stages again to simulate the cycle...
         message = nil
-        try reconcile(client: app.client, database: app.db).wait()
+        try await reconcile(client: app.client, database: app.db)
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
 
