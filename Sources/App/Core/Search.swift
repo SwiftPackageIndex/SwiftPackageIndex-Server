@@ -18,6 +18,7 @@ enum Search {
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
 
+    static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
     static let nullInt = SQLRaw("NULL::INT")
     static let nullUUID = SQLRaw("NULL::UUID")
@@ -187,7 +188,7 @@ enum Search {
             .column(nullInt, as: score)
             .column(null, as: summary)
             .from(searchView)
-            .where(repoOwner, .equal, mergedTerms)
+            .where(repoOwner, ilike, mergedTerms)
             .limit(1)
         // TODO: increase limit when we do % matching
     }

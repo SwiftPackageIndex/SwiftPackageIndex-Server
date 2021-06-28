@@ -46,13 +46,13 @@ class SearchTests: AppTestCase {
 
     func test_authorMatchQuery_single_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" = $1 LIMIT 1"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a"])
     }
 
     func test_authorMatchQuery_multiple_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" = $1 LIMIT 1"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a b"])
     }
 
