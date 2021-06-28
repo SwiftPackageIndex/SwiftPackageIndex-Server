@@ -67,7 +67,7 @@
     </header>
     <main>
       <div class="inner">
-        <h2 class="trimmed">Packages for networking</h2>
+        <h2 class="trimmed">Packages for keyword “networking”</h2>
         <ul id="package_list">
           <li>
             <a>

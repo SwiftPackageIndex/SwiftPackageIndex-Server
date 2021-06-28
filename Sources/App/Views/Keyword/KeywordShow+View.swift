@@ -25,7 +25,7 @@ enum KeywordShow {
             .group(
                 .h2(
                     .class("trimmed"),
-                    .text("Packages for \(model.keyword)")
+                    .text("Packages for keyword “\(model.keyword)”")
                 ),
                 .ul(
                     .id("package_list"),
