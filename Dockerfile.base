@@ -15,7 +15,8 @@
 # Build:
 # docker build -t finestructure/spi-base:x.y.z -f Dockerfile.base .
 # docker push finestructure/spi-base:x.y.z
-FROM swift:5.4-focal
+FROM swiftlang/swift@sha256:a0d75888a49938175bb4da3a3d6e3ab5cdf3095fe71ed427ee4a03a05a78336d
+    # ^^ swift-5.5-DEVELOPMENT-SNAPSHOT-2021-06-26-a
 # FROM ubuntu:18.04  # fails (missing system libxml2.so.2)
 # FROM vapor/ubuntu:18.04  # fails with invalid linker name in argument '-fuse-ld=gold'
 
