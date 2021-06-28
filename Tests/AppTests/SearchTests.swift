@@ -263,7 +263,7 @@ class SearchTests: AppTestCase {
             // validate
             XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["foo", "0", "1"])
+                           ["foo", "0", "1", "2"])
         }
 
         do {  // second page
@@ -276,7 +276,7 @@ class SearchTests: AppTestCase {
             // validate
             XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["2", "3", "4"])
+                           ["3", "4", "5"])
         }
 
         do {  // third page
@@ -289,7 +289,7 @@ class SearchTests: AppTestCase {
             // validate
             XCTAssertFalse(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["5", "6", "7"])
+                           ["6", "7", "8"])
         }
     }
 
