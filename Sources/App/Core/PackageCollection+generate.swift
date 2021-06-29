@@ -86,7 +86,7 @@ extension PackageCollection {
             by: { $0.repository?.ownerName ?? $0.repository?.owner }
         )
 
-        let names = groupedPackagesByName.enumerated().compactMap { $0.element.key }
+        let names = groupedPackagesByName.enumerated().compactMap(\.element.key)
         switch names.count {
         case 0:
             // shouldn't be possible really
