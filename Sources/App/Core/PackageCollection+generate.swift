@@ -108,8 +108,22 @@ extension PackageCollection {
                 return label
             case (.urls, .some(let label)):
                 return label
-            case (.urls, .none):
-                return "various authors"
+            case (.urls(let urls), .none):
+                return author(for: urls)
+        }
+    }
+
+    static func author(for urls: [String]) -> String {
+        let owners = urls.compactMap { try? Github.parseOwnerName(url: $0).owner }
+        switch owners.count {
+            case 0:
+                return "unknown author"
+            case 1:
+                return owners.first!
+            case 2:
+                return owners.joined(separator: " ")
+            default:
+                return "multiple authors"
         }
     }
 
