@@ -65,9 +65,7 @@ extension PackageCollection {
                 let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
                 return (packages, collectionName, overview)
             }
-            .map { (packages: [Package],
-                    collectionName: String,
-                    overview: String) -> PackageCollection in
+            .map { packages, collectionName, overview in
                 PackageCollection.init(
                     name: collectionName,
                     overview: overview,
