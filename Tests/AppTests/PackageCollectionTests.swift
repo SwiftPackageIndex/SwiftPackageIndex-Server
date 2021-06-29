@@ -435,4 +435,45 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.packages.count, 1)
     }
 
+    func test_generate_ownerName() throws {
+        // Ensure ownerName is used in collectionName and overview
+        // setup
+        // first package
+        let p1 = try savePackage(on: app.db, "https://github.com/foo/1")
+        do {
+            let v = try Version(id: UUID(),
+                                package: p1,
+                                latest: .release,
+                                packageName: "P1-tag",
+                                reference: .tag(2, 0, 0),
+                                toolsVersion: "5.2")
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "P1Lib", targets: ["t1"])
+                .save(on: app.db).wait()
+            try Build(version: v,
+                      platform: .ios,
+                      status: .ok,
+                      swiftVersion: .v5_2).save(on: app.db).wait()
+            try Target(version: v, name: "t1").save(on: app.db).wait()
+        }
+        // unrelated package
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       license: .mit,
+                       licenseUrl: "https://foo/mit",
+                       owner: "foo",
+                       ownerName: "Foo Org",
+                       summary: "summary 1").create(on: app.db).wait()
+
+        // MUT
+        let res = try PackageCollection.generate(db: self.app.db,
+                                                 filterBy: .author("foo"),
+                                                 authorName: "Foo",
+                                                 keywords: ["key", "word"])
+            .wait()
+
+        // validate
+        XCTAssertEqual(res.name, "Packages by Foo Org")
+        XCTAssertEqual(res.overview, "A collection of packages authored by Foo Org from the Swift Package Index")
+    }
 }
