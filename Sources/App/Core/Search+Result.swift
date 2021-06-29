@@ -1,9 +1,18 @@
+import Vapor
+
+
 extension Search {
     enum Result: Equatable {
         case keyword(KeywordResult)
         case package(PackageResult)
 
         init?(_ record: DBRecord) {
+            // don't show non-package results on production yet
+            let environment = (try? Environment.detect()) ?? .development
+            if environment == .production && !record.isPackage {
+                return nil
+            }
+            // -- end --
             switch (record.matchType, record.keyword) {
                 case let (.keyword, .some(kw)):
                     self = .keyword(.init(keyword: kw))

@@ -69,6 +69,15 @@ enum Search {
             else { return nil }
             return SiteURL.package(.value(owner), .value(name), .none).relativeURL()
         }
+
+        var isPackage: Bool {
+            switch matchType {
+                case .keyword:
+                    return false
+                case .package:
+                    return true
+            }
+        }
     }
 
     static func sanitize(_ terms: [String]) -> [String] {
