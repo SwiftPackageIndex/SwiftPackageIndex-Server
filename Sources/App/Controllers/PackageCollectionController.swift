@@ -10,8 +10,7 @@ struct PackageCollectionController {
         return PackageCollection.generate(
             db: req.db,
             filterBy: .author(owner),
-            authorName: "\(owner) via the Swift Package Index",
-            collectionName: "Packages by \(owner)"
+            authorName: "\(owner) via the Swift Package Index"
         )
     }
 }

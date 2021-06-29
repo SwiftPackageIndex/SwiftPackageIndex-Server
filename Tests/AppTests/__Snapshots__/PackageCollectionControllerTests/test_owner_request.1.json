@@ -5,6 +5,7 @@
     "name" : "foo via the Swift Package Index"
   },
   "name" : "Packages by foo",
+  "overview" : "A collection of packages authored by foo from the Swift Package Index",
   "packages" : [
     {
       "license" : {

@@ -23,7 +23,7 @@ extension PackageCollection {
     static func generate(db: Database,
                          filterBy filter: Filter,
                          authorName: String? = nil,
-                         collectionName: String,
+                         collectionName: String? = nil,
                          keywords: [String]? = nil,
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
@@ -37,7 +37,7 @@ extension PackageCollection {
             .join(App.Package.self, on: \App.Package.$id == \Version.$package.$id)
             .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
             .filter(Version.self, \.$latest ~~ [.release, .preRelease])
-
+        
         switch filter {
             case let .author(owner):
                 query = query
@@ -55,20 +55,82 @@ extension PackageCollection {
                 Dictionary(grouping: versions, by: { $0.package })
                     .sorted(by: { $0.key.url < $1.key.url })
             }
-            .mapEachCompact { Package.init(package: $0.key,
-                                           prunedVersions: $0.value,
-                                           keywords: keywords) }
-            .map {
+            .map { packageToVersions in
+                let packages = packageToVersions.compactMap {
+                    Package.init(package: $0.key,
+                                 prunedVersions: $0.value,
+                                 keywords: keywords) }
+                let authorLabel = authorLabel(packages: packageToVersions.map(\.key))
+                let collectionName = collectionName ?? Self.collectionName(for: filter, authorLabel: authorLabel)
+                let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
+                return (packages, collectionName, overview)
+            }
+            .map { packages, collectionName, overview in
                 PackageCollection.init(
                     name: collectionName,
                     overview: overview,
                     keywords: keywords,
-                    packages: $0,
+                    packages: packages,
                     formatVersion: .v1_0,
                     revision: revision,
                     generatedAt: Current.date(),
                     generatedBy: authorName.map(Author.init(name:)))
             }
+    }
+
+    static func authorLabel(packages: [App.Package]) -> String? {
+        let groupedPackagesByName = Dictionary(
+            grouping: packages,
+            by: { $0.repository?.ownerName ?? $0.repository?.owner }
+        )
+
+        let names = groupedPackagesByName.enumerated().compactMap(\.element.key)
+        switch names.count {
+        case 0:
+            // shouldn't be possible really
+            return nil
+        case 1:
+            return names.first!
+        case 2:
+            return names.joined(separator: " and ")
+        default:
+            return "multiple authors"
+        }
+    }
+
+    static func author(for filter: Filter, authorLabel: String?) -> String {
+        switch (filter, authorLabel) {
+            case (.author(let owner), .none):
+                return owner
+            case (.author, .some(let label)):
+                return label
+            case (.urls, .some(let label)):
+                return label
+            case (.urls(let urls), .none):
+                return author(for: urls)
+        }
+    }
+
+    static func author(for urls: [String]) -> String {
+        let owners = urls.compactMap { try? Github.parseOwnerName(url: $0).owner }
+        switch owners.count {
+            case 0:
+                return "unknown author"
+            case 1:
+                return owners.first!
+            case 2:
+                return owners.joined(separator: " ")
+            default:
+                return "multiple authors"
+        }
+    }
+
+    static func collectionName(for filter: Filter, authorLabel: String?) -> String {
+        "Packages by \(author(for: filter, authorLabel: authorLabel))"
+    }
+
+    static func overview(for filter: Filter, authorLabel: String?) -> String {
+        "A collection of packages authored by \(author(for: filter, authorLabel: authorLabel)) from the Swift Package Index"
     }
 }
 
