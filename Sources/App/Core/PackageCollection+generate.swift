@@ -46,27 +46,6 @@ extension PackageCollection {
                 query = query
                     .filter(App.Package.self, \.$url ~~ packageURLs)
         }
-        
-        // generate ownerName from [App.Package]
-        
-        func ownerName(packages: [App.Package]) -> String {
-            let groupedPackagesByName = Dictionary(
-                grouping: packages,
-                by: { $0.repository?.ownerName ?? $0.repository?.owner })
-            
-            let names = groupedPackagesByName.enumerated().compactMap { $0.element.key }
-            switch names.count {
-            case 0:
-                // shouldn't be possible really
-                return ""
-            case 1:
-                return names.first!
-            case 2:
-                return names.joined(separator: " and ")
-            default:
-                return "multiple authors"
-            }
-        }
 
         return query.all()
             .map { versions in
@@ -97,6 +76,26 @@ extension PackageCollection {
                     generatedAt: Current.date(),
                     generatedBy: authorName.map(Author.init(name:)))
             }
+    }
+
+    static func ownerName(packages: [App.Package]) -> String {
+        let groupedPackagesByName = Dictionary(
+            grouping: packages,
+            by: { $0.repository?.ownerName ?? $0.repository?.owner }
+        )
+
+        let names = groupedPackagesByName.enumerated().compactMap { $0.element.key }
+        switch names.count {
+        case 0:
+            // shouldn't be possible really
+            return ""
+        case 1:
+            return names.first!
+        case 2:
+            return names.joined(separator: " and ")
+        default:
+            return "multiple authors"
+        }
     }
 }
 
