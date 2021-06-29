@@ -257,9 +257,7 @@ class PackageCollectionTests: AppTestCase {
         let res = try PackageCollection.generate(db: self.app.db,
                                                  filterBy: .author("foo"),
                                                  authorName: "Foo",
-                                                 collectionName: "Foo",
-                                                 keywords: ["key", "word"],
-                                                 overview: "overview")
+                                                 keywords: ["key", "word"])
             .wait()
 
         // validate

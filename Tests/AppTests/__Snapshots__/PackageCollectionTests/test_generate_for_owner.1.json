@@ -8,8 +8,8 @@
     "key",
     "word"
   ],
-  "name" : "Foo",
-  "overview" : "overview",
+  "name" : "Packages by foo",
+  "overview" : "A collection of packages authored by foo from the Swift Package Index",
   "packages" : [
     {
       "keywords" : [

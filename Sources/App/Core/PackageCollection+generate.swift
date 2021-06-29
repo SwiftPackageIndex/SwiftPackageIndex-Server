@@ -23,7 +23,7 @@ extension PackageCollection {
     static func generate(db: Database,
                          filterBy filter: Filter,
                          authorName: String? = nil,
-                         collectionName: String,
+                         collectionName: String? = nil,
                          keywords: [String]? = nil,
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
@@ -56,19 +56,21 @@ extension PackageCollection {
                     .sorted(by: { $0.key.url < $1.key.url })
             }
             .map { packageToVersions in
-                (packageToVersions, ownerName(packages: packageToVersions.map { $0.key }))
-            }
-            .map { (packageToVersions, ownerName) in
                 let packages = packageToVersions.compactMap {
                     Package.init(package: $0.key,
                                  prunedVersions: $0.value,
                                  keywords: keywords) }
-                return (packages, ownerName)
+                let authorLabel = authorLabel(packages: packageToVersions.map(\.key))
+                let collectionName = collectionName ?? Self.collectionName(for: filter, authorLabel: authorLabel)
+                let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
+                return (packages, collectionName, overview)
             }
-            .map { (packages: [Package], ownerName: String) -> PackageCollection in
+            .map { (packages: [Package],
+                    collectionName: String,
+                    overview: String) -> PackageCollection in
                 PackageCollection.init(
-                    name: "Packages by \(ownerName)",
-                    overview: "A collection of packages authored by \(ownerName) from the Swift Package Index",
+                    name: collectionName,
+                    overview: overview,
                     keywords: keywords,
                     packages: packages,
                     formatVersion: .v1_0,
@@ -78,7 +80,7 @@ extension PackageCollection {
             }
     }
 
-    static func ownerName(packages: [App.Package]) -> String {
+    static func authorLabel(packages: [App.Package]) -> String? {
         let groupedPackagesByName = Dictionary(
             grouping: packages,
             by: { $0.repository?.ownerName ?? $0.repository?.owner }
@@ -88,7 +90,7 @@ extension PackageCollection {
         switch names.count {
         case 0:
             // shouldn't be possible really
-            return ""
+            return nil
         case 1:
             return names.first!
         case 2:
@@ -96,6 +98,27 @@ extension PackageCollection {
         default:
             return "multiple authors"
         }
+    }
+
+    static func author(for filter: Filter, authorLabel: String?) -> String {
+        switch (filter, authorLabel) {
+            case (.author(let owner), .none):
+                return owner
+            case (.author, .some(let label)):
+                return label
+            case (.urls, .some(let label)):
+                return label
+            case (.urls, .none):
+                return "various authors"
+        }
+    }
+
+    static func collectionName(for filter: Filter, authorLabel: String?) -> String {
+        "Packages by \(author(for: filter, authorLabel: authorLabel))"
+    }
+
+    static func overview(for filter: Filter, authorLabel: String?) -> String {
+        "A collection of packages authored by \(author(for: filter, authorLabel: authorLabel)) from the Swift Package Index"
     }
 }
 
