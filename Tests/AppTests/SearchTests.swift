@@ -294,18 +294,51 @@ class SearchTests: AppTestCase {
             XCTAssertEqual(res.results.map(\.testDescription),
                            ["p:3", "p:4", "p:5"])
         }
+    }
 
-        do {  // third page
+    func test_search_pagination_with_author_results() throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1198
+        // setup
+        let packages = (0..<9).map { idx in
+            Package(url: "\(idx)".url, score: 15 - idx)
+        }
+        try packages.save(on: app.db).wait()
+        try packages.map { try Repository(package: $0,
+                                          defaultBranch: "default",
+                                          keywords: ["foo"],
+                                          name: $0.url,
+                                          owner: "foo") }
+            .save(on: app.db)
+            .wait()
+        try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
+            .save(on: app.db)
+            .wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {  // first page
             // MUT
             let res = try API.search(database: app.db,
                                      query: "foo",
-                                     page: 3,
+                                     page: 1,
                                      pageSize: 3).wait()
 
             // validate
-            XCTAssertFalse(res.hasMoreResults)
+            XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["p:6", "p:7", "p:8"])
+                           ["a:foo", "k:foo", "p:0", "p:1", "p:2"])
+        }
+
+        do {  // second page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 2,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertTrue(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["p:3", "p:4", "p:5"])
         }
     }
 
@@ -514,8 +547,8 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res, .init(hasMoreResults: false, results: []))
     }
 
-    func test_search_topic() throws {
-        // Test searching for a topic
+    func test_search_keyword() throws {
+        // Test searching for a keyword
         // setup
         // p1: decoy
         // p2: match
@@ -551,6 +584,45 @@ class SearchTests: AppTestCase {
             //                           repositoryName: "2",
             //                           repositoryOwner: "foo",
             //                           summary: ""))
+        ])
+    }
+
+    func test_search_author() throws {
+        // Test searching for an author
+        // setup
+        // p1: decoy
+        // p2: match
+        let p1 = Package(id: .id1, url: "1", score: 10)
+        let p2 = Package(id: .id2, url: "2", score: 20)
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "bar",
+                       summary: "").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       name: "2",
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).wait()
+
+        XCTAssertEqual(res.results, [
+            .author(.init(name: "foo")),
+            // the owner fields is part of the package match, so we always also match packages by an author when searching for an author
+            .package(.init(packageId: .id2,
+                           packageName: "p2",
+                           packageURL: "/foo/2",
+                           repositoryName: "2",
+                           repositoryOwner: "foo",
+                           summary: ""))
         ])
     }
 
