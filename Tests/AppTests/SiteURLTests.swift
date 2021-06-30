@@ -154,4 +154,9 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(QueryParameter(key: "foo", value: 1).encodedForQueryString, "foo=1")
     }
 
+    func test_keywords() throws {
+        XCTAssertEqual(SiteURL.keywords(.value("foo")).path, "keywords/foo")
+        XCTAssertEqual(SiteURL.keywords(.key).pathComponents.map(\.description), ["keywords", ":keyword"])
+    }
+
 }

@@ -86,6 +86,7 @@ enum SiteURL: Resourceable {
     case home
     case images(String)
     case javascripts(String)
+    case keywords(_ keyword: Parameter<String>)
     case package(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagePathComponents?)
     case packageCollection(_ owner: Parameter<String>)
     case packageCollections
@@ -131,6 +132,12 @@ enum SiteURL: Resourceable {
                 
             case let .javascripts(name):
                 return "/\(name).js"
+
+            case let .keywords(.value(keyword)):
+                return "keywords/\(keyword)"
+
+            case .keywords:
+                fatalError("invalid path: \(self)")
 
             case let .package(.value(owner), .value(repo), .none):
                 let owner = owner.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? owner
@@ -195,6 +202,9 @@ enum SiteURL: Resourceable {
 
             case let .docs(next):
                 return ["docs"] + next.pathComponents
+
+            case .keywords:
+                return ["keywords", ":keyword"]
 
             case .package(.key, .key, .none):
                 return [":owner", ":repository"]

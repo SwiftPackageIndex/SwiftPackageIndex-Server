@@ -3,13 +3,13 @@
 import Foundation
 
 
-extension AuthorShow.Model {
-    static var mock: AuthorShow.Model {
+extension KeywordShow.Model {
+    static var mock: Self {
         let packages = (1...10).map { PackageInfo(
-            title: "vapor-\($0)",
+            title: "Networking Package \($0)",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.",
             url: ""
         ) }
-        return .init(owner: "test-author", ownerName: "Test Author", packages: packages)
+        return .init(keyword: "networking", packages: packages)
     }
 }

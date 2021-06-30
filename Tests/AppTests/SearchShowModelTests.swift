@@ -58,18 +58,16 @@ class SearchShowModelTests: AppTestCase {
         XCTAssertEqual(model.response.results.count, 2)
 
         let result = model.response.results.first!
-        XCTAssertEqual(result.packageId, .mockId(at: 1))
-        XCTAssertEqual(result.packageName, "1")
-        XCTAssertEqual(result.packageURL, "https://example.com/package/one")
-        XCTAssertEqual(result.repositoryName, "one")
-        XCTAssertEqual(result.repositoryOwner, "package")
+        XCTAssertEqual(result.title, "1")
         XCTAssertEqual(result.summary, "summary one")
+        XCTAssertEqual(result.footer, "package/one")
+        XCTAssertEqual(result.link, "https://example.com/package/one")
     }
 
     func test_SearchShow_Model_Record_packageName() throws {
         // A search record with no package name shouls get a default package name
         let result: Search.Result = .mock(
-            packageId: .mockId(at: 1),
+            packageId: .id1,
             packageName: nil,
             packageURL: "https://example.com/package/one",
             repositoryName: "one",
@@ -80,8 +78,10 @@ class SearchShowModelTests: AppTestCase {
         let viewModel = SearchShow.Model.Result(result: result)
 
         // MUT
-        let packageName = viewModel?.packageName
+        let packageName = viewModel?.title
 
         XCTAssertEqual(packageName, "Unknown Package")
     }
+
+    // TODO: add keyword search test
 }

@@ -3,43 +3,42 @@ import Plot
 import Vapor
 
 
-struct AuthorController {
+struct KeywordController {
 
-    private func query(on database: Database, owner: String) -> EventLoopFuture<[Package]> {
+    static func query(on database: Database, keyword: String) -> EventLoopFuture<[Package]> {
         Package.query(on: database)
             .with(\.$repositories)
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
             .filter(
-                DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
-                DatabaseQuery.Filter.Method.custom("ilike"),
-                DatabaseQuery.Value.bind(owner)
+                DatabaseQuery.Field.path(Repository.path(for: \.$keywords), schema: Repository.schema),
+                DatabaseQuery.Filter.Method.custom("@>"),
+                DatabaseQuery.Value.bind([keyword])
             )
             .all()
             .flatMapThrowing {
                 if $0.isEmpty {
                     throw Abort(.notFound)
                 }
-                
+
                 return $0
             }
     }
 
     func show(req: Request) throws -> EventLoopFuture<HTML> {
-        guard let owner = req.parameters.get("owner") else {
+        guard let keyword = req.parameters.get("keyword") else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return query(on: req.db, owner: owner)
+        return Self.query(on: req.db, keyword: keyword)
             .map {
-                AuthorShow.Model(
-                    owner: $0.first?.repository?.owner ?? owner,
-                    ownerName: $0.first?.repository?.ownerDisplayName ?? owner,
+                KeywordShow.Model(
+                    keyword: keyword,
                     packages: $0.sorted(by: { $0.score ?? 0 > $1.score ?? 0 })
                                 .compactMap { PackageInfo(package: $0) }
                 )
             }
             .map {
-                AuthorShow.View(path: req.url.path, model: $0).document()
+                KeywordShow.View(path: req.url.path, model: $0).document()
             }
     }
 

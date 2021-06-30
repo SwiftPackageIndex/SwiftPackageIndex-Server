@@ -22,25 +22,27 @@ enum SearchShow {
         }
 
         struct Result {
-            var packageId: Package.Id?
-            var packageName: String
-            var packageURL: String
-            var repositoryName: String
-            var repositoryOwner: String
+            var title: String
             var summary: String?
+            var footer: String
+            var link: String
 
             init?(result: Search.Result) {
-                guard case let .package(pkg) = result else { return nil }
-                guard let packageURL = pkg.packageURL else { return nil }
-                guard let repositoryName = pkg.repositoryName else { return nil }
-                guard let repositoryOwner = pkg.repositoryOwner else { return nil }
-
-                self.packageId = pkg.packageId
-                self.packageName = pkg.packageName ?? "Unknown Package"
-                self.packageURL = packageURL
-                self.repositoryName = repositoryName
-                self.repositoryOwner = repositoryOwner
-                self.summary = pkg.summary
+                switch result {
+                    case let .keyword(kw):
+                        title = "🏷 \(kw.keyword)"
+                        link = SiteURL.keywords(.value(kw.keyword)).relativeURL()
+                        footer = "Keyword results"
+                    case let .package(pkg):
+                        guard let packageURL = pkg.packageURL,
+                              let repositoryName = pkg.repositoryName,
+                              let repositoryOwner = pkg.repositoryOwner
+                        else { return nil }
+                        title = pkg.packageName ?? "Unknown Package"
+                        summary = pkg.summary
+                        footer = "\(repositoryOwner)/\(repositoryName)"
+                        link = packageURL
+                }
             }
         }
     }
