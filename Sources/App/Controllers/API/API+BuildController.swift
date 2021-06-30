@@ -11,7 +11,7 @@ extension API {
                 .unwrap(or: Abort(.notFound))
                 .flatMapThrowing { try Build(dto, $0) }
                 .flatMap { build in
-                    AppMetrics.buildReportTotal?.inc(1, .init(build.platform, build.swiftVersion))
+                    AppMetrics.apiBuildReportTotal?.inc(1, .init(build.platform, build.swiftVersion))
                     if build.status == .infrastructureError {
                         req.logger.critical("build infrastructure error: \(build.jobUrl)")
                     }
