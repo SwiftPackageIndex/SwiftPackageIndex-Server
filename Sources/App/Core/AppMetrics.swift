@@ -76,6 +76,14 @@ enum AppMetrics {
         gauge("spi_analyze_versions_deleted_count", Labels.Version.self)
     }
 
+    static var apiBuildReportTotal: PromCounter<Int, Labels.Build>? {
+        counter("spi_api_build_report_total", Labels.Build.self)
+    }
+
+    static var apiSearchGetTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_api_search_get_total", EmptyLabels.self)
+    }
+
     static var buildCandidatesCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_build_candidates_count", EmptyLabels.self)
     }
@@ -88,14 +96,6 @@ enum AppMetrics {
         gauge("spi_build_running_jobs_count", EmptyLabels.self)
     }
 
-    static var githubRateLimitRemainingCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_github_rate_limit_remaining_count", EmptyLabels.self)
-    }
-
-    static var buildReportTotal: PromCounter<Int, Labels.Build>? {
-        counter("spi_build_report_total", Labels.Build.self)
-    }
-
     static var buildThrottleCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_build_throttle_count", EmptyLabels.self)
     }
@@ -106,6 +106,10 @@ enum AppMetrics {
 
     static var buildTrimCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_build_trim_count", EmptyLabels.self)
+    }
+
+    static var githubRateLimitRemainingCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_github_rate_limit_remaining_count", EmptyLabels.self)
     }
 
     static var ingestCandidatesCount: PromGauge<Int, EmptyLabels>? {

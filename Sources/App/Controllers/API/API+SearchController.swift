@@ -7,6 +7,7 @@ extension API {
         static func get(req: Request) throws -> EventLoopFuture<Search.Response> {
             let query = req.query[String.self, at: "query"] ?? ""
             let page = req.query[Int.self, at: "page"] ?? 1
+            AppMetrics.apiSearchGetTotal?.inc()
             return search(database: req.db,
                           query: query,
                           page: page,
