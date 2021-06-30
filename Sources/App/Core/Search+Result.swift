@@ -29,6 +29,24 @@ extension Search {
                     )
             }
         }
+
+        var isKeyword: Bool {
+            switch self {
+                case .keyword:
+                    return true
+                case .package:
+                    return false
+            }
+        }
+
+        var isPackage: Bool {
+            switch self {
+                case .keyword:
+                    return false
+                case .package:
+                    return true
+            }
+        }
     }
 
     struct KeywordResult: Codable, Equatable {

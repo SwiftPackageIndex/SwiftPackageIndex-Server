@@ -177,20 +177,24 @@ enum Search {
             return nil
         }
 
-        // page is one-based, clamp it to 0-based offset
-        let offset = ((page - 1) * pageSize).clamped(to: 0...)
+        // page is one-based, clamp it to ensure we get a 0-based offset
+        let page = page.clamped(to: 1...)
+        let offset = (page - 1) * pageSize
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
 
-        let union = db.unionAll(
+        // only include keyword results on first page
+        let query = (page == 1)
+        ? db.unionAll(
             keywordMatchQueryBuilder(on: database, terms: sanitizedTerms),
             packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
-                                     offset: offset, limit: limit)
-        )
+                                     offset: offset, limit: limit)).query
+        : packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
+                                   offset: offset, limit: limit).query
 
         return db.select()
             .column("*")
             .from(
-                SQLAlias(SQLGroupExpression(union.query), as: SQLIdentifier("t"))
+                SQLAlias(SQLGroupExpression(query), as: SQLIdentifier("t"))
             )
             .orderBy(SQLOrderBy(MatchType.equals(.keyword), .descending))
             .orderBy(SQLOrderBy(MatchType.equals(.package), .descending))
@@ -200,6 +204,7 @@ enum Search {
                       _ terms: [String],
                       page: Int,
                       pageSize: Int) -> EventLoopFuture<Search.Response> {
+        let page = page.clamped(to: 1...)
         guard let query = query(database,
                                 terms,
                                 page: page,
@@ -210,9 +215,13 @@ enum Search {
         return query.all(decoding: DBRecord.self)
             .mapEachCompact(Result.init)
             .map { results in
-                let hasMoreResults = results.count > pageSize
+                let hasMoreResults = results.filter(\.isPackage).count > pageSize
+                // first page has keyword results prepended, extend prefix for them
+                let keep = (page == 1)
+                ? pageSize + results.filter(\.isKeyword).count
+                : pageSize
                 return Search.Response(hasMoreResults: hasMoreResults,
-                                       results: Array(results.prefix(pageSize)))
+                                       results: Array(results.prefix(keep)))
             }
     }
     
