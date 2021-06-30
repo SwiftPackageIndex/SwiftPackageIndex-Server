@@ -19,4 +19,6 @@ requests:
             json:
                 results:
                     0:
-                        packageName: Alamofire
+                        package:
+                            _0:
+                                packageName: Alamofire
