@@ -44,6 +44,18 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(binds(b), ["a b"])
     }
 
+    func test_authorMatchQuery_single_term() throws {
+        let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
+        XCTAssertEqual(binds(b), ["a"])
+    }
+
+    func test_authorMatchQuery_multiple_term() throws {
+        let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a", "b"])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
+        XCTAssertEqual(binds(b), ["a b"])
+    }
+
     func test_query_sql() throws {
         // Test to confirm shape of rendered search SQL
         // MUT
@@ -58,12 +70,16 @@ class SearchTests: AppTestCase {
                                             limit: 21),
             resolveBinds: true
         )
+        let authors = renderSQL(
+            Search.authorMatchQueryBuilder(on: app.db, terms: ["test"]),
+            resolveBinds: true
+        )
         let keywords = renderSQL(
             Search.keywordMatchQueryBuilder(on: app.db, terms: ["test"]),
             resolveBinds: true
         )
         XCTAssertEqual(renderSQL(query, resolveBinds: true),
-                       #"SELECT * FROM ((\#(keywords)) UNION ALL (\#(packages))) AS "t" ORDER BY "match_type" = 'keyword' DESC, "match_type" = 'package' DESC"#)
+                       #"SELECT * FROM ((\#(authors)) UNION ALL (\#(keywords)) UNION ALL (\#(packages))) AS "t""#)
         assertSnapshot(matching: renderSQL(query, resolveBinds: true), as: .lines)
     }
 
@@ -186,10 +202,10 @@ class SearchTests: AppTestCase {
         }
         try packages.save(on: app.db).wait()
         try packages.map { try Repository(package: $0, defaultBranch: "default",
-                                          name: $0.url, owner: "foo") }
+                                          name: $0.url, owner: "foobar") }
             .save(on: app.db)
             .wait()
-        try packages.map { try Version(package: $0, packageName: "foo", reference: .branch("default")) }
+        try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
@@ -203,8 +219,8 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.package?.repositoryName),
-                           ["0", "1", "2"])
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["p:0", "p:1", "p:2"])
         }
 
         do {  // second page
@@ -216,8 +232,8 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.package?.repositoryName),
-                           ["3", "4", "5"])
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["p:3", "p:4", "p:5"])
         }
 
         do {  // third page
@@ -229,12 +245,58 @@ class SearchTests: AppTestCase {
 
             // validate
             XCTAssertFalse(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.package?.repositoryName),
-                           ["6", "7", "8"])
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["p:6", "p:7", "p:8"])
         }
     }
 
     func test_search_pagination_with_keyword_results() throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1198
+        // setup
+        let packages = (0..<9).map { idx in
+            Package(url: "\(idx)".url, score: 15 - idx)
+        }
+        try packages.save(on: app.db).wait()
+        try packages.map { try Repository(package: $0,
+                                          defaultBranch: "default",
+                                          keywords: ["foo"],
+                                          name: $0.url,
+                                          owner: "foobar") }
+            .save(on: app.db)
+            .wait()
+        try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
+            .save(on: app.db)
+            .wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {  // first page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 1,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertTrue(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["k:foo", "p:0", "p:1", "p:2"])
+        }
+
+        do {  // second page
+            // MUT
+            let res = try API.search(database: app.db,
+                                     query: "foo",
+                                     page: 2,
+                                     pageSize: 3).wait()
+
+            // validate
+            XCTAssertTrue(res.hasMoreResults)
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["p:3", "p:4", "p:5"])
+        }
+    }
+
+    func test_search_pagination_with_author_results() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1198
         // setup
         let packages = (0..<9).map { idx in
@@ -263,7 +325,7 @@ class SearchTests: AppTestCase {
             // validate
             XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["foo", "0", "1", "2"])
+                           ["a:foo", "k:foo", "p:0", "p:1", "p:2"])
         }
 
         do {  // second page
@@ -276,20 +338,7 @@ class SearchTests: AppTestCase {
             // validate
             XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["3", "4", "5"])
-        }
-
-        do {  // third page
-            // MUT
-            let res = try API.search(database: app.db,
-                                     query: "foo",
-                                     page: 3,
-                                     pageSize: 3).wait()
-
-            // validate
-            XCTAssertFalse(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.testDescription),
-                           ["6", "7", "8"])
+                           ["p:3", "p:4", "p:5"])
         }
     }
 
@@ -301,10 +350,10 @@ class SearchTests: AppTestCase {
         }
         try packages.save(on: app.db).wait()
         try packages.map { try Repository(package: $0, defaultBranch: "default",
-                                          name: $0.url, owner: "foo") }
+                                          name: $0.url, owner: "foobar") }
             .save(on: app.db)
             .wait()
-        try packages.map { try Version(package: $0, packageName: "foo", reference: .branch("default")) }
+        try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
             .save(on: app.db)
             .wait()
         try Search.refresh(on: app.db).wait()
@@ -329,8 +378,8 @@ class SearchTests: AppTestCase {
                                      page: 0,
                                      pageSize: 3).wait()
             XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.package?.repositoryName),
-                           ["0", "1", "2"])
+            XCTAssertEqual(res.results.map(\.testDescription),
+                           ["p:0", "p:1", "p:2"])
         }
     }
 
@@ -342,9 +391,9 @@ class SearchTests: AppTestCase {
             try Repository(package: p,
                            defaultBranch: "main",
                            name: "\($0)",
-                           owner: "foo",
+                           owner: "foobar",
                            summary: "\($0)").save(on: app.db).wait()
-            try Version(package: p, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
+            try Version(package: p, packageName: "\($0)", reference: .branch("main")).save(on: app.db).wait()
         }
         try Search.refresh(on: app.db).wait()
         
@@ -353,8 +402,8 @@ class SearchTests: AppTestCase {
         
         // validation
         XCTAssertEqual(res.results.count, 10)
-        XCTAssertEqual(res.results.map(\.package?.summary),
-                       ["9", "8", "7", "6", "5", "4", "3", "2", "1", "0"])
+        XCTAssertEqual(res.results.map(\.testDescription),
+                       ["p:9", "p:8", "p:7", "p:6", "p:5", "p:4", "p:3", "p:2", "p:1", "p:0"])
     }
     
     func test_exact_name_match() throws {
@@ -451,12 +500,12 @@ class SearchTests: AppTestCase {
         try Repository(package: p1,
                        defaultBranch: "main",
                        name: "1",
-                       owner: "foo",
+                       owner: "foobar",
                        summary: "").save(on: app.db).wait()
         try Repository(package: p2,
                        defaultBranch: "main",
                        name: nil,
-                       owner: "foo",
+                       owner: "foobar",
                        summary: "").save(on: app.db).wait()
         try Repository(package: p3,
                        defaultBranch: "main",
@@ -498,8 +547,8 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res, .init(hasMoreResults: false, results: []))
     }
 
-    func test_search_topic() throws {
-        // Test searching for a topic
+    func test_search_keyword() throws {
+        // Test searching for a keyword
         // setup
         // p1: decoy
         // p2: match
@@ -538,13 +587,52 @@ class SearchTests: AppTestCase {
         ])
     }
 
+    func test_search_author() throws {
+        // Test searching for an author
+        // setup
+        // p1: decoy
+        // p2: match
+        let p1 = Package(id: .id1, url: "1", score: 10)
+        let p2 = Package(id: .id2, url: "2", score: 20)
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "bar",
+                       summary: "").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       name: "2",
+                       owner: "foo",
+                       summary: "").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).wait()
+
+        XCTAssertEqual(res.results, [
+            .author(.init(name: "foo")),
+            // the owner fields is part of the package match, so we always also match packages by an author when searching for an author
+            .package(.init(packageId: .id2,
+                           packageName: "p2",
+                           packageURL: "/foo/2",
+                           repositoryName: "2",
+                           repositoryOwner: "foo",
+                           summary: ""))
+        ])
+    }
+
 }
 
 
 extension Search.Result {
     var package: Search.PackageResult? {
         switch self {
-            case .keyword:
+            case .author, .keyword:
                 return nil
             case .package(let result):
                 return result
@@ -553,10 +641,12 @@ extension Search.Result {
 
     var testDescription: String {
         switch self {
+            case .author(let res):
+                return "a:\(res.name)"
             case .keyword(let res):
-                return res.keyword
+                return "k:\(res.keyword)"
             case .package(let res):
-                return res.packageName ?? "nil"
+                return "p:\(res.packageName ?? "nil")"
         }
     }
 }

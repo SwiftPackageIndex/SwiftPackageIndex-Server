@@ -7,6 +7,7 @@ enum Search {
     static let schema = "search"
     
     // identifiers
+    static let author = SQLIdentifier("author")
     static let keyword = SQLIdentifier("keyword")
     static let keywords = SQLIdentifier("keywords")
     static let packageId = SQLIdentifier("package_id")
@@ -17,11 +18,15 @@ enum Search {
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
 
+    static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
+    static let nullInt = SQLRaw("NULL::INT")
+    static let nullUUID = SQLRaw("NULL::UUID")
 
     enum MatchType: String, Codable, Equatable {
-        case package
+        case author
         case keyword
+        case package
 
         static let identifier = SQLIdentifier(DBRecord.CodingKeys.matchType.rawValue)
 
@@ -72,7 +77,7 @@ enum Search {
 
         var isPackage: Bool {
             switch matchType {
-                case .keyword:
+                case .author, .keyword:
                     return false
                 case .package:
                     return true
@@ -164,6 +169,30 @@ enum Search {
         // TODO: increase limit when we do % matching
     }
 
+    static func authorMatchQueryBuilder(on database: Database,
+                                        terms: [String]) -> SQLSelectBuilder {
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+        let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
+        // FIXME: bookend with `%`
+
+        return db
+            .select()
+            .column(.author)
+            .column(null, as: keyword)
+            .column(nullUUID, as: packageId)
+            .column(null, as: packageName)
+            .column(null, as: repoName)
+            .column(repoOwner)
+            .column(nullInt, as: score)
+            .column(null, as: summary)
+            .from(searchView)
+            .where(repoOwner, ilike, mergedTerms)
+            .limit(1)
+        // TODO: increase limit when we do % matching
+    }
+
     static func query(_ database: Database,
                       _ terms: [String],
                       page: Int,
@@ -182,12 +211,14 @@ enum Search {
         let offset = (page - 1) * pageSize
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
 
-        // only include keyword results on first page
+        // only include non-package results on first page
         let query = (page == 1)
         ? db.unionAll(
+            authorMatchQueryBuilder(on: database, terms: sanitizedTerms),
             keywordMatchQueryBuilder(on: database, terms: sanitizedTerms),
             packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
-                                     offset: offset, limit: limit)).query
+                                     offset: offset, limit: limit)
+        ).query
         : packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
                                    offset: offset, limit: limit).query
 
@@ -196,8 +227,6 @@ enum Search {
             .from(
                 SQLAlias(SQLGroupExpression(query), as: SQLIdentifier("t"))
             )
-            .orderBy(SQLOrderBy(MatchType.equals(.keyword), .descending))
-            .orderBy(SQLOrderBy(MatchType.equals(.package), .descending))
     }
 
     static func fetch(_ database: Database,
@@ -216,9 +245,9 @@ enum Search {
             .mapEachCompact(Result.init)
             .map { results in
                 let hasMoreResults = results.filter(\.isPackage).count > pageSize
-                // first page has keyword results prepended, extend prefix for them
+                // first page has non-package results prepended, extend prefix for them
                 let keep = (page == 1)
-                ? pageSize + results.filter(\.isKeyword).count
+                ? pageSize + results.filter{ !$0.isPackage }.count
                 : pageSize
                 return Search.Response(hasMoreResults: hasMoreResults,
                                        results: Array(results.prefix(keep)))

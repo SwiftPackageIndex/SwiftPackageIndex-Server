@@ -29,9 +29,13 @@ enum SearchShow {
 
             init?(result: Search.Result) {
                 switch result {
-                    case let .keyword(kw):
-                        title = "🏷 \(kw.keyword)"
-                        link = SiteURL.keywords(.value(kw.keyword)).relativeURL()
+                    case let .author(res):
+                        title = "✍️ \(res.name)"
+                        link = SiteURL.author(.value(res.name)).relativeURL()
+                        footer = "Author results"
+                    case let .keyword(res):
+                        title = "🏷 \(res.keyword)"
+                        link = SiteURL.keywords(.value(res.keyword)).relativeURL()
                         footer = "Keyword results"
                     case let .package(pkg):
                         guard let packageURL = pkg.packageURL,
