@@ -41,6 +41,19 @@ struct PackageController {
             .map(PackageReadme.Model.init(readme:))
             .map { PackageReadme.View(model: $0).document() }
     }
+    
+    func releases(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            return req.eventLoop.future(error: Abort(.notFound))
+        }
+
+        return Package.query(on: req.db, owner: owner, repository: repository)
+            .map(PackageReleases.Model.init(package:))
+            .map { PackageReleases.View(model: $0).document() }
+    }
 
     func builds(req: Request) throws -> EventLoopFuture<HTML> {
         guard

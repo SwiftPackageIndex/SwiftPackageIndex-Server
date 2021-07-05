@@ -246,6 +246,7 @@ enum SiteURL: Resourceable {
 
     enum PackagePathComponents: String, Resourceable {
         case readme
+        case releases
         case builds
         case maintainerInfo = "information-for-package-maintainers"
     }

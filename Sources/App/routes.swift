@@ -46,6 +46,8 @@ func routes(_ app: Application) throws {
                 use: packageController.show)
         app.get(SiteURL.package(.key, .key, .readme).pathComponents,
                 use: packageController.readme)
+        app.get(SiteURL.package(.key, .key, .releases).pathComponents,
+                use: packageController.releases)
         app.get(SiteURL.package(.key, .key, .builds).pathComponents,
                 use: packageController.builds)
         app.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents,
