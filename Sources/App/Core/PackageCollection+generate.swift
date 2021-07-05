@@ -20,6 +20,10 @@ extension PackageCollection {
         case author(String)
     }
 
+    enum Error: Swift.Error {
+        case noResults
+    }
+
     static func generate(db: Database,
                          filterBy filter: Filter,
                          authorName: String? = nil,
@@ -46,8 +50,8 @@ extension PackageCollection {
                 query = query
                     .filter(App.Package.self, \.$url ~~ packageURLs)
         }
-
-        return query.all()
+        
+        let res: EventLoopFuture<([Package], String, String)> = query.all()
             .map { versions in
                 // Multiple versions can reference the same package, therefore
                 // we need to group them so we don't create duplicate packages.
@@ -65,7 +69,12 @@ extension PackageCollection {
                 let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
                 return (packages, collectionName, overview)
             }
-            .map { packages, collectionName, overview in
+        
+        return res.flatMap { packages, collectionName, overview in
+            guard !packages.isEmpty else {
+                return db.eventLoop.makeFailedFuture(Error.noResults)
+            }
+            return db.eventLoop.makeSucceededFuture(
                 PackageCollection.init(
                     name: collectionName,
                     overview: overview,
@@ -75,7 +84,8 @@ extension PackageCollection {
                     revision: revision,
                     generatedAt: Current.date(),
                     generatedBy: authorName.map(Author.init(name:)))
-            }
+            )
+        }
     }
 
     static func authorLabel(packages: [App.Package]) -> String? {

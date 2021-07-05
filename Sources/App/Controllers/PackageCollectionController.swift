@@ -11,6 +11,11 @@ struct PackageCollectionController {
             db: req.db,
             filterBy: .author(owner),
             authorName: "\(owner) via the Swift Package Index"
-        )
+        ).flatMapError {
+            if case PackageCollection.Error.noResults = $0 {
+                return req.eventLoop.makeFailedFuture(Abort(.notFound))
+            }
+            return req.eventLoop.makeFailedFuture($0)
+        }
     }
 }
