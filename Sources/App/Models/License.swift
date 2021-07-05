@@ -7,6 +7,7 @@ enum License: String, Codable, Equatable {
     case bsd_2_clause = "bsd-2-clause"
     case bsd_3_clause = "bsd-3-clause"
     case bsd_3_clause_clear = "bsd-3-clause-clear"
+    case bsl_1_0 = "bsl-1.0"
     case cc
     case cc0_1_0 = "cc0-1.0"
     case cc_by_4_0 = "cc-by-4.0"
@@ -44,6 +45,7 @@ enum License: String, Codable, Equatable {
             case .bsd_2_clause: return "BSD 2-clause \"Simplified\" license"
             case .bsd_3_clause: return "BSD 3-clause \"New\" or \"Revised\" license"
             case .bsd_3_clause_clear: return "BSD 3-clause Clear license"
+            case .bsl_1_0: return "Boost Software License 1.0"
             case .cc: return "Creative Commons License"
             case .cc0_1_0: return "Creative Commons Zero v1.0 Universal"
             case .cc_by_4_0: return "Creative Commons Attribution 4.0"
@@ -82,6 +84,7 @@ enum License: String, Codable, Equatable {
             case .bsd_2_clause: return "BSD 2-Clause"
             case .bsd_3_clause: return "BSD 3-Clause"
             case .bsd_3_clause_clear: return "BSD 3-Clause Clear"
+            case .bsl_1_0: return "Boost 1.0"
             case .cc: return "CC"
             case .cc0_1_0: return "CC Zero 1.0"
             case .cc_by_4_0: return "CC Attribution 4.0"
