@@ -3,7 +3,7 @@ import Vapor
 
 extension Package {
 
-    enum CompatibilityResult<Value> {
+    enum CompatibilityResult<Value: Equatable>: Equatable {
         case available([Value])
         case pending
         
@@ -92,32 +92,40 @@ extension Package {
                 label = "Swift Compatibility"
         }
 
-        let message = badgeMessage(badgeType: badgeType)
+        let (message, success) = badgeMessage(badgeType: badgeType)
         return Badge(schemaVersion: 1,
                      label: label,
                      message: message,
-                     isError: message == nil,
-                     color: message == nil ? "inactive" : "F05138",
+                     isError: !success,
+                     color: success ? "F05138" : "inactive",
                      cacheSeconds: cacheSeconds,
                      logoSvg: Package.loadSVGLogo())
     }
 
 
-    func badgeMessage(badgeType: BadgeType) -> String {
+    func badgeMessage(badgeType: BadgeType) -> (title: String, success: Bool) {
         switch badgeType {
             case .platforms:
                 switch platformCompatibility() {
                 case .available(let platforms):
-                    return _badgeMessage(platforms: platforms) ?? "unavailable"
+                    if let message = _badgeMessage(platforms: platforms) {
+                        return (message, true)
+                    } else {
+                        return ("unavailable", false)
+                    }
                 case .pending:
-                    return "pending"
+                    return ("pending", false)
                 }
             case .swiftVersions:
                 switch swiftVersionCompatibility() {
                 case .available(let versions):
-                    return _badgeMessage(swiftVersions: versions) ?? "unavailable"
+                    if let message = _badgeMessage(swiftVersions: versions) {
+                        return (message, true)
+                    } else {
+                        return ("unavailable", false)
+                    }
                 case .pending:
-                    return "pending"
+                    return ("pending", false)
                 }
         }
     }

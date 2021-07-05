@@ -790,11 +790,7 @@ final class PackageTests: AppTestCase {
         let res = p.swiftVersionCompatibility()
 
         // validate
-        if case .pending = res {
-            return
-        }
-        
-        XCTFail("Compatibility result should have been set to pending")
+        XCTAssertEqual(res, .pending)
     }
 
     func test_platformCompatibility() throws {
@@ -856,11 +852,7 @@ final class PackageTests: AppTestCase {
         let res = p.platformCompatibility()
 
         // validate
-        if case .pending = res {
-            return
-        }
-        
-        XCTFail("Compatibility result should have been set to pending")
+        XCTAssertEqual(res, .pending)
     }
 
     func test_isNew() throws {
