@@ -821,7 +821,7 @@ final class PackageTests: AppTestCase {
         let res = p.swiftVersionCompatibility().values
 
         // validate
-        XCTAssertEqual(res.sorted(), [ .v5_2 ])
+        XCTAssertEqual(res.sorted(), [ .v5_3 ])
     }
 
     func test_platformCompatibility() throws {
