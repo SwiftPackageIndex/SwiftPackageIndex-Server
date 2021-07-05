@@ -183,6 +183,20 @@ class PackageCollectionTests: AppTestCase {
         assertSnapshot(matching: res, as: .json(encoder))
     }
 
+    func test_generate_from_urls_noResults() throws {
+        // MUT
+        XCTAssertThrowsError(
+            try PackageCollection.generate(db: self.app.db,
+                                           filterBy: .urls(["1"]),
+                                           authorName: "Foo",
+                                           collectionName: "Foo",
+                                           keywords: ["key", "word"],
+                                           overview: "overview").wait()
+        ) {
+            XCTAssertEqual($0 as? PackageCollection.Error, .noResults)
+        }
+    }
+
     func test_generate_for_owner() throws {
         // setup
         Current.date = { Date(timeIntervalSince1970: 1610112345) }
@@ -262,6 +276,19 @@ class PackageCollectionTests: AppTestCase {
 
         // validate
         assertSnapshot(matching: res, as: .json(encoder))
+    }
+
+    func test_generate_for_owner_noResults() throws {
+        // Ensure we return noResults when no packages are found
+        // MUT
+        XCTAssertThrowsError(
+            try PackageCollection.generate(db: self.app.db,
+                                           filterBy: .author("foo"),
+                                           authorName: "Foo",
+                                           keywords: ["key", "word"]).wait()
+        ) {
+            XCTAssertEqual($0 as? PackageCollection.Error, .noResults)
+        }
     }
 
     func test_includes_significant_versions_only() throws {

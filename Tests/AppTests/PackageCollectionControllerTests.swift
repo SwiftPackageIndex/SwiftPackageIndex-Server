@@ -54,11 +54,26 @@ class PackageCollectionControllerTests: AppTestCase {
             })
     }
 
-    let encoder: JSONEncoder = {
+    func test_nonexisting_404() throws {
+        // Ensure a request for a non-existing collection returns a 404
+        // MUT
+        try app.test(
+            .GET,
+            "foo/collection.json",
+            afterResponse: { res in
+                // validation
+                XCTAssertEqual(res.status, .notFound)
+            })
+    }
+
+}
+
+
+extension PackageCollectionControllerTests {
+    var encoder: JSONEncoder {
         let e = JSONEncoder()
         e.outputFormatting = [.prettyPrinted, .sortedKeys]
         e.dateEncodingStrategy = .iso8601
         return e
-    }()
-
+    }
 }
