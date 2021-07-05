@@ -62,7 +62,9 @@ enum PackageShow {
                     }
                 ),
                 detailsSection(),
-                readmeSection()
+                tabBar(),
+                readmeSection(),
+                releaseSection()
             )
         }
 
@@ -182,8 +184,46 @@ enum PackageShow {
                         source: SiteURL.package(.value(model.repositoryOwner),
                                                 .value(model.repositoryName),
                                                 .readme).relativeURL(),
-                        // Until the content is loaded, substitute a spinner.
-                        .spinner()
+                        .group(
+                            .class("package_tab"),
+                            // Until the content is loaded, substitute a spinner.
+                            .spinner()
+                        )
+            )
+        }
+        
+        func releaseSection() -> Node<HTML.BodyContext> {
+            .section(
+                .class("package_tab"),
+                .id("releases"),
+                .h3("Releases")
+            )
+        }
+        
+        func tabBar() -> Node<HTML.BodyContext> {
+            .group(
+                .hr(
+                    .class("minor")
+                ),
+                .section(
+                    .class("package_tabs"),
+                    .ul(
+                        .li(
+                            .a(
+                                .href("#readme"),
+                                .class("package_tab_link"),
+                                "README"
+                            )
+                        ),
+                        .li(
+                            .a(
+                                .href("#releases"),
+                                .class("package_tab_link active"),
+                                "Releases"
+                            )
+                        )
+                    )
+                )
             )
         }
     }
