@@ -20,7 +20,7 @@ extension Package {
     /// - Returns: Array of compatible `SwiftVersion`s
     func swiftVersionCompatibility() -> CompatibilityResult<SwiftVersion> {
         let allBuilds = allSignificantBuilds()
-        if allBuilds.anyPending { return .pending }
+        if allBuilds.allSatisfy { $0.status == .pending } { return .pending }
         
         let builds = allBuilds
             .filter { $0.status == .ok }
@@ -44,7 +44,7 @@ extension Package {
     /// - Returns: Array of compatible `Platform`s
     func platformCompatibility() -> CompatibilityResult<Build.Platform> {
         let allBuilds = allSignificantBuilds()
-        if allBuilds.anyPending { return .pending }
+        if allBuilds.allSatisfy { $0.status == .pending } { return .pending }
         
         let builds = allBuilds
             .filter { $0.status == .ok }
