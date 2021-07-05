@@ -192,10 +192,15 @@ enum PackageShow {
         }
         
         func releaseSection() -> Node<HTML.BodyContext> {
-            .section(
-                .class("package_tab"),
-                .id("releases"),
-                .h3("Releases")
+            .turboFrame(id: "releases",
+                        source: SiteURL.package(.value(model.repositoryOwner),
+                                                .value(model.repositoryName),
+                                                .releases).relativeURL(),
+                        .group(
+                            .class("package_tab"),
+                            // Until the content is loaded, substitute a spinner.
+                            .spinner()
+                        )
             )
         }
         
