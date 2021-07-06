@@ -107,28 +107,29 @@ extension Package {
         switch badgeType {
             case .platforms:
                 switch platformCompatibility() {
-                case .available(let platforms):
-                    if let message = _badgeMessage(platforms: platforms) {
-                        return (message, true)
-                    } else {
-                        return ("unavailable", false)
-                    }
-                case .pending:
-                    return ("pending", false)
+                    case .available(let platforms):
+                        if let message = Self._badgeMessage(platforms: platforms) {
+                            return (message, true)
+                        } else {
+                            return ("unavailable", false)
+                        }
+                    case .pending:
+                        return ("pending", false)
                 }
             case .swiftVersions:
                 switch swiftVersionCompatibility() {
-                case .available(let versions):
-                    if let message = _badgeMessage(swiftVersions: versions) {
-                        return (message, true)
-                    } else {
-                        return ("unavailable", false)
-                    }
-                case .pending:
-                    return ("pending", false)
+                    case .available(let versions):
+                        if let message = Self._badgeMessage(swiftVersions: versions) {
+                            return (message, true)
+                        } else {
+                            return ("unavailable", false)
+                        }
+                    case .pending:
+                        return ("pending", false)
                 }
         }
     }
+    
 
     /// Returns all builds for a packages significant versions
     /// - Returns: Array of `Build`s
@@ -139,6 +140,7 @@ extension Package {
             $0.append(contentsOf: $1.$builds.value ?? [])
         }
     }
+
     
     static private func loadSVGLogo() -> String? {
         let pathToFile = Current.fileManager.workingDirectory()
@@ -147,50 +149,50 @@ extension Package {
         return try? String(contentsOfFile: pathToFile)
     }
 
-}
 
-
-func _badgeMessage(platforms: [Build.Platform]) -> String? {
-    guard !platforms.isEmpty else { return nil }
-    struct Value: Hashable {
-        var index: Int
-        var value: String
-        init(_ index: Int, _ value: String) {
-            self.index = index
-            self.value = value
+    static func _badgeMessage(platforms: [Build.Platform]) -> String? {
+        guard !platforms.isEmpty else { return nil }
+        struct Value: Hashable {
+            var index: Int
+            var value: String
+            init(_ index: Int, _ value: String) {
+                self.index = index
+                self.value = value
+            }
         }
-    }
-    return Array(
-        Set(
-            platforms
-                .map { p -> Value in
-                    switch p {
-                        case .ios:
-                            return .init(0, "iOS")
-                        case .macosSpm, .macosXcodebuild, .macosSpmArm, .macosXcodebuildArm:
-                            return .init(1, "macOS")
-                        case .linux:
-                            return .init(2, "Linux")
-                        case .tvos:
-                            return .init(3, "tvOS")
-                        case .watchos:
-                            return .init(4, "watchOS")
-                    }
-                }
+        return Array(
+            Set(
+                platforms
+                    .map { p -> Value in
+            switch p {
+                case .ios:
+                    return .init(0, "iOS")
+                case .macosSpm, .macosXcodebuild, .macosSpmArm, .macosXcodebuildArm:
+                    return .init(1, "macOS")
+                case .linux:
+                    return .init(2, "Linux")
+                case .tvos:
+                    return .init(3, "tvOS")
+                case .watchos:
+                    return .init(4, "watchOS")
+            }
+        }
+            )
         )
-    )
-    .sorted {
-        $0.index < $1.index
+            .sorted {
+                $0.index < $1.index
+            }
+            .map { $0.value }
+            .joined(separator: " | ")
     }
-    .map { $0.value }
-    .joined(separator: " | ")
-}
 
 
-func _badgeMessage(swiftVersions: [SwiftVersion]) -> String? {
-    guard !swiftVersions.isEmpty else { return nil }
-    return swiftVersions
-        .map(\.displayName)
-        .sorted { $0 > $1 }
-        .joined(separator: " | ")
+    static func _badgeMessage(swiftVersions: [SwiftVersion]) -> String? {
+        guard !swiftVersions.isEmpty else { return nil }
+        return swiftVersions
+            .map(\.displayName)
+            .sorted { $0 > $1 }
+            .joined(separator: " | ")
+    }
+
 }
