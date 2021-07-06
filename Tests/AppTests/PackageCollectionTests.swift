@@ -503,4 +503,32 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.name, "Packages by Foo Org")
         XCTAssertEqual(res.overview, "A collection of packages authored by Foo Org from the Swift Package Index")
     }
+
+    func test_Compatibility() throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1215
+        // setup
+        var builds = [Build]()
+        // set all build to failed as a baseline...
+        for p in Build.Platform.allActive {
+            for s in SwiftVersion.allActive {
+                builds.append(
+                    .init(versionId: .id0, platform: p, status: .failed, swiftVersion: s)
+                )
+            }
+        }
+        // ...then append three successful ones
+        builds.append(contentsOf: [
+            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_4),
+            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_3),
+            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_2),
+        ])
+        // MUT
+        let res = [PackageCollection.Compatibility].init(builds: builds)
+        // validate
+        XCTAssertEqual(res.count, 3)
+        XCTAssertEqual(res.map(\.platform).sorted(),
+                       [.init(name: "ios"), .init(name: "ios"), .init(name: "ios")])
+        XCTAssertEqual(res.map(\.swiftVersion).sorted(),
+                       ["5.2", "5.3", "5.4"])
+    }
 }

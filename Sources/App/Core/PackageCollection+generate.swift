@@ -282,7 +282,7 @@ private extension PackageCollection.ProductType {
 }
 
 
-private extension Array where Element == PackageCollection.Compatibility {
+extension Array where Element == PackageCollection.Compatibility {
     // Helper struct to work around Compatibility not being Hashable
     struct Pair: Hashable {
         var platform: PackageCollection.Platform
