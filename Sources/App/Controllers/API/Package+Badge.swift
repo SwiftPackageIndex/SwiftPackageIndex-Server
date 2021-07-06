@@ -21,7 +21,7 @@ extension Package {
     /// - Returns: A `CompatibilityResult` of `SwiftVersion`
     func swiftVersionCompatibility() -> CompatibilityResult<SwiftVersion> {
         let allBuilds = allSignificantBuilds()
-        if allBuilds.allSatisfy { $0.status == .pending } { return .pending }
+        if allBuilds.allSatisfy({ $0.status == .pending }) { return .pending }
         
         let builds = allBuilds
             .filter { $0.status == .ok }
@@ -45,7 +45,7 @@ extension Package {
     /// - Returns: A `CompatibilityResult` of `Platform`
     func platformCompatibility() -> CompatibilityResult<Build.Platform> {
         let allBuilds = allSignificantBuilds()
-        if allBuilds.allSatisfy { $0.status == .pending } { return .pending }
+        if allBuilds.allSatisfy({ $0.status == .pending }) { return .pending }
         
         let builds = allBuilds
             .filter { $0.status == .ok }
