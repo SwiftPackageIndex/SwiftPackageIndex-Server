@@ -166,21 +166,21 @@ extension Package {
             Set(
                 platforms
                     .map { p -> Value in
-            switch p {
-                case .ios:
-                    return .init(0, "iOS")
-                case .macosSpm, .macosXcodebuild, .macosSpmArm, .macosXcodebuildArm:
-                    return .init(1, "macOS")
-                case .linux:
-                    return .init(2, "Linux")
-                case .tvos:
-                    return .init(3, "tvOS")
-                case .watchos:
-                    return .init(4, "watchOS")
-            }
-        }
+                        switch p {
+                            case .ios:
+                                return .init(0, "iOS")
+                            case .macosSpm, .macosXcodebuild, .macosSpmArm, .macosXcodebuildArm:
+                                return .init(1, "macOS")
+                            case .linux:
+                                return .init(2, "Linux")
+                            case .tvos:
+                                return .init(3, "tvOS")
+                            case .watchos:
+                                return .init(4, "watchOS")
+                        }
+                    }
+                )
             )
-        )
             .sorted {
                 $0.index < $1.index
             }
