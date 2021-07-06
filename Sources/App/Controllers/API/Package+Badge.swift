@@ -3,10 +3,26 @@ import Vapor
 
 extension Package {
 
+    enum CompatibilityResult<Value: Equatable>: Equatable {
+        case available([Value])
+        case pending
+        
+        var values: [Value] {
+            if case .available(let values) = self {
+                return values
+            }
+            
+            return []
+        }
+    }
+    
     /// Returns a list of compatible swift versions across a package's significant versions.
     /// - Returns: Array of compatible `SwiftVersion`s
-    func swiftVersionCompatibility() -> [SwiftVersion] {
-        let builds = allSignificantBuilds()
+    func swiftVersionCompatibility() -> CompatibilityResult<SwiftVersion> {
+        let allBuilds = allSignificantBuilds()
+        if allBuilds.allSatisfy { $0.status == .pending } { return .pending }
+        
+        let builds = allBuilds
             .filter { $0.status == .ok }
         let compatibility = SwiftVersion.allActive.map { swiftVersion -> (SwiftVersion, Bool) in
             for build in builds {
@@ -16,16 +32,21 @@ extension Package {
             }
             return (swiftVersion, false)
         }
-        return compatibility
-            .filter { $0.1 }
-            .map { $0.0 }
+        return .available(
+            compatibility
+                .filter { $0.1 }
+                .map { $0.0 }
+        )
     }
 
 
     /// Returns a list of compatible platforms across a package's significant versions.
     /// - Returns: Array of compatible `Platform`s
-    func platformCompatibility() -> [Build.Platform] {
-        let builds = allSignificantBuilds()
+    func platformCompatibility() -> CompatibilityResult<Build.Platform> {
+        let allBuilds = allSignificantBuilds()
+        if allBuilds.allSatisfy { $0.status == .pending } { return .pending }
+        
+        let builds = allBuilds
             .filter { $0.status == .ok }
         let compatibility = Build.Platform.allActive.map { platform -> (Build.Platform, Bool) in
             for build in builds {
@@ -35,9 +56,11 @@ extension Package {
             }
             return (platform, false)
         }
-        return compatibility
-            .filter { $0.1 }
-            .map { $0.0 }
+        return .available(
+            compatibility
+                .filter { $0.1 }
+                .map { $0.0 }
+        )
     }
 
 
@@ -69,26 +92,43 @@ extension Package {
                 label = "Swift Compatibility"
         }
 
-        let message = badgeMessage(badgeType: badgeType)
+        let (message, success) = badgeMessage(badgeType: badgeType)
         return Badge(schemaVersion: 1,
                      label: label,
-                     message: message ?? "unavailable",
-                     isError: message == nil,
-                     color: message == nil ? "inactive" : "F05138",
+                     message: message,
+                     isError: !success,
+                     color: success ? "F05138" : "inactive",
                      cacheSeconds: cacheSeconds,
                      logoSvg: Package.loadSVGLogo())
     }
 
 
-    func badgeMessage(badgeType: BadgeType) -> String? {
+    func badgeMessage(badgeType: BadgeType) -> (title: String, success: Bool) {
         switch badgeType {
             case .platforms:
-                return _badgeMessage(platforms: platformCompatibility())
+                switch platformCompatibility() {
+                case .available(let platforms):
+                    if let message = _badgeMessage(platforms: platforms) {
+                        return (message, true)
+                    } else {
+                        return ("unavailable", false)
+                    }
+                case .pending:
+                    return ("pending", false)
+                }
             case .swiftVersions:
-                return _badgeMessage(swiftVersions: swiftVersionCompatibility())
+                switch swiftVersionCompatibility() {
+                case .available(let versions):
+                    if let message = _badgeMessage(swiftVersions: versions) {
+                        return (message, true)
+                    } else {
+                        return ("unavailable", false)
+                    }
+                case .pending:
+                    return ("pending", false)
+                }
         }
     }
-
 
     /// Returns all builds for a packages significant versions
     /// - Returns: Array of `Build`s

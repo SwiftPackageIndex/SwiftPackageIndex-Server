@@ -756,10 +756,72 @@ final class PackageTests: AppTestCase {
         }
 
         // MUT
-        let res = p.swiftVersionCompatibility()
+        let res = p.swiftVersionCompatibility().values
 
         // validate
         XCTAssertEqual(res.sorted(), [.v5_2, .v5_3])
+    }
+    
+    func test_swiftVersionCompatibility_allPending() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
+        try v.save(on: app.db).wait()
+        // re-load repository relationship (required for updateLatestVersions)
+        try p.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        // add builds
+        try Build(version: v, platform: .linux, status: .pending, swiftVersion: .init(5, 3, 0))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .macosXcodebuild, status: .pending, swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .ios, status: .pending, swiftVersion: .init(5, 0, 2))
+            .save(on: app.db)
+            .wait()
+        try p.$versions.load(on: app.db).wait()
+        try p.versions.forEach {
+            try $0.$builds.load(on: app.db).wait()
+        }
+
+        // MUT
+        let res = p.swiftVersionCompatibility()
+
+        // validate
+        XCTAssertEqual(res, .pending)
+    }
+    
+    func test_swiftVersionCompatibility_partialPending() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
+        try v.save(on: app.db).wait()
+        // re-load repository relationship (required for updateLatestVersions)
+        try p.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        // add builds
+        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .macosXcodebuild, status: .failed, swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .ios, status: .pending, swiftVersion: .init(5, 0, 2))
+            .save(on: app.db)
+            .wait()
+        try p.$versions.load(on: app.db).wait()
+        try p.versions.forEach {
+            try $0.$builds.load(on: app.db).wait()
+        }
+
+        // MUT
+        let res = p.swiftVersionCompatibility().values
+
+        // validate
+        XCTAssertEqual(res.sorted(), [ .v5_3 ])
     }
 
     func test_platformCompatibility() throws {
@@ -787,10 +849,72 @@ final class PackageTests: AppTestCase {
         }
 
         // MUT
-        let res = p.platformCompatibility()
+        let res = p.platformCompatibility().values
 
         // validate
         XCTAssertEqual(res.sorted(), [.macosXcodebuild, .linux])
+    }
+    
+    func test_platformCompatibility_allPending() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
+        try v.save(on: app.db).wait()
+        // re-load repository relationship (required for updateLatestVersions)
+        try p.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        // add builds
+        try Build(version: v, platform: .linux, status: .pending, swiftVersion: .init(5, 3, 0))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .macosXcodebuild, status: .pending, swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .ios, status: .pending, swiftVersion: .init(5, 0, 2))
+            .save(on: app.db)
+            .wait()
+        try p.$versions.load(on: app.db).wait()
+        try p.versions.forEach {
+            try $0.$builds.load(on: app.db).wait()
+        }
+
+        // MUT
+        let res = p.platformCompatibility()
+
+        // validate
+        XCTAssertEqual(res, .pending)
+    }
+    
+    func test_platformCompatibility_partialPending() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
+        try v.save(on: app.db).wait()
+        // re-load repository relationship (required for updateLatestVersions)
+        try p.$repositories.load(on: app.db).wait()
+        // update versions
+        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        // add builds
+        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .macosXcodebuild, status: .failed, swiftVersion: .init(5, 2, 2))
+            .save(on: app.db)
+            .wait()
+        try Build(version: v, platform: .ios, status: .pending, swiftVersion: .init(5, 0, 2))
+            .save(on: app.db)
+            .wait()
+        try p.$versions.load(on: app.db).wait()
+        try p.versions.forEach {
+            try $0.$builds.load(on: app.db).wait()
+        }
+
+        // MUT
+        let res = p.platformCompatibility().values
+
+        // validate
+        XCTAssertEqual(res.sorted(), [ .linux ])
     }
 
     func test_isNew() throws {
