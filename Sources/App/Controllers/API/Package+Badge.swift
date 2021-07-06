@@ -15,9 +15,10 @@ extension Package {
             return []
         }
     }
-    
-    /// Returns a list of compatible swift versions across a package's significant versions.
-    /// - Returns: Array of compatible `SwiftVersion`s
+
+
+    /// Returns swift versions compatibility across a package's significant versions.
+    /// - Returns: A `CompatibilityResult` of `SwiftVersion`
     func swiftVersionCompatibility() -> CompatibilityResult<SwiftVersion> {
         let allBuilds = allSignificantBuilds()
         if allBuilds.allSatisfy { $0.status == .pending } { return .pending }
@@ -40,8 +41,8 @@ extension Package {
     }
 
 
-    /// Returns a list of compatible platforms across a package's significant versions.
-    /// - Returns: Array of compatible `Platform`s
+    /// Returns platform compatibility across a package's significant versions.
+    /// - Returns: A `CompatibilityResult` of `Platform`
     func platformCompatibility() -> CompatibilityResult<Build.Platform> {
         let allBuilds = allSignificantBuilds()
         if allBuilds.allSatisfy { $0.status == .pending } { return .pending }
@@ -92,23 +93,23 @@ extension Package {
                 label = "Swift Compatibility"
         }
 
-        let (message, success) = badgeMessage(badgeType: badgeType)
+        let (message, compatible) = badgeMessage(badgeType: badgeType)
         return Badge(schemaVersion: 1,
                      label: label,
                      message: message,
-                     isError: !success,
-                     color: success ? "F05138" : "inactive",
+                     isError: !compatible,
+                     color: compatible ? "F05138" : "inactive",
                      cacheSeconds: cacheSeconds,
                      logoSvg: Package.loadSVGLogo())
     }
 
 
-    func badgeMessage(badgeType: BadgeType) -> (title: String, success: Bool) {
+    func badgeMessage(badgeType: BadgeType) -> (message: String, compatible: Bool) {
         switch badgeType {
             case .platforms:
                 switch platformCompatibility() {
                     case .available(let platforms):
-                        if let message = Self._badgeMessage(platforms: platforms) {
+                        if let message = Self.badgeMessage(platforms: platforms) {
                             return (message, true)
                         } else {
                             return ("unavailable", false)
@@ -119,7 +120,7 @@ extension Package {
             case .swiftVersions:
                 switch swiftVersionCompatibility() {
                     case .available(let versions):
-                        if let message = Self._badgeMessage(swiftVersions: versions) {
+                        if let message = Self.badgeMessage(swiftVersions: versions) {
                             return (message, true)
                         } else {
                             return ("unavailable", false)
@@ -150,7 +151,7 @@ extension Package {
     }
 
 
-    static func _badgeMessage(platforms: [Build.Platform]) -> String? {
+    static func badgeMessage(platforms: [Build.Platform]) -> String? {
         guard !platforms.isEmpty else { return nil }
         struct Value: Hashable {
             var index: Int
@@ -187,7 +188,7 @@ extension Package {
     }
 
 
-    static func _badgeMessage(swiftVersions: [SwiftVersion]) -> String? {
+    static func badgeMessage(swiftVersions: [SwiftVersion]) -> String? {
         guard !swiftVersions.isEmpty else { return nil }
         return swiftVersions
             .map(\.displayName)
