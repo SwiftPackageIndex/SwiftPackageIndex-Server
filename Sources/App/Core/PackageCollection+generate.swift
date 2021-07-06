@@ -294,8 +294,10 @@ extension Array where Element == PackageCollection.Compatibility {
             // Gather up builds via a Set to de-duplicate various
             // macOS build variants - spm, xcodebuild, ARM
             Set<Pair>(
-                builds.map { Pair.init(platform: .init(platform: $0.platform),
-                                       version: $0.swiftVersion.displayName) }
+                builds
+                    .filter { $0.status == .ok}
+                    .map { Pair.init(platform: .init(platform: $0.platform),
+                                     version: $0.swiftVersion.displayName) }
             )
             .map { Element.init(platform: $0.platform, swiftVersion: $0.version) }
             .sorted()
