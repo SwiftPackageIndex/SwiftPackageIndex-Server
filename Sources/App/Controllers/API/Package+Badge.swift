@@ -7,12 +7,13 @@ extension Package {
         case available([Value])
         case pending
         
-        var values: [Value] {
-            if case .available(let values) = self {
-                return values
+        var values: [Value]? {
+            switch self {
+                case .available(let values):
+                    return values
+                case .pending:
+                    return nil
             }
-            
-            return []
         }
     }
 

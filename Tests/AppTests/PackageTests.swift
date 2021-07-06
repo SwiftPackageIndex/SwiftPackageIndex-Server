@@ -756,7 +756,7 @@ final class PackageTests: AppTestCase {
         }
 
         // MUT
-        let res = p.swiftVersionCompatibility().values
+        let res = try XCTUnwrap(p.swiftVersionCompatibility().values)
 
         // validate
         XCTAssertEqual(res.sorted(), [.v5_2, .v5_3])
@@ -818,7 +818,7 @@ final class PackageTests: AppTestCase {
         }
 
         // MUT
-        let res = p.swiftVersionCompatibility().values
+        let res = try XCTUnwrap(p.swiftVersionCompatibility().values)
 
         // validate
         XCTAssertEqual(res.sorted(), [ .v5_3 ])
@@ -849,7 +849,7 @@ final class PackageTests: AppTestCase {
         }
 
         // MUT
-        let res = p.platformCompatibility().values
+        let res = try XCTUnwrap(p.platformCompatibility().values)
 
         // validate
         XCTAssertEqual(res.sorted(), [.macosXcodebuild, .linux])
@@ -911,7 +911,7 @@ final class PackageTests: AppTestCase {
         }
 
         // MUT
-        let res = p.platformCompatibility().values
+        let res = try XCTUnwrap(p.platformCompatibility().values)
 
         // validate
         XCTAssertEqual(res.sorted(), [ .linux ])
