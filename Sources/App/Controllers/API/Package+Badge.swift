@@ -94,18 +94,18 @@ extension Package {
                 label = "Swift Compatibility"
         }
 
-        let (message, compatible) = badgeMessage(badgeType: badgeType)
+        let (message, success) = badgeMessage(badgeType: badgeType)
         return Badge(schemaVersion: 1,
                      label: label,
                      message: message,
-                     isError: !compatible,
-                     color: compatible ? "F05138" : "inactive",
+                     isError: !success,
+                     color: success ? "F05138" : "inactive",
                      cacheSeconds: cacheSeconds,
                      logoSvg: Package.loadSVGLogo())
     }
 
 
-    func badgeMessage(badgeType: BadgeType) -> (message: String, compatible: Bool) {
+    func badgeMessage(badgeType: BadgeType) -> (message: String, success: Bool) {
         switch badgeType {
             case .platforms:
                 switch platformCompatibility() {
