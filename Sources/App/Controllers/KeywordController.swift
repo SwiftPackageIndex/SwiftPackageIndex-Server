@@ -5,7 +5,7 @@ import Vapor
 
 struct KeywordController {
 
-    static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<[Package]> {
+    static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<(packages: [Package], hasMoreResults: Bool)> {
         Package.query(on: database)
             .with(\.$repositories)
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
@@ -14,14 +14,17 @@ struct KeywordController {
                 DatabaseQuery.Filter.Method.custom("@>"),
                 DatabaseQuery.Value.bind([keyword])
             )
+            .sort(\.$score, .descending)
+            .sort(Repository.self, \.$name)
             .paginate(page: page, pageSize: pageSize)
             .all()
-            .flatMapThrowing {
-                if $0.isEmpty {
+            .flatMapThrowing { packages in
+                if packages.isEmpty {
                     throw Abort(.notFound)
                 }
 
-                return $0
+                return (packages: Array(packages.prefix(pageSize)),
+                        hasMoreResults: packages.count > pageSize)
             }
     }
 
@@ -33,18 +36,14 @@ struct KeywordController {
         let pageSize = Constants.resultsPageSize
 
         return Self.query(on: req.db, keyword: keyword, page: page, pageSize: pageSize)
-            .map {
-                $0.sorted(by: { $0.score ?? 0 > $1.score ?? 0 })
-            }
-            .map {
-                $0.compactMap { PackageInfo(package: $0) }
-            }
-            .map { packages in
-                KeywordShow.Model(
+            .map { packages, hasMoreResults in
+                let packageInfo = packages.prefix(pageSize)
+                    .compactMap(PackageInfo.init(package:))
+                return KeywordShow.Model(
                     keyword: keyword,
-                    packages: Array(packages.prefix(pageSize)),
+                    packages: packageInfo,
                     page: page,
-                    hasMoreResults: packages.count > pageSize
+                    hasMoreResults: hasMoreResults
                 )
             }
             .map {
