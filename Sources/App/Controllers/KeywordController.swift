@@ -6,12 +6,7 @@ import Vapor
 struct KeywordController {
 
     static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<[Package]> {
-        // page is one-based, clamp it to ensure we get a >=0 offset
-        let page = page.clamped(to: 1...)
-        let offset = (page - 1) * pageSize
-        let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
-
-        return Package.query(on: database)
+        Package.query(on: database)
             .with(\.$repositories)
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
             .filter(
@@ -19,8 +14,7 @@ struct KeywordController {
                 DatabaseQuery.Filter.Method.custom("@>"),
                 DatabaseQuery.Value.bind([keyword])
             )
-            .offset(offset)
-            .limit(limit)
+            .paginate(page: page, pageSize: pageSize)
             .all()
             .flatMapThrowing {
                 if $0.isEmpty {
