@@ -67,8 +67,8 @@ extension SearchShow {
                     ),
                     .ul(
                         .class("pagination"),
-                        .if(model.page > 1, .previousSearchPage(model: model)),
-                        .if(model.response.hasMoreResults, .nextSearchPage(model: model))
+                        .if(model.page > 1, .previousPage(model: model)),
+                        .if(model.response.hasMoreResults, .nextPage(model: model))
                     )
                 )
             )
@@ -76,8 +76,9 @@ extension SearchShow {
     }
 }
 
+
 fileprivate extension Node where Context == HTML.ListContext {
-    static func previousSearchPage(model: SearchShow.Model) -> Node<HTML.ListContext> {
+    static func previousPage(model: SearchShow.Model) -> Node<HTML.ListContext> {
         let parameters = [
             QueryParameter(key: "query", value: model.query),
             QueryParameter(key: "page", value: model.page - 1)
@@ -91,7 +92,7 @@ fileprivate extension Node where Context == HTML.ListContext {
         )
     }
 
-    static func nextSearchPage(model: SearchShow.Model) -> Node<HTML.ListContext> {
+    static func nextPage(model: SearchShow.Model) -> Node<HTML.ListContext> {
         let parameters = [
             QueryParameter(key: "query", value: model.query),
             QueryParameter(key: "page", value: model.page + 1)
