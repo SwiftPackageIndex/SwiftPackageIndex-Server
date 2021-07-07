@@ -5,8 +5,13 @@ import Vapor
 
 struct KeywordController {
 
-    static func query(on database: Database, keyword: String) -> EventLoopFuture<[Package]> {
-        Package.query(on: database)
+    static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<[Package]> {
+        // page is one-based, clamp it to ensure we get a >=0 offset
+        let page = page.clamped(to: 1...)
+        let offset = (page - 1) * pageSize
+        let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
+
+        return Package.query(on: database)
             .with(\.$repositories)
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
             .filter(
@@ -14,6 +19,8 @@ struct KeywordController {
                 DatabaseQuery.Filter.Method.custom("@>"),
                 DatabaseQuery.Value.bind([keyword])
             )
+            .offset(offset)
+            .limit(limit)
             .all()
             .flatMapThrowing {
                 if $0.isEmpty {
@@ -29,8 +36,9 @@ struct KeywordController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
         let page = req.query[Int.self, at: "page"] ?? 1
+        let pageSize = Constants.resultsPageSize
 
-        return Self.query(on: req.db, keyword: keyword)
+        return Self.query(on: req.db, keyword: keyword, page: page, pageSize: pageSize)
             .map {
                 $0.sorted(by: { $0.score ?? 0 > $1.score ?? 0 })
             }
@@ -38,20 +46,11 @@ struct KeywordController {
                 $0.compactMap { PackageInfo(package: $0) }
             }
             .map { packages in
-                // FIXME: move up into query
-                let page = page.clamped(to: 1...)
-                let offset = (page - 1) * Constants.resultsPageSize
-                let limit = Constants.resultsPageSize + 1
-                let packages = packages.dropFirst(offset).prefix(limit)
-                return (packages: Array(packages.prefix(Constants.resultsPageSize)),
-                        hasMoreResults: packages.count > Constants.resultsPageSize)
-            }
-            .map { packages, hasMoreResults in
                 KeywordShow.Model(
                     keyword: keyword,
-                    packages: packages,
+                    packages: Array(packages.prefix(pageSize)),
                     page: page,
-                    hasMoreResults: hasMoreResults
+                    hasMoreResults: packages.count > pageSize
                 )
             }
             .map {

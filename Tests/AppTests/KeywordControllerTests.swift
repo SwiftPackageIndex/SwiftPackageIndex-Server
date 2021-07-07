@@ -41,11 +41,16 @@ class KeywordControllerTests: AppTestCase {
 
     func test_query() throws {
         // MUT
-        let packages = try KeywordController.query(on: app.db, keyword: "foo").wait()
+        let packages = try KeywordController.query(on: app.db,
+                                                   keyword: "foo",
+                                                   page: 1,
+                                                   pageSize: 10).wait()
 
         // validation
         XCTAssertEqual(packages.map(\.id), [.id1])
     }
+
+    // TODO: test pagination
 
     func test_show_keyword() throws {
         try app.test(.GET, "/keywords/foo") {
