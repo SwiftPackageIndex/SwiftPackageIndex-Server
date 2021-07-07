@@ -28,13 +28,30 @@ struct KeywordController {
         guard let keyword = req.parameters.get("keyword") else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
+        let page = req.query[Int.self, at: "page"] ?? 1
 
         return Self.query(on: req.db, keyword: keyword)
             .map {
+                $0.sorted(by: { $0.score ?? 0 > $1.score ?? 0 })
+            }
+            .map {
+                $0.compactMap { PackageInfo(package: $0) }
+            }
+            .map { packages in
+                // FIXME: move up into query
+                let page = page.clamped(to: 1...)
+                let offset = (page - 1) * Constants.resultsPageSize
+                let limit = Constants.resultsPageSize + 1
+                let packages = packages.dropFirst(offset).prefix(limit)
+                return (packages: Array(packages.prefix(Constants.resultsPageSize)),
+                        hasMoreResults: packages.count > Constants.resultsPageSize)
+            }
+            .map { packages, hasMoreResults in
                 KeywordShow.Model(
                     keyword: keyword,
-                    packages: $0.sorted(by: { $0.score ?? 0 > $1.score ?? 0 })
-                                .compactMap { PackageInfo(package: $0) }
+                    packages: packages,
+                    page: page,
+                    hasMoreResults: hasMoreResults
                 )
             }
             .map {
