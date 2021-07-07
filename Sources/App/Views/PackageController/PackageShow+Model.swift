@@ -213,8 +213,7 @@ extension PackageShow.Model {
         var releasesSentenceFragments: [Node<HTML.BodyContext>] = []
         if isArchived {
             releasesSentenceFragments.append(contentsOf: [
-                .strong("No longer in active development."),
-                " The package author has archived this project and the repository is read-only. It had ",
+                "The package author has archived this project and the repository is read-only. It had ",
                 commitsLinkNode, " and ", releasesLinkNode,
                 " before being archived."
             ])
@@ -231,6 +230,18 @@ extension PackageShow.Model {
             .group(releasesSentenceFragments)
         )
     }
+    
+    func archivedListItem() -> Node<HTML.ListContext> {
+         if isArchived {
+             return .li(
+                 .class("archived"),
+                 .strong("No longer in active development.")
+             )
+         } else {
+             return .empty
+         }
+
+     }
     
     func activityListItem() -> Node<HTML.ListContext> {
         // Bail out if not at least one field is non-nil

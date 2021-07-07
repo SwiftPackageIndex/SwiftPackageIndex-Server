@@ -95,6 +95,22 @@ class PackageShowModelTests: SnapshotTestCase {
         let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
         assertSnapshot(matching: renderedHistory, as: .lines)
     }
+    
+    func test_archived_warning_line_for_active_package() throws {
+        var model = PackageShow.Model.mock
+        model.isArchived = false
+        
+        let renderedHistory = model.archivedListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedHistory, as: .lines)
+    }
+    
+    func test_archived_warning_line_for_archived_package() throws {
+        var model = PackageShow.Model.mock
+        model.isArchived = true
+
+        let renderedHistory = model.archivedListItem().render(indentedBy: .spaces(2))
+        assertSnapshot(matching: renderedHistory, as: .lines)
+    }
 
     func test_activity_variants__missing_open_issue() throws {
         var model = PackageShow.Model.mock
