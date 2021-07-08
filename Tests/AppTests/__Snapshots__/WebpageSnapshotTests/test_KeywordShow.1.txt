@@ -133,6 +133,7 @@
         <p>
           <strong>10 packages.</strong>
         </p>
+        <ul class="pagination"></ul>
       </div>
     </main>
     <footer>
