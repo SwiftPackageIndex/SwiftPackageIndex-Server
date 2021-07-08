@@ -242,8 +242,8 @@ span.branch {
 .package_tabs {
   margin-top: 20px;
   margin-bottom: 20px;
-  background-color: var(--table-row-alt-background);
-  box-shadow: inset 0 -3px var(--sidebar-section-border);
+  background-color: var(--tab-bar-background);
+  box-shadow: inset 0 -3px var(--tab-bar-border);
   padding-left: 10px;
 
   ul {
@@ -258,11 +258,11 @@ span.branch {
       padding: 15px;
 
       &:hover {
-        background-color: var(--sidebar-section-hover);
+        background-color: var(--tab-bar-hover);
       }
 
       &.active {
-        border-bottom: 3px var(--stable-text) solid;
+        border-bottom: 3px var(--tab-bar-border-active) solid;
       }
     }
   }

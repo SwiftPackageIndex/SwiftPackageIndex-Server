@@ -120,6 +120,11 @@
   --code-snippet-background: var(--very-light-grey);
   --code-snippet-text: var(--black);
   --code-snippet-border: var(--grey);
+  
+  --tab-bar-background: var(--very-very-light-grey);
+  --tab-bar-hover: var(--very-light-grey);
+  --tab-bar-border: var(--light-grey);
+  --tab-bar-border-active: var(--light-green);
 }
 
 /* Dark mode semantic color overrides */
@@ -178,5 +183,9 @@
     --code-snippet-background: var(--very-dark-grey);
     --code-snippet-text: var(--white);
     --code-snippet-border: var(--grey);
+    
+    --tab-bar-background: var(--very-very-dark-grey);
+    --tab-bar-hover: var(--very-dark-grey);
+    --tab-bar-border: var(--dark-grey);
   }
 }
