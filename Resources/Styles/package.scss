@@ -36,9 +36,9 @@
           background-position: top 2px left;
         }
         
-        li.history {
+        li.archived {
           grid-column-start: span 2;
-          background-image: var(--image-clock);
+          background-image: var(--image-warning);
         }
 
         li.history {
