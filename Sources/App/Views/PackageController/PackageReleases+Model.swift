@@ -16,6 +16,7 @@ extension PackageReleases {
             let title: String
             let date: String?
             let html: String?
+            let link: String
         }
         
         let releases: [Release]
@@ -31,7 +32,8 @@ extension PackageReleases {
                 Release(
                     title: release.tagName,
                     date: Self.formatDate(release.publishedAt),
-                    html: Self.updateDescription(release.descriptionHTML, replacingTitle: release.tagName)
+                    html: Self.updateDescription(release.descriptionHTML, replacingTitle: release.tagName),
+                    link: release.url
                 )
             }
         }
