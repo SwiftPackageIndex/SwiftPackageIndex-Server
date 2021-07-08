@@ -29,9 +29,12 @@ enum PackageReleases {
         
         func group(forRelease release: Model.Release, isLast: Bool) -> Node<HTML.BodyContext> {
             .group(
-                .h2(.text(release.title)),
+                .a(
+                    .href(release.link),
+                    .h2(.text(release.title))
+                ),
                 .unwrap(release.date) { .small(.text($0)) },
-                .unwrap(release.html, { .raw($0) }, else: .p("No release notes available.")),
+                .unwrap(release.html, { .raw($0) }, else: .p("This release has no notes.")),
                 .if(isLast == false, .hr())
             )
         }
