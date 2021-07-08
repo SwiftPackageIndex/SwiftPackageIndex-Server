@@ -11,7 +11,7 @@ struct SearchController {
         return API.search(database: req.db,
                           query: query,
                           page: page,
-                          pageSize: Constants.searchPageSize)
+                          pageSize: Constants.resultsPageSize)
             .map { SearchShow.Model.init(page: page, query: query, response: $0) }
             .map { SearchShow.View.init(path: req.url.path, model: $0).document() }
     }

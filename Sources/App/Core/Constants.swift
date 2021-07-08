@@ -33,7 +33,7 @@ enum Constants {
     static let rssFeedMaxItemCount = 100
     static let rssTTL: TimeInterval = .minutes(60)
     
-    static let searchPageSize = 20
+    static let resultsPageSize = 20
 
     // analyzer settings
     static let gitCheckoutMaxAge: TimeInterval = .days(30)

@@ -206,7 +206,7 @@ enum Search {
             return nil
         }
 
-        // page is one-based, clamp it to ensure we get a 0-based offset
+        // page is one-based, clamp it to ensure we get a >=0 offset
         let page = page.clamped(to: 1...)
         let offset = (page - 1) * pageSize
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`

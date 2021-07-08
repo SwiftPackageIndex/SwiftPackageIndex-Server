@@ -11,7 +11,7 @@ extension API {
             return search(database: req.db,
                           query: query,
                           page: page,
-                          pageSize: Constants.searchPageSize)
+                          pageSize: Constants.resultsPageSize)
         }
     }
 }

@@ -10,6 +10,6 @@ extension KeywordShow.Model {
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.",
             url: ""
         ) }
-        return .init(keyword: "networking", packages: packages)
+        return .init(keyword: "networking", packages: packages, page: 1, hasMoreResults: false)
     }
 }

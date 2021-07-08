@@ -13,7 +13,9 @@ extension UUID {
     static var id8: Self { UUID(uuidString: "9c288246-ac47-4a35-9730-60c281ae590b")! }
     static var id9: Self { UUID(uuidString: "5dcceaa7-5eed-44a7-8309-93758208c178")! }
 
-    static func mockId(at index: Int) -> UUID {
-        [id0, id1, id2, id3, id4, id5, id6, id7, id8, id9][index]
+    static func mockId(at index: Int) -> UUID { mockAll[index] }
+
+    static var mockAll: [Self] {
+        [id0, id1, id2, id3, id4, id5, id6, id7, id8, id9]
     }
 }
