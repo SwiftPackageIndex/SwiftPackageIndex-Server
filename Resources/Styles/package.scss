@@ -235,8 +235,11 @@ span.branch {
 
 /* Package Tab Bar */
 .package_tabs {
-  margin-top: 10px;
+  margin-top: 20px;
   margin-bottom: 20px;
+  background-color: var(--table-row-alt-background);
+  box-shadow: inset 0 -3px var(--sidebar-section-border);
+  padding-left: 10px;
 
   ul {
     margin: 0;
@@ -247,18 +250,15 @@ span.branch {
 
     li > a {
       display: block;
-      padding: 10px;
-      border-bottom: 3px var(--sidebar-section-border) solid;
-      background-color: var(--sidebar-section-background);
+      padding: 15px;
 
       &:hover {
         background-color: var(--sidebar-section-hover);
       }
 
       &.active {
-        border-bottom-color: var(--stable-text);
+        border-bottom: 3px var(--stable-text) solid;
       }
     }
   }
-  
 }

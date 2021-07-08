@@ -1,5 +1,6 @@
 export class SPIPackageTabs {
     constructor() {
+    document.addEventListener('turbo:load', () => {
       var tabs = document.getElementsByClassName("package_tabs");
       for (var i = 0; i < tabs.length; i++) {
         var links = tabs[i].getElementsByTagName('a');
@@ -35,6 +36,7 @@ export class SPIPackageTabs {
             });
         }
       }
+    });
     }
   }
   

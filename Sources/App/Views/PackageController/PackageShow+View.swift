@@ -206,10 +206,7 @@ enum PackageShow {
         
         func tabBar() -> Node<HTML.BodyContext> {
             .group(
-                .hr(
-                    .class("minor")
-                ),
-                .section(
+                .div(
                     .class("package_tabs"),
                     .ul(
                         .li(
@@ -223,7 +220,7 @@ enum PackageShow {
                             .a(
                                 .href("#releases"),
                                 .class("package_tab_link active"),
-                                "Releases"
+                                "Release Notes"
                             )
                         )
                     )
