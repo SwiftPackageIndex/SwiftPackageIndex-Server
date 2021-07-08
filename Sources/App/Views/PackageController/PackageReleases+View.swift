@@ -18,7 +18,7 @@ enum PackageReleases {
 
         override func frameContent() -> Node<HTML.BodyContext> {
             guard let releases = model?.releases
-            else { return .empty }
+            else { return .p("This package has no release notes.") }
             
             return .group(
                 .forEach(releases.enumerated()) { (index, release) in
@@ -31,7 +31,7 @@ enum PackageReleases {
             .group(
                 .h2(.text(release.title)),
                 .unwrap(release.date) { .small(.text($0)) },
-                .unwrap(release.html) { .raw($0) },
+                .unwrap(release.html, { .raw($0) }, else: .p("No release notes available.")),
                 .if(isLast == false, .hr())
             )
         }
