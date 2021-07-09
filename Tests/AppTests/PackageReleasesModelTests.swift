@@ -3,8 +3,35 @@
 import XCTVapor
 
 
-class PackageReleasesModelTests: XCTestCase {
+class PackageReleasesModelTests: AppTestCase {
 
+    func test_initialise() throws {
+        // Setup
+        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
+        try pkg.save(on: app.db).wait()
+        
+        try Repository(package: pkg, releases: [
+            .mock(description: "Release Notes", descriptionHTML: "Release Notes",
+                  publishedAt: 2, tagName: "1.0.0", url: "some url"),
+            
+            .mock(description: nil, descriptionHTML: nil,
+                  publishedAt: 1, tagName: "0.0.1", url: "some url"),
+        ]).save(on: app.db).wait()
+        try pkg.$repositories.load(on: app.db).wait()
+        
+        // MUT
+        let model = try XCTUnwrap(PackageReleases.Model(package: pkg))
+        
+        // Validate
+        XCTAssertEqual(model.releases, [
+            .init(title: "1.0.0", date: "Released 51 years ago on 1 January 1970",
+                  html: "Release Notes", link: "some url"),
+            
+            .init(title: "0.0.1", date: "Released 51 years ago on 1 January 1970",
+                  html: nil, link: "some url"),
+        ])
+    }
+    
     func test_dateFormatting() throws {
         let currentDate = Date(timeIntervalSince1970: 500)
         let targetDate = Date(timeIntervalSince1970: 0)
