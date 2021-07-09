@@ -53,6 +53,9 @@ extension PackageReleases {
             else { return nil }
             
             do {
+                // Some packages start their release notes with a large title reiterating the version number.
+                // Since we already show this information prominently, we remove these titles.
+                
                 let htmlDocument = try SwiftSoup.parse(description)
                 let headerElements = try htmlDocument.select("h1, h2, h3, h4, h5, h6")
                 
