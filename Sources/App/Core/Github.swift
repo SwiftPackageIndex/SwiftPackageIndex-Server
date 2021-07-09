@@ -240,6 +240,7 @@ extension Github {
                     forkCount
                     isArchived
                     isFork
+                    isInOrganization
                     licenseInfo {
                       name
                       key
@@ -275,6 +276,9 @@ extension Github {
                         publishedAt
                         tagName
                         url
+                        tagCommit {
+                          message
+                        }
                       }
                     }
                     repositoryTopics(first: 20) {
@@ -286,7 +290,6 @@ extension Github {
                       }
                     }
                     stargazerCount
-                    isInOrganization
                   }
                 }
                 """)
@@ -369,12 +372,17 @@ extension Github {
             var nodes: [ReleaseNode]
 
             struct ReleaseNode: Decodable, Equatable {
+                struct Commit: Decodable, Equatable {
+                    var message: String
+                }
+                
                 var description: String?
                 var descriptionHTML: String?
                 var isDraft: Bool
                 var publishedAt: Date?
                 var tagName: String
                 var url: String
+                var tagCommit: Commit?
             }
         }
 

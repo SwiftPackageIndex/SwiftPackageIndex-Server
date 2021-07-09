@@ -14,7 +14,7 @@ struct Release: Codable, Equatable {
 extension Release {
     init(from node: Github.Metadata.ReleaseNodes.ReleaseNode) {
         description = node.description
-        descriptionHTML = node.descriptionHTML
+        descriptionHTML = node.descriptionHTML ?? node.tagCommit?.message
         isDraft = node.isDraft
         publishedAt = node.publishedAt
         tagName = node.tagName

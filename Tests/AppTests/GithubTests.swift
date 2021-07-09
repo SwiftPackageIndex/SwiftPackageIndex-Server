@@ -113,6 +113,50 @@ class GithubTests: AppTestCase {
         XCTAssertEqual(res.repository?.lastPullRequestClosedAt,
                        iso8601.date(from: "2021-06-07T22:47:01Z"))
     }
+    
+    func test_releaseMetadata_commitMessageFallback() throws {
+        do { // If description is available, it'll always be used
+            let node = Github.Metadata.ReleaseNodes.ReleaseNode(
+                description: "description",
+                descriptionHTML: "description",
+                isDraft: false,
+                publishedAt: nil,
+                tagName: "1.0.0",
+                url: "some url",
+                tagCommit: .init(message: "message")
+            )
+            let release = Release(from: node)
+            XCTAssertEqual(release.descriptionHTML, "description")
+        }
+        
+        do { // Fallback to commit message when there is no description
+            let node = Github.Metadata.ReleaseNodes.ReleaseNode(
+                description: nil,
+                descriptionHTML: nil,
+                isDraft: false,
+                publishedAt: nil,
+                tagName: "1.0.0",
+                url: "some url",
+                tagCommit: .init(message: "message")
+            )
+            let release = Release(from: node)
+            XCTAssertEqual(release.descriptionHTML, "message")
+        }
+        
+        do { // Output is nil when no description and no commit exists
+            let node = Github.Metadata.ReleaseNodes.ReleaseNode(
+                description: nil,
+                descriptionHTML: nil,
+                isDraft: false,
+                publishedAt: nil,
+                tagName: "1.0.0",
+                url: "some url",
+                tagCommit: nil
+            )
+            let release = Release(from: node)
+            XCTAssertEqual(release.descriptionHTML, nil)
+        }
+    }
 
     func test_fetchMetadata_badRequest() throws {
         Current.githubToken = { "secr3t" }
