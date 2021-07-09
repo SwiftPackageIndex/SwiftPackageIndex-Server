@@ -10,7 +10,7 @@ import { SPIBuildLogNavigation } from './build_log_navigation.js'
 import { SPIAutofocus } from './autofocus.js'
 import { SPIPlaygroundsAppLinkFallback } from './playgrounds_app_link.js'
 import { SPIReadmeElement } from './readme_element.js'
-import { SPIPackageTabs } from './package_tabs.js'
+import { SPITabBarElement } from './package_tabs.js'
 
 window.externalLinkRetargeter = new ExternalLinkRetargeter()
 window.spiPackageListNavigation = new SPIPackageListNavigation()
@@ -19,9 +19,9 @@ new SPICopyPackageURLButton()
 new SPICopyableInput()
 new SPIAutofocus()
 new SPIPlaygroundsAppLinkFallback()
-new SPIPackageTabs()
 
 customElements.define('spi-readme', SPIReadmeElement)
+customElements.define('tab-bar', SPITabBarElement)
 
 import 'normalize.css'
 import '../Styles/main.scss'

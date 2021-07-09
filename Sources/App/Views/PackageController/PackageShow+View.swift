@@ -184,7 +184,7 @@ enum PackageShow {
                                                 .value(model.repositoryName),
                                                 .readme).relativeURL(),
                         .group(
-                            .class("package_tab"),
+                            .data(named: "tab-page", value: "readme"),
                             // Until the content is loaded, substitute a spinner.
                             .spinner()
                         )
@@ -197,7 +197,7 @@ enum PackageShow {
                                                 .value(model.repositoryName),
                                                 .releases).relativeURL(),
                         .group(
-                            .class("package_tab"),
+                            .data(named: "tab-page", value: "releases"),
                             // Until the content is loaded, substitute a spinner.
                             .spinner()
                         )
@@ -206,25 +206,19 @@ enum PackageShow {
         
         func tabBar() -> Node<HTML.BodyContext> {
             .group(
-                .div(
-                    .class("package_tabs"),
+                .element(named: "tab-bar", nodes: [
                     .ul(
                         .li(
-                            .a(
-                                .href("#readme"),
-                                .class("package_tab_link"),
-                                "README"
-                            )
+                            .data(named: "tab", value: "readme"),
+                            .class("active"),
+                            "README"
                         ),
                         .li(
-                            .a(
-                                .href("#releases"),
-                                .class("package_tab_link active"),
-                                "Release Notes"
-                            )
+                            .data(named: "tab", value: "releases"),
+                            "Release Notes"
                         )
                     )
-                )
+                ])
             )
         }
     }
