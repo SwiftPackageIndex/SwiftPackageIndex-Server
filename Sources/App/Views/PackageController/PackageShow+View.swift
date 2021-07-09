@@ -215,7 +215,13 @@ enum PackageShow {
                         ),
                         .li(
                             .data(named: "tab", value: "releases"),
-                            "Release Notes"
+                            "Release Notes",
+                            .unwrap(model.releaseCount) { count in
+                                .span(
+                                    .class("badge"),
+                                    .text(count.description)
+                                )
+                            }
                         )
                     )
                 ])

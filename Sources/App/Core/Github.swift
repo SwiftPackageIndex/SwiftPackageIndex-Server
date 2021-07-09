@@ -280,6 +280,7 @@ extension Github {
                           message
                         }
                       }
+                      totalCount
                     }
                     repositoryTopics(first: 20) {
                       totalCount
@@ -370,6 +371,7 @@ extension Github {
 
         struct ReleaseNodes: Decodable, Equatable {
             var nodes: [ReleaseNode]
+            var totalCount: Int
 
             struct ReleaseNode: Decodable, Equatable {
                 struct Commit: Decodable, Equatable {

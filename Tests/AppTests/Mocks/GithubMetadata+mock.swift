@@ -72,7 +72,7 @@ extension Github.Metadata {
                               openIssues: .init(totalCount: openIssues),
                               openPullRequests: .init(totalCount: openPullRequests),
                               owner: .init(login: owner, name: owner, avatarUrl: "https://avatars.githubusercontent.com/u/61124617?s=200&v=4"),
-                              releases: .init(nodes: releases),
+                              releases: .init(nodes: releases, totalCount: releases.count),
                               repositoryTopics: .init(totalCount: topics.count,
                                                       nodes: topics),
                               stargazerCount: stars,

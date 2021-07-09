@@ -20,6 +20,7 @@ extension PackageShow {
         var licenseUrl: String?
         var products: ProductCounts?
         var releases: ReleaseInfo
+        var releaseCount: Int?
         var stars: Int?
         var summary: String?
         var title: String
@@ -41,6 +42,7 @@ extension PackageShow {
                       licenseUrl: String? = nil,
                       products: ProductCounts? = nil,
                       releases: ReleaseInfo,
+                      releaseCount: Int? = nil,
                       stars: Int? = nil,
                       summary: String?,
                       title: String,
@@ -61,6 +63,7 @@ extension PackageShow {
             self.licenseUrl = licenseUrl
             self.products = products
             self.releases = releases
+            self.releaseCount = releaseCount
             self.stars = stars
             self.summary = summary
             self.title = title
@@ -94,6 +97,7 @@ extension PackageShow {
                 licenseUrl: package.repository?.licenseUrl,
                 products: package.productCounts(),
                 releases: package.releaseInfo(),
+                releaseCount: repository.releaseCount,
                 stars: package.repository?.stars,
                 summary: package.repository?.summary,
                 title: package.name() ?? repositoryName,

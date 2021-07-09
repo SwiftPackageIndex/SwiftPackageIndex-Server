@@ -77,6 +77,27 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         }
         #endif
     }
+    
+    func test_PackageShowView_with_release_count() throws {
+        var model = PackageShow.Model.mock
+        model.releaseCount = 100
+        
+        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+        
+        assertSnapshot(matching: page, as: .html, record: true)
+        
+        #if os(macOS)
+        if !isRunningInCI {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(precision: defaultPrecision,
+                                          size: $0.size,
+                                          baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
 
     func test_PackageShowView_open_source_license() throws {
         var model = PackageShow.Model.mock

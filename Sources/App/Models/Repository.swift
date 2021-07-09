@@ -93,6 +93,9 @@ final class Repository: Model, Content {
 
     @Field(key: "releases")
     var releases: [Release]
+    
+    @Field(key: "release_count")
+    var releaseCount: Int?
 
     @Field(key: "stars")
     var stars: Int?
@@ -129,6 +132,7 @@ final class Repository: Model, Content {
          readmeUrl: String? = nil,
          readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
+         releaseCount: Int? = nil,
          stars: Int? = nil,
          summary: String? = nil
     ) throws {
@@ -160,6 +164,7 @@ final class Repository: Model, Content {
         self.readmeUrl = readmeUrl
         self.readmeHtmlUrl = readmeHtmlUrl
         self.releases = releases
+        self.releaseCount = releaseCount
         self.stars = stars
     }
     

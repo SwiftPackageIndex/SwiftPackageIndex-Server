@@ -30,6 +30,12 @@ tab-bar {
       &.active {
         border-bottom: 3px var(--tab-bar-border-active) solid;
       }
+      
+      .badge {
+          padding: 3px 5px;
+          margin-left: 10px;
+          background-color: var(--tab-bar-badge);
+      }
     }
   }
 }

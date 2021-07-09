@@ -200,6 +200,7 @@ func insertOrUpdateRepository(on database: Database,
             repo.readmeHtmlUrl = readmeInfo?.htmlUrl
             repo.releases = metadata.repository?.releases.nodes
                 .map(Release.init(from:)) ?? []
+            repo.releaseCount = metadata.repository?.releases.totalCount
             repo.stars = repository.stargazerCount
             repo.summary = repository.description
             return repo.save(on: database)

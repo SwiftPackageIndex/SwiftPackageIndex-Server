@@ -158,6 +158,7 @@ class IngestorTests: AppTestCase {
                   tagName: "1.2.3",
                   url: "https://example.com/1.2.3")
         ])
+        XCTAssertEqual(repo.releaseCount, 1)
         XCTAssertEqual(repo.name, "bar")
         XCTAssertEqual(repo.stars, 2)
         XCTAssertEqual(repo.summary, "package desc")

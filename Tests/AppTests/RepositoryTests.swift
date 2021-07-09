@@ -37,6 +37,7 @@ final class RepositoryTests: AppTestCase {
                                           tagName: "1.2.3",
                                           url: "https://example.com/release/1.2.3")
                                   ],
+                                  releaseCount: 15,
                                   stars: 42,
                                   summary: "desc")
         
@@ -71,6 +72,7 @@ final class RepositoryTests: AppTestCase {
                       tagName: "1.2.3",
                       url: "https://example.com/release/1.2.3")
             ])
+            XCTAssertEqual(r.releaseCount, 15)
             XCTAssertEqual(r.stars, 42)
             XCTAssertEqual(r.summary, "desc")
         }

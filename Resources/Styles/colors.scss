@@ -125,6 +125,7 @@
   --tab-bar-hover: var(--very-light-grey);
   --tab-bar-border: var(--light-grey);
   --tab-bar-border-active: var(--light-green);
+  --tab-bar-badge: var(--light-grey);
 }
 
 /* Dark mode semantic color overrides */
@@ -187,5 +188,6 @@
     --tab-bar-background: var(--very-very-dark-grey);
     --tab-bar-hover: var(--very-dark-grey);
     --tab-bar-border: var(--dark-grey);
+    --tab-bar-badge: var(--dark-grey);
   }
 }
