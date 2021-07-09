@@ -38,16 +38,16 @@ extension PackageReleases {
             }
         }
         
+        init(releases: [Release]) {
+            self.releases = releases
+        }
+        
         static func formatDate(_ date: Date?, currentDate: Date = Current.date()) -> String? {
-            #warning("TODO: add test covering function")
-            
             guard let date = date else { return nil }
             return "Released \(date: date, relativeTo: currentDate) on \(Self.dateFormatter.string(from: date))"
         }
         
         static func updateDescription(_ description: String?, replacingTitle title: String) -> String? {
-            #warning("TODO: add test covering function")
-            
             guard let description = description?.trimmingCharacters(in: .whitespacesAndNewlines),
                   !description.isEmpty
             else { return nil }
@@ -66,7 +66,7 @@ extension PackageReleases {
                     try titleHeader.remove()
                 }
                 
-                return try htmlDocument.html()
+                return try htmlDocument.body()?.html()
             } catch {
                 return description
             }
