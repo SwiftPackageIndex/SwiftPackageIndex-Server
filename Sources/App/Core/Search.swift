@@ -95,6 +95,71 @@ enum Search {
             .map { $0.replacingOccurrences(of: "]", with: "\\]") }
             .filter { !$0.isEmpty }
     }
+    
+    struct SearchFilter {
+        enum Value {
+            case number(Int)
+            case string(String)
+        }
+        let field: SQLIdentifier
+        let comparisonMethod: SQLBinaryOperator
+        let value: Value
+        
+        /*
+         Most of these fields do not currently exist within the `search` materalised view but this seems easy to change.
+         
+         Ideas:
+         stars:>5 stars:<5
+         keywords:>5 keywords:<5
+         
+         license:compatible
+         swift:5
+         platform:linux
+         */
+        
+        init?(term: String) {
+            let components = term
+                .components(separatedBy: ":")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            
+            guard components.count == 2 else {
+                return nil
+            }
+            
+            // Operator
+            let comparisonOperator = String(components[1].prefix(1))
+            switch comparisonOperator {
+            case ">": comparisonMethod = .greaterThan
+            case "<": comparisonMethod = .lessThan
+            case "!": comparisonMethod = .isNot
+            default: comparisonMethod = .is
+            }
+            
+            let stringValue = comparisonMethod == .is ? components[1] : String(components[1].dropFirst())
+            guard !stringValue.isEmpty else { return nil }
+            
+            // Field & Value
+            switch components[0] {
+            case "score":
+                field = score
+                
+                guard let numberValue = Int(stringValue) else { return nil }
+                value = .number(numberValue)
+            default: return nil
+            }
+        }
+    }
+    
+    static func extractFiltersFromTerms(terms: [String]) -> (terms: [String], filters: [SearchFilter]) {
+        return terms.reduce(into: (terms: [], filters: [])) { builder, term in
+            if let filter = SearchFilter(term: term) {
+                builder.filters.append(filter)
+            } else {
+                builder.terms.append(term)
+            }
+        }
+    }
 
     static func packageMatchQueryBuilder(on database: Database,
                                          terms: [String],
@@ -104,6 +169,7 @@ enum Search {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
+        let (terms, filters) = extractFiltersFromTerms(terms: terms)
         let maxSearchTerms = 20  // just to impose some sort of limit
 
         // binds
@@ -139,9 +205,27 @@ enum Search {
             .where(isNotNull(packageName))
             .where(isNotNull(repoOwner))
             .where(isNotNull(repoName))
+            .where(group: matchesPackageFilters(filters: filters))
             .orderBy(sortOrder)
             .offset(offset)
             .limit(limit)
+    }
+    
+    static func matchesPackageFilters(filters: [SearchFilter])
+        -> (SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder
+    {
+        let filters = filters.prefix(20) // just to impose some form of limit
+        return { builder in
+            filters.reduce(builder) { builder, filter in
+                switch filter.value {
+                case .number(let number):
+                    builder.where(filter.field, filter.comparisonMethod, number)
+                case .string(let string):
+                    builder.where(filter.field, filter.comparisonMethod, string)
+                }
+                return builder
+            }
+        }
     }
 
     static func keywordMatchQueryBuilder(on database: Database,
