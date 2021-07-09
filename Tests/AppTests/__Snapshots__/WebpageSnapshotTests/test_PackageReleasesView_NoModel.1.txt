@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <turbo-frame id="releases">
+      <p>This package has no release notes.</p>
+    </turbo-frame>
+  </body>
+</html>
