@@ -1,4 +1,4 @@
-enum License: String, Codable, Equatable {
+enum License: String, Codable, Equatable, CaseIterable {
     
     // This is not an exhaustive list, but includes most commonly used license types
     case afl_3_0 = "afl-3.0"
