@@ -137,6 +137,8 @@ enum Search {
                 field = stars
             case "license" where ["compatible", "incompatible", "unknown"].contains(stringValue):
                 field = license
+            case "updated":
+                field = lastCommitDate
             default:
                 return nil
             }
@@ -159,6 +161,16 @@ enum Search {
                 case "unknown":
                     builder.where(license, .in, License.withKind { $0 == .none || $0 == .other })
                 default:
+                    break
+                }
+                
+            case lastCommitDate.string:
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd"
+                
+                if let date = dateFormatter.date(from: value) {
+                    builder.where(field, comparisonMethod, date)
+                } else {
                     break
                 }
                 
