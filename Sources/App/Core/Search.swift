@@ -132,11 +132,11 @@ enum Search {
             switch comparisonOperator {
             case ">": comparisonMethod = .greaterThan
             case "<": comparisonMethod = .lessThan
-            case "!": comparisonMethod = .isNot
-            default: comparisonMethod = .is
+            case "!": comparisonMethod = .notEqual
+            default: comparisonMethod = .equal
             }
             
-            let stringValue = comparisonMethod == .is ? components[1] : String(components[1].dropFirst())
+            let stringValue = comparisonMethod == .equal ? components[1] : String(components[1].dropFirst())
             guard !stringValue.isEmpty else { return nil }
             
             // Field & Value
@@ -170,7 +170,7 @@ enum Search {
         }
 
         let (terms, filters) = extractFiltersFromTerms(terms: terms)
-        let maxSearchTerms = 20  // just to impose some sort of limit
+        let maxSearchTerms = 20 // just to impose some sort of limit
 
         // binds
         let binds = terms[..<min(terms.count, maxSearchTerms)].map(SQLBind.init)
@@ -211,20 +211,19 @@ enum Search {
             .limit(limit)
     }
     
-    static func matchesPackageFilters(filters: [SearchFilter])
-        -> (SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder
-    {
-        let filters = filters.prefix(20) // just to impose some form of limit
-        return { builder in
-            filters.reduce(builder) { builder, filter in
-                switch filter.value {
-                case .number(let number):
-                    builder.where(filter.field, filter.comparisonMethod, number)
-                case .string(let string):
-                    builder.where(filter.field, filter.comparisonMethod, string)
+    static func matchesPackageFilters(filters: [SearchFilter]) -> (SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
+        { builder in
+            filters
+                .prefix(20) // just to impose some form of limit
+                .reduce(builder) { builder, filter in
+                    switch filter.value {
+                    case .number(let number):
+                        builder.where(filter.field, filter.comparisonMethod, number)
+                    case .string(let string):
+                        builder.where(filter.field, filter.comparisonMethod, string)
+                    }
+                    return builder
                 }
-                return builder
-            }
         }
     }
 
