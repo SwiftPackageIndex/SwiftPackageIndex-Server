@@ -21,13 +21,13 @@ class SearchTests: AppTestCase {
     }
 
     func test_packageMatchQuery_single_term() throws {
-        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"])
+        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
         XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(b), ["a", "a"])
     }
 
     func test_packageMatchQuery_multiple_terms() throws {
-        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"])
+        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"], filters: [])
         XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(b), ["a", "b", "a b"])
     }
@@ -66,6 +66,7 @@ class SearchTests: AppTestCase {
         let packages = renderSQL(
             Search.packageMatchQueryBuilder(on: app.db,
                                             terms: ["test"],
+                                            filters: [],
                                             offset: 0,
                                             limit: 21),
             resolveBinds: true

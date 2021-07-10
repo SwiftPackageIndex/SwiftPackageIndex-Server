@@ -189,13 +189,13 @@ enum Search {
 
     static func packageMatchQueryBuilder(on database: Database,
                                          terms: [String],
+                                         filters: [SearchFilter],
                                          offset: Int? = nil,
                                          limit: Int? = nil) -> SQLSelectBuilder {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        let (terms, filters) = extractFiltersFromTerms(terms: terms)
         let maxSearchTerms = 20 // just to impose some sort of limit
 
         // binds
@@ -330,10 +330,12 @@ enum Search {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        let sanitizedTerms = sanitize(terms)
-        guard !sanitizedTerms.isEmpty else {
+        let unfilteredSanitizedTerms = sanitize(terms)
+        guard !unfilteredSanitizedTerms.isEmpty else {
             return nil
         }
+        
+        let (sanitizedTerms, filters) = extractFiltersFromTerms(terms: unfilteredSanitizedTerms)
 
         // page is one-based, clamp it to ensure we get a >=0 offset
         let page = page.clamped(to: 1...)
@@ -345,10 +347,10 @@ enum Search {
         ? db.unionAll(
             authorMatchQueryBuilder(on: database, terms: sanitizedTerms),
             keywordMatchQueryBuilder(on: database, terms: sanitizedTerms),
-            packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
+            packageMatchQueryBuilder(on: database, terms: sanitizedTerms, filters: filters,
                                      offset: offset, limit: limit)
         ).query
-        : packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
+        : packageMatchQueryBuilder(on: database, terms: sanitizedTerms, filters: filters,
                                    offset: offset, limit: limit).query
 
         return db.select()
