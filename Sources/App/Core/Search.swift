@@ -18,8 +18,6 @@ enum Search {
     static let stars = SQLIdentifier("stars")
     static let license = SQLIdentifier("license")
     static let lastCommitDate = SQLIdentifier("last_commit_date")
-    static let supportedPlatforms = SQLIdentifier("supported_platforms")
-    static let swiftVersions = SQLIdentifier("swift_versions")
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
 
@@ -28,7 +26,6 @@ enum Search {
     static let nullInt = SQLRaw("NULL::INT")
     static let nullUUID = SQLRaw("NULL::UUID")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
-    static let nullJSONBArray = SQLRaw("NULL::JSONB[]")
 
     enum MatchType: String, Codable, Equatable {
         case author
@@ -63,12 +60,6 @@ enum Search {
         var repositoryName: String?
         var repositoryOwner: String?
         var summary: String?
-        #warning("This is temporary, we don't actually want to pull this data out into the record")
-        var stars: Int?
-        var license: String?
-        var lastCommitDate: String?
-        var supportedPlatforms: [Platform]?
-        var swiftVersions: [SwiftVersion]?
         
         enum CodingKeys: String, CodingKey {
             case matchType = "match_type"
@@ -78,11 +69,6 @@ enum Search {
             case repositoryName = "repo_name"
             case repositoryOwner = "repo_owner"
             case summary
-            case stars
-            case license
-            case lastCommitDate = "last_commit_date"
-            case supportedPlatforms = "supported_platforms"
-            case swiftVersions = "swift_versions"
         }
         
         var packageURL: String? {
@@ -115,25 +101,9 @@ enum Search {
     }
     
     struct SearchFilter {
-        enum Value {
-            case number(Int)
-            case string(String)
-        }
         let field: SQLIdentifier
         let comparisonMethod: SQLBinaryOperator
-        let value: Value
-        
-        /*
-         Most of these fields do not currently exist within the `search` materalised view but this seems easy to change.
-         
-         Ideas:
-         stars:>5 stars:<5
-         keywords:>5 keywords:<5
-         
-         license:compatible
-         swift:5
-         platform:linux
-         */
+        let value: String
         
         init?(term: String) {
             let components = term
@@ -154,26 +124,49 @@ enum Search {
             default: comparisonMethod = .equal
             }
             
+            // Value
             let stringValue = comparisonMethod == .equal ? components[1] : String(components[1].dropFirst())
             guard !stringValue.isEmpty else { return nil }
+            value = stringValue
             
-            // Field & Value
+            // Field
             switch components[0] {
             case "score":
                 field = score
-                
-                guard let numberValue = Int(stringValue) else { return nil }
-                value = .number(numberValue)
             case "stars":
                 field = stars
-                
-                guard let numberValue = Int(stringValue) else { return nil }
-                value = .number(numberValue)
-            case "license" where stringValue == "compatible":
+            case "license" where ["compatible", "incompatible", "unknown"].contains(stringValue):
                 field = license
-                value = .string(stringValue)
-            default: return nil
+            default:
+                return nil
             }
+        }
+        
+        func query(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
+            switch field.string {
+            case score.string:
+                builder.where(field, comparisonMethod, Int(value))
+                
+            case stars.string:
+                builder.where(field, comparisonMethod, Int(value))
+                
+            case license.string:
+                switch value {
+                case "compatible":
+                    builder.where(license, .in, License.withKind { $0 == .compatibleWithAppStore })
+                case "incompatible":
+                    builder.where(license, .in, License.withKind { $0 == .incompatibleWithAppStore })
+                case "unknown":
+                    builder.where(license, .in, License.withKind { $0 == .none || $0 == .other })
+                default:
+                    break
+                }
+                
+            default:
+                break
+            }
+            
+            return builder
         }
     }
     
@@ -228,8 +221,6 @@ enum Search {
             .column(stars)
             .column(license)
             .column(lastCommitDate)
-            .column(supportedPlatforms)
-            .column(swiftVersions)
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
@@ -246,20 +237,7 @@ enum Search {
         { builder in
             filters
                 .prefix(20) // just to impose some form of limit
-                .reduce(builder) { builder, filter in
-                    if filter.field.string == license.string {
-                        builder.where(license, .in, License.allCases.filter { $0.licenseKind == .compatibleWithAppStore }.map(\.rawValue))
-                    } else {
-                        switch filter.value {
-                        case .number(let number):
-                            builder.where(filter.field, filter.comparisonMethod, number)
-                        case .string(let string):
-                            builder.where(filter.field, filter.comparisonMethod, string)
-                        }
-                    }
-                    
-                    return builder
-                }
+                .reduce(builder) { $1.query($0) }
         }
     }
 
@@ -284,8 +262,6 @@ enum Search {
             .column(null, as: stars)
             .column(null, as: license)
             .column(null, as: lastCommitDate)
-            .column(null, as: supportedPlatforms)
-            .column(null, as: swiftVersions)
             .from(searchView)
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
             .where(keyword, .equal, mergedTerms)
@@ -314,8 +290,6 @@ enum Search {
             .column(nullInt, as: stars)
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
-            .column(nullJSONBArray, as: supportedPlatforms)
-            .column(nullJSONBArray, as: swiftVersions)
             .from(searchView)
             .where(repoOwner, ilike, mergedTerms)
             .limit(1)

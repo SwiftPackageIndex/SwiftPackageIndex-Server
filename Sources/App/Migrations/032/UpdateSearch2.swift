@@ -22,9 +22,7 @@ struct UpdateSearch2: Migration {
               r.keywords,
               r.license,
               r.stars,
-              r.last_commit_date,
-              v.supported_platforms,
-              v.swift_versions
+              r.last_commit_date
             FROM packages p
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id

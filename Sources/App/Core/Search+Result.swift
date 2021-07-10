@@ -8,7 +8,6 @@ extension Search {
         case package(PackageResult)
 
         init?(_ record: DBRecord) {
-            print(record)
             // don't show non-package results on production yet
             let environment = (try? Environment.detect()) ?? .development
             if environment == .production && !record.isPackage {
