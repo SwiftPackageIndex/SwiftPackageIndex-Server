@@ -169,6 +169,9 @@ enum Search {
                 
                 guard let numberValue = Int(stringValue) else { return nil }
                 value = .number(numberValue)
+            case "license" where stringValue == "compatible":
+                field = license
+                value = .string(stringValue)
             default: return nil
             }
         }
@@ -244,12 +247,17 @@ enum Search {
             filters
                 .prefix(20) // just to impose some form of limit
                 .reduce(builder) { builder, filter in
-                    switch filter.value {
-                    case .number(let number):
-                        builder.where(filter.field, filter.comparisonMethod, number)
-                    case .string(let string):
-                        builder.where(filter.field, filter.comparisonMethod, string)
+                    if filter.field.string == license.string {
+                        builder.where(license, .in, License.allCases.filter { $0.licenseKind == .compatibleWithAppStore }.map(\.rawValue))
+                    } else {
+                        switch filter.value {
+                        case .number(let number):
+                            builder.where(filter.field, filter.comparisonMethod, number)
+                        case .string(let string):
+                            builder.where(filter.field, filter.comparisonMethod, string)
+                        }
                     }
+                    
                     return builder
                 }
         }
