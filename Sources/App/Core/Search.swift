@@ -328,8 +328,8 @@ enum Search {
         let offset = (page - 1) * pageSize
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
 
-        // only include non-package results on first page
-        let query = (page == 1)
+        // only include non-package results on first page and only if there are no filters applied
+        let query = (page == 1 && filters.isEmpty)
         ? db.unionAll(
             authorMatchQueryBuilder(on: database, terms: sanitizedTerms),
             keywordMatchQueryBuilder(on: database, terms: sanitizedTerms),
