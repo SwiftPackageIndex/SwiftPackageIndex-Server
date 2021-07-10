@@ -15,6 +15,11 @@ enum Search {
     static let repoName = SQLIdentifier("repo_name")
     static let repoOwner = SQLIdentifier("repo_owner")
     static let score = SQLIdentifier("score")
+    static let stars = SQLIdentifier("stars")
+    static let license = SQLIdentifier("license")
+    static let lastCommitDate = SQLIdentifier("last_commit_date")
+    static let supportedPlatforms = SQLIdentifier("supported_platforms")
+    static let swiftVersions = SQLIdentifier("swift_versions")
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
 
@@ -22,6 +27,8 @@ enum Search {
     static let null = SQLRaw("NULL")
     static let nullInt = SQLRaw("NULL::INT")
     static let nullUUID = SQLRaw("NULL::UUID")
+    static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
+    static let nullJSONBArray = SQLRaw("NULL::JSONB[]")
 
     enum MatchType: String, Codable, Equatable {
         case author
@@ -56,6 +63,12 @@ enum Search {
         var repositoryName: String?
         var repositoryOwner: String?
         var summary: String?
+        #warning("This is temporary, we don't actually want to pull this data out into the record")
+        var stars: Int?
+        var license: String?
+        var lastCommitDate: String?
+        var supportedPlatforms: [Platform]?
+        var swiftVersions: [SwiftVersion]?
         
         enum CodingKeys: String, CodingKey {
             case matchType = "match_type"
@@ -65,6 +78,11 @@ enum Search {
             case repositoryName = "repo_name"
             case repositoryOwner = "repo_owner"
             case summary
+            case stars
+            case license
+            case lastCommitDate = "last_commit_date"
+            case supportedPlatforms = "supported_platforms"
+            case swiftVersions = "swift_versions"
         }
         
         var packageURL: String? {
@@ -146,6 +164,11 @@ enum Search {
                 
                 guard let numberValue = Int(stringValue) else { return nil }
                 value = .number(numberValue)
+            case "stars":
+                field = stars
+                
+                guard let numberValue = Int(stringValue) else { return nil }
+                value = .number(numberValue)
             default: return nil
             }
         }
@@ -199,6 +222,11 @@ enum Search {
             .column(repoOwner)
             .column(score)
             .column(summary)
+            .column(stars)
+            .column(license)
+            .column(lastCommitDate)
+            .column(supportedPlatforms)
+            .column(swiftVersions)
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
@@ -245,6 +273,11 @@ enum Search {
             .column(null, as: repoOwner)
             .column(null, as: score)
             .column(null, as: summary)
+            .column(null, as: stars)
+            .column(null, as: license)
+            .column(null, as: lastCommitDate)
+            .column(null, as: supportedPlatforms)
+            .column(null, as: swiftVersions)
             .from(searchView)
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
             .where(keyword, .equal, mergedTerms)
@@ -270,6 +303,11 @@ enum Search {
             .column(repoOwner)
             .column(nullInt, as: score)
             .column(null, as: summary)
+            .column(nullInt, as: stars)
+            .column(null, as: license)
+            .column(nullTimestamp, as: lastCommitDate)
+            .column(nullJSONBArray, as: supportedPlatforms)
+            .column(nullJSONBArray, as: swiftVersions)
             .from(searchView)
             .where(repoOwner, ilike, mergedTerms)
             .limit(1)
