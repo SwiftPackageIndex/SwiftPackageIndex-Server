@@ -636,6 +636,60 @@ class SearchTests: AppTestCase {
         ])
     }
     
+    func test_search_withFilter_stars() throws {
+        // Setup
+        let p1 = Package(id: .id1, url: "1", score: 10)
+        let p2 = Package(id: .id2, url: "2", score: 20)
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "bar",
+                       stars: 50,
+                       summary: "test package").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       name: "2",
+                       owner: "foo",
+                       stars: 10,
+                       summary: "test package").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+        
+        do { // Baseline
+            let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
+            XCTAssertEqual(res.results.count, 2)
+            XCTAssertTrue(res.results.allSatisfy { $0.isPackage })
+        }
+        
+        do { // Greater Than
+            let res = try Search.fetch(app.db, ["test", "stars:>25"], page: 1, pageSize: 20).wait()
+            XCTAssertEqual(res.results.count, 1)
+            XCTAssertEqual(res.results[0].package?.packageName, "p1")
+        }
+        
+        do { // Less Than
+            let res = try Search.fetch(app.db, ["test", "stars:<25"], page: 1, pageSize: 20).wait()
+            XCTAssertEqual(res.results.count, 1)
+            XCTAssertEqual(res.results[0].package?.packageName, "p2")
+        }
+        
+        do { // Equal
+            let res = try Search.fetch(app.db, ["test", "stars:50"], page: 1, pageSize: 20).wait()
+            XCTAssertEqual(res.results.count, 1)
+            XCTAssertEqual(res.results[0].package?.packageName, "p1")
+        }
+        
+        do { // Not Equals
+            let res = try Search.fetch(app.db, ["test", "stars:!50"], page: 1, pageSize: 20).wait()
+            XCTAssertEqual(res.results.count, 1)
+            XCTAssertEqual(res.results[0].package?.packageName, "p2")
+        }
+    }
+    
     func test_onlyPackageResults_whenFiltersApplied() throws {
         do { // with filter
             let query = Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5)
