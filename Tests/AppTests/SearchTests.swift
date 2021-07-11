@@ -31,6 +31,15 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(b), ["a", "b", "a b"])
     }
+    
+    func test_packageMatchQuery_with_filter() throws {
+        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"],
+            filters: [try StarsSearchFilter(value: "500", comparison: .greaterThan)])
+        
+        _assertInlineSnapshot(matching: renderSQL(b, resolveBinds: true), as: .lines, with: """
+        SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* 'a' AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("stars" > '500') ORDER BY LOWER("package_name") = 'a' DESC, "score" DESC, "package_name" ASC
+        """)
+    }
 
     func test_keywordMatchQuery_single_term() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
@@ -626,7 +635,24 @@ class SearchTests: AppTestCase {
                            summary: ""))
         ])
     }
-
+    
+    func test_onlyPackageResults_whenFiltersApplied() throws {
+        do { // with filter
+            let query = Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5)
+            let sql = renderSQL(query)
+            XCTAssertFalse(sql.contains(#"SELECT 'author' AS "match_type""#))
+            XCTAssertFalse(sql.contains(#"SELECT 'keyword' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
+        }
+        
+        do { // without filter
+            let query = Search.query(app.db, ["a"], page: 1, pageSize: 5)
+            let sql = renderSQL(query)
+            XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT 'keyword' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
+        }
+    }
 }
 
 
