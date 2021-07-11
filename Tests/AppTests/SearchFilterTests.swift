@@ -2,8 +2,9 @@
 
 import SQLKit
 import XCTVapor
+import SnapshotTesting
 
-class SearchFilterTests: XCTestCase {
+class SearchFilterTests: AppTestCase {
     
     func test_allSearchFilters() {
         XCTAssertEqual(
@@ -98,10 +99,10 @@ class SearchFilterTests: XCTestCase {
         XCTAssertEqual(try StarsSearchFilter(value: "1", comparison: .match).value, 1)
         
         let filter = try StarsSearchFilter(value: "1", comparison: .greaterThan)
-        let expression = MockPredicateBuilder.apply(filter: filter)
-        XCTAssertEqual(String(describing: expression.left), #"SQLIdentifier(string: "stars")"#)
-        XCTAssertEqual(String(describing: expression.op), #"greaterThan"#)
-        XCTAssertEqual(String(describing: expression.right), #"SQLBind(encodable: 1)"#)
+        let sql = renderSQL(MockPredicateBuilder.apply(filter: filter), resolveBinds: true)
+        _assertInlineSnapshot(matching: sql, as: .lines, with: """
+        "stars" > '1'
+        """)
     }
     
     func test_licenseFilter() throws {
@@ -111,13 +112,10 @@ class SearchFilterTests: XCTestCase {
         XCTAssertEqual(try LicenseSearchFilter(value: "compatible", comparison: .match).filterType, .compatible)
         
         let filter = try LicenseSearchFilter(value: "compatible", comparison: .match)
-        let expression = MockPredicateBuilder.apply(filter: filter)
-        XCTAssertEqual(String(describing: expression.left), #"SQLIdentifier(string: "license")"#)
-        XCTAssertEqual(String(describing: expression.op), #"in"#)
-        
-        License.withKind { $0 == .compatibleWithAppStore }.forEach {
-            XCTAssertTrue(String(describing: expression.right).contains($0))
-        }
+        let sql = renderSQL(MockPredicateBuilder.apply(filter: filter), resolveBinds: true)
+        _assertInlineSnapshot(matching: sql, as: .lines, with: """
+        "license" IN ('afl-3.0', 'apache-2.0', 'artistic-2.0', 'bsd-2-clause', 'bsd-3-clause', 'bsd-3-clause-clear', 'bsl-1.0', 'cc', 'cc0-1.0', 'afl-3.0'0, 'afl-3.0'1, 'afl-3.0'2, 'afl-3.0'3, 'afl-3.0'4, 'afl-3.0'5, 'afl-3.0'6, 'afl-3.0'7, 'afl-3.0'8, 'afl-3.0'9, 'apache-2.0'0, 'apache-2.0'1, 'apache-2.0'2, 'apache-2.0'3, 'apache-2.0'4)
+        """)
     }
     
     func test_updatedFilter() throws {
@@ -126,10 +124,10 @@ class SearchFilterTests: XCTestCase {
         XCTAssertEqual(try UpdatedSearchFilter(value: "2001-01-01", comparison: .match).date, Date(timeIntervalSinceReferenceDate: 0))
         
         let filter = try UpdatedSearchFilter(value: "2001-01-01", comparison: .match)
-        let expression = MockPredicateBuilder.apply(filter: filter)
-        XCTAssertEqual(String(describing: expression.left), #"SQLIdentifier(string: "last_commit_date")"#)
-        XCTAssertEqual(String(describing: expression.op), #"equal"#)
-        XCTAssertTrue(String(describing: expression.right).contains("2001-01-01"))
+        let sql = renderSQL(MockPredicateBuilder.apply(filter: filter), resolveBinds: true)
+        _assertInlineSnapshot(matching: sql, as: .lines, with: """
+        "last_commit_date" = '2001-01-01'
+        """)
     }
     
     // MARK: Mock
