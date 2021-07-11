@@ -99,98 +99,6 @@ enum Search {
             .map { $0.replacingOccurrences(of: "]", with: "\\]") }
             .filter { !$0.isEmpty }
     }
-    
-    struct SearchFilter {
-        let field: SQLIdentifier
-        let comparisonMethod: SQLBinaryOperator
-        let value: String
-        
-        init?(term: String) {
-            let components = term
-                .components(separatedBy: ":")
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                .filter { !$0.isEmpty }
-            
-            guard components.count == 2 else {
-                return nil
-            }
-            
-            // Operator
-            let comparisonOperator = String(components[1].prefix(1))
-            switch comparisonOperator {
-            case ">": comparisonMethod = .greaterThan
-            case "<": comparisonMethod = .lessThan
-            case "!": comparisonMethod = .notEqual
-            default: comparisonMethod = .equal
-            }
-            
-            // Value
-            let stringValue = comparisonMethod == .equal ? components[1] : String(components[1].dropFirst())
-            guard !stringValue.isEmpty else { return nil }
-            value = stringValue
-            
-            // Field
-            switch components[0] {
-            case "score":
-                field = score
-            case "stars":
-                field = stars
-            case "license" where ["compatible", "incompatible", "unknown"].contains(stringValue):
-                field = license
-            case "updated":
-                field = lastCommitDate
-            default:
-                return nil
-            }
-        }
-        
-        func query(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
-            switch field.string {
-            case score.string:
-                builder.where(field, comparisonMethod, Int(value))
-                
-            case stars.string:
-                builder.where(field, comparisonMethod, Int(value))
-                
-            case license.string:
-                switch value {
-                case "compatible":
-                    builder.where(license, .in, License.withKind { $0 == .compatibleWithAppStore })
-                case "incompatible":
-                    builder.where(license, .in, License.withKind { $0 == .incompatibleWithAppStore })
-                case "unknown":
-                    builder.where(license, .in, License.withKind { $0 == .none || $0 == .other })
-                default:
-                    break
-                }
-                
-            case lastCommitDate.string:
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "yyyy-MM-dd"
-                
-                if let date = dateFormatter.date(from: value) {
-                    builder.where(field, comparisonMethod, date)
-                } else {
-                    break
-                }
-                
-            default:
-                break
-            }
-            
-            return builder
-        }
-    }
-    
-    static func extractFiltersFromTerms(terms: [String]) -> (terms: [String], filters: [SearchFilter]) {
-        return terms.reduce(into: (terms: [], filters: [])) { builder, term in
-            if let filter = SearchFilter(term: term) {
-                builder.filters.append(filter)
-            } else {
-                builder.terms.append(term)
-            }
-        }
-    }
 
     static func packageMatchQueryBuilder(on database: Database,
                                          terms: [String],
@@ -321,7 +229,7 @@ enum Search {
             return nil
         }
         
-        let (sanitizedTerms, filters) = extractFiltersFromTerms(terms: unfilteredSanitizedTerms)
+        let (sanitizedTerms, filters) = SearchFilterParser().separate(terms: unfilteredSanitizedTerms)
 
         // page is one-based, clamp it to ensure we get a >=0 offset
         let page = page.clamped(to: 1...)
