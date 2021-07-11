@@ -28,7 +28,7 @@ struct SearchFilterParser {
         }
     }
     
-    func parse(term: String) -> SearchFilter? {
+    func parse(term: String, allFilters: [SearchFilter.Type] = SearchFilterParser.allSearchFilters) -> SearchFilter? {
         let components = term
             .components(separatedBy: ":")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -54,8 +54,7 @@ struct SearchFilterParser {
         guard !stringValue.isEmpty else { return nil }
         
         // Filter
-        return try? Self
-            .allSearchFilters
+        return try? allFilters
             .first(where: { $0.key == components[0] })?
             .init(value: stringValue, comparison: filterComparison)
     }
@@ -80,6 +79,7 @@ enum SearchFilterComparison: Equatable {
 
 enum SearchFilterError: Error {
     case invalidValueType
+    case unsupportedComparisonMethod
 }
 
 // MARK: - Filters
@@ -115,7 +115,7 @@ struct StarsSearchFilter: SearchFilter {
 // MARK: License
 
 struct LicenseSearchFilter: SearchFilter {
-    enum FilterType: String {
+    enum FilterType: String, Equatable {
         case compatible
         case incompatible
     }
@@ -128,6 +128,9 @@ struct LicenseSearchFilter: SearchFilter {
     init(value: String, comparison: SearchFilterComparison) throws {
         guard let filterType = FilterType(rawValue: value) else {
             throw SearchFilterError.invalidValueType
+        }
+        guard [.match, .negativeMatch].contains(comparison) else {
+            throw SearchFilterError.unsupportedComparisonMethod
         }
         
         self.comparison = comparison
