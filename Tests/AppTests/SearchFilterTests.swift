@@ -99,9 +99,11 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(try StarsSearchFilter(value: "1", comparison: .match).value, 1)
         
         let filter = try StarsSearchFilter(value: "1", comparison: .greaterThan)
-        let sql = renderSQL(MockPredicateBuilder.apply(filter: filter), resolveBinds: true)
+        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+            .where(searchFilters: [filter])
+        let sql = renderSQL(builder, resolveBinds: true)
         _assertInlineSnapshot(matching: sql, as: .lines, with: """
-        "stars" > '1'
+        SELECT  WHERE ("stars" > '1')
         """)
     }
     
@@ -112,9 +114,11 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(try LicenseSearchFilter(value: "compatible", comparison: .match).filterType, .compatible)
         
         let filter = try LicenseSearchFilter(value: "compatible", comparison: .match)
-        let sql = renderSQL(MockPredicateBuilder.apply(filter: filter), resolveBinds: true)
+        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+            .where(searchFilters: [filter])
+        let sql = renderSQL(builder, resolveBinds: true)
         _assertInlineSnapshot(matching: sql, as: .lines, with: """
-        "license" IN ('afl-3.0', 'apache-2.0', 'artistic-2.0', 'bsd-2-clause', 'bsd-3-clause', 'bsd-3-clause-clear', 'bsl-1.0', 'cc', 'cc0-1.0', 'afl-3.0'0, 'afl-3.0'1, 'afl-3.0'2, 'afl-3.0'3, 'afl-3.0'4, 'afl-3.0'5, 'afl-3.0'6, 'afl-3.0'7, 'afl-3.0'8, 'afl-3.0'9, 'apache-2.0'0, 'apache-2.0'1, 'apache-2.0'2, 'apache-2.0'3, 'apache-2.0'4)
+        SELECT  WHERE ("license" IN ('afl-3.0', 'apache-2.0', 'artistic-2.0', 'bsd-2-clause', 'bsd-3-clause', 'bsd-3-clause-clear', 'bsl-1.0', 'cc', 'cc0-1.0', 'afl-3.0'0, 'afl-3.0'1, 'afl-3.0'2, 'afl-3.0'3, 'afl-3.0'4, 'afl-3.0'5, 'afl-3.0'6, 'afl-3.0'7, 'afl-3.0'8, 'afl-3.0'9, 'apache-2.0'0, 'apache-2.0'1, 'apache-2.0'2, 'apache-2.0'3, 'apache-2.0'4))
         """)
     }
     
@@ -122,11 +126,13 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(UpdatedSearchFilter.key, "updated")
         XCTAssertThrowsError(try UpdatedSearchFilter(value: "23rd June 2021", comparison: .match))
         XCTAssertEqual(try UpdatedSearchFilter(value: "2001-01-01", comparison: .match).date, Date(timeIntervalSinceReferenceDate: 0))
-        
+
         let filter = try UpdatedSearchFilter(value: "2001-01-01", comparison: .match)
-        let sql = renderSQL(MockPredicateBuilder.apply(filter: filter), resolveBinds: true)
+        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+            .where(searchFilters: [filter])
+        let sql = renderSQL(builder, resolveBinds: true)
         _assertInlineSnapshot(matching: sql, as: .lines, with: """
-        "last_commit_date" = '2001-01-01'
+        SELECT  WHERE ("last_commit_date" = '2001-01-01')
         """)
     }
     
@@ -145,18 +151,6 @@ class SearchFilterTests: AppTestCase {
         
         func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
             return builder
-        }
-    }
-    
-    class MockPredicateBuilder: SQLPredicateBuilder {
-        var predicate: SQLExpression?
-        
-        static func apply(filter: SearchFilter) -> SQLBinaryExpression {
-            let groupExpression = MockPredicateBuilder()
-                .where(group: filter.where(_:))
-                .predicate as? SQLGroupExpression
-            
-            return groupExpression!.expressions[0] as! SQLBinaryExpression
         }
     }
     
