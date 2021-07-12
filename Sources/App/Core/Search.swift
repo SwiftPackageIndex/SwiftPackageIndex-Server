@@ -147,18 +147,10 @@ enum Search {
             .where(isNotNull(packageName))
             .where(isNotNull(repoOwner))
             .where(isNotNull(repoName))
-            .where(group: matchesPackageFilters(filters: filters))
+            .where(searchFilters: filters)
             .orderBy(sortOrder)
             .offset(offset)
             .limit(limit)
-    }
-    
-    static func matchesPackageFilters(filters: [SearchFilter]) -> (SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
-        { builder in
-            filters
-                .prefix(20) // just to impose some form of limit
-                .reduce(builder) { $1.where($0) }
-        }
     }
 
     static func keywordMatchQueryBuilder(on database: Database,
