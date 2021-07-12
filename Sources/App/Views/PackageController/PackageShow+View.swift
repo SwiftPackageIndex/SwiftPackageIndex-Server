@@ -92,6 +92,7 @@ enum PackageShow {
                 .class("main_metadata"),
                 .ul(
                     model.authorsListItem(),
+                    model.archivedListItem(),
                     model.historyListItem(),
                     model.activityListItem(),
                     model.licenseListItem(),
