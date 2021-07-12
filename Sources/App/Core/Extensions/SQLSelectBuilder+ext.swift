@@ -24,7 +24,7 @@ extension SQLSelectBuilder {
         self.where(group: { builder in
             searchFilters
                 .prefix(20) // just to impose some form of limit
-                .reduce(builder) { $1.query($0) }
+                .reduce(builder) { $1.where($0) }
         })
     }
 }
