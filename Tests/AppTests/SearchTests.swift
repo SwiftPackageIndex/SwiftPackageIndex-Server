@@ -662,7 +662,7 @@ class SearchTests: AppTestCase {
         do { // Baseline
             let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
             XCTAssertEqual(res.results.count, 2)
-            XCTAssertTrue(res.results.allSatisfy { $0.isPackage })
+            XCTAssertEqual(res.results.compactMap(\.package).compactMap(\.packageName).sorted(), ["p1", "p2"])
         }
         
         do { // Greater Than

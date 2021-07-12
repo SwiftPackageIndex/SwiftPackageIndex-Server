@@ -14,7 +14,7 @@ protocol SearchFilter {
     init(value: String, comparison: SearchFilterComparison) throws
     
     /// Add a SQLKit `where` clause to the "SELECT" expression, using the filter's stored value and provided comparison method for context.
-    func query(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder
+    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder
 }
 
 struct SearchFilterParser {
@@ -26,7 +26,6 @@ struct SearchFilterParser {
         UpdatedSearchFilter.self,
     ]
     
-    
     /// Separates search terms from filter syntax.
     ///
     /// A "filter syntax" is a part of the user input which is a set of instructions to the search controller to filter the results by. "Search terms" is anything which is not
@@ -34,8 +33,14 @@ struct SearchFilterParser {
     ///
     /// In this example: `["test", "stars:>500"]` - `"test"` is a search term, and `"stars:>500"` is filter syntax (instructing the search controller to
     /// only return results with more than 500 stars.)
-    func separate(terms: [String]) -> (terms: [String], filters: [SearchFilter]) {
-        terms.reduce(into: (terms: [], filters: [])) { builder, term in
+    func split(terms: [String]) -> (terms: [String], filters: [SearchFilter]) {
+        // Do not support filter syntax in production yet.
+        let environment = (try? Environment.detect()) ?? .development
+        if environment == .production {
+            return (terms: terms, filters: [])
+        }
+        
+        return terms.reduce(into: (terms: [], filters: [])) { builder, term in
             if let filter = parse(term: term) {
                 builder.filters.append(filter)
             } else {
@@ -60,10 +65,14 @@ struct SearchFilterParser {
         let filterComparison: SearchFilterComparison = {
             let comparisonOperator = String(components[1].prefix(1))
             switch comparisonOperator {
-            case ">": return .greaterThan
-            case "<": return .lessThan
-            case "!": return .negativeMatch
-            default:  return .match
+                case ">":
+                    return .greaterThan
+                case "<":
+                    return .lessThan
+                case "!":
+                    return .negativeMatch
+                default:
+                    return .match
             }
         }()
         
@@ -87,10 +96,14 @@ enum SearchFilterComparison: Equatable {
     
     func binaryOperator(isSet: Bool = false) -> SQLBinaryOperator {
         switch self {
-        case .greaterThan: return .greaterThan
-        case .lessThan: return .lessThan
-        case .negativeMatch: return isSet ? .notIn : .notEqual
-        case .match: return isSet ? .in : .equal
+            case .greaterThan:
+                return .greaterThan
+            case .lessThan:
+                return .lessThan
+            case .negativeMatch:
+                return isSet ? .notIn : .notEqual
+            case .match:
+                return isSet ? .in : .equal
         }
     }
 }
@@ -130,7 +143,7 @@ struct StarsSearchFilter: SearchFilter {
         self.value = intValue
     }
     
-    func query(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
+    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
         builder.where(
             SQLIdentifier("stars"),
             comparison.binaryOperator(),
@@ -171,21 +184,21 @@ struct LicenseSearchFilter: SearchFilter {
         self.filterType = filterType
     }
     
-    func query(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
+    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
         switch filterType {
-        case .compatible:
-            return builder.where(
-                SQLIdentifier("license"),
-                comparison.binaryOperator(isSet: true),
-                License.withKind { $0 == .compatibleWithAppStore }
-            )
-            
-        case .incompatible:
-            return builder.where(
-                SQLIdentifier("license"),
-                comparison.binaryOperator(isSet: true),
-                License.withKind { $0 != .compatibleWithAppStore }
-            )
+            case .compatible:
+                return builder.where(
+                    SQLIdentifier("license"),
+                    comparison.binaryOperator(isSet: true),
+                    License.withKind { $0 == .compatibleWithAppStore }
+                )
+                
+            case .incompatible:
+                return builder.where(
+                    SQLIdentifier("license"),
+                    comparison.binaryOperator(isSet: true),
+                    License.withKind { $0 != .compatibleWithAppStore }
+                )
         }
     }
 }
@@ -225,7 +238,7 @@ struct UpdatedSearchFilter: SearchFilter {
         self.date = date
     }
     
-    func query(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
+    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
         builder.where(
             SQLIdentifier("last_commit_date"),
             comparison.binaryOperator(),

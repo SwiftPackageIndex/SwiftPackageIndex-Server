@@ -157,7 +157,7 @@ enum Search {
         { builder in
             filters
                 .prefix(20) // just to impose some form of limit
-                .reduce(builder) { $1.query($0) }
+                .reduce(builder) { $1.where($0) }
         }
     }
 
@@ -229,7 +229,7 @@ enum Search {
             return nil
         }
         
-        let (sanitizedTerms, filters) = SearchFilterParser().separate(terms: unfilteredSanitizedTerms)
+        let (sanitizedTerms, filters) = SearchFilterParser().split(terms: unfilteredSanitizedTerms)
 
         // page is one-based, clamp it to ensure we get a >=0 offset
         let page = page.clamped(to: 1...)
