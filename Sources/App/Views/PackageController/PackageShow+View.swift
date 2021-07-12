@@ -184,11 +184,9 @@ enum PackageShow {
                         source: SiteURL.package(.value(model.repositoryOwner),
                                                 .value(model.repositoryName),
                                                 .readme).relativeURL(),
-                        .group(
-                            .data(named: "tab-page", value: "readme"),
-                            // Until the content is loaded, substitute a spinner.
-                            .spinner()
-                        )
+                        .data(named: "tab-page", value: "readme"),
+                        // Until the content is loaded, substitute a spinner.
+                        .spinner()
             )
         }
         
@@ -197,29 +195,26 @@ enum PackageShow {
                         source: SiteURL.package(.value(model.repositoryOwner),
                                                 .value(model.repositoryName),
                                                 .releases).relativeURL(),
-                        .group(
-                            .data(named: "tab-page", value: "releases"),
-                            // Until the content is loaded, substitute a spinner.
-                            .spinner()
-                        )
+                        .data(named: "tab-page", value: "releases"),
+                        .class("hidden"),
+                        // Until the content is loaded, substitute a spinner.
+                        .spinner()
             )
         }
         
         func tabBar() -> Node<HTML.BodyContext> {
-            .group(
-                .element(named: "tab-bar", nodes: [
-                    .ul(
-                        .li(
-                            .data(named: "tab", value: "readme"),
-                            .class("active"),
-                            "README"
-                        ),
-                        .li(
-                            .data(named: "tab", value: "releases"),
-                            "Release Notes"
-                        )
+            .spiTabBar(
+                .ul(
+                    .li(
+                        .data(named: "tab", value: "readme"),
+                        .class("active"),
+                        "README"
+                    ),
+                    .li(
+                        .data(named: "tab", value: "releases"),
+                        "Release Notes"
                     )
-                ])
+                )
             )
         }
     }
