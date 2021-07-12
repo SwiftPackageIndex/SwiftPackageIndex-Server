@@ -231,7 +231,7 @@
             <div class="rect5"></div>
           </div>
         </turbo-frame>
-        <turbo-frame id="releases" src="/Alamo/Alamofire/releases" data-tab-page="releases">
+        <turbo-frame id="releases" src="/Alamo/Alamofire/releases" data-tab-page="releases" class="hidden">
           <div class="spinner">
             <div class="rect1"></div>
             <div class="rect2"></div>
