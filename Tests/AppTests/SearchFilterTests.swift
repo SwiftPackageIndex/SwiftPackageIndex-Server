@@ -12,7 +12,7 @@ class SearchFilterTests: AppTestCase {
                 .allSearchFilters
                 .map { $0.key }
                 .sorted(),
-            [ "license", "stars", "updated" ]
+            [ "last_commit", "license", "stars" ]
         )
     }
     
@@ -109,30 +109,42 @@ class SearchFilterTests: AppTestCase {
     
     func test_licenseFilter() throws {
         XCTAssertEqual(LicenseSearchFilter.key, "license")
-        XCTAssertThrowsError(try LicenseSearchFilter(value: "mit", comparison: .match))
-        XCTAssertThrowsError(try LicenseSearchFilter(value: "compatible", comparison: .greaterThan))
-        XCTAssertEqual(try LicenseSearchFilter(value: "compatible", comparison: .match).filterType, .compatible)
+        XCTAssertThrowsError(try LicenseSearchFilter(value: "appStoreCompatible", comparison: .greaterThan))
+        XCTAssertEqual(try LicenseSearchFilter(value: "appStoreCompatible", comparison: .match).filterType, .appStoreCompatible)
         
-        let filter = try LicenseSearchFilter(value: "compatible", comparison: .match)
-        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
-            .where(searchFilters: [filter])
-        let sql = renderSQL(builder, resolveBinds: true)
-        _assertInlineSnapshot(matching: sql, as: .lines, with: """
-        SELECT  WHERE ("license" IN ('afl-3.0', 'apache-2.0', 'artistic-2.0', 'bsd-2-clause', 'bsd-3-clause', 'bsd-3-clause-clear', 'bsl-1.0', 'cc', 'cc0-1.0', 'afl-3.0'0, 'afl-3.0'1, 'afl-3.0'2, 'afl-3.0'3, 'afl-3.0'4, 'afl-3.0'5, 'afl-3.0'6, 'afl-3.0'7, 'afl-3.0'8, 'afl-3.0'9, 'apache-2.0'0, 'apache-2.0'1, 'apache-2.0'2, 'apache-2.0'3, 'apache-2.0'4))
-        """)
+        do {
+            let filter = try LicenseSearchFilter(value: "appStoreCompatible", comparison: .match)
+            let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+                .where(searchFilters: [filter])
+            let sql = renderSQL(builder, resolveBinds: true)
+            _assertInlineSnapshot(matching: sql, as: .lines, with: """
+            SELECT  WHERE ("license" IN ('afl-3.0', 'apache-2.0', 'artistic-2.0', 'bsd-2-clause', 'bsd-3-clause', 'bsd-3-clause-clear', 'bsl-1.0', 'cc', 'cc0-1.0', 'afl-3.0'0, 'afl-3.0'1, 'afl-3.0'2, 'afl-3.0'3, 'afl-3.0'4, 'afl-3.0'5, 'afl-3.0'6, 'afl-3.0'7, 'afl-3.0'8, 'afl-3.0'9, 'apache-2.0'0, 'apache-2.0'1, 'apache-2.0'2, 'apache-2.0'3, 'apache-2.0'4))
+            """)
+        }
+        
+        do {
+            let filter = try LicenseSearchFilter(value: "mit", comparison: .match)
+            let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+                .where(searchFilters: [filter])
+            let sql = renderSQL(builder, resolveBinds: true)
+            _assertInlineSnapshot(matching: sql, as: .lines, with: """
+            SELECT  WHERE ("license" = 'mit')
+            """)
+        }
+        
     }
     
-    func test_updatedFilter() throws {
-        XCTAssertEqual(UpdatedSearchFilter.key, "updated")
-        XCTAssertThrowsError(try UpdatedSearchFilter(value: "23rd June 2021", comparison: .match))
-        XCTAssertEqual(try UpdatedSearchFilter(value: "2001-01-01", comparison: .match).date, Date(timeIntervalSinceReferenceDate: 0))
+    func test_lastCommitFilter() throws {
+        XCTAssertEqual(LastCommitSearchFilter.key, "last_commit")
+        XCTAssertThrowsError(try LastCommitSearchFilter(value: "23rd June 2021", comparison: .match))
+        XCTAssertEqual(try LastCommitSearchFilter(value: "1970-01-01", comparison: .match).date, .t0)
 
-        let filter = try UpdatedSearchFilter(value: "2001-01-01", comparison: .match)
+        let filter = try LastCommitSearchFilter(value: "1970-01-01", comparison: .match)
         let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
             .where(searchFilters: [filter])
         let sql = renderSQL(builder, resolveBinds: true)
         _assertInlineSnapshot(matching: sql, as: .lines, with: """
-        SELECT  WHERE ("last_commit_date" = '2001-01-01')
+        SELECT  WHERE ("last_commit_date" = '1970-01-01')
         """)
     }
     

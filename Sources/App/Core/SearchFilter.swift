@@ -23,7 +23,7 @@ struct SearchFilterParser {
     static var allSearchFilters: [SearchFilter.Type] = [
         StarsSearchFilter.self,
         LicenseSearchFilter.self,
-        UpdatedSearchFilter.self,
+        LastCommitSearchFilter.self,
     ]
     
     /// Separates search terms from filter syntax.
@@ -162,9 +162,19 @@ struct StarsSearchFilter: SearchFilter {
 /// license:incompatible - The license is unknown, none is provided, or the one provided is not compatible with the app store
 /// ```
 struct LicenseSearchFilter: SearchFilter {
-    enum FilterType: String, Equatable {
-        case compatible
-        case incompatible
+    enum FilterType: Equatable {
+        case appStoreCompatible
+        case license(License)
+        
+        init?(rawValue: String) {
+            if rawValue == "appStoreCompatible" {
+                self = .appStoreCompatible
+            } else if let license = License(rawValue: rawValue) {
+                self = .license(license)
+            } else {
+                return nil
+            }
+        }
     }
     
     static var key: String = "license"
@@ -176,6 +186,7 @@ struct LicenseSearchFilter: SearchFilter {
         guard let filterType = FilterType(rawValue: value) else {
             throw SearchFilterError.invalidValueType
         }
+        
         guard [.match, .negativeMatch].contains(comparison) else {
             throw SearchFilterError.unsupportedComparisonMethod
         }
@@ -186,18 +197,18 @@ struct LicenseSearchFilter: SearchFilter {
     
     func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
         switch filterType {
-            case .compatible:
+            case .appStoreCompatible:
                 return builder.where(
                     SQLIdentifier("license"),
                     comparison.binaryOperator(isSet: true),
                     License.withKind { $0 == .compatibleWithAppStore }
                 )
                 
-            case .incompatible:
+            case .license(let license):
                 return builder.where(
                     SQLIdentifier("license"),
-                    comparison.binaryOperator(isSet: true),
-                    License.withKind { $0 != .compatibleWithAppStore }
+                    comparison.binaryOperator(isSet: false),
+                    license.rawValue
                 )
         }
     }
@@ -211,20 +222,22 @@ struct LicenseSearchFilter: SearchFilter {
 ///
 /// Examples:
 /// ```
-/// updated:2020-07-01  - Updated on exactly July 1st 2020
-/// updated:!2020-07-01 - Updated on any day other than July 1st 2020
-/// updated:>2020-07-01 - Updated on any day more recent than July 1st 2020
-/// updated:<2020-07-01 - Updated on any day older than July 1st 2020
+/// last_commit:2020-07-01  - Updated on exactly July 1st 2020
+/// last_commit:!2020-07-01 - Updated on any day other than July 1st 2020
+/// last_commit:>2020-07-01 - Updated on any day more recent than July 1st 2020
+/// last_commit:<2020-07-01 - Updated on any day older than July 1st 2020
 /// ```
-struct UpdatedSearchFilter: SearchFilter {
+struct LastCommitSearchFilter: SearchFilter {
     static var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
         
         return formatter
     }()
     
-    static var key: String = "updated"
+    static var key: String = "last_commit"
     
     let comparison: SearchFilterComparison
     let date: Date
