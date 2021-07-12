@@ -199,16 +199,11 @@ extension PackageShow.Model {
     
     func archivedListItem() -> Node<HTML.ListContext> {
         if isArchived {
-            var archiveSentenceFragments: [Node<HTML.BodyContext>] = []
-            archiveSentenceFragments.append(contentsOf: [
-                .strong("No longer in active development."),
-                " The package author has archived this project and the repository is read-only."
-            ])
             return .li(
                 .class("archived"),
-                .group(archiveSentenceFragments)
+                .strong("No longer in active development."),
+                " The package author has archived this project and the repository is read-only."
             )
-            
         } else {
             return .empty
         }
