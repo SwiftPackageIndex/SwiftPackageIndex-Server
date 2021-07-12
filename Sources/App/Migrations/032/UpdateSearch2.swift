@@ -15,14 +15,14 @@ struct UpdateSearch2: Migration {
             SELECT
               p.id AS package_id,
               p.score,
-              v.package_name,
+              r.keywords,
+              r.last_commit_date,
+              r.license,
               r.name AS repo_name,
               r.owner AS repo_owner,
-              r.summary,
-              r.keywords,
-              r.license,
               r.stars,
-              r.last_commit_date
+              r.summary,
+              v.package_name
             FROM packages p
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id

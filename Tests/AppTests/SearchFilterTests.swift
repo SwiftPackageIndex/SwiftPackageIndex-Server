@@ -61,7 +61,7 @@ class SearchFilterTests: AppTestCase {
     
     func test_separateTermsAndFilters() {
         let parser = SearchFilterParser()
-        let output = parser.separate(terms: ["a", "b", "invalid:true", "stars:5"])
+        let output = parser.split(terms: ["a", "b", "invalid:true", "stars:5"])
         
         XCTAssertEqual(output.terms.sorted(), ["a", "b", "invalid:true"])
         
@@ -143,7 +143,7 @@ class SearchFilterTests: AppTestCase {
             self.comparison = comparison
         }
         
-        func query(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
+        func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
             return builder
         }
     }
@@ -153,7 +153,7 @@ class SearchFilterTests: AppTestCase {
         
         static func apply(filter: SearchFilter) -> SQLBinaryExpression {
             let groupExpression = MockPredicateBuilder()
-                .where(group: filter.query(_:))
+                .where(group: filter.where(_:))
                 .predicate as? SQLGroupExpression
             
             return groupExpression!.expressions[0] as! SQLBinaryExpression
