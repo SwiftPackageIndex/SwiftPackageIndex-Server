@@ -35,8 +35,7 @@ struct SearchFilterParser {
     /// only return results with more than 500 stars.)
     func split(terms: [String]) -> (terms: [String], filters: [SearchFilter]) {
         // Do not support filter syntax in production yet.
-        let environment = (try? Environment.detect()) ?? .development
-        if environment == .production {
+        if Environment.current == .production {
             return (terms: terms, filters: [])
         }
         
