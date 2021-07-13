@@ -21,7 +21,6 @@ enum PackageReadme {
             else { return .empty }
 
             return .group(
-                .hr(),
                 .spiReadme(
                     .raw(readme)
                 )
