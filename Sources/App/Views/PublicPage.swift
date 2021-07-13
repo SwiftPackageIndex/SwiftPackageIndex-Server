@@ -82,8 +82,7 @@ class PublicPage {
     /// For non-production environments, if a search engine requests the page, tell it not to index it.
     /// - Returns: Either nothing, or a <meta> element telling search engines not to index this content.
     final func metaNoIndex() -> Node<HTML.HeadContext> {
-        let environment = (try? Environment.detect()) ?? .development
-        return .if(environment != .production,
+        return .if(Environment.current != .production,
                    .meta(
                     .name("robots"),
                     .content("noindex")
@@ -93,8 +92,7 @@ class PublicPage {
     /// The Google Tag Manager code to be inserted into the <head> element.
     /// - Returns: A <script> containing the Google Tag Manager template code.
     final func analyticsHead() -> Node<HTML.HeadContext> {
-        let environment = (try? Environment.detect()) ?? .development
-        return .if(environment == .production,
+        return .if(Environment.current == .production,
                    .raw("""
                     <script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script>
                     <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
@@ -207,8 +205,7 @@ class PublicPage {
     /// - Returns: Either a <div> element, or nothing.
     final func stagingBanner() -> Node<HTML.BodyContext> {
         guard !Current.hideStagingBanner() else { return .empty }
-        let environment = (try? Environment.detect()) ?? .development
-        if environment == .development {
+        if Environment.current == .development {
             return .div(
                 .class("staging"),
                 .text("Staging / Development")

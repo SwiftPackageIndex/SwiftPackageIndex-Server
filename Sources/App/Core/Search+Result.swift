@@ -9,8 +9,7 @@ extension Search {
 
         init?(_ record: DBRecord) {
             // don't show non-package results on production yet
-            let environment = (try? Environment.detect()) ?? .development
-            if environment == .production && !record.isPackage {
+            if Environment.current == .production && !record.isPackage {
                 return nil
             }
             // -- end --
