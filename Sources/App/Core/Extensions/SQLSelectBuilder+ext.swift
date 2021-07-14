@@ -19,4 +19,12 @@ extension SQLSelectBuilder {
     func column(_ expression: SQLExpression, as alias: String) -> Self {
         column(SQLAlias(expression, as: SQLIdentifier(alias)))
     }
+
+    func `where`(searchFilters: [SearchFilter]) -> Self {
+        self.where(group: { builder in
+            searchFilters
+                .prefix(20) // just to impose some form of limit
+                .reduce(builder) { $1.where($0) }
+        })
+    }
 }

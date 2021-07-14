@@ -1,4 +1,4 @@
-enum License: String, Codable, Equatable {
+enum License: String, Codable, Equatable, CaseIterable {
     
     // This is not an exhaustive list, but includes most commonly used license types
     case afl_3_0 = "afl-3.0"
@@ -137,6 +137,10 @@ enum License: String, Codable, Equatable {
         case other
         case incompatibleWithAppStore = "incompatible"
         case compatibleWithAppStore = "compatible"
+    }
+    
+    static func withKind(_ predicate: (Kind) -> Bool) -> [String] {
+        License.allCases.filter { predicate($0.licenseKind) }.map(\.rawValue)
     }
 }
 

@@ -1,6 +1,6 @@
 import SQLKit
 import XCTVapor
-
+@testable import App
 
 class AppTestCase: XCTestCase {
     var app: Application!
@@ -49,6 +49,10 @@ extension AppTestCase {
     func binds(_ query: SQLExpression?) -> [String] {
         var serializer = SQLSerializer(database: app.db as! SQLDatabase)
         query?.serialize(to: &serializer)
-        return serializer.binds as! [String]
+        return serializer.binds.reduce(into: []) { result, bind in
+            if let bind = bind as? String { result.append(bind) }
+            if let bind = bind as? Date { result.append(LastCommitSearchFilter.dateFormatter.string(from: bind)) }
+            if let bind = bind as? Int { result.append(String(bind)) }
+        }
     }
 }
