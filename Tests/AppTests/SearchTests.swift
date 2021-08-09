@@ -1,3 +1,17 @@
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 @testable import App
 
 import SnapshotTesting
@@ -21,38 +35,47 @@ class SearchTests: AppTestCase {
     }
 
     func test_packageMatchQuery_single_term() throws {
-        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
+        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(b), ["a", "a"])
     }
 
     func test_packageMatchQuery_multiple_terms() throws {
-        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
+        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"], filters: [])
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(b), ["a", "b", "a b"])
+    }
+    
+    func test_packageMatchQuery_with_filter() throws {
+        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"],
+            filters: [try StarsSearchFilter(value: "500", comparison: .greaterThan)])
+        
+        _assertInlineSnapshot(matching: renderSQL(b, resolveBinds: true), as: .lines, with: """
+        SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* 'a' AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("stars" > '500') ORDER BY LOWER("package_name") = 'a' DESC, "score" DESC, "package_name" ASC
+        """)
     }
 
     func test_keywordMatchQuery_single_term() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL AS "last_commit_date" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a"])
     }
 
     func test_keywordMatchQuery_multiple_terms() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL AS "last_commit_date" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a b"])
     }
 
     func test_authorMatchQuery_single_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a"])
     }
 
     func test_authorMatchQuery_multiple_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a b"])
     }
 
@@ -66,6 +89,7 @@ class SearchTests: AppTestCase {
         let packages = renderSQL(
             Search.packageMatchQueryBuilder(on: app.db,
                                             terms: ["test"],
+                                            filters: [],
                                             offset: 0,
                                             limit: 21),
             resolveBinds: true
@@ -625,7 +649,78 @@ class SearchTests: AppTestCase {
                            summary: ""))
         ])
     }
-
+    
+    func test_search_withFilter_stars() throws {
+        // Setup
+        let p1 = Package(id: .id1, url: "1", score: 10)
+        let p2 = Package(id: .id2, url: "2", score: 20)
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "bar",
+                       stars: 50,
+                       summary: "test package").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       name: "2",
+                       owner: "foo",
+                       stars: 10,
+                       summary: "test package").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+        
+        do { // Baseline
+            let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
+            XCTAssertEqual(res.results.count, 2)
+            XCTAssertEqual(res.results.compactMap(\.package).compactMap(\.packageName).sorted(), ["p1", "p2"])
+        }
+        
+        do { // Greater Than
+            let res = try Search.fetch(app.db, ["test", "stars:>25"], page: 1, pageSize: 20).wait()
+            XCTAssertEqual(res.results.count, 1)
+            XCTAssertEqual(res.results[0].package?.packageName, "p1")
+        }
+        
+        do { // Less Than
+            let res = try Search.fetch(app.db, ["test", "stars:<25"], page: 1, pageSize: 20).wait()
+            XCTAssertEqual(res.results.count, 1)
+            XCTAssertEqual(res.results[0].package?.packageName, "p2")
+        }
+        
+        do { // Equal
+            let res = try Search.fetch(app.db, ["test", "stars:50"], page: 1, pageSize: 20).wait()
+            XCTAssertEqual(res.results.count, 1)
+            XCTAssertEqual(res.results[0].package?.packageName, "p1")
+        }
+        
+        do { // Not Equals
+            let res = try Search.fetch(app.db, ["test", "stars:!50"], page: 1, pageSize: 20).wait()
+            XCTAssertEqual(res.results.count, 1)
+            XCTAssertEqual(res.results[0].package?.packageName, "p2")
+        }
+    }
+    
+    func test_onlyPackageResults_whenFiltersApplied() throws {
+        do { // with filter
+            let query = Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5)
+            let sql = renderSQL(query)
+            XCTAssertFalse(sql.contains(#"SELECT 'author' AS "match_type""#))
+            XCTAssertFalse(sql.contains(#"SELECT 'keyword' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
+        }
+        
+        do { // without filter
+            let query = Search.query(app.db, ["a"], page: 1, pageSize: 5)
+            let sql = renderSQL(query)
+            XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT 'keyword' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
+        }
+    }
 }
 
 

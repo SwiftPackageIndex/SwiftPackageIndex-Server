@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-postgres-driver.git",
         "state": {
           "branch": null,
-          "revision": "11d4fce0c5d8a027a5d131439c9c94dd3230cb8e",
-          "version": "2.1.2"
+          "revision": "afe159ce915e752ab5f5b76479dc78a17051ce73",
+          "version": "2.1.3"
         }
       },
       {
@@ -105,8 +105,8 @@
         "repositoryURL": "https://github.com/vapor/postgres-nio.git",
         "state": {
           "branch": null,
-          "revision": "33eea144f465a48b17f4c63573c40d33824fdde4",
-          "version": "1.5.2"
+          "revision": "1d379346c731afc9ec76a3c9c58ae02dfa5c1369",
+          "version": "1.6.0"
         }
       },
       {
@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/vapor/sql-kit.git",
         "state": {
           "branch": null,
-          "revision": "211ce34be6a2dcd8b9f0c04f6a561c642a940c86",
-          "version": "3.9.0"
+          "revision": "b70d1fea1b544dd819c17e83d59fb9aa85c81e74",
+          "version": "3.10.0"
         }
       },
       {
@@ -150,8 +150,8 @@
         "repositoryURL": "https://github.com/apple/swift-argument-parser.git",
         "state": {
           "branch": null,
-          "revision": "986d191f94cec88f6350056da59c2e59e83d1229",
-          "version": "0.4.3"
+          "revision": "83b23d940471b313427da226196661856f6ba3e0",
+          "version": "0.4.4"
         }
       },
       {
@@ -159,8 +159,8 @@
         "repositoryURL": "https://github.com/swift-server/swift-backtrace.git",
         "state": {
           "branch": null,
-          "revision": "54a65d6391a1467a896d0d351ff2de6f469ee53c",
-          "version": "1.2.3"
+          "revision": "d3e04a9d4b3833363fb6192065b763310b156d54",
+          "version": "1.3.1"
         }
       },
       {
@@ -177,7 +177,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "d4a998bd0fe8b88a966bce092f5ff592c88e589b",
+          "revision": "0545e1c32d09c5ee6373065405c11d9dd687b389",
           "version": null
         }
       },
@@ -186,7 +186,7 @@
         "repositoryURL": "https://github.com/apple/swift-llbuild.git",
         "state": {
           "branch": "main",
-          "revision": "0f88ee40f297004547581ddd90b27f3a7e60a11a",
+          "revision": "8b202bf16580c73a5d9c256db095a3062cd99c3e",
           "version": null
         }
       },
@@ -276,7 +276,7 @@
         "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
           "branch": "main",
-          "revision": "10021cfee2a559583596451b570e8e28c2fd59a9",
+          "revision": "7d8933abcb83aa9ce9b420b564f17da75d3a7d07",
           "version": null
         }
       },
@@ -285,8 +285,8 @@
         "repositoryURL": "https://github.com/MrLotU/SwiftPrometheus.git",
         "state": {
           "branch": null,
-          "revision": "3caacd32263a632019efe15404a5916616384f66",
-          "version": "1.0.0-alpha.11"
+          "revision": "156c16e752175b25966df18539ff115141533c69",
+          "version": "1.0.0-alpha.12"
         }
       },
       {
@@ -303,8 +303,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "605d8c86cfc51cf875b9e09b3c8f55e4137b0b55",
-          "version": "4.47.0"
+          "revision": "2ada54b7ce56cc6934cd2c0207bef2305bfbd7a1",
+          "version": "4.48.2"
         }
       },
       {

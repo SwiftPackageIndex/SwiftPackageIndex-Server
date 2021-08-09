@@ -1,5 +1,4 @@
-<li class="history">
-  <strong>No longer in active development.</strong> The package author has archived this project and the repository is read-only. It had 
+<li class="history">Before being archived, it had 
   <a href="https://example.com/commits.html">12 commits</a> and 
   <a href="https://example.com/releases.html">2 releases</a> before being archived.
 </li>

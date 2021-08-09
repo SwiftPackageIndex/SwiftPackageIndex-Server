@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <turbo-frame id="releases">
+      <a href="https://github.com/Sherlouk/swift-snapshot-testing-stitch/releases/tag/1.0.0">
+        <h2>v1.0.0</h2>
+      </a>
+      <small>Released 14 days ago</small><h2>Added</h2>
+<ul>
+    <li>A really helpful feature everybody asked for</li>
+    <li>A feature I thought would be easier than it was</li>
+    <li>A feature Apple is pushing really hard</li>
+</ul>
+<h2>Fixed</h2>
+<p>Nothing! This pretend package is perfect.</p>
+      <hr/>
+      <a href="https://github.com/Sherlouk/swift-snapshot-testing-stitch/releases/tag/0.0.0">
+        <h2>v0.0.2</h2>
+      </a>
+      <small>Released 21 days ago</small><h2>v0.0.2 - Electric Boogaloo</h2>
+<p>Some extra release notes.</p>
+      <hr/>
+      <a href="https://github.com/Sherlouk/swift-snapshot-testing-stitch/releases/tag/0.0.0">
+        <h2>v0.0.1</h2>
+      </a>
+      <small>Released 1 month ago</small>
+      <p>This release has no notes.</p>
+    </turbo-frame>
+  </body>
+</html>

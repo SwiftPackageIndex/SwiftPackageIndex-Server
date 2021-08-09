@@ -1,3 +1,17 @@
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import Fluent
 import Metrics
 import Plot
@@ -46,6 +60,8 @@ func routes(_ app: Application) throws {
                 use: packageController.show)
         app.get(SiteURL.package(.key, .key, .readme).pathComponents,
                 use: packageController.readme)
+        app.get(SiteURL.package(.key, .key, .releases).pathComponents,
+                use: packageController.releases)
         app.get(SiteURL.package(.key, .key, .builds).pathComponents,
                 use: packageController.builds)
         app.get(SiteURL.package(.key, .key, .maintainerInfo).pathComponents,
@@ -87,7 +103,7 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.api(.packages(.key, .key, .badge)).pathComponents,
                 use: API.PackageController().badge)
 
-        if (try? Environment.detect()) ?? .development == .development {
+        if Environment.current == .development {
             app.post(SiteURL.api(.packageCollections).pathComponents,
                      use: API.PackageCollectionController().generate)
         }

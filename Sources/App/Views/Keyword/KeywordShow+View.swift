@@ -1,3 +1,17 @@
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import Plot
 
 
@@ -41,11 +55,49 @@ enum KeywordShow {
                         }
                     )
                 ),
-                .p(
-                    .strong("\(model.packages.count) \("package".pluralized(for: model.packages.count)).")
+                .if(model.page == 1 && !model.hasMoreResults,
+                    .p(
+                        .strong("\(model.packages.count) \("package".pluralized(for: model.packages.count)).")
+                    )
+                ),
+                .ul(
+                    .class("pagination"),
+                    .if(model.page > 1, .previousPage(model: model)),
+                    .if(model.hasMoreResults, .nextPage(model: model))
                 )
             )
         }
     }
 
+}
+
+
+fileprivate extension Node where Context == HTML.ListContext {
+    static func previousPage(model: KeywordShow.Model) -> Node<HTML.ListContext> {
+        let parameters = [
+            QueryParameter(key: "page", value: model.page - 1)
+        ]
+        return .li(
+            .class("previous"),
+            .a(
+                .href(SiteURL.keywords(.value(model.keyword))
+                        .relativeURL(parameters: parameters)),
+                "Previous Page"
+            )
+        )
+    }
+
+    static func nextPage(model: KeywordShow.Model) -> Node<HTML.ListContext> {
+        let parameters = [
+            QueryParameter(key: "page", value: model.page + 1)
+        ]
+        return .li(
+            .class("next"),
+            .a(
+                .href(SiteURL.keywords(.value(model.keyword))
+                        .relativeURL(parameters: parameters)),
+                "Next Page"
+            )
+        )
+    }
 }

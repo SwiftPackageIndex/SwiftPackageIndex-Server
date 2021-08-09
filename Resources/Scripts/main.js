@@ -1,3 +1,17 @@
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import '@hotwired/turbo'
 
 import './dom_helpers.js'
@@ -10,6 +24,7 @@ import { SPIBuildLogNavigation } from './build_log_navigation.js'
 import { SPIAutofocus } from './autofocus.js'
 import { SPIPlaygroundsAppLinkFallback } from './playgrounds_app_link.js'
 import { SPIReadmeElement } from './readme_element.js'
+import { SPITabBarElement } from './tab_bar_element.js'
 
 window.externalLinkRetargeter = new ExternalLinkRetargeter()
 window.spiPackageListNavigation = new SPIPackageListNavigation()
@@ -20,6 +35,7 @@ new SPIAutofocus()
 new SPIPlaygroundsAppLinkFallback()
 
 customElements.define('spi-readme', SPIReadmeElement)
+customElements.define('tab-bar', SPITabBarElement)
 
 import 'normalize.css'
 import '../Styles/main.scss'

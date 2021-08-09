@@ -1,3 +1,17 @@
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import Fluent
 import SQLKit
 import Vapor
@@ -15,6 +29,9 @@ enum Search {
     static let repoName = SQLIdentifier("repo_name")
     static let repoOwner = SQLIdentifier("repo_owner")
     static let score = SQLIdentifier("score")
+    static let stars = SQLIdentifier("stars")
+    static let license = SQLIdentifier("license")
+    static let lastCommitDate = SQLIdentifier("last_commit_date")
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
 
@@ -22,6 +39,7 @@ enum Search {
     static let null = SQLRaw("NULL")
     static let nullInt = SQLRaw("NULL::INT")
     static let nullUUID = SQLRaw("NULL::UUID")
+    static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
 
     enum MatchType: String, Codable, Equatable {
         case author
@@ -98,13 +116,14 @@ enum Search {
 
     static func packageMatchQueryBuilder(on database: Database,
                                          terms: [String],
+                                         filters: [SearchFilter],
                                          offset: Int? = nil,
                                          limit: Int? = nil) -> SQLSelectBuilder {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        let maxSearchTerms = 20  // just to impose some sort of limit
+        let maxSearchTerms = 20 // just to impose some sort of limit
 
         // binds
         let binds = terms[..<min(terms.count, maxSearchTerms)].map(SQLBind.init)
@@ -133,12 +152,16 @@ enum Search {
             .column(repoOwner)
             .column(score)
             .column(summary)
+            .column(stars)
+            .column(license)
+            .column(lastCommitDate)
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(packageName))
             .where(isNotNull(repoOwner))
             .where(isNotNull(repoName))
+            .where(searchFilters: filters)
             .orderBy(sortOrder)
             .offset(offset)
             .limit(limit)
@@ -162,6 +185,9 @@ enum Search {
             .column(null, as: repoOwner)
             .column(null, as: score)
             .column(null, as: summary)
+            .column(null, as: stars)
+            .column(null, as: license)
+            .column(null, as: lastCommitDate)
             .from(searchView)
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
             .where(keyword, .equal, mergedTerms)
@@ -187,6 +213,9 @@ enum Search {
             .column(repoOwner)
             .column(nullInt, as: score)
             .column(null, as: summary)
+            .column(nullInt, as: stars)
+            .column(null, as: license)
+            .column(nullTimestamp, as: lastCommitDate)
             .from(searchView)
             .where(repoOwner, ilike, mergedTerms)
             .limit(1)
@@ -201,25 +230,27 @@ enum Search {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        let sanitizedTerms = sanitize(terms)
-        guard !sanitizedTerms.isEmpty else {
+        let unfilteredSanitizedTerms = sanitize(terms)
+        guard !unfilteredSanitizedTerms.isEmpty else {
             return nil
         }
+        
+        let (sanitizedTerms, filters) = SearchFilterParser().split(terms: unfilteredSanitizedTerms)
 
-        // page is one-based, clamp it to ensure we get a 0-based offset
+        // page is one-based, clamp it to ensure we get a >=0 offset
         let page = page.clamped(to: 1...)
         let offset = (page - 1) * pageSize
         let limit = pageSize + 1  // fetch one more so we can determine `hasMoreResults`
 
-        // only include non-package results on first page
-        let query = (page == 1)
+        // only include non-package results on first page and only if there are no filters applied
+        let query = (page == 1 && filters.isEmpty)
         ? db.unionAll(
             authorMatchQueryBuilder(on: database, terms: sanitizedTerms),
             keywordMatchQueryBuilder(on: database, terms: sanitizedTerms),
-            packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
+            packageMatchQueryBuilder(on: database, terms: sanitizedTerms, filters: filters,
                                      offset: offset, limit: limit)
         ).query
-        : packageMatchQueryBuilder(on: database, terms: sanitizedTerms,
+        : packageMatchQueryBuilder(on: database, terms: sanitizedTerms, filters: filters,
                                    offset: offset, limit: limit).query
 
         return db.select()

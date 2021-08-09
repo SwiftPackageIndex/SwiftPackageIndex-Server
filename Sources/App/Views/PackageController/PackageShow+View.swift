@@ -1,3 +1,17 @@
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import Ink
 import Vapor
 import Plot
@@ -62,7 +76,9 @@ enum PackageShow {
                     }
                 ),
                 detailsSection(),
-                readmeSection()
+                tabBar(),
+                readmeSection(),
+                releaseSection()
             )
         }
 
@@ -90,6 +106,7 @@ enum PackageShow {
                 .class("main_metadata"),
                 .ul(
                     model.authorsListItem(),
+                    model.archivedListItem(),
                     model.historyListItem(),
                     model.activityListItem(),
                     model.licenseListItem(),
@@ -181,8 +198,37 @@ enum PackageShow {
                         source: SiteURL.package(.value(model.repositoryOwner),
                                                 .value(model.repositoryName),
                                                 .readme).relativeURL(),
+                        .data(named: "tab-page", value: "readme"),
                         // Until the content is loaded, substitute a spinner.
                         .spinner()
+            )
+        }
+        
+        func releaseSection() -> Node<HTML.BodyContext> {
+            .turboFrame(id: "releases",
+                        source: SiteURL.package(.value(model.repositoryOwner),
+                                                .value(model.repositoryName),
+                                                .releases).relativeURL(),
+                        .data(named: "tab-page", value: "releases"),
+                        .class("hidden"),
+                        // Until the content is loaded, substitute a spinner.
+                        .spinner()
+            )
+        }
+        
+        func tabBar() -> Node<HTML.BodyContext> {
+            .spiTabBar(
+                .ul(
+                    .li(
+                        .data(named: "tab", value: "readme"),
+                        .class("active"),
+                        "README"
+                    ),
+                    .li(
+                        .data(named: "tab", value: "releases"),
+                        "Release Notes"
+                    )
+                )
             )
         }
     }
