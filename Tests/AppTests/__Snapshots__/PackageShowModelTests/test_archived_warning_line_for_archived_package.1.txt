@@ -1,0 +1,3 @@
+<li class="archived">
+  <strong>No longer in active development.</strong> The package author has archived this project and the repository is read-only.
+</li>

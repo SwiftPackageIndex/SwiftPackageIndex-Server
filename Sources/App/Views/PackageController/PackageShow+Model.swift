@@ -1,3 +1,17 @@
+// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import Foundation
 import Plot
 import Vapor
@@ -197,6 +211,18 @@ extension PackageShow.Model {
         )
     }
     
+    func archivedListItem() -> Node<HTML.ListContext> {
+        if isArchived {
+            return .li(
+                .class("archived"),
+                .strong("No longer in active development."),
+                " The package author has archived this project and the repository is read-only."
+            )
+        } else {
+            return .empty
+        }
+    }
+    
     func historyListItem() -> Node<HTML.ListContext> {
         guard let history = history else { return .empty }
 
@@ -213,8 +239,7 @@ extension PackageShow.Model {
         var releasesSentenceFragments: [Node<HTML.BodyContext>] = []
         if isArchived {
             releasesSentenceFragments.append(contentsOf: [
-                .strong("No longer in active development."),
-                " The package author has archived this project and the repository is read-only. It had ",
+                "Before being archived, it had ",
                 commitsLinkNode, " and ", releasesLinkNode,
                 " before being archived."
             ])
