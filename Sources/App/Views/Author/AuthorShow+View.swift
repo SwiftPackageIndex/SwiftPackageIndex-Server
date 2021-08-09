@@ -1,4 +1,5 @@
 import Plot
+import Foundation
 
 
 enum AuthorShow {
@@ -19,6 +20,14 @@ enum AuthorShow {
         override func pageDescription() -> String? {
             let packagesClause = model.packages.count > 1 ? "1 package" : "\(model.packages.count) packages"
             return "The Swift Package Index is indexing \(packagesClause) authored by \(model.ownerName)."
+        }
+        
+        func starsText(stars: Int) -> String {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            let number = formatter.string(from: NSNumber(value: stars))
+    
+            return "\(number) stars"
         }
 
         override func content() -> Node<HTML.BodyContext> {
@@ -53,8 +62,14 @@ enum AuthorShow {
                             .li(
                                 .a(
                                     .href(package.url),
-                                    .h4(.text(package.title)),
-                                    .p(.text(package.description))
+                                    .class("two_column"),
+                                    .div(
+                                        .h4(.text(package.title)),
+                                        .p(.text(package.description))
+                                        
+                                    ),
+                                    .p(.class("stars"),
+                                       .text(starsText(stars: package.stars)))
                                 )
                             )
                         }
