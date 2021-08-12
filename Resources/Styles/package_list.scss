@@ -34,7 +34,15 @@
       p {
         margin: 5px 0;
         color: var(--page-text);
+        
+        &.stars {
+            background-image: var(--image-star);
+            background-repeat: no-repeat;
+            background-size: 75%;
+            text-align: end;
+        }
       }
+    
     }
 
     &.selected {
