@@ -22,9 +22,9 @@
   li {
     background-color: var(--package-list-background);
     border-left: 3px var(--package-list-border) solid;
+    display: grid;
 
     a {
-      display: block;
       padding: 10px;
 
       h4 {
@@ -34,13 +34,11 @@
       p {
         margin: 5px 0;
         color: var(--page-text);
-        
+         
         &.stars {
-            background-image: var(--image-star);
-            background-repeat: no-repeat;
-            background-size: 15%;
-            text-align: end;
+            text-align: end
         }
+        
       }
     
     }
