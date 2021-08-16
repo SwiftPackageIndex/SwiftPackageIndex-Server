@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/vapor/console-kit.git",
         "state": {
           "branch": null,
-          "revision": "cfe8bcd58f74ffecb4f536d8237de146b634ecd3",
-          "version": "4.2.6"
+          "revision": "75ea3b627d88221440b878e5dfccc73fd06842ed",
+          "version": "4.2.7"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "2eddf6fda3f1ca114f96e0cf82875fefab342343",
-          "version": "1.13.0"
+          "revision": "d6a88fd66c594d655f5f21dd0fbea23b277dc3a8",
+          "version": "1.14.0"
         }
       },
       {
@@ -177,16 +177,16 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "0545e1c32d09c5ee6373065405c11d9dd687b389",
+          "revision": "2c6ef7fade2d1fd60a7303dcdb9b66dc4c409e0d",
           "version": null
         }
       },
       {
-        "package": "swift-llbuild",
+        "package": "llbuild",
         "repositoryURL": "https://github.com/apple/swift-llbuild.git",
         "state": {
           "branch": "main",
-          "revision": "8b202bf16580c73a5d9c256db095a3062cd99c3e",
+          "revision": "08c0a758a697bad5d5849ad5d0b1eedb507b0596",
           "version": null
         }
       },
@@ -213,8 +213,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio.git",
         "state": {
           "branch": null,
-          "revision": "d79e33308b0ac83326b0ead0ea6446e604b8162d",
-          "version": "2.30.0"
+          "revision": "9a992ee3de1f8da9f2968fc96b26714834f3105f",
+          "version": "2.31.1"
         }
       },
       {
@@ -254,7 +254,7 @@
         }
       },
       {
-        "package": "swift-package-manager",
+        "package": "SwiftPM",
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "swift-DEVELOPMENT-SNAPSHOT-2021-05-04-a",
@@ -263,7 +263,7 @@
         }
       },
       {
-        "package": "swift-snapshot-testing",
+        "package": "SnapshotTesting",
         "repositoryURL": "https://github.com/pointfreeco/swift-snapshot-testing.git",
         "state": {
           "branch": null,
@@ -276,7 +276,7 @@
         "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
           "branch": "main",
-          "revision": "7d8933abcb83aa9ce9b420b564f17da75d3a7d07",
+          "revision": "3cabb66f57f157ed083c4c07ddfca28932437e6b",
           "version": null
         }
       },
@@ -285,8 +285,8 @@
         "repositoryURL": "https://github.com/MrLotU/SwiftPrometheus.git",
         "state": {
           "branch": null,
-          "revision": "156c16e752175b25966df18539ff115141533c69",
-          "version": "1.0.0-alpha.12"
+          "revision": "e85499c759b3f0bd2ad6188623c8b24b47a70e7d",
+          "version": "1.0.0-alpha.13"
         }
       },
       {
@@ -303,8 +303,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "2ada54b7ce56cc6934cd2c0207bef2305bfbd7a1",
-          "version": "4.48.2"
+          "revision": "45d0b3943d9ed2637cb8f7c4fcd4676fc917df9b",
+          "version": "4.48.3"
         }
       },
       {
