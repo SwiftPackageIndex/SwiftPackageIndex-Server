@@ -34,13 +34,11 @@
       p {
         margin: 5px 0;
         color: var(--page-text);
-         
+
         &.stars {
-            text-align: end
+          text-align: end;
         }
-        
       }
-    
     }
 
     &.selected {
