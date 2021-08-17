@@ -38,7 +38,7 @@ RUN swift build \
 # Run image
 # ================================
 # we need a special base image so that we can run `swift dump-package`
-FROM registry.gitlab.com/finestructure/spi-base:0.6.0
+FROM registry.gitlab.com/finestructure/spi-base:0.6.1
 
 WORKDIR /run
 
