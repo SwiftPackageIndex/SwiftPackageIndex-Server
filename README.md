@@ -34,6 +34,12 @@ make run
 
 This will bring up a local development server.
 
+```
+make serve-front-end
+```
+This will serve the frontend. 
+
+
 ## Running the project from Xcode
 
 Alternatively, you can open the `Package.swift` file in Xcode and run the server from there. However, it's important to set a custom working directory before running. To do this, navigate to the **Product** | **Scheme** | **Edit Scheme...** menu or press ⌘+<. Select the **Run** scheme action and select the **Options** tab. Finally, check the **Working Directory** checkbox and enter the directory where you have this source code checked out.
