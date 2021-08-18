@@ -22,7 +22,9 @@ struct PackageInfo {
 extension PackageInfo {
     init?(package: Package) {
         guard let repoName = package.repository?.name,
-              let repoOwner = package.repository?.owner
+              let repoOwner = package.repository?.owner,
+              let repoStars = package.repository?.stars ?? 0
+                
         else {
             return nil
         }
