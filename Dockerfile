@@ -47,6 +47,10 @@ COPY --from=build /build/.build/release /run
 # Copy Swift runtime libraries
 COPY --from=build /usr/lib/swift/ /usr/lib/swift/
 # Copy static resources
+# Ridiculous hack for a docker bug: https://stackoverflow.com/a/62409523/1444152
+# https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1235
+RUN true
+# end hack
 COPY --from=build /build/Public /run/Public
 COPY --from=build /build/Resources /run/Resources
 
