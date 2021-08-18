@@ -24,7 +24,7 @@ extension PackageInfo {
         guard let repoName = package.repository?.name,
               let repoDescription = package.repository?.summary,
               let repoOwner = package.repository?.owner,
-              let repoStars = package.repository?.stars
+              let repoStars = package.repository?.stars ?? 0
         else {
             return nil
         }
