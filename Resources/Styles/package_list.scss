@@ -37,8 +37,14 @@
 
         &.stars {
           text-align: end;
+          padding-right: 15px;
+          background-image: var(--image-star);
+          background-repeat: no-repeat;
+          background-size: 10%;
+          background-position: center;
         }
       }
+      
     }
 
     &.selected {

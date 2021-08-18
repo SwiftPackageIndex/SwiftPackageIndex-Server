@@ -23,7 +23,7 @@ extension PackageInfo {
     init?(package: Package) {
         guard let repoName = package.repository?.name,
               let repoOwner = package.repository?.owner,
-              let repoStars = package.repository?.stars ?? 0
+              let repoStars = package.repository?.stars
                 
         else {
             return nil
@@ -34,7 +34,7 @@ extension PackageInfo {
                   url: SiteURL.package(.value(repoOwner),
                                        .value(repoName),
                                        .none).relativeURL(),
-                  stars: repoStars
+                  stars: repoStars ?? 0
         )
     }
 }

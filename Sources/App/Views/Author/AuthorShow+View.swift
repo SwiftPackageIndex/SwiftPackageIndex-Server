@@ -40,8 +40,8 @@ enum AuthorShow {
             let formatter = NumberFormatter()
             formatter.numberStyle = .decimal
             let number = formatter.string(from: NSNumber(value: stars))
-    
-            return "★ \(number) stars"
+            
+            return "\(number) stars"
         }
 
         override func content() -> Node<HTML.BodyContext> {
