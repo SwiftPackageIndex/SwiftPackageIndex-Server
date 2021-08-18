@@ -22,10 +22,10 @@
   li {
     background-color: var(--package-list-background);
     border-left: 3px var(--package-list-border) solid;
-    display: grid;
 
     a {
       padding: 10px;
+      align-items: center;
 
       h4 {
         margin: 0;
@@ -34,13 +34,11 @@
       p {
         margin: 5px 0;
         color: var(--page-text);
-         
+
         &.stars {
-            text-align: end
+          text-align: end;
         }
-        
       }
-    
     }
 
     &.selected {
