@@ -80,10 +80,11 @@ enum AuthorShow {
                                     .div(
                                         .h4(.text(package.title)),
                                         .p(.text(package.description))
-                                        
                                     ),
-                                    .p(.class("stars"),
-                                       .text(starsText(stars: package.stars)))
+                                    .div(
+                                        .span(.id("star_text")),
+                                        .text(starsText(stars: package.stars))
+                                    )
                                 )
                             )
                         }
