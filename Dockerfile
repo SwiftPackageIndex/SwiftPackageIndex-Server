@@ -15,7 +15,7 @@
 # ================================
 # Build image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:0.6.0 as build
+FROM registry.gitlab.com/finestructure/spi-base:0.6.1 as build
 WORKDIR /build
 
 # First just resolve dependencies.
