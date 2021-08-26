@@ -217,20 +217,20 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         // ensure Gitlab requests go out
-        XCTAssertEqual(queries.count, 34)
+        XCTAssertEqual(queries.count, 42)
         XCTAssertEqual(queries.map { $0.variables["VERSION_ID"] },
-                       Array(repeating: versionId.uuidString, count: 34))
+                       Array(repeating: versionId.uuidString, count: 42))
         let buildPlatforms = queries.compactMap { $0.variables["BUILD_PLATFORM"] }
         XCTAssertEqual(Dictionary(grouping: buildPlatforms, by: { $0 })
                         .mapValues(\.count),
-                       ["ios": 5,
-                        "macos-spm": 5,
-                        "macos-spm-arm": 2,
-                        "macos-xcodebuild": 5,
-                        "macos-xcodebuild-arm": 2,
-                        "linux": 5,
-                        "watchos": 5,
-                        "tvos": 5])
+                       ["ios": 6,
+                        "macos-spm": 6,
+                        "macos-spm-arm": 3,
+                        "macos-xcodebuild": 6,
+                        "macos-xcodebuild-arm": 3,
+                        "linux": 6,
+                        "watchos": 6,
+                        "tvos": 6])
         let swiftVersions = queries.compactMap { $0.variables["SWIFT_VERSION"] }
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
@@ -238,12 +238,13 @@ class BuildTriggerTests: AppTestCase {
                         "5.1": 6,
                         "5.2": 6,
                         "5.3": 8,
-                        "5.4": 8])
+                        "5.4": 8,
+                        "5.5": 8])
 
         // ensure the Build stubs are created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
         try v?.$builds.load(on: app.db).wait()
-        XCTAssertEqual(v?.builds.count, 34)
+        XCTAssertEqual(v?.builds.count, 42)
 
         // ensure re-selection is empty
         XCTAssertEqual(try fetchBuildCandidates(app.db).wait(), [])
