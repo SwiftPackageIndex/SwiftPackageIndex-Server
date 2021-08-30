@@ -75,7 +75,7 @@ class BuildIndexModelTests: AppTestCase {
         let matrix = model.buildMatrix
 
         // validate
-        XCTAssertEqual(matrix.values.keys.count, 34)
+        XCTAssertEqual(matrix.values.keys.count, 42)
         XCTAssertEqual(
             matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.column.label),
             ["1.2.3", "2.0.0-b1", "main"]
@@ -124,7 +124,7 @@ class BuildIndexModelTests: AppTestCase {
         let matrix = model.buildMatrix
 
         // validate
-        XCTAssertEqual(matrix.values.keys.count, 34)
+        XCTAssertEqual(matrix.values.keys.count, 42)
         XCTAssertEqual(
             matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.column.label),
             ["1.2.3", "main"]
