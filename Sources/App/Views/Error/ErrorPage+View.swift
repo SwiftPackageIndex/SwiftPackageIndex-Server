@@ -34,7 +34,20 @@ enum ErrorPage {
             .section(
                 .class("error_message"),
                 .h4(.text(model.errorMessage)),
-                model.errorInstructions
+                model.errorInstructions,
+                .p(
+                    .text("From here, you'll want to "),
+                    .a(
+                        .href(SiteURL.home.relativeURL()),
+                        "go to the home page"
+                    ),
+                    .text(" or "),
+                    .a(
+                        .href(SiteURL.search.relativeURL()),
+                        "search for a package"
+                    ),
+                    .text(".")
+                )
             )
         }
         
