@@ -38,7 +38,14 @@ extension ErrorPage {
             get {
                 switch error.status.code {
                     case 404:
-                        return .p("If you were expecting to see a page here, the site might be in the process of re-indexing this package.Please try again in an hour or two.")
+                        return .p(
+                            .text("If you were expecting to find a page here, please "),
+                            .a(
+                                .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new"),
+                                "raise an issue"
+                            ),
+                            .text(".")
+                        )
                     default:
                         return .empty
                 }
