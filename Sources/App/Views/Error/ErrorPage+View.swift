@@ -35,7 +35,7 @@ enum ErrorPage {
                 .class("error_message"),
                 .h4("Something went wrong. Sorry!"),
                 .p(.text(model.errorMessage)),
-                .unwrap(model.errorInstructions) { .p(.text($0)) }
+                model.errorInstructions
             )
         }
         
