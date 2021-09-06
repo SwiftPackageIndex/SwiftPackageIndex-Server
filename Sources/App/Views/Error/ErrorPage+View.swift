@@ -33,7 +33,7 @@ enum ErrorPage {
         override func content() -> Node<HTML.BodyContext> {
             .section(
                 .class("error_message"),
-                .h4("Something went wrong. Sorry!"), // Note: This copy intentionally matches the copy in `search_core.js`.
+                .h4("Something went wrong. Sorry!"),
                 .p(.text(model.errorMessage)),
                 .unwrap(model.errorInstructions) { .p(.text($0)) }
             )
