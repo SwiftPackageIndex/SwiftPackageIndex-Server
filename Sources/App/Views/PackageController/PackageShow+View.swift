@@ -75,11 +75,15 @@ enum PackageShow {
                         .text(summary.replaceShorthandEmojis())
                     }
                 ),
+                keywordsSection(),
                 detailsSection(),
                 tabBar(),
                 readmeSection(),
                 releaseSection()
             )
+        }
+        func keywordsSection() -> Node<HTML.BodyContext> {
+            model.keywordsList()
         }
 
         func detailsSection() -> Node<HTML.BodyContext> {

@@ -26,6 +26,7 @@ extension PackageShow {
         var repositoryName: String
         var activity: Activity?
         var authors: [Link]?
+        var keywords: [String]?
         var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
         var platformBuildInfo: BuildInfo<PlatformResults>?
         var history: History?
@@ -47,6 +48,7 @@ extension PackageShow {
                       repositoryName: String,
                       activity: Activity? = nil,
                       authors: [Link]? = nil,
+                      keywords: [String]? = nil,
                       swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
                       platformBuildInfo: BuildInfo<PlatformResults>? = nil,
                       history: History? = nil,
@@ -67,6 +69,7 @@ extension PackageShow {
             self.repositoryName = repositoryName
             self.activity = activity
             self.authors = authors
+            self.keywords = keywords
             self.swiftVersionBuildInfo = swiftVersionBuildInfo
             self.platformBuildInfo = platformBuildInfo
             self.history = history
@@ -100,6 +103,7 @@ extension PackageShow {
                 repositoryName: repositoryName,
                 activity: package.activity(),
                 authors: package.authors(),
+                keywords: package.repository?.keywords,
                 swiftVersionBuildInfo: package.swiftVersionBuildInfo(),
                 platformBuildInfo: package.platformBuildInfo(),
                 history: package.history(),
@@ -123,6 +127,19 @@ extension PackageShow {
 
 
 extension PackageShow.Model {
+    func keywordsList() -> Node<HTML.BodyContext> {
+        if let keywords = keywords {
+            return .ul(
+                .class("keywords"),
+                .forEach(keywords, { keyword in
+                    .li(.text(keyword))
+                })
+            )
+        } else {
+            return .empty
+        }
+    }
+
     func licenseListItem() -> Node<HTML.ListContext> {
         let licenseDescription: Node<HTML.BodyContext> = {
             switch license.licenseKind {
