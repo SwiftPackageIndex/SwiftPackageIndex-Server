@@ -82,7 +82,7 @@ enum AuthorShow {
                                         .p(.text(package.description))
                                     ),
                                     .p(
-                                        .class("star_text"),
+                                        .class("stars"),
                                         .text(starsText(stars: package.stars))
                                     )
                                 )
