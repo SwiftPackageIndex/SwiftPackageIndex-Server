@@ -35,7 +35,6 @@
         margin: 5px 0;
         color: var(--page-text);
       }
-
     }
 
     &.selected {
@@ -43,14 +42,11 @@
     }
   }
 
-.stars {
+  .stars {
     padding-left: 25px;
     background-size: 18px;
     background-repeat: no-repeat;
     background-position: top 2px left;
     background-image: var(--image-star);
   }
-
 }
-
-
