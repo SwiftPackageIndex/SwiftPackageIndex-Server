@@ -33,7 +33,7 @@ run:
 	swift run
 
 test:
-	swift test --enable-code-coverage --disable-automatic-resolution
+	swift test --enable-code-coverage --disable-automatic-resolution --sanitize=thread
 
 docker-build: version
 	docker build -t $(DOCKER_IMAGE):$(VERSION) .
