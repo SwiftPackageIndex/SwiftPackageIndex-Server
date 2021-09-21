@@ -132,7 +132,12 @@ extension PackageShow.Model {
             return .ul(
                 .class("keywords"),
                 .forEach(keywords, { keyword in
-                    .li(.text(keyword))
+                    .li(
+                        .a(
+                            .href(SiteURL.keywords(.value(keyword)).relativeURL()),
+                            .text(keyword)
+                        )
+                    )
                 })
             )
         } else {
