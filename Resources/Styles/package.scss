@@ -34,69 +34,73 @@
       padding: 0;
     }
 
-    section.main_metadata {
-      ul {
-        padding: 0;
-        margin: 10px 0;
-        display: grid;
-        grid-template-columns: 0.5fr 0.5fr;
-        grid-auto-flow: row;
-        gap: 15px;
+    ul.main_metadata {
+      padding: 0;
+      margin: 10px 0;
+      display: grid;
+      grid-template-columns: 0.5fr 0.5fr;
+      grid-auto-flow: row;
+      gap: 15px;
 
-        li {
-          padding: 0 0 0 30px;
-          list-style: outside none none;
-          background-size: 18px;
-          background-repeat: no-repeat;
-          background-position: top 2px left;
-        }
-        
-        li.archived {
-          grid-column-start: span 2;
+      // Only the direct list inside the metadata section, not the keywords list.
+      & > li {
+        padding: 0 0 0 30px;
+        list-style: outside none none;
+        background-size: 18px;
+        background-repeat: no-repeat;
+        background-position: top 2px left;
+      }
+
+      li.archived {
+        grid-column-start: span 2;
+        background-image: var(--image-warning);
+      }
+
+      li.history {
+        grid-column-start: span 2;
+        background-image: var(--image-clock);
+      }
+
+      li.activity {
+        grid-column-start: span 2;
+        background-image: var(--image-speech-bubble);
+      }
+
+      li.license {
+        background-image: var(--image-osi);
+
+        &.warning {
           background-image: var(--image-warning);
         }
 
-        li.history {
-          grid-column-start: span 2;
-          background-image: var(--image-clock);
+        &.error {
+          background-image: var(--image-error);
+        }
+        .no_license {
+          color: var(--red-text);
         }
 
-        li.activity {
-          grid-column-start: span 2;
-          background-image: var(--image-speech-bubble);
+        #license_more_info {
+          display: block;
+          font-size: 11px;
         }
+      }
 
-        li.license {
-          background-image: var(--image-osi);
+      li.stars {
+        background-image: var(--image-star);
+      }
 
-          &.warning {
-            background-image: var(--image-warning);
-          }
+      li.libraries {
+        background-image: var(--image-box);
+      }
 
-          &.error {
-            background-image: var(--image-error);
-          }
-          .no_license {
-            color: var(--red-text);
-          }
+      li.executables {
+        background-image: var(--image-prompt);
+      }
 
-          #license_more_info {
-            display: block;
-            font-size: 11px;
-          }
-        }
-
-        li.stars {
-          background-image: var(--image-star);
-        }
-
-        li.libraries {
-          background-image: var(--image-box);
-        }
-
-        li.executables {
-          background-image: var(--image-prompt);
-        }
+      li.keywords {
+        grid-column-start: span 2;
+        background-image: var(--image-tag);
       }
     }
 

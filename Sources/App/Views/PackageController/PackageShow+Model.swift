@@ -324,6 +324,13 @@ extension PackageShow.Model {
         )
     }
 
+    func keywordsListItem() -> Node<HTML.ListContext> {
+        return .li(
+            .class("keywords"),
+            keywordsList()
+        )
+    }
+
     static var starsNumberFormatter: NumberFormatter = {
         let f = NumberFormatter()
         f.thousandSeparator = ","
