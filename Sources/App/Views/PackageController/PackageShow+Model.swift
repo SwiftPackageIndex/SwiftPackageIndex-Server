@@ -127,24 +127,6 @@ extension PackageShow {
 
 
 extension PackageShow.Model {
-    func keywordsList() -> Node<HTML.BodyContext> {
-        if let keywords = keywords {
-            return .ul(
-                .class("keywords"),
-                .forEach(keywords, { keyword in
-                    .li(
-                        .a(
-                            .href(SiteURL.keywords(.value(keyword)).relativeURL()),
-                            .text(keyword)
-                        )
-                    )
-                })
-            )
-        } else {
-            return .empty
-        }
-    }
-
     func licenseListItem() -> Node<HTML.ListContext> {
         let licenseDescription: Node<HTML.BodyContext> = {
             switch license.licenseKind {
@@ -325,10 +307,24 @@ extension PackageShow.Model {
     }
 
     func keywordsListItem() -> Node<HTML.ListContext> {
-        return .li(
-            .class("keywords"),
-            keywordsList()
-        )
+        if let keywords = keywords {
+            return .li(
+                .class("keywords"),
+                .ul(
+                    .class("keywords"),
+                    .forEach(keywords, { keyword in
+                    .li(
+                        .a(
+                            .href(SiteURL.keywords(.value(keyword)).relativeURL()),
+                            .text(keyword)
+                        )
+                    )
+                    })
+                )
+            )
+        } else {
+            return .empty
+        }
     }
 
     static var starsNumberFormatter: NumberFormatter = {
