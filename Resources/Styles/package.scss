@@ -103,6 +103,9 @@
         background-image: var(--image-tag);
 
         ul.collapsed {
+          // This magic number is *very* important! It's the exact size of two rows of tags
+          // and if incorrect, the "show more" button will show up unnecessarily as it may
+          // overflow by just a single pixel.
           max-height: 52px;
           overflow: hidden;
         }
