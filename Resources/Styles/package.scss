@@ -101,6 +101,11 @@
       li.keywords {
         grid-column-start: span 2;
         background-image: var(--image-tag);
+
+        ul.collapsed {
+          max-height: 50px;
+          overflow: hidden;
+        }
       }
     }
 

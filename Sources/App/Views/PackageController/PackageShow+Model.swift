@@ -311,7 +311,7 @@ extension PackageShow.Model {
             return .li(
                 .class("keywords"),
                 .ul(
-                    .class("keywords"),
+                    .class("keywords collapsed"),
                     .forEach(keywords, { keyword in
                     .li(
                         .a(
