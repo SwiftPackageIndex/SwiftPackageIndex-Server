@@ -102,20 +102,18 @@ enum PackageShow {
         }
 
         func mainColumnMetadata() -> Node<HTML.BodyContext> {
-            .group(
-                .section(
-                    .ul(
-                        .class("main_metadata"),
-                        model.authorsListItem(),
-                        model.archivedListItem(),
-                        model.historyListItem(),
-                        model.activityListItem(),
-                        model.licenseListItem(),
-                        model.starsListItem(),
-                        model.librariesListItem(),
-                        model.executablesListItem(),
-                        model.keywordsListItem()
-                    )
+            .section(
+                .ul(
+                    .class("main_metadata"),
+                    model.authorsListItem(),
+                    model.archivedListItem(),
+                    model.historyListItem(),
+                    model.activityListItem(),
+                    model.licenseListItem(),
+                    model.starsListItem(),
+                    model.librariesListItem(),
+                    model.executablesListItem(),
+                    model.keywordsListItem()
                 )
             )
         }
