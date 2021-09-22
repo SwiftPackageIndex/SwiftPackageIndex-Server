@@ -25,6 +25,7 @@ import { SPIAutofocus } from './autofocus.js'
 import { SPIPlaygroundsAppLinkFallback } from './playgrounds_app_link.js'
 import { SPIReadmeElement } from './readme_element.js'
 import { SPITabBarElement } from './tab_bar_element.js'
+import { SPIShowMoreKeywords } from './show_more_keywords.js'
 
 window.externalLinkRetargeter = new ExternalLinkRetargeter()
 window.spiPackageListNavigation = new SPIPackageListNavigation()
@@ -33,6 +34,7 @@ new SPICopyPackageURLButton()
 new SPICopyableInput()
 new SPIAutofocus()
 new SPIPlaygroundsAppLinkFallback()
+new SPIShowMoreKeywords()
 
 customElements.define('spi-readme', SPIReadmeElement)
 customElements.define('tab-bar', SPITabBarElement)
