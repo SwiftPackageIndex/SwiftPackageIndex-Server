@@ -103,8 +103,17 @@
         background-image: var(--image-tag);
 
         ul.collapsed {
-          max-height: 50px;
+          max-height: 52px;
           overflow: hidden;
+        }
+
+        .show_more {
+          margin-top: 5px;
+          font-size: 13px;
+
+          button {
+            margin: 0 0 0 auto;
+          }
         }
       }
     }
