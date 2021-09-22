@@ -313,12 +313,12 @@ extension PackageShow.Model {
                 .ul(
                     .class("keywords"),
                     .forEach(keywords, { keyword in
-                    .li(
-                        .a(
-                            .href(SiteURL.keywords(.value(keyword)).relativeURL()),
-                            .text(keyword)
+                        .li(
+                            .a(
+                                .href(SiteURL.keywords(.value(keyword)).relativeURL()),
+                                .text(keyword)
+                            )
                         )
-                    )
                     })
                 )
             )
