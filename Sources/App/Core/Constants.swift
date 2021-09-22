@@ -24,10 +24,6 @@ enum Constants {
     static let githubComPrefix = "https://github.com/"
     static let gitSuffix = ".git"
 
-    // FIXME: compute from SwiftVersion.allActive
-    // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1136
-    static let latestMajorSwiftVersion = 5
-
     static let packageListUri = URI(string: "https://raw.githubusercontent.com/SwiftPackageIndex/PackageList/main/packages.json")
     
     // NB: the underlying materialised views also have a limit, this is just an additional
