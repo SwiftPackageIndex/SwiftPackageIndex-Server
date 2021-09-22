@@ -53,8 +53,8 @@
     <noscript>
       <p>The search function of this site requires JavaScript.</p>
     </noscript>
-    <p class="announcement">Package collections are new in Swift 5.5 and Xcode 13 beta and 
-      <a href="/package-collections">the Swift Package Index supports them TODAY</a>! 🚀
+    <p class="announcement">Package collections are new in Swift 5.5 and Xcode 13 and 
+      <a href="/package-collections">the Swift Package Index supports them</a>! 🚀
     </p>
     <section class="search home">
       <div class="inner">
