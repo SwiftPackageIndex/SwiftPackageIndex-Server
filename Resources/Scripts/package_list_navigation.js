@@ -83,14 +83,10 @@ export class SPIPackageListNavigation {
       document.blurFocusedInputElement()
     } else {
       // Otherwise, just move down the list, but never beyond the end!
-      this.selectedPackageIndex = Math.min(
-        this.selectedPackageIndex + 1,
-        packageListElement.children.length - 1
-      )
+      this.selectedPackageIndex = Math.min(this.selectedPackageIndex + 1, packageListElement.children.length - 1)
 
       // When reaching the bottom of the list, scroll to the bottom of the document.
-      if (this.selectedPackageIndex == packageListElement.children.length - 1)
-        window.scrollToBottom()
+      if (this.selectedPackageIndex == packageListElement.children.length - 1) window.scrollToBottom()
     }
   }
 
