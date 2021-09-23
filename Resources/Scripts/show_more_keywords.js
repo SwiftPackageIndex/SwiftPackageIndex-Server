@@ -23,14 +23,9 @@ export class SPIShowMoreKeywords {
       if (this.isOverflowing(keywordsListElement)) {
         const totalKeywords = keywordsListElement.children.length
 
-        // Either
         const showMoreElement = document.createElement('a')
         showMoreElement.innerText = `Show all ${totalKeywords} tags`
         showMoreElement.href = '#'
-
-        // Or
-        // const showMoreElement = document.createElement('button')
-        // showMoreElement.innerText = `Show all ${totalKeywords} tags`
 
         showMoreElement.addEventListener('click', (event) => {
           keywordsListElement.classList.remove('collapsed')
