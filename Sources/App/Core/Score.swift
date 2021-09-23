@@ -69,7 +69,7 @@ extension Package {
         else { return 0 }
         let releases = versions.filter { $0.reference?.isTag ?? false }
         return Score.compute(
-            .init(supportsLatestSwiftVersion: defaultVersion.supportsMajorSwiftVersion(Constants.latestMajorSwiftVersion),
+            .init(supportsLatestSwiftVersion: defaultVersion.supportsMajorSwiftVersion(SwiftVersion.latestMajor),
                   licenseKind: r.license.licenseKind,
                   releaseCount: releases.count,
                   likeCount: starsCount,
