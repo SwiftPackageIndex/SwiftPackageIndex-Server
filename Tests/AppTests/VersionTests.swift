@@ -36,6 +36,7 @@ class VersionTests: AppTestCase {
         v.publishedAt = Date(timeIntervalSince1970: 1)
         v.reference = .branch("branch")
         v.releaseNotes = "release notes"
+        v.resolvedDependencies = [.init(url: "url")]
         v.supportedPlatforms = [.ios("13"), .macos("10.15")]
         v.swiftVersions = ["4.0", "5.2"].asSwiftVersions
         v.url = pkg.versionUrl(for: v.reference!)
@@ -51,6 +52,7 @@ class VersionTests: AppTestCase {
             XCTAssertEqual(v.publishedAt, Date(timeIntervalSince1970: 1))
             XCTAssertEqual(v.reference, .branch("branch"))
             XCTAssertEqual(v.releaseNotes, "release notes")
+            XCTAssertEqual(v.resolvedDependencies.map(\.url), ["url"])
             XCTAssertEqual(v.supportedPlatforms, [.ios("13"), .macos("10.15")])
             XCTAssertEqual(v.swiftVersions, ["4.0", "5.2"].asSwiftVersions)
             XCTAssertEqual(v.url, "https://github.com/foo/1/tree/branch")

@@ -66,6 +66,9 @@ final class Version: Model, Content {
     @Field(key: "release_notes_html")
     var releaseNotesHTML: String?
 
+    @Field(key: "resolved_dependencies")
+    var resolvedDependencies: [ResolvedDependency]
+
     // TODO: rename to minimumPlatformVersions?
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
