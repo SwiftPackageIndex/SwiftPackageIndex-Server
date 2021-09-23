@@ -98,9 +98,9 @@
 
   --announcement-background: var(--very-light-grey);
 
-  --sidebar-section-background: var(--very-very-light-grey);
-  --sidebar-section-hover: var(--very-light-grey);
-  --sidebar-section-border: var(--light-grey);
+  --bordered-button-background: var(--very-very-light-grey);
+  --bordered-button-hover: var(--very-light-grey);
+  --bordered-button-border: var(--light-grey);
 
   --input-background: var(--white);
   --input-text: var(--black);
@@ -135,7 +135,7 @@
   --code-snippet-background: var(--very-light-grey);
   --code-snippet-text: var(--black);
   --code-snippet-border: var(--grey);
-  
+
   --tab-bar-background: var(--very-very-light-grey);
   --tab-bar-hover: var(--very-light-grey);
   --tab-bar-border: var(--light-grey);
@@ -165,9 +165,9 @@
 
     --announcement-background: var(--very-dark-grey);
 
-    --sidebar-section-background: var(--very-very-dark-grey);
-    --sidebar-section-hover: var(--very-dark-grey);
-    --sidebar-section-border: var(--dark-grey);
+    --bordered-button-background: var(--very-very-dark-grey);
+    --bordered-button-hover: var(--very-dark-grey);
+    --bordered-button-border: var(--dark-grey);
 
     --input-background: var(--very-dark-grey);
     --input-text: var(--white);
@@ -198,7 +198,7 @@
     --code-snippet-background: var(--very-dark-grey);
     --code-snippet-text: var(--white);
     --code-snippet-border: var(--grey);
-    
+
     --tab-bar-background: var(--very-very-dark-grey);
     --tab-bar-hover: var(--very-dark-grey);
     --tab-bar-border: var(--dark-grey);

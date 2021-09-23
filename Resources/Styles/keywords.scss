@@ -22,8 +22,12 @@ ul.keywords {
     display: inline-block;
     padding: 2px 6px;
     margin: 2px 5px 2px 0;
-    background: var(--very-light-grey);
-    border-left: 2px var(--light-grey) solid;
+    border-left: 2px var(--bordered-button-border) solid;
+    background-color: var(--bordered-button-background);
+
+    &:hover {
+      background-color: var(--bordered-button-hover);
+    }
 
     &:first-child {
       margin-left: 0;

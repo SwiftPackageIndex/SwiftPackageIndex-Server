@@ -128,11 +128,11 @@
           display: block;
           padding: 5px;
           padding-left: 10px;
-          border-left: 3px var(--sidebar-section-border) solid;
-          background-color: var(--sidebar-section-background);
+          border-left: 3px var(--bordered-button-border) solid;
+          background-color: var(--bordered-button-background);
 
           &:hover {
-            background-color: var(--sidebar-section-hover);
+            background-color: var(--bordered-button-hover);
           }
         }
       }
