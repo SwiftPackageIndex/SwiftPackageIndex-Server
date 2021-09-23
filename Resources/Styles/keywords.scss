@@ -20,7 +20,6 @@ ul.keywords {
 
   li {
     display: inline-block;
-    padding: 2px 6px;
     margin: 2px 5px 2px 0;
     border-left: 2px var(--bordered-button-border) solid;
     background-color: var(--bordered-button-background);
@@ -31,6 +30,11 @@ ul.keywords {
 
     &:first-child {
       margin-left: 0;
+    }
+
+    & > a {
+      display: block;
+      padding: 2px 6px;
     }
   }
 }
