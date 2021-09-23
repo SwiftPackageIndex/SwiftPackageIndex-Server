@@ -17,29 +17,31 @@ export class SPIShowMoreKeywords {
     document.addEventListener('turbo:load', () => {
       // Immediately collapse the overflowing keyword list.
       const keywordsListElement = document.querySelector('article.details ul.keywords')
-      keywordsListElement.classList.add('collapsed')
+      if (keywordsListElement) {
+        keywordsListElement.classList.add('collapsed')
 
-      // If the collapsing hid any content, add a "show more" that expands it.
-      if (this.isOverflowing(keywordsListElement)) {
-        const totalKeywords = keywordsListElement.children.length
+        // If the collapsing hid any content, add a "show more" that expands it.
+        if (this.isOverflowing(keywordsListElement)) {
+          const totalKeywords = keywordsListElement.children.length
 
-        const showMoreElement = document.createElement('a')
-        showMoreElement.innerHTML = `Show all ${totalKeywords} tags&hellip;`
-        showMoreElement.href = '#'
+          const showMoreElement = document.createElement('a')
+          showMoreElement.innerHTML = `Show all ${totalKeywords} tags&hellip;`
+          showMoreElement.href = '#'
 
-        showMoreElement.addEventListener('click', (event) => {
-          keywordsListElement.classList.remove('collapsed')
-          showMoreElement.remove()
-          event.preventDefault()
-        })
+          showMoreElement.addEventListener('click', (event) => {
+            keywordsListElement.classList.remove('collapsed')
+            showMoreElement.remove()
+            event.preventDefault()
+          })
 
-        // Put the link in a container so it may be justified. (Remove if unneeded before merging)
-        const buttonContainerElement = document.createElement('div')
-        buttonContainerElement.classList.add('show_more')
-        buttonContainerElement.appendChild(showMoreElement)
+          // Put the link in a container so it may be justified. (Remove if unneeded before merging)
+          const buttonContainerElement = document.createElement('div')
+          buttonContainerElement.classList.add('show_more')
+          buttonContainerElement.appendChild(showMoreElement)
 
-        const keywordsListParentElement = keywordsListElement.parentElement
-        keywordsListParentElement.appendChild(buttonContainerElement)
+          const keywordsListParentElement = keywordsListElement.parentElement
+          keywordsListParentElement.appendChild(buttonContainerElement)
+        }
       }
     })
   }
