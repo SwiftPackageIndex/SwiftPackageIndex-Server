@@ -75,8 +75,8 @@
         <p class="summary">📦 Nothing but Cache. :octocat:</p>
         <article class="details">
           <div class="two_column">
-            <section class="main_metadata">
-              <ul>
+            <section>
+              <ul class="main_metadata">
                 <li class="history">In development for over 5 years, with 
                   <a href="https://github.com/Alamofire/Alamofire/commits/main">1,433 commits</a> and 
                   <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
