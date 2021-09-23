@@ -15,18 +15,18 @@
 export class SPIShowMoreKeywords {
   constructor() {
     document.addEventListener('turbo:load', () => {
-      // Immediately collapse the overflowing keyword list.
       const keywordsListElement = document.querySelector('article.details ul.keywords')
       if (keywordsListElement) {
+        // Immediately collapse a potentially overflowing keyword list.
         keywordsListElement.classList.add('collapsed')
 
         // If the collapsing hid any content, add a "show more" that expands it.
         if (this.isOverflowing(keywordsListElement)) {
           const totalKeywords = keywordsListElement.children.length
-
           const showMoreElement = document.createElement('a')
           showMoreElement.innerHTML = `Show all ${totalKeywords} tags&hellip;`
-          showMoreElement.href = '#'
+          showMoreElement.href = '#' // Needed to turn the cursor into a hand.
+          showMoreElement.classList.add('show_more')
 
           showMoreElement.addEventListener('click', (event) => {
             keywordsListElement.classList.remove('collapsed')
@@ -34,13 +34,8 @@ export class SPIShowMoreKeywords {
             event.preventDefault()
           })
 
-          // Put the link in a container so it may be justified. (Remove if unneeded before merging)
-          const buttonContainerElement = document.createElement('div')
-          buttonContainerElement.classList.add('show_more')
-          buttonContainerElement.appendChild(showMoreElement)
-
           const keywordsListParentElement = keywordsListElement.parentElement
-          keywordsListParentElement.appendChild(buttonContainerElement)
+          keywordsListParentElement.appendChild(showMoreElement)
         }
       }
     })
