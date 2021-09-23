@@ -594,9 +594,9 @@ func applyVersionDelta(on transaction: Database,
 ///   - logger: `Logger` object
 ///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
 /// - Returns: results future including the `Manifest`s
-func getManifests(packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
-    packageAndVersions.map { result -> Result<(Package, [(Version, Manifest)]), Error> in
-        result.flatMap { (pkg, versions) -> Result<(Package, [(Version, Manifest)]), Error> in
+func getManifests(packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest, [ResolvedDependency])]), Error>] {
+    packageAndVersions.map { result in
+        result.flatMap { (pkg, versions) in
             let m = versions.map { getManifest(package: pkg, version: $0) }
             let successes = m.compactMap { try? $0.get() }
             if !versions.isEmpty && successes.isEmpty {
@@ -633,7 +633,8 @@ func dumpPackage(at path: String) throws -> Manifest {
 ///   - package: `Package` to analyse
 ///   - version: `Version` to check out
 /// - Returns: `Result` with `Manifest` data
-func getManifest(package: Package, version: Version) -> Result<(Version, Manifest), Error> {
+// TODO: rename
+func getManifest(package: Package, version: Version) -> Result<(Version, Manifest, [ResolvedDependency]), Error> {
     Result {
         // check out version in cache directory
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
@@ -647,11 +648,52 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 
         do {
             let manifest = try dumpPackage(at: cacheDir)
-            return (version, manifest)
+            let resolvedDependencies = try getResolvedDependencies(at: cacheDir)
+            return (version, manifest, resolvedDependencies)
         } catch let AppError.invalidRevision(_, msg) {
             // re-package error to attach version.id
             throw AppError.invalidRevision(version.id, msg)
         }
+    }
+}
+
+
+func getResolvedDependencies(at path: String) throws -> [ResolvedDependency] {
+    //    object:
+    //      pins:
+    //        - package: String
+    //          repositryURL: URL
+    //          state:
+    //            branch: String?
+    //            revision: CommitHash
+    //            version: SemVer?
+    //        - ...
+    //      version: 1
+    struct PackageResolved: Decodable {
+        var object: Object
+
+        struct Object: Decodable {
+            var pins: [Pin]
+
+            struct Pin: Decodable {
+                var package: String
+                var repositoryURL: URL
+            }
+        }
+    }
+
+    let filePath = path + "/Package.resolved"
+    guard Current.fileManager.fileExists(atPath: filePath) else {
+        throw AppError.fileNotFound(path: filePath)
+    }
+    let fileUrl = URL(fileURLWithPath: filePath)
+    let json = try Data.init(contentsOf: fileUrl)
+    let packageResolved = try JSONDecoder().decode(PackageResolved.self, from: json)
+    return packageResolved.object.pins.map {
+        ResolvedDependency(
+            packageName: $0.package,
+            repositoryURL: $0.repositoryURL.absoluteString
+        )
     }
 }
 
@@ -662,15 +704,19 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 ///   - packageResults: results to process, containing the versions and their manifests
 /// - Returns: the input data for further processing, wrapped in a future
 func updateVersions(on database: Database,
-                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+                    packageResults: [Result<(Package, [(Version, Manifest, [ResolvedDependency])]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
-            versionsAndManifests.map { version, manifest in
-                updateVersion(on: database, version: version, manifest: manifest)
+            versionsAndManifests.map { version, manifest, resolvedDependencies in
+                updateVersion(on: database,
+                              version: version,
+                              manifest: manifest,
+                              resolvedDependencies: resolvedDependencies)
             },
             on: database.eventLoop
         )
-        .transform(to: (pkg, versionsAndManifests))
+        // FIXME: replace .map($0.0, $0.1) with something more readable
+            .transform(to: (pkg, versionsAndManifests.map { ($0.0, $0.1) }))
     }
 }
 
@@ -681,8 +727,12 @@ func updateVersions(on database: Database,
 ///   - version: version to update
 ///   - manifest: `Manifest` data
 /// - Returns: future
-func updateVersion(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
+func updateVersion(on database: Database,
+                   version: Version,
+                   manifest: Manifest,
+                   resolvedDependencies: [ResolvedDependency]) -> EventLoopFuture<Void> {
     version.packageName = manifest.name
+    version.resolvedDependencies = resolvedDependencies
     version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
     version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
     version.toolsVersion = manifest.toolsVersion?.version

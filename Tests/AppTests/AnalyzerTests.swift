@@ -600,7 +600,7 @@ class AnalyzerTests: AppTestCase {
         try version.save(on: app.db).wait()
         
         // MUT
-        let (v, m) = try getManifest(package: pkg, version: version).get()
+        let (v, m, _) = try getManifest(package: pkg, version: version).get()
         
         // validation
         XCTAssertEqual(commands, [
@@ -645,7 +645,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(results.map(\.isSuccess), [false, true])
         let (_, versionsManifests) = try XCTUnwrap(results.last).get()
         XCTAssertEqual(versionsManifests.count, 1)
-        let (v, m) = try XCTUnwrap(versionsManifests.first)
+        let (v, m, _) = try XCTUnwrap(versionsManifests.first)
         XCTAssertEqual(v, version)
         XCTAssertEqual(m.name, "SPI-Server")
     }
@@ -662,13 +662,20 @@ class AnalyzerTests: AppTestCase {
                                 swiftLanguageVersions: ["1", "2", "3.0.0"],
                                 targets: [],
                                 toolsVersion: .init(version: "5.0.0"))
+        let dep = ResolvedDependency(packageName: "foo",
+                                     repositoryURL: "http://foo.com")
         
         // MUT
-        _ = try updateVersion(on: app.db, version: version, manifest: manifest).wait()
+        _ = try updateVersion(on: app.db,
+                              version: version,
+                              manifest: manifest,
+                              resolvedDependencies: [dep]).wait()
         
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!
         XCTAssertEqual(v.packageName, "foo")
+        XCTAssertEqual(v.resolvedDependencies.map(\.packageName),
+                       ["foo"])
         XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].asSwiftVersions)
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
         XCTAssertEqual(v.toolsVersion, "5.0.0")

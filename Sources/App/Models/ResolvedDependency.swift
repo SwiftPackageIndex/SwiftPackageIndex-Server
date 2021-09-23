@@ -15,5 +15,6 @@
 import Foundation
 
 struct ResolvedDependency: Codable {
-    var url: String
+    var packageName: String
+    var repositoryURL: String
 }
