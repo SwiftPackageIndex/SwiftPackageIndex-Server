@@ -24,7 +24,7 @@ export class SPIShowMoreKeywords {
         const totalKeywords = keywordsListElement.children.length
 
         const showMoreElement = document.createElement('a')
-        showMoreElement.innerText = `Show all ${totalKeywords} tags`
+        showMoreElement.innerHTML = `Show all ${totalKeywords} tags&hellip;`
         showMoreElement.href = '#'
 
         showMoreElement.addEventListener('click', (event) => {
