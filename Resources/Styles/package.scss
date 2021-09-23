@@ -34,68 +34,84 @@
       padding: 0;
     }
 
-    section.main_metadata {
-      ul {
-        padding: 0;
-        margin: 10px 0;
-        display: grid;
-        grid-template-columns: 0.5fr 0.5fr;
-        grid-auto-flow: row;
-        gap: 15px;
+    ul.main_metadata {
+      padding: 0;
+      margin: 10px 0;
+      display: grid;
+      grid-template-columns: 0.5fr 0.5fr;
+      grid-auto-flow: row;
+      gap: 15px;
 
-        li {
-          padding: 0 0 0 30px;
-          list-style: outside none none;
-          background-size: 18px;
-          background-repeat: no-repeat;
-          background-position: top 2px left;
-        }
-        
-        li.archived {
-          grid-column-start: span 2;
+      // Only the direct list inside the metadata section, not the keywords list.
+      & > li {
+        padding: 0 0 0 30px;
+        list-style: outside none none;
+        background-size: 18px;
+        background-repeat: no-repeat;
+        background-position: top 2px left;
+      }
+
+      li.archived {
+        grid-column-start: span 2;
+        background-image: var(--image-warning);
+      }
+
+      li.history {
+        grid-column-start: span 2;
+        background-image: var(--image-clock);
+      }
+
+      li.activity {
+        grid-column-start: span 2;
+        background-image: var(--image-speech-bubble);
+      }
+
+      li.license {
+        background-image: var(--image-osi);
+
+        &.warning {
           background-image: var(--image-warning);
         }
 
-        li.history {
-          grid-column-start: span 2;
-          background-image: var(--image-clock);
+        &.error {
+          background-image: var(--image-error);
+        }
+        .no_license {
+          color: var(--red-text);
         }
 
-        li.activity {
-          grid-column-start: span 2;
-          background-image: var(--image-speech-bubble);
+        #license_more_info {
+          display: block;
+          font-size: 11px;
+        }
+      }
+
+      li.stars {
+        background-image: var(--image-star);
+      }
+
+      li.libraries {
+        background-image: var(--image-box);
+      }
+
+      li.executables {
+        background-image: var(--image-prompt);
+      }
+
+      li.keywords {
+        grid-column-start: span 2;
+        background-image: var(--image-tag);
+
+        ul.collapsed {
+          // This magic number is *very* important! It's the exact size of two rows of tags
+          // and if incorrect, the "show more" button will show up unnecessarily as it may
+          // overflow by just a single pixel.
+          max-height: 52px;
+          overflow: hidden;
         }
 
-        li.license {
-          background-image: var(--image-osi);
-
-          &.warning {
-            background-image: var(--image-warning);
-          }
-
-          &.error {
-            background-image: var(--image-error);
-          }
-          .no_license {
-            color: var(--red-text);
-          }
-
-          #license_more_info {
-            display: block;
-            font-size: 11px;
-          }
-        }
-
-        li.stars {
-          background-image: var(--image-star);
-        }
-
-        li.libraries {
-          background-image: var(--image-box);
-        }
-
-        li.executables {
-          background-image: var(--image-prompt);
+        .show_more {
+          font-size: 13px;
         }
       }
     }
@@ -112,11 +128,11 @@
           display: block;
           padding: 5px;
           padding-left: 10px;
-          border-left: 3px var(--sidebar-section-border) solid;
-          background-color: var(--sidebar-section-background);
+          border-left: 3px var(--bordered-button-border) solid;
+          background-color: var(--bordered-button-background);
 
           &:hover {
-            background-color: var(--sidebar-section-hover);
+            background-color: var(--bordered-button-hover);
           }
         }
       }

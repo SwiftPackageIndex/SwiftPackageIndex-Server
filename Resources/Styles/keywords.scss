@@ -13,26 +13,28 @@
  * limitations under the License.
  */
 
-$mobile-breakpoint: 767px;
+ul.keywords {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
 
-@import 'colors.scss';
-@import 'images.scss';
-@import 'base.scss';
-@import 'scta.scss';
-@import 'layout.scss';
-@import 'header_footer.scss';
-@import 'home.scss';
-@import 'markdown.scss';
-@import 'search.scss';
-@import 'package.scss';
-@import 'package_list.scss';
-@import 'maintainer_info.scss';
-@import 'copyable_input.scss';
-@import 'matrix.scss';
-@import 'build_logs.scss';
-@import 'error.scss';
-@import 'readme.scss';
-@import 'spinner.scss';
-@import 'github-highlighting.scss';
-@import 'tab-bar.scss';
-@import 'keywords.scss';
+  li {
+    display: inline-block;
+    margin: 2px 5px 2px 0;
+    border-left: 2px var(--bordered-button-border) solid;
+    background-color: var(--bordered-button-background);
+
+    &:hover {
+      background-color: var(--bordered-button-hover);
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    & > a {
+      display: block;
+      padding: 2px 6px;
+    }
+  }
+}

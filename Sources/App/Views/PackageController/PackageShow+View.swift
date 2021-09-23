@@ -103,8 +103,8 @@ enum PackageShow {
 
         func mainColumnMetadata() -> Node<HTML.BodyContext> {
             .section(
-                .class("main_metadata"),
                 .ul(
+                    .class("main_metadata"),
                     model.authorsListItem(),
                     model.archivedListItem(),
                     model.historyListItem(),
@@ -112,7 +112,8 @@ enum PackageShow {
                     model.licenseListItem(),
                     model.starsListItem(),
                     model.librariesListItem(),
-                    model.executablesListItem()
+                    model.executablesListItem(),
+                    model.keywordsListItem()
                 )
             )
         }
