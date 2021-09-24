@@ -84,7 +84,7 @@ func recordError(database: Database,
     switch error {
         case let .analysisError(id, _):
             return setStatus(id: id, status: .analysisFailed)
-        case .envVariableNotSet, .fileNotFound, .shellCommandFailed:
+        case .envVariableNotSet, .shellCommandFailed:
             return database.eventLoop.future()
         case let .genericError(id, _):
             return setStatus(id: id, status: .ingestionFailed)

@@ -648,7 +648,7 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 
         do {
             let manifest = try dumpPackage(at: cacheDir)
-            let resolvedDependencies = try getResolvedDependencies(at: cacheDir)
+            let resolvedDependencies = getResolvedDependencies(at: cacheDir) ?? []
             return (version, manifest, resolvedDependencies)
         } catch let AppError.invalidRevision(_, msg) {
             // re-package error to attach version.id
@@ -658,7 +658,7 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 }
 
 
-func getResolvedDependencies(at path: String) throws -> [ResolvedDependency] {
+func getResolvedDependencies(at path: String) -> [ResolvedDependency]? {
     //    object:
     //      pins:
     //        - package: String
@@ -684,11 +684,16 @@ func getResolvedDependencies(at path: String) throws -> [ResolvedDependency] {
 
     let filePath = path + "/Package.resolved"
     guard Current.fileManager.fileExists(atPath: filePath) else {
-        throw AppError.fileNotFound(path: filePath)
+        return nil
     }
     let fileUrl = URL(fileURLWithPath: filePath)
-    let json = try Data.init(contentsOf: fileUrl)
-    let packageResolved = try JSONDecoder().decode(PackageResolved.self, from: json)
+    // FIXME: use Current.fileManager
+    guard let json = try? Data.init(contentsOf: fileUrl) else {
+        return nil
+    }
+    guard let packageResolved = try? JSONDecoder().decode(PackageResolved.self, from: json) else {
+        return nil
+    }
     return packageResolved.object.pins.map {
         ResolvedDependency(
             packageName: $0.package,
