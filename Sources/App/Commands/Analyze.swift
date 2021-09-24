@@ -705,9 +705,9 @@ func getResolvedDependencies(at path: String) -> [ResolvedDependency]? {
 /// - Returns: the input data for further processing, wrapped in a future
 func updateVersions(on database: Database,
                     packageResults: [Result<(Package, [(Version, Manifest, [ResolvedDependency]?)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
-    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
+    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, pkgInfo) in
         EventLoopFuture.andAllComplete(
-            versionsAndManifests.map { version, manifest, resolvedDependencies in
+            pkgInfo.map { version, manifest, resolvedDependencies in
                 updateVersion(on: database,
                               version: version,
                               manifest: manifest,
@@ -718,7 +718,7 @@ func updateVersions(on database: Database,
             .transform(
                 to: (
                     pkg,
-                    versionsAndManifests.map { version, manifest, _ in
+                    pkgInfo.map { version, manifest, _ in
                         (version, manifest)
                     }
                 )
