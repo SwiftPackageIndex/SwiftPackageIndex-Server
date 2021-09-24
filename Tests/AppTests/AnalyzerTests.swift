@@ -45,10 +45,18 @@ class AnalyzerTests: AppTestCase {
                        stars: 100).save(on: app.db).wait()
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
-            // let the check for the second repo checkout path succedd to simulate pull
+            // let the check for the second repo checkout path succeed to simulate pull
             if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
             if path.hasSuffix("Package.swift") { return true }
+            if path.hasSuffix("Package.resolved") { return true }
             return false
+        }
+        Current.fileManager.contentsOfFile = { path in
+            if path.hasSuffix("github.com-foo-1/Package.resolved") {
+                return .mockPackageResolved(for: "foo-1")
+            } else {
+                throw TestError.fileNotFound(path)
+            }
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
         Current.git = .live
@@ -150,6 +158,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(sortedVersions1.map(\.reference?.description), ["main", "1.0.0", "1.1.1"])
         XCTAssertEqual(sortedVersions1.map(\.latest), [.defaultBranch, nil, .release])
         XCTAssertEqual(sortedVersions1.map(\.releaseNotes), [nil, "rel 1.0.0", nil])
+        XCTAssertEqual(sortedVersions1.flatMap(\.resolvedDependencies).map(\.packageName), ["foo-1", "foo-1", "foo-1"])
 
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
@@ -158,6 +167,7 @@ class AnalyzerTests: AppTestCase {
         let sortedVersions2 = pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
         XCTAssertEqual(sortedVersions2.map(\.reference?.description), ["main", "2.0.0", "2.1.0"])
         XCTAssertEqual(sortedVersions2.map(\.latest), [.defaultBranch, nil, .release])
+        XCTAssertEqual(sortedVersions2.flatMap(\.resolvedDependencies).map(\.packageName), [])
 
         // validate products
         // (2 packages with 3 versions with 1 product each = 6 products)
@@ -614,33 +624,14 @@ class AnalyzerTests: AppTestCase {
     func test_getResolvedDependencies() throws {
         // setup
         Current.fileManager.contentsOfFile = { _ in
-            Data(
-                #"""
-                {
-                  "object": {
-                    "pins": [
-                      {
-                        "package": "Bar",
-                        "repositoryURL": "https://github.com/foo/bar",
-                        "state": {
-                          "branch": null,
-                          "revision": "fca5fe8e7b8218d563f99daadffd86dbf11dd98b",
-                          "version": "1.2.3"
-                        }
-                      }
-                    ],
-                    "version": 1
-                  }
-                }
-                """#.utf8
-            )
+            Data.mockPackageResolved(for: "Foo")
         }
 
         // MUT
         let deps = getResolvedDependencies(at: "path")
 
         // validate
-        XCTAssertEqual(deps?.map(\.packageName), ["Bar"])
+        XCTAssertEqual(deps?.map(\.packageName), ["Foo"])
     }
 
     func test_getManifests() throws {
@@ -1092,7 +1083,34 @@ struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
 
 
 private enum TestError: Error {
+    case fileNotFound(String)
     case simulatedCheckoutError
     case simulatedFetchError
     case unknownCommand
+}
+
+
+private extension Data {
+    static func mockPackageResolved(for packageName: String) -> Self {
+        .init(
+            #"""
+            {
+              "object": {
+                "pins": [
+                  {
+                    "package": "\#(packageName)",
+                    "repositoryURL": "https://github.com/foo/\#(packageName)",
+                    "state": {
+                      "branch": null,
+                      "revision": "fca5fe8e7b8218d563f99daadffd86dbf11dd98b",
+                      "version": "1.2.3"
+                    }
+                  }
+                ],
+                "version": 1
+              }
+            }
+            """#.utf8
+        )
+    }
 }
