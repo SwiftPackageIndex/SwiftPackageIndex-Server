@@ -610,7 +610,39 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(v.id, version.id)
         XCTAssertEqual(m.name, "SPI-Server")
     }
-    
+
+    func test_getResolvedDependencies() throws {
+        // setup
+        Current.fileManager.contentsOfFile = { _ in
+            Data(
+                #"""
+                {
+                  "object": {
+                    "pins": [
+                      {
+                        "package": "Bar",
+                        "repositoryURL": "https://github.com/foo/bar",
+                        "state": {
+                          "branch": null,
+                          "revision": "fca5fe8e7b8218d563f99daadffd86dbf11dd98b",
+                          "version": "1.2.3"
+                        }
+                      }
+                    ],
+                    "version": 1
+                  }
+                }
+                """#.utf8
+            )
+        }
+
+        // MUT
+        let deps = getResolvedDependencies(at: "path")
+
+        // validate
+        XCTAssertEqual(deps?.map(\.packageName), ["Bar"])
+    }
+
     func test_getManifests() throws {
         // setup
         let queue = DispatchQueue(label: "serial")

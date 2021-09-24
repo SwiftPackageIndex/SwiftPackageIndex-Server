@@ -662,7 +662,7 @@ func getResolvedDependencies(at path: String) -> [ResolvedDependency]? {
     //    object:
     //      pins:
     //        - package: String
-    //          repositryURL: URL
+    //          repositoryURL: URL
     //          state:
     //            branch: String?
     //            revision: CommitHash
@@ -683,15 +683,11 @@ func getResolvedDependencies(at path: String) -> [ResolvedDependency]? {
     }
 
     let filePath = path + "/Package.resolved"
-    guard Current.fileManager.fileExists(atPath: filePath) else {
-        return nil
-    }
-    let fileUrl = URL(fileURLWithPath: filePath)
-    // FIXME: use Current.fileManager
-    guard let json = try? Data.init(contentsOf: fileUrl) else {
-        return nil
-    }
-    guard let packageResolved = try? JSONDecoder().decode(PackageResolved.self, from: json) else {
+    guard Current.fileManager.fileExists(atPath: filePath),
+          let json = try? Current.fileManager.contentsOfFile(filePath),
+          let packageResolved = try? JSONDecoder()
+            .decode(PackageResolved.self, from: json)
+    else {
         return nil
     }
     return packageResolved.object.pins.map {
