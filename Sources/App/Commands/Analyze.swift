@@ -715,8 +715,14 @@ func updateVersions(on database: Database,
             },
             on: database.eventLoop
         )
-        // FIXME: replace .map($0.0, $0.1) with something more readable
-            .transform(to: (pkg, versionsAndManifests.map { ($0.0, $0.1) }))
+            .transform(
+                to: (
+                    pkg,
+                    versionsAndManifests.map { version, manifest, _ in
+                        (version, manifest)
+                    }
+                )
+            )
     }
 }
 
