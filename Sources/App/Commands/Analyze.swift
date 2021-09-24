@@ -594,7 +594,7 @@ func applyVersionDelta(on transaction: Database,
 ///   - logger: `Logger` object
 ///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
 /// - Returns: results future including the `Manifest`s
-func getPackageInfo(packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest, [ResolvedDependency])]), Error>] {
+func getPackageInfo(packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest, [ResolvedDependency]?)]), Error>] {
     packageAndVersions.map { result in
         result.flatMap { (pkg, versions) in
             let m = versions.map { getPackageInfo(package: pkg, version: $0) }
@@ -633,7 +633,7 @@ func dumpPackage(at path: String) throws -> Manifest {
 ///   - package: `Package` to analyse
 ///   - version: `Version` to check out
 /// - Returns: `Result` with `Manifest` data
-func getPackageInfo(package: Package, version: Version) -> Result<(Version, Manifest, [ResolvedDependency]), Error> {
+func getPackageInfo(package: Package, version: Version) -> Result<(Version, Manifest, [ResolvedDependency]?), Error> {
     Result {
         // check out version in cache directory
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
@@ -647,7 +647,7 @@ func getPackageInfo(package: Package, version: Version) -> Result<(Version, Mani
 
         do {
             let manifest = try dumpPackage(at: cacheDir)
-            let resolvedDependencies = getResolvedDependencies(at: cacheDir) ?? []
+            let resolvedDependencies = getResolvedDependencies(at: cacheDir)
             return (version, manifest, resolvedDependencies)
         } catch let AppError.invalidRevision(_, msg) {
             // re-package error to attach version.id
@@ -704,7 +704,7 @@ func getResolvedDependencies(at path: String) -> [ResolvedDependency]? {
 ///   - packageResults: results to process, containing the versions and their manifests
 /// - Returns: the input data for further processing, wrapped in a future
 func updateVersions(on database: Database,
-                    packageResults: [Result<(Package, [(Version, Manifest, [ResolvedDependency])]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+                    packageResults: [Result<(Package, [(Version, Manifest, [ResolvedDependency]?)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest, resolvedDependencies in
@@ -730,9 +730,12 @@ func updateVersions(on database: Database,
 func updateVersion(on database: Database,
                    version: Version,
                    manifest: Manifest,
-                   resolvedDependencies: [ResolvedDependency]) -> EventLoopFuture<Void> {
+                   resolvedDependencies: [ResolvedDependency]?) -> EventLoopFuture<Void> {
     version.packageName = manifest.name
-    version.resolvedDependencies = resolvedDependencies
+    if let resolvedDependencies = resolvedDependencies {
+        // Don't overwrite information provided by the build system unless it's a non-nil (i.e. valid) value
+        version.resolvedDependencies = resolvedDependencies
+    }
     version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
     version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
     version.toolsVersion = manifest.toolsVersion?.version

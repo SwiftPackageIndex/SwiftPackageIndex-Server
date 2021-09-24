@@ -623,7 +623,7 @@ class AnalyzerTests: AppTestCase {
         ])
         XCTAssertEqual(v.id, version.id)
         XCTAssertEqual(m.name, "SPI-Server")
-        XCTAssertEqual(d.map(\.packageName), ["1"])
+        XCTAssertEqual(d?.map(\.packageName), ["1"])
     }
 
     func test_getResolvedDependencies() throws {
@@ -680,7 +680,7 @@ class AnalyzerTests: AppTestCase {
         let (v, m, d) = try XCTUnwrap(versionsManifests.first)
         XCTAssertEqual(v, version)
         XCTAssertEqual(m.name, "SPI-Server")
-        XCTAssertEqual(d.map(\.packageName), ["1"])
+        XCTAssertEqual(d?.map(\.packageName), ["1"])
     }
     
     func test_updateVersion() throws {
@@ -697,13 +697,13 @@ class AnalyzerTests: AppTestCase {
                                 toolsVersion: .init(version: "5.0.0"))
         let dep = ResolvedDependency(packageName: "foo",
                                      repositoryURL: "http://foo.com")
-        
+
         // MUT
         _ = try updateVersion(on: app.db,
                               version: version,
                               manifest: manifest,
                               resolvedDependencies: [dep]).wait()
-        
+
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!
         XCTAssertEqual(v.packageName, "foo")
@@ -713,7 +713,37 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
         XCTAssertEqual(v.toolsVersion, "5.0.0")
     }
-    
+
+    func test_updateVersion_preserveDependencies() throws {
+        // Ensure we don't overwrite existing dependencies when update value is nil
+        // setup
+        let pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        let version = try Version(
+            package: pkg,
+            resolvedDependencies: [ResolvedDependency(packageName: "foo",
+                                                      repositoryURL: "")]
+        )
+        let manifest = Manifest(name: "foo",
+                                platforms: [.init(platformName: .ios, version: "11.0"),
+                                            .init(platformName: .macos, version: "10.10")],
+                                products: [],
+                                swiftLanguageVersions: [],
+                                targets: [],
+                                toolsVersion: .init(version: "5.0.0"))
+
+        // MUT
+        _ = try updateVersion(on: app.db,
+                              version: version,
+                              manifest: manifest,
+                              resolvedDependencies: nil).wait()
+
+        // read back and validate
+        let v = try Version.query(on: app.db).first().wait()!
+        XCTAssertEqual(v.resolvedDependencies.map(\.packageName),
+                       ["foo"])
+    }
+
     func test_updateVersion_reportUnknownPlatforms() throws {
         // Ensure we report encountering unhandled platforms
         // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/51

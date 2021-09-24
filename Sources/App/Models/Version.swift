@@ -105,6 +105,7 @@ final class Version: Model, Content {
          reference: Reference? = nil,
          releaseNotes: String? = nil,
          releaseNotesHTML: String? = nil,
+         resolvedDependencies: [ResolvedDependency] = [],
          supportedPlatforms: [Platform] = [],
          swiftVersions: [SwiftVersion] = [],
          toolsVersion: String? = nil,
@@ -119,6 +120,7 @@ final class Version: Model, Content {
         self.reference = reference
         self.releaseNotes = releaseNotes
         self.releaseNotesHTML = releaseNotesHTML
+        self.resolvedDependencies = resolvedDependencies
         self.supportedPlatforms = supportedPlatforms
         self.swiftVersions = swiftVersions
         self.toolsVersion = toolsVersion
