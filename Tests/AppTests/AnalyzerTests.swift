@@ -592,7 +592,8 @@ class AnalyzerTests: AppTestCase {
                         nil, nil])
     }
 
-    func test_getManifest() throws {
+    func test_getPackageInfo_package_version() throws {
+        // Tests getPackageInfo(package:version:)
         // setup
         let queue = DispatchQueue(label: "serial")
         var commands = [String]()
@@ -605,12 +606,15 @@ class AnalyzerTests: AppTestCase {
             }
             return ""
         }
+        Current.fileManager.contentsOfFile = { _ in
+            Data.mockPackageResolved(for: "1")
+        }
         let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try version.save(on: app.db).wait()
         
         // MUT
-        let (v, m, _) = try getManifest(package: pkg, version: version).get()
+        let (v, m, d) = try getPackageInfo(package: pkg, version: version).get()
         
         // validation
         XCTAssertEqual(commands, [
@@ -619,6 +623,7 @@ class AnalyzerTests: AppTestCase {
         ])
         XCTAssertEqual(v.id, version.id)
         XCTAssertEqual(m.name, "SPI-Server")
+        XCTAssertEqual(d.map(\.packageName), ["1"])
     }
 
     func test_getResolvedDependencies() throws {
@@ -634,7 +639,8 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(deps?.map(\.packageName), ["Foo"])
     }
 
-    func test_getManifests() throws {
+    func test_getPackageInfo_packageAndVersionsl() throws {
+        // Tests getPackageInfo(packageAndVersions:)
         // setup
         let queue = DispatchQueue(label: "serial")
         var commands = [String]()
@@ -647,6 +653,9 @@ class AnalyzerTests: AppTestCase {
             }
             return ""
         }
+        Current.fileManager.contentsOfFile = { _ in
+            Data.mockPackageResolved(for: "1")
+        }
         let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try version.save(on: app.db).wait()
@@ -658,7 +667,7 @@ class AnalyzerTests: AppTestCase {
         ]
         
         // MUT
-        let results = getManifests(packageAndVersions: packageAndVersions)
+        let results = getPackageInfo(packageAndVersions: packageAndVersions)
         
         // validation
         XCTAssertEqual(commands, [
@@ -668,9 +677,10 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(results.map(\.isSuccess), [false, true])
         let (_, versionsManifests) = try XCTUnwrap(results.last).get()
         XCTAssertEqual(versionsManifests.count, 1)
-        let (v, m, _) = try XCTUnwrap(versionsManifests.first)
+        let (v, m, d) = try XCTUnwrap(versionsManifests.first)
         XCTAssertEqual(v, version)
         XCTAssertEqual(m.name, "SPI-Server")
+        XCTAssertEqual(d.map(\.packageName), ["1"])
     }
     
     func test_updateVersion() throws {

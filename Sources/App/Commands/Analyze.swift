@@ -196,7 +196,7 @@ func analyze(client: Client,
                          packages: packages)
                 .flatMap { mergeReleaseInfo(on: tx, packageDeltas: $0) }
                 .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
-                .map { getManifests(packageAndVersions: $0) }
+                .map { getPackageInfo(packageAndVersions: $0) }
                 .flatMap { updateVersions(on: tx, packageResults: $0) }
                 .flatMap { updateProducts(on: tx, packageResults: $0) }
                 .flatMap { updateTargets(on: tx, packageResults: $0) }
@@ -589,15 +589,15 @@ func applyVersionDelta(on transaction: Database,
 }
 
 
-/// Get the package manifests for an array of `Package`s.
+/// Get package info (manifests, resolved dependencies) for an array of `Package`s.
 /// - Parameters:
 ///   - logger: `Logger` object
 ///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
 /// - Returns: results future including the `Manifest`s
-func getManifests(packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest, [ResolvedDependency])]), Error>] {
+func getPackageInfo(packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest, [ResolvedDependency])]), Error>] {
     packageAndVersions.map { result in
         result.flatMap { (pkg, versions) in
-            let m = versions.map { getManifest(package: pkg, version: $0) }
+            let m = versions.map { getPackageInfo(package: pkg, version: $0) }
             let successes = m.compactMap { try? $0.get() }
             if !versions.isEmpty && successes.isEmpty {
                 return .failure(AppError.noValidVersions(pkg.id, pkg.url))
@@ -628,13 +628,12 @@ func dumpPackage(at path: String) throws -> Manifest {
 }
 
 
-/// Get `Manifest` for a given `Package` at version `Version`.
+/// Get `Manifest` and `[ResolvedDepedency]` for a given `Package` at version `Version`.
 /// - Parameters:
 ///   - package: `Package` to analyse
 ///   - version: `Version` to check out
 /// - Returns: `Result` with `Manifest` data
-// TODO: rename
-func getManifest(package: Package, version: Version) -> Result<(Version, Manifest, [ResolvedDependency]), Error> {
+func getPackageInfo(package: Package, version: Version) -> Result<(Version, Manifest, [ResolvedDependency]), Error> {
     Result {
         // check out version in cache directory
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
