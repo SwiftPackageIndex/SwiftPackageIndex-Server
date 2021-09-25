@@ -36,7 +36,7 @@ enum AppError: LocalizedError {
             case let .invalidPackageUrl(id, value):
                 return "Invalid packge URL: \(value) (id: \(id))"
             case let .invalidPackageCachePath(id, value):
-                return "Invalid packge cache path: \(value) (id: \(id)"
+                return "Invalid packge cache path: \(value) (id: \(id))"
             case let .invalidRevision(id, value):
                 return "Invalid revision: \(value ?? "nil") (id: \(id))"
             case let .metadataRequestFailed(id, status, uri):

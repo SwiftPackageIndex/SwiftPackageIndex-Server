@@ -45,10 +45,18 @@ class AnalyzerTests: AppTestCase {
                        stars: 100).save(on: app.db).wait()
         var checkoutDir: String? = nil
         Current.fileManager.fileExists = { path in
-            // let the check for the second repo checkout path succedd to simulate pull
+            // let the check for the second repo checkout path succeed to simulate pull
             if let outDir = checkoutDir, path == "\(outDir)/github.com-foo-2" { return true }
             if path.hasSuffix("Package.swift") { return true }
+            if path.hasSuffix("Package.resolved") { return true }
             return false
+        }
+        Current.fileManager.contentsOfFile = { path in
+            if path.hasSuffix("github.com-foo-1/Package.resolved") {
+                return .mockPackageResolved(for: "foo-1")
+            } else {
+                throw TestError.fileNotFound(path)
+            }
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
         Current.git = .live
@@ -150,6 +158,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(sortedVersions1.map(\.reference?.description), ["main", "1.0.0", "1.1.1"])
         XCTAssertEqual(sortedVersions1.map(\.latest), [.defaultBranch, nil, .release])
         XCTAssertEqual(sortedVersions1.map(\.releaseNotes), [nil, "rel 1.0.0", nil])
+        XCTAssertEqual(sortedVersions1.flatMap(\.resolvedDependencies).map(\.packageName), ["foo-1", "foo-1", "foo-1"])
 
         let pkg2 = try Package.query(on: app.db).filter(by: urls[1].url).with(\.$versions).first().wait()!
         XCTAssertEqual(pkg2.status, .ok)
@@ -158,6 +167,7 @@ class AnalyzerTests: AppTestCase {
         let sortedVersions2 = pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
         XCTAssertEqual(sortedVersions2.map(\.reference?.description), ["main", "2.0.0", "2.1.0"])
         XCTAssertEqual(sortedVersions2.map(\.latest), [.defaultBranch, nil, .release])
+        XCTAssertEqual(sortedVersions2.flatMap(\.resolvedDependencies).map(\.packageName), [])
 
         // validate products
         // (2 packages with 3 versions with 1 product each = 6 products)
@@ -582,7 +592,8 @@ class AnalyzerTests: AppTestCase {
                         nil, nil])
     }
 
-    func test_getManifest() throws {
+    func test_getPackageInfo_package_version() throws {
+        // Tests getPackageInfo(package:version:)
         // setup
         let queue = DispatchQueue(label: "serial")
         var commands = [String]()
@@ -595,12 +606,15 @@ class AnalyzerTests: AppTestCase {
             }
             return ""
         }
+        Current.fileManager.contentsOfFile = { _ in
+            Data.mockPackageResolved(for: "1")
+        }
         let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try version.save(on: app.db).wait()
         
         // MUT
-        let (v, m) = try getManifest(package: pkg, version: version).get()
+        let (v, m, d) = try getPackageInfo(package: pkg, version: version).get()
         
         // validation
         XCTAssertEqual(commands, [
@@ -609,9 +623,24 @@ class AnalyzerTests: AppTestCase {
         ])
         XCTAssertEqual(v.id, version.id)
         XCTAssertEqual(m.name, "SPI-Server")
+        XCTAssertEqual(d?.map(\.packageName), ["1"])
     }
-    
-    func test_getManifests() throws {
+
+    func test_getResolvedDependencies() throws {
+        // setup
+        Current.fileManager.contentsOfFile = { _ in
+            Data.mockPackageResolved(for: "Foo")
+        }
+
+        // MUT
+        let deps = getResolvedDependencies(at: "path")
+
+        // validate
+        XCTAssertEqual(deps?.map(\.packageName), ["Foo"])
+    }
+
+    func test_getPackageInfo_packageAndVersionsl() throws {
+        // Tests getPackageInfo(packageAndVersions:)
         // setup
         let queue = DispatchQueue(label: "serial")
         var commands = [String]()
@@ -623,6 +652,9 @@ class AnalyzerTests: AppTestCase {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             return ""
+        }
+        Current.fileManager.contentsOfFile = { _ in
+            Data.mockPackageResolved(for: "1")
         }
         let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
@@ -635,7 +667,7 @@ class AnalyzerTests: AppTestCase {
         ]
         
         // MUT
-        let results = getManifests(packageAndVersions: packageAndVersions)
+        let results = getPackageInfo(packageAndVersions: packageAndVersions)
         
         // validation
         XCTAssertEqual(commands, [
@@ -645,9 +677,10 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(results.map(\.isSuccess), [false, true])
         let (_, versionsManifests) = try XCTUnwrap(results.last).get()
         XCTAssertEqual(versionsManifests.count, 1)
-        let (v, m) = try XCTUnwrap(versionsManifests.first)
+        let (v, m, d) = try XCTUnwrap(versionsManifests.first)
         XCTAssertEqual(v, version)
         XCTAssertEqual(m.name, "SPI-Server")
+        XCTAssertEqual(d?.map(\.packageName), ["1"])
     }
     
     func test_updateVersion() throws {
@@ -662,18 +695,55 @@ class AnalyzerTests: AppTestCase {
                                 swiftLanguageVersions: ["1", "2", "3.0.0"],
                                 targets: [],
                                 toolsVersion: .init(version: "5.0.0"))
-        
+        let dep = ResolvedDependency(packageName: "foo",
+                                     repositoryURL: "http://foo.com")
+
         // MUT
-        _ = try updateVersion(on: app.db, version: version, manifest: manifest).wait()
-        
+        _ = try updateVersion(on: app.db,
+                              version: version,
+                              manifest: manifest,
+                              resolvedDependencies: [dep]).wait()
+
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!
         XCTAssertEqual(v.packageName, "foo")
+        XCTAssertEqual(v.resolvedDependencies.map(\.packageName),
+                       ["foo"])
         XCTAssertEqual(v.swiftVersions, ["1", "2", "3.0.0"].asSwiftVersions)
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
         XCTAssertEqual(v.toolsVersion, "5.0.0")
     }
-    
+
+    func test_updateVersion_preserveDependencies() throws {
+        // Ensure we don't overwrite existing dependencies when update value is nil
+        // setup
+        let pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        let version = try Version(
+            package: pkg,
+            resolvedDependencies: [ResolvedDependency(packageName: "foo",
+                                                      repositoryURL: "")]
+        )
+        let manifest = Manifest(name: "foo",
+                                platforms: [.init(platformName: .ios, version: "11.0"),
+                                            .init(platformName: .macos, version: "10.10")],
+                                products: [],
+                                swiftLanguageVersions: [],
+                                targets: [],
+                                toolsVersion: .init(version: "5.0.0"))
+
+        // MUT
+        _ = try updateVersion(on: app.db,
+                              version: version,
+                              manifest: manifest,
+                              resolvedDependencies: nil).wait()
+
+        // read back and validate
+        let v = try Version.query(on: app.db).first().wait()!
+        XCTAssertEqual(v.resolvedDependencies.map(\.packageName),
+                       ["foo"])
+    }
+
     func test_updateVersion_reportUnknownPlatforms() throws {
         // Ensure we report encountering unhandled platforms
         // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/51
@@ -1053,7 +1123,34 @@ struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
 
 
 private enum TestError: Error {
+    case fileNotFound(String)
     case simulatedCheckoutError
     case simulatedFetchError
     case unknownCommand
+}
+
+
+private extension Data {
+    static func mockPackageResolved(for packageName: String) -> Self {
+        .init(
+            #"""
+            {
+              "object": {
+                "pins": [
+                  {
+                    "package": "\#(packageName)",
+                    "repositoryURL": "https://github.com/foo/\#(packageName)",
+                    "state": {
+                      "branch": null,
+                      "revision": "fca5fe8e7b8218d563f99daadffd86dbf11dd98b",
+                      "version": "1.2.3"
+                    }
+                  }
+                ],
+                "version": 1
+              }
+            }
+            """#.utf8
+        )
+    }
 }

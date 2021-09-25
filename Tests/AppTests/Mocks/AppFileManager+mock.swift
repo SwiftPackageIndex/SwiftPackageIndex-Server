@@ -23,6 +23,7 @@ extension App.FileManager {
         .init(
             attributesOfItem: { _ in [:] },
             contentsOfDirectory: { _ in [] },
+            contentsOfFile: { _ in .init() },
             checkoutsDirectory: { DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
             createDirectory: { path, _, _ in
                 print("ℹ️ MOCK: imagine we're creating a directory at path: \(path)")

@@ -196,7 +196,7 @@ func analyze(client: Client,
                          packages: packages)
                 .flatMap { mergeReleaseInfo(on: tx, packageDeltas: $0) }
                 .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
-                .map { getManifests(packageAndVersions: $0) }
+                .map { getPackageInfo(packageAndVersions: $0) }
                 .flatMap { updateVersions(on: tx, packageResults: $0) }
                 .flatMap { updateProducts(on: tx, packageResults: $0) }
                 .flatMap { updateTargets(on: tx, packageResults: $0) }
@@ -589,15 +589,15 @@ func applyVersionDelta(on transaction: Database,
 }
 
 
-/// Get the package manifests for an array of `Package`s.
+/// Get package info (manifests, resolved dependencies) for an array of `Package`s.
 /// - Parameters:
 ///   - logger: `Logger` object
 ///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
 /// - Returns: results future including the `Manifest`s
-func getManifests(packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest)]), Error>] {
-    packageAndVersions.map { result -> Result<(Package, [(Version, Manifest)]), Error> in
-        result.flatMap { (pkg, versions) -> Result<(Package, [(Version, Manifest)]), Error> in
-            let m = versions.map { getManifest(package: pkg, version: $0) }
+func getPackageInfo(packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest, [ResolvedDependency]?)]), Error>] {
+    packageAndVersions.map { result in
+        result.flatMap { (pkg, versions) in
+            let m = versions.map { getPackageInfo(package: pkg, version: $0) }
             let successes = m.compactMap { try? $0.get() }
             if !versions.isEmpty && successes.isEmpty {
                 return .failure(AppError.noValidVersions(pkg.id, pkg.url))
@@ -628,12 +628,12 @@ func dumpPackage(at path: String) throws -> Manifest {
 }
 
 
-/// Get `Manifest` for a given `Package` at version `Version`.
+/// Get `Manifest` and `[ResolvedDepedency]` for a given `Package` at version `Version`.
 /// - Parameters:
 ///   - package: `Package` to analyse
 ///   - version: `Version` to check out
 /// - Returns: `Result` with `Manifest` data
-func getManifest(package: Package, version: Version) -> Result<(Version, Manifest), Error> {
+func getPackageInfo(package: Package, version: Version) -> Result<(Version, Manifest, [ResolvedDependency]?), Error> {
     Result {
         // check out version in cache directory
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
@@ -647,11 +647,53 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 
         do {
             let manifest = try dumpPackage(at: cacheDir)
-            return (version, manifest)
+            let resolvedDependencies = getResolvedDependencies(at: cacheDir)
+            return (version, manifest, resolvedDependencies)
         } catch let AppError.invalidRevision(_, msg) {
             // re-package error to attach version.id
             throw AppError.invalidRevision(version.id, msg)
         }
+    }
+}
+
+
+func getResolvedDependencies(at path: String) -> [ResolvedDependency]? {
+    //    object:
+    //      pins:
+    //        - package: String
+    //          repositoryURL: URL
+    //          state:
+    //            branch: String?
+    //            revision: CommitHash
+    //            version: SemVer?
+    //        - ...
+    //      version: 1
+    struct PackageResolved: Decodable {
+        var object: Object
+
+        struct Object: Decodable {
+            var pins: [Pin]
+
+            struct Pin: Decodable {
+                var package: String
+                var repositoryURL: URL
+            }
+        }
+    }
+
+    let filePath = path + "/Package.resolved"
+    guard Current.fileManager.fileExists(atPath: filePath),
+          let json = try? Current.fileManager.contentsOfFile(filePath),
+          let packageResolved = try? JSONDecoder()
+            .decode(PackageResolved.self, from: json)
+    else {
+        return nil
+    }
+    return packageResolved.object.pins.map {
+        ResolvedDependency(
+            packageName: $0.package,
+            repositoryURL: $0.repositoryURL.absoluteString
+        )
     }
 }
 
@@ -662,15 +704,25 @@ func getManifest(package: Package, version: Version) -> Result<(Version, Manifes
 ///   - packageResults: results to process, containing the versions and their manifests
 /// - Returns: the input data for further processing, wrapped in a future
 func updateVersions(on database: Database,
-                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
-    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
+                    packageResults: [Result<(Package, [(Version, Manifest, [ResolvedDependency]?)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+    packageResults.whenAllComplete(on: database.eventLoop) { (pkg, pkgInfo) in
         EventLoopFuture.andAllComplete(
-            versionsAndManifests.map { version, manifest in
-                updateVersion(on: database, version: version, manifest: manifest)
+            pkgInfo.map { version, manifest, resolvedDependencies in
+                updateVersion(on: database,
+                              version: version,
+                              manifest: manifest,
+                              resolvedDependencies: resolvedDependencies)
             },
             on: database.eventLoop
         )
-        .transform(to: (pkg, versionsAndManifests))
+            .transform(
+                to: (
+                    pkg,
+                    pkgInfo.map { version, manifest, _ in
+                        (version, manifest)
+                    }
+                )
+            )
     }
 }
 
@@ -681,8 +733,15 @@ func updateVersions(on database: Database,
 ///   - version: version to update
 ///   - manifest: `Manifest` data
 /// - Returns: future
-func updateVersion(on database: Database, version: Version, manifest: Manifest) -> EventLoopFuture<Void> {
+func updateVersion(on database: Database,
+                   version: Version,
+                   manifest: Manifest,
+                   resolvedDependencies: [ResolvedDependency]?) -> EventLoopFuture<Void> {
     version.packageName = manifest.name
+    if let resolvedDependencies = resolvedDependencies {
+        // Don't overwrite information provided by the build system unless it's a non-nil (i.e. valid) value
+        version.resolvedDependencies = resolvedDependencies
+    }
     version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
     version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
     version.toolsVersion = manifest.toolsVersion?.version
