@@ -21,6 +21,9 @@ let package = Package(
     platforms: [
         .macOS(.v10_15)
     ],
+    products: [
+        .library(name: "DependencyResolution", targets: ["DependencyResolution"])
+    ],
     dependencies: [
         // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0-rc"),
