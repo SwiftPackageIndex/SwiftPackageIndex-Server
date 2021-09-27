@@ -41,6 +41,7 @@ let package = Package(
     ],
     targets: [
         .target(name: "App", dependencies: [
+            "DependencyResolution",
             .product(name: "Fluent", package: "fluent"),
             .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             .product(name: "Vapor", package: "vapor"),
@@ -53,6 +54,7 @@ let package = Package(
             "SwiftSoup",
             .product(name: "PackageCollectionsModel", package: "SwiftPM")
         ]),
+        .target(name: "DependencyResolution"),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [
             .target(name: "App"),

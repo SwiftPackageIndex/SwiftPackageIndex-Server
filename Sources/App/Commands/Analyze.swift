@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import DependencyResolution
 import Fluent
 import Vapor
 import ShellOut
@@ -647,53 +648,13 @@ func getPackageInfo(package: Package, version: Version) -> Result<(Version, Mani
 
         do {
             let manifest = try dumpPackage(at: cacheDir)
-            let resolvedDependencies = getResolvedDependencies(at: cacheDir)
+            let resolvedDependencies = getResolvedDependencies(Current.fileManager,
+                                                               at: cacheDir)
             return (version, manifest, resolvedDependencies)
         } catch let AppError.invalidRevision(_, msg) {
             // re-package error to attach version.id
             throw AppError.invalidRevision(version.id, msg)
         }
-    }
-}
-
-
-func getResolvedDependencies(at path: String) -> [ResolvedDependency]? {
-    //    object:
-    //      pins:
-    //        - package: String
-    //          repositoryURL: URL
-    //          state:
-    //            branch: String?
-    //            revision: CommitHash
-    //            version: SemVer?
-    //        - ...
-    //      version: 1
-    struct PackageResolved: Decodable {
-        var object: Object
-
-        struct Object: Decodable {
-            var pins: [Pin]
-
-            struct Pin: Decodable {
-                var package: String
-                var repositoryURL: URL
-            }
-        }
-    }
-
-    let filePath = path + "/Package.resolved"
-    guard Current.fileManager.fileExists(atPath: filePath),
-          let json = try? Current.fileManager.contentsOfFile(filePath),
-          let packageResolved = try? JSONDecoder()
-            .decode(PackageResolved.self, from: json)
-    else {
-        return nil
-    }
-    return packageResolved.object.pins.map {
-        ResolvedDependency(
-            packageName: $0.package,
-            repositoryURL: $0.repositoryURL.absoluteString
-        )
     }
 }
 
@@ -941,3 +902,6 @@ private extension Array where Element == Result<(Package,[(Version, Manifest)]),
         }
     }
 }
+
+
+extension App.FileManager: DependencyResolution.FileManager { }
