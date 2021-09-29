@@ -14,6 +14,7 @@
 
 @testable import App
 
+import DependencyResolution
 import Fluent
 import ShellOut
 import SnapshotTesting
@@ -51,11 +52,11 @@ class AnalyzerTests: AppTestCase {
             if path.hasSuffix("Package.resolved") { return true }
             return false
         }
-        Current.fileManager.contentsOfFile = { path in
+        Current.fileManager.contents = { path in
             if path.hasSuffix("github.com-foo-1/Package.resolved") {
                 return .mockPackageResolved(for: "foo-1")
             } else {
-                throw TestError.fileNotFound(path)
+                return nil
             }
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
@@ -606,7 +607,7 @@ class AnalyzerTests: AppTestCase {
             }
             return ""
         }
-        Current.fileManager.contentsOfFile = { _ in
+        Current.fileManager.contents = { _ in
             Data.mockPackageResolved(for: "1")
         }
         let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
@@ -628,12 +629,12 @@ class AnalyzerTests: AppTestCase {
 
     func test_getResolvedDependencies() throws {
         // setup
-        Current.fileManager.contentsOfFile = { _ in
+        Current.fileManager.contents = { _ in
             Data.mockPackageResolved(for: "Foo")
         }
 
         // MUT
-        let deps = getResolvedDependencies(at: "path")
+        let deps = getResolvedDependencies(Current.fileManager, at: "path")
 
         // validate
         XCTAssertEqual(deps?.map(\.packageName), ["Foo"])
@@ -653,7 +654,7 @@ class AnalyzerTests: AppTestCase {
             }
             return ""
         }
-        Current.fileManager.contentsOfFile = { _ in
+        Current.fileManager.contents = { _ in
             Data.mockPackageResolved(for: "1")
         }
         let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
@@ -1123,7 +1124,6 @@ struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
 
 
 private enum TestError: Error {
-    case fileNotFound(String)
     case simulatedCheckoutError
     case simulatedFetchError
     case unknownCommand
