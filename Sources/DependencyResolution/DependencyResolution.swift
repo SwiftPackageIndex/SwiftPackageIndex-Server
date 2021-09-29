@@ -58,7 +58,8 @@ public func getResolvedDependencies(_ fileManager: FileManager = Foundation.File
         }
     }
 
-    let filePath = path + "/Package.resolved"
+    let filePath = URL(fileURLWithPath: path)
+        .appendingPathComponent("Package.resolved").path
     guard fileManager.fileExists(atPath: filePath),
           let json = fileManager.contents(atPath: filePath),
           let packageResolved = try? JSONDecoder()
