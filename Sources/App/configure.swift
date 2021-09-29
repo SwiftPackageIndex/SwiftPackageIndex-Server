@@ -160,6 +160,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 033 - add resolved_dependencies to versions
         app.migrations.add(UpdateVersionAddResolvedDependencies())
     }
+    do {
+        app.migrations.add(UpdateVersionResolvedDependenciesNullable())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
