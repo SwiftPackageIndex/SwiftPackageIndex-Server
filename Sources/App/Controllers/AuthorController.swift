@@ -22,6 +22,7 @@ struct AuthorController {
     private func query(on database: Database, owner: String) -> EventLoopFuture<[Package]> {
         Package.query(on: database)
             .with(\.$repositories)
+            .with(\.$versions)
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
             .filter(
                 DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
