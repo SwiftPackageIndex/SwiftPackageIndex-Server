@@ -14,7 +14,7 @@
 
 import Foundation
 
-public struct ResolvedDependency: Codable {
+public struct ResolvedDependency: Codable, Equatable {
     public var packageName: String
     public var repositoryURL: String
 
