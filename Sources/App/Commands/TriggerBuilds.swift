@@ -322,6 +322,7 @@ func trimBuilds(on database: Database) -> EventLoopFuture<Int> {
         var id: Build.Id
     }
 
+    #warning("add migration for `pending` -> `triggered` for existing builds")
     return db.raw("""
         DELETE
         FROM builds b
