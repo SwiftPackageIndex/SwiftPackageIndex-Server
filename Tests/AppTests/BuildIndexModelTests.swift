@@ -49,11 +49,11 @@ class BuildIndexModelTests: AppTestCase {
         // - 1 x .triggered
         // - 1 x .timeout
         // - 1 x .infrastructureError
-        // -> 5 completed per Swift version (4 x .ok + .failed)
-        // -> 15 completed per package version
+        // -> 6 completed per Swift version (4 x .ok + .failed + .timeout)
+        // -> 18 completed per package version
         //    (there are 3 versions, default branch, release, and beta)
-        // -> 45 completed in total
-        XCTAssertEqual(m.completedBuildCount, 45)
+        // -> 54 completed in total
+        XCTAssertEqual(m.completedBuildCount, 54)
     }
 
     func test_packageURL() throws {

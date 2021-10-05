@@ -117,12 +117,12 @@ extension Build {
         case triggered
         case timeout
 
-        var isPending: Bool {
+        var isCompleted: Bool {
             switch self {
                 case .ok, .failed, .timeout:
-                    return false
-                case .infrastructureError, .triggered:
                     return true
+                case .infrastructureError, .triggered:
+                    return false
             }
         }
     }
@@ -280,7 +280,7 @@ extension Array where Element == Build {
     }
 
     var nonePending: Bool {
-        allSatisfy { !$0.status.isPending }
+        allSatisfy { $0.status.isCompleted }
     }
     
     var anyPending: Bool {

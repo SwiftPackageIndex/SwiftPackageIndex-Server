@@ -70,7 +70,7 @@
         <div>
           <h2>Build Results</h2>
           <p>
-            <strong>45</strong> completed builds for 
+            <strong>54</strong> completed builds for 
             <a href="/foo/foobar">foobar</a>.
           </p>
           <p>If you are the author of this package and see unexpected build failures, please check the 

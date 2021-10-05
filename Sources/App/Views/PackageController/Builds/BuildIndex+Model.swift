@@ -48,7 +48,7 @@ extension BuildIndex {
             self.owner = owner
             self.repositoryName = repositoryName
             self.packageName = packageName
-            self.completedBuildCount = buildGroups.reduce(0) { $0 + $1.builds.filter(\.completed).count }
+            self.completedBuildCount = buildGroups.reduce(0) { $0 + $1.builds.filter(\.isCompleted).count }
             buildMatrix = .init(buildGroups: buildGroups)
         }
     }
@@ -82,14 +82,7 @@ extension BuildIndex.Model {
         var status: App.Build.Status
         var swiftVersion: App.SwiftVersion
 
-        var completed: Bool {
-            switch status {
-                case .ok, .failed:
-                    return true
-                case .triggered, .timeout, .infrastructureError:
-                    return false
-            }
-        }
+        var isCompleted: Bool { status.isCompleted }
 
         init?(_ build: App.Build) {
             guard let id = build.id else { return nil }
