@@ -42,7 +42,18 @@ class BuildIndexModelTests: AppTestCase {
 
     func test_completedBuildCount() throws {
         let m = BuildIndex.Model.mock
-        XCTAssertEqual(m.completedBuildCount, 71)  // 72 total with one pending
+        // mock contains build for three Swift versions, 5.3, 5.4, 5.5
+        // each is set up the same:
+        // - 4 x .ok
+        // - 1 x .failed
+        // - 1 x .triggered
+        // - 1 x .timeout
+        // - 1 x .infrastructureError
+        // -> 5 completed per Swift version (4 x .ok + .failed)
+        // -> 15 completed per package version
+        //    (there are 3 versions, default branch, release, and beta)
+        // -> 45 completed in total
+        XCTAssertEqual(m.completedBuildCount, 45)
     }
 
     func test_packageURL() throws {
@@ -158,7 +169,7 @@ class BuildIndexModelTests: AppTestCase {
             <div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div>
             """)
         XCTAssertEqual(BuildCell("1.2.3", .release).node.render(), """
-            <div class="unknown"><span>Build Pending</span></div>
+            <div class="unknown"><span>Unknown</span></div>
             """)
     }
 
@@ -182,7 +193,7 @@ class BuildIndexModelTests: AppTestCase {
         let cells = bi.cells
 
         XCTAssertEqual(cells.render(), """
-            <div class="result"><div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div><div class="unknown"><span>Build Pending</span></div><div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div></div>
+            <div class="result"><div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div><div class="unknown"><span>Unknown</span></div><div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div></div>
             """)
 
         // MUT - altogether now
@@ -205,7 +216,7 @@ class BuildIndexModelTests: AppTestCase {
                 .div(
                     .class("result"),
                     .div(.class("succeeded"), .a(.href("/builds/\(id.uuidString)"), .text("Build Succeeded"))),
-                    .div(.class("unknown"), .span(.text("Build Pending"))),
+                    .div(.class("unknown"), .span(.text("Unknown"))),
                     .div(.class("failed"), .a(.href("/builds/\(id.uuidString)"), .text("Build Failed")))
                 )
             )
