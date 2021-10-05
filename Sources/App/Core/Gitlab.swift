@@ -55,12 +55,20 @@ extension Gitlab.Builder {
 
     static let branch = "main"
 
+    struct Response: Content, Codable {
+        var webUrl: String
+
+        enum CodingKeys: String, CodingKey {
+            case webUrl = "web_url"
+        }
+    }
+
     static func triggerBuild(client: Client,
                              cloneURL: String,
                              platform: Build.Platform,
                              reference: Reference,
                              swiftVersion: SwiftVersion,
-                             versionID: Version.Id) -> EventLoopFuture<HTTPStatus> {
+                             versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse> {
         guard let pipelineToken = Current.gitlabPipelineToken(),
               let builderToken = Current.builderToken()
         else { return client.eventLoop.future(error: Gitlab.Error.missingToken) }
@@ -82,7 +90,10 @@ extension Gitlab.Builder {
                     ])
                 try req.query.encode(data)
             }
-        return req.map { $0.status }
+        return req.flatMapThrowing {
+            ($0.status, try $0.content.decode(Response.self).webUrl)
+        }
+        .map(Build.TriggerResponse.init(status:webUrl:))
     }
 
     struct PostDTO: Codable, Equatable {

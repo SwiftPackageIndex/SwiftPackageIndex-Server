@@ -194,8 +194,9 @@ func triggerBuildsUnchecked(on database: Database,
                           platform: pair.platform,
                           swiftVersion: pair.swiftVersion,
                           versionId: trigger.versionId)
-                .flatMap { _ in
+                .flatMap { response in
                     Build(versionId: trigger.versionId,
+                          jobUrl: response.webUrl,
                           platform: pair.platform,
                           status: .triggered,
                           swiftVersion: pair.swiftVersion)

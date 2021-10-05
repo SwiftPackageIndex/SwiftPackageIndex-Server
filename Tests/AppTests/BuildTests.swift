@@ -132,6 +132,9 @@ class BuildTests: AppTestCase {
         let client = MockClient { req, res in
             called = true
             res.status = .created
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
             // validate request data
             XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
                            Gitlab.Builder.PostDTO(
@@ -157,7 +160,7 @@ class BuildTests: AppTestCase {
         
         // validate
         XCTAssertTrue(called)
-        XCTAssertEqual(res, .created)
+        XCTAssertEqual(res.status, .created)
     }
     
     func test_upsert() throws {

@@ -148,6 +148,9 @@ class BuildTriggerTests: AppTestCase {
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.append(query)
             }
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
         }
 
         let versionId = UUID()
@@ -178,6 +181,7 @@ class BuildTriggerTests: AppTestCase {
         try v?.$builds.load(on: app.db).wait()
         XCTAssertEqual(v?.builds.count, 1)
         XCTAssertEqual(v?.builds.map(\.status), [.triggered])
+        XCTAssertEqual(v?.builds.map(\.jobUrl), ["http://web_url"])
     }
 
     func test_triggerBuildsUnchecked_supported() throws {
@@ -197,6 +201,9 @@ class BuildTriggerTests: AppTestCase {
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.append(query)
             }
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
         }
 
         let pkgId = UUID()
@@ -261,7 +268,12 @@ class BuildTriggerTests: AppTestCase {
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
         var triggerCount = 0
-        let client = MockClient { _, _ in triggerCount += 1 }
+        let client = MockClient { _, res in
+            triggerCount += 1
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
 
         do {  // fist run: we are at capacity and should not be triggering more builds
             Current.getStatusCount = { _, _ in self.future(300) }
@@ -317,7 +329,12 @@ class BuildTriggerTests: AppTestCase {
             Current.getStatusCount = { _, _ in self.future(300) }
 
             var triggerCount = 0
-            let client = MockClient { _, _ in triggerCount += 1 }
+            let client = MockClient { _, res in
+                triggerCount += 1
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+            }
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -353,7 +370,12 @@ class BuildTriggerTests: AppTestCase {
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
         var triggerCount = 0
-        let client = MockClient { _, _ in triggerCount += 1 }
+        let client = MockClient { _, res in
+            triggerCount += 1
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
         Current.getStatusCount = { _, _ in self.future(299 + triggerCount) }
 
         let pkgIds = [UUID(), UUID()]
@@ -414,7 +436,12 @@ class BuildTriggerTests: AppTestCase {
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
         var triggerCount = 0
-        let client = MockClient { _, _ in triggerCount += 1 }
+        let client = MockClient { _, res in
+            triggerCount += 1
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
 
         do {  // confirm that the off switch prevents triggers
             Current.allowBuildTriggers = { false }
@@ -471,7 +498,12 @@ class BuildTriggerTests: AppTestCase {
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
         var triggerCount = 0
-        let client = MockClient { _, _ in triggerCount += 1 }
+        let client = MockClient { _, res in
+            triggerCount += 1
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
 
         do {  // confirm that bad luck prevents triggers
             Current.random = { _ in 0.05 }  // rolling a 0.05 ... so close!
