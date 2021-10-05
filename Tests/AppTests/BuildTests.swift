@@ -16,6 +16,7 @@
 
 import Fluent
 import PostgresNIO
+import SQLKit
 import XCTVapor
 
 
@@ -380,6 +381,37 @@ class BuildTests: AppTestCase {
         XCTAssertEqual(count, 1)
         let builds = try Build.query(on: app.db).all().wait()
         XCTAssertEqual(builds.map(\.platform), [.ios, .tvos])
+    }
+
+    func test_pending_to_triggered_migration() throws {
+        // setup
+        let p = Package(url: "1")
+        try p.save(on: app.db).wait()
+        let v = try Version(package: p, latest: .defaultBranch)
+        try v.save(on: app.db).wait()
+        // save a Build with status 'triggered'
+        try Build(id: .id0, version: v, platform: .ios, status: .triggered, swiftVersion: .v5_5).save(on: app.db).wait()
+
+        // MUT - test roll back to previous schema, migrating 'triggered' -> 'pending'
+        try UpdateBuildPendingToTriggered().revert(on: app.db).wait()
+
+        do {  // validate
+            struct Row: Codable, Equatable {
+                var status: String
+            }
+            let result = try (app.db as! SQLDatabase)
+                .raw("SELECT status FROM builds")
+                .all(decoding: Row.self)
+                .wait()
+            XCTAssertEqual(result, [.init(status: "pending")])
+        }
+
+        // MUT - test migrating 'pending' -> 'triggered'
+        try UpdateBuildPendingToTriggered().prepare(on: app.db).wait()
+
+        // validate
+        let b = try XCTUnwrap(Build.find(.id0, on: app.db).wait())
+        XCTAssertEqual(b.status, .triggered)
     }
 
 }
