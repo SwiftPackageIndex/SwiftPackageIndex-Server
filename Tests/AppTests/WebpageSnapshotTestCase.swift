@@ -14,6 +14,7 @@
 
 @testable import App
 
+import SnapshotTesting
 import XCTVapor
 
 
@@ -22,6 +23,8 @@ class WebpageSnapshotTestCase: SnapshotTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()
+
+        SnapshotTesting.diffTool = "ksdiff"
 
         try XCTSkipIf((Environment.get("SKIP_SNAPSHOTS") ?? "false") == "true")
         Current.date = { Date(timeIntervalSince1970: 0) }

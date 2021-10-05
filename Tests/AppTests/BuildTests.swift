@@ -253,7 +253,11 @@ class BuildTests: AppTestCase {
         }
         // MUT & verification
         XCTAssertTrue([mkBuild(.ok), mkBuild(.failed)].nonePending)
-        XCTAssertFalse([mkBuild(.ok), mkBuild(.pending)].nonePending)
+        XCTAssertFalse([mkBuild(.ok), mkBuild(.triggered)].nonePending)
+        // timeouts will not be retried - therefore they are not pending
+        XCTAssertTrue([mkBuild(.ok), mkBuild(.timeout)].nonePending)
+        // infrastructure errors _will_ be retried - they are pending
+        XCTAssertFalse([mkBuild(.ok), mkBuild(.infrastructureError)].nonePending)
     }
 
     func test_anyPending() throws {
@@ -266,8 +270,12 @@ class BuildTests: AppTestCase {
             return try! Build(version: v, platform: p, status: status, swiftVersion: sv)
         }
         // MUT & verification
-        XCTAssertTrue([mkBuild(.ok), mkBuild(.pending)].anyPending)
         XCTAssertFalse([mkBuild(.ok), mkBuild(.failed)].anyPending)
+        XCTAssertTrue([mkBuild(.ok), mkBuild(.triggered)].anyPending)
+        // timeouts will not be retried - therefore they are not pending
+        XCTAssertTrue([mkBuild(.ok), mkBuild(.timeout)].nonePending)
+        // infrastructure errors _will_ be retried - they are pending
+        XCTAssertFalse([mkBuild(.ok), mkBuild(.infrastructureError)].nonePending)
     }
 
     func test_buildStatus() throws {
@@ -283,9 +291,9 @@ class BuildTests: AppTestCase {
         }
         // MUT & verification
         XCTAssertEqual([mkBuild(.ok), mkBuild(.failed)].buildStatus, .compatible)
-        XCTAssertEqual([mkBuild(.pending), mkBuild(.pending)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuild(.failed), mkBuild(.pending)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuild(.ok), mkBuild(.pending)].buildStatus, .compatible)
+        XCTAssertEqual([mkBuild(.triggered), mkBuild(.triggered)].buildStatus, .unknown)
+        XCTAssertEqual([mkBuild(.failed), mkBuild(.triggered)].buildStatus, .unknown)
+        XCTAssertEqual([mkBuild(.ok), mkBuild(.triggered)].buildStatus, .compatible)
     }
 
     func test_delete_by_versionId() throws {

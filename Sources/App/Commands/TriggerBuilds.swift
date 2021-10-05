@@ -197,7 +197,7 @@ func triggerBuildsUnchecked(on database: Database,
                 .flatMap { _ in
                     Build(versionId: trigger.versionId,
                           platform: pair.platform,
-                          status: .pending,
+                          status: .triggered,
                           swiftVersion: pair.swiftVersion)
                         .create(on: database)
                 }

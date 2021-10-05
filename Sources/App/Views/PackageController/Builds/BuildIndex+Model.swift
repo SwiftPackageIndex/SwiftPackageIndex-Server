@@ -82,7 +82,14 @@ extension BuildIndex.Model {
         var status: App.Build.Status
         var swiftVersion: App.SwiftVersion
 
-        var completed: Bool { status != .pending }
+        var completed: Bool {
+            switch status {
+                case .ok, .failed:
+                    return true
+                case .triggered, .timeout, .infrastructureError:
+                    return false
+            }
+        }
 
         init?(_ build: App.Build) {
             guard let id = build.id else { return nil }
@@ -159,10 +166,10 @@ extension BuildIndex.Model {
                     return .div(.class("failed"),
                                 .a(.href(SiteURL.builds(.value(value.id)).relativeURL()),
                                    .text("Build Failed")))
-                case let .some(value) where value.status == .pending:
+                case let .some(value) where value.status == .triggered:
                     return .div(.class("pending"), .span("Build Queued"))
                 case .some, .none:
-                    return .div(.class("unknown"), .span("Build Pending"))
+                    return .div(.class("unknown"), .span("Unknown"))
             }
         }
 
