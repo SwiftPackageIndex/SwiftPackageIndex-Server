@@ -52,7 +52,8 @@ class BuildIndexModelTests: AppTestCase {
         // -> 6 completed per Swift version (4 x .ok + .failed + .timeout)
         // -> 18 completed per package version
         //    (there are 3 versions, default branch, release, and beta)
-        // -> 54 completed in total
+        // -> 54 minus the Linux/5.5 build to test the .none scenario
+        // -> 53 completed in total
         XCTAssertEqual(m.completedBuildCount, 53)
     }
 
