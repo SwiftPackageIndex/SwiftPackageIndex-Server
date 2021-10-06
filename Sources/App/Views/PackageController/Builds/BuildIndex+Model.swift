@@ -150,7 +150,11 @@ extension BuildIndex.Model {
         }
 
         var node: Node<HTML.BodyContext> {
-            guard let value = value else { return .empty }
+            guard let value = value else {
+                // No value indicates a missing/pending build
+                return cell(text: "Build Pending")
+            }
+            
             let buildURL = SiteURL.builds(.value(value.id)).relativeURL()
 
             switch value.status {
