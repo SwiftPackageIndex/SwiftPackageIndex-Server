@@ -33,12 +33,10 @@ struct AuthorController {
         // TODO: add to check 'NULL' sorting
             .sort(\.$score, .descending)
             .all()
-            .mapEach(Joined<Package, Repository, Version>.init(model:))
             .flatMapThrowing {
                 if $0.isEmpty {
                     throw Abort(.notFound)
                 }
-                
                 return $0
             }
     }

@@ -18,14 +18,40 @@ struct Joined<M: Model, R1: Model, R2: Model> {
     var model: M
 }
 
+struct JoinedQueryBuilder<M: Model, R1: Model, R2: Model> {
+    var queryBuilder: QueryBuilder<M>
+
+    @discardableResult
+    func filter(_ field: DatabaseQuery.Field, _ method: DatabaseQuery.Filter.Method, _ value: DatabaseQuery.Value) -> Self {
+        queryBuilder.filter(field, method, value)
+        return self
+    }
+
+    @discardableResult func filter<Joined>(_ schema: Joined.Type, _ filter: ModelValueFilter<Joined>) -> Self where Joined : Schema {
+        queryBuilder.filter(schema, filter)
+        return self
+    }
+
+    func sort<Field>(_ field: KeyPath<M, Field>, _ direction: DatabaseQuery.Sort.Direction = .ascending) -> Self where M == Field.Model, Field : QueryableProperty {
+        // TODO: check that this sorts correctly
+        _ = queryBuilder.sort(field, direction)
+        return self
+    }
+
+    func all() -> EventLoopFuture<[Joined<M, R1, R2>]> {
+        queryBuilder.all()
+            .mapEach(Joined.init(model:))
+    }
+}
+
 extension Joined {
     static func query<V1: Codable, V2: Codable>(
         on database: Database,
         _ joinFilter1: JoinFilter<R1, M, V1>,
-        _ joinFilter2: JoinFilter<R2, M, V2>) -> QueryBuilder<M> {
-            M.query(on: database)
-                .join(R1.self, on: joinFilter1)
-                .join(R2.self, on: joinFilter2)
+        _ joinFilter2: JoinFilter<R2, M, V2>) -> JoinedQueryBuilder<M, R1, R2> {
+            .init(queryBuilder: M.query(on: database)
+                    .join(R1.self, on: joinFilter1)
+                    .join(R2.self, on: joinFilter2))
     }
 }
 
