@@ -197,7 +197,7 @@ func triggerBuildsUnchecked(on database: Database,
                 .flatMap { _ in
                     Build(versionId: trigger.versionId,
                           platform: pair.platform,
-                          status: .pending,
+                          status: .triggered,
                           swiftVersion: pair.swiftVersion)
                         .create(on: database)
                 }
@@ -330,7 +330,7 @@ func trimBuilds(on database: Database) -> EventLoopFuture<Int> {
         AND (
           v.latest is null
           OR (
-            b.status IN ('pending', 'infrastructureError')
+            b.status IN ('\(raw: Build.Status.triggered.rawValue)', '\(raw: Build.Status.infrastructureError.rawValue)')
             AND b.created_at < NOW() - INTERVAL '\(raw: String(Constants.trimBuildsGracePeriod.inHours)) hours'
           )
         )

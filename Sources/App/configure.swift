@@ -160,8 +160,11 @@ public func configure(_ app: Application) throws {
     do {  // Migration 033 - add resolved_dependencies to versions
         app.migrations.add(UpdateVersionAddResolvedDependencies())
     }
-    do {
+    do {  // Migration 034 - make resolved_dependencies nullable
         app.migrations.add(UpdateVersionResolvedDependenciesNullable())
+    }
+    do {  // Migration 035 - change builds.pending to triggered
+        app.migrations.add(UpdateBuildPendingToTriggered())
     }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")

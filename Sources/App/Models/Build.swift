@@ -114,8 +114,17 @@ extension Build {
         case ok
         case failed
         case infrastructureError
-        case pending
+        case triggered
         case timeout
+
+        var isCompleted: Bool {
+            switch self {
+                case .ok, .failed, .timeout:
+                    return true
+                case .infrastructureError, .triggered:
+                    return false
+            }
+        }
     }
 }
 
@@ -271,7 +280,7 @@ extension Array where Element == Build {
     }
 
     var nonePending: Bool {
-        allSatisfy { $0.status != .pending }
+        allSatisfy { $0.status.isCompleted }
     }
     
     var anyPending: Bool {

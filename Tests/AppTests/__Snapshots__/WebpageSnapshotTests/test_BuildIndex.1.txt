@@ -70,7 +70,7 @@
         <div>
           <h2>Build Results</h2>
           <p>
-            <strong>71</strong> completed builds for 
+            <strong>53</strong> completed builds for 
             <a href="/foo/foobar">foobar</a>.
           </p>
           <p>If you are the author of this package and see unexpected build failures, please check the 
@@ -101,14 +101,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -134,14 +134,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="failed">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="failed">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="failed">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                 </div>
               </div>
@@ -167,14 +167,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Queued</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Queued</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Queued</span>
                   </div>
                 </div>
               </div>
@@ -200,14 +200,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
                 </div>
               </div>
@@ -233,14 +233,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
                 </div>
               </div>
@@ -266,14 +266,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -299,14 +299,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -332,14 +332,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -369,14 +369,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -402,14 +402,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="failed">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="failed">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="failed">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                 </div>
               </div>
@@ -435,14 +435,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Queued</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Queued</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Queued</span>
                   </div>
                 </div>
               </div>
@@ -468,14 +468,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
                 </div>
               </div>
@@ -501,14 +501,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
                 </div>
               </div>
@@ -534,14 +534,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -567,14 +567,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -600,14 +600,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -637,14 +637,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -670,14 +670,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="failed">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="failed">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="failed">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
                   </div>
                 </div>
               </div>
@@ -703,14 +703,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Queued</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Queued</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Queued</span>
                   </div>
                 </div>
               </div>
@@ -736,14 +736,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
                 </div>
               </div>
@@ -769,14 +769,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
                 </div>
               </div>
@@ -802,14 +802,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -835,14 +835,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -868,14 +868,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
-                  <div class="unknown">
-                    <span>Build Pending</span>
+                  <div class="succeeded">
+                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
                   </div>
                 </div>
               </div>
@@ -905,14 +905,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -938,14 +938,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -971,14 +971,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="pending">
-                    <span>Build Queued</span>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1004,13 +1004,13 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
                 </div>
@@ -1037,14 +1037,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1070,13 +1070,13 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
                 </div>
@@ -1107,14 +1107,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1140,14 +1140,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1173,14 +1173,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1206,13 +1206,13 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
                 </div>
@@ -1239,14 +1239,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1272,13 +1272,13 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
                 </div>
@@ -1309,14 +1309,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="failed">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1342,14 +1342,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="failed">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1375,14 +1375,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="failed">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1408,13 +1408,13 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
                 </div>
@@ -1441,14 +1441,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
-                  <div class="failed">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Failed</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                 </div>
               </div>
@@ -1474,13 +1474,13 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
-                  <div class="unknown">
+                  <div>
                     <span>Build Pending</span>
                   </div>
                 </div>
