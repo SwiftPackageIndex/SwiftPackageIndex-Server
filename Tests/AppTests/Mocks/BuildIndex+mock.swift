@@ -39,7 +39,8 @@ extension BuildIndex.Model {
                         .init(id: Self.id, swiftVersion: .v5_5, platform: .macosXcodebuild,    status: .triggered),
                         .init(id: Self.id, swiftVersion: .v5_5, platform: .macosSpmArm,        status: .timeout),
                         .init(id: Self.id, swiftVersion: .v5_5, platform: .macosXcodebuildArm, status: .infrastructureError),
-                        .init(id: Self.id, swiftVersion: .v5_5, platform: .linux,              status: .ok),
+                        // The Linux build for v5.5 is intentionally missing to test the representation of a pending build
+                        // .init(id: Self.id, swiftVersion: .v5_5, platform: .linux,              status: .ok),
                         .init(id: Self.id, swiftVersion: .v5_5, platform: .tvos,               status: .ok),
                         .init(id: Self.id, swiftVersion: .v5_5, platform: .watchos,            status: .ok),
                         //
