@@ -18,7 +18,8 @@ import Vapor
 
 
 extension Package {
-    
+
+    // TODO: use `.join()`s instead of `.with()`s
     static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Package> {
         Package.query(on: database)
             .with(\.$repositories)
@@ -149,6 +150,7 @@ extension Package {
         f.numberStyle = .decimal
         return f
     }()
+    
 }
 
 

@@ -19,6 +19,7 @@ import Vapor
 
 struct KeywordController {
 
+    // TODO: use `.join()` instead of `.with()`
     static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<(packages: [Package], hasMoreResults: Bool)> {
         Package.query(on: database)
             .with(\.$repositories)
