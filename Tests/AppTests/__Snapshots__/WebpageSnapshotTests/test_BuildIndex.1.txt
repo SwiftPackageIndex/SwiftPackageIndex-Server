@@ -167,13 +167,13 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="pending">
+                  <div>
                     <span>Build Queued</span>
                   </div>
-                  <div class="pending">
+                  <div>
                     <span>Build Queued</span>
                   </div>
-                  <div class="pending">
+                  <div>
                     <span>Build Queued</span>
                   </div>
                 </div>
@@ -200,14 +200,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
                 </div>
               </div>
@@ -233,14 +233,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
                 </div>
               </div>
@@ -435,13 +435,13 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="pending">
+                  <div>
                     <span>Build Queued</span>
                   </div>
-                  <div class="pending">
+                  <div>
                     <span>Build Queued</span>
                   </div>
-                  <div class="pending">
+                  <div>
                     <span>Build Queued</span>
                   </div>
                 </div>
@@ -468,14 +468,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
                 </div>
               </div>
@@ -501,14 +501,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
                 </div>
               </div>
@@ -703,13 +703,13 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="pending">
+                  <div>
                     <span>Build Queued</span>
                   </div>
-                  <div class="pending">
+                  <div>
                     <span>Build Queued</span>
                   </div>
-                  <div class="pending">
+                  <div>
                     <span>Build Queued</span>
                   </div>
                 </div>
@@ -736,14 +736,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Timed Out</span>
                   </div>
                 </div>
               </div>
@@ -769,14 +769,14 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
+                  <div>
+                    <span>Build Errored</span>
                   </div>
                 </div>
               </div>
@@ -904,17 +904,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -937,17 +927,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -970,17 +950,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1003,17 +973,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1036,17 +996,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1069,17 +1019,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
           </ul>
@@ -1106,17 +1046,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1139,17 +1069,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1172,17 +1092,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1205,17 +1115,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1238,17 +1138,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1271,17 +1161,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
           </ul>
@@ -1308,17 +1188,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1341,17 +1211,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1374,17 +1234,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1407,17 +1257,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1440,17 +1280,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
             <li class="row">
@@ -1473,17 +1303,7 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result">
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                  <div class="unknown">
-                    <span>Unknown</span>
-                  </div>
-                </div>
+                <div class="result"></div>
               </div>
             </li>
           </ul>
