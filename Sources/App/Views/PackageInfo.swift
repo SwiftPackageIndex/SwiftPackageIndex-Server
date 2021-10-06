@@ -26,7 +26,7 @@ extension PackageInfo {
             return nil
         }
 
-        self.init(title: repoName,
+        self.init(title: package.name() ?? repoName,
                   description: package.repository?.summary ?? "",
                   url: SiteURL.package(.value(repoOwner),
                                        .value(repoName),

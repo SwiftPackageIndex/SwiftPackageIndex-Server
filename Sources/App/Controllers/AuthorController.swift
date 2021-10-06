@@ -19,9 +19,10 @@ import Vapor
 
 struct AuthorController {
 
-    private func query(on database: Database, owner: String) -> EventLoopFuture<[Package]> {
+    static func query(on database: Database, owner: String) -> EventLoopFuture<[Package]> {
         Package.query(on: database)
             .with(\.$repositories)
+            .with(\.$versions)
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
             .filter(
                 DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
@@ -43,7 +44,7 @@ struct AuthorController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return query(on: req.db, owner: owner)
+        return Self.query(on: req.db, owner: owner)
             .map {
                 AuthorShow.Model(
                     owner: $0.first?.repository?.owner ?? owner,
