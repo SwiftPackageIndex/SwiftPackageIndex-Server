@@ -19,7 +19,7 @@ import Vapor
 
 struct AuthorController {
 
-    static func query(on database: Database, owner: String) -> EventLoopFuture<[Joined<Package>]> {
+    static func query(on database: Database, owner: String) -> EventLoopFuture<[Joined<Package, Repository, Version>]> {
         Package.query(on: database)
             .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
             .join(Version.self, on: \Version.$package.$id == \Package.$id)
@@ -32,7 +32,7 @@ struct AuthorController {
         // TODO: add to check 'NULL' sorting
             .sort(\.$score, .descending)
             .all()
-            .mapEach(Joined.init(model:))
+            .mapEach(Joined<Package, Repository, Version>.init(model:))
             .flatMapThrowing {
                 if $0.isEmpty {
                     throw Abort(.notFound)

@@ -14,11 +14,14 @@
 
 import FluentKit
 
-struct Joined<T: Model> {
+struct Joined<T: Model, R1: Model, R2: Model> {
     var model: T
+
+    var relation1: R1? { try? model.joined(R1.self) }
+    var relation2: R2? { try? model.joined(R2.self) }
 }
 
-extension Joined where T == Package {
-    var repository: Repository? { try? model.joined(Repository.self) }
-    var version: Version? { try? model.joined(Version.self) }
+extension Joined where T == Package, R1 == Repository, R2 == Version {
+    var repository: Repository? { relation1 }
+    var version: Version? { relation2 }
 }

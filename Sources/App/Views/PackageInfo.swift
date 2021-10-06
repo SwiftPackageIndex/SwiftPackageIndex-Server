@@ -34,7 +34,7 @@ extension PackageInfo {
                                        .none).relativeURL())
     }
 
-    init?(package: Joined<Package>) {
+    init?(package: Joined<Package, Repository, Version>) {
         guard let repoName = package.repository?.name,
               let repoOwner = package.repository?.owner
         else { return nil }
