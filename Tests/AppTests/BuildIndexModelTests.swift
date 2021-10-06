@@ -53,7 +53,7 @@ class BuildIndexModelTests: AppTestCase {
         // -> 18 completed per package version
         //    (there are 3 versions, default branch, release, and beta)
         // -> 54 completed in total
-        XCTAssertEqual(m.completedBuildCount, 54)
+        XCTAssertEqual(m.completedBuildCount, 53)
     }
 
     func test_packageURL() throws {
@@ -169,7 +169,7 @@ class BuildIndexModelTests: AppTestCase {
             <div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div>
             """)
         XCTAssertEqual(BuildCell("1.2.3", .release).node.render(), """
-            <div class="unknown"><span>Unknown</span></div>
+            <div><span>Build Pending</span></div>
             """)
     }
 
@@ -193,7 +193,7 @@ class BuildIndexModelTests: AppTestCase {
         let cells = bi.cells
 
         XCTAssertEqual(cells.render(), """
-            <div class="result"><div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div><div class="unknown"><span>Unknown</span></div><div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div></div>
+            <div class="result"><div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div><div><span>Build Pending</span></div><div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div></div>
             """)
 
         // MUT - altogether now
@@ -216,13 +216,12 @@ class BuildIndexModelTests: AppTestCase {
                 .div(
                     .class("result"),
                     .div(.class("succeeded"), .a(.href("/builds/\(id.uuidString)"), .text("Build Succeeded"))),
-                    .div(.class("unknown"), .span(.text("Unknown"))),
+                    .div(.span(.text("Build Pending"))),
                     .div(.class("failed"), .a(.href("/builds/\(id.uuidString)"), .text("Build Failed")))
                 )
             )
         )
-        XCTAssertEqual(node.render(indentedBy: .spaces(2)),
-                       expectation.render(indentedBy: .spaces(2)))
+        XCTAssertEqual(node.render(), expectation.render())
    }
 
 }
