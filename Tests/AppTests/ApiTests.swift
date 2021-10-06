@@ -280,7 +280,9 @@ class ApiTests: AppTestCase {
         var requestSent = false
         Current.triggerBuild = { _, _, _, _, _, _ in
             requestSent = true
-            return self.app.eventLoopGroup.future(.ok)
+            return self.app.eventLoopGroup.future(
+                .init(status: .ok, webUrl: "http://web_url")
+            )
         }
         
         // MUT
@@ -358,7 +360,9 @@ class ApiTests: AppTestCase {
         var requestsSent = 0
         Current.triggerBuild = { _, _, _, _, _, _ in
             requestsSent += 1
-            return self.app.eventLoopGroup.future(.ok)
+            return self.app.eventLoopGroup.future(
+                .init(status: .ok, webUrl: "http://web_url")
+            )
         }
 
         // MUT

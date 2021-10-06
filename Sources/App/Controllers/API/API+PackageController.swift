@@ -68,6 +68,7 @@ extension API {
                                           versionId: $0)
                         }
                         .flatten(on: req.eventLoop)
+                        .mapEach(\.status)
                         .map { statuses in
                             statuses.allSatisfy { $0 == .created || $0 == .ok }
                                 ? .ok : .badRequest

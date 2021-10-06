@@ -41,7 +41,7 @@ extension API {
                 }
         }
         
-        func trigger(req: Request) throws -> EventLoopFuture<HTTPStatus> {
+        func trigger(req: Request) throws -> EventLoopFuture<Build.TriggerResponse> {
             guard let id = req.parameters.get("id"),
                   let versionId = UUID(uuidString: id) else {
                 return req.eventLoop.future(error: Abort(.badRequest))

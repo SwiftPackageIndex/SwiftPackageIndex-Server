@@ -50,7 +50,7 @@ struct AppEnvironment {
                        _ platform: Build.Platform,
                        _ reference: Reference,
                        _ swiftVersion: SwiftVersion,
-                       _ versionID: Version.Id) -> EventLoopFuture<HTTPStatus>
+                       _ versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse>
     var twitterCredentials: () -> Twitter.Credentials?
     var twitterPostTweet: (_ client: Client, _ tweet: String) -> EventLoopFuture<Void>
 }

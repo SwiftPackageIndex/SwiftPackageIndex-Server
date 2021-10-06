@@ -139,12 +139,17 @@ enum BuildTool: String, Codable {
 
 
 extension Build {
-    
+
+    struct TriggerResponse: Content {
+        var status: HTTPStatus
+        var webUrl: String
+    }
+
     static func trigger(database: Database,
                         client: Client,
                         platform: Build.Platform,
                         swiftVersion: SwiftVersion,
-                        versionId: Version.Id) -> EventLoopFuture<HTTPStatus> {
+                        versionId: Version.Id) -> EventLoopFuture<TriggerResponse> {
         let version: EventLoopFuture<Version> = Version
             .query(on: database)
             .filter(\.$id == versionId)
