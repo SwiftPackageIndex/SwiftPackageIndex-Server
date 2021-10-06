@@ -137,16 +137,16 @@
         background-position: center center;
       }
 
-      & > .compatible {
-        background-image: var(--image-compatible);
-        background-color: var(--matrix-result-compatible-background);
-      }
-
       & > .pending,
       & > .unknown {
         background-size: 12px;
         background-image: var(--image-unknown);
-        background-color: var(--matrix-result-unknown-background);
+        background-color: var(--matrix-result-default-background);
+      }
+
+      & > .compatible {
+        background-image: var(--image-compatible);
+        background-color: var(--matrix-result-compatible-background);
       }
 
       & > .incompatible {
@@ -163,6 +163,8 @@
     }
 
     .result > div {
+      background-color: var(--matrix-result-default-background);
+
       &.succeeded > a,
       &.failed > a {
         padding-left: 25px;
@@ -185,11 +187,6 @@
         a {
           background-image: var(--image-failed);
         }
-      }
-
-      &.pending,
-      &.unknown {
-        background-color: var(--matrix-result-unknown-background);
       }
     }
   }

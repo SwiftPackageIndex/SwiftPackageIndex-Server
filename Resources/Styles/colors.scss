@@ -119,8 +119,8 @@
   --beta-text: var(--mid-green);
   --branch-text: var(--dark-green);
 
+  --matrix-result-default-background: var(--very-very-light-grey);
   --matrix-result-compatible-background: var(--light-green);
-  --matrix-result-unknown-background: var(--very-very-light-grey);
   --matrix-result-incompatible-background: var(--light-grey);
   --matrix-result-succeeded-background: var(--very-light-grey);
   --matrix-result-failed-background: var(--very-light-grey);
@@ -182,8 +182,8 @@
     --rule-background: var(--dark-blue);
     --rule-thin-background: var(--dark-grey);
 
+    --matrix-result-default-background: var(--very-very-dark-grey);
     --matrix-result-compatible-background: var(--mid-green);
-    --matrix-result-unknown-background: var(--very-very-dark-grey);
     --matrix-result-incompatible-background: var(--very-dark-grey);
     --matrix-result-succeeded-background: var(--very-dark-grey);
     --matrix-result-failed-background: var(--very-dark-grey);
