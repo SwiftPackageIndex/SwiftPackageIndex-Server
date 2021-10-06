@@ -14,14 +14,27 @@
 
 import FluentKit
 
-struct Joined<T: Model, R1: Model, R2: Model> {
-    var model: T
+struct Joined<M: Model, R1: Model, R2: Model> {
+    var model: M
+}
 
+extension Joined {
+    static func query<V1: Codable, V2: Codable>(
+        on database: Database,
+        _ joinFilter1: JoinFilter<R1, M, V1>,
+        _ joinFilter2: JoinFilter<R2, M, V2>) -> QueryBuilder<M> {
+            M.query(on: database)
+                .join(R1.self, on: joinFilter1)
+                .join(R2.self, on: joinFilter2)
+    }
+}
+
+extension Joined {
     var relation1: R1? { try? model.joined(R1.self) }
     var relation2: R2? { try? model.joined(R2.self) }
 }
 
-extension Joined where T == Package, R1 == Repository, R2 == Version {
+extension Joined where M == Package, R1 == Repository, R2 == Version {
     var repository: Repository? { relation1 }
     var version: Version? { relation2 }
 }

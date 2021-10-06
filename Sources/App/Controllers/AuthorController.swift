@@ -20,9 +20,10 @@ import Vapor
 struct AuthorController {
 
     static func query(on database: Database, owner: String) -> EventLoopFuture<[Joined<Package, Repository, Version>]> {
-        Package.query(on: database)
-            .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
-            .join(Version.self, on: \Version.$package.$id == \Package.$id)
+        Joined<Package, Repository, Version>
+            .query(on: database,
+                   \Repository.$package.$id == \Package.$id,
+                   \Version.$package.$id == \Package.$id)
             .filter(
                 DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
                 DatabaseQuery.Filter.Method.custom("ilike"),
