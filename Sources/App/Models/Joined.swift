@@ -45,6 +45,11 @@ extension Joined {
             queryBuilder.all()
                 .mapEach(Joined.init(model:))
         }
+
+        func first() -> EventLoopFuture<Joined<M, R1, R2>?> {
+            queryBuilder.first()
+                .optionalMap(Joined.init(model:))
+        }
     }
 
     static func query<V1: Codable, V2: Codable>(
@@ -66,4 +71,10 @@ extension Joined {
 extension Joined where M == Package, R1 == Repository, R2 == Version {
     var repository: Repository? { relation1 }
     var version: Version? { relation2 }
+
+    static func query(on database: Database) -> JoinedQueryBuilder {
+        query(on: database,
+              \Repository.$package.$id == \Package.$id,
+              \Version.$package.$id == \Package.$id)
+    }
 }
