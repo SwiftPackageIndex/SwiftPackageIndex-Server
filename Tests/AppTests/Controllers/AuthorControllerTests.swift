@@ -64,10 +64,10 @@ class AuthorControllerTests: AppTestCase {
     }
 
     func test_query_package_name() throws {
-        // Ensure package.name is populated by query
+        // Ensure version.packageName is populated by query
         let packages = try AuthorController.query(on: app.db, owner: "owner")
             .wait()
-        XCTAssertEqual(packages.map { $0.name() }, ["Test package"])
+        XCTAssertEqual(packages.map { $0.version?.packageName }, ["Test package"])
     }
 
 }
