@@ -70,7 +70,7 @@
         <div>
           <h2>Build Results</h2>
           <p>
-            <strong>54</strong> completed builds for 
+            <strong>53</strong> completed builds for 
             <a href="/foo/foobar">foobar</a>.
           </p>
           <p>If you are the author of this package and see unexpected build failures, please check the 
@@ -266,8 +266,8 @@
                   </div>
                 </div>
                 <div class="result">
-                  <div class="succeeded">
-                    <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                  <div>
+                    <span>Build Pending</span>
                   </div>
                   <div class="succeeded">
                     <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
@@ -904,7 +904,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -927,7 +937,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -950,7 +970,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -973,7 +1003,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -996,7 +1036,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -1019,7 +1069,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
           </ul>
@@ -1046,7 +1106,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -1069,7 +1139,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -1092,7 +1172,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -1115,7 +1205,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -1138,7 +1238,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -1161,7 +1271,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
           </ul>
@@ -1188,7 +1308,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -1211,7 +1341,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -1234,7 +1374,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -1257,7 +1407,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -1280,7 +1440,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="row">
@@ -1303,7 +1473,17 @@
                     <span class="beta">2.0.0-b1</span>
                   </div>
                 </div>
-                <div class="result"></div>
+                <div class="result">
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                  <div>
+                    <span>Build Pending</span>
+                  </div>
+                </div>
               </div>
             </li>
           </ul>
