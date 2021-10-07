@@ -19,22 +19,23 @@ import Vapor
 
 struct AuthorController {
 
-    static func query(on database: Database, owner: String) -> EventLoopFuture<[Package]> {
-        Package.query(on: database)
-            .with(\.$repositories)
-            .with(\.$versions)
-            .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
+    static func query(on database: Database, owner: String) -> EventLoopFuture<[JoinedPackage]> {
+        JoinedPackage
+            .query(on: database)
             .filter(
                 DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
                 DatabaseQuery.Filter.Method.custom("ilike"),
                 DatabaseQuery.Value.bind(owner)
             )
+        // TODO: add a migration that defaults score to 0 and make it non-optional
+        // this would then become simply
+        //   .sort(\.score, .descending)
+            .sort(.sql(raw: "coalesce(score, 0)"), .descending)
             .all()
             .flatMapThrowing {
                 if $0.isEmpty {
                     throw Abort(.notFound)
                 }
-                
                 return $0
             }
     }
@@ -49,8 +50,7 @@ struct AuthorController {
                 AuthorShow.Model(
                     owner: $0.first?.repository?.owner ?? owner,
                     ownerName: $0.first?.repository?.ownerDisplayName ?? owner,
-                    packages: $0.sorted(by: { $0.score ?? 0 > $1.score ?? 0 })
-                                .compactMap { PackageInfo(package: $0) }
+                    packages: $0.compactMap(PackageInfo.init(package:))
                 )
             }
             .map {

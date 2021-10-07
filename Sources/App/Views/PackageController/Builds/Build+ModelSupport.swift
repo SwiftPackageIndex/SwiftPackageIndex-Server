@@ -18,6 +18,7 @@ import Vapor
 
 extension Build {
 
+    // TODO: use `.join()` instead of `.with()`
     static func query(on database: Database, buildId: Build.Id) -> EventLoopFuture<Build> {
         Build.query(on: database)
             .filter(\.$id == buildId)
