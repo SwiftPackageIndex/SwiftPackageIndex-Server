@@ -27,10 +27,7 @@ struct KeywordController {
                 DatabaseQuery.Filter.Method.custom("@>"),
                 DatabaseQuery.Value.bind([keyword])
             )
-        // TODO: add a migration that defaults score to 0 and make it non-optional
-        // this would then become simply
-        //   .sort(\.score, .descending)
-            .sort(.sql(raw: "coalesce(score, 0)"), .descending)
+            .sort(\.$score, .descending)
             .sort(Repository.self, \.$name)
             .page(page, size: pageSize)
             .flatMapThrowing { page in
