@@ -33,6 +33,12 @@ struct KeywordController {
             .sort(.sql(raw: "coalesce(score, 0)"), .descending)
             .sort(Repository.self, \.$name)
             .page(page, size: pageSize)
+            .flatMapThrowing { page in
+                guard !page.results.isEmpty else {
+                    throw Abort(.notFound)
+                }
+                return page
+            }
     }
 
     func show(req: Request) throws -> EventLoopFuture<HTML> {
