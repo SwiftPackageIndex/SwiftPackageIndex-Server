@@ -22,16 +22,17 @@ struct AuthorController {
     static func query(on database: Database, owner: String) -> EventLoopFuture<[Joined<Package, Repository, Version>]> {
         Joined<Package, Repository, Version>
             .query(on: database,
-                   \Repository.$package.$id == \Package.$id,
-                   \Version.$package.$id == \Package.$id)
+                   join: \Repository.$package.$id == \Package.$id,
+                   method: .inner,
+                   join: \Version.$package.$id == \Package.$id,
+                   method: .left)
             .filter(
                 DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
                 DatabaseQuery.Filter.Method.custom("ilike"),
                 DatabaseQuery.Value.bind(owner)
             )
             .filter(Version.self, \.$latest == .defaultBranch)
-        // TODO: add to check 'NULL' sorting
-            .sort(\.$score, .descending)
+            .sort(.sql(raw: "coalesce(score, 0)"), .descending)
             .all()
             .flatMapThrowing {
                 if $0.isEmpty {

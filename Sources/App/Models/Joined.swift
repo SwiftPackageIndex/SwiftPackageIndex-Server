@@ -41,6 +41,11 @@ extension Joined {
             return self
         }
 
+        func sort(_ field: DatabaseQuery.Field, _ direction: DatabaseQuery.Sort.Direction) -> Self {
+            _ = queryBuilder.sort(field, direction)
+            return self
+        }
+
         func all() -> EventLoopFuture<[Joined<M, R1, R2>]> {
             queryBuilder.all()
                 .mapEach(Joined.init(model:))
@@ -54,11 +59,13 @@ extension Joined {
 
     static func query<V1: Codable, V2: Codable>(
         on database: Database,
-        _ joinFilter1: JoinFilter<R1, M, V1>,
-        _ joinFilter2: JoinFilter<R2, M, V2>) -> JoinedQueryBuilder {
+        join joinFilter1: JoinFilter<R1, M, V1>,
+        method method1: DatabaseQuery.Join.Method = .inner,
+        join joinFilter2: JoinFilter<R2, M, V2>,
+        method method2: DatabaseQuery.Join.Method = .inner) -> JoinedQueryBuilder {
             .init(queryBuilder: M.query(on: database)
-                    .join(R1.self, on: joinFilter1)
-                    .join(R2.self, on: joinFilter2))
+                    .join(R1.self, on: joinFilter1, method: method1)
+                    .join(R2.self, on: joinFilter2, method: method2))
     }
 
     var relation1: R1? { try? model.joined(R1.self) }
@@ -74,7 +81,7 @@ extension Joined where M == Package, R1 == Repository, R2 == Version {
 
     static func query(on database: Database) -> JoinedQueryBuilder {
         query(on: database,
-              \Repository.$package.$id == \Package.$id,
-              \Version.$package.$id == \Package.$id)
+              join: \Repository.$package.$id == \Package.$id,
+              join: \Version.$package.$id == \Package.$id)
     }
 }
