@@ -30,12 +30,6 @@ struct KeywordController {
             .sort(\.$score, .descending)
             .sort(Repository.self, \.$name)
             .page(page, size: pageSize)
-            .flatMapThrowing { page in
-                guard !page.results.isEmpty else {
-                    throw Abort(.notFound)
-                }
-                return page
-            }
     }
 
     func show(req: Request) throws -> EventLoopFuture<HTML> {
@@ -46,7 +40,10 @@ struct KeywordController {
         let pageSize = Constants.resultsPageSize
 
         return Self.query(on: req.db, keyword: keyword, page: pageIndex, pageSize: pageSize)
-            .map { page in
+            .flatMapThrowing { page in
+                guard !page.results.isEmpty else {
+                    throw Abort(.notFound)
+                }
                 let packageInfo = page.results
                     .compactMap(PackageInfo.init(package:))
                 return KeywordShow.Model(
