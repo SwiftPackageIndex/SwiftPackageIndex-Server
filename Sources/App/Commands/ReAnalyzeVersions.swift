@@ -243,6 +243,7 @@ extension Package {
         _ database: Database,
         before cutOffDate: Date,
         limit: Int) -> EventLoopFuture<[Package]> {
+            // TODO: use `.join()` instead of `.with()`
         Package.query(on: database)
             .with(\.$repositories)
             .join(Version.self, on: \Package.$id == \Version.$package.$id)
