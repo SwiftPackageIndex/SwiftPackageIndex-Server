@@ -50,8 +50,7 @@ class AuthorControllerTests: AppTestCase {
     func test_query_sort_by_score() throws {
         // setup
         try (0..<3).shuffled().forEach { index in
-            let score = index > 0 ? index : nil
-            let p = Package(url: "\(index)".url, score: score)
+            let p = Package(url: "\(index)".url, score: index)
             try p.save(on: app.db).wait()
             try Repository(package: p, owner: "owner").save(on: app.db).wait()
             try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()

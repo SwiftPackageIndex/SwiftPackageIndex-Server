@@ -87,6 +87,7 @@ final class PackageTests: AppTestCase {
         {
             "id": "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE",
             "url": "https://github.com/finestructure/Arena",
+            "score": 17,
             "status": "ok",
             "createdAt": 0,
             "updatedAt": 1
