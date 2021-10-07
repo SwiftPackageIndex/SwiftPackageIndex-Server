@@ -27,6 +27,9 @@ struct AuthorController {
                 DatabaseQuery.Filter.Method.custom("ilike"),
                 DatabaseQuery.Value.bind(owner)
             )
+        // TODO: add a migration that defaults score to 0 and make it non-optional
+        // this would then become simply
+        //   .sort(\.score, .descending)
             .sort(.sql(raw: "coalesce(score, 0)"), .descending)
             .all()
             .flatMapThrowing {
