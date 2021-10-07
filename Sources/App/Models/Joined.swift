@@ -73,15 +73,3 @@ extension Joined {
     var relation2: R2? { try? model.joined(R2.self) }
 
 }
-
-
-extension Joined where M == Package, R1 == Repository, R2 == Version {
-    var repository: Repository? { relation1 }
-    var version: Version? { relation2 }
-
-    static func query(on database: Database) -> JoinedQueryBuilder {
-        query(on: database,
-              join: \Repository.$package.$id == \Package.$id,
-              join: \Version.$package.$id == \Package.$id)
-    }
-}

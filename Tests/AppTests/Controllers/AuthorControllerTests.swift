@@ -47,21 +47,6 @@ class AuthorControllerTests: AppTestCase {
         }
     }
 
-    func test_query_multiple_versions() throws {
-        // Ensure multiple versions don't multiply the package selection
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, owner: "owner").save(on: app.db).wait()
-        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
-        try Version(package: p, latest: .release).save(on: app.db).wait()
-
-        // MUT
-        let pkg = try AuthorController.query(on: app.db, owner: "owner").wait()
-
-        // validate
-        XCTAssertEqual(pkg.map(\.model.id), [p.id])
-    }
-
     func test_query_sort_by_score() throws {
         // setup
         try (0..<3).shuffled().forEach { index in
@@ -101,23 +86,6 @@ class AuthorControllerTests: AppTestCase {
         try app.test(.GET, "/fake-owner", afterResponse: { response in
             XCTAssertEqual(response.status, .notFound)
         })
-    }
-
-    func test_query_package_name() throws {
-        // Ensure version.packageName is populated by query
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, owner: "owner").save(on: app.db).wait()
-        try Version(package: p,
-                    latest: .defaultBranch,
-                    packageName: "package name").save(on: app.db).wait()
-
-        // MUT
-        let packages = try AuthorController.query(on: app.db, owner: "owner")
-            .wait()
-
-        // validate
-        XCTAssertEqual(packages.map { $0.version?.packageName }, ["package name"])
     }
 
 }

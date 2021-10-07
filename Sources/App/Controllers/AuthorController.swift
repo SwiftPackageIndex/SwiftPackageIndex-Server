@@ -27,7 +27,6 @@ struct AuthorController {
                 DatabaseQuery.Filter.Method.custom("ilike"),
                 DatabaseQuery.Value.bind(owner)
             )
-            .filter(Version.self, \.$latest == .defaultBranch)
             .sort(.sql(raw: "coalesce(score, 0)"), .descending)
             .all()
             .flatMapThrowing {
