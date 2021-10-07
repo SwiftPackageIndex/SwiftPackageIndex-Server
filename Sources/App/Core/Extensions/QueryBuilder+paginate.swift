@@ -37,7 +37,7 @@ extension QueryBuilder {
             .offset(offset)
             .limit(limit)
             .all()
-            .flatMapThrowing { results in
+            .map { results in
                 .init(results: Array(results.prefix(pageSize)),
                       hasMoreResults: results.count > pageSize)
             }
