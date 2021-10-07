@@ -22,7 +22,6 @@ class AuthorControllerTests: AppTestCase {
     func test_query() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
-        let pid = p.id
         try Repository(package: p, owner: "owner").save(on: app.db).wait()
         try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
 
@@ -30,7 +29,7 @@ class AuthorControllerTests: AppTestCase {
         let pkg = try AuthorController.query(on: app.db, owner: "owner").wait()
 
         // validate
-        XCTAssertEqual(pkg.map(\.model.id), [pid])
+        XCTAssertEqual(pkg.map(\.model.id), [p.id])
     }
 
     func test_query_no_version() throws {
@@ -46,6 +45,21 @@ class AuthorControllerTests: AppTestCase {
             let error = $0 as? Abort
             XCTAssertEqual(error?.status, .notFound)
         }
+    }
+
+    func test_query_multiple_versions() throws {
+        // Ensure multiple versions don't multiply the package selection
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, owner: "owner").save(on: app.db).wait()
+        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+        try Version(package: p, latest: .release).save(on: app.db).wait()
+
+        // MUT
+        let pkg = try AuthorController.query(on: app.db, owner: "owner").wait()
+
+        // validate
+        XCTAssertEqual(pkg.map(\.model.id), [p.id])
     }
 
     func test_query_sort_by_score() throws {
