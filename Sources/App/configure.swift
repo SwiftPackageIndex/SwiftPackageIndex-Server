@@ -166,6 +166,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 035 - change builds.pending to triggered
         app.migrations.add(UpdateBuildPendingToTriggered())
     }
+    do {  // Migration 036 - make packages.score required
+        app.migrations.add(UpdatePackageScoreNotNullable())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
