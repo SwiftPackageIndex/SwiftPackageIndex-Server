@@ -46,6 +46,11 @@ extension Joined {
             return self
         }
 
+        func sort<Joined, Field>(_ joined: Joined.Type, _ field: KeyPath<Joined, Field>, _ direction: DatabaseQuery.Sort.Direction = .ascending, alias: String? = nil) -> Self where Joined : Schema, Joined == Field.Model, Field : QueryableProperty {
+            _ = queryBuilder.sort(joined, field, direction, alias: alias)
+            return self
+        }
+
         func all() -> EventLoopFuture<[Joined<M, R1, R2>]> {
             queryBuilder.all()
                 .mapEach(Joined.init(model:))

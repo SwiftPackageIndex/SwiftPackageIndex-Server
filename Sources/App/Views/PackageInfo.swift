@@ -19,21 +19,6 @@ struct PackageInfo {
 }
 
 extension PackageInfo {
-    // TODO: remove
-    init?(package: Package) {
-        guard let repoName = package.repository?.name,
-              let repoOwner = package.repository?.owner
-        else {
-            return nil
-        }
-
-        self.init(title: package.name() ?? repoName,
-                  description: package.repository?.summary ?? "",
-                  url: SiteURL.package(.value(repoOwner),
-                                       .value(repoName),
-                                       .none).relativeURL())
-    }
-
     init?(package: JoinedPackage) {
         guard let repoName = package.repository?.name,
               let repoOwner = package.repository?.owner

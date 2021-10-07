@@ -19,19 +19,21 @@ import Vapor
 
 struct KeywordController {
 
-    // TODO: use `.join()` instead of `.with()`
-    static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<(packages: [Package], hasMoreResults: Bool)> {
-        Package.query(on: database)
-            .with(\.$repositories)
-            .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
+    // TODO: use Joined<Package, Repository> instead of 3 types?
+    static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<(packages: [JoinedPackage], hasMoreResults: Bool)> {
+        JoinedPackage
+            .query(on: database)
             .filter(
                 DatabaseQuery.Field.path(Repository.path(for: \.$keywords), schema: Repository.schema),
                 DatabaseQuery.Filter.Method.custom("@>"),
                 DatabaseQuery.Value.bind([keyword])
             )
-            .sort(\.$score, .descending)
+        // TODO: add a migration that defaults score to 0 and make it non-optional
+        // this would then become simply
+        //   .sort(\.score, .descending)
+            .sort(.sql(raw: "coalesce(score, 0)"), .descending)
             .sort(Repository.self, \.$name)
-            .paginate(page: page, pageSize: pageSize)
+//            .paginate(page: page, pageSize: pageSize)
             .all()
             .flatMapThrowing { packages in
                 if packages.isEmpty {
