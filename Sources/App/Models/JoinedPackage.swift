@@ -15,7 +15,10 @@
 import FluentKit
 
 
-/// A `JoinedPackage` is a `Package` model joined 1-1 on `Repository` and `Version`, where the joined `Version` is the default branch version. The `Repository` is automatically relationally constrained to a 1:1 relationship via a unique index on its `package_id`.
+/// A `JoinedPackage` is a `Package` model joined 1-1 on `Repository` and `Version`,
+/// where the joined `Version` is the default branch version. The `Repository` is automatically
+/// relationally constrained to a 1:1 relationship via a unique index on its `package_id`.
+/// 
 /// Both relationships must be present or the `query` method will not select the `Package`.
 typealias JoinedPackage = Joined<Package, Repository, Version>
 
