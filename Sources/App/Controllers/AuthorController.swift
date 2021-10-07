@@ -21,11 +21,7 @@ struct AuthorController {
 
     static func query(on database: Database, owner: String) -> EventLoopFuture<[Joined<Package, Repository, Version>]> {
         Joined<Package, Repository, Version>
-            .query(on: database,
-                   join: \Repository.$package.$id == \Package.$id,
-                   method: .inner,
-                   join: \Version.$package.$id == \Package.$id,
-                   method: .left)
+            .query(on: database)
             .filter(
                 DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
                 DatabaseQuery.Filter.Method.custom("ilike"),
