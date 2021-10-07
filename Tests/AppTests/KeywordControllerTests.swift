@@ -104,14 +104,12 @@ class KeywordControllerTests: AppTestCase {
     func test_show_keyword() throws {
         // setup
         do {
-            let p = Package(id: .id1, url: "1".asGithubUrl.url)
-            let r = try Repository(id: UUID(),
-                                   package: p,
-                                   keywords: ["foo"],
-                                   name: "1",
-                                   owner: "owner")
-            try p.save(on: app.db).wait()
-            try r.save(on: app.db).wait()
+            let p = try savePackage(on: app.db, "1")
+            try Repository(package: p,
+                           keywords: ["foo"],
+                           name: "1",
+                           owner: "owner").save(on: app.db).wait()
+            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
         }
         // MUT
         try app.test(.GET, "/keywords/foo") {
