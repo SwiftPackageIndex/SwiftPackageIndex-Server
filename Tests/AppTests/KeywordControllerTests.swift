@@ -51,14 +51,14 @@ class KeywordControllerTests: AppTestCase {
             try r.save(on: app.db).wait()
         }
         // MUT
-        let res = try KeywordController.query(on: app.db,
-                                                   keyword: "foo",
-                                                   page: 1,
-                                                   pageSize: 10).wait()
+        let page = try KeywordController.query(on: app.db,
+                                               keyword: "foo",
+                                               page: 1,
+                                               pageSize: 10).wait()
 
         // validation
-        XCTAssertEqual(res.packages.map(\.model.id), [.id1])
-        XCTAssertEqual(res.hasMoreResults, false)
+        XCTAssertEqual(page.results.map(\.model.id), [.id1])
+        XCTAssertEqual(page.hasMoreResults, false)
     }
 
     func test_query_pagination() throws {
@@ -75,33 +75,33 @@ class KeywordControllerTests: AppTestCase {
         }
         do {  // first page
             // MUT
-            let res = try KeywordController.query(on: app.db,
-                                                  keyword: "foo",
-                                                  page: 1,
-                                                  pageSize: 3).wait()
+            let page = try KeywordController.query(on: app.db,
+                                                   keyword: "foo",
+                                                   page: 1,
+                                                   pageSize: 3).wait()
             // validate
-            XCTAssertEqual(res.packages.map(\.model.id), [.id0, .id1, .id2])
-            XCTAssertEqual(res.hasMoreResults, true)
+            XCTAssertEqual(page.results.map(\.model.id), [.id0, .id1, .id2])
+            XCTAssertEqual(page.hasMoreResults, true)
         }
         do {  // second page
             // MUT
-            let res = try KeywordController.query(on: app.db,
-                                                  keyword: "foo",
-                                                  page: 2,
-                                                  pageSize: 3).wait()
+            let page = try KeywordController.query(on: app.db,
+                                                   keyword: "foo",
+                                                   page: 2,
+                                                   pageSize: 3).wait()
             // validate
-            XCTAssertEqual(res.packages.map(\.model.id), [.id3, .id4, .id5])
-            XCTAssertEqual(res.hasMoreResults, true)
+            XCTAssertEqual(page.results.map(\.model.id), [.id3, .id4, .id5])
+            XCTAssertEqual(page.hasMoreResults, true)
         }
         do {  // last page
             // MUT
-            let res = try KeywordController.query(on: app.db,
-                                                  keyword: "foo",
-                                                  page: 3,
-                                                  pageSize: 3).wait()
+            let page = try KeywordController.query(on: app.db,
+                                                   keyword: "foo",
+                                                   page: 3,
+                                                   pageSize: 3).wait()
             // validate
-            XCTAssertEqual(res.packages.map(\.model.id), [.id6, .id7, .id8])
-            XCTAssertEqual(res.hasMoreResults, false)
+            XCTAssertEqual(page.results.map(\.model.id), [.id6, .id7, .id8])
+            XCTAssertEqual(page.hasMoreResults, false)
         }
     }
 

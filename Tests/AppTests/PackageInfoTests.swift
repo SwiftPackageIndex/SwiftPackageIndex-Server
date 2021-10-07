@@ -40,7 +40,6 @@ class PackageInfoTests: AppTestCase {
     }
 
     func test_title_repo_name() throws {
-        throw XCTSkip("to be updated")
         // Ensure title is populated from repoName if package.name() is nil
         // setup
         let p = try savePackage(on: app.db, "1")

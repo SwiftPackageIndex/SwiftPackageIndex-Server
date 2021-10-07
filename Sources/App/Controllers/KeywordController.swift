@@ -19,8 +19,7 @@ import Vapor
 
 struct KeywordController {
 
-    // TODO: use Joined<Package, Repository> instead of 3 types?
-    static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<(packages: [JoinedPackage], hasMoreResults: Bool)> {
+    static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<Page<JoinedPackage>> {
         JoinedPackage
             .query(on: database)
             .filter(
@@ -33,34 +32,25 @@ struct KeywordController {
         //   .sort(\.score, .descending)
             .sort(.sql(raw: "coalesce(score, 0)"), .descending)
             .sort(Repository.self, \.$name)
-//            .paginate(page: page, pageSize: pageSize)
-            .all()
-            .flatMapThrowing { packages in
-                if packages.isEmpty {
-                    throw Abort(.notFound)
-                }
-
-                return (packages: Array(packages.prefix(pageSize)),
-                        hasMoreResults: packages.count > pageSize)
-            }
+            .page(page, size: pageSize)
     }
 
     func show(req: Request) throws -> EventLoopFuture<HTML> {
         guard let keyword = req.parameters.get("keyword") else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
-        let page = req.query[Int.self, at: "page"] ?? 1
+        let pageIndex = req.query[Int.self, at: "page"] ?? 1
         let pageSize = Constants.resultsPageSize
 
-        return Self.query(on: req.db, keyword: keyword, page: page, pageSize: pageSize)
-            .map { packages, hasMoreResults in
-                let packageInfo = packages.prefix(pageSize)
+        return Self.query(on: req.db, keyword: keyword, page: pageIndex, pageSize: pageSize)
+            .map { page in
+                let packageInfo = page.results
                     .compactMap(PackageInfo.init(package:))
                 return KeywordShow.Model(
                     keyword: keyword,
                     packages: packageInfo,
-                    page: page,
-                    hasMoreResults: hasMoreResults
+                    page: pageIndex,
+                    hasMoreResults: page.hasMoreResults
                 )
             }
             .map {

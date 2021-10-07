@@ -60,6 +60,15 @@ extension Joined {
             queryBuilder.first()
                 .optionalMap(Joined.init(model:))
         }
+
+        func page(_ page: Int, size pageSize: Int) -> EventLoopFuture<Page<Joined<M, R1, R2>>> {
+            queryBuilder.page(page, size: pageSize)
+                .map { page in
+                    .init(results: page.results.map(Joined.init(model:)),
+                          hasMoreResults: page.hasMoreResults)
+                }
+        }
+
     }
 
     static func query<V1: Codable, V2: Codable>(
