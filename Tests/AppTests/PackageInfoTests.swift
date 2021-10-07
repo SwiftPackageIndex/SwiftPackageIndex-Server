@@ -45,6 +45,8 @@ class PackageInfoTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         try Repository(package: p, name: "repo name", owner: "owner")
             .save(on: app.db).wait()
+        try Version(package: p, latest: .defaultBranch, packageName: nil)
+            .save(on: app.db).wait()
         let joined = try XCTUnwrap(Joined<Package, Repository, Version>
                                     .query(on: app.db)
                                     .first()

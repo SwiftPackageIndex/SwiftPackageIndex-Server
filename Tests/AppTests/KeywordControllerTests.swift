@@ -22,33 +22,30 @@ class KeywordControllerTests: AppTestCase {
     func test_query() throws {
         // setup
         do {
-            let p = Package(id: .id0, url: "0".asGithubUrl.url)
-            let r = try Repository(id: UUID(),
-                                   package: p,
-                                   keywords: ["bar"],
-                                   name: "0",
-                                   owner: "owner")
-            try p.save(on: app.db).wait()
-            try r.save(on: app.db).wait()
+            let p = try savePackage(on: app.db, "0")
+            try Repository(package: p,
+                           keywords: ["bar"],
+                           name: "0",
+                           owner: "owner")
+                .save(on: app.db).wait()
+            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
         }
         do {
-            let p = Package(id: .id1, url: "1".asGithubUrl.url)
-            let r = try Repository(id: UUID(),
-                                   package: p,
-                                   keywords: ["foo"],
-                                   name: "1",
-                                   owner: "owner")
-            try p.save(on: app.db).wait()
-            try r.save(on: app.db).wait()
+            let p = try savePackage(on: app.db, "1")
+            try Repository(package: p,
+                           keywords: ["foo"],
+                           name: "1",
+                           owner: "owner")
+                .save(on: app.db).wait()
+            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
         }
         do {
-            let p = Package(id: .id2, url: "2".asGithubUrl.url)
-            let r = try Repository(id: UUID(),
-                                   package: p,
-                                   name: "2",
-                                   owner: "owner")
-            try p.save(on: app.db).wait()
-            try r.save(on: app.db).wait()
+            let p = try savePackage(on: app.db, "2")
+            try Repository(package: p,
+                           name: "2",
+                           owner: "owner")
+                .save(on: app.db).wait()
+            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
         }
         // MUT
         let page = try KeywordController.query(on: app.db,
@@ -57,21 +54,20 @@ class KeywordControllerTests: AppTestCase {
                                                pageSize: 10).wait()
 
         // validation
-        XCTAssertEqual(page.results.map(\.model.id), [.id1])
+        XCTAssertEqual(page.results.map(\.model.url), ["1"])
         XCTAssertEqual(page.hasMoreResults, false)
     }
 
     func test_query_pagination() throws {
         // setup
-        for (idx, id) in UUID.mockAll.prefix(9).enumerated() {
-            let p = Package(id: id, url: "\(idx)".asGithubUrl.url, score: 10 - idx)
-            let r = try Repository(id: UUID(),
-                                   package: p,
-                                   keywords: ["foo"],
-                                   name: "\(idx)",
-                                   owner: "owner")
+        try (0..<9).shuffled().forEach { idx in
+            let p = Package(url: "\(idx)".url, score: 10 - idx)
             try p.save(on: app.db).wait()
-            try r.save(on: app.db).wait()
+            try Repository(package: p,
+                           keywords: ["foo"],
+                           name: "\(idx)",
+                           owner: "owner").save(on: app.db).wait()
+            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
         }
         do {  // first page
             // MUT
@@ -80,7 +76,7 @@ class KeywordControllerTests: AppTestCase {
                                                    page: 1,
                                                    pageSize: 3).wait()
             // validate
-            XCTAssertEqual(page.results.map(\.model.id), [.id0, .id1, .id2])
+            XCTAssertEqual(page.results.map(\.model.url), ["0", "1", "2"])
             XCTAssertEqual(page.hasMoreResults, true)
         }
         do {  // second page
@@ -90,7 +86,7 @@ class KeywordControllerTests: AppTestCase {
                                                    page: 2,
                                                    pageSize: 3).wait()
             // validate
-            XCTAssertEqual(page.results.map(\.model.id), [.id3, .id4, .id5])
+            XCTAssertEqual(page.results.map(\.model.url), ["3", "4", "5"])
             XCTAssertEqual(page.hasMoreResults, true)
         }
         do {  // last page
@@ -100,7 +96,7 @@ class KeywordControllerTests: AppTestCase {
                                                    page: 3,
                                                    pageSize: 3).wait()
             // validate
-            XCTAssertEqual(page.results.map(\.model.id), [.id6, .id7, .id8])
+            XCTAssertEqual(page.results.map(\.model.url), ["6", "7", "8"])
             XCTAssertEqual(page.hasMoreResults, false)
         }
     }
