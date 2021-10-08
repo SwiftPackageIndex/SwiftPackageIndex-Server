@@ -163,7 +163,7 @@ func analyze(client: Client,
              database: Database,
              logger: Logger,
              threadPool: NIOThreadPool,
-             packages: [Package]) -> EventLoopFuture<Void> {
+             packages: [JPR]) -> EventLoopFuture<Void> {
     AppMetrics.analyzeCandidatesCount?.set(packages.count)
     // get or create directory
     let checkoutDir = Current.fileManager.checkoutsDirectory()
@@ -237,7 +237,7 @@ func analyze(client: Client,
 func refreshCheckouts(eventLoop: EventLoop,
                       logger: Logger,
                       threadPool: NIOThreadPool,
-                      packages: [Package]) -> EventLoopFuture<[Result<Package, Error>]> {
+                      packages: [JPR]) -> EventLoopFuture<[Result<JPR, Error>]> {
     let ops = packages.map { refreshCheckout(eventLoop: eventLoop,
                                              logger: logger,
                                              threadPool: threadPool,
@@ -296,14 +296,17 @@ func fetch(logger: Logger, cacheDir: String, branch: String, url: String) throws
 func refreshCheckout(eventLoop: EventLoop,
                      logger: Logger,
                      threadPool: NIOThreadPool,
-                     package: Package) -> EventLoopFuture<Package> {
-    guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
+                     package: JPR) -> EventLoopFuture<JPR> {
+    guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        return eventLoop.future(
+            error: AppError.invalidPackageCachePath(package.model.id,
+                                                    package.model.url)
+        )
     }
     return threadPool.runIfActive(eventLoop: eventLoop) {
         do {
             guard Current.fileManager.fileExists(atPath: cacheDir) else {
-                try clone(logger: logger, cacheDir: cacheDir, url: package.url)
+                try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
                 return
             }
 
@@ -313,15 +316,15 @@ func refreshCheckout(eventLoop: EventLoop,
                 try fetch(logger: logger,
                           cacheDir: cacheDir,
                           branch: package.repository?.defaultBranch ?? "master",
-                          url: package.url)
+                          url: package.model.url)
             } catch {
                 logger.info("fetch failed: \(error.localizedDescription)")
                 logger.info("removing directory")
                 try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
-                try clone(logger: logger, cacheDir: cacheDir, url: package.url)
+                try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
             }
         } catch {
-            throw AppError.analysisError(package.id, "refreshCheckout failed: \(error.localizedDescription)")
+            throw AppError.analysisError(package.model.id, "refreshCheckout failed: \(error.localizedDescription)")
         }
     }
     .map { package }
@@ -334,13 +337,15 @@ func refreshCheckout(eventLoop: EventLoop,
 ///   - packages: `Package`s to update
 /// - Returns: results future
 func updateRepositories(on database: Database,
-                        packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = packages.map { result -> EventLoopFuture<Package> in
+                        packages: [Result<JPR, Error>]) -> EventLoopFuture<[Result<JPR, Error>]> {
+    let ops = packages.map { result -> EventLoopFuture<JPR> in
         let updatedPackage = result.flatMap(updateRepository(package:))
         switch updatedPackage {
             case .success(let pkg):
                 AppMetrics.analyzeUpdateRepositorySuccessCount?.inc()
-                return pkg.repositories.update(on: database).transform(to: pkg)
+                return pkg.repository?.update(on: database)
+                    .transform(to: pkg)
+                ?? database.eventLoop.future(pkg)
             case .failure(let error):
                 AppMetrics.analyzeUpdateRepositoryFailureCount?.inc()
                 return database.eventLoop.future(error: error)
@@ -353,12 +358,15 @@ func updateRepositories(on database: Database,
 /// Update the `Repository` of a given `Package` with git repository data (commit count, first commit date, etc).
 /// - Parameter package: `Package` to update
 /// - Returns: result future
-func updateRepository(package: Package) -> Result<Package, Error> {
+func updateRepository(package: JPR) -> Result<JPR, Error> {
     guard let repo = package.repository else {
-        return .failure(AppError.genericError(package.id, "updateRepository: no repository"))
+        return .failure(AppError.genericError(package.model.id, "updateRepository: no repository"))
     }
-    guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return .failure(AppError.invalidPackageCachePath(package.id, package.url))
+    guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        return .failure(
+            AppError.invalidPackageCachePath(package.model.id,
+                                             package.model.url)
+        )
     }
     
     return Result {
@@ -382,7 +390,7 @@ func diffVersions(client: Client,
                   logger: Logger,
                   threadPool: NIOThreadPool,
                   transaction: Database,
-                  packages: [Result<Package, Error>]) -> EventLoopFuture<[Result<(Package, VersionDelta), Error>]> {
+                  packages: [Result<JPR, Error>]) -> EventLoopFuture<[Result<(JPR, VersionDelta), Error>]> {
     packages.whenAllComplete(on: transaction.eventLoop) { pkg in
         diffVersions(client: client,
                      logger: logger,
@@ -406,9 +414,9 @@ func diffVersions(client: Client,
                   logger: Logger,
                   threadPool: NIOThreadPool,
                   transaction: Database,
-                  package: Package) -> EventLoopFuture<VersionDelta> {
-    guard let pkgId = package.id else {
-        return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.url)"))
+                  package: JPR) -> EventLoopFuture<VersionDelta> {
+    guard let pkgId = package.model.id else {
+        return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)"))
     }
 
     let existing = Version.query(on: transaction)
@@ -449,19 +457,24 @@ func getIncomingVersions(client: Client,
                          logger: Logger,
                          threadPool: NIOThreadPool,
                          transaction: Database,
-                         package: Package) -> EventLoopFuture<[Version]> {
-    guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-        return transaction.eventLoop.future(error: AppError.invalidPackageCachePath(package.id, package.url))
+                         package: JPR) -> EventLoopFuture<[Version]> {
+    guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        return transaction.eventLoop.future(
+            error: AppError.invalidPackageCachePath(
+                package.model.id,
+                package.model.url
+            )
+        )
     }
-    guard let pkgId = package.id else {
-        return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.url)"))
+    guard let pkgId = package.model.id else {
+        return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)"))
     }
 
     let defaultBranch = package.repository?.defaultBranch
         .map { Reference.branch($0) }
 
     let tags: EventLoopFuture<[Reference]> = threadPool.runIfActive(eventLoop: transaction.eventLoop) {
-        logger.info("listing tags for package \(package.url)")
+        logger.info("listing tags for package \(package.model.url)")
         return try Current.git.getTags(cacheDir)
     }
     .flatMapError {
@@ -475,8 +488,8 @@ func getIncomingVersions(client: Client,
     return references
         .flatMapEachThrowing { ref in
             let revInfo = try Current.git.revisionInfo(ref, cacheDir)
-            let url = package.versionUrl(for: ref)
-            return try Version(package: package,
+            let url = package.model.versionUrl(for: ref)
+            return try Version(package: package.model,
                                commit: revInfo.commit,
                                commitDate: revInfo.date,
                                reference: ref,
@@ -517,7 +530,7 @@ func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version
 ///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
 /// - Returns: future with an array of each `Package` paired with its update package delta for further processing
 func mergeReleaseInfo(on transaction: Database,
-                      packageDeltas: [Result<(Package, VersionDelta), Error>]) -> EventLoopFuture<[Result<(Package, VersionDelta), Error>]> {
+                      packageDeltas: [Result<(JPR, VersionDelta), Error>]) -> EventLoopFuture<[Result<(JPR, VersionDelta), Error>]> {
     packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
         mergeReleaseInfo(on: transaction, package: pkg, versions: delta.toAdd)
             .map { (pkg, .init(toAdd: $0,
@@ -534,7 +547,7 @@ func mergeReleaseInfo(on transaction: Database,
 ///   - versions: list of `Verion`s to update
 /// - Returns: update `Version`s
 func mergeReleaseInfo(on transaction: Database,
-                      package: Package,
+                      package: JPR,
                       versions: [Version]) -> EventLoopFuture<[Version]> {
     guard let releases = package.repository?.releases else {
         return transaction.eventLoop.future(versions)
@@ -563,7 +576,7 @@ func mergeReleaseInfo(on transaction: Database,
 ///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
 /// - Returns: future with an array of each `Package` paired with its new `Version`s
 func applyVersionDelta(on transaction: Database,
-                       packageDeltas: [Result<(Package, VersionDelta), Error>]) -> EventLoopFuture<[Result<(Package, [Version]), Error>]> {
+                       packageDeltas: [Result<(JPR, VersionDelta), Error>]) -> EventLoopFuture<[Result<(JPR, [Version]), Error>]> {
     packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
         applyVersionDelta(on: transaction, delta: delta)
             .transform(to: (pkg, delta.toAdd))
@@ -595,13 +608,13 @@ func applyVersionDelta(on transaction: Database,
 ///   - logger: `Logger` object
 ///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
 /// - Returns: results future including the `Manifest`s
-func getPackageInfo(packageAndVersions: [Result<(Package, [Version]), Error>]) -> [Result<(Package, [(Version, Manifest, [ResolvedDependency]?)]), Error>] {
+func getPackageInfo(packageAndVersions: [Result<(JPR, [Version]), Error>]) -> [Result<(JPR, [(Version, Manifest, [ResolvedDependency]?)]), Error>] {
     packageAndVersions.map { result in
         result.flatMap { (pkg, versions) in
             let m = versions.map { getPackageInfo(package: pkg, version: $0) }
             let successes = m.compactMap { try? $0.get() }
             if !versions.isEmpty && successes.isEmpty {
-                return .failure(AppError.noValidVersions(pkg.id, pkg.url))
+                return .failure(AppError.noValidVersions(pkg.model.id, pkg.model.url))
             }
             return .success((pkg, successes))
         }
@@ -634,11 +647,12 @@ func dumpPackage(at path: String) throws -> Manifest {
 ///   - package: `Package` to analyse
 ///   - version: `Version` to check out
 /// - Returns: `Result` with `Manifest` data
-func getPackageInfo(package: Package, version: Version) -> Result<(Version, Manifest, [ResolvedDependency]?), Error> {
+func getPackageInfo(package: JPR, version: Version) -> Result<(Version, Manifest, [ResolvedDependency]?), Error> {
     Result {
         // check out version in cache directory
-        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package) else {
-            throw AppError.invalidPackageCachePath(package.id, package.url)
+        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+            throw AppError.invalidPackageCachePath(package.model.id,
+                                                   package.model.url)
         }
         guard let reference = version.reference else {
             throw AppError.invalidRevision(version.id, nil)
@@ -665,7 +679,7 @@ func getPackageInfo(package: Package, version: Version) -> Result<(Version, Mani
 ///   - packageResults: results to process, containing the versions and their manifests
 /// - Returns: the input data for further processing, wrapped in a future
 func updateVersions(on database: Database,
-                    packageResults: [Result<(Package, [(Version, Manifest, [ResolvedDependency]?)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+                    packageResults: [Result<(JPR, [(Version, Manifest, [ResolvedDependency]?)]), Error>]) -> EventLoopFuture<[Result<(JPR, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, pkgInfo) in
         EventLoopFuture.andAllComplete(
             pkgInfo.map { version, manifest, resolvedDependencies in
@@ -716,7 +730,7 @@ func updateVersion(on database: Database,
 ///   - packageResults: results to process
 /// - Returns: the input data for further processing, wrapped in a future
 func updateProducts(on database: Database,
-                    packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+                    packageResults: [Result<(JPR, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(JPR, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest in
@@ -770,7 +784,7 @@ func createProducts(on database: Database, version: Version, manifest: Manifest)
 ///   - packageResults: results to process
 /// - Returns: the input data for further processing, wrapped in a future
 func updateTargets(on database: Database,
-                   packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+                   packageResults: [Result<(JPR, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(JPR, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
         EventLoopFuture.andAllComplete(
             versionsAndManifests.map { version, manifest in
@@ -821,7 +835,7 @@ func createTargets(on database: Database, version: Version, manifest: Manifest) 
 ///   - packageResults: packages to update
 /// - Returns: the input data for further processing, wrapped in a future
 func updateLatestVersions(on database: Database,
-                          packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+                          packageResults: [Result<(JPR, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(JPR, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: database.eventLoop) { pkg, versionsAndManifests in
         updateLatestVersions(on: database, package: pkg)
             .map { _ in (pkg, versionsAndManifests) }
@@ -834,15 +848,16 @@ func updateLatestVersions(on database: Database,
 ///   - database: `Database` object
 ///   - package: package to update
 /// - Returns: future
-func updateLatestVersions(on database: Database, package: Package) -> EventLoopFuture<Void> {
-    package
+func updateLatestVersions(on database: Database, package: JPR) -> EventLoopFuture<Void> {
+    package.model
         .$versions.load(on: database)
         .flatMap {
             // find previous markers
-            let previous = package.versions.filter { $0.latest != nil }
+            let previous = package.model.versions
+                .filter { $0.latest != nil }
 
             // find new significant releases
-            let (release, preRelease, defaultBranch) = package.findSignificantReleases()
+            let (release, preRelease, defaultBranch) = package.model.findSignificantReleases()
             release.map { $0.latest = .release }
             preRelease.map { $0.latest = .preRelease }
             defaultBranch.map { $0.latest = .defaultBranch }
@@ -875,12 +890,12 @@ func updateLatestVersions(on database: Database, package: Package) -> EventLoopF
 func onNewVersions(client: Client,
                    logger: Logger,
                    transaction: Database,
-                   packageResults: [Result<(Package, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Package, [(Version, Manifest)]), Error>]> {
+                   packageResults: [Result<(JPR, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(JPR, [(Version, Manifest)]), Error>]> {
     packageResults.whenAllComplete(on: transaction.eventLoop) { pkg, versionsAndManifests in
         let versions = versionsAndManifests.map { $0.0 }
         return Twitter.postToFirehose(client: client,
                                       database: transaction,
-                                      package: pkg,
+                                      package: pkg.model,
                                       versions: versions)
             .flatMapError { error in
                 logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
@@ -891,10 +906,10 @@ func onNewVersions(client: Client,
 }
 
 
-private extension Array where Element == Result<(Package,[(Version, Manifest)]), Error> {
+private extension Array where Element == Result<(JPR,[(Version, Manifest)]), Error> {
     /// Helper to extract the nested `Package` results from the result tuple.
     /// - Returns: unpacked array of `Result<Package, Error>`
-    var packages: [Result<Package, Error>]  {
+    var packages: [Result<JPR, Error>]  {
         map { result in
             result.map { pkg, _ in
                 pkg

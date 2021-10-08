@@ -175,7 +175,7 @@ class TwitterTests: AppTestCase {
         try v2.save(on: app.db).wait()
         let v3 = try Version(package: pkg, packageName: "MyPackage", reference: .branch("main"))
         try v3.save(on: app.db).wait()
-        try updateLatestVersions(on: app.db, package: pkg).wait()
+        try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
 
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
@@ -209,7 +209,7 @@ class TwitterTests: AppTestCase {
         try v1.save(on: app.db).wait()
         let v2 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0))
         try v2.save(on: app.db).wait()
-        try updateLatestVersions(on: app.db, package: pkg).wait()
+        try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
 
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))

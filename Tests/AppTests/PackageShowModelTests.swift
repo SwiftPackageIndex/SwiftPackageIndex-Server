@@ -74,7 +74,7 @@ class PackageShowModelTests: SnapshotTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try pkg.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
         // reload via query to ensure pkg is in the same state it would normally be
         pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
 

@@ -20,14 +20,13 @@ import Vapor
 func updatePackages(client: Client,
                     database: Database,
                     logger: Logger,
-                    results: [Result<Package, Error>],
+                    results: [Result<JPR, Error>],
                     stage: Package.ProcessingStage) -> EventLoopFuture<Void> {
     let updates = results.map { result -> EventLoopFuture<Void> in
         switch result {
-            case .success(let pkg):
-                return pkg.$repositories
-                    .load(on: database)
-                    .flatMap { pkg.$versions.load(on: database) }
+            case .success(let jpr):
+                let pkg = jpr.model
+                return pkg.$versions.load(on: database)
                     .flatMap {
                         if stage == .ingestion && pkg.status == .new {
                             // newly ingested package: leave status == .new for fast-track

@@ -343,7 +343,7 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
-        try updateLatestVersions(on: app.db, package: pkg).wait()
+        try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
 
         // validate
         let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
@@ -380,7 +380,7 @@ final class PackageTests: AppTestCase {
         try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
-        try updateLatestVersions(on: app.db, package: pkg).wait()
+        try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
 
         // validate
         let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
@@ -403,7 +403,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship
         try pkg.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
 
         // MUT
         let info = pkg.releaseInfo()
@@ -428,7 +428,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship
         try pkg.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
 
         // MUT
         let info = pkg.releaseInfo()
@@ -492,7 +492,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship
         try pkg.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
 
         // MUT
         let lpInfo = pkg.languagePlatformInfo()
@@ -558,7 +558,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship
         try pkg.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
         
         // MUT
         XCTAssertEqual(pkg.computeScore(), 67)
@@ -674,7 +674,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try p.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
         // add builds
         try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
@@ -709,7 +709,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try p.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
         // add builds
         try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
@@ -754,7 +754,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try p.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -785,7 +785,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try p.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .triggered, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -816,7 +816,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try p.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -847,7 +847,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try p.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -878,7 +878,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try p.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .triggered, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -909,7 +909,7 @@ final class PackageTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try p.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)

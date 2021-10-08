@@ -347,7 +347,7 @@ class ApiTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try p.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
 
         let owner = "foo"
         let repo = "bar"
@@ -424,7 +424,7 @@ class ApiTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try p.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)

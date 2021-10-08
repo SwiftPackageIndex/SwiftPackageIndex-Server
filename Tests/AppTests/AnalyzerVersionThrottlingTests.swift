@@ -177,7 +177,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
                                        logger: app.logger,
                                        threadPool: app.threadPool,
                                        transaction: app.db,
-                                       package: pkg).wait()
+                                       package: .init(model: pkg)).wait()
 
             // validate
             XCTAssertEqual(res.toAdd, [])
@@ -198,7 +198,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
                                        logger: app.logger,
                                        threadPool: app.threadPool,
                                        transaction: app.db,
-                                       package: pkg).wait()
+                                       package: .init(model: pkg)).wait()
 
             // validate
             XCTAssertEqual(res.toAdd.map(\.commit), ["sha_new2"])
@@ -219,7 +219,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
                                          logger: app.logger,
                                          threadPool: app.threadPool,
                                          transaction: app.db,
-                                         package: pkg).wait()
+                                         package: .init(model: pkg)).wait()
             // apply the delta to ensure versions are in place for next cycle
             try applyVersionDelta(on: app.db, delta: delta).wait()
             return delta

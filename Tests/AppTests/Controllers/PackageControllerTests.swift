@@ -48,7 +48,7 @@ class PackageControllerTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try package.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: package).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: package)).wait()
     }
 
     func test_show_owner_repository() throws {

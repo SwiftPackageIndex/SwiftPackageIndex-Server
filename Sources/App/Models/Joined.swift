@@ -41,3 +41,7 @@ extension Joined where M == Package, R == Repository {
               join: \Repository.$package.$id == \Package.$id)
     }
 }
+
+
+// TODO: rename & move
+typealias JPR = Joined2<Package, Repository>

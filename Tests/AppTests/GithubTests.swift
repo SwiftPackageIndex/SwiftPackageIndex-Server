@@ -151,7 +151,7 @@ class GithubTests: AppTestCase {
         let client = MockClient { _, resp in
             resp.status = .ok
         }
-        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, packageUrl: pkg.url).wait()) {
             guard case Github.Error.invalidURI = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
                 return
@@ -169,7 +169,7 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, packageUrl: pkg.url).wait()) {
             // validation
             guard case DecodingError.dataCorrupted = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
@@ -188,7 +188,7 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, packageUrl: pkg.url).wait()) {
             // validation
             guard case Github.Error.requestFailed(.tooManyRequests) = $0 else {
                 XCTFail("unexpected error: \($0.localizedDescription)")
@@ -246,7 +246,7 @@ class GithubTests: AppTestCase {
         }
         
         // MUT
-        XCTAssertThrowsError(try Github.fetchMetadata(client: client, package: pkg).wait()) {
+        XCTAssertThrowsError(try Github.fetchMetadata(client: client, packageUrl: pkg.url).wait()) {
             // validation
             XCTAssertNotNil(reportedError)
             XCTAssertEqual(reportedLevel, .critical)
@@ -259,9 +259,9 @@ class GithubTests: AppTestCase {
 
     func test_apiUri() throws {
         let pkg = Package(url: "https://github.com/foo/bar")
-        XCTAssertEqual(try Github.apiUri(for: pkg, resource: .license).string,
+        XCTAssertEqual(try Github.apiUri(for: pkg.url, resource: .license).string,
                        "https://api.github.com/repos/foo/bar/license")
-        XCTAssertEqual(try Github.apiUri(for: pkg, resource: .readme).string,
+        XCTAssertEqual(try Github.apiUri(for: pkg.url, resource: .readme).string,
                        "https://api.github.com/repos/foo/bar/readme")
     }
 
@@ -276,7 +276,7 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        let res = try Github.fetchLicense(client: client, package: pkg).wait()
+        let res = try Github.fetchLicense(client: client, packageUrl: pkg.url).wait()
 
         // validate
         XCTAssertEqual(res?.htmlUrl, "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE")
@@ -290,7 +290,7 @@ class GithubTests: AppTestCase {
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let res = try Github.fetchLicense(client: client, package: pkg).wait()
+        let res = try Github.fetchLicense(client: client, packageUrl: pkg.url).wait()
 
         // validate
         XCTAssertEqual(res, nil)
@@ -307,7 +307,7 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        let res = try Github.fetchReadme(client: client, package: pkg).wait()
+        let res = try Github.fetchReadme(client: client, packageUrl: pkg.url).wait()
 
         // validate
         XCTAssertEqual(res?.downloadUrl, "https://raw.githubusercontent.com/daveverwer/LeftPad/master/README.md")
@@ -320,7 +320,7 @@ class GithubTests: AppTestCase {
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let res = try Github.fetchReadme(client: client, package: pkg).wait()
+        let res = try Github.fetchReadme(client: client, packageUrl: pkg.url).wait()
 
         // validate
         XCTAssertEqual(res?.downloadUrl, nil)

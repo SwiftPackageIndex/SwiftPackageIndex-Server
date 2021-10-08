@@ -34,7 +34,7 @@ class PipelineTests: AppTestCase {
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
-        XCTAssertEqual(batch.map(\.url), ["1", "2"])
+        XCTAssertEqual(batch.map(\.model.url), ["1", "2"])
     }
     
     func test_fetchCandidates_ingestion_limit() throws {
@@ -45,7 +45,7 @@ class PipelineTests: AppTestCase {
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 1).wait()
-        XCTAssertEqual(batch.map(\.url), ["1"])
+        XCTAssertEqual(batch.map(\.model.url), ["1"])
     }
     
     func test_fetchCandidates_ingestion_correct_stage() throws {
@@ -56,7 +56,7 @@ class PipelineTests: AppTestCase {
             Package(url: "3", status: .ok, processingStage: .analysis),
         ].save(on: app.db).wait()
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
-        XCTAssertEqual(batch.map(\.url), ["2"])
+        XCTAssertEqual(batch.map(\.model.url), ["2"])
     }
     
     func test_fetchCandidates_ingestion_prefer_new() throws {
@@ -69,7 +69,7 @@ class PipelineTests: AppTestCase {
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
-        XCTAssertEqual(batch.map(\.url), ["2", "1", "3"])
+        XCTAssertEqual(batch.map(\.model.url), ["2", "1", "3"])
     }
     
     func test_fetchCandidates_ingestion_eventual_refresh() throws {
@@ -84,7 +84,7 @@ class PipelineTests: AppTestCase {
             "update packages set updated_at = updated_at - interval '91 mins' where id = \(bind: p2.id)"
         ).run().wait()
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
-        XCTAssertEqual(batch.map(\.url), ["2"])
+        XCTAssertEqual(batch.map(\.model.url), ["2"])
     }
 
     func test_fetchCandidates_ingestion_refresh_analysis_only() throws {
@@ -102,7 +102,7 @@ class PipelineTests: AppTestCase {
         // fast forward our clock by the deadtime interval
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         let batch = try Package.fetchCandidates(app.db, for: .ingestion, limit: 10).wait()
-        XCTAssertEqual(batch.map(\.url), ["1", "3"])
+        XCTAssertEqual(batch.map(\.model.url), ["1", "3"])
     }
 
     func test_fetchCandidates_analysis_correct_stage() throws {
@@ -114,7 +114,7 @@ class PipelineTests: AppTestCase {
             Package(url: "4", status: .ok, processingStage: .analysis),
         ].save(on: app.db).wait()
         let batch = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
-        XCTAssertEqual(batch.map(\.url), ["3"])
+        XCTAssertEqual(batch.map(\.model.url), ["3"])
     }
     
     func test_fetchCandidates_analysis_prefer_new() throws {
@@ -126,7 +126,7 @@ class PipelineTests: AppTestCase {
             Package(url: "4", status: .new, processingStage: .ingestion),
         ].save(on: app.db).wait()
         let batch = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
-        XCTAssertEqual(batch.map(\.url), ["4", "1", "2", "3"])
+        XCTAssertEqual(batch.map(\.model.url), ["4", "1", "2", "3"])
     }
     
     func test_processing_pipeline() throws {

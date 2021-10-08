@@ -49,7 +49,7 @@ class BuildShowModelTests: AppTestCase {
         // re-load repository relationship (required for updateLatestVersions)
         try pkg.$repositories.load(on: app.db).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+        _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
 
         // MUT
         let m = try Build.query(on: app.db, buildId: buildId)

@@ -252,9 +252,8 @@ extension QueryBuilder where Model == Package {
 
 extension Package {
     static func fetchCandidate(_ database: Database,
-                               id: Id) -> EventLoopFuture<Package> {
-        Package.query(on: database)
-            .with(\.$repositories)
+                               id: Id) -> EventLoopFuture<JPR> {
+        JPR.query(on: database)
             .filter(\.$id == id)
             .first()
             .unwrap(or: Abort(.notFound))
@@ -262,9 +261,8 @@ extension Package {
 
     static func fetchCandidates(_ database: Database,
                                 for stage: ProcessingStage,
-                                limit: Int) -> EventLoopFuture<[Package]> {
-        Package.query(on: database)
-            .with(\.$repositories)
+                                limit: Int) -> EventLoopFuture<[JPR]> {
+        JPR.query(on: database)
             .filter(for: stage)
             .sort(.sql(raw: "status != 'new'"))
             .sort(\.$updatedAt)
@@ -274,13 +272,13 @@ extension Package {
 }
 
 
-private extension QueryBuilder where Model == Package {
+private extension JoinedQueryBuilder where J == JPR {
     func filter(for stage: Package.ProcessingStage) -> Self {
         switch stage {
             case .reconciliation:
                 fatalError("reconciliation stage does not select candidates")
             case .ingestion:
-                return group(.or) {
+                queryBuilder.group(.or) {
                     $0
                         .filter(\.$processingStage == .reconciliation)
                         .group(.and) {
@@ -291,7 +289,8 @@ private extension QueryBuilder where Model == Package {
                         }
                 }
             case .analysis:
-                return filter(\.$processingStage == .ingestion)
+                queryBuilder.filter(\.$processingStage == .ingestion)
         }
+        return self
     }
 }

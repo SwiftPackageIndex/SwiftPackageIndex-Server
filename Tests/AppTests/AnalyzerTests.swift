@@ -402,7 +402,7 @@ class AnalyzerTests: AppTestCase {
         _ = try refreshCheckout(eventLoop: app.eventLoopGroup.next(),
                                 logger: app.logger,
                                 threadPool: app.threadPool,
-                                package: pkg).wait()
+                                package: .init(model: pkg)).wait()
         
         // validate
         assertSnapshot(matching: commands, as: .dump)
@@ -437,10 +437,10 @@ class AnalyzerTests: AppTestCase {
         _ = try pkg.$repositories.get(on: app.db).wait()
         
         // MUT
-        let res = updateRepository(package: pkg)
+        let res = updateRepository(package: .init(model: pkg))
         
         // validate
-        let repo = try XCTUnwrap(try res.get().repository)
+        let repo = try XCTUnwrap(try res.get().model.repository)
         XCTAssertEqual(repo.commitCount, 12)
         XCTAssertEqual(repo.firstCommitDate, .t0)
         XCTAssertEqual(repo.lastCommitDate, .t1)
@@ -456,14 +456,14 @@ class AnalyzerTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         _ = try pkg.$repositories.get(on: app.db).wait()
-        let packages: [Result<Package, Error>] = [
+        let packages: [Result<JPR, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
-            .success(pkg)
+            .success(.init(model: pkg))
         ]
         
         // MUT
-        let results: [Result<Package, Error>] =
+        let results: [Result<JPR, Error>] =
             try updateRepositories(on: app.db, packages: packages).wait()
         
         // validate
@@ -528,7 +528,7 @@ class AnalyzerTests: AppTestCase {
             try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         }
         let pkg = try Package.fetchCandidate(app.db, id: pkgId).wait()
-        let packages: [Result<Package, Error>] = [
+        let packages: [Result<JPR, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success(pkg)
@@ -581,7 +581,7 @@ class AnalyzerTests: AppTestCase {
 
         // MUT
         let res = try mergeReleaseInfo(on: app.db,
-                                       package: pkg,
+                                       package: .init(model: pkg),
                                        versions: versions)
             .wait()
 
@@ -621,7 +621,8 @@ class AnalyzerTests: AppTestCase {
         try version.save(on: app.db).wait()
         
         // MUT
-        let (v, m, d) = try getPackageInfo(package: pkg, version: version).get()
+        let (v, m, d) = try getPackageInfo(package: .init(model: pkg),
+                                           version: version).get()
         
         // validation
         XCTAssertEqual(commands, [
@@ -667,10 +668,10 @@ class AnalyzerTests: AppTestCase {
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try version.save(on: app.db).wait()
         
-        let packageAndVersions: [Result<(Package, [Version]), Error>] = [
+        let packageAndVersions: [Result<(JPR, [Version]), Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
-            .success((pkg, [version]))
+            .success((.init(model: pkg), [version]))
         ]
         
         // MUT
@@ -814,9 +815,10 @@ class AnalyzerTests: AppTestCase {
     func test_updatePackage() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
-        let results: [Result<Package, Error>] = [
+            .map(JPR.init(model:))
+        let results: [Result<JPR, Error>] = [
             // feed in one error to see it passed through
-            .failure(AppError.noValidVersions(try packages[0].requireID(), "1")),
+            .failure(AppError.noValidVersions(try packages[0].model.requireID(), "1")),
             .success(packages[1])
         ]
         
@@ -995,7 +997,7 @@ class AnalyzerTests: AppTestCase {
         try pkg.$repositories.load(on: app.db).wait()
 
         // MUT
-        try updateLatestVersions(on: app.db, package: pkg).wait()
+        try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
 
         // validate
         do {  // refetch package to ensure changes are persisted
@@ -1031,7 +1033,7 @@ class AnalyzerTests: AppTestCase {
         _ = try refreshCheckout(eventLoop: app.eventLoopGroup.next(),
                                 logger: app.logger,
                                 threadPool: app.threadPool,
-                                package: pkg).wait()
+                                package: .init(model: pkg)).wait()
 
         // validate
         assertSnapshot(matching: commands, as: .dump)
@@ -1049,8 +1051,8 @@ class AnalyzerTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try version.save(on: app.db).wait()
-        let packageResults: [Result<(Package, [(Version, Manifest)]), Error>] = [
-            .success((pkg, [(version, .mock)]))
+        let packageResults: [Result<(JPR, [(Version, Manifest)]), Error>] = [
+            .success((.init(model: pkg), [(version, .mock)]))
         ]
 
         // MUT & validation (no error thrown)
