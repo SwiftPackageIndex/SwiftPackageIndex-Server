@@ -31,3 +31,13 @@ extension Joined2 {
 
     var relation: R? { try? model.joined(R.self) }
 }
+
+
+extension Joined2 where M == Package, R == Repository {
+    var repository: Repository? { relation }
+
+    static func query(on database: Database) -> JoinedQueryBuilder<Joined2> {
+        query(on: database,
+              join: \Repository.$package.$id == \Package.$id)
+    }
+}
