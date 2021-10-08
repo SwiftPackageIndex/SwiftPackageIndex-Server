@@ -19,6 +19,11 @@ import FluentKit
 struct JoinedQueryBuilder<J: Joiner> {
     var queryBuilder: QueryBuilder<J.M>
 
+    @discardableResult func filter(_ filter: ModelValueFilter<J.M>) -> Self {
+        queryBuilder.filter(filter)
+        return self
+    }
+
     @discardableResult
     func filter(_ field: DatabaseQuery.Field, _ method: DatabaseQuery.Filter.Method, _ value: DatabaseQuery.Value) -> Self {
         queryBuilder.filter(field, method, value)
@@ -27,6 +32,11 @@ struct JoinedQueryBuilder<J: Joiner> {
 
     @discardableResult func filter<Joined>(_ schema: Joined.Type, _ filter: ModelValueFilter<Joined>) -> Self where Joined : Schema {
         queryBuilder.filter(schema, filter)
+        return self
+    }
+
+    func sort(_ sort: DatabaseQuery.Sort) -> Self {
+        _ = queryBuilder.sort(sort)
         return self
     }
 
