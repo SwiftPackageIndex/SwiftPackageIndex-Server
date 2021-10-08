@@ -46,6 +46,26 @@ struct JoinedQueryBuilder<J: Joiner> {
         return self
     }
 
+    @discardableResult func join<Foreign, Local, Value>(_ foreign: Foreign.Type, on filter: JoinFilter<Foreign, Local, Value>, method: DatabaseQuery.Join.Method = .inner) -> Self where Foreign : Schema, Local : Schema, Value : Decodable, Value : Encodable {
+        queryBuilder.join(foreign, on: filter, method: method)
+        return self
+    }
+
+    @discardableResult func fields<Joined>(for model: Joined.Type) -> Self where Joined : Schema {
+        queryBuilder.fields(for: model)
+        return self
+    }
+
+    @discardableResult func unique() -> Self {
+        queryBuilder.unique()
+        return self
+    }
+
+    @discardableResult func limit(_ count: Int) -> Self {
+        queryBuilder.limit(count)
+        return self
+    }
+
     func all() -> EventLoopFuture<[J]> {
         queryBuilder.all()
             .mapEach(J.init(model:))
