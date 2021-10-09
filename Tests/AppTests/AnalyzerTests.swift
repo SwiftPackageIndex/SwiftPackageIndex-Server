@@ -385,7 +385,6 @@ class AnalyzerTests: AppTestCase {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        try pkg.$repositories.load(on: app.db).wait()
         let queue = DispatchQueue(label: "serial")
         Current.fileManager.fileExists = { _ in true }
         var commands = [String]()
@@ -397,12 +396,13 @@ class AnalyzerTests: AppTestCase {
             }
             return ""
         }
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         
         // MUT
         _ = try refreshCheckout(eventLoop: app.eventLoopGroup.next(),
                                 logger: app.logger,
                                 threadPool: app.threadPool,
-                                package: .init(model: pkg)).wait()
+                                package: jpr).wait()
         
         // validate
         assertSnapshot(matching: commands, as: .dump)
@@ -431,13 +431,13 @@ class AnalyzerTests: AppTestCase {
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
         Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
-        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
+        let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        _ = try pkg.$repositories.get(on: app.db).wait()
-        
+        let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
+
         // MUT
-        let res = updateRepository(package: .init(model: pkg))
+        let res = updateRepository(package: jpr)
         
         // validate
         let repo = try XCTUnwrap(try res.get().model.repository)
@@ -551,7 +551,7 @@ class AnalyzerTests: AppTestCase {
 
     func test_mergeReleaseInfo() throws {
         // setup
-        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
+        let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, releases:[
             .mock(description: "rel 1.2.3", publishedAt: 1, tagName: "1.2.3"),
@@ -561,7 +561,6 @@ class AnalyzerTests: AppTestCase {
             .mock(description: "rel 2.3.0", publishedAt: 4, tagName: "2.3.0", url: "some url"),
             .mock(description: nil, tagName: "2.4.0")
         ]).save(on: app.db).wait()
-        try pkg.$repositories.load(on: app.db).wait()
         let versions: [Version] = try [
             (Date(timeIntervalSince1970: 0), Reference.tag(1, 2, 3)),
             (Date(timeIntervalSince1970: 1), Reference.tag(2, 0, 0)),
@@ -572,16 +571,17 @@ class AnalyzerTests: AppTestCase {
             (Date(timeIntervalSince1970: 6), Reference.branch("main")),
         ].map { date, ref in
             let v = try Version(id: UUID(),
-                                 package: pkg,
-                                 commitDate: date,
-                                 reference: ref)
+                                package: pkg,
+                                commitDate: date,
+                                reference: ref)
             try v.save(on: app.db).wait()
             return v
         }
+        let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
 
         // MUT
         let res = try mergeReleaseInfo(on: app.db,
-                                       package: .init(model: pkg),
+                                       package: jpr,
                                        versions: versions)
             .wait()
 
@@ -930,7 +930,7 @@ class AnalyzerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
         // setup
         try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
+        let pkgs = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
@@ -951,10 +951,10 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = try pkgs.flatMap { refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
-                                                      logger: self.app.logger,
-                                                      threadPool: self.app.threadPool,
-                                                      packages: $0) }.wait()
+        let res = try refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
+                                       logger: self.app.logger,
+                                       threadPool: self.app.threadPool,
+                                       packages: pkgs).wait()
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
@@ -1013,9 +1013,11 @@ class AnalyzerTests: AppTestCase {
         // Handle moved tags
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
         // setup
-        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        try pkg.$repositories.load(on: app.db).wait()
+        do {
+            let pkg = try savePackage(on: app.db, id: .id0, "1".asGithubUrl.url)
+            try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        }
+        let pkg = try Package.fetchCandidate(app.db, id: .id0).wait()
         let queue = DispatchQueue(label: "serial")
         Current.fileManager.fileExists = { _ in true }
         var commands = [String]()
@@ -1033,7 +1035,7 @@ class AnalyzerTests: AppTestCase {
         _ = try refreshCheckout(eventLoop: app.eventLoopGroup.next(),
                                 logger: app.logger,
                                 threadPool: app.threadPool,
-                                package: .init(model: pkg)).wait()
+                                package: pkg).wait()
 
         // validate
         assertSnapshot(matching: commands, as: .dump)

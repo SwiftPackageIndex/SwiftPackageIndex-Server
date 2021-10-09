@@ -90,9 +90,9 @@ func fixturesDirectory(path: String = #file) -> URL {
 
 
 @discardableResult
-func savePackage(on db: Database, _ url: URL,
+func savePackage(on db: Database, id: Package.Id = UUID(), _ url: URL,
                  processingStage: Package.ProcessingStage? = nil) throws -> Package {
-    let p = Package(id: UUID(), url: url, processingStage: processingStage)
+    let p = Package(id: id, url: url, processingStage: processingStage)
     try p.save(on: db).wait()
     return p
 }

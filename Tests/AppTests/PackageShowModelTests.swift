@@ -52,7 +52,7 @@ class PackageShowModelTests: SnapshotTestCase {
     func test_query_builds() throws {
         // Ensure the builds relationship is loaded
         // setup
-        var pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
                        defaultBranch: "main",
                        forks: 42,
@@ -71,15 +71,13 @@ class PackageShowModelTests: SnapshotTestCase {
                   swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try pkg.$repositories.load(on: app.db).wait()
         // update versions
         _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
         // reload via query to ensure pkg is in the same state it would normally be
-        pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let m = PackageShow.Model(package: pkg)
+        let m = PackageShow.Model(package: jpr.model)
         
         // validate
         XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)

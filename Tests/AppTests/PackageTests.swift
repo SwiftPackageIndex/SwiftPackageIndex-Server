@@ -338,14 +338,13 @@ final class PackageTests: AppTestCase {
             .save(on: app.db).wait()
         try Version(package: pkg, commitDate: t(1), packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
             .save(on: app.db).wait()
-        // load repositories (this will have happened already at the point where
-        // updateLatestVersions is being used and therefore it doesn't reload it)
-        try pkg.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // validate
+        try pkg.$versions.load(on: app.db).wait()
         let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
         XCTAssertEqual(versions.map(\.reference?.description), ["main", "1.2.3", "2.0.0-rc1"])
         XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])

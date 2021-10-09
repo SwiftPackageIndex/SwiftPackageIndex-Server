@@ -78,9 +78,10 @@ class IngestorTests: AppTestCase {
     
     func test_insertOrUpdateRepository() throws {
         let pkg = try savePackage(on: app.db, "https://github.com/foo/bar")
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         do {  // test insert
             try insertOrUpdateRepository(on: app.db,
-                                         for: .init(model: pkg),
+                                         for: jpr,
                                          metadata: .mock(for: pkg.url),
                                          licenseInfo: .init(htmlUrl: ""),
                                          readmeInfo: .init(downloadUrl: "", htmlUrl: "")).wait()
@@ -91,7 +92,7 @@ class IngestorTests: AppTestCase {
             var md = Github.Metadata.mock(for: pkg.url)
             md.repository?.description = "New description"
             try insertOrUpdateRepository(on: app.db,
-                                         for: .init(model: pkg),
+                                         for: jpr,
                                          metadata: md,
                                          licenseInfo: .init(htmlUrl: ""),
                                          readmeInfo: .init(downloadUrl: "", htmlUrl: "")).wait()
@@ -103,10 +104,11 @@ class IngestorTests: AppTestCase {
     func test_updateRepositories() throws {
         // setup
         let pkg = try savePackage(on: app.db, "2")
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         let metadata: [Result<(JPR, Github.Metadata, Github.License?, Github.Readme?),
                               Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-            .success((.init(model: pkg),
+            .success((jpr,
                       .init(defaultBranch: "main",
                             forks: 1,
                             issuesClosedAtDates: [

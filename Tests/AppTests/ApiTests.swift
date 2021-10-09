@@ -344,10 +344,9 @@ class ApiTests: AppTestCase {
                        owner: "foo").save(on: app.db).wait()
         try Version(package: p, reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p, reference: .tag(.init(1, 2, 3))).save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
+        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
 
         let owner = "foo"
         let repo = "bar"
@@ -421,10 +420,9 @@ class ApiTests: AppTestCase {
                        license: .mit,
                        name: repo,
                        owner: owner).save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
+        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
