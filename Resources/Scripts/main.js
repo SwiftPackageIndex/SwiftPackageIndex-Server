@@ -27,9 +27,9 @@ import { SPIReadmeElement } from './readme_element.js'
 import { SPITabBarElement } from './tab_bar_element.js'
 import { SPIShowMoreKeywords } from './show_more_keywords.js'
 
-window.externalLinkRetargeter = new ExternalLinkRetargeter()
-window.spiPackageListNavigation = new SPIPackageListNavigation()
-window.buildLogNavigation = new SPIBuildLogNavigation()
+new ExternalLinkRetargeter()
+new SPIPackageListNavigation()
+new SPIBuildLogNavigation()
 new SPICopyPackageURLButton()
 new SPICopyableInput()
 new SPIAutofocus()
