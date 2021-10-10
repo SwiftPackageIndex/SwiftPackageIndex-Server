@@ -27,16 +27,34 @@ export class SPITabBarElement extends HTMLElement {
       })
     }
 
+    function deactivateAllTabs(tabLinkElements) {
+      tabLinkElements.forEach((tabLinkElement) => {
+        tabLinkElement.classList.remove('active')
+      })
+    }
+
+    function activateTab(tabLinkElement) {
+      tabLinkElement.classList.add('active')
+    }
+
+    const locationUrlHash = new URL(window.location).hash
     const tabLinkElements = this.querySelectorAll('[data-tab]')
     tabLinkElements.forEach((tabLinkElement) => {
+      // For all tabs, if their name matches the anchor in the location, make it active.
+      if (locationUrlHash === `#${tabLinkElement.dataset.tab}`) {
+        deactivateAllTabs(tabLinkElements)
+        activateTab(tabLinkElement)
+
+        setTimeout((event) => {
+          tabLinkElement.scrollIntoView(true)
+        }, 500)
+      }
+
       // Add click listener which will show the correct page when a user taps on a tab link
       tabLinkElement.addEventListener('click', (event) => {
         // Update Tab Links
-        tabLinkElements.forEach((tabLinkElement) => {
-          tabLinkElement.classList.remove('active')
-        })
-
-        tabLinkElement.classList.add('active')
+        deactivateAllTabs(tabLinkElements)
+        activateTab(tabLinkElement)
 
         // Update Tab Pages
         showPage(event.srcElement.dataset.tab)
