@@ -51,7 +51,7 @@ export class SPITabBarElement extends HTMLElement {
         // tab selected and focused, but scrolled into the middle of the screen.
         setTimeout((event) => {
           tabLinkElement.scrollIntoView(true)
-        }, 500)
+        }, 1000)
       }
 
       // Add click listener which will show the correct page when a user taps on a tab link
