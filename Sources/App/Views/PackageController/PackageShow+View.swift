@@ -221,11 +221,13 @@ enum PackageShow {
             .spiTabBar(
                 .ul(
                     .li(
-                        .data(named: "tab", value: "readme"),
+                        .id("readme"),
                         .class("active"),
+                        .data(named: "tab", value: "readme"),
                         "README"
                     ),
                     .li(
+                        .id("releases"),
                         .data(named: "tab", value: "releases"),
                         "Release Notes"
                     )
