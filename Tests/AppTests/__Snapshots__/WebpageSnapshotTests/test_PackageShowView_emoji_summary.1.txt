@@ -302,8 +302,8 @@
         </article>
         <tab-bar>
           <ul>
-            <li data-tab="readme" class="active">README</li>
-            <li data-tab="releases">Release Notes</li>
+            <li id="readme" class="active" data-tab="readme">README</li>
+            <li id="releases" data-tab="releases">Release Notes</li>
           </ul>
         </tab-bar>
         <turbo-frame id="readme" src="/Alamo/Alamofire/readme" data-tab-page="readme">
