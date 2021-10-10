@@ -45,6 +45,10 @@ export class SPITabBarElement extends HTMLElement {
         deactivateAllTabs(tabLinkElements)
         activateTab(tabLinkElement)
 
+        // Scroll the tab bar to the top of the screen.
+        // NOTE: This can't be done inline, and this code is brittle based on client network
+        // speed having loaded the releases within 500ms. The alternative is to have the releases
+        // tab selected and focused, but scrolled into the middle of the screen.
         setTimeout((event) => {
           tabLinkElement.scrollIntoView(true)
         }, 500)
