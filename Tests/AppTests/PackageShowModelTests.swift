@@ -71,8 +71,10 @@ class PackageShowModelTests: SnapshotTestCase {
                   swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
-        // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
+        do {  // update versions
+            let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+            try updateLatestVersions(on: app.db, package: jpr).wait()
+        }
         // reload via query to ensure pkg is in the same state it would normally be
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
