@@ -20,8 +20,8 @@ export class SPITabBarElement extends HTMLElement {
     tabLinkElements.forEach((tabLinkElement) => {
       tabLinkElement.addEventListener('click', (event) => {
         // Assign a new tab to be active and switch to it.
-        this.#activateTab(tabLinkElement, tabLinkElements)
-        this.#showPage(event.srcElement.dataset.tab)
+        this.activateTab(tabLinkElement, tabLinkElements)
+        this.showPage(event.srcElement.dataset.tab)
       })
     })
 
@@ -34,18 +34,16 @@ export class SPITabBarElement extends HTMLElement {
     tabLinkElements.forEach((tabLinkElement) => {
       // Make any tab active where the identifier matches an anchor in the location.
       if (locationUrlHash === `#${tabLinkElement.dataset.tab}`) {
-        this.#activateTab(tabLinkElement, tabLinkElements)
+        this.activateTab(tabLinkElement, tabLinkElements)
       }
     })
 
     // Show the page which has the active class.
     const activeTabLinkElement = this.querySelector('[data-tab].active')
-    this.#showPage(activeTabLinkElement.dataset.tab)
+    this.showPage(activeTabLinkElement.dataset.tab)
   }
 
-  // Private methods
-
-  #showPage(tabId) {
+  showPage(tabId) {
     const tabPageElements = document.querySelectorAll('[data-tab-page]')
     tabPageElements.forEach((tabPageElement) => {
       if (tabPageElement.dataset.tabPage == tabId) {
@@ -56,7 +54,7 @@ export class SPITabBarElement extends HTMLElement {
     })
   }
 
-  #activateTab(tabLinkElement, tabLinkElements) {
+  activateTab(tabLinkElement, tabLinkElements) {
     tabLinkElements.forEach((tabLinkElement) => {
       tabLinkElement.classList.remove('active')
     })
