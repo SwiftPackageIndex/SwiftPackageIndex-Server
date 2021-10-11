@@ -22,6 +22,11 @@ export class SPITabBarElement extends HTMLElement {
         // Assign a new tab to be active and switch to it.
         this.activateTab(tabLinkElement, tabLinkElements)
         this.showPage(event.srcElement.dataset.tab)
+
+        // Only when explicitly clicked, change the page anchor.
+        const currentLocationUrl = new URL(window.location)
+        currentLocationUrl.hash = `#${tabLinkElement.dataset.tab}`
+        window.history.pushState({}, '', currentLocationUrl)
       })
     })
 
