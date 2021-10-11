@@ -102,7 +102,7 @@ extension Twitter {
                                      summary: String?) -> String {
         createMessage(preamble: "⬆️ \(repositoryOwnerName) just released \(packageName) v\(version)",
                       summary: summary,
-                      url: url)
+                      url: "\(url)#releases")
     }
 
     static func firehoseMessage(db: Database, for version: Version) -> EventLoopFuture<String?> {

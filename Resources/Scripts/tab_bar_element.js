@@ -27,16 +27,38 @@ export class SPITabBarElement extends HTMLElement {
       })
     }
 
+    function deactivateAllTabs(tabLinkElements) {
+      tabLinkElements.forEach((tabLinkElement) => {
+        tabLinkElement.classList.remove('active')
+      })
+    }
+
+    function activateTab(tabLinkElement) {
+      tabLinkElement.classList.add('active')
+    }
+
+    const locationUrlHash = new URL(window.location).hash
     const tabLinkElements = this.querySelectorAll('[data-tab]')
     tabLinkElements.forEach((tabLinkElement) => {
+      // For all tabs, if their name matches the anchor in the location, make it active.
+      if (locationUrlHash === `#${tabLinkElement.dataset.tab}`) {
+        deactivateAllTabs(tabLinkElements)
+        activateTab(tabLinkElement)
+
+        // Scroll the tab bar to the top of the screen.
+        // NOTE: This can't be done inline, and this code is brittle based on client network
+        // speed having loaded the releases within 500ms. The alternative is to have the releases
+        // tab selected and focused, but scrolled into the middle of the screen.
+        setTimeout((event) => {
+          tabLinkElement.scrollIntoView(true)
+        }, 1000)
+      }
+
       // Add click listener which will show the correct page when a user taps on a tab link
       tabLinkElement.addEventListener('click', (event) => {
         // Update Tab Links
-        tabLinkElements.forEach((tabLinkElement) => {
-          tabLinkElement.classList.remove('active')
-        })
-
-        tabLinkElement.classList.add('active')
+        deactivateAllTabs(tabLinkElements)
+        activateTab(tabLinkElement)
 
         // Update Tab Pages
         showPage(event.srcElement.dataset.tab)

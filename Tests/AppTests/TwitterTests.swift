@@ -31,7 +31,7 @@ class TwitterTests: AppTestCase {
             """
             ⬆️ owner just released packageName v2.6.4 – This is a test package
 
-            http://localhost:8080/owner/SuperAwesomePackage
+            http://localhost:8080/owner/SuperAwesomePackage#releases
             """
         )
 
@@ -46,7 +46,7 @@ class TwitterTests: AppTestCase {
             """
             ⬆️ owner just released packageName v2.6.4
 
-            http://localhost:8080/owner/SuperAwesomePackage
+            http://localhost:8080/owner/SuperAwesomePackage#releases
             """
         )
 
@@ -61,7 +61,7 @@ class TwitterTests: AppTestCase {
             """
             ⬆️ owner just released packageName v2.6.4
 
-            http://localhost:8080/owner/SuperAwesomePackage
+            http://localhost:8080/owner/SuperAwesomePackage#releases
             """
         )
 
@@ -76,7 +76,7 @@ class TwitterTests: AppTestCase {
             """
             ⬆️ owner just released packageName v2.6.4
 
-            http://localhost:8080/owner/SuperAwesomePackage
+            http://localhost:8080/owner/SuperAwesomePackage#releases
             """
         )
     }
@@ -92,9 +92,9 @@ class TwitterTests: AppTestCase {
 
         XCTAssertEqual(msg.count, 260)
         XCTAssertEqual(msg, """
-            ⬆️ owner just released packageName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
+            ⬆️ owner just released packageName v2.6.4 – xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…
 
-            http://localhost:8080/owner/SuperAwesomePackage
+            http://localhost:8080/owner/SuperAwesomePackage#releases
             """)
     }
 
@@ -131,7 +131,7 @@ class TwitterTests: AppTestCase {
         XCTAssertEqual(res, """
             ⬆️ owner just released MyPackage v1.2.3 – This is a test package
 
-            http://localhost:8080/owner/repoName
+            http://localhost:8080/owner/repoName#releases
             """)
     }
 
