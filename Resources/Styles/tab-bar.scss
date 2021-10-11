@@ -55,6 +55,7 @@ tab-bar {
 
 .tab_page {
   .min_height_spacer {
-    min-height: 1500px;
+    // Having a large gap here allows README pages to restore their scroll position on reload.
+    min-height: 10000px;
   }
 }
