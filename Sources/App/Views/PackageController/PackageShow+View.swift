@@ -195,25 +195,30 @@ enum PackageShow {
         }
 
         func readmeSection() -> Node<HTML.BodyContext> {
-            .turboFrame(id: "readme",
+            .turboFrame(id: "readme_page",
                         source: SiteURL.package(.value(model.repositoryOwner),
                                                 .value(model.repositoryName),
                                                 .readme).relativeURL(),
                         .data(named: "tab-page", value: "readme"),
-                        // Until the content is loaded, substitute a spinner.
-                        .spinner()
+                        .class("tab_page"),
+                        .div(
+                            .class("min_height_spacer"),
+                            .spinner()
+                        )
             )
         }
         
         func releaseSection() -> Node<HTML.BodyContext> {
-            .turboFrame(id: "releases",
+            .turboFrame(id: "releases_page",
                         source: SiteURL.package(.value(model.repositoryOwner),
                                                 .value(model.repositoryName),
                                                 .releases).relativeURL(),
                         .data(named: "tab-page", value: "releases"),
-                        .class("hidden"),
-                        // Until the content is loaded, substitute a spinner.
-                        .spinner()
+                        .class("tab_page hidden"),
+                        .div(
+                            .class("min_height_spacer"),
+                            .spinner()
+                        )
             )
         }
         

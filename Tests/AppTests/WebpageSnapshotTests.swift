@@ -454,7 +454,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                                as: .image(precision: 0.999,
                                           size: $0.size,
                                           baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
+                               named: $0.name, record: true)
             }
         }
         #endif
