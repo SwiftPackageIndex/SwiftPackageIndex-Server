@@ -247,6 +247,7 @@ extension Package {
                 .join(Version.self, on: \Package.$id == \Version.$package.$id)
                 .filter(Version.self, \.$updatedAt < cutOffDate)
                 .fields(for: Package.self)
+                .fields(for: Repository.self)
                 .unique()
                 .sort(\.$updatedAt)
                 .limit(limit)
