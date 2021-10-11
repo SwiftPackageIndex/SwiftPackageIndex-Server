@@ -107,11 +107,13 @@ extension PackageShow {
                 swiftVersionBuildInfo: package.swiftVersionBuildInfo(),
                 platformBuildInfo: package.platformBuildInfo(),
                 history: package.history(),
-                languagePlatforms: package.languagePlatformInfo(),
+                // TODO: review this change (versions use)
+                languagePlatforms: Package.languagePlatformInfo(packageUrl: package.url, versions: package.versions),
                 license: package.repository?.license ?? .none,
                 licenseUrl: package.repository?.licenseUrl,
                 products: package.productCounts(),
-                releases: package.releaseInfo(),
+                // TODO: review this change (versions use)
+                releases: Package.releaseInfo(packageUrl: package.url, versions: package.versions),
                 stars: package.repository?.stars,
                 summary: package.repository?.summary,
                 title: package.name() ?? repositoryName,

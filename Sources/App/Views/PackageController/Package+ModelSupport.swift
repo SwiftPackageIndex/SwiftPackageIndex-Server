@@ -98,25 +98,32 @@ extension Package {
         )
     }
 
-    func releaseInfo() -> PackageShow.Model.ReleaseInfo {
-        .init(
-            stable: latestVersion(for: .release).flatMap { makeDatedLink($0, \.commitDate) },
-            beta: latestVersion(for: .preRelease).flatMap { makeDatedLink($0, \.commitDate) },
-            latest: latestVersion(for: .defaultBranch).flatMap { makeDatedLink($0, \.commitDate) }
-        )
+    static func releaseInfo(packageUrl: String, versions: [Version]) -> PackageShow.Model.ReleaseInfo {
+        let versions = [Version.Kind.release, .preRelease, .defaultBranch]
+            .map {
+                versions.latest(for: $0)
+                    .flatMap {
+                        makeDatedLink(packageUrl: packageUrl,
+                                      version: $0,
+                                      keyPath: \.commitDate)
+                    }
+            }
+        return .init(stable: versions[0],
+                     beta: versions[1],
+                     latest: versions[2])
     }
     
-    func makeDatedLink(_ version: Version,
-                       _ keyPath: KeyPath<Version, Date?>) -> DatedLink? {
+    static func makeDatedLink(packageUrl: String, version: Version,
+                       keyPath: KeyPath<Version, Date?>) -> DatedLink? {
         guard
             let date = version[keyPath: keyPath],
-            let link = makeLink(version)
+            let link = makeLink(packageUrl: packageUrl, version: version)
         else { return nil }
         return .init(date: "\(date: date, relativeTo: Current.date())",
                      link: link)
     }
     
-    func makeLink(_ version: Version) -> Link? {
+    static func makeLink(packageUrl: String, version: Version) -> Link? {
         guard
             let fault = version.$reference.value,
             let ref = fault
@@ -124,26 +131,31 @@ extension Package {
         let linkUrl: String
         switch ref {
             case .branch:
-                linkUrl = url
+                linkUrl = packageUrl
             case .tag(_ , let v):
-                linkUrl = url.droppingGitExtension + "/releases/tag/\(v)"
+                linkUrl = packageUrl.droppingGitExtension + "/releases/tag/\(v)"
         }
         return .init(label: "\(ref)", url: linkUrl)
     }
     
-    func makeModelVersion(_ version: Version) -> PackageShow.Model.Version? {
-        guard let link = makeLink(version) else { return nil }
+    static func makeModelVersion(packageUrl: String, version: Version) -> PackageShow.Model.Version? {
+        guard let link = makeLink(packageUrl: packageUrl, version: version) else { return nil }
         return PackageShow.Model.Version(link: link,
                                          swiftVersions: version.swiftVersions.map(\.description),
                                          platforms: version.supportedPlatforms)
     }
     
-    func languagePlatformInfo() -> PackageShow.Model.LanguagePlatformInfo {
-        .init(
-            stable: latestVersion(for: .release).flatMap(makeModelVersion),
-            beta: latestVersion(for: .preRelease).flatMap(makeModelVersion),
-            latest: latestVersion(for: .defaultBranch).flatMap(makeModelVersion)
-        )
+    static func languagePlatformInfo(packageUrl: String, versions: [Version]) -> PackageShow.Model.LanguagePlatformInfo {
+        let versions = [Version.Kind.release, .preRelease, .defaultBranch]
+            .map {
+                versions.latest(for: $0)
+                    .flatMap {
+                        makeModelVersion(packageUrl: packageUrl, version: $0)
+                    }
+            }
+        return .init(stable: versions[0],
+                     beta: versions[1],
+                     latest: versions[2])
     }
     
     static let numberFormatter: NumberFormatter = {
@@ -255,5 +267,12 @@ private extension Build.Platform {
             case .linux:
                 return other == .linux
         }
+    }
+}
+
+
+private extension Array where Element == Version {
+    func latest(for kind: Version.Kind) -> Version? {
+        first { $0.latest == kind }
     }
 }

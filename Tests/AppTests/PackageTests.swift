@@ -403,7 +403,7 @@ final class PackageTests: AppTestCase {
         try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // MUT
-        let info = pkg.releaseInfo()
+        let info = Package.releaseInfo(packageUrl: "1", versions: jpr.model.versions)
         
         // validate
         XCTAssertEqual(info.stable?.date, "3 days ago")
@@ -424,10 +424,10 @@ final class PackageTests: AppTestCase {
         try versions.create(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // MUT
-        let info = pkg.releaseInfo()
+        let info = Package.releaseInfo(packageUrl: "1", versions: versions)
         
         // validate
         XCTAssertEqual(info.stable?.date, "3 days ago")
@@ -444,7 +444,7 @@ final class PackageTests: AppTestCase {
         try versions.create(on: app.db).wait()
         
         // MUT / validate
-        XCTAssertNoThrow(pkg.releaseInfo)
+        XCTAssertNoThrow(Package.releaseInfo(packageUrl: "1", versions: versions))
     }
 
     func test_versionUrl() throws {
@@ -490,7 +490,7 @@ final class PackageTests: AppTestCase {
         try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // MUT
-        let lpInfo = pkg.languagePlatformInfo()
+        let lpInfo = Package.languagePlatformInfo(packageUrl: "1", versions: versions)
         
         // validate
         XCTAssertEqual(lpInfo.stable?.link, .init(label: "2.1.0",

@@ -81,7 +81,8 @@ extension PackageShow {
                 organisationName: repository.ownerName,
                 summary: repository.summary,
                 licenseUrl: repository.licenseUrl,
-                version: package.releaseInfo().stable?.link.label,
+                // TODO: review this change (versions use)
+                version: Package.releaseInfo(packageUrl: package.url, versions: package.versions).stable?.link.label,
                 repositoryUrl: package.url.droppingGitExtension,
                 dateCreated: repository.firstCommitDate,
                 dateModified: repository.lastCommitDate,
