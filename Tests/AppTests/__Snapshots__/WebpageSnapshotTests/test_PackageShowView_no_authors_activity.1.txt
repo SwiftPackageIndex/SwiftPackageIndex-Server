@@ -302,22 +302,26 @@
             <li id="releases" data-tab="releases">Release Notes</li>
           </ul>
         </tab-bar>
-        <turbo-frame id="readme" src="/Alamo/Alamofire/readme" data-tab-page="readme">
-          <div class="spinner">
-            <div class="rect1"></div>
-            <div class="rect2"></div>
-            <div class="rect3"></div>
-            <div class="rect4"></div>
-            <div class="rect5"></div>
+        <turbo-frame id="readme_page" src="/Alamo/Alamofire/readme" data-tab-page="readme" class="tab_page">
+          <div class="min_height_spacer">
+            <div class="spinner">
+              <div class="rect1"></div>
+              <div class="rect2"></div>
+              <div class="rect3"></div>
+              <div class="rect4"></div>
+              <div class="rect5"></div>
+            </div>
           </div>
         </turbo-frame>
-        <turbo-frame id="releases" src="/Alamo/Alamofire/releases" data-tab-page="releases" class="hidden">
-          <div class="spinner">
-            <div class="rect1"></div>
-            <div class="rect2"></div>
-            <div class="rect3"></div>
-            <div class="rect4"></div>
-            <div class="rect5"></div>
+        <turbo-frame id="releases_page" src="/Alamo/Alamofire/releases" data-tab-page="releases" class="tab_page hidden">
+          <div class="min_height_spacer">
+            <div class="spinner">
+              <div class="rect1"></div>
+              <div class="rect2"></div>
+              <div class="rect3"></div>
+              <div class="rect4"></div>
+              <div class="rect5"></div>
+            </div>
           </div>
         </turbo-frame>
       </div>
