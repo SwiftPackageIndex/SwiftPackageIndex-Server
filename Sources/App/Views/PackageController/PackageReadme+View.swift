@@ -27,7 +27,7 @@ enum PackageReadme {
         }
 
         override func frameIdentifier() -> String {
-            "readme"
+            "readme_page"
         }
 
         override func frameContent() -> Node<HTML.BodyContext> {

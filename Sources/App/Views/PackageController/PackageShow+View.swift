@@ -195,7 +195,7 @@ enum PackageShow {
         }
 
         func readmeSection() -> Node<HTML.BodyContext> {
-            .turboFrame(id: "readme",
+            .turboFrame(id: "readme_page",
                         source: SiteURL.package(.value(model.repositoryOwner),
                                                 .value(model.repositoryName),
                                                 .readme).relativeURL(),
@@ -209,7 +209,7 @@ enum PackageShow {
         }
         
         func releaseSection() -> Node<HTML.BodyContext> {
-            .turboFrame(id: "releases",
+            .turboFrame(id: "releases_page",
                         source: SiteURL.package(.value(model.repositoryOwner),
                                                 .value(model.repositoryName),
                                                 .releases).relativeURL(),
