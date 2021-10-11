@@ -16,6 +16,7 @@ import DependencyResolution
 import Fluent
 import Vapor
 import ShellOut
+import SQLKit
 
 
 struct AnalyzeCommand: Command {
@@ -331,21 +332,14 @@ func refreshCheckout(eventLoop: EventLoop,
 }
 
 
-/// Update the `Repository`s of a given set of `Package`s with git repository data (commit count, first commit date, etc).
-/// - Parameters:
-///   - database: `Database` object
-///   - packages: `Package`s to update
-/// - Returns: results future
 func updateRepositories(on database: Database,
                         packages: [Result<JPR, Error>]) -> EventLoopFuture<[Result<JPR, Error>]> {
     let ops = packages.map { result -> EventLoopFuture<JPR> in
-        let updatedPackage = result.flatMap(updateRepository(package:))
-        switch updatedPackage {
+        switch result {
             case .success(let pkg):
                 AppMetrics.analyzeUpdateRepositorySuccessCount?.inc()
-                return pkg.repository?.update(on: database)
+                return updateRepository(on: database, package: pkg)
                     .transform(to: pkg)
-                ?? database.eventLoop.future(pkg)
             case .failure(let error):
                 AppMetrics.analyzeUpdateRepositoryFailureCount?.inc()
                 return database.eventLoop.future(error: error)
@@ -354,27 +348,35 @@ func updateRepositories(on database: Database,
     return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
 }
 
-
-/// Update the `Repository` of a given `Package` with git repository data (commit count, first commit date, etc).
-/// - Parameter package: `Package` to update
-/// - Returns: result future
-func updateRepository(package: JPR) -> Result<JPR, Error> {
+func updateRepository(on database: Database, package: JPR) -> EventLoopFuture<Void> {
     guard let repo = package.repository else {
-        return .failure(AppError.genericError(package.model.id, "updateRepository: no repository"))
-    }
-    guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package.model) else {
-        return .failure(
-            AppError.invalidPackageCachePath(package.model.id,
-                                             package.model.url)
+        return database.eventLoop.future(
+            error: AppError.genericError(package.model.id, "updateRepository: no repository")
         )
     }
-    
-    return Result {
-        repo.commitCount = try Current.git.commitCount(gitDirectory)
-        repo.firstCommitDate = try Current.git.firstCommitDate(gitDirectory)
-        repo.lastCommitDate = try Current.git.lastCommitDate(gitDirectory)
-        return package
+    guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+        return database.eventLoop.future(
+            error: AppError.invalidPackageCachePath(package.model.id,
+                                                    package.model.url)
+        )
     }
+
+    guard let db = database as? SQLDatabase else {
+        fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+    }
+
+    // TODO: handle errors in a different way?
+    let repositoryId = try? repo.requireID()
+    let commitCount = try? Current.git.commitCount(gitDirectory)
+    let firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
+    let lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
+
+    return db.update(Repository.schema)
+        .set("\(repo.$commitCount.key)", to: commitCount)
+        .set("\(repo.$firstCommitDate.key)", to: firstCommitDate)
+        .set("\(repo.$lastCommitDate.key)", to: lastCommitDate)
+        .where(.init("\(repo.$id.key)"), .equal, repositoryId)
+        .run()
 }
 
 

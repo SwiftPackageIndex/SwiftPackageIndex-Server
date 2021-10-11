@@ -437,13 +437,13 @@ class AnalyzerTests: AppTestCase {
         let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
 
         // MUT
-        let res = updateRepository(package: jpr)
+        try updateRepository(on: app.db, package: jpr).wait()
         
         // validate
-        let repo = try XCTUnwrap(try res.get().model.repository)
-        XCTAssertEqual(repo.commitCount, 12)
-        XCTAssertEqual(repo.firstCommitDate, .t0)
-        XCTAssertEqual(repo.lastCommitDate, .t1)
+        let repo = try Repository.find(pkg.repository?.id, on: app.db).wait()
+        XCTAssertEqual(repo?.commitCount, 12)
+        XCTAssertEqual(repo?.firstCommitDate, .t0)
+        XCTAssertEqual(repo?.lastCommitDate, .t1)
     }
     
     func test_updateRepositories() throws {
@@ -455,11 +455,11 @@ class AnalyzerTests: AppTestCase {
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        _ = try pkg.$repositories.get(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         let packages: [Result<JPR, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
-            .success(.init(model: pkg))
+            .success(jpr)
         ]
         
         // MUT
