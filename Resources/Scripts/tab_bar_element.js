@@ -16,57 +16,58 @@ export class SPITabBarElement extends HTMLElement {
   constructor() {
     super()
 
-    function showPage(tabId) {
-      const tabPageElements = document.querySelectorAll('[data-tab-page]')
-      tabPageElements.forEach((tabPageElement) => {
-        if (tabPageElement.dataset.tabPage == tabId) {
-          tabPageElement.classList.remove('hidden')
-        } else {
-          tabPageElement.classList.add('hidden')
-        }
+    const tabLinkElements = this.querySelectorAll('[data-tab]')
+    tabLinkElements.forEach((tabLinkElement) => {
+      tabLinkElement.addEventListener('click', (event) => {
+        // Assign a new tab to be active and switch to it.
+        this.#activateTab(tabLinkElement, tabLinkElements)
+        this.#showPage(event.srcElement.dataset.tab)
       })
-    }
+    })
 
-    function deactivateAllTabs(tabLinkElements) {
-      tabLinkElements.forEach((tabLinkElement) => {
-        tabLinkElement.classList.remove('active')
-      })
-    }
+    this.syncTabs()
+  }
 
-    function activateTab(tabLinkElement) {
-      tabLinkElement.classList.add('active')
-    }
-
+  syncTabs() {
     const locationUrlHash = new URL(window.location).hash
     const tabLinkElements = this.querySelectorAll('[data-tab]')
     tabLinkElements.forEach((tabLinkElement) => {
-      // For all tabs, if their name matches the anchor in the location, make it active.
+      // Make any tab active where the identifier matches an anchor in the location.
       if (locationUrlHash === `#${tabLinkElement.dataset.tab}`) {
-        deactivateAllTabs(tabLinkElements)
-        activateTab(tabLinkElement)
+        this.#activateTab(tabLinkElement, tabLinkElements)
 
         // Scroll the tab bar to the top of the screen.
         // NOTE: This can't be done inline, and this code is brittle based on client network
-        // speed having loaded the releases within 500ms. The alternative is to have the releases
-        // tab selected and focused, but scrolled into the middle of the screen.
+        // speed having loaded the releases within 1 second. The alternative is to have the
+        // releases tab selected and focused, but scrolled into the middle of the screen.
         setTimeout((event) => {
           tabLinkElement.scrollIntoView(true)
         }, 1000)
       }
-
-      // Add click listener which will show the correct page when a user taps on a tab link
-      tabLinkElement.addEventListener('click', (event) => {
-        // Update Tab Links
-        deactivateAllTabs(tabLinkElements)
-        activateTab(tabLinkElement)
-
-        // Update Tab Pages
-        showPage(event.srcElement.dataset.tab)
-      })
     })
 
-    // Show only the page which has the active class, on load
+    // Show the page which has the active class.
     const activeTabLinkElement = this.querySelector('[data-tab].active')
-    showPage(activeTabLinkElement.dataset.tab)
+    this.#showPage(activeTabLinkElement.dataset.tab)
+  }
+
+  // Private methods
+
+  #showPage(tabId) {
+    const tabPageElements = document.querySelectorAll('[data-tab-page]')
+    tabPageElements.forEach((tabPageElement) => {
+      if (tabPageElement.dataset.tabPage == tabId) {
+        tabPageElement.classList.remove('hidden')
+      } else {
+        tabPageElement.classList.add('hidden')
+      }
+    })
+  }
+
+  #activateTab(tabLinkElement, tabLinkElements) {
+    tabLinkElements.forEach((tabLinkElement) => {
+      tabLinkElement.classList.remove('active')
+    })
+    tabLinkElement.classList.add('active')
   }
 }
