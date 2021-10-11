@@ -141,6 +141,31 @@ extension Package {
 
 extension Package {
 
+    /// Helper to find the up to three significant versions of a package: latest release, latest pre-release, and latest default branch version.
+    /// - Returns: Named tuple of versions
+    static func findSignificantReleases(versions: [Version], defaultBranch: String?) -> (release: Version?, preRelease: Version?, defaultBranch: Version?) {
+        guard !versions.isEmpty else { return (nil, nil, nil) }
+        let release = Package.findRelease(versions)
+        let preRelease = Package.findPreRelease(versions, after: release?.reference)
+        let defaultBranch = findDefaultBranchVersion(versions: versions, defaultBranch: defaultBranch)
+        return (release, preRelease, defaultBranch)
+    }
+
+    /// Helper to find the version for the default branch.
+    /// - Returns: version or nil
+    static func findDefaultBranchVersion(versions: [Version], defaultBranch: String?) -> Version? {
+        guard let defaultBranch = defaultBranch else { return nil }
+        return versions.first(where: { v in
+            guard let ref = v.reference else { return false }
+            switch ref {
+                case .branch(let b) where b == defaultBranch:
+                    return true
+                default:
+                    return false
+            }
+        })
+    }
+
     static func findRelease(_ versions: [Version]) -> Version? {
         versions
             .filter { $0.reference?.semVer != nil }
@@ -162,6 +187,7 @@ extension Package {
             }
     }
 
+    @available(*, deprecated)
     /// Helper to find the up to three significant versions of a package: latest release, latest pre-release, and latest default branch version.
     /// - Returns: Named tuple of versions
     func findSignificantReleases() -> (release: Version?, preRelease: Version?, defaultBranch: Version?) {
@@ -172,6 +198,7 @@ extension Package {
         return (release, preRelease, defaultBranch)
     }
 
+    @available(*, deprecated)
     /// Helper to find the version for the default branch.
     /// - Returns: version or nil
     func findDefaultBranchVersion() -> Version? {

@@ -856,8 +856,13 @@ func updateLatestVersions(on database: Database, package: JPR) -> EventLoopFutur
             let previous = package.model.versions
                 .filter { $0.latest != nil }
 
+            let versions = package.model.$versions.value ?? []
+
             // find new significant releases
-            let (release, preRelease, defaultBranch) = package.model.findSignificantReleases()
+            let (release, preRelease, defaultBranch) = Package.findSignificantReleases(
+                versions: versions,
+                defaultBranch: package.repository?.defaultBranch
+            )
             release.map { $0.latest = .release }
             preRelease.map { $0.latest = .preRelease }
             defaultBranch.map { $0.latest = .defaultBranch }
