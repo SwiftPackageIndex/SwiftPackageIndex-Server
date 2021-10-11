@@ -34,6 +34,8 @@ extension Package {
             .unwrap(or: Abort(.notFound))
     }
 
+    // TODO: rewrite as static func without $versions
+    @available(*, deprecated)
     func latestVersion(for kind: Version.Kind) -> Version? {
         guard let versions = $versions.value else { return nil }
         return versions.first { $0.latest == kind }
