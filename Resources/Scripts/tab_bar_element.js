@@ -24,6 +24,8 @@ export class SPITabBarElement extends HTMLElement {
         this.#showPage(event.srcElement.dataset.tab)
       })
     })
+
+    this.syncTabs()
   }
 
   syncTabs() {
