@@ -374,15 +374,14 @@ final class PackageTests: AppTestCase {
                     packageName: "foo",
                     reference: .tag(2, 0, 0, "rc1"))
             .save(on: app.db).wait()
-        // load repositories (this will have happened already at the point where
-        // updateLatestVersions is being used and therefore it doesn't reload it)
-        try pkg.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // validate
-        let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        let versions = try Version.query(on: app.db)
+            .sort(\.$createdAt).all().wait()
         XCTAssertEqual(versions.map(\.reference?.description), ["main", "2.0.0", "2.0.0-rc1"])
         XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, nil])
     }
@@ -399,10 +398,9 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(3, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
-        // re-load repository relationship
-        try pkg.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // MUT
         let info = pkg.releaseInfo()
@@ -424,10 +422,9 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(2, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
-        // re-load repository relationship
-        try pkg.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
+        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // MUT
         let info = pkg.releaseInfo()
@@ -488,10 +485,9 @@ final class PackageTests: AppTestCase {
                         swiftVersions: ["5", "5.2"].asSwiftVersions),
         ]
         try versions.create(on: app.db).wait()
-        // re-load repository relationship
-        try pkg.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // MUT
         let lpInfo = pkg.languagePlatformInfo()
@@ -554,10 +550,9 @@ final class PackageTests: AppTestCase {
         try (0..<20).forEach {
             try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
         }
-        // re-load repository relationship
-        try pkg.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
         
         // MUT
         XCTAssertEqual(pkg.computeScore(), 67)
@@ -670,10 +665,9 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
@@ -705,10 +699,9 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
+        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
@@ -750,10 +743,9 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
+        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -781,10 +773,9 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
+        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .triggered, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -812,10 +803,9 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
+        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -843,10 +833,9 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
+        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -874,10 +863,9 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
+        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .triggered, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -905,10 +893,9 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: .init(model: p)).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
