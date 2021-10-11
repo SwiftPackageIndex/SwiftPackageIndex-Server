@@ -992,12 +992,10 @@ class AnalyzerTests: AppTestCase {
         // new, not yet considered release version
         try Version(package: pkg, packageName: "foo", reference: .tag(1, 3, 0))
             .save(on: app.db).wait()
-        // load repositories (this will have happened already at the point where
-        // updateLatestVersions is being used and therefore it doesn't reload it)
-        try pkg.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        try updateLatestVersions(on: app.db, package: .init(model: pkg)).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // validate
         do {  // refetch package to ensure changes are persisted
