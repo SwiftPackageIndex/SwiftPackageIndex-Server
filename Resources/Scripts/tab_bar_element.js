@@ -35,14 +35,6 @@ export class SPITabBarElement extends HTMLElement {
       // Make any tab active where the identifier matches an anchor in the location.
       if (locationUrlHash === `#${tabLinkElement.dataset.tab}`) {
         this.#activateTab(tabLinkElement, tabLinkElements)
-
-        // Scroll the tab bar to the top of the screen.
-        // NOTE: This can't be done inline, and this code is brittle based on client network
-        // speed having loaded the releases within 1 second. The alternative is to have the
-        // releases tab selected and focused, but scrolled into the middle of the screen.
-        setTimeout((event) => {
-          tabLinkElement.scrollIntoView(true)
-        }, 1000)
       }
     })
 

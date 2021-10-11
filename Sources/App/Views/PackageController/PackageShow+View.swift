@@ -200,8 +200,11 @@ enum PackageShow {
                                                 .value(model.repositoryName),
                                                 .readme).relativeURL(),
                         .data(named: "tab-page", value: "readme"),
-                        // Until the content is loaded, substitute a spinner.
-                        .spinner()
+                        .class("tab_page"),
+                        .div(
+                            .class("min_height_spacer"),
+                            .spinner()
+                        )
             )
         }
         
@@ -211,9 +214,11 @@ enum PackageShow {
                                                 .value(model.repositoryName),
                                                 .releases).relativeURL(),
                         .data(named: "tab-page", value: "releases"),
-                        .class("hidden"),
-                        // Until the content is loaded, substitute a spinner.
-                        .spinner()
+                        .class("tab_page hidden"),
+                        .div(
+                            .class("min_height_spacer"),
+                            .spinner()
+                        )
             )
         }
         

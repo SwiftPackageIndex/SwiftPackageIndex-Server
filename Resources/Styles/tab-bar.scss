@@ -50,5 +50,11 @@ tab-bar {
 }
 
 [data-tab-page].hidden {
-    display: none;
+  display: none;
+}
+
+.tab_page {
+  .min_height_spacer {
+    min-height: 1500px;
+  }
 }
