@@ -292,28 +292,21 @@ extension PackageShow.Model {
     }
 
     func dependenciesListItem() -> Node<HTML.ListContext> {
-        guard let dependencies = dependencies
-        else {
-            return .li(
-                .class("dependencies"),
-                .text("No dependency information available.")
-            )
-        }
-
-        guard dependencies.count > 0
-        else {
-            return .li(
-                .class("dependencies"),
-                .text("Has zero package dependencies.")
-            )
-        }
-
         return .li(
             .class("dependencies"),
-            .text("Depends on "),
-            .text(pluralizedCount(dependencies.count, singular: "package")),
-            .text(".")
+            .text(dependenciesPhrase())
         )
+    }
+
+    func dependenciesPhrase() -> String {
+        guard let dependencies = dependencies
+        else { return "No dependency information available." }
+
+        guard dependencies.count > 0
+        else { return "Has zero package dependencies." }
+
+        let dependenciesCount = pluralizedCount(dependencies.count, singular: "package")
+        return "Depends on \(dependenciesCount)."
     }
 
     func librariesListItem() -> Node<HTML.ListContext> {
