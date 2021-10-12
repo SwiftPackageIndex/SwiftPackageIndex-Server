@@ -156,42 +156,15 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(3, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
-        try pkg.$repositories.load(on: app.db)
-            .flatMap { pkg.$versions.load(on: self.app.db) }
-            .wait()
-        
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+
         // MUT
-        let version = pkg.findDefaultBranchVersion()
+        let version = jpr.findDefaultBranchVersion(versions)
         
         // validation
         XCTAssertEqual(version?.reference, .branch("default"))
     }
     
-    func test_findDefaultBranchVersion_eagerLoading() throws {
-        // Ensure failure to eager load doesn't trigger a fatalError
-        // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, defaultBranch: "branch").create(on: app.db).wait()
-        let version = try Version(package: pkg, reference: .branch("branch"))
-        try version.create(on: app.db).wait()
-        
-        // MUT / validation
-        
-        do {  // no eager loading
-            XCTAssertNil(pkg.$versions.value)
-            XCTAssertNil(pkg.findDefaultBranchVersion())
-        }
-        
-        do {  // load eagerly
-            let pkg = try XCTUnwrap(Package.query(on: app.db)
-                                        .with(\.$repositories)
-                                        .with(\.$versions)
-                                        .first().wait())
-            XCTAssertNotNil(pkg.$versions.value)
-            XCTAssertEqual(pkg.findDefaultBranchVersion(), version)
-        }
-    }
-
     // TODO: move most/all of the JPRVB MUT tests into JRVBTests file
     
     func test_query_owner_repository() throws {

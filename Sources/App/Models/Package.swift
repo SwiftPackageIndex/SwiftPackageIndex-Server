@@ -187,28 +187,6 @@ extension Package {
             }
     }
 
-    // TODO: remove
-    @available(*, deprecated)
-    /// Helper to find the version for the default branch.
-    /// - Returns: version or nil
-    func findDefaultBranchVersion() -> Version? {
-        guard
-            let versions = $versions.value,
-            let repositories = $repositories.value,
-            let repo = repositories.first,
-            let defaultBranch = repo.defaultBranch
-        else { return nil }
-        return versions.first(where: { v in
-            guard let ref = v.reference else { return false }
-            switch ref {
-                case .branch(let b) where b == defaultBranch:
-                    return true
-                default:
-                    return false
-            }
-        })
-    }
-
     func versionUrl(for reference: Reference) -> String {
         switch (hostingProvider, reference) {
             case let (.github, .tag(_, tagName)):
