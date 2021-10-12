@@ -433,14 +433,14 @@ class AnalyzerTests: AppTestCase {
         Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
 
         // MUT
         try updateRepository(on: app.db, package: jpr).wait()
         
         // validate
-        let repo = try Repository.find(pkg.repository?.id, on: app.db).wait()
+        let repo = try Repository.find(.id1, on: app.db).wait()
         XCTAssertEqual(repo?.commitCount, 12)
         XCTAssertEqual(repo?.firstCommitDate, .t0)
         XCTAssertEqual(repo?.lastCommitDate, .t1)
