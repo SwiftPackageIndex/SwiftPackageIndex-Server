@@ -30,6 +30,11 @@ struct JoinedQueryBuilder<J: Joiner> {
         return self
     }
 
+    @discardableResult func filter<Joined, Field>(_ joined: Joined.Type, _ field: KeyPath<Joined, Field>, _ method: DatabaseQuery.Filter.Method, _ value: Field.Value) -> Self where Joined : Schema, Joined == Field.Model, Field : QueryableProperty {
+        queryBuilder.filter(joined, field, method, value)
+        return self
+    }
+
     @discardableResult func filter<Joined>(_ schema: Joined.Type, _ filter: ModelValueFilter<Joined>) -> Self where Joined : Schema {
         queryBuilder.filter(schema, filter)
         return self
@@ -58,6 +63,16 @@ struct JoinedQueryBuilder<J: Joiner> {
 
     @discardableResult func join<Foreign, Local, Value>(_ foreign: Foreign.Type, on filter: JoinFilter<Foreign, Local, Value>, method: DatabaseQuery.Join.Method = .inner) -> Self where Foreign : Schema, Local : Schema, Value : Decodable, Value : Encodable {
         queryBuilder.join(foreign, on: filter, method: method)
+        return self
+    }
+
+    @discardableResult func with<Relation>(_ relationKey: KeyPath<J.M, Relation>) -> Self where Relation : EagerLoadable, J.M == Relation.From {
+        queryBuilder.with(relationKey)
+        return self
+    }
+
+    @discardableResult func with<Relation>(_ throughKey: KeyPath<J.M, Relation>, _ nested: (NestedEagerLoadBuilder<QueryBuilder<J.M>, Relation>) -> ()) -> Self where Relation : EagerLoadable, J.M == Relation.From {
+        queryBuilder.with(throughKey, nested)
         return self
     }
 
