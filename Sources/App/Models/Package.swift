@@ -141,6 +141,27 @@ extension Package {
 
 extension Package {
 
+    static func findRelease(_ versions: [Version]) -> Version? {
+        versions
+            .filter { $0.reference?.semVer != nil }
+            .sorted { $0.reference!.semVer! > $1.reference!.semVer! }
+            .first { $0.reference?.semVer?.isStable ?? false }
+    }
+
+    static func findPreRelease(_ versions: [Version], after release: Reference?) -> Version? {
+        versions
+            .filter { $0.reference?.semVer != nil }
+            .filter { $0.commitDate != nil }
+            .sorted { $0.commitDate! > $1.commitDate! }
+            .first {
+                // pick first version that is a prerelease *and* no older (in terms of SemVer)
+                // than the latest release
+                ($0.reference?.semVer?.isPreRelease ?? false)
+                    && ($0.reference?.semVer ?? SemanticVersion(0, 0, 0)
+                            >= release?.semVer ?? SemanticVersion(0, 0, 0))
+            }
+    }
+
     /// Helper to find the up to three significant versions of a package: latest release, latest pre-release, and latest default branch version.
     /// - Returns: Named tuple of versions
     static func findSignificantReleases(versions: [Version], defaultBranch: String?) -> (release: Version?, preRelease: Version?, defaultBranch: Version?) {
@@ -164,27 +185,6 @@ extension Package {
                     return false
             }
         })
-    }
-
-    static func findRelease(_ versions: [Version]) -> Version? {
-        versions
-            .filter { $0.reference?.semVer != nil }
-            .sorted { $0.reference!.semVer! > $1.reference!.semVer! }
-            .first { $0.reference?.semVer?.isStable ?? false }
-    }
-
-    static func findPreRelease(_ versions: [Version], after release: Reference?) -> Version? {
-        versions
-            .filter { $0.reference?.semVer != nil }
-            .filter { $0.commitDate != nil }
-            .sorted { $0.commitDate! > $1.commitDate! }
-            .first {
-                // pick first version that is a prerelease *and* no older (in terms of SemVer)
-                // than the latest release
-                ($0.reference?.semVer?.isPreRelease ?? false)
-                    && ($0.reference?.semVer ?? SemanticVersion(0, 0, 0)
-                            >= release?.semVer ?? SemanticVersion(0, 0, 0))
-            }
     }
 
     func versionUrl(for reference: Reference) -> String {
