@@ -15,6 +15,7 @@
 import Fluent
 import Foundation
 import Vapor
+import DependencyResolution
 
 
 extension Package {
@@ -102,6 +103,11 @@ extension Package {
             beta: latestVersion(for: .preRelease).flatMap { makeDatedLink($0, \.commitDate) },
             latest: latestVersion(for: .defaultBranch).flatMap { makeDatedLink($0, \.commitDate) }
         )
+    }
+
+    func dependencyInfo() -> [ResolvedDependency]? {
+        guard let version = latestVersion(for: .defaultBranch) else { return nil }
+        return version.resolvedDependencies
     }
     
     func makeDatedLink(_ version: Version,
