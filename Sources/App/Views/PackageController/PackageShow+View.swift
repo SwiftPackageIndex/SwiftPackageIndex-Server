@@ -109,6 +109,7 @@ enum PackageShow {
                     model.archivedListItem(),
                     model.historyListItem(),
                     model.activityListItem(),
+                    model.dependenciesListItem(),
                     model.licenseListItem(),
                     model.starsListItem(),
                     model.librariesListItem(),
