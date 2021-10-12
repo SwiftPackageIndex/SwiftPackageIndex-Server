@@ -309,19 +309,16 @@ final class PackageTests: AppTestCase {
         let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        try Version(package: pkg, packageName: "foo", reference: .branch("main"))
-            .save(on: app.db).wait()
-        try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0))
-            .save(on: app.db).wait()
-        try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
-            .save(on: app.db).wait()
-        // load repositories (this will have happened already at the point where
-        // updateLatestVersions is being used and therefore it doesn't reload it)
-        try pkg.$repositories.load(on: app.db).wait()
-        try pkg.$versions.load(on: app.db).wait()
+        let versions = [
+            try Version(package: pkg, packageName: "foo", reference: .branch("main")),
+            try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0)),
+            try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
+        ]
+        try versions.save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let (release, preRelease, defaultBranch) = pkg.findSignificantReleases()
+        let (release, preRelease, defaultBranch) = jpr.findSignificantReleases(versions)
 
         // validate
         XCTAssertEqual(release?.reference, .tag(2, 0, 0))

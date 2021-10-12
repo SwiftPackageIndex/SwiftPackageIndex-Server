@@ -189,18 +189,6 @@ extension Package {
 
     // TODO: remove
     @available(*, deprecated)
-    /// Helper to find the up to three significant versions of a package: latest release, latest pre-release, and latest default branch version.
-    /// - Returns: Named tuple of versions
-    func findSignificantReleases() -> (release: Version?, preRelease: Version?, defaultBranch: Version?) {
-        guard let versions = $versions.value else { return (nil, nil, nil) }
-        let release = Package.findRelease(versions)
-        let preRelease = Package.findPreRelease(versions, after: release?.reference)
-        let defaultBranch = findDefaultBranchVersion()
-        return (release, preRelease, defaultBranch)
-    }
-
-    // TODO: remove
-    @available(*, deprecated)
     /// Helper to find the version for the default branch.
     /// - Returns: version or nil
     func findDefaultBranchVersion() -> Version? {
