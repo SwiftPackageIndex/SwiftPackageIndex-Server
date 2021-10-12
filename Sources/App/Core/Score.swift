@@ -63,11 +63,10 @@ enum Score {
             let repo = package.repository,
             let starsCount = repo.stars
         else { return 0 }
-        let releases = versions.filter { $0.reference?.isTag ?? false }
         return Score.compute(
             .init(supportsLatestSwiftVersion: defaultVersion.supportsMajorSwiftVersion(SwiftVersion.latestMajor),
                   licenseKind: repo.license.licenseKind,
-                  releaseCount: releases.count,
+                  releaseCount: versions.releases.count,
                   likeCount: starsCount,
                   isArchived: repo.isArchived ?? false)
         )
