@@ -57,19 +57,9 @@ extension API {
             }
             let dto = try req.content.decode(PostBuildTriggerDTO.self)
             return JPRVB.query(on: req.db, owner: owner, repository: repository)
-                .flatMap { jpr -> EventLoopFuture<[App.Version]> in
-                    guard let packageId = try? jpr.model.requireID() else {
-                        return req.eventLoop.future(error: Abort(.notFound))
-                    }
-                    return App.Version.query(on: req.db)
-                        .with(\.$products)
-                        .with(\.$builds)
-                        .filter(\.$package.$id == packageId)
-                        .all()
-                }
-                .flatMap { versions -> EventLoopFuture<HTTPStatus> in
+                .flatMap { package -> EventLoopFuture<HTTPStatus> in
                     [App.Version.Kind.release, .preRelease, .defaultBranch]
-                        .compactMap { versions.latest(for: $0)?.id }
+                        .compactMap { package.versions.latest(for: $0)?.id }
                         .map {
                             Build.trigger(database: req.db,
                                           client: req.client,
