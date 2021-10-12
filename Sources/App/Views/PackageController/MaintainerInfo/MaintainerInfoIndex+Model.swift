@@ -23,8 +23,8 @@ extension MaintainerInfoIndex {
         var repositoryOwner: String
         var repositoryName: String
 
-        init?(package: Package) {
-            guard let packageName = package.name(),
+        init?(package: JPRVB) {
+            guard let packageName = package.versions.packageName(),
                   let repositoryOwner = package.repository?.owner,
                   let repositoryName = package.repository?.name else { return nil }
 
@@ -37,19 +37,19 @@ extension MaintainerInfoIndex {
             self.repositoryName = repositoryName
         }
 
-        func badgeURL(for type: Package.BadgeType) -> String {
+        func badgeURL(for type: JPRVB.BadgeType) -> String {
             let characterSet = CharacterSet.urlHostAllowed.subtracting(.init(charactersIn: "=:"))
             let url = SiteURL.api(.packages(.value(repositoryOwner), .value(repositoryName), .badge)).absoluteURL(parameters: [QueryParameter(key: "type", value: type.rawValue)])
             let escaped = url.addingPercentEncoding(withAllowedCharacters: characterSet) ?? url
             return "https://img.shields.io/endpoint?url=\(escaped)"
         }
 
-        func badgeMarkdown(for type: Package.BadgeType) -> String {
+        func badgeMarkdown(for type: JPRVB.BadgeType) -> String {
             let spiPackageURL = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
             return "[![](\(badgeURL(for: type)))](\(spiPackageURL))"
         }
 
-        func badgeMarkdowDisplay(for type: Package.BadgeType) -> Node<HTML.FormContext> {
+        func badgeMarkdowDisplay(for type: JPRVB.BadgeType) -> Node<HTML.FormContext> {
             .input(
                 .type(.text),
                 .value(badgeMarkdown(for: type)),

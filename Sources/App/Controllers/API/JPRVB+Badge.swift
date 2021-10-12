@@ -15,7 +15,7 @@
 import Vapor
 
 
-extension Package {
+extension JPRVB {
 
     enum CompatibilityResult<Value: Equatable>: Equatable {
         case available([Value])
@@ -61,7 +61,7 @@ extension Package {
     func platformCompatibility() -> CompatibilityResult<Build.Platform> {
         let allBuilds = allSignificantBuilds()
         if allBuilds.allSatisfy({ $0.status == .triggered }) { return .pending }
-        
+
         let builds = allBuilds
             .filter { $0.status == .ok }
         let compatibility = Build.Platform.allActive.map { platform -> (Build.Platform, Bool) in
@@ -115,9 +115,8 @@ extension Package {
                      isError: !success,
                      color: success ? "F05138" : "inactive",
                      cacheSeconds: cacheSeconds,
-                     logoSvg: Package.loadSVGLogo())
+                     logoSvg: Self.loadSVGLogo())
     }
-
 
     func badgeMessage(badgeType: BadgeType) -> (message: String, success: Bool) {
         switch badgeType {
@@ -145,23 +144,22 @@ extension Package {
                 }
         }
     }
-    
 
     /// Returns all builds for a packages significant versions
     /// - Returns: Array of `Build`s
     func allSignificantBuilds() -> [Build] {
         let versions = [Version.Kind.release, .preRelease, .defaultBranch]
-            .compactMap(latestVersion(for:))
+            .compactMap(versions.latest(for:))
         return versions.reduce(into: []) {
             $0.append(contentsOf: $1.$builds.value ?? [])
         }
     }
 
-    
+
     static private func loadSVGLogo() -> String? {
         let pathToFile = Current.fileManager.workingDirectory()
             .appending("Public/images/logo-tiny.svg")
-        
+
         return try? String(contentsOfFile: pathToFile)
     }
 

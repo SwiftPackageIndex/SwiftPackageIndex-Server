@@ -17,32 +17,20 @@ import Foundation
 import Vapor
 
 
-extension Package {
-
-    // TODO: use `.join()`s instead of `.with()`s
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Package> {
-        Package.query(on: database)
-            .with(\.$repositories)
+extension JPRVB {
+    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<JPRVB> {
+        JPR.query(on: database)
             .with(\.$versions) {
                 $0.with(\.$products)
                 $0.with(\.$builds)
             }
-            .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .filter(Repository.self, \.$name, .custom("ilike"), repository)
             .first()
             .unwrap(or: Abort(.notFound))
+            .map(JPRVB.init(jpr:))
     }
 
-    // TODO: rewrite as static func without $versions
-    @available(*, deprecated)
-    func latestVersion(for kind: Version.Kind) -> Version? {
-        guard let versions = $versions.value else { return nil }
-        return versions.first { $0.latest == kind }
-    }
-
-    func name() -> String? { latestVersion(for: .defaultBranch)?.packageName }
-    
     func authors() -> [Link]? {
         // TODO: fill in
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/175
@@ -50,21 +38,21 @@ extension Package {
     }
     
     func history() -> PackageShow.Model.History? {
+        let releases = versions.filter({ $0.reference?.isRelease ?? false })
         guard
             let repo = repository,
             let commitCount = repo.commitCount,
             let defaultBranch = repo.defaultBranch,
-            let releases = $versions.value?.filter({ $0.reference?.isRelease ?? false }),
             let firstCommitDate = repo.firstCommitDate,
             let commitCountString = Self.numberFormatter.string(from: NSNumber(value: commitCount)),
             let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))
         else { return nil }
         let cl = Link(
             label: commitCountString + " commit".pluralized(for: commitCount),
-            url: url.droppingGitExtension + "/commits/\(defaultBranch)")
+            url: model.url.droppingGitExtension + "/commits/\(defaultBranch)")
         let rl = Link(
             label: releaseCountString + " release".pluralized(for: releases.count),
-            url: url.droppingGitExtension + "/releases")
+            url: model.url.droppingGitExtension + "/releases")
         return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
                      commitCount: cl,
                      releaseCount: rl)
@@ -76,10 +64,10 @@ extension Package {
             repo.openIssues != nil || repo.openPullRequests != nil || repo.lastPullRequestClosedAt != nil
         else { return nil }
         let openIssues = repo.openIssues.map {
-            Link(label: pluralizedCount($0, singular: "open issue"), url: url.droppingGitExtension + "/issues")
+            Link(label: pluralizedCount($0, singular: "open issue"), url: model.url.droppingGitExtension + "/issues")
         }
         let openPRs = repo.openPullRequests.map {
-            Link(label: pluralizedCount($0, singular: "open pull request"), url: url.droppingGitExtension + "/pulls")
+            Link(label: pluralizedCount($0, singular: "open pull request"), url: model.url.droppingGitExtension + "/pulls")
         }
         let lastIssueClosed = repo.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
         let lastPRClosed = repo.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
@@ -91,28 +79,13 @@ extension Package {
     }
     
     func productCounts() -> PackageShow.Model.ProductCounts? {
-        guard let version = latestVersion(for: .defaultBranch) else { return nil }
+        guard let version = versions.latest(for: .defaultBranch) else { return nil }
         return .init(
             libraries: version.products.filter(\.isLibrary).count,
             executables: version.products.filter(\.isExecutable).count
         )
     }
 
-    static func releaseInfo(packageUrl: String, versions: [Version]) -> PackageShow.Model.ReleaseInfo {
-        let versions = [Version.Kind.release, .preRelease, .defaultBranch]
-            .map {
-                versions.latest(for: $0)
-                    .flatMap {
-                        makeDatedLink(packageUrl: packageUrl,
-                                      version: $0,
-                                      keyPath: \.commitDate)
-                    }
-            }
-        return .init(stable: versions[0],
-                     beta: versions[1],
-                     latest: versions[2])
-    }
-    
     static func makeDatedLink(packageUrl: String, version: Version,
                               keyPath: KeyPath<Version, Date?>) -> DatedLink? {
         guard
@@ -124,6 +97,8 @@ extension Package {
     }
     
     static func makeLink(packageUrl: String, version: Version) -> Link? {
+        // TODO: review this $reference - this should not be required,
+        // reference is not a relation and does not need to be loaded
         guard
             let fault = version.$reference.value,
             let ref = fault
@@ -171,7 +146,7 @@ extension Package {
 // MARK: - Build info
 
 
-extension Package {
+extension JPRVB {
 
     typealias BuildInfo = PackageShow.Model.BuildInfo
     typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
@@ -180,17 +155,17 @@ extension Package {
 
     func swiftVersionBuildInfo() -> BuildInfo<SwiftVersionResults>? {
         .init(
-            stable: latestVersion(for: .release).flatMap(Package.buildResults),
-            beta: latestVersion(for: .preRelease).flatMap(Package.buildResults),
-            latest: latestVersion(for: .defaultBranch).flatMap(Package.buildResults))
+            stable: versions.latest(for: .release).flatMap(Self.buildResults),
+            beta: versions.latest(for: .preRelease).flatMap(Self.buildResults),
+            latest: versions.latest(for: .defaultBranch).flatMap(Self.buildResults))
 
     }
 
     func platformBuildInfo() -> BuildInfo<PlatformResults>? {
         .init(
-            stable: latestVersion(for: .release).flatMap(Package.buildResults),
-            beta: latestVersion(for: .preRelease).flatMap(Package.buildResults),
-            latest: latestVersion(for: .defaultBranch).flatMap(Package.buildResults)
+            stable: versions.latest(for: .release).flatMap(Self.buildResults),
+            beta: versions.latest(for: .preRelease).flatMap(Self.buildResults),
+            latest: versions.latest(for: .defaultBranch).flatMap(Self.buildResults)
         )
     }
 

@@ -23,14 +23,14 @@ extension BuildIndex {
         var completedBuildCount: Int
         var buildMatrix: BuildMatrix
 
-        init?(package: Package) {
+        init?(package: JPRVB) {
             // we consider certain attributes as essential and return nil (raising .notFound)
-            guard let name = package.name(),
+            guard let name = package.versions.packageName(),
                   let owner = package.repository?.owner,
                   let repositoryName = package.repository?.name else { return nil }
 
             let buildGroups = [App.Version.Kind.release, .preRelease, .defaultBranch]
-                .map { ($0, package.latestVersion(for: $0)) }
+                .map { ($0, package.versions.latest(for: $0)) }
                 .compactMap { (kind, version) in
                     version.flatMap { BuildGroup(version: $0, kind: kind) }
                 }

@@ -56,10 +56,20 @@ extension API {
                 return req.eventLoop.future(error: Abort(.notFound))
             }
             let dto = try req.content.decode(PostBuildTriggerDTO.self)
-            return Package.query(on: req.db, owner: owner, repository: repository)
-                .flatMap { pkg in
+            return JPRVB.query(on: req.db, owner: owner, repository: repository)
+                .flatMap { jpr -> EventLoopFuture<[App.Version]> in
+                    guard let packageId = try? jpr.model.requireID() else {
+                        return req.eventLoop.future(error: Abort(.notFound))
+                    }
+                    return App.Version.query(on: req.db)
+                        .with(\.$products)
+                        .with(\.$builds)
+                        .filter(\.$package.$id == packageId)
+                        .all()
+                }
+                .flatMap { versions -> EventLoopFuture<HTTPStatus> in
                     [App.Version.Kind.release, .preRelease, .defaultBranch]
-                        .compactMap { pkg.latestVersion(for: $0)?.id }
+                        .compactMap { versions.latest(for: $0)?.id }
                         .map {
                             Build.trigger(database: req.db,
                                           client: req.client,
@@ -110,7 +120,7 @@ extension API {
         }
 
 
-        func badge(req: Request) throws -> EventLoopFuture<Package.Badge> {
+        func badge(req: Request) throws -> EventLoopFuture<JPRVB.Badge> {
             guard
                 let owner = req.parameters.get("owner"),
                 let repository = req.parameters.get("repository")
@@ -119,13 +129,13 @@ extension API {
             }
             guard
                 let badgeType = req.query[String.self, at: "type"]
-                    .flatMap(Package.BadgeType.init(rawValue:))
+                    .flatMap(JPRVB.BadgeType.init(rawValue:))
             else {
                 return req.eventLoop.future(error: Abort(.badRequest,
                                                          reason: "missing or invalid type parameter"))
             }
 
-            return Package.query(on: req.db, owner: owner, repository: repository)
+            return JPRVB.query(on: req.db, owner: owner, repository: repository)
                 .map { $0.badge(badgeType: badgeType) }
         }
 

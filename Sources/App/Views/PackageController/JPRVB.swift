@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extension Array where Element == Version {
-    func latest(for kind: Version.Kind) -> Version? {
-        first { $0.latest == kind }
-    }
+/// A joined Package - Repository model with loaded versions and builds
+struct JPRVB {
+    var jpr: JPR
 
-    var releases: Self { filter { $0.reference?.isTag ?? false } }
-
-    func packageName(for kind: Version.Kind = .defaultBranch) -> String? {
-        latest(for: kind)?.packageName
-    }
+    var model: Package { jpr.model }
+    var repository: Repository? { jpr.repository }
+    var versions: [Version] { jpr.model.versions }
 }

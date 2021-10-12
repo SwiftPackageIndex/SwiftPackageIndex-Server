@@ -35,7 +35,7 @@ extension PackageReleases {
         
         let releases: [Release]
         
-        internal init?(package: Package) {
+        internal init?(package: JPR) {
             guard let releases = package.repository?.releases,
                   releases.isEmpty == false
             else {

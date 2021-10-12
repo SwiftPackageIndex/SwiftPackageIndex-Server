@@ -86,14 +86,15 @@ extension PackageShow {
             self.isArchived = isArchived
         }
         
-        init?(package: Package) {
+        init?(package: JPRVB) {
             // we consider certain attributes as essential and return nil (raising .notFound)
+            let versions = package.versions
             guard
                 let repository = package.repository,
                 let repositoryOwner = repository.owner,
                 let repositoryOwnerName = repository.ownerDisplayName,
                 let repositoryName = repository.name,
-                let packageId = package.id
+                let packageId = package.model.id
             else { return nil }
 
             self.init(
@@ -103,23 +104,21 @@ extension PackageShow {
                 repositoryName: repositoryName,
                 activity: package.activity(),
                 authors: package.authors(),
-                keywords: package.repository?.keywords,
+                keywords: repository.keywords,
                 swiftVersionBuildInfo: package.swiftVersionBuildInfo(),
                 platformBuildInfo: package.platformBuildInfo(),
                 history: package.history(),
-                // TODO: review this change (versions use)
-                languagePlatforms: Package.languagePlatformInfo(packageUrl: package.url, versions: package.versions),
-                license: package.repository?.license ?? .none,
-                licenseUrl: package.repository?.licenseUrl,
+                languagePlatforms: JPRVB.languagePlatformInfo(packageUrl: package.model.url, versions: versions),
+                license: repository.license,
+                licenseUrl: repository.licenseUrl,
                 products: package.productCounts(),
-                // TODO: review this change (versions use)
-                releases: Package.releaseInfo(packageUrl: package.url, versions: package.versions),
-                stars: package.repository?.stars,
-                summary: package.repository?.summary,
-                title: package.name() ?? repositoryName,
-                url: package.url,
-                score: package.score,
-                isArchived: package.repository?.isArchived ?? false
+                releases: PackageShow.releaseInfo(packageUrl: package.model.url, versions: versions),
+                stars: repository.stars,
+                summary: repository.summary,
+                title: versions.packageName() ?? repositoryName,
+                url: package.model.url,
+                score: package.model.score,
+                isArchived: repository.isArchived ?? false
             )
 
         }
