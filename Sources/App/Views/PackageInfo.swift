@@ -19,7 +19,7 @@ struct PackageInfo {
 }
 
 extension PackageInfo {
-    init?(package: JoinedPackage) {
+    init?(package: Joined3<Package, Repository, Version>) {
         guard let repoName = package.repository?.name,
               let repoOwner = package.repository?.owner
         else { return nil }
