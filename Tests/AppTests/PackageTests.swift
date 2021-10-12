@@ -524,7 +524,9 @@ final class PackageTests: AppTestCase {
         try Repository(package: pkg,
                        commitCount: 1433,
                        defaultBranch: "default",
-                       firstCommitDate: .t0).create(on: app.db).wait()
+                       firstCommitDate: .t0,
+                       name: "bar",
+                       owner: "foo").create(on: app.db).wait()
         try (0..<10).forEach {
             try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
         }
@@ -575,8 +577,10 @@ final class PackageTests: AppTestCase {
         try Repository(package: pkg,
                        lastIssueClosedAt: Date(timeIntervalSinceNow: -5*d),
                        lastPullRequestClosedAt: Date(timeIntervalSinceNow: -6*d),
+                       name: "bar",
                        openIssues: 27,
-                       openPullRequests: 1).create(on: app.db).wait()
+                       openPullRequests: 1,
+                       owner: "foo").create(on: app.db).wait()
         let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
@@ -670,6 +674,7 @@ final class PackageTests: AppTestCase {
     func test_swiftVersionBuildInfo() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
@@ -701,6 +706,7 @@ final class PackageTests: AppTestCase {
     func test_platformBuildInfo() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
@@ -742,6 +748,7 @@ final class PackageTests: AppTestCase {
     func test_swiftVersionCompatibility() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
@@ -769,6 +776,7 @@ final class PackageTests: AppTestCase {
     func test_swiftVersionCompatibility_allPending() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
@@ -796,6 +804,7 @@ final class PackageTests: AppTestCase {
     func test_swiftVersionCompatibility_partialPending() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
@@ -823,6 +832,7 @@ final class PackageTests: AppTestCase {
     func test_platformCompatibility() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
@@ -850,6 +860,7 @@ final class PackageTests: AppTestCase {
     func test_platformCompatibility_allPending() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
@@ -877,6 +888,7 @@ final class PackageTests: AppTestCase {
     func test_platformCompatibility_partialPending() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
         let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
