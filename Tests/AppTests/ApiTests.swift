@@ -443,7 +443,7 @@ class ApiTests: AppTestCase {
                 // validation
                 XCTAssertEqual(res.status, .ok)
 
-                let badge = try res.content.decode(Package.Badge.self)
+                let badge = try res.content.decode(JPRVB.Badge.self)
                 XCTAssertEqual(badge.schemaVersion, 1)
                 XCTAssertEqual(badge.label, "Swift Compatibility")
                 XCTAssertEqual(badge.message, "5.3 | 5.2")
@@ -461,7 +461,7 @@ class ApiTests: AppTestCase {
                 // validation
                 XCTAssertEqual(res.status, .ok)
 
-                let badge = try res.content.decode(Package.Badge.self)
+                let badge = try res.content.decode(JPRVB.Badge.self)
                 XCTAssertEqual(badge.schemaVersion, 1)
                 XCTAssertEqual(badge.label, "Platform Compatibility")
                 XCTAssertEqual(badge.message, "macOS | Linux")

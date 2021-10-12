@@ -191,6 +191,8 @@ final class PackageTests: AppTestCase {
             XCTAssertEqual(pkg.findDefaultBranchVersion(), version)
         }
     }
+
+    // TODO: move most/all of the JPRVB MUT tests into JRVBTests file
     
     func test_query_owner_repository() throws {
         // setup
@@ -209,10 +211,11 @@ final class PackageTests: AppTestCase {
         try version.save(on: app.db).wait()
         
         // MUT
-        let p = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let p = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
         
         // validate
-        XCTAssertEqual(p.id, pkg.id)
+        XCTAssertEqual(p.model.id, pkg.id)
+        XCTAssertEqual(p.repository?.name, "bar")
     }
     
     func test_query_owner_repository_case_insensitivity() throws {
@@ -232,10 +235,10 @@ final class PackageTests: AppTestCase {
         try version.save(on: app.db).wait()
         
         // MUT
-        let p = try Package.query(on: app.db, owner: "Foo", repository: "bar").wait()
+        let p = try JPRVB.query(on: app.db, owner: "Foo", repository: "bar").wait()
         
         // validate
-        XCTAssertEqual(p.id, pkg.id)
+        XCTAssertEqual(p.model.id, pkg.id)
     }
 
     func test_findRelease() throws {
@@ -403,7 +406,7 @@ final class PackageTests: AppTestCase {
         try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // MUT
-        let info = Package.releaseInfo(packageUrl: "1", versions: jpr.model.versions)
+        let info = PackageShow.releaseInfo(packageUrl: "1", versions: jpr.model.versions)
         
         // validate
         XCTAssertEqual(info.stable?.date, "3 days ago")
@@ -429,7 +432,7 @@ final class PackageTests: AppTestCase {
             .wait()
 
         // MUT
-        let info = Package.releaseInfo(packageUrl: "1", versions: versions)
+        let info = PackageShow.releaseInfo(packageUrl: "1", versions: versions)
         
         // validate
         XCTAssertEqual(info.stable?.date, "3 days ago")
@@ -446,7 +449,7 @@ final class PackageTests: AppTestCase {
         try versions.create(on: app.db).wait()
         
         // MUT / validate
-        XCTAssertNoThrow(Package.releaseInfo(packageUrl: "1", versions: versions))
+        XCTAssertNoThrow(PackageShow.releaseInfo(packageUrl: "1", versions: versions))
     }
 
     func test_versionUrl() throws {
@@ -494,7 +497,7 @@ final class PackageTests: AppTestCase {
             .wait()
 
         // MUT
-        let lpInfo = Package.languagePlatformInfo(packageUrl: "1", versions: versions)
+        let lpInfo = JPRVB.languagePlatformInfo(packageUrl: "1", versions: versions)
         
         // validate
         XCTAssertEqual(lpInfo.stable?.link, .init(label: "2.1.0",
@@ -528,13 +531,10 @@ final class PackageTests: AppTestCase {
         // add pre-release and default branch - these should *not* be counted as releases
         try Version(package: pkg, reference: .branch("main")).create(on: app.db).wait()
         try Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db).wait()
-        // re-load pkg with relationships
-        try pkg.$repositories.load(on: app.db)
-            .flatMap { pkg.$versions.load(on: self.app.db) }
-            .wait()
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
         
         // MUT
-        let history = try XCTUnwrap(pkg.history())
+        let history = try XCTUnwrap(jprvb.history())
         
         // validate
         XCTAssertEqual(history.since, "50 years")
@@ -577,11 +577,10 @@ final class PackageTests: AppTestCase {
                        lastPullRequestClosedAt: Date(timeIntervalSinceNow: -6*d),
                        openIssues: 27,
                        openPullRequests: 1).create(on: app.db).wait()
-        // re-load pkg with relationships
-        try pkg.$repositories.load(on: app.db).wait()
-        
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
+
         // MUT
-        let res = pkg.activity()
+        let res = jprvb.activity()
         
         // validate
         XCTAssertEqual(res,
@@ -622,7 +621,7 @@ final class PackageTests: AppTestCase {
         try v.$builds.load(on: app.db).wait()
         
         // MUT
-        let res: NamedBuildResults<SwiftVersionResults>? = Package.buildResults(v)
+        let res: NamedBuildResults<SwiftVersionResults>? = JPRVB.buildResults(v)
         
         // validate
         XCTAssertEqual(res?.referenceName, "main")
@@ -658,7 +657,7 @@ final class PackageTests: AppTestCase {
         try v.$builds.load(on: app.db).wait()
 
         // MUT
-        let res: NamedBuildResults<PlatformResults>? = Package.buildResults(v)
+        let res: NamedBuildResults<PlatformResults>? = JPRVB.buildResults(v)
 
         // validate
         XCTAssertEqual(res?.referenceName, "main")
@@ -683,13 +682,10 @@ final class PackageTests: AppTestCase {
         try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
-        
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
+
         // MUT
-        let res = p.swiftVersionBuildInfo()
+        let res = jprvb.swiftVersionBuildInfo()
         
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
@@ -717,13 +713,10 @@ final class PackageTests: AppTestCase {
         try Build(version: v, platform: .tvos, status: .failed, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let res = p.platformBuildInfo()
+        let res = jprvb.platformBuildInfo()
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
@@ -736,14 +729,14 @@ final class PackageTests: AppTestCase {
     }
 
     func test_badgeMessage_swiftVersions() throws {
-        XCTAssertEqual(Package.badgeMessage(swiftVersions: [.v5_2, .v5_1, .v5_4]), "5.4 | 5.2 | 5.1")
-        XCTAssertNil(Package.badgeMessage(swiftVersions: []))
+        XCTAssertEqual(JPRVB.badgeMessage(swiftVersions: [.v5_2, .v5_1, .v5_4]), "5.4 | 5.2 | 5.1")
+        XCTAssertNil(JPRVB.badgeMessage(swiftVersions: []))
     }
 
     func test_badgeMessage_platforms() throws {
-        XCTAssertEqual(Package.badgeMessage(platforms: [.linux, .ios, .macosXcodebuild, .macosSpm]),
+        XCTAssertEqual(JPRVB.badgeMessage(platforms: [.linux, .ios, .macosXcodebuild, .macosSpm]),
                        "iOS | macOS | Linux")
-        XCTAssertNil(Package.badgeMessage(platforms: []))
+        XCTAssertNil(JPRVB.badgeMessage(platforms: []))
     }
 
     func test_swiftVersionCompatibility() throws {
@@ -753,7 +746,7 @@ final class PackageTests: AppTestCase {
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -764,13 +757,10 @@ final class PackageTests: AppTestCase {
         try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let res = try XCTUnwrap(p.swiftVersionCompatibility().values)
+        let res = try XCTUnwrap(jprvb.swiftVersionCompatibility().values)
 
         // validate
         XCTAssertEqual(res.sorted(), [.v5_2, .v5_3])
@@ -783,7 +773,7 @@ final class PackageTests: AppTestCase {
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .triggered, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -794,13 +784,10 @@ final class PackageTests: AppTestCase {
         try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let res = p.swiftVersionCompatibility()
+        let res = jprvb.swiftVersionCompatibility()
 
         // validate
         XCTAssertEqual(res, .pending)
@@ -813,7 +800,7 @@ final class PackageTests: AppTestCase {
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -824,13 +811,10 @@ final class PackageTests: AppTestCase {
         try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let res = try XCTUnwrap(p.swiftVersionCompatibility().values)
+        let res = try XCTUnwrap(jprvb.swiftVersionCompatibility().values)
 
         // validate
         XCTAssertEqual(res.sorted(), [ .v5_3 ])
@@ -843,7 +827,7 @@ final class PackageTests: AppTestCase {
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -854,13 +838,10 @@ final class PackageTests: AppTestCase {
         try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let res = try XCTUnwrap(p.platformCompatibility().values)
+        let res = try XCTUnwrap(jprvb.platformCompatibility().values)
 
         // validate
         XCTAssertEqual(res.sorted(), [.macosXcodebuild, .linux])
@@ -873,7 +854,7 @@ final class PackageTests: AppTestCase {
         try v.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .triggered, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -884,13 +865,10 @@ final class PackageTests: AppTestCase {
         try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let res = p.platformCompatibility()
+        let res = jprvb.platformCompatibility()
 
         // validate
         XCTAssertEqual(res, .pending)
@@ -914,13 +892,10 @@ final class PackageTests: AppTestCase {
         try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let res = try XCTUnwrap(p.platformCompatibility().values)
+        let res = try XCTUnwrap(jprvb.platformCompatibility().values)
 
         // validate
         XCTAssertEqual(res.sorted(), [ .linux ])

@@ -23,7 +23,7 @@ class PackageShowModelTests: SnapshotTestCase {
     func test_init_no_packageName() throws {
         // Tests behaviour when we're lacking data
         // setup package without package name
-        var pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
                        defaultBranch: "main",
                        forks: 42,
@@ -38,11 +38,10 @@ class PackageShowModelTests: SnapshotTestCase {
         try version.save(on: app.db).wait()
         try Product(version: version,
                     type: .library(.automatic), name: "lib 1").save(on: app.db).wait()
-        // reload via query to ensure relationships are loaded
-        pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
         
         // MUT
-        let m = PackageShow.Model(package: pkg)
+        let m = PackageShow.Model(package: jprvb)
         
         // validate
         XCTAssertNotNil(m)
@@ -76,10 +75,10 @@ class PackageShowModelTests: SnapshotTestCase {
             try updateLatestVersions(on: app.db, package: jpr).wait()
         }
         // reload via query to ensure pkg is in the same state it would normally be
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let m = PackageShow.Model(package: jpr.model)
+        let m = PackageShow.Model(package: jprvb)
         
         // validate
         XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)
