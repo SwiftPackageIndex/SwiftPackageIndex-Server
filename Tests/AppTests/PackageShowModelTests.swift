@@ -93,7 +93,7 @@ class PackageShowModelTests: SnapshotTestCase {
             releaseCount: .init(label: "2 releases", url: "https://example.com/releases.html")
         )
 
-        let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
+        let renderedHistory = model.historyListItem().render()
         assertSnapshot(matching: renderedHistory, as: .lines)
     }
 
@@ -106,7 +106,7 @@ class PackageShowModelTests: SnapshotTestCase {
         )
         model.isArchived = true
 
-        let renderedHistory = model.historyListItem().render(indentedBy: .spaces(2))
+        let renderedHistory = model.historyListItem().render()
         assertSnapshot(matching: renderedHistory, as: .lines)
     }
     
@@ -114,7 +114,7 @@ class PackageShowModelTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.isArchived = false
         
-        let renderedHistory = model.archivedListItem().render(indentedBy: .spaces(2))
+        let renderedHistory = model.archivedListItem().render()
         assertSnapshot(matching: renderedHistory, as: .lines)
     }
     
@@ -122,7 +122,7 @@ class PackageShowModelTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.isArchived = true
 
-        let renderedHistory = model.archivedListItem().render(indentedBy: .spaces(2))
+        let renderedHistory = model.archivedListItem().render()
         assertSnapshot(matching: renderedHistory, as: .lines)
     }
 
@@ -130,7 +130,7 @@ class PackageShowModelTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.activity?.openIssues = nil
 
-        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        let renderedActivity = model.activityListItem().render()
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
@@ -138,7 +138,7 @@ class PackageShowModelTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.activity?.openPullRequests = nil
 
-        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        let renderedActivity = model.activityListItem().render()
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
@@ -147,7 +147,7 @@ class PackageShowModelTests: SnapshotTestCase {
         model.activity?.openIssues = nil
         model.activity?.openPullRequests = nil
 
-        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        let renderedActivity = model.activityListItem().render()
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
@@ -155,7 +155,7 @@ class PackageShowModelTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.activity?.lastIssueClosedAt = nil
 
-        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        let renderedActivity = model.activityListItem().render()
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
@@ -163,7 +163,7 @@ class PackageShowModelTests: SnapshotTestCase {
         var model = PackageShow.Model.mock
         model.activity?.lastPullRequestClosedAt = nil
 
-        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        let renderedActivity = model.activityListItem().render()
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
@@ -172,7 +172,7 @@ class PackageShowModelTests: SnapshotTestCase {
         model.activity?.lastIssueClosedAt = nil
         model.activity?.lastPullRequestClosedAt = nil
 
-        let renderedActivity = model.activityListItem().render(indentedBy: .spaces(2))
+        let renderedActivity = model.activityListItem().render()
         assertSnapshot(matching: renderedActivity, as: .lines)
     }
     
