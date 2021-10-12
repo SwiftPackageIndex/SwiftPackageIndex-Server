@@ -292,8 +292,15 @@ extension PackageShow.Model {
     }
 
     func dependenciesListItem() -> Node<HTML.ListContext> {
-        guard let dependencies = dependencies,
-              dependencies.count > 0
+        guard let dependencies = dependencies
+        else {
+            return .li(
+                .class("dependencies"),
+                .text("No dependency information available.")
+            )
+        }
+
+        guard dependencies.count > 0
         else {
             return .li(
                 .class("dependencies"),
