@@ -902,7 +902,7 @@ func onNewVersions(client: Client,
         let versions = versionsAndManifests.map { $0.0 }
         return Twitter.postToFirehose(client: client,
                                       database: transaction,
-                                      package: pkg.model,
+                                      package: pkg,
                                       versions: versions)
             .flatMapError { error in
                 logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")

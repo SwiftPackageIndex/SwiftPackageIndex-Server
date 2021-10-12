@@ -190,7 +190,7 @@ class TwitterTests: AppTestCase {
         // MUT
         try Twitter.postToFirehose(client: app.client,
                                    database: app.db,
-                                   package: pkg,
+                                   package: jpr,
                                    versions: [v1, v2, v3]).wait()
 
         // validate
@@ -229,7 +229,7 @@ class TwitterTests: AppTestCase {
         // MUT
         try Twitter.postToFirehose(client: app.client,
                                    database: app.db,
-                                   package: pkg,
+                                   package: jpr,
                                    versions: [v1, v2]).wait()
 
         // validate

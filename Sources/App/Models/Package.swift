@@ -187,6 +187,7 @@ extension Package {
             }
     }
 
+    // TODO: remove
     @available(*, deprecated)
     /// Helper to find the up to three significant versions of a package: latest release, latest pre-release, and latest default branch version.
     /// - Returns: Named tuple of versions
@@ -198,6 +199,7 @@ extension Package {
         return (release, preRelease, defaultBranch)
     }
 
+    // TODO: remove
     @available(*, deprecated)
     /// Helper to find the version for the default branch.
     /// - Returns: version or nil

@@ -1051,8 +1051,9 @@ class AnalyzerTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try version.save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         let packageResults: [Result<(JPR, [(Version, Manifest)]), Error>] = [
-            .success((.init(model: pkg), [(version, .mock)]))
+            .success((jpr, [(version, .mock)]))
         ]
 
         // MUT & validation (no error thrown)
