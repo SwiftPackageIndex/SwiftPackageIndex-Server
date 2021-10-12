@@ -186,6 +186,23 @@ class PackageShowModelTests: SnapshotTestCase {
         XCTAssertEqual(model.activityListItem().render(), "")
     }
 
+    func test_dependenciesPhrase_with_dependencies() throws {
+        let model = PackageShow.Model.mock
+        XCTAssertEqual(model.dependenciesPhrase(), "Depends on 2 packages.")
+    }
+
+    func test_dependenciesPhrase_no_dependencies() throws {
+        var model = PackageShow.Model.mock
+        model.dependencies = []
+        XCTAssertEqual(model.dependenciesPhrase(), "Has zero package dependencies.")
+    }
+
+    func test_dependenciesPhrase_nil_dependencies() throws {
+        var model = PackageShow.Model.mock
+        model.dependencies = nil
+        XCTAssertEqual(model.dependenciesPhrase(), "No dependency information available.")
+    }
+
     func test_stars_formatting() throws {
         var model = PackageShow.Model.mock
         model.stars = 999
