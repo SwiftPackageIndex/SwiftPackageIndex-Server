@@ -48,7 +48,7 @@ class BuildShowModelTests: AppTestCase {
         try build.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // MUT
         let m = try Build.query(on: app.db, buildId: buildId)
