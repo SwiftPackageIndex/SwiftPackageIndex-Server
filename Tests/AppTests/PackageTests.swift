@@ -416,15 +416,17 @@ final class PackageTests: AppTestCase {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
-        let versions = [
+        try [
             try Version(package: pkg, commitDate: daysAgo(1), reference: .branch("default")),
             try Version(package: pkg, commitDate: daysAgo(3), reference: .tag(.init(2, 1, 0))),
             try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(2, 0, 0, "beta"))),
-        ]
-        try versions.create(on: app.db).wait()
+        ].create(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         // update versions
         try updateLatestVersions(on: app.db, package: jpr).wait()
+        let versions = try pkg.$versions.load(on: app.db)
+            .map { pkg.versions }
+            .wait()
 
         // MUT
         let info = Package.releaseInfo(packageUrl: "1", versions: versions)
@@ -465,7 +467,7 @@ final class PackageTests: AppTestCase {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
-        let versions = [
+        try [
             try Version(package: pkg, reference: .branch("branch")),
             try Version(package: pkg,
                         commitDate: daysAgo(1),
@@ -483,11 +485,13 @@ final class PackageTests: AppTestCase {
                         reference: .tag(.init(3, 0, 0, "beta")),
                         supportedPlatforms: [.macos("10.14"), .ios("13")],
                         swiftVersions: ["5", "5.2"].asSwiftVersions),
-        ]
-        try versions.create(on: app.db).wait()
+        ].create(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         // update versions
         try updateLatestVersions(on: app.db, package: jpr).wait()
+        let versions = try pkg.$versions.load(on: app.db)
+            .map { pkg.versions }
+            .wait()
 
         // MUT
         let lpInfo = Package.languagePlatformInfo(packageUrl: "1", versions: versions)
@@ -548,14 +552,18 @@ final class PackageTests: AppTestCase {
                     reference: .branch("default"),
                     swiftVersions: ["5"].asSwiftVersions).save(on: app.db).wait()
         try (0..<20).forEach {
-            try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
+            try Version(package: pkg, reference: .tag(.init($0, 0, 0)))
+                .save(on: app.db).wait()
         }
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         // update versions
         try updateLatestVersions(on: app.db, package: jpr).wait()
-        
+        let versions = try pkg.$versions.load(on: app.db)
+            .map { pkg.versions }
+            .wait()
+
         // MUT
-        XCTAssertEqual(pkg.computeScore(), 67)
+        XCTAssertEqual(Score.compute(package: jpr, versions: versions), 67)
     }
     
     func test_activity() throws {

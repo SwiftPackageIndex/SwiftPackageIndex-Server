@@ -56,24 +56,20 @@ enum Score {
         
         return score
     }
-}
 
-
-extension Package {
-    func computeScore() -> Int {
+    static func compute(package: JPR, versions: [Version]) -> Int {
         guard
-            let defaultVersion = latestVersion(for: .defaultBranch),
-            let versions = $versions.value,
-            let r = repository,
-            let starsCount = r.stars
+            let defaultVersion = versions.latest(for: .defaultBranch),
+            let repo = package.repository,
+            let starsCount = repo.stars
         else { return 0 }
         let releases = versions.filter { $0.reference?.isTag ?? false }
         return Score.compute(
             .init(supportsLatestSwiftVersion: defaultVersion.supportsMajorSwiftVersion(SwiftVersion.latestMajor),
-                  licenseKind: r.license.licenseKind,
+                  licenseKind: repo.license.licenseKind,
                   releaseCount: releases.count,
                   likeCount: starsCount,
-                  isArchived: r.isArchived ?? false)
+                  isArchived: repo.isArchived ?? false)
         )
     }
 }

@@ -35,7 +35,8 @@ func updatePackages(client: Client,
                             pkg.status = .ok
                         }
                         pkg.processingStage = stage
-                        pkg.score = pkg.computeScore()
+                        pkg.score = Score.compute(package: jpr,
+                                                  versions: pkg.versions)
                         return pkg.update(on: database)
                     }
                     .flatMapError { error in

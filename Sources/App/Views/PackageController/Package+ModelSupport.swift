@@ -114,7 +114,7 @@ extension Package {
     }
     
     static func makeDatedLink(packageUrl: String, version: Version,
-                       keyPath: KeyPath<Version, Date?>) -> DatedLink? {
+                              keyPath: KeyPath<Version, Date?>) -> DatedLink? {
         guard
             let date = version[keyPath: keyPath],
             let link = makeLink(packageUrl: packageUrl, version: version)
@@ -267,12 +267,5 @@ private extension Build.Platform {
             case .linux:
                 return other == .linux
         }
-    }
-}
-
-
-private extension Array where Element == Version {
-    func latest(for kind: Version.Kind) -> Version? {
-        first { $0.latest == kind }
     }
 }
