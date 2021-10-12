@@ -1,4 +1,1 @@
-<li class="activity">There are 
-  <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and 
-  <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. 
-</li>
+<li class="activity">There are <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. </li>

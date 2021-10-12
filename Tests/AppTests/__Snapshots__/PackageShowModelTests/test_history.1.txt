@@ -1,4 +1,1 @@
-<li class="history">In development for 7 months, with 
-  <a href="https://example.com/commits.html">12 commits</a> and 
-  <a href="https://example.com/releases.html">2 releases</a>.
-</li>
+<li class="history">In development for 7 months, with <a href="https://example.com/commits.html">12 commits</a> and <a href="https://example.com/releases.html">2 releases</a>.</li>
