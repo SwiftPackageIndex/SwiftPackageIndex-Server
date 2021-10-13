@@ -15,16 +15,16 @@
 import FluentKit
 
 
-struct Joined2<M: Model, R: Model>: Joiner {
+struct Joined<M: Model, R: Model>: Joiner {
     private(set) var model: M
 }
 
 
-extension Joined2 {
+extension Joined {
     static func query<V: Codable>(
         on database: Database,
         join joinFilter: JoinFilter<R, M, V>,
-        method: DatabaseQuery.Join.Method = .inner) -> JoinedQueryBuilder<Joined2> {
+        method: DatabaseQuery.Join.Method = .inner) -> JoinedQueryBuilder<Joined> {
             .init(queryBuilder: M.query(on: database)
                     .join(R.self, on: joinFilter, method: method))
     }
@@ -33,10 +33,10 @@ extension Joined2 {
 }
 
 
-extension Joined2 where M == Package, R == Repository {
+extension Joined where M == Package, R == Repository {
     var repository: Repository? { relation }
 
-    static func query(on database: Database) -> JoinedQueryBuilder<Joined2> {
+    static func query(on database: Database) -> JoinedQueryBuilder<Joined> {
         query(on: database,
               join: \Repository.$package.$id == \Package.$id)
     }
