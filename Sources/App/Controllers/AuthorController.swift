@@ -27,7 +27,6 @@ struct AuthorController {
                 DatabaseQuery.Filter.Method.custom("ilike"),
                 DatabaseQuery.Value.bind(owner)
             )
-            .sort(\.$title)
             .all()
             .flatMapThrowing {
                 if $0.isEmpty {
@@ -48,6 +47,7 @@ struct AuthorController {
                     owner: $0.first?.repository?.owner ?? owner,
                     ownerName: $0.first?.repository?.ownerDisplayName ?? owner,
                     packages: $0.compactMap(PackageInfo.init(package:))
+                        .sorted(by: {$0.title < $1.title})
                 )
             }
             .map {
