@@ -355,7 +355,9 @@ func updateRepositories(on database: Database,
 
 
 /// Update the `Repository` of a given `Package` with git repository data (commit count, first commit date, etc).
-/// - Parameter package: `Package` to update
+/// - Parameters:
+///   - database: `Database` object
+///   - package: `Package` to update
 /// - Returns: result future
 func updateRepository(on database: Database, package: JPR) -> EventLoopFuture<Void> {
     guard let repo = package.repository else {
