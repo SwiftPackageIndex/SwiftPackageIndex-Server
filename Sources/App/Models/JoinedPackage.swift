@@ -20,13 +20,14 @@ import FluentKit
 /// relationally constrained to a 1:1 relationship via a unique index on its `package_id`.
 /// 
 /// Both relationships must be present or the `query` method will not select the `Package`.
-typealias JoinedPackage = Joined<Package, Repository, Version>
+typealias JoinedPackage = Joined3<Package, Repository, Version>
 
-extension Joined where M == Package, R1 == Repository, R2 == Version {
+
+extension Joined3 where M == Package, R1 == Repository, R2 == Version {
     var repository: Repository? { relation1 }
     var version: Version? { relation2 }
 
-    static func query(on database: Database) -> JoinedQueryBuilder {
+    static func query(on database: Database) -> JoinedQueryBuilder<Joined3> {
         query(on: database,
               join: \Repository.$package.$id == \Package.$id,
               join: \Version.$package.$id == \Package.$id)

@@ -15,29 +15,25 @@
 import FluentKit
 
 
-struct Joined<M: Model, R: Model>: Joiner {
+struct Joined3<M: Model, R1: Model, R2: Model>: Joiner {
     private(set) var model: M
 }
 
 
-extension Joined {
-    static func query<V: Codable>(
+extension Joined3 {
+    static func query<V1: Codable, V2: Codable>(
         on database: Database,
-        join joinFilter: JoinFilter<R, M, V>,
-        method: DatabaseQuery.Join.Method = .inner) -> JoinedQueryBuilder<Joined> {
-            .init(queryBuilder: M.query(on: database)
-                    .join(R.self, on: joinFilter, method: method))
+        join joinFilter1: JoinFilter<R1, M, V1>,
+        method method1: DatabaseQuery.Join.Method = .inner,
+        join joinFilter2: JoinFilter<R2, M, V2>,
+        method method2: DatabaseQuery.Join.Method = .inner) -> JoinedQueryBuilder<Joined3> {
+            .init(
+                queryBuilder: M.query(on: database)
+                    .join(R1.self, on: joinFilter1, method: method1)
+                    .join(R2.self, on: joinFilter2, method: method2)
+            )
     }
 
-    var relation: R? { try? model.joined(R.self) }
-}
-
-
-extension Joined where M == Package, R == Repository {
-    var repository: Repository? { relation }
-
-    static func query(on database: Database) -> JoinedQueryBuilder<Joined> {
-        query(on: database,
-              join: \Repository.$package.$id == \Package.$id)
-    }
+    var relation1: R1? { try? model.joined(R1.self) }
+    var relation2: R2? { try? model.joined(R2.self) }
 }
