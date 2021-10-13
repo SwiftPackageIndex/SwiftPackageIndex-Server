@@ -105,45 +105,42 @@ extension Twitter {
                       url: "\(url)#releases")
     }
 
-    static func firehoseMessage(db: Database, for version: Version) -> EventLoopFuture<String?> {
-        version.fetchPackage(db)
-            .flatMap { pkg in
-                pkg.fetchRepository(db).map { (pkg, $0) }
-            }
-            .map { pkg, repo in
-                guard let packageName = version.packageName,
-                      let repoName = repo?.name,
-                      let owner = repo?.owner,
-                      let ownerName = repo?.ownerDisplayName,
-                      let semVer = version.reference?.semVer
-                else { return nil }
-                let url = SiteURL.package(.value(owner), .value(repoName), .none).absoluteURL()
-                return pkg.isNew
-                    ? newPackageMessage(packageName: packageName,
-                                        repositoryOwnerName: ownerName,
-                                        url: url,
-                                        summary: repo?.summary)
-                    : versionUpdateMessage(packageName: packageName,
-                                           repositoryOwnerName: ownerName,
-                                           url: url,
-                                           version: semVer,
-                                           summary: repo?.summary)
-            }
+    static func firehoseMessage(db: Database,
+                                package: Joined<Package, Repository>,
+                                version: Version) -> String? {
+        guard let packageName = version.packageName,
+              let repoName = package.repository?.name,
+              let owner = package.repository?.owner,
+              let ownerName = package.repository?.ownerDisplayName,
+              let semVer = version.reference?.semVer
+        else { return nil }
+        let url = SiteURL.package(.value(owner), .value(repoName), .none).absoluteURL()
+        return package.model.isNew
+        ? newPackageMessage(packageName: packageName,
+                            repositoryOwnerName: ownerName,
+                            url: url,
+                            summary: package.repository?.summary)
+        : versionUpdateMessage(packageName: packageName,
+                               repositoryOwnerName: ownerName,
+                               url: url,
+                               version: semVer,
+                               summary: package.repository?.summary)
     }
 
     static func postToFirehose(client: Client,
                                database: Database,
+                               package: Joined<Package, Repository>,
                                version: Version) -> EventLoopFuture<Void> {
         guard Current.allowTwitterPosts() else {
             return client.eventLoop.future(error: Error.postingDisabled)
         }
-        return firehoseMessage(db: database, for: version)
-            .flatMap {
-                guard let message = $0 else {
-                    return client.eventLoop.future(error: Error.invalidMessage)
-                }
-                return Current.twitterPostTweet(client, message)
-            }
+        guard let message = firehoseMessage(db: database,
+                                            package: package,
+                                            version: version)
+        else {
+            return client.eventLoop.future(error: Error.invalidMessage)
+        }
+        return Current.twitterPostTweet(client, message)
     }
 
     static func postToFirehose(client: Client,
@@ -163,7 +160,10 @@ extension Twitter {
             return idsLatest.contains(id)
         }
         return versions.map {
-            postToFirehose(client: client, database: database, version: $0)
+            postToFirehose(client: client,
+                           database: database,
+                           package: package,
+                           version: $0)
         }
         .flatten(on: client.eventLoop)
     }
