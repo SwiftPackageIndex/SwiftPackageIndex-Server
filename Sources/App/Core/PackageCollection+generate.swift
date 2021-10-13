@@ -106,7 +106,7 @@ extension PackageCollection {
     static func authorLabel(packages: [App.Package]) -> String? {
         let groupedPackagesByName = Dictionary(
             grouping: packages,
-            by: { $0.repository?.ownerName ?? $0.repository?.owner }
+            by: { $0.repositories.first?.ownerName ?? $0.repositories.first?.owner }
         )
 
         let names = groupedPackagesByName.enumerated().compactMap(\.element.key)
@@ -175,8 +175,8 @@ extension PackageCollection.Package {
           prunedVersions: [App.Version],
           keywords: [String]?) {
         let license = PackageCollection.License(
-            name: package.repository?.license.shortName,
-            url: package.repository?.licenseUrl
+            name: package.repositories.first?.license.shortName,
+            url: package.repositories.first?.licenseUrl
         )
 
         let versions = [Version].init(versions: prunedVersions,
@@ -188,10 +188,10 @@ extension PackageCollection.Package {
 
         self.init(
             url: url,
-            summary: package.repository?.summary,
+            summary: package.repositories.first?.summary,
             keywords: keywords,
             versions: versions,
-            readmeURL: package.repository?.readmeUrl.flatMap(URL.init(string:)),
+            readmeURL: package.repositories.first?.readmeUrl.flatMap(URL.init(string:)),
             license: license
         )
     }

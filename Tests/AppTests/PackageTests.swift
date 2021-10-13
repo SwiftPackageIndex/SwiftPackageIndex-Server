@@ -122,13 +122,13 @@ final class PackageTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$repositories).first().wait())
-            XCTAssertEqual(pkg.repository, nil)
+            XCTAssertEqual(pkg.repositories.first, nil)
         }
         do {
             let repo = try Repository(package: pkg)
             try repo.save(on: app.db).wait()
             let pkg = try XCTUnwrap(Package.query(on: app.db).with(\.$repositories).first().wait())
-            XCTAssertEqual(pkg.repository, repo)
+            XCTAssertEqual(pkg.repositories.first, repo)
         }
     }
     

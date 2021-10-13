@@ -24,7 +24,7 @@ extension BuildShow {
         init?(build: App.Build, logs: String?) {
             guard
                 let packageName = build.version.packageName,
-                let repository = build.version.package.repository,
+                let repository = build.version.package.repositories.first,
                 let repositoryOwner = repository.owner,
                 let repositoryName = repository.name,
                 let buildInfo = BuildInfo(build: build, logs: logs),
