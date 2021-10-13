@@ -332,6 +332,11 @@ func refreshCheckout(eventLoop: EventLoop,
 }
 
 
+/// Update the `Repository`s of a given set of `Package`s with git repository data (commit count, first commit date, etc).
+/// - Parameters:
+///   - database: `Database` object
+///   - packages: `Package`s to update
+/// - Returns: results future
 func updateRepositories(on database: Database,
                         packages: [Result<JPR, Error>]) -> EventLoopFuture<[Result<JPR, Error>]> {
     let ops = packages.map { result -> EventLoopFuture<JPR> in
@@ -348,6 +353,10 @@ func updateRepositories(on database: Database,
     return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
 }
 
+
+/// Update the `Repository` of a given `Package` with git repository data (commit count, first commit date, etc).
+/// - Parameter package: `Package` to update
+/// - Returns: result future
 func updateRepository(on database: Database, package: JPR) -> EventLoopFuture<Void> {
     guard let repo = package.repository else {
         return database.eventLoop.future(
