@@ -45,6 +45,7 @@ extension PackageCollection {
                          keywords: [String]? = nil,
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
+        // TODO: used typed result
         var query = App.Version.query(on: db)
             .with(\.$builds)
             .with(\.$products)
