@@ -18,7 +18,7 @@ import Vapor
 
 /// A joined Package - Repository model with loaded versions and builds
 struct JPRVB {
-    var jpr: JPR
+    var jpr: Joined<Package, Repository>
 
     var model: Package { jpr.model }
     var repository: Repository? { jpr.repository }

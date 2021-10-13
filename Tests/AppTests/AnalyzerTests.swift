@@ -456,14 +456,14 @@ class AnalyzerTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        let packages: [Result<JPR, Error>] = [
+        let packages: [Result<Joined<Package, Repository>, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success(jpr)
         ]
         
         // MUT
-        let results: [Result<JPR, Error>] =
+        let results: [Result<Joined<Package, Repository>, Error>] =
             try updateRepositories(on: app.db, packages: packages).wait()
         
         // validate
@@ -528,7 +528,7 @@ class AnalyzerTests: AppTestCase {
             try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         }
         let pkg = try Package.fetchCandidate(app.db, id: pkgId).wait()
-        let packages: [Result<JPR, Error>] = [
+        let packages: [Result<Joined<Package, Repository>, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success(pkg)
@@ -668,7 +668,7 @@ class AnalyzerTests: AppTestCase {
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try version.save(on: app.db).wait()
         
-        let packageAndVersions: [Result<(JPR, [Version]), Error>] = [
+        let packageAndVersions: [Result<(Joined<Package, Repository>, [Version]), Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success((.init(model: pkg), [version]))
@@ -815,8 +815,8 @@ class AnalyzerTests: AppTestCase {
     func test_updatePackage() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
-            .map(JPR.init(model:))
-        let results: [Result<JPR, Error>] = [
+            .map(Joined<Package, Repository>.init(model:))
+        let results: [Result<Joined<Package, Repository>, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.noValidVersions(try packages[0].model.requireID(), "1")),
             .success(packages[1])
@@ -1052,7 +1052,7 @@ class AnalyzerTests: AppTestCase {
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try version.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        let packageResults: [Result<(JPR, [(Version, Manifest)]), Error>] = [
+        let packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>] = [
             .success((jpr, [(version, .mock)]))
         ]
 

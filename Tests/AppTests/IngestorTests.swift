@@ -58,7 +58,7 @@ class IngestorTests: AppTestCase {
         // setup
         let packages = try savePackages(on: app.db, ["https://github.com/foo/1",
                                                      "https://github.com/foo/2"])
-            .map(JPR.init(model:))
+            .map(Joined<Package, Repository>.init(model:))
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "https://github.com/foo/1" {
                 return self.future(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
@@ -105,7 +105,7 @@ class IngestorTests: AppTestCase {
         // setup
         let pkg = try savePackage(on: app.db, "2")
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        let metadata: [Result<(JPR, Github.Metadata, Github.License?, Github.Readme?),
+        let metadata: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?),
                               Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
             .success((jpr,
@@ -184,8 +184,8 @@ class IngestorTests: AppTestCase {
         // setup
         let pkgs = try savePackages(on: app.db, ["https://github.com/foo/1",
                                                  "https://github.com/foo/2"])
-            .map(JPR.init(model:))
-        let results: [Result<JPR, Error>] = [
+            .map(Joined<Package, Repository>.init(model:))
+        let results: [Result<Joined<Package, Repository>, Error>] = [
             .failure(AppError.metadataRequestFailed(try pkgs[0].model.requireID(), .badRequest, "1")),
             .success(pkgs[1])
         ]
@@ -213,7 +213,7 @@ class IngestorTests: AppTestCase {
             Package(id: UUID(), url: "https://github.com/foo/2", status: .new, processingStage: .reconciliation)
         ]
         try pkgs.save(on: app.db).wait()
-        let results: [Result<JPR, Error>] = [ .success(.init(model: pkgs[0])),
+        let results: [Result<Joined<Package, Repository>, Error>] = [ .success(.init(model: pkgs[0])),
                                               .success(.init(model: pkgs[1]))]
         
         // MUT
@@ -360,7 +360,7 @@ class IngestorTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
         let packages = try savePackages(on: app.db, ["https://github.com/foo/1"])
-            .map(JPR.init(model:))
+            .map(Joined<Package, Repository>.init(model:))
         // use mock for metadata request which we're not interested in ...
         Current.fetchMetadata = { _, _ in self.future(Github.Metadata()) }
         // and live fetch request for fetchLicense, whose behaviour we want to test ...

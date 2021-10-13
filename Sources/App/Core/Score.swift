@@ -57,7 +57,7 @@ enum Score {
         return score
     }
 
-    static func compute(package: JPR, versions: [Version]) -> Int {
+    static func compute(package: Joined<Package, Repository>, versions: [Version]) -> Int {
         guard
             let defaultVersion = versions.latest(for: .defaultBranch),
             let repo = package.repository,

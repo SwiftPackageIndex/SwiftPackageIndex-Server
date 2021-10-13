@@ -148,7 +148,7 @@ extension Twitter {
 
     static func postToFirehose(client: Client,
                                database: Database,
-                               package: JPR,
+                               package: Joined<Package, Repository>,
                                versions: [Version]) -> EventLoopFuture<Void> {
         let (release, preRelease, defaultBranch) = package.findSignificantReleases(versions)
         let idsLatest = [release, preRelease, defaultBranch].compactMap { $0?.id }

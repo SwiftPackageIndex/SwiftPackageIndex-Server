@@ -112,7 +112,7 @@ func ingest(client: Client,
 func ingest(client: Client,
             database: Database,
             logger: Logger,
-            packages: [JPR]) -> EventLoopFuture<Void> {
+            packages: [Joined<Package, Repository>]) -> EventLoopFuture<Void> {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
     let metadata = fetchMetadata(client: client, packages: packages)
@@ -131,8 +131,8 @@ func ingest(client: Client,
 ///   - packages: packages to ingest
 /// - Returns: results future
 func fetchMetadata(
-    client: Client, packages: [JPR]
-) -> EventLoopFuture<[Result<(JPR, Github.Metadata, Github.License?, Github.Readme?), Error>]> {
+    client: Client, packages: [Joined<Package, Repository>]
+) -> EventLoopFuture<[Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]> {
     let ops = packages.map { pkg in
         Current.fetchMetadata(client, pkg.model.url)
             .and(Current.fetchLicense(client, pkg.model.url))
@@ -150,9 +150,9 @@ func fetchMetadata(
 /// - Returns: results future
 func updateRepositories(
     on database: Database,
-    metadata: [Result<(JPR, Github.Metadata, Github.License?, Github.Readme?), Error>]
-) -> EventLoopFuture<[Result<JPR, Error>]> {
-    let ops = metadata.map { result -> EventLoopFuture<JPR> in
+    metadata: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]
+) -> EventLoopFuture<[Result<Joined<Package, Repository>, Error>]> {
+    let ops = metadata.map { result -> EventLoopFuture<Joined<Package, Repository>> in
         switch result {
             case let .success((pkg, metadata, licenseInfo, readmeInfo)):
                 AppMetrics.ingestMetadataSuccessCount?.inc()
@@ -178,7 +178,7 @@ func updateRepositories(
 ///   - metadata: `Github.Metadata` with data for update
 /// - Returns: future
 func insertOrUpdateRepository(on database: Database,
-                              for package: JPR,
+                              for package: Joined<Package, Repository>,
                               metadata: Github.Metadata,
                               licenseInfo: Github.License?,
                               readmeInfo: Github.Readme?) -> EventLoopFuture<Void> {

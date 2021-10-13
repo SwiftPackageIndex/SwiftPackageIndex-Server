@@ -149,7 +149,7 @@ func reAnalyzeVersions(client: Client,
                        logger: Logger,
                        threadPool: NIOThreadPool,
                        before cutoffDate: Date,
-                       packages: [JPR]) -> EventLoopFuture<Void> {
+                       packages: [Joined<Package, Repository>]) -> EventLoopFuture<Void> {
     // Pick essentials parts of companion function `analyze` and run the for
     // re-analysis.
     //
@@ -186,8 +186,8 @@ func getExistingVersions(client: Client,
                          logger: Logger,
                          threadPool: NIOThreadPool,
                          transaction: Database,
-                         packages: [JPR],
-                         before cutoffDate: Date) -> EventLoopFuture<[Result<(JPR, [Version]), Error>]> {
+                         packages: [Joined<Package, Repository>],
+                         before cutoffDate: Date) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [Version]), Error>]> {
     EventLoopFuture.whenAllComplete(
         packages.map { pkg in
             diffVersions(client: client,
@@ -211,7 +211,7 @@ func getExistingVersions(client: Client,
 
 
 func setUpdatedAt(on database: Database,
-                  packageVersions: [Result<(JPR, [Version]), Error>]) -> EventLoopFuture<[Result<(JPR, [Version]), Error>]> {
+                  packageVersions: [Result<(Joined<Package, Repository>, [Version]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [Version]), Error>]> {
     packageVersions.whenAllComplete(on: database.eventLoop) { pkg, versions in
         versions
             .map { version -> Version in
@@ -230,7 +230,7 @@ func setUpdatedAt(on database: Database,
 ///   - packageVersions: tuples containing the `Package` and its existing `Version`s
 /// - Returns: future with an array of each `Package` paired with its existing `Version`s for further processing
 func mergeReleaseInfo(on transaction: Database,
-                      packageVersions: [Result<(JPR, [Version]), Error>]) -> EventLoopFuture<[Result<(JPR, [Version]), Error>]> {
+                      packageVersions: [Result<(Joined<Package, Repository>, [Version]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [Version]), Error>]> {
     packageVersions.whenAllComplete(on: transaction.eventLoop) { pkg, versions in
         mergeReleaseInfo(on: transaction, package: pkg, versions: versions)
             .map { (pkg, $0) }
@@ -242,8 +242,8 @@ extension Package {
     static func fetchReAnalysisCandidates(
         _ database: Database,
         before cutOffDate: Date,
-        limit: Int) -> EventLoopFuture<[JPR]> {
-            JPR.query(on: database)
+        limit: Int) -> EventLoopFuture<[Joined<Package, Repository>]> {
+            Joined.query(on: database)
                 .join(Version.self, on: \Package.$id == \Version.$package.$id)
                 .filter(Version.self, \.$updatedAt < cutOffDate)
                 .fields(for: Package.self)

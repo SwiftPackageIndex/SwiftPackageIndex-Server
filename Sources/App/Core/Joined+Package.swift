@@ -15,10 +15,6 @@
 import FluentKit
 
 
-// TODO: remove (or rename)
-typealias JPR = Joined<Package, Repository>
-
-
 extension Joined where M == Package, R == Repository {
     var repository: Repository? { relation }
 

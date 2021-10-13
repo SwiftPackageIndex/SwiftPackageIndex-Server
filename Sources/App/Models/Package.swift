@@ -248,8 +248,8 @@ extension QueryBuilder where Model == Package {
 
 extension Package {
     static func fetchCandidate(_ database: Database,
-                               id: Id) -> EventLoopFuture<JPR> {
-        JPR.query(on: database)
+                               id: Id) -> EventLoopFuture<Joined<Package, Repository>> {
+        Joined.query(on: database)
             .filter(\.$id == id)
             .first()
             .unwrap(or: Abort(.notFound))
@@ -257,8 +257,8 @@ extension Package {
 
     static func fetchCandidates(_ database: Database,
                                 for stage: ProcessingStage,
-                                limit: Int) -> EventLoopFuture<[JPR]> {
-        JPR.query(on: database)
+                                limit: Int) -> EventLoopFuture<[Joined<Package, Repository>]> {
+        Joined.query(on: database)
             .filter(for: stage)
             .sort(.sql(raw: "status != 'new'"))
             .sort(\.$updatedAt)
@@ -268,7 +268,7 @@ extension Package {
 }
 
 
-private extension JoinedQueryBuilder where J == JPR {
+private extension JoinedQueryBuilder where J == Joined<Package, Repository> {
     func filter(for stage: Package.ProcessingStage) -> Self {
         switch stage {
             case .reconciliation:

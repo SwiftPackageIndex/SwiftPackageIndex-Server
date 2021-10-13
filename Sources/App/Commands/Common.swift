@@ -20,7 +20,7 @@ import Vapor
 func updatePackages(client: Client,
                     database: Database,
                     logger: Logger,
-                    results: [Result<JPR, Error>],
+                    results: [Result<Joined<Package, Repository>, Error>],
                     stage: Package.ProcessingStage) -> EventLoopFuture<Void> {
     let updates = results.map { result -> EventLoopFuture<Void> in
         switch result {

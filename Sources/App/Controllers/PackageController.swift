@@ -99,7 +99,7 @@ struct PackageController {
 }
 
 
-private func fetchReadme(client: Client, package: JPR) -> EventLoopFuture<String?> {
+private func fetchReadme(client: Client, package: Joined<Package, Repository>) -> EventLoopFuture<String?> {
     guard let url = package.repository?.readmeHtmlUrl.map(URI.init(string:))
     else { return client.eventLoop.future(nil) }
     return client.get(url).map { $0.body?.asString() }
