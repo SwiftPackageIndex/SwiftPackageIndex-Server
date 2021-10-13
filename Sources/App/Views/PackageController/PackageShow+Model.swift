@@ -303,10 +303,10 @@ extension PackageShow.Model {
         else { return "No dependency information available." }
 
         guard dependencies.count > 0
-        else { return "Has zero package dependencies." }
+        else { return "This package has no package dependencies." }
 
-        let dependenciesCount = pluralizedCount(dependencies.count, singular: "package")
-        return "Depends on \(dependenciesCount)."
+        let dependenciesCount = pluralizedCount(dependencies.count, singular: "other package")
+        return "This package depends on \(dependenciesCount)."
     }
 
     func librariesListItem() -> Node<HTML.ListContext> {
