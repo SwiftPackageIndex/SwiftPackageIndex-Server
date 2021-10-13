@@ -18,46 +18,70 @@ import Vapor
 import XCTest
 
 class AuthorControllerTests: AppTestCase {
-    
-    let testPackageId: UUID = UUID()
-    
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        
-        let package = Package(id: testPackageId, url: "https://github.com/user/package.git")
-        let repository = try Repository(id: UUID(),
-                                        package: package,
-                                        defaultBranch: "main",
-                                        forks: 2,
-                                        license: .mit,
-                                        name: "package",
-                                        owner: "owner",
-                                        stars: 3,
-                                        summary: "This is a test package")
-        let version = try Version(id: UUID(),
-                                  package: package,
-                                  packageName: "Test package",
-                                  reference: .branch("main"))
-        let product = try Product(id: UUID(), version: version, type: .library(.automatic), name: "Library")
-        
-        try package.save(on: app.db).wait()
-        try repository.save(on: app.db).wait()
-        try version.save(on: app.db).wait()
-        try product.save(on: app.db).wait()
 
-        // re-load repository relationship (required for updateLatestVersions)
-        try package.$repositories.load(on: app.db).wait()
-        // update versions
-        _ = try updateLatestVersions(on: app.db, package: package).wait()
+    func test_query() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, owner: "owner").save(on: app.db).wait()
+        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+
+        // MUT
+        let pkg = try AuthorController.query(on: app.db, owner: "owner").wait()
+
+        // validate
+        XCTAssertEqual(pkg.map(\.model.id), [p.id])
+    }
+
+    func test_query_no_version() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, owner: "owner").save(on: app.db).wait()
+
+        // MUT
+        XCTAssertThrowsError(
+            try AuthorController.query(on: app.db, owner: "owner").wait()
+        ) {
+            // validate
+            let error = $0 as? Abort
+            XCTAssertEqual(error?.status, .notFound)
+        }
+    }
+
+    func test_query_sort_by_score() throws {
+        // setup
+        try (0..<3).shuffled().forEach { index in
+            let p = Package(url: "\(index)".url, score: index)
+            try p.save(on: app.db).wait()
+            try Repository(package: p, owner: "owner").save(on: app.db).wait()
+            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+        }
+
+        // MUT
+        let pkg = try AuthorController.query(on: app.db, owner: "owner").wait()
+
+        // validate
+        XCTAssertEqual(pkg.map(\.model.url), ["2", "1", "0"])
     }
 
     func test_show_owner() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, owner: "owner").save(on: app.db).wait()
+        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+
+        // MUT
         try app.test(.GET, "/owner", afterResponse: { response in
             XCTAssertEqual(response.status, .ok)
         })
     }
 
     func test_show_owner_empty() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        try Repository(package: p, owner: "owner").save(on: app.db).wait()
+        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+
+        // MUT
         try app.test(.GET, "/fake-owner", afterResponse: { response in
             XCTAssertEqual(response.status, .notFound)
         })

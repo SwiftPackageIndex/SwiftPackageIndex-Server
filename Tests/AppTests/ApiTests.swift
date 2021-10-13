@@ -85,12 +85,15 @@ class ApiTests: AppTestCase {
         let versionId = try XCTUnwrap(v.id)
         
         do {  // MUT - initial insert
-            let dto: API.PostCreateBuildDTO = .init(buildCommand: "xcodebuild -scheme Foo",
-                                                    jobUrl: "https://example.com/jobs/1",
-                                                    logUrl: "log url",
-                                                    platform: .macosXcodebuild,
-                                                    status: .failed,
-                                                    swiftVersion: .init(5, 2, 0))
+            let dto: API.PostCreateBuildDTO = .init(
+                buildCommand: "xcodebuild -scheme Foo",
+                jobUrl: "https://example.com/jobs/1",
+                logUrl: "log url",
+                platform: .macosXcodebuild,
+                resolvedDependencies: nil,
+                status: .failed,
+                swiftVersion: .init(5, 2, 0)
+            )
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try app.test(
                 .POST,
@@ -112,13 +115,19 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(b.status, .failed)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
                     XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+                    let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
+                    XCTAssertEqual(v.resolvedDependencies, [])
                 })
         }
         
         do {  // MUT - update (upsert)
-            let dto: API.PostCreateBuildDTO = .init(platform: .macosXcodebuild,
-                                                    status: .ok,
-                                                    swiftVersion: .init(5, 2, 0))
+            let dto: API.PostCreateBuildDTO = .init(
+                platform: .macosXcodebuild,
+                resolvedDependencies: [.init(packageName: "foo",
+                                             repositoryURL: "http://foo/bar")],
+                status: .ok,
+                swiftVersion: .init(5, 2, 0)
+            )
             let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
             try app.test(
                 .POST,
@@ -137,6 +146,10 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(b.status, .ok)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
                     XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+                    let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
+                    XCTAssertEqual(v.resolvedDependencies,
+                                   [.init(packageName: "foo",
+                                          repositoryURL: "http://foo/bar")])
                 })
         }
 
@@ -267,7 +280,9 @@ class ApiTests: AppTestCase {
         var requestSent = false
         Current.triggerBuild = { _, _, _, _, _, _ in
             requestSent = true
-            return self.app.eventLoopGroup.future(.ok)
+            return self.app.eventLoopGroup.future(
+                .init(status: .ok, webUrl: "http://web_url")
+            )
         }
         
         // MUT
@@ -345,7 +360,9 @@ class ApiTests: AppTestCase {
         var requestsSent = 0
         Current.triggerBuild = { _, _, _, _, _, _ in
             requestsSent += 1
-            return self.app.eventLoopGroup.future(.ok)
+            return self.app.eventLoopGroup.future(
+                .init(status: .ok, webUrl: "http://web_url")
+            )
         }
 
         // MUT

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import DependencyResolution
 import Fluent
 import Vapor
 
@@ -66,6 +67,9 @@ final class Version: Model, Content {
     @Field(key: "release_notes_html")
     var releaseNotesHTML: String?
 
+    @Field(key: "resolved_dependencies")
+    var resolvedDependencies: [ResolvedDependency]?
+
     // TODO: rename to minimumPlatformVersions?
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
@@ -102,6 +106,7 @@ final class Version: Model, Content {
          reference: Reference? = nil,
          releaseNotes: String? = nil,
          releaseNotesHTML: String? = nil,
+         resolvedDependencies: [ResolvedDependency] = [],
          supportedPlatforms: [Platform] = [],
          swiftVersions: [SwiftVersion] = [],
          toolsVersion: String? = nil,
@@ -116,6 +121,7 @@ final class Version: Model, Content {
         self.reference = reference
         self.releaseNotes = releaseNotes
         self.releaseNotesHTML = releaseNotesHTML
+        self.resolvedDependencies = resolvedDependencies
         self.supportedPlatforms = supportedPlatforms
         self.swiftVersions = swiftVersions
         self.toolsVersion = toolsVersion

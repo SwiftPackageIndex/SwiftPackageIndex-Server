@@ -16,6 +16,7 @@
 
 import Fluent
 import PostgresNIO
+import SQLKit
 import XCTVapor
 
 
@@ -131,6 +132,9 @@ class BuildTests: AppTestCase {
         let client = MockClient { req, res in
             called = true
             res.status = .created
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
             // validate request data
             XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
                            Gitlab.Builder.PostDTO(
@@ -156,7 +160,7 @@ class BuildTests: AppTestCase {
         
         // validate
         XCTAssertTrue(called)
-        XCTAssertEqual(res, .created)
+        XCTAssertEqual(res.status, .created)
     }
     
     func test_upsert() throws {
@@ -253,7 +257,11 @@ class BuildTests: AppTestCase {
         }
         // MUT & verification
         XCTAssertTrue([mkBuild(.ok), mkBuild(.failed)].nonePending)
-        XCTAssertFalse([mkBuild(.ok), mkBuild(.pending)].nonePending)
+        XCTAssertFalse([mkBuild(.ok), mkBuild(.triggered)].nonePending)
+        // timeouts will not be retried - therefore they are not pending
+        XCTAssertTrue([mkBuild(.ok), mkBuild(.timeout)].nonePending)
+        // infrastructure errors _will_ be retried - they are pending
+        XCTAssertFalse([mkBuild(.ok), mkBuild(.infrastructureError)].nonePending)
     }
 
     func test_anyPending() throws {
@@ -266,8 +274,12 @@ class BuildTests: AppTestCase {
             return try! Build(version: v, platform: p, status: status, swiftVersion: sv)
         }
         // MUT & verification
-        XCTAssertTrue([mkBuild(.ok), mkBuild(.pending)].anyPending)
         XCTAssertFalse([mkBuild(.ok), mkBuild(.failed)].anyPending)
+        XCTAssertTrue([mkBuild(.ok), mkBuild(.triggered)].anyPending)
+        // timeouts will not be retried - therefore they are not pending
+        XCTAssertTrue([mkBuild(.ok), mkBuild(.timeout)].nonePending)
+        // infrastructure errors _will_ be retried - they are pending
+        XCTAssertFalse([mkBuild(.ok), mkBuild(.infrastructureError)].nonePending)
     }
 
     func test_buildStatus() throws {
@@ -283,9 +295,9 @@ class BuildTests: AppTestCase {
         }
         // MUT & verification
         XCTAssertEqual([mkBuild(.ok), mkBuild(.failed)].buildStatus, .compatible)
-        XCTAssertEqual([mkBuild(.pending), mkBuild(.pending)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuild(.failed), mkBuild(.pending)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuild(.ok), mkBuild(.pending)].buildStatus, .compatible)
+        XCTAssertEqual([mkBuild(.triggered), mkBuild(.triggered)].buildStatus, .unknown)
+        XCTAssertEqual([mkBuild(.failed), mkBuild(.triggered)].buildStatus, .unknown)
+        XCTAssertEqual([mkBuild(.ok), mkBuild(.triggered)].buildStatus, .compatible)
     }
 
     func test_delete_by_versionId() throws {
@@ -372,6 +384,37 @@ class BuildTests: AppTestCase {
         XCTAssertEqual(count, 1)
         let builds = try Build.query(on: app.db).all().wait()
         XCTAssertEqual(builds.map(\.platform), [.ios, .tvos])
+    }
+
+    func test_pending_to_triggered_migration() throws {
+        // setup
+        let p = Package(url: "1")
+        try p.save(on: app.db).wait()
+        let v = try Version(package: p, latest: .defaultBranch)
+        try v.save(on: app.db).wait()
+        // save a Build with status 'triggered'
+        try Build(id: .id0, version: v, platform: .ios, status: .triggered, swiftVersion: .v5_5).save(on: app.db).wait()
+
+        // MUT - test roll back to previous schema, migrating 'triggered' -> 'pending'
+        try UpdateBuildPendingToTriggered().revert(on: app.db).wait()
+
+        do {  // validate
+            struct Row: Codable, Equatable {
+                var status: String
+            }
+            let result = try (app.db as! SQLDatabase)
+                .raw("SELECT status FROM builds")
+                .all(decoding: Row.self)
+                .wait()
+            XCTAssertEqual(result, [.init(status: "pending")])
+        }
+
+        // MUT - test migrating 'pending' -> 'triggered'
+        try UpdateBuildPendingToTriggered().prepare(on: app.db).wait()
+
+        // validate
+        let b = try XCTUnwrap(Build.find(.id0, on: app.db).wait())
+        XCTAssertEqual(b.status, .triggered)
     }
 
 }

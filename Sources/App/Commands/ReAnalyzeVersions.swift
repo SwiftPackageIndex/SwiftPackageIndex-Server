@@ -173,7 +173,7 @@ func reAnalyzeVersions(client: Client,
                             before: cutoffDate)
             .flatMap { setUpdatedAt(on: tx, packageVersions: $0) }
             .flatMap { mergeReleaseInfo(on: tx, packageVersions: $0) }
-            .map { getManifests(packageAndVersions: $0) }
+            .map { getPackageInfo(packageAndVersions: $0) }
             .flatMap { updateVersions(on: tx, packageResults: $0) }
             .flatMap { updateProducts(on: tx, packageResults: $0) }
             .flatMap { updateTargets(on: tx, packageResults: $0) }
@@ -243,6 +243,7 @@ extension Package {
         _ database: Database,
         before cutOffDate: Date,
         limit: Int) -> EventLoopFuture<[Package]> {
+            // TODO: use `.join()` instead of `.with()`
         Package.query(on: database)
             .with(\.$repositories)
             .join(Version.self, on: \Package.$id == \Version.$package.$id)

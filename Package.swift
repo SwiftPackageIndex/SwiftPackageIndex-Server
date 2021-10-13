@@ -21,6 +21,9 @@ let package = Package(
     platforms: [
         .macOS(.v10_15)
     ],
+    products: [
+        .library(name: "DependencyResolution", targets: ["DependencyResolution"])
+    ],
     dependencies: [
         // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0-rc"),
@@ -41,6 +44,7 @@ let package = Package(
     ],
     targets: [
         .target(name: "App", dependencies: [
+            "DependencyResolution",
             .product(name: "Fluent", package: "fluent"),
             .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             .product(name: "Vapor", package: "vapor"),
@@ -53,6 +57,7 @@ let package = Package(
             "SwiftSoup",
             .product(name: "PackageCollectionsModel", package: "SwiftPM")
         ]),
+        .target(name: "DependencyResolution"),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: [
             .target(name: "App"),

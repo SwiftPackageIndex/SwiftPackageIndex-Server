@@ -47,6 +47,9 @@ class GitlabBuilderTests: XCTestCase {
         var called = false
         let client = MockClient { req, res in
             called = true
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
             // validate
             XCTAssertEqual(try? req.query.decode(Gitlab.Builder.PostDTO.self),
                            Gitlab.Builder.PostDTO(
@@ -83,6 +86,9 @@ class GitlabBuilderTests: XCTestCase {
         var called = false
         let client = MockClient { req, res in
             called = true
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
             // validate
             let swiftVersion = (try? req.query.decode(Gitlab.Builder.PostDTO.self))
                 .flatMap { $0.variables["SWIFT_VERSION"] }

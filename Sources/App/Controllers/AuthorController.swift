@@ -19,21 +19,20 @@ import Vapor
 
 struct AuthorController {
 
-    private func query(on database: Database, owner: String) -> EventLoopFuture<[Package]> {
-        Package.query(on: database)
-            .with(\.$repositories)
-            .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
+    static func query(on database: Database, owner: String) -> EventLoopFuture<[JoinedPackage]> {
+        JoinedPackage
+            .query(on: database)
             .filter(
                 DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
                 DatabaseQuery.Filter.Method.custom("ilike"),
                 DatabaseQuery.Value.bind(owner)
             )
+            .sort(\.$title)
             .all()
             .flatMapThrowing {
                 if $0.isEmpty {
                     throw Abort(.notFound)
                 }
-                
                 return $0
             }
     }
@@ -43,13 +42,12 @@ struct AuthorController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return query(on: req.db, owner: owner)
+        return Self.query(on: req.db, owner: owner)
             .map {
                 AuthorShow.Model(
                     owner: $0.first?.repository?.owner ?? owner,
                     ownerName: $0.first?.repository?.ownerDisplayName ?? owner,
-                    packages: $0.compactMap { PackageInfo(package: $0) }
-                                .sorted(by: {$0.title < $1.title})
+                    packages: $0.compactMap(PackageInfo.init(package:))
                 )
             }
             .map {

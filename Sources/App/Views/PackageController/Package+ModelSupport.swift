@@ -15,10 +15,12 @@
 import Fluent
 import Foundation
 import Vapor
+import DependencyResolution
 
 
 extension Package {
-    
+
+    // TODO: use `.join()`s instead of `.with()`s
     static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Package> {
         Package.query(on: database)
             .with(\.$repositories)
@@ -102,6 +104,11 @@ extension Package {
             latest: latestVersion(for: .defaultBranch).flatMap { makeDatedLink($0, \.commitDate) }
         )
     }
+
+    func dependencyInfo() -> [ResolvedDependency]? {
+        guard let version = latestVersion(for: .defaultBranch) else { return nil }
+        return version.resolvedDependencies
+    }
     
     func makeDatedLink(_ version: Version,
                        _ keyPath: KeyPath<Version, Date?>) -> DatedLink? {
@@ -149,6 +156,7 @@ extension Package {
         f.numberStyle = .decimal
         return f
     }()
+    
 }
 
 

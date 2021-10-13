@@ -23,6 +23,14 @@ extension API {
             let dto = try req.content.decode(PostCreateBuildDTO.self)
             return App.Version.find(req.parameters.get("id"), on: req.db)
                 .unwrap(or: Abort(.notFound))
+                .flatMap { version in
+                    guard let dependencies = dto.resolvedDependencies else {
+                        return req.eventLoop.future(version)
+                    }
+                    version.resolvedDependencies = dependencies
+                    return version.save(on: req.db)
+                        .transform(to: version)
+                }
                 .flatMapThrowing { try Build(dto, $0) }
                 .flatMap { build in
                     AppMetrics.apiBuildReportTotal?.inc(1, .init(build.platform, build.swiftVersion))
@@ -33,7 +41,7 @@ extension API {
                 }
         }
         
-        func trigger(req: Request) throws -> EventLoopFuture<HTTPStatus> {
+        func trigger(req: Request) throws -> EventLoopFuture<Build.TriggerResponse> {
             guard let id = req.parameters.get("id"),
                   let versionId = UUID(uuidString: id) else {
                 return req.eventLoop.future(error: Abort(.badRequest))

@@ -50,5 +50,9 @@ class SwiftVersionTests: XCTestCase {
         XCTAssertFalse(v4_2.isCompatible(with: .init(4, 0, 0)))
         XCTAssertFalse(v4_2.isCompatible(with: .init(5, 0, 0)))
     }
+
+    func test_latestMajor() throws {
+        XCTAssertEqual(SwiftVersion.latestMajor, 5)
+    }
     
 }

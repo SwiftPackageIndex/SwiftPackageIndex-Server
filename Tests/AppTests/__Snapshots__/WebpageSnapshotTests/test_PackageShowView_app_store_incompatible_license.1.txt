@@ -75,8 +75,8 @@
         <p class="summary">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.</p>
         <article class="details">
           <div class="two_column">
-            <section class="main_metadata">
-              <ul>
+            <section>
+              <ul class="main_metadata">
                 <li class="history">In development for over 5 years, with 
                   <a href="https://github.com/Alamofire/Alamofire/commits/main">1,433 commits</a> and 
                   <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
@@ -85,6 +85,7 @@
                   <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and 
                   <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.
                 </li>
+                <li class="dependencies">This package depends on 2 other packages.</li>
                 <li class="license warning">
                   <a href="https://example.com/license.html" title="GNU General Public License v3.0">GPL 3.0</a> licensed
                   <a id="license_more_info" href="/faq#licenses">Why might the GPL 3.0 be problematic?</a>
@@ -305,26 +306,30 @@
         </article>
         <tab-bar>
           <ul>
-            <li data-tab="readme" class="active">README</li>
-            <li data-tab="releases">Release Notes</li>
+            <li id="readme" class="active" data-tab="readme">README</li>
+            <li id="releases" data-tab="releases">Release Notes</li>
           </ul>
         </tab-bar>
-        <turbo-frame id="readme" src="/Alamo/Alamofire/readme" data-tab-page="readme">
-          <div class="spinner">
-            <div class="rect1"></div>
-            <div class="rect2"></div>
-            <div class="rect3"></div>
-            <div class="rect4"></div>
-            <div class="rect5"></div>
+        <turbo-frame id="readme_page" src="/Alamo/Alamofire/readme" data-tab-page="readme" class="tab_page">
+          <div class="min_height_spacer">
+            <div class="spinner">
+              <div class="rect1"></div>
+              <div class="rect2"></div>
+              <div class="rect3"></div>
+              <div class="rect4"></div>
+              <div class="rect5"></div>
+            </div>
           </div>
         </turbo-frame>
-        <turbo-frame id="releases" src="/Alamo/Alamofire/releases" data-tab-page="releases" class="hidden">
-          <div class="spinner">
-            <div class="rect1"></div>
-            <div class="rect2"></div>
-            <div class="rect3"></div>
-            <div class="rect4"></div>
-            <div class="rect5"></div>
+        <turbo-frame id="releases_page" src="/Alamo/Alamofire/releases" data-tab-page="releases" class="tab_page hidden">
+          <div class="min_height_spacer">
+            <div class="spinner">
+              <div class="rect1"></div>
+              <div class="rect2"></div>
+              <div class="rect3"></div>
+              <div class="rect4"></div>
+              <div class="rect5"></div>
+            </div>
           </div>
         </turbo-frame>
       </div>

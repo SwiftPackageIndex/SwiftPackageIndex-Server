@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import DependencyResolution
+
+
 extension API {
     struct PostBuildTriggerDTO: Codable {
         var platform: Build.Platform
@@ -23,6 +26,7 @@ extension API {
         var jobUrl: String?
         var logUrl: String?
         var platform: Build.Platform
+        var resolvedDependencies: [ResolvedDependency]?
         var status: Build.Status
         var swiftVersion: SwiftVersion
     }

@@ -87,6 +87,7 @@ final class PackageTests: AppTestCase {
         {
             "id": "CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE",
             "url": "https://github.com/finestructure/Arena",
+            "score": 17,
             "status": "ok",
             "createdAt": 0,
             "updatedAt": 1
@@ -786,13 +787,13 @@ final class PackageTests: AppTestCase {
         // update versions
         _ = try updateLatestVersions(on: app.db, package: p).wait()
         // add builds
-        try Build(version: v, platform: .linux, status: .pending, swiftVersion: .init(5, 3, 0))
+        try Build(version: v, platform: .linux, status: .triggered, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
             .wait()
-        try Build(version: v, platform: .macosXcodebuild, status: .pending, swiftVersion: .init(5, 2, 2))
+        try Build(version: v, platform: .macosXcodebuild, status: .triggered, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
-        try Build(version: v, platform: .ios, status: .pending, swiftVersion: .init(5, 0, 2))
+        try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
         try p.$versions.load(on: app.db).wait()
@@ -823,7 +824,7 @@ final class PackageTests: AppTestCase {
         try Build(version: v, platform: .macosXcodebuild, status: .failed, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
-        try Build(version: v, platform: .ios, status: .pending, swiftVersion: .init(5, 0, 2))
+        try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
         try p.$versions.load(on: app.db).wait()
@@ -879,13 +880,13 @@ final class PackageTests: AppTestCase {
         // update versions
         _ = try updateLatestVersions(on: app.db, package: p).wait()
         // add builds
-        try Build(version: v, platform: .linux, status: .pending, swiftVersion: .init(5, 3, 0))
+        try Build(version: v, platform: .linux, status: .triggered, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
             .wait()
-        try Build(version: v, platform: .macosXcodebuild, status: .pending, swiftVersion: .init(5, 2, 2))
+        try Build(version: v, platform: .macosXcodebuild, status: .triggered, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
-        try Build(version: v, platform: .ios, status: .pending, swiftVersion: .init(5, 0, 2))
+        try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
         try p.$versions.load(on: app.db).wait()
@@ -916,7 +917,7 @@ final class PackageTests: AppTestCase {
         try Build(version: v, platform: .macosXcodebuild, status: .failed, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
-        try Build(version: v, platform: .ios, status: .pending, swiftVersion: .init(5, 0, 2))
+        try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
             .save(on: app.db)
             .wait()
         try p.$versions.load(on: app.db).wait()

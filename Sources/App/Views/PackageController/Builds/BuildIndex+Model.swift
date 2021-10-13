@@ -48,7 +48,7 @@ extension BuildIndex {
             self.owner = owner
             self.repositoryName = repositoryName
             self.packageName = packageName
-            self.completedBuildCount = buildGroups.reduce(0) { $0 + $1.builds.filter(\.completed).count }
+            self.completedBuildCount = buildGroups.reduce(0) { $0 + $1.builds.filter(\.isCompleted).count }
             buildMatrix = .init(buildGroups: buildGroups)
         }
     }
@@ -82,7 +82,7 @@ extension BuildIndex.Model {
         var status: App.Build.Status
         var swiftVersion: App.SwiftVersion
 
-        var completed: Bool { status != .pending }
+        var isCompleted: Bool { status.isCompleted }
 
         init?(_ build: App.Build) {
             guard let id = build.id else { return nil }
@@ -150,20 +150,38 @@ extension BuildIndex.Model {
         }
 
         var node: Node<HTML.BodyContext> {
-            switch value {
-                case let .some(value) where value.status == .ok:
-                    return .div(.class("succeeded"),
-                                .a(.href(SiteURL.builds(.value(value.id)).relativeURL()),
-                                   .text("Build Succeeded")))
-                case let .some(value) where value.status == .failed:
-                    return .div(.class("failed"),
-                                .a(.href(SiteURL.builds(.value(value.id)).relativeURL()),
-                                   .text("Build Failed")))
-                case let .some(value) where value.status == .pending:
-                    return .div(.class("pending"), .span("Build Queued"))
-                case .some, .none:
-                    return .div(.class("unknown"), .span("Build Pending"))
+            guard let value = value else {
+                // No value indicates a missing/pending build
+                return cell(text: "Build Pending")
             }
+            
+            let buildURL = SiteURL.builds(.value(value.id)).relativeURL()
+
+            switch value.status {
+                case .ok: return cell(text: "Build Succeeded", linkURL: buildURL, cssClass: "succeeded")
+                case .failed: return cell(text: "Build Failed", linkURL: buildURL, cssClass: "failed")
+                case .triggered: return cell(text: "Build Queued")
+                case .infrastructureError: return cell(text: "Build Errored")
+                case .timeout: return cell(text: "Build Timed Out")
+            }
+        }
+
+        func cell(text: String) -> Node<HTML.BodyContext> {
+            return .div(
+                .span(
+                    .text(text)
+                )
+            )
+        }
+
+        func cell(text: String, linkURL: String, cssClass: String) -> Node<HTML.BodyContext> {
+            return .div(
+                .class(cssClass),
+                .a(
+                    .href(linkURL),
+                    .text(text)
+                )
+            )
         }
 
         struct Value: Equatable {

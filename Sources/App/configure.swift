@@ -157,6 +157,18 @@ public func configure(_ app: Application) throws {
     do {  // Migration 032 - add [license, stars, last_commit_date, supported_platforms, swift_versions] to search
         app.migrations.add(UpdateSearch2())
     }
+    do {  // Migration 033 - add resolved_dependencies to versions
+        app.migrations.add(UpdateVersionAddResolvedDependencies())
+    }
+    do {  // Migration 034 - make resolved_dependencies nullable
+        app.migrations.add(UpdateVersionResolvedDependenciesNullable())
+    }
+    do {  // Migration 035 - change builds.pending to triggered
+        app.migrations.add(UpdateBuildPendingToTriggered())
+    }
+    do {  // Migration 036 - make packages.score required
+        app.migrations.add(UpdatePackageScoreNotNullable())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

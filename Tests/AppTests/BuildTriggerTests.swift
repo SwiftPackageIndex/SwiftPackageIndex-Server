@@ -148,6 +148,9 @@ class BuildTriggerTests: AppTestCase {
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.append(query)
             }
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
         }
 
         let versionId = UUID()
@@ -177,7 +180,8 @@ class BuildTriggerTests: AppTestCase {
         let v = try Version.find(versionId, on: app.db).wait()
         try v?.$builds.load(on: app.db).wait()
         XCTAssertEqual(v?.builds.count, 1)
-        XCTAssertEqual(v?.builds.map(\.status), [.pending])
+        XCTAssertEqual(v?.builds.map(\.status), [.triggered])
+        XCTAssertEqual(v?.builds.map(\.jobUrl), ["http://web_url"])
     }
 
     func test_triggerBuildsUnchecked_supported() throws {
@@ -197,6 +201,9 @@ class BuildTriggerTests: AppTestCase {
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.append(query)
             }
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
         }
 
         let pkgId = UUID()
@@ -261,7 +268,12 @@ class BuildTriggerTests: AppTestCase {
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
         var triggerCount = 0
-        let client = MockClient { _, _ in triggerCount += 1 }
+        let client = MockClient { _, res in
+            triggerCount += 1
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
 
         do {  // fist run: we are at capacity and should not be triggering more builds
             Current.getStatusCount = { _, _ in self.future(300) }
@@ -317,7 +329,12 @@ class BuildTriggerTests: AppTestCase {
             Current.getStatusCount = { _, _ in self.future(300) }
 
             var triggerCount = 0
-            let client = MockClient { _, _ in triggerCount += 1 }
+            let client = MockClient { _, res in
+                triggerCount += 1
+                try? res.content.encode(
+                    Gitlab.Builder.Response.init(webUrl: "http://web_url")
+                )
+            }
 
             let pkgId = UUID()
             let versionId = UUID()
@@ -353,7 +370,12 @@ class BuildTriggerTests: AppTestCase {
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
         var triggerCount = 0
-        let client = MockClient { _, _ in triggerCount += 1 }
+        let client = MockClient { _, res in
+            triggerCount += 1
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
         Current.getStatusCount = { _, _ in self.future(299 + triggerCount) }
 
         let pkgIds = [UUID(), UUID()]
@@ -390,7 +412,7 @@ class BuildTriggerTests: AppTestCase {
         try p.save(on: app.db).wait()
         let v = try Version(id: versionId, package: p, latest: nil, reference: .branch("main"))
         try v.save(on: app.db).wait()
-        try Build(id: UUID(), version: v, platform: .ios, status: .pending, swiftVersion: .v5_1)
+        try Build(id: UUID(), version: v, platform: .ios, status: .triggered, swiftVersion: .v5_1)
             .save(on: app.db).wait()
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 
@@ -414,7 +436,12 @@ class BuildTriggerTests: AppTestCase {
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
         var triggerCount = 0
-        let client = MockClient { _, _ in triggerCount += 1 }
+        let client = MockClient { _, res in
+            triggerCount += 1
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
 
         do {  // confirm that the off switch prevents triggers
             Current.allowBuildTriggers = { false }
@@ -471,7 +498,12 @@ class BuildTriggerTests: AppTestCase {
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
         var triggerCount = 0
-        let client = MockClient { _, _ in triggerCount += 1 }
+        let client = MockClient { _, res in
+            triggerCount += 1
+            try? res.content.encode(
+                Gitlab.Builder.Response.init(webUrl: "http://web_url")
+            )
+        }
 
         do {  // confirm that bad luck prevents triggers
             Current.random = { _ in 0.05 }  // rolling a 0.05 ... so close!
@@ -522,7 +554,7 @@ class BuildTriggerTests: AppTestCase {
         let pkgId = UUID()
         let p = Package(id: pkgId, url: "1")
         try p.save(on: app.db).wait()
-        // v1 is a significant version, only old pending builds should be deleted
+        // v1 is a significant version, only old triggered builds should be deleted
         let v1 = try Version(package: p, latest: .defaultBranch)
         try v1.save(on: app.db).wait()
         // v2 is not a significant version - all its builds should be deleted
@@ -534,15 +566,15 @@ class BuildTriggerTests: AppTestCase {
         let keepBuildId2 = UUID()
 
         do {  // v1 builds
-            // old pending build (delete)
+            // old triggered build (delete)
             try Build(id: deleteId1,
-                      version: v1, platform: .ios, status: .pending, swiftVersion: .v5_1)
+                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_1)
                 .save(on: app.db).wait()
-            // new pending build (keep)
+            // new triggered build (keep)
             try Build(id: keepBuildId1,
-                      version: v1, platform: .ios, status: .pending, swiftVersion: .v5_2)
+                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_2)
                 .save(on: app.db).wait()
-            // old non-pending build (keep)
+            // old non-triggered build (keep)
             try Build(id: keepBuildId2,
                       version: v1, platform: .ios, status: .ok, swiftVersion: .v5_3)
                 .save(on: app.db).wait()
@@ -555,15 +587,15 @@ class BuildTriggerTests: AppTestCase {
         }
 
         do {  // v2 builds (should all be deleted)
-            // old pending build
+            // old triggered build
             try Build(id: UUID(),
-                      version: v2, platform: .ios, status: .pending, swiftVersion: .v5_1)
+                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v5_1)
                 .save(on: app.db).wait()
-            // new pending build
+            // new triggered build
             try Build(id: UUID(),
-                      version: v2, platform: .ios, status: .pending, swiftVersion: .v5_2)
+                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v5_2)
                 .save(on: app.db).wait()
-            // old non-pending build
+            // old non-triggered build
             try Build(id: UUID(),
                       version: v2, platform: .ios, status: .ok, swiftVersion: .v5_3)
                 .save(on: app.db).wait()
@@ -590,7 +622,7 @@ class BuildTriggerTests: AppTestCase {
         try p.save(on: app.db).wait()
         let v1 = try Version(package: p, latest: .defaultBranch)
         try v1.save(on: app.db).wait()
-        try Build(version: v1, platform: .ios, status: .pending, swiftVersion: .v5_1)
+        try Build(version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_1)
             .save(on: app.db).wait()
 
         let db = try XCTUnwrap(app.db as? SQLDatabase)

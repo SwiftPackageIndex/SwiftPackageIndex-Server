@@ -50,7 +50,7 @@ struct AppEnvironment {
                        _ platform: Build.Platform,
                        _ reference: Reference,
                        _ swiftVersion: SwiftVersion,
-                       _ versionID: Version.Id) -> EventLoopFuture<HTTPStatus>
+                       _ versionID: Version.Id) -> EventLoopFuture<Build.TriggerResponse>
     var twitterCredentials: () -> Twitter.Credentials?
     var twitterPostTweet: (_ client: Client, _ tweet: String) -> EventLoopFuture<Void>
 }
@@ -131,6 +131,7 @@ extension AppEnvironment {
 struct FileManager {
     var attributesOfItem: (_ path: String) throws -> [FileAttributeKey : Any]
     var contentsOfDirectory: (_ path: String) throws -> [String]
+    var contents: (_ atPath: String) -> Data?
     var checkoutsDirectory: () -> String
     var createDirectory: (String, Bool, [FileAttributeKey : Any]?) throws -> Void
     var fileExists: (String) -> Bool
@@ -141,6 +142,7 @@ struct FileManager {
     func attributesOfItem(atPath path: String) throws -> [FileAttributeKey : Any] {
         try attributesOfItem(path)
     }
+    func contents(atPath path: String) -> Data? { contents(path) }
     func contentsOfDirectory(atPath path: String) throws -> [String] {
         try contentsOfDirectory(path)
     }
@@ -155,6 +157,7 @@ struct FileManager {
     static let live: Self = .init(
         attributesOfItem: Foundation.FileManager.default.attributesOfItem,
         contentsOfDirectory: Foundation.FileManager.default.contentsOfDirectory,
+        contents: Foundation.FileManager.default.contents(atPath:),
         checkoutsDirectory: { Environment.get("CHECKOUTS_DIR") ?? DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
         createDirectory: Foundation.FileManager.default.createDirectory,
         fileExists: Foundation.FileManager.default.fileExists,

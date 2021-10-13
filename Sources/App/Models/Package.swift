@@ -39,7 +39,7 @@ final class Package: Model, Content {
     var processingStage: ProcessingStage?
     
     @Field(key: "score")
-    var score: Int?
+    var score: Int
     
     @Enum(key: "status")
     var status: Status
@@ -59,7 +59,7 @@ final class Package: Model, Content {
     
     init(id: UUID? = nil,
          url: URL,
-         score: Int? = nil,
+         score: Int = 0,
          status: Status = .new,
          processingStage: ProcessingStage? = nil) {
         self.id = id

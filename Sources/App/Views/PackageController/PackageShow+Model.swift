@@ -15,6 +15,7 @@
 import Foundation
 import Plot
 import Vapor
+import DependencyResolution
 
 
 extension PackageShow {
@@ -26,6 +27,7 @@ extension PackageShow {
         var repositoryName: String
         var activity: Activity?
         var authors: [Link]?
+        var keywords: [String]?
         var swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?
         var platformBuildInfo: BuildInfo<PlatformResults>?
         var history: History?
@@ -34,6 +36,7 @@ extension PackageShow {
         var licenseUrl: String?
         var products: ProductCounts?
         var releases: ReleaseInfo
+        var dependencies: [ResolvedDependency]?
         var stars: Int?
         var summary: String?
         var title: String
@@ -47,6 +50,7 @@ extension PackageShow {
                       repositoryName: String,
                       activity: Activity? = nil,
                       authors: [Link]? = nil,
+                      keywords: [String]? = nil,
                       swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>? = nil,
                       platformBuildInfo: BuildInfo<PlatformResults>? = nil,
                       history: History? = nil,
@@ -55,6 +59,7 @@ extension PackageShow {
                       licenseUrl: String? = nil,
                       products: ProductCounts? = nil,
                       releases: ReleaseInfo,
+                      dependencies: [ResolvedDependency]?,
                       stars: Int? = nil,
                       summary: String?,
                       title: String,
@@ -67,6 +72,7 @@ extension PackageShow {
             self.repositoryName = repositoryName
             self.activity = activity
             self.authors = authors
+            self.keywords = keywords
             self.swiftVersionBuildInfo = swiftVersionBuildInfo
             self.platformBuildInfo = platformBuildInfo
             self.history = history
@@ -75,6 +81,7 @@ extension PackageShow {
             self.licenseUrl = licenseUrl
             self.products = products
             self.releases = releases
+            self.dependencies = dependencies
             self.stars = stars
             self.summary = summary
             self.title = title
@@ -100,6 +107,7 @@ extension PackageShow {
                 repositoryName: repositoryName,
                 activity: package.activity(),
                 authors: package.authors(),
+                keywords: package.repository?.keywords,
                 swiftVersionBuildInfo: package.swiftVersionBuildInfo(),
                 platformBuildInfo: package.platformBuildInfo(),
                 history: package.history(),
@@ -108,6 +116,7 @@ extension PackageShow {
                 licenseUrl: package.repository?.licenseUrl,
                 products: package.productCounts(),
                 releases: package.releaseInfo(),
+                dependencies: package.dependencyInfo(),
                 stars: package.repository?.stars,
                 summary: package.repository?.summary,
                 title: package.name() ?? repositoryName,
@@ -282,6 +291,27 @@ extension PackageShow.Model {
         )
     }
 
+    func dependenciesListItem() -> Node<HTML.ListContext> {
+        guard let dependenciesPhrase = dependenciesPhrase()
+        else { return .empty }
+
+        return .li(
+            .class("dependencies"),
+            .text(dependenciesPhrase)
+        )
+    }
+
+    func dependenciesPhrase() -> String? {
+        guard let dependencies = dependencies
+        else { return nil }
+
+        guard dependencies.count > 0
+        else { return "This package has no package dependencies." }
+
+        let dependenciesCount = pluralizedCount(dependencies.count, singular: "other package")
+        return "This package depends on \(dependenciesCount)."
+    }
+
     func librariesListItem() -> Node<HTML.ListContext> {
         guard let products = products
         else { return .empty }
@@ -300,6 +330,27 @@ extension PackageShow.Model {
             .class("executables"),
             .text(pluralizedCount(products.executables, singular: "executable", capitalized: true))
         )
+    }
+
+    func keywordsListItem() -> Node<HTML.ListContext> {
+        if let keywords = keywords {
+            return .li(
+                .class("keywords"),
+                .ul(
+                    .class("keywords"),
+                    .forEach(keywords, { keyword in
+                        .li(
+                            .a(
+                                .href(SiteURL.keywords(.value(keyword)).relativeURL()),
+                                .text(keyword)
+                            )
+                        )
+                    })
+                )
+            )
+        } else {
+            return .empty
+        }
     }
 
     static var starsNumberFormatter: NumberFormatter = {

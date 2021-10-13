@@ -114,8 +114,17 @@ extension Build {
         case ok
         case failed
         case infrastructureError
-        case pending
+        case triggered
         case timeout
+
+        var isCompleted: Bool {
+            switch self {
+                case .ok, .failed, .timeout:
+                    return true
+                case .infrastructureError, .triggered:
+                    return false
+            }
+        }
     }
 }
 
@@ -130,12 +139,17 @@ enum BuildTool: String, Codable {
 
 
 extension Build {
-    
+
+    struct TriggerResponse: Content {
+        var status: HTTPStatus
+        var webUrl: String
+    }
+
     static func trigger(database: Database,
                         client: Client,
                         platform: Build.Platform,
                         swiftVersion: SwiftVersion,
-                        versionId: Version.Id) -> EventLoopFuture<HTTPStatus> {
+                        versionId: Version.Id) -> EventLoopFuture<TriggerResponse> {
         let version: EventLoopFuture<Version> = Version
             .query(on: database)
             .filter(\.$id == versionId)
@@ -271,7 +285,7 @@ extension Array where Element == Build {
     }
 
     var nonePending: Bool {
-        allSatisfy { $0.status != .pending }
+        allSatisfy { $0.status.isCompleted }
     }
     
     var anyPending: Bool {

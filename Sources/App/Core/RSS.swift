@@ -89,9 +89,8 @@ extension RecentPackage {
 
 extension RecentRelease {
     var rssItem: Node<RSS.ChannelContext> {
-        let packageUrl = SiteURL.package(.value(repositoryOwner),
-                                         .value(repositoryName),
-                                         .none).absoluteURL()
+        let packageUrl = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
+        let releasesUrl = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL(anchor: "releases")
 
         func layout(_ body: Node<HTML.BodyContext>) -> Node<HTML.BodyContext> {
             .div(
@@ -100,12 +99,10 @@ extension RecentRelease {
                         .href(packageUrl),
                         .text(packageName)
                     ),
-                    .small(
-                        " – ",
-                        .a(
-                            .href(releaseUrl ?? packageUrl),
-                            .text("Version \(version) release notes. ")
-                        )
+                    .text(" – "),
+                    .a(
+                        .href(releasesUrl),
+                        .text("Version \(version) ")
                     )
                 ),
                 body,

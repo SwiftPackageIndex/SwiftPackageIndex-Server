@@ -15,36 +15,54 @@
 export class SPITabBarElement extends HTMLElement {
   constructor() {
     super()
-      
-      function showPage(tabId) {
-          const tabPageElements = document.querySelectorAll("[data-tab-page]");
-          tabPageElements.forEach((tabPageElement) => {
-              if(tabPageElement.dataset.tabPage == tabId) {
-                  tabPageElement.classList.remove('hidden');
-              } else {
-                  tabPageElement.classList.add('hidden');
-              }
-          });
+
+    const tabLinkElements = this.querySelectorAll('[data-tab]')
+    tabLinkElements.forEach((tabLinkElement) => {
+      tabLinkElement.addEventListener('click', (event) => {
+        // Assign a new tab to be active and switch to it.
+        this.activateTab(tabLinkElement, tabLinkElements)
+        this.showPage(event.srcElement.dataset.tab)
+
+        // Only when explicitly clicked, change the page anchor.
+        const currentLocationUrl = new URL(window.location)
+        currentLocationUrl.hash = `#${tabLinkElement.dataset.tab}`
+        window.history.pushState({}, '', currentLocationUrl)
+      })
+    })
+
+    this.syncTabs()
+  }
+
+  syncTabs() {
+    const locationUrlHash = new URL(window.location).hash
+    const tabLinkElements = this.querySelectorAll('[data-tab]')
+    tabLinkElements.forEach((tabLinkElement) => {
+      // Make any tab active where the identifier matches an anchor in the location.
+      if (locationUrlHash === `#${tabLinkElement.dataset.tab}`) {
+        this.activateTab(tabLinkElement, tabLinkElements)
       }
-      
-      const tabLinkElements = this.querySelectorAll("[data-tab]");
-      tabLinkElements.forEach((tabLinkElement) => {
-          // Add click listener which will show the correct page when a user taps on a tab link
-          tabLinkElement.addEventListener('click', (event) => {
-              // Update Tab Links
-              tabLinkElements.forEach((tabLinkElement) => {
-                  tabLinkElement.classList.remove('active');
-              });
-              
-              tabLinkElement.classList.add('active');
-              
-              // Update Tab Pages
-              showPage(event.srcElement.dataset.tab);
-          });
-      });
-      
-      // Show only the page which has the active class, on load
-      const activeTabLinkElement = this.querySelector("[data-tab].active");
-      showPage(activeTabLinkElement.dataset.tab);
+    })
+
+    // Show the page which has the active class.
+    const activeTabLinkElement = this.querySelector('[data-tab].active')
+    this.showPage(activeTabLinkElement.dataset.tab)
+  }
+
+  showPage(tabId) {
+    const tabPageElements = document.querySelectorAll('[data-tab-page]')
+    tabPageElements.forEach((tabPageElement) => {
+      if (tabPageElement.dataset.tabPage == tabId) {
+        tabPageElement.classList.remove('hidden')
+      } else {
+        tabPageElement.classList.add('hidden')
+      }
+    })
+  }
+
+  activateTab(tabLinkElement, tabLinkElements) {
+    tabLinkElements.forEach((tabLinkElement) => {
+      tabLinkElement.classList.remove('active')
+    })
+    tabLinkElement.classList.add('active')
   }
 }
