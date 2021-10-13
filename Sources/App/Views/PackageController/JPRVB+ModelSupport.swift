@@ -12,25 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Fluent
 import Foundation
-import Vapor
 
 
 extension JPRVB {
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<JPRVB> {
-        JPR.query(on: database)
-            .with(\.$versions) {
-                $0.with(\.$products)
-                $0.with(\.$builds)
-            }
-            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            .filter(Repository.self, \.$name, .custom("ilike"), repository)
-            .first()
-            .unwrap(or: Abort(.notFound))
-            .map(JPRVB.init(jpr:))
-    }
-
+    
     func authors() -> [Link]? {
         // TODO: fill in
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/175
