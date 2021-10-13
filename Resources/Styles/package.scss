@@ -66,6 +66,11 @@
         background-image: var(--image-speech-bubble);
       }
 
+      li.dependencies {
+        grid-column-start: span 2;
+        background-image: var(--image-dependency-tree);
+      }
+
       li.license {
         background-image: var(--image-osi);
 

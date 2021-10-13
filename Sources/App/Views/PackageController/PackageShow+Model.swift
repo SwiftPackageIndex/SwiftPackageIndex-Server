@@ -15,6 +15,7 @@
 import Foundation
 import Plot
 import Vapor
+import DependencyResolution
 
 
 extension PackageShow {
@@ -35,6 +36,7 @@ extension PackageShow {
         var licenseUrl: String?
         var products: ProductCounts?
         var releases: ReleaseInfo
+        var dependencies: [ResolvedDependency]?
         var stars: Int?
         var summary: String?
         var title: String
@@ -57,6 +59,7 @@ extension PackageShow {
                       licenseUrl: String? = nil,
                       products: ProductCounts? = nil,
                       releases: ReleaseInfo,
+                      dependencies: [ResolvedDependency]?,
                       stars: Int? = nil,
                       summary: String?,
                       title: String,
@@ -78,6 +81,7 @@ extension PackageShow {
             self.licenseUrl = licenseUrl
             self.products = products
             self.releases = releases
+            self.dependencies = dependencies
             self.stars = stars
             self.summary = summary
             self.title = title
@@ -112,6 +116,7 @@ extension PackageShow {
                 licenseUrl: package.repository?.licenseUrl,
                 products: package.productCounts(),
                 releases: package.releaseInfo(),
+                dependencies: package.dependencyInfo(),
                 stars: package.repository?.stars,
                 summary: package.repository?.summary,
                 title: package.name() ?? repositoryName,
@@ -284,6 +289,27 @@ extension PackageShow.Model {
             .class("activity"),
             .group(listPhrase(opening: .text("There is ".pluralized(for: activity.openIssuesCount, plural: "There are ")), nodes: openItems, closing: ". ") + listPhrase(opening: "The ", nodes: lastClosed, conjunction: " and the ", closing: "."))
         )
+    }
+
+    func dependenciesListItem() -> Node<HTML.ListContext> {
+        guard let dependenciesPhrase = dependenciesPhrase()
+        else { return .empty }
+
+        return .li(
+            .class("dependencies"),
+            .text(dependenciesPhrase)
+        )
+    }
+
+    func dependenciesPhrase() -> String? {
+        guard let dependencies = dependencies
+        else { return nil }
+
+        guard dependencies.count > 0
+        else { return "This package has no package dependencies." }
+
+        let dependenciesCount = pluralizedCount(dependencies.count, singular: "other package")
+        return "This package depends on \(dependenciesCount)."
     }
 
     func librariesListItem() -> Node<HTML.ListContext> {

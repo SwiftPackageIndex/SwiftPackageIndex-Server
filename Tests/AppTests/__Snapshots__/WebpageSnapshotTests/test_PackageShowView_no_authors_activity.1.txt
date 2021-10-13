@@ -81,6 +81,7 @@
                   <a href="https://github.com/Alamofire/Alamofire/commits/main">1,433 commits</a> and 
                   <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
                 </li>
+                <li class="dependencies">This package depends on 2 other packages.</li>
                 <li class="license"> licensed</li>
                 <li class="stars">17 stars</li>
                 <li class="libraries">3 libraries</li>
