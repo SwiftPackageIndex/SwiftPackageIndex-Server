@@ -200,7 +200,7 @@ class PackageShowModelTests: SnapshotTestCase {
     func test_dependenciesPhrase_nil_dependencies() throws {
         var model = PackageShow.Model.mock
         model.dependencies = nil
-        XCTAssertEqual(model.dependenciesPhrase(), "No dependency information available.")
+        XCTAssertEqual(model.dependenciesPhrase(), nil)
     }
 
     func test_stars_formatting() throws {
