@@ -40,3 +40,74 @@ extension JPRVB {
             .map(JPRVB.init(jpr:))
     }
 }
+
+protocol Referencable {}
+
+extension Build: Referencable {}
+extension Product: Referencable {}
+extension Version: Referencable {}
+extension Joined: Referencable {}
+
+struct Ref<M: Referencable, R: Referencable>: Referencable {
+    private(set) var model: M
+}
+struct Ref2<M: Referencable, R1: Referencable, R2: Referencable>: Referencable {
+    private(set) var model: M
+}
+
+
+// TODO: move
+extension Ref where M == Joined<Package, Repository>, R == Version {
+    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<M> {
+        M.query(on: database)
+            .with(\.$versions)
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
+            .first()
+            .unwrap(or: Abort(.notFound))
+    }
+}
+
+
+extension Ref where M == Joined<Package, Repository>, R == Ref2<Version, Build, Product> {
+    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
+        M.query(on: database)
+            .with(\.$versions) {
+                $0.with(\.$products)
+                $0.with(\.$builds)
+            }
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
+            .first()
+            .unwrap(or: Abort(.notFound))
+            .map(Self.init(model:))
+    }
+}
+
+
+extension Ref where M == Joined<Package, Repository>, R == Ref2<Version, Build, Product> {
+
+    var package: Package { model.package }
+    var repository: Repository? { model.repository }
+
+    func activity() -> PackageShow.Model.Activity? {
+        guard
+            let repo = repository,
+            repo.openIssues != nil || repo.openPullRequests != nil || repo.lastPullRequestClosedAt != nil
+        else { return nil }
+        let openIssues = repo.openIssues.map {
+            Link(label: pluralizedCount($0, singular: "open issue"), url: package.url.droppingGitExtension + "/issues")
+        }
+        let openPRs = repo.openPullRequests.map {
+            Link(label: pluralizedCount($0, singular: "open pull request"), url: package.url.droppingGitExtension + "/pulls")
+        }
+        let lastIssueClosed = repo.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
+        let lastPRClosed = repo.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
+        return .init(openIssuesCount: repo.openIssues ?? 0,
+                     openIssues: openIssues,
+                     openPullRequests: openPRs,
+                     lastIssueClosedAt: lastIssueClosed,
+                     lastPullRequestClosedAt: lastPRClosed)
+    }
+
+}

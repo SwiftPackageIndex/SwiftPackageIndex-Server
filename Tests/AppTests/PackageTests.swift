@@ -551,7 +551,8 @@ final class PackageTests: AppTestCase {
                        openIssues: 27,
                        openPullRequests: 1,
                        owner: "foo").create(on: app.db).wait()
-        let jprvb = try JPRVB.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let jprvb = try Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>.query(on: app.db, owner: "foo", repository: "bar")
+            .wait()
 
         // MUT
         let res = jprvb.activity()
