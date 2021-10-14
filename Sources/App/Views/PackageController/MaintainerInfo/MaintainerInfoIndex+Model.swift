@@ -17,16 +17,18 @@ import Plot
 
 
 extension MaintainerInfoIndex {
+    // TODO: find original query and redefine or re-use type there
+    typealias PackageResult = PackageController.PackageResult
 
     struct Model {
         var packageName: String
         var repositoryOwner: String
         var repositoryName: String
 
-        init?(package: JPRVB) {
-            guard let packageName = package.versions.packageName(),
-                  let repositoryOwner = package.repository?.owner,
-                  let repositoryName = package.repository?.name else { return nil }
+        init?(result: PackageResult) {
+            guard let packageName = result.versions.packageName(),
+                  let repositoryOwner = result.repository?.owner,
+                  let repositoryName = result.repository?.name else { return nil }
 
             self.init(packageName: packageName, repositoryOwner: repositoryOwner, repositoryName: repositoryName)
         }
@@ -37,19 +39,19 @@ extension MaintainerInfoIndex {
             self.repositoryName = repositoryName
         }
 
-        func badgeURL(for type: JPRVB.BadgeType) -> String {
+        func badgeURL(for type: PackageResult.BadgeType) -> String {
             let characterSet = CharacterSet.urlHostAllowed.subtracting(.init(charactersIn: "=:"))
             let url = SiteURL.api(.packages(.value(repositoryOwner), .value(repositoryName), .badge)).absoluteURL(parameters: [QueryParameter(key: "type", value: type.rawValue)])
             let escaped = url.addingPercentEncoding(withAllowedCharacters: characterSet) ?? url
             return "https://img.shields.io/endpoint?url=\(escaped)"
         }
 
-        func badgeMarkdown(for type: JPRVB.BadgeType) -> String {
+        func badgeMarkdown(for type: PackageResult.BadgeType) -> String {
             let spiPackageURL = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
             return "[![](\(badgeURL(for: type)))](\(spiPackageURL))"
         }
 
-        func badgeMarkdowDisplay(for type: JPRVB.BadgeType) -> Node<HTML.FormContext> {
+        func badgeMarkdowDisplay(for type: PackageResult.BadgeType) -> Node<HTML.FormContext> {
             .input(
                 .type(.text),
                 .value(badgeMarkdown(for: type)),

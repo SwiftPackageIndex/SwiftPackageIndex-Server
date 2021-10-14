@@ -25,11 +25,12 @@ struct PackageController {
         else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
-        return JPRVB.query(on: req.db, owner: owner, repository: repository)
-            .map { package -> (PackageShow.Model, PackageShow.PackageSchema)? in
+        return PackageResult
+            .query(on: req.db, owner: owner, repository: repository)
+            .map { result -> (PackageShow.Model, PackageShow.PackageSchema)? in
                 guard
-                    let model = PackageShow.Model(package: package),
-                    let schema = PackageShow.PackageSchema(package: package)
+                    let model = PackageShow.Model(result: result),
+                    let schema = PackageShow.PackageSchema(result: result)
                 else {
                     return nil
                 }
@@ -48,9 +49,9 @@ struct PackageController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return JPRVB.query(on: req.db, owner: owner, repository: repository)
-            .flatMap { package in
-                fetchReadme(client: req.client, package: package.jpr)
+        return PackageResult.query(on: req.db, owner: owner, repository: repository)
+            .flatMap { result in
+                fetchReadme(client: req.client, package: result.model)
             }
             .map(PackageReadme.Model.init(readme:))
             .map { PackageReadme.View(model: $0).document() }
@@ -64,8 +65,9 @@ struct PackageController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return JPRVB.query(on: req.db, owner: owner, repository: repository)
-            .map(\.jpr)
+        return PackageResult
+            .query(on: req.db, owner: owner, repository: repository)
+            .map(\.model)
             .map(PackageReleases.Model.init(package:))
             .map { PackageReleases.View(model: $0).document() }
     }
@@ -77,8 +79,9 @@ struct PackageController {
         else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
-        return JPRVB.query(on: req.db, owner: owner, repository: repository)
-            .map(BuildIndex.Model.init(package:))
+        return PackageResult
+            .query(on: req.db, owner: owner, repository: repository)
+            .map(BuildIndex.Model.init(result:))
             .unwrap(or: Abort(.notFound))
             .map { BuildIndex.View(path: req.url.path, model: $0).document() }
     }
@@ -91,8 +94,9 @@ struct PackageController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return JPRVB.query(on: req.db, owner: owner, repository: repository)
-            .map(MaintainerInfoIndex.Model.init(package:))
+        return PackageResult
+            .query(on: req.db, owner: owner, repository: repository)
+            .map(MaintainerInfoIndex.Model.init(result:))
             .unwrap(or: Abort(.notFound))
             .map { MaintainerInfoIndex.View(path: req.url.path, model: $0).document() }
     }

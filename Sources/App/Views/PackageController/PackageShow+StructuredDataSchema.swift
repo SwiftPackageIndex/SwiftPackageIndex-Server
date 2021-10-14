@@ -66,11 +66,11 @@ extension PackageShow {
             self.keywords = keywords
         }
         
-        init?(package jprvb: JPRVB) {
-            let package = jprvb.model
-            let versions = jprvb.versions
+        init?(result: PackageController.PackageResult) {
+            let package = result.package
+            let versions = result.versions
             guard
-                let repository = jprvb.repository,
+                let repository = result.repository,
                 let repositoryOwner = repository.owner,
                 let repositoryName = repository.name
             else {
@@ -134,9 +134,9 @@ extension PackageShow {
             .map {
                 versions.latest(for: $0)
                     .flatMap {
-                        JPRVB.makeDatedLink(packageUrl: packageUrl,
-                                            version: $0,
-                                            keyPath: \.commitDate)
+                        makeDatedLink(packageUrl: packageUrl,
+                                      version: $0,
+                                      keyPath: \.commitDate)
                     }
             }
         return .init(stable: versions[0],
