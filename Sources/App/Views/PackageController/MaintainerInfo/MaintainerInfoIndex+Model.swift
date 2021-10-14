@@ -17,7 +17,6 @@ import Plot
 
 
 extension MaintainerInfoIndex {
-    // TODO: find original query and redefine or re-use type there
     typealias PackageResult = PackageController.PackageResult
 
     struct Model {
