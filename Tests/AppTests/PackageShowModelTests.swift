@@ -39,10 +39,10 @@ class PackageShowModelTests: SnapshotTestCase {
         try version.save(on: app.db).wait()
         try Product(version: version,
                     type: .library(.automatic), name: "lib 1").save(on: app.db).wait()
-        let jprvb = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
         
         // MUT
-        let m = PackageShow.Model(result: jprvb)
+        let m = PackageShow.Model(result: pr)
         
         // validate
         XCTAssertNotNil(m)
@@ -76,10 +76,10 @@ class PackageShowModelTests: SnapshotTestCase {
             try updateLatestVersions(on: app.db, package: jpr).wait()
         }
         // reload via query to ensure pkg is in the same state it would normally be
-        let jprvb = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let m = PackageShow.Model(result: jprvb)
+        let m = PackageShow.Model(result: pr)
         
         // validate
         XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)

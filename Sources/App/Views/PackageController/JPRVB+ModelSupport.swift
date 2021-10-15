@@ -15,7 +15,6 @@
 import Foundation
 
 
-//extension JPRVB {
 extension PackageController.PackageResult {
 
     func authors() -> [Link]? {
@@ -86,7 +85,6 @@ extension PackageController.PackageResult {
 // MARK: - Build info
 
 
-//extension JPRVB {
 extension PackageController.PackageResult {
 
     typealias BuildInfo = PackageShow.Model.BuildInfo
