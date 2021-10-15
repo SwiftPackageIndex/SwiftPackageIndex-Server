@@ -34,7 +34,7 @@ class JoinedTests: AppTestCase {
         // In particular, this means that
         //    let repos = jpr.model.repositories
         // will fatalError. (This risk has always been there, it's just handled a
-        // bit better now via `Joined<...>`.
+        // bit better now via `Joined<...>`.)
         // There is unfortunately no simple way to make this safe other that replacing/
         // wrapping all of the types involved.
         XCTAssertNil(jpr.model.$repositories.value)
