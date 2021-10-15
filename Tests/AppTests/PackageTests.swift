@@ -20,6 +20,7 @@ import XCTVapor
 
 
 final class PackageTests: AppTestCase {
+    // TODO: remove?
     typealias PackageResult = PackageController.PackageResult
 
     func test_Equatable() throws {
@@ -144,8 +145,8 @@ final class PackageTests: AppTestCase {
             XCTAssertEqual(pkg.versions.count, 3)
         }
     }
-    
-    func test_findDefaultBranchVersion() throws {
+
+    func test_findBranchVersion() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
@@ -157,62 +158,13 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(3, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let version = jpr.findDefaultBranchVersion(versions)
-        
+        let version = Package.findBranchVersion(versions: versions,
+                                                branch: "default")
+
         // validation
         XCTAssertEqual(version?.reference, .branch("default"))
-    }
-    
-    // TODO: move most/all of the JPRVB MUT tests into JRVBTests file
-    
-    func test_query_owner_repository() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
-                       defaultBranch: "main",
-                       forks: 42,
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       summary: "summary").save(on: app.db).wait()
-        let version = try App.Version(package: pkg,
-                                      packageName: "test package",
-                                      reference: .branch("main"))
-        try version.save(on: app.db).wait()
-        
-        // MUT
-        let res = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-        
-        // validate
-        XCTAssertEqual(res.package.id, pkg.id)
-        XCTAssertEqual(res.repository?.name, "bar")
-    }
-    
-    func test_query_owner_repository_case_insensitivity() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
-                       defaultBranch: "main",
-                       forks: 42,
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       summary: "summary").save(on: app.db).wait()
-        let version = try App.Version(package: pkg,
-                                      packageName: "test package",
-                                      reference: .branch("main"))
-        try version.save(on: app.db).wait()
-        
-        // MUT
-        let res = try PackageResult.query(on: app.db, owner: "Foo", repository: "bar").wait()
-        
-        // validate
-        XCTAssertEqual(res.package.id, pkg.id)
     }
 
     func test_findRelease() throws {
@@ -277,6 +229,8 @@ final class PackageTests: AppTestCase {
         )
     }
 
+    // TODO: move most/all of the JPRVB MUT tests into JRVBTests file
+
     func test_findSignificantReleases_old_beta() throws {
         // Test to ensure outdated betas aren't picked up as latest versions
         // setup
@@ -289,10 +243,9 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
         ]
         try versions.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let (release, preRelease, defaultBranch) = jpr.findSignificantReleases(versions)
+        let (release, preRelease, defaultBranch) = Package.findSignificantReleases(versions: versions, branch: "main")
 
         // validate
         XCTAssertEqual(release?.reference, .tag(2, 0, 0))

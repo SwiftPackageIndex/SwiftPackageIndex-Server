@@ -874,7 +874,7 @@ func updateLatestVersions(on database: Database, package: Joined<Package, Reposi
             // find new significant releases
             let (release, preRelease, defaultBranch) = Package.findSignificantReleases(
                 versions: versions,
-                defaultBranch: package.repository?.defaultBranch
+                branch: package.repository?.defaultBranch
             )
             release.map { $0.latest = .release }
             preRelease.map { $0.latest = .preRelease }
