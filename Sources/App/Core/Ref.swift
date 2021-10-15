@@ -18,20 +18,23 @@ import Vapor
 
 protocol Referencable {}
 
+extension Joined: Referencable {}
+
 extension Build: Referencable {}
 extension Product: Referencable {}
 extension Version: Referencable {}
-extension Joined: Referencable {}
+
 
 struct Ref<M: Referencable, R: Referencable>: Referencable {
     private(set) var model: M
 }
+
+
 struct Ref2<M: Referencable, R1: Referencable, R2: Referencable>: Referencable {
     private(set) var model: M
 }
 
 
-// TODO: move
 extension Ref where M == Joined<Package, Repository>, R == Version {
     static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<M> {
         M.query(on: database)
@@ -64,9 +67,4 @@ extension Ref where M == Joined<Package, Repository>, R == Ref2<Version, Build, 
     var package: Package { model.package }
     var repository: Repository? { model.repository }
     var versions: [Version] { package.versions }
-}
-
-
-extension PackageController {
-    typealias PackageResult = Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>
 }

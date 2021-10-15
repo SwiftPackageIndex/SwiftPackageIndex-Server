@@ -103,6 +103,11 @@ struct PackageController {
 }
 
 
+extension PackageController {
+    typealias PackageResult = Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>
+}
+
+
 private func fetchReadme(client: Client, package: Joined<Package, Repository>) -> EventLoopFuture<String?> {
     guard let url = package.repository?.readmeHtmlUrl.map(URI.init(string:))
     else { return client.eventLoop.future(nil) }
