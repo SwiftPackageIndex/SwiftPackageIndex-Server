@@ -50,10 +50,11 @@ class JoinedTests: AppTestCase {
         repo.name = "foo"
 
         // MUT
-        try repo.save(on: app.db).wait()
+        try repo.update(on: app.db).wait()
 
         // validate
         let r = try XCTUnwrap(Repository.query(on: app.db).first().wait())
         XCTAssertEqual(r.name, "foo")
     }
+
 }
