@@ -288,6 +288,55 @@ class PackageShowModelTests: SnapshotTestCase {
         }
     }
 
+    func test_languagePlatformInfo() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+        try [
+            try App.Version(package: pkg, reference: .branch("branch")),
+            try App.Version(package: pkg,
+                            commitDate: daysAgo(1),
+                            reference: .branch("default"),
+                            supportedPlatforms: [.macos("10.15"), .ios("13")],
+                            swiftVersions: ["5.2", "5.3"].asSwiftVersions),
+            try App.Version(package: pkg, reference: .tag(.init(1, 2, 3))),
+            try App.Version(package: pkg,
+                            commitDate: daysAgo(3),
+                            reference: .tag(.init(2, 1, 0)),
+                            supportedPlatforms: [.macos("10.13"), .ios("10")],
+                            swiftVersions: ["4", "5"].asSwiftVersions),
+            try App.Version(package: pkg,
+                            commitDate: daysAgo(2),
+                            reference: .tag(.init(3, 0, 0, "beta")),
+                            supportedPlatforms: [.macos("10.14"), .ios("13")],
+                            swiftVersions: ["5", "5.2"].asSwiftVersions),
+        ].create(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        // update versions
+        try updateLatestVersions(on: app.db, package: jpr).wait()
+        let versions = try pkg.$versions.load(on: app.db)
+            .map { pkg.versions }
+            .wait()
+
+        // MUT
+        let lpInfo = PackageShow.Model.languagePlatformInfo(packageUrl: "1", versions: versions)
+
+        // validate
+        XCTAssertEqual(lpInfo.stable?.link, .init(label: "2.1.0",
+                                                  url: "1/releases/tag/2.1.0"))
+        XCTAssertEqual(lpInfo.stable?.swiftVersions, ["4", "5"])
+        XCTAssertEqual(lpInfo.stable?.platforms, [.macos("10.13"), .ios("10")])
+
+        XCTAssertEqual(lpInfo.beta?.link, .init(label: "3.0.0-beta",
+                                                url: "1/releases/tag/3.0.0-beta"))
+        XCTAssertEqual(lpInfo.beta?.swiftVersions, ["5", "5.2"])
+        XCTAssertEqual(lpInfo.beta?.platforms, [.macos("10.14"), .ios("13")])
+
+        XCTAssertEqual(lpInfo.latest?.link, .init(label: "default", url: "1"))
+        XCTAssertEqual(lpInfo.latest?.swiftVersions, ["5.2", "5.3"])
+        XCTAssertEqual(lpInfo.latest?.platforms, [.macos("10.15"), .ios("13")])
+    }
+
 }
 
 

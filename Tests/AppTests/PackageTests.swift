@@ -20,6 +20,7 @@ import XCTVapor
 
 
 final class PackageTests: AppTestCase {
+    // TODO: remove?
     typealias PackageResult = PackageController.PackageResult
 
     func test_Equatable() throws {
@@ -144,8 +145,8 @@ final class PackageTests: AppTestCase {
             XCTAssertEqual(pkg.versions.count, 3)
         }
     }
-    
-    func test_findDefaultBranchVersion() throws {
+
+    func test_findBranchVersion() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
@@ -157,62 +158,13 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(3, 0, 0, "beta"))),
         ]
         try versions.create(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let version = jpr.findDefaultBranchVersion(versions)
-        
+        let version = Package.findBranchVersion(versions: versions,
+                                                branch: "default")
+
         // validation
         XCTAssertEqual(version?.reference, .branch("default"))
-    }
-    
-    // TODO: move most/all of the JPRVB MUT tests into JRVBTests file
-    
-    func test_query_owner_repository() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
-                       defaultBranch: "main",
-                       forks: 42,
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       summary: "summary").save(on: app.db).wait()
-        let version = try App.Version(package: pkg,
-                                      packageName: "test package",
-                                      reference: .branch("main"))
-        try version.save(on: app.db).wait()
-        
-        // MUT
-        let res = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-        
-        // validate
-        XCTAssertEqual(res.package.id, pkg.id)
-        XCTAssertEqual(res.repository?.name, "bar")
-    }
-    
-    func test_query_owner_repository_case_insensitivity() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
-                       defaultBranch: "main",
-                       forks: 42,
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       summary: "summary").save(on: app.db).wait()
-        let version = try App.Version(package: pkg,
-                                      packageName: "test package",
-                                      reference: .branch("main"))
-        try version.save(on: app.db).wait()
-        
-        // MUT
-        let res = try PackageResult.query(on: app.db, owner: "Foo", repository: "bar").wait()
-        
-        // validate
-        XCTAssertEqual(res.package.id, pkg.id)
     }
 
     func test_findRelease() throws {
@@ -277,6 +229,8 @@ final class PackageTests: AppTestCase {
         )
     }
 
+    // TODO: move most/all of the JPRVB MUT tests into JRVBTests file
+
     func test_findSignificantReleases_old_beta() throws {
         // Test to ensure outdated betas aren't picked up as latest versions
         // setup
@@ -289,138 +243,14 @@ final class PackageTests: AppTestCase {
             try Version(package: pkg, packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
         ]
         try versions.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let (release, preRelease, defaultBranch) = jpr.findSignificantReleases(versions)
+        let (release, preRelease, defaultBranch) = Package.findSignificantReleases(versions: versions, branch: "main")
 
         // validate
         XCTAssertEqual(release?.reference, .tag(2, 0, 0))
         XCTAssertEqual(preRelease, nil)
         XCTAssertEqual(defaultBranch?.reference, .branch("main"))
-    }
-
-    func test_updateLatestVersions() throws {
-        // setup
-        func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
-        let pkg = Package(id: UUID(), url: "1")
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        try Version(package: pkg, commitDate: t(2), packageName: "foo", reference: .branch("main"))
-            .save(on: app.db).wait()
-        try Version(package: pkg, commitDate: t(0), packageName: "foo", reference: .tag(1, 2, 3))
-            .save(on: app.db).wait()
-        try Version(package: pkg, commitDate: t(1), packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
-            .save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-
-        // MUT
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-
-        // validate
-        try pkg.$versions.load(on: app.db).wait()
-        let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-        XCTAssertEqual(versions.map(\.reference?.description), ["main", "1.2.3", "2.0.0-rc1"])
-        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])
-    }
-
-    func test_updateLatestVersions_old_beta() throws {
-        // Test to ensure outdated betas aren't picked up as latest versions
-        // and that faulty db content (outdated beta marked as latest pre-release)
-        // is correctly reset.
-        // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/188
-        // setup
-        let pkg = Package(id: UUID(), url: "1")
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        try Version(package: pkg,
-                    latest: .defaultBranch,
-                    packageName: "foo",
-                    reference: .branch("main"))
-            .save(on: app.db).wait()
-        try Version(package: pkg,
-                    latest: .release,
-                    packageName: "foo",
-                    reference: .tag(2, 0, 0))
-            .save(on: app.db).wait()
-        try Version(package: pkg,
-                    latest: .preRelease,  // this should have been nil - ensure it's reset
-                    packageName: "foo",
-                    reference: .tag(2, 0, 0, "rc1"))
-            .save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-
-        // MUT
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-
-        // validate
-        let versions = try Version.query(on: app.db)
-            .sort(\.$createdAt).all().wait()
-        XCTAssertEqual(versions.map(\.reference?.description), ["main", "2.0.0", "2.0.0-rc1"])
-        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, nil])
-    }
-
-    func test_releaseInfo() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
-        let versions = [
-            try Version(package: pkg, reference: .branch("branch")),
-            try Version(package: pkg, commitDate: daysAgo(1), reference: .branch("default")),
-            try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
-            try Version(package: pkg, commitDate: daysAgo(3), reference: .tag(.init(2, 1, 0))),
-            try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(3, 0, 0, "beta"))),
-        ]
-        try versions.create(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-
-        // MUT
-        let info = PackageShow.releaseInfo(packageUrl: "1", versions: jpr.model.versions)
-        
-        // validate
-        XCTAssertEqual(info.stable?.date, "3 days ago")
-        XCTAssertEqual(info.beta?.date, "2 days ago")
-        XCTAssertEqual(info.latest?.date, "1 day ago")
-    }
-    
-    func test_releaseInfo_exclude_old_betas() throws {
-        // Test to ensure that we don't publish a beta that's older than stable
-        // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
-        try [
-            try Version(package: pkg, commitDate: daysAgo(1), reference: .branch("default")),
-            try Version(package: pkg, commitDate: daysAgo(3), reference: .tag(.init(2, 1, 0))),
-            try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(2, 0, 0, "beta"))),
-        ].create(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        let versions = try pkg.$versions.load(on: app.db)
-            .map { pkg.versions }
-            .wait()
-
-        // MUT
-        let info = PackageShow.releaseInfo(packageUrl: "1", versions: versions)
-        
-        // validate
-        XCTAssertEqual(info.stable?.date, "3 days ago")
-        XCTAssertEqual(info.beta, nil)
-        XCTAssertEqual(info.latest?.date, "1 day ago")
-    }
-    
-    func test_releaseInfo_nonEager() throws {
-        // ensure non-eager access does not fatalError
-        let pkg = try savePackage(on: app.db, "1")
-        let versions = [
-            try Version(package: pkg, reference: .branch("default")),
-        ]
-        try versions.create(on: app.db).wait()
-        
-        // MUT / validate
-        XCTAssertNoThrow(PackageShow.releaseInfo(packageUrl: "1", versions: versions))
     }
 
     func test_versionUrl() throws {
@@ -437,275 +267,6 @@ final class PackageTests: AppTestCase {
                        "https://github.com/foo/bar/releases/tag/1.2.3")
     }
 
-    func test_languagePlatformInfo() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
-        try [
-            try Version(package: pkg, reference: .branch("branch")),
-            try Version(package: pkg,
-                        commitDate: daysAgo(1),
-                        reference: .branch("default"),
-                        supportedPlatforms: [.macos("10.15"), .ios("13")],
-                        swiftVersions: ["5.2", "5.3"].asSwiftVersions),
-            try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
-            try Version(package: pkg,
-                        commitDate: daysAgo(3),
-                        reference: .tag(.init(2, 1, 0)),
-                        supportedPlatforms: [.macos("10.13"), .ios("10")],
-                        swiftVersions: ["4", "5"].asSwiftVersions),
-            try Version(package: pkg,
-                        commitDate: daysAgo(2),
-                        reference: .tag(.init(3, 0, 0, "beta")),
-                        supportedPlatforms: [.macos("10.14"), .ios("13")],
-                        swiftVersions: ["5", "5.2"].asSwiftVersions),
-        ].create(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        let versions = try pkg.$versions.load(on: app.db)
-            .map { pkg.versions }
-            .wait()
-
-        // MUT
-        let lpInfo = PackageShow.Model.languagePlatformInfo(packageUrl: "1", versions: versions)
-        
-        // validate
-        XCTAssertEqual(lpInfo.stable?.link, .init(label: "2.1.0",
-                                                  url: "1/releases/tag/2.1.0"))
-        XCTAssertEqual(lpInfo.stable?.swiftVersions, ["4", "5"])
-        XCTAssertEqual(lpInfo.stable?.platforms, [.macos("10.13"), .ios("10")])
-        
-        XCTAssertEqual(lpInfo.beta?.link, .init(label: "3.0.0-beta",
-                                                url: "1/releases/tag/3.0.0-beta"))
-        XCTAssertEqual(lpInfo.beta?.swiftVersions, ["5", "5.2"])
-        XCTAssertEqual(lpInfo.beta?.platforms, [.macos("10.14"), .ios("13")])
-        
-        XCTAssertEqual(lpInfo.latest?.link, .init(label: "default", url: "1"))
-        XCTAssertEqual(lpInfo.latest?.swiftVersions, ["5.2", "5.3"])
-        XCTAssertEqual(lpInfo.latest?.platforms, [.macos("10.15"), .ios("13")])
-    }
-    
-    func test_history() throws {
-        // setup
-        Current.date = {
-            Date.init(timeIntervalSince1970: 1608000588)  // Dec 15, 2020
-        }
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg,
-                       commitCount: 1433,
-                       defaultBranch: "default",
-                       firstCommitDate: .t0,
-                       name: "bar",
-                       owner: "foo").create(on: app.db).wait()
-        try (0..<10).forEach {
-            try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
-        }
-        // add pre-release and default branch - these should *not* be counted as releases
-        try Version(package: pkg, reference: .branch("main")).create(on: app.db).wait()
-        try Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db).wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-        
-        // MUT
-        let history = try XCTUnwrap(pr.history())
-        
-        // validate
-        XCTAssertEqual(history.since, "50 years")
-        XCTAssertEqual(history.commitCount.label, "1,433 commits")
-        XCTAssertEqual(history.commitCount.url, "1/commits/default")
-        XCTAssertEqual(history.releaseCount.label, "10 releases")
-        XCTAssertEqual(history.releaseCount.url, "1/releases")
-    }
-    
-    func test_computeScore() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db).wait()
-        try Version(package: pkg,
-                    reference: .branch("default"),
-                    swiftVersions: ["5"].asSwiftVersions).save(on: app.db).wait()
-        try (0..<20).forEach {
-            try Version(package: pkg, reference: .tag(.init($0, 0, 0)))
-                .save(on: app.db).wait()
-        }
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        let versions = try pkg.$versions.load(on: app.db)
-            .map { pkg.versions }
-            .wait()
-
-        // MUT
-        XCTAssertEqual(Score.compute(package: jpr, versions: versions), 67)
-    }
-    
-    func test_activity() throws {
-        // setup
-        let m: TimeInterval = 60
-        let H = 60*m
-        let d = 24*H
-        let pkg = try savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
-        try Repository(package: pkg,
-                       lastIssueClosedAt: Date(timeIntervalSinceNow: -5*d),
-                       lastPullRequestClosedAt: Date(timeIntervalSinceNow: -6*d),
-                       name: "bar",
-                       openIssues: 27,
-                       openPullRequests: 1,
-                       owner: "foo").create(on: app.db).wait()
-        let pr = try Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>.query(on: app.db, owner: "foo", repository: "bar")
-            .wait()
-
-        // MUT
-        let res = pr.activity()
-        
-        // validate
-        XCTAssertEqual(res,
-                       .init(openIssuesCount: 27,
-                             openIssues: .init(label: "27 open issues",
-                                               url: "https://github.com/Alamofire/Alamofire/issues"),
-                             openPullRequests: .init(label: "1 open pull request",
-                                                     url: "https://github.com/Alamofire/Alamofire/pulls"),
-                             lastIssueClosedAt: "5 days ago",
-                             lastPullRequestClosedAt: "6 days ago"))
-    }
-    
-    func test_buildResults_swiftVersions() throws {
-        // Test build success reporting - we take any success across platforms
-        // as a success for a particular x.y swift version (4.2, 5.0, etc, i.e.
-        // ignoring swift patch versions)
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        let v = try Version(package: p, reference: .branch("main"))
-        try v.save(on: app.db).wait()
-        func makeBuild(_ status: Build.Status, _ platform: Build.Platform, _ version: SwiftVersion) throws {
-            try Build(version: v, platform: platform, status: status, swiftVersion: version)
-                .save(on: app.db)
-                .wait()
-        }
-        // 5.0 - failed
-        try makeBuild(.failed, .ios, .v5_0)
-        try makeBuild(.failed, .macosXcodebuild, .v5_0)
-        // 5.1 - no data - unknown
-        // 5.2 - ok
-        try makeBuild(.ok, .macosXcodebuild, .v5_2)
-        // 5.3 - ok
-        try makeBuild(.failed, .ios, .v5_3)
-        try makeBuild(.ok, .macosXcodebuild, .v5_3)
-        // 5.4 - ok
-        try makeBuild(.failed, .ios, .v5_4)
-        try makeBuild(.ok, .macosXcodebuild, .v5_4)
-        try v.$builds.load(on: app.db).wait()
-        
-        // MUT
-        let res: NamedBuildResults<SwiftVersionResults>? = PackageResult.buildResults(v)
-        
-        // validate
-        XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.v5_0, .init(parameter: .v5_0, status: .incompatible))
-        XCTAssertEqual(res?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.results.v5_2, .init(parameter: .v5_2, status: .compatible))
-        XCTAssertEqual(res?.results.v5_3, .init(parameter: .v5_3, status: .compatible))
-        XCTAssertEqual(res?.results.v5_4, .init(parameter: .v5_4, status: .compatible))
-    }
-
-    func test_buildResults_platforms() throws {
-        // Test build success reporting - we take any success across swift versions
-        // as a success for a particular platform
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        let v = try Version(package: p, reference: .branch("main"))
-        try v.save(on: app.db).wait()
-        func makeBuild(_ status: Build.Status, _ platform: Build.Platform, _ version: SwiftVersion) throws {
-            try Build(version: v, platform: platform, status: status, swiftVersion: version)
-                .save(on: app.db)
-                .wait()
-        }
-        // ios - failed
-        try makeBuild(.failed, .ios, .init(5, 2, 0))
-        try makeBuild(.failed, .ios, .init(5, 0, 0))
-        // macos - failed
-        try makeBuild(.failed, .macosSpm, .init(5, 2, 0))
-        try makeBuild(.failed, .macosXcodebuild, .init(5, 0, 0))
-        // tvos - no data - unknown
-        // watchos - ok
-        try makeBuild(.failed, .watchos, .init(5, 2, 0))
-        try makeBuild(.ok, .watchos, .init(5, 0, 0))
-        try v.$builds.load(on: app.db).wait()
-
-        // MUT
-        let res: NamedBuildResults<PlatformResults>? = PackageResult.buildResults(v)
-
-        // validate
-        XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.ios, .init(parameter: .ios, status: .incompatible))
-        XCTAssertEqual(res?.results.macos, .init(parameter: .macos, status: .incompatible))
-        XCTAssertEqual(res?.results.tvos, .init(parameter: .tvos, status: .unknown))
-        XCTAssertEqual(res?.results.watchos, .init(parameter: .watchos, status: .compatible))
-    }
-
-    func test_swiftVersionBuildInfo() throws {
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        // add builds
-        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 0, 2))
-            .save(on: app.db)
-            .wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let res = pr.swiftVersionBuildInfo()
-        
-        // validate
-        XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.v5_0, .init(parameter: .v5_0, status: .incompatible))
-        XCTAssertEqual(res?.stable?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_2, .init(parameter: .v5_2, status: .compatible))
-        XCTAssertEqual(res?.stable?.results.v5_3, .init(parameter: .v5_3, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_4, .init(parameter: .v5_4, status: .unknown))
-        XCTAssertNil(res?.beta)
-        XCTAssertNil(res?.latest)
-    }
-
-    func test_platformBuildInfo() throws {
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
-        // update versions
-        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
-        // add builds
-        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .tvos, status: .failed, swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let res = pr.platformBuildInfo()
-
-        // validate
-        XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.ios, .init(parameter: .ios, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.macos, .init(parameter: .macos, status: .compatible))
-        XCTAssertEqual(res?.stable?.results.tvos, .init(parameter: .tvos, status: .incompatible))
-        XCTAssertEqual(res?.stable?.results.watchos, .init(parameter: .watchos, status: .unknown))
-        XCTAssertNil(res?.beta)
-        XCTAssertNil(res?.latest)
-    }
-
     func test_badgeMessage_swiftVersions() throws {
         XCTAssertEqual(PackageResult.badgeMessage(swiftVersions: [.v5_2, .v5_1, .v5_4]), "5.4 | 5.2 | 5.1")
         XCTAssertNil(PackageResult.badgeMessage(swiftVersions: []))
@@ -715,174 +276,6 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(PackageResult.badgeMessage(platforms: [.linux, .ios, .macosXcodebuild, .macosSpm]),
                        "iOS | macOS | Linux")
         XCTAssertNil(PackageResult.badgeMessage(platforms: []))
-    }
-
-    func test_swiftVersionCompatibility() throws {
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        // add builds
-        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 0, 2))
-            .save(on: app.db)
-            .wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let res = try XCTUnwrap(pr.swiftVersionCompatibility().values)
-
-        // validate
-        XCTAssertEqual(res.sorted(), [.v5_2, .v5_3])
-    }
-    
-    func test_swiftVersionCompatibility_allPending() throws {
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        // add builds
-        try Build(version: v, platform: .linux, status: .triggered, swiftVersion: .init(5, 3, 0))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .macosXcodebuild, status: .triggered, swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
-            .save(on: app.db)
-            .wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let res = pr.swiftVersionCompatibility()
-
-        // validate
-        XCTAssertEqual(res, .pending)
-    }
-    
-    func test_swiftVersionCompatibility_partialPending() throws {
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        // add builds
-        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .macosXcodebuild, status: .failed, swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
-            .save(on: app.db)
-            .wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let res = try XCTUnwrap(pr.swiftVersionCompatibility().values)
-
-        // validate
-        XCTAssertEqual(res.sorted(), [ .v5_3 ])
-    }
-
-    func test_platformCompatibility() throws {
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        // add builds
-        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 0, 2))
-            .save(on: app.db)
-            .wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let res = try XCTUnwrap(pr.platformCompatibility().values)
-
-        // validate
-        XCTAssertEqual(res.sorted(), [.macosXcodebuild, .linux])
-    }
-    
-    func test_platformCompatibility_allPending() throws {
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        // add builds
-        try Build(version: v, platform: .linux, status: .triggered, swiftVersion: .init(5, 3, 0))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .macosXcodebuild, status: .triggered, swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
-            .save(on: app.db)
-            .wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let res = pr.platformCompatibility()
-
-        // validate
-        XCTAssertEqual(res, .pending)
-    }
-    
-    func test_platformCompatibility_partialPending() throws {
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        // add builds
-        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .macosXcodebuild, status: .failed, swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .ios, status: .triggered, swiftVersion: .init(5, 0, 2))
-            .save(on: app.db)
-            .wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let res = try XCTUnwrap(pr.platformCompatibility().values)
-
-        // validate
-        XCTAssertEqual(res.sorted(), [ .linux ])
     }
 
     func test_isNew() throws {
