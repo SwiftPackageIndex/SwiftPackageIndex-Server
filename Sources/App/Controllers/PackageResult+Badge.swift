@@ -15,7 +15,7 @@
 import Vapor
 
 
-extension JPRVB {
+extension PackageController.PackageResult {
 
     enum CompatibilityResult<Value: Equatable>: Equatable {
         case available([Value])
@@ -166,37 +166,29 @@ extension JPRVB {
 
     static func badgeMessage(platforms: [Build.Platform]) -> String? {
         guard !platforms.isEmpty else { return nil }
-        struct Value: Hashable {
-            var index: Int
-            var value: String
-            init(_ index: Int, _ value: String) {
-                self.index = index
-                self.value = value
-            }
-        }
         return Array(
             Set(
                 platforms
-                    .map { p -> Value in
+                    .map { p -> Pair<Int, String> in
                         switch p {
                             case .ios:
-                                return .init(0, "iOS")
+                                return .init(left: 0, right: "iOS")
                             case .macosSpm, .macosXcodebuild, .macosSpmArm, .macosXcodebuildArm:
-                                return .init(1, "macOS")
+                                return .init(left: 1, right: "macOS")
                             case .linux:
-                                return .init(2, "Linux")
+                                return .init(left: 2, right: "Linux")
                             case .tvos:
-                                return .init(3, "tvOS")
+                                return .init(left: 3, right: "tvOS")
                             case .watchos:
-                                return .init(4, "watchOS")
+                                return .init(left: 4, right: "watchOS")
                         }
                     }
                 )
             )
             .sorted {
-                $0.index < $1.index
+                $0.left < $1.left
             }
-            .map { $0.value }
+            .map { $0.right }
             .joined(separator: " | ")
     }
 

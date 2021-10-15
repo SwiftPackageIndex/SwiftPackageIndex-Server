@@ -15,8 +15,8 @@
 import Foundation
 
 
-extension JPRVB {
-    
+extension PackageController.PackageResult {
+
     func authors() -> [Link]? {
         // TODO: fill in
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/175
@@ -35,10 +35,10 @@ extension JPRVB {
         else { return nil }
         let cl = Link(
             label: commitCountString + " commit".pluralized(for: commitCount),
-            url: model.url.droppingGitExtension + "/commits/\(defaultBranch)")
+            url: package.url.droppingGitExtension + "/commits/\(defaultBranch)")
         let rl = Link(
             label: releaseCountString + " release".pluralized(for: releases.count),
-            url: model.url.droppingGitExtension + "/releases")
+            url: package.url.droppingGitExtension + "/releases")
         return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
                      commitCount: cl,
                      releaseCount: rl)
@@ -50,10 +50,10 @@ extension JPRVB {
             repo.openIssues != nil || repo.openPullRequests != nil || repo.lastPullRequestClosedAt != nil
         else { return nil }
         let openIssues = repo.openIssues.map {
-            Link(label: pluralizedCount($0, singular: "open issue"), url: model.url.droppingGitExtension + "/issues")
+            Link(label: pluralizedCount($0, singular: "open issue"), url: package.url.droppingGitExtension + "/issues")
         }
         let openPRs = repo.openPullRequests.map {
-            Link(label: pluralizedCount($0, singular: "open pull request"), url: model.url.droppingGitExtension + "/pulls")
+            Link(label: pluralizedCount($0, singular: "open pull request"), url: package.url.droppingGitExtension + "/pulls")
         }
         let lastIssueClosed = repo.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
         let lastPRClosed = repo.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
@@ -72,53 +72,6 @@ extension JPRVB {
         )
     }
 
-    static func makeDatedLink(packageUrl: String, version: Version,
-                              keyPath: KeyPath<Version, Date?>) -> DatedLink? {
-        guard
-            let date = version[keyPath: keyPath],
-            let link = makeLink(packageUrl: packageUrl, version: version)
-        else { return nil }
-        return .init(date: "\(date: date, relativeTo: Current.date())",
-                     link: link)
-    }
-    
-    static func makeLink(packageUrl: String, version: Version) -> Link? {
-        // TODO: review this $reference - this should not be required,
-        // reference is not a relation and does not need to be loaded
-        guard
-            let fault = version.$reference.value,
-            let ref = fault
-        else { return nil }
-        let linkUrl: String
-        switch ref {
-            case .branch:
-                linkUrl = packageUrl
-            case .tag(_ , let v):
-                linkUrl = packageUrl.droppingGitExtension + "/releases/tag/\(v)"
-        }
-        return .init(label: "\(ref)", url: linkUrl)
-    }
-    
-    static func makeModelVersion(packageUrl: String, version: Version) -> PackageShow.Model.Version? {
-        guard let link = makeLink(packageUrl: packageUrl, version: version) else { return nil }
-        return PackageShow.Model.Version(link: link,
-                                         swiftVersions: version.swiftVersions.map(\.description),
-                                         platforms: version.supportedPlatforms)
-    }
-    
-    static func languagePlatformInfo(packageUrl: String, versions: [Version]) -> PackageShow.Model.LanguagePlatformInfo {
-        let versions = [Version.Kind.release, .preRelease, .defaultBranch]
-            .map {
-                versions.latest(for: $0)
-                    .flatMap {
-                        makeModelVersion(packageUrl: packageUrl, version: $0)
-                    }
-            }
-        return .init(stable: versions[0],
-                     beta: versions[1],
-                     latest: versions[2])
-    }
-    
     static let numberFormatter: NumberFormatter = {
         let f = NumberFormatter()
         f.thousandSeparator = ","
@@ -132,7 +85,7 @@ extension JPRVB {
 // MARK: - Build info
 
 
-extension JPRVB {
+extension PackageController.PackageResult {
 
     typealias BuildInfo = PackageShow.Model.BuildInfo
     typealias NamedBuildResults = PackageShow.Model.NamedBuildResults

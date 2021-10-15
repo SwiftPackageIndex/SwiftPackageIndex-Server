@@ -16,6 +16,7 @@ import FluentKit
 
 
 extension Joined where M == Package, R == Repository {
+    var package: Package { model }
     var repository: Repository? { relation }
 
     static func query(on database: Database) -> JoinedQueryBuilder<Joined> {

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
 import Plot
 
 
@@ -69,4 +70,34 @@ func listPhrase(opening: Node<HTML.BodyContext> = "",
                 [",", conjunction, nodes.last!, closing]
             return middle.reduce(start) { $0 + $1 } + end
     }
+}
+
+
+// MARK: - View helpers
+
+func makeLink(packageUrl: String, version: Version) -> Link? {
+    // TODO: review this $reference - this should not be required,
+    // reference is not a relation and does not need to be loaded
+    guard
+        let fault = version.$reference.value,
+        let ref = fault
+    else { return nil }
+    let linkUrl: String
+    switch ref {
+        case .branch:
+            linkUrl = packageUrl
+        case .tag(_ , let v):
+            linkUrl = packageUrl.droppingGitExtension + "/releases/tag/\(v)"
+    }
+    return .init(label: "\(ref)", url: linkUrl)
+}
+
+func makeDatedLink(packageUrl: String, version: Version,
+                   keyPath: KeyPath<Version, Date?>) -> DatedLink? {
+    guard
+        let date = version[keyPath: keyPath],
+        let link = makeLink(packageUrl: packageUrl, version: version)
+    else { return nil }
+    return .init(date: "\(date: date, relativeTo: Current.date())",
+                 link: link)
 }
