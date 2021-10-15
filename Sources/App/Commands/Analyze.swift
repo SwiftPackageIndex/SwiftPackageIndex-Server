@@ -16,7 +16,6 @@ import DependencyResolution
 import Fluent
 import Vapor
 import ShellOut
-import SQLKit
 
 
 struct AnalyzeCommand: Command {
@@ -372,22 +371,11 @@ func updateRepository(on database: Database, package: Joined<Package, Repository
         )
     }
 
-    guard let db = database as? SQLDatabase else {
-        fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
-    }
+    repo.commitCount = try? Current.git.commitCount(gitDirectory)
+    repo.firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
+    repo.lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
 
-    // TODO: handle errors in a different way?
-    let repositoryId = try? repo.requireID()
-    let commitCount = try? Current.git.commitCount(gitDirectory)
-    let firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
-    let lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
-
-    return db.update(Repository.schema)
-        .set("\(repo.$commitCount.key)", to: commitCount)
-        .set("\(repo.$firstCommitDate.key)", to: firstCommitDate)
-        .set("\(repo.$lastCommitDate.key)", to: lastCommitDate)
-        .where(.init("\(repo.$id.key)"), .equal, repositoryId)
-        .run()
+    return repo.update(on: database)
 }
 
 
