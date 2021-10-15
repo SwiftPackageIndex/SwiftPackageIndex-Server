@@ -114,6 +114,11 @@ private func fetchReadme(client: Client, package: Joined<Package, Repository>) -
 
 
 extension PackageController {
+    //    (Package - Repository) -< Version
+    //                                 |
+    //                                 |-< Build
+    //                                 |
+    //                                 '-< Product
     typealias PackageResult = Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>
 }
 

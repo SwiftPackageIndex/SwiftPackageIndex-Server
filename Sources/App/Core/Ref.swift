@@ -25,6 +25,21 @@ extension Product: Referencable {}
 extension Version: Referencable {}
 
 
+/// `Ref` and `Ref2`, together with `Joined` allow us to define typed query results
+/// that encode the query structure in the type. This is important to avoid
+/// triggering fatal errors when accessing relationships that have not been
+/// loaded. Result types based in these containers can expose accessors that are
+/// safe.
+/// An example use case is `PackageController.PackageResult`, which is a
+/// typealias of `Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>`,
+/// representing the following query result:
+/// ```
+/// (Package - Repository) -< Version
+///                              |
+///                              |-< Build
+///                              |
+///                              '-< Product
+/// ```
 struct Ref<M: Referencable, R: Referencable>: Referencable {
     private(set) var model: M
 }
