@@ -33,15 +33,3 @@ struct Ref<M: Referencable, R: Referencable>: Referencable {
 struct Ref2<M: Referencable, R1: Referencable, R2: Referencable>: Referencable {
     private(set) var model: M
 }
-
-
-extension Ref where M == Joined<Package, Repository>, R == Version {
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<M> {
-        M.query(on: database)
-            .with(\.$versions)
-            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            .filter(Repository.self, \.$name, .custom("ilike"), repository)
-            .first()
-            .unwrap(or: Abort(.notFound))
-    }
-}
