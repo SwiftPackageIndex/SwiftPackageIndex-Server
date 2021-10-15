@@ -45,26 +45,3 @@ extension Ref where M == Joined<Package, Repository>, R == Version {
             .unwrap(or: Abort(.notFound))
     }
 }
-
-
-extension Ref where M == Joined<Package, Repository>, R == Ref2<Version, Build, Product> {
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        M.query(on: database)
-            .with(\.$versions) {
-                $0.with(\.$products)
-                $0.with(\.$builds)
-            }
-            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            .filter(Repository.self, \.$name, .custom("ilike"), repository)
-            .first()
-            .unwrap(or: Abort(.notFound))
-            .map(Self.init(model:))
-    }
-}
-
-
-extension Ref where M == Joined<Package, Repository>, R == Ref2<Version, Build, Product> {
-    var package: Package { model.package }
-    var repository: Repository? { model.repository }
-    var versions: [Version] { package.versions }
-}

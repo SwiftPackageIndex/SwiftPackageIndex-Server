@@ -103,13 +103,36 @@ struct PackageController {
 }
 
 
+private func fetchReadme(client: Client, package: Joined<Package, Repository>) -> EventLoopFuture<String?> {
+    guard let url = package.repository?.readmeHtmlUrl.map(URI.init(string:))
+    else { return client.eventLoop.future(nil) }
+    return client.get(url).map { $0.body?.asString() }
+}
+
+
+// MARK: - PackageResult
+
+
 extension PackageController {
     typealias PackageResult = Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>
 }
 
 
-private func fetchReadme(client: Client, package: Joined<Package, Repository>) -> EventLoopFuture<String?> {
-    guard let url = package.repository?.readmeHtmlUrl.map(URI.init(string:))
-    else { return client.eventLoop.future(nil) }
-    return client.get(url).map { $0.body?.asString() }
+extension PackageController.PackageResult {
+    var package: Package { model.package }
+    var repository: Repository? { model.repository }
+    var versions: [Version] { package.versions }
+
+    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
+        M.query(on: database)
+            .with(\.$versions) {
+                $0.with(\.$products)
+                $0.with(\.$builds)
+            }
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
+            .first()
+            .unwrap(or: Abort(.notFound))
+            .map(Self.init(model:))
+    }
 }
