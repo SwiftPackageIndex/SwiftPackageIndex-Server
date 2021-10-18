@@ -19,10 +19,11 @@ extension Joined3 where M == Package, R1 == Repository, R2 == Version {
     var repository: Repository? { relation1 }
     var version: Version? { relation2 }
 
-    static func query(on database: Database) -> JoinedQueryBuilder<Joined3> {
+    static func query(on database: Database,
+                      version latest: Version.Kind = .defaultBranch) -> JoinedQueryBuilder<Joined3> {
         query(on: database,
               join: \Repository.$package.$id == \Package.$id,
               join: \Version.$package.$id == \Package.$id)
-            .filter(Version.self, \.$latest == .defaultBranch)
+            .filter(Version.self, \.$latest == latest)
     }
 }
