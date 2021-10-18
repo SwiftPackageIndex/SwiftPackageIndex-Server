@@ -415,7 +415,10 @@ class PackageCollectionTests: AppTestCase {
         do {  // no versions at all
             let p = Package(url: "1".asGithubUrl.url)
             try p.save(on: app.db).wait()
+            try Repository(package: p).save(on: app.db).wait()
+            // TODO: remove
             try p.$versions.load(on: app.db).wait()
+            try p.$repositories.load(on: app.db).wait()
 
             XCTAssertNil(PackageCollection.Package(package: p,
                                                    prunedVersions: p.versions,
@@ -427,12 +430,14 @@ class PackageCollectionTests: AppTestCase {
                 try p.save(on: app.db).wait()
                 let v = try Version(package: p, latest: .release)
                 try v.save(on: app.db).wait()
+                try Repository(package: p).save(on: app.db).wait()
             }
             let p = try XCTUnwrap(
                 Package.query(on: app.db)
                     .with(\.$versions) {
                         $0.with(\.$products)
                     }
+                    .with(\.$repositories)
                     .first()
                     .wait()
             )
