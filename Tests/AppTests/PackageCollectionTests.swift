@@ -27,144 +27,6 @@ class PackageCollectionTests: AppTestCase {
         return e
     }()
 
-    func test_Version_init() throws {
-        // Tests PackageCollection.Version initialisation from App.Version
-        // setup
-        let p = Package(url: "1".asGithubUrl.url)
-        try p.save(on: app.db).wait()
-        do {
-            let v = try Version(package: p,
-                                packageName: "Foo",
-                                publishedAt: Date(timeIntervalSince1970: 0),
-                                reference: .tag(1, 2, 3),
-                                releaseNotes: "Bar",
-                                supportedPlatforms: [.ios("14.0")],
-                                toolsVersion: "5.3")
-            try v.save(on: app.db).wait()
-            do {
-                try Product(version: v,
-                            type: .library(.automatic),
-                            name: "P1",
-                            targets: ["T1"]).save(on: app.db).wait()
-                try Product(version: v,
-                            type: .library(.automatic),
-                            name: "P2",
-                            targets: ["T2"]).save(on: app.db).wait()
-            }
-            do {
-                try Target(version: v, name: "T1").save(on: app.db).wait()
-                try Target(version: v, name: "T-2").save(on: app.db).wait()
-            }
-            do {
-                try Build(version: v,
-                          platform: .ios,
-                          status: .ok,
-                          swiftVersion: .v5_2).save(on: app.db).wait()
-                try Build(version: v,
-                          platform: .macosXcodebuild,
-                          status: .ok,
-                          swiftVersion: .v5_3).save(on: app.db).wait()
-                try Build(version: v,
-                          platform: .macosXcodebuildArm,
-                          status: .ok,
-                          swiftVersion: .v5_3).save(on: app.db).wait()
-            }
-        }
-        let v = try Version.query(on: app.db)
-            .with(\.$builds)
-            .with(\.$products)
-            .with(\.$targets)
-            .first()
-            .unwrap(or: Abort(.notFound))
-            .wait()
-
-        // MUT
-        let res = try XCTUnwrap(
-            PackageCollection.Package.Version(
-                version: v,
-                license: .init(name: "MIT", url: "https://foo/mit")
-            )
-        )
-
-        // validate the version
-        XCTAssertEqual(res.version, "1.2.3")
-        XCTAssertEqual(res.summary, "Bar")
-        XCTAssertEqual(res.verifiedCompatibility, [
-            .init(platform: .init(name: "ios"), swiftVersion: .init("5.2")),
-            .init(platform: .init(name: "macos"), swiftVersion: .init("5.3")),
-        ])
-        XCTAssertEqual(res.license, .init(name: "MIT", url: URL(string: "https://foo/mit")!))
-        XCTAssertEqual(res.createdAt, Date(timeIntervalSince1970: 0))
-
-        // The spec requires there to be a dictionary keyed by the default tools version.
-        let manifest = try XCTUnwrap(res.manifests[res.defaultToolsVersion])
-
-        // Validate the manifest.
-        XCTAssertEqual(manifest.packageName, "Foo")
-        XCTAssertEqual(
-            manifest.products,
-            [.init(name: "P1", type: .library(.automatic), targets: ["T1"]),
-             .init(name: "P2", type: .library(.automatic), targets: ["T2"])])
-        XCTAssertEqual(
-            manifest.targets,
-            [.init(name: "T1", moduleName: "T1"),
-             .init(name: "T-2", moduleName: "T_2")])
-        XCTAssertEqual(manifest.toolsVersion, "5.3")
-        XCTAssertEqual(manifest.minimumPlatformVersions, [.init(name: "ios", version: "14.0")])
-    }
-
-    func test_Package_init() throws {
-        // Tests PackageCollection.Package initialisation from App.Package
-        // setup
-        do {
-            let p = Package(url: "1".asGithubUrl.url)
-            try p.save(on: app.db).wait()
-            do {
-                let r = try Repository(package: p,
-                                       license: .mit,
-                                       licenseUrl: "https://foo/mit",
-                                       readmeUrl: "readmeUrl",
-                                       summary: "summary")
-                try r.save(on: app.db).wait()
-            }
-            do {
-                let v = try Version(package: p,
-                                    latest: .release,
-                                    packageName: "Foo",
-                                    reference: .tag(1, 2, 3),
-                                    toolsVersion: "5.3")
-                try v.save(on: app.db).wait()
-                try Product(version: v,
-                            type: .library(.automatic),
-                            name: "product").save(on: app.db).wait()
-            }
-        }
-        let p = try Package.query(on: app.db)
-            .with(\.$repositories)
-            .with(\.$versions) {
-                $0.with(\.$builds)
-                $0.with(\.$products)
-                $0.with(\.$targets)
-            }
-            .first()
-            .unwrap(or: Abort(.notFound))
-            .wait()
-
-        // MUT
-        let res = try XCTUnwrap(PackageCollection.Package(package: p,
-                                                          prunedVersions: p.versions,
-                                                          keywords: ["a", "b"]))
-
-        // validate
-        XCTAssertEqual(res.keywords, ["a", "b"])
-        XCTAssertEqual(res.summary, "summary")
-        XCTAssertEqual(res.readmeURL, "readmeUrl")
-        XCTAssertEqual(res.license?.name, "MIT")
-        // version details tested in test_Version_init
-        // simply assert count here
-        XCTAssertEqual(res.versions.count, 1)
-    }
-
     typealias PackageResult = PackageCollection.PackageResult
 
     func test_query_filter_urls() throws {
@@ -299,6 +161,141 @@ class PackageCollectionTests: AppTestCase {
         // validate selection (relationship loading is tested in test_query_filter_urls)
         XCTAssertEqual(res.map(\.version.packageName),
                        ["package 0", "package 1"])
+    }
+
+    func test_Version_init() throws {
+        // Tests PackageCollection.Version initialisation from App.Version
+        // setup
+        let p = Package(url: "1".asGithubUrl.url)
+        try p.save(on: app.db).wait()
+        do {
+            let v = try Version(package: p,
+                                packageName: "Foo",
+                                publishedAt: Date(timeIntervalSince1970: 0),
+                                reference: .tag(1, 2, 3),
+                                releaseNotes: "Bar",
+                                supportedPlatforms: [.ios("14.0")],
+                                toolsVersion: "5.3")
+            try v.save(on: app.db).wait()
+            do {
+                try Product(version: v,
+                            type: .library(.automatic),
+                            name: "P1",
+                            targets: ["T1"]).save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library(.automatic),
+                            name: "P2",
+                            targets: ["T2"]).save(on: app.db).wait()
+            }
+            do {
+                try Target(version: v, name: "T1").save(on: app.db).wait()
+                try Target(version: v, name: "T-2").save(on: app.db).wait()
+            }
+            do {
+                try Build(version: v,
+                          platform: .ios,
+                          status: .ok,
+                          swiftVersion: .v5_2).save(on: app.db).wait()
+                try Build(version: v,
+                          platform: .macosXcodebuild,
+                          status: .ok,
+                          swiftVersion: .v5_3).save(on: app.db).wait()
+                try Build(version: v,
+                          platform: .macosXcodebuildArm,
+                          status: .ok,
+                          swiftVersion: .v5_3).save(on: app.db).wait()
+            }
+        }
+        let v = try XCTUnwrap(PackageResult.query(on: app.db,
+                                                  filterBy: .urls(["1"]))
+                                .wait()
+                                .first?.version)
+
+        // MUT
+        let res = try XCTUnwrap(
+            PackageCollection.Package.Version(
+                version: v,
+                license: .init(name: "MIT", url: "https://foo/mit")
+            )
+        )
+
+        // validate the version
+        XCTAssertEqual(res.version, "1.2.3")
+        XCTAssertEqual(res.summary, "Bar")
+        XCTAssertEqual(res.verifiedCompatibility, [
+            .init(platform: .init(name: "ios"), swiftVersion: .init("5.2")),
+            .init(platform: .init(name: "macos"), swiftVersion: .init("5.3")),
+        ])
+        XCTAssertEqual(res.license, .init(name: "MIT", url: URL(string: "https://foo/mit")!))
+        XCTAssertEqual(res.createdAt, Date(timeIntervalSince1970: 0))
+
+        // The spec requires there to be a dictionary keyed by the default tools version.
+        let manifest = try XCTUnwrap(res.manifests[res.defaultToolsVersion])
+
+        // Validate the manifest.
+        XCTAssertEqual(manifest.packageName, "Foo")
+        XCTAssertEqual(
+            manifest.products,
+            [.init(name: "P1", type: .library(.automatic), targets: ["T1"]),
+             .init(name: "P2", type: .library(.automatic), targets: ["T2"])])
+        XCTAssertEqual(
+            manifest.targets,
+            [.init(name: "T1", moduleName: "T1"),
+             .init(name: "T-2", moduleName: "T_2")])
+        XCTAssertEqual(manifest.toolsVersion, "5.3")
+        XCTAssertEqual(manifest.minimumPlatformVersions, [.init(name: "ios", version: "14.0")])
+    }
+
+    func test_Package_init() throws {
+        // Tests PackageCollection.Package initialisation from App.Package
+        // setup
+        do {
+            let p = Package(url: "1".asGithubUrl.url)
+            try p.save(on: app.db).wait()
+            do {
+                let r = try Repository(package: p,
+                                       license: .mit,
+                                       licenseUrl: "https://foo/mit",
+                                       readmeUrl: "readmeUrl",
+                                       summary: "summary")
+                try r.save(on: app.db).wait()
+            }
+            do {
+                let v = try Version(package: p,
+                                    latest: .release,
+                                    packageName: "Foo",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.3")
+                try v.save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library(.automatic),
+                            name: "product").save(on: app.db).wait()
+            }
+        }
+        let p = try Package.query(on: app.db)
+            .with(\.$repositories)
+            .with(\.$versions) {
+                $0.with(\.$builds)
+                $0.with(\.$products)
+                $0.with(\.$targets)
+            }
+            .first()
+            .unwrap(or: Abort(.notFound))
+            .wait()
+
+        // MUT
+        let res = try XCTUnwrap(PackageCollection.Package(package: p,
+                                                          prunedVersions: p.versions,
+                                                          keywords: ["a", "b"]))
+
+        // validate
+        XCTAssertEqual(res.keywords, ["a", "b"])
+        XCTAssertEqual(res.summary, "summary")
+        XCTAssertEqual(res.readmeURL, "readmeUrl")
+        XCTAssertEqual(res.license?.name, "MIT")
+        // version details tested in test_Version_init
+        // simply assert count here
+        XCTAssertEqual(res.versions.count, 1)
     }
 
     func test_generate_from_urls() throws {
