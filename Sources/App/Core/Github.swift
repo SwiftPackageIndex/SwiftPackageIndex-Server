@@ -83,12 +83,12 @@ extension Github {
         case readme
     }
 
-    static func apiUri(for package: Package,
+    static func apiUri(for packageUrl: String,
                        resource: Resource,
                        query: [QueryParameter] = []) throws -> URI {
-        guard package.url.hasPrefix(Constants.githubComPrefix) else { throw AppError.invalidPackageUrl(package.id, package.url) }
+        guard packageUrl.hasPrefix(Constants.githubComPrefix) else { throw AppError.invalidPackageUrl(nil, packageUrl) }
         let queryString = query.queryString()
-        let trunk = package.url
+        let trunk = packageUrl
             .droppingGithubComPrefix
             .droppingGitExtension
         switch resource {
@@ -126,9 +126,9 @@ extension Github {
         return request
     }
 
-    static func fetchLicense(client: Client, package: Package) -> EventLoopFuture<License?> {
+    static func fetchLicense(client: Client, packageUrl: String) -> EventLoopFuture<License?> {
         do {
-            let uri = try Github.apiUri(for: package, resource: .license)
+            let uri = try Github.apiUri(for: packageUrl, resource: .license)
             return Github.fetchResource(Github.License.self, client: client, uri: uri)
                 .map { license -> License? in license }
                 .recover { _ in nil }
@@ -137,9 +137,9 @@ extension Github {
         }
     }
 
-    static func fetchReadme(client: Client, package: Package) -> EventLoopFuture<Readme?> {
+    static func fetchReadme(client: Client, packageUrl: String) -> EventLoopFuture<Readme?> {
         do {
-            let uri = try Github.apiUri(for: package, resource: .readme)
+            let uri = try Github.apiUri(for: packageUrl, resource: .readme)
             return Github.fetchResource(Github.Readme.self, client: client, uri: uri)
                 .map { readme -> Readme? in readme }
                 .recover { _ in nil }
@@ -200,9 +200,9 @@ extension Github {
             .map(\.data)
     }
 
-    static func fetchMetadata(client: Client, package: Package) -> EventLoopFuture<Metadata> {
+    static func fetchMetadata(client: Client, packageUrl: String) -> EventLoopFuture<Metadata> {
         do {
-            let (owner, name) = try parseOwnerName(url: package.url)
+            let (owner, name) = try parseOwnerName(url: packageUrl)
             return fetchMetadata(client: client, owner: owner, repository: name)
         } catch {
             return client.eventLoop.future(error: error)

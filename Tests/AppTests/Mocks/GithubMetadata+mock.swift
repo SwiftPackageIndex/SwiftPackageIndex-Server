@@ -33,10 +33,10 @@ extension Github.Metadata {
                                   summary: "desc",
                                   isInOrganization: false)
 
-    static func mock(for package: Package) -> Self {
-        let (owner, name) = try! Github.parseOwnerName(url: package.url)
+    static func mock(for packageUrl: String) -> Self {
+        let (owner, name) = try! Github.parseOwnerName(url: packageUrl)
         return .init(defaultBranch: "main",
-                     forks: package.url.count,
+                     forks: packageUrl.count,
                      issuesClosedAtDates: [],
                      license: .mit,
                      openIssues: 3,
@@ -46,8 +46,8 @@ extension Github.Metadata {
                      releases: [],
                      repositoryTopics: [],
                      name: name,
-                     stars: package.url.count + 1,
-                     summary: "This is package " + package.url,
+                     stars: packageUrl.count + 1,
+                     summary: "This is package " + packageUrl,
                      isInOrganization: false)
     }
 

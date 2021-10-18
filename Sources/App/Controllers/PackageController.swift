@@ -25,11 +25,12 @@ struct PackageController {
         else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
-        return Package.query(on: req.db, owner: owner, repository: repository)
-            .map { package -> (PackageShow.Model, PackageShow.PackageSchema)? in
+        return PackageResult
+            .query(on: req.db, owner: owner, repository: repository)
+            .map { result -> (PackageShow.Model, PackageShow.PackageSchema)? in
                 guard
-                    let model = PackageShow.Model(package: package),
-                    let schema = PackageShow.PackageSchema(package: package)
+                    let model = PackageShow.Model(result: result),
+                    let schema = PackageShow.PackageSchema(result: result)
                 else {
                     return nil
                 }
@@ -48,9 +49,9 @@ struct PackageController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return Package.query(on: req.db, owner: owner, repository: repository)
-            .flatMap { package in
-                fetchReadme(client: req.client, package: package)
+        return PackageResult.query(on: req.db, owner: owner, repository: repository)
+            .flatMap { result in
+                fetchReadme(client: req.client, package: result.model)
             }
             .map(PackageReadme.Model.init(readme:))
             .map { PackageReadme.View(model: $0).document() }
@@ -64,7 +65,9 @@ struct PackageController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return Package.query(on: req.db, owner: owner, repository: repository)
+        return PackageResult
+            .query(on: req.db, owner: owner, repository: repository)
+            .map(\.model)
             .map(PackageReleases.Model.init(package:))
             .map { PackageReleases.View(model: $0).document() }
     }
@@ -76,8 +79,9 @@ struct PackageController {
         else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
-        return Package.query(on: req.db, owner: owner, repository: repository)
-            .map(BuildIndex.Model.init(package:))
+        return PackageResult
+            .query(on: req.db, owner: owner, repository: repository)
+            .map(BuildIndex.Model.init(result:))
             .unwrap(or: Abort(.notFound))
             .map { BuildIndex.View(path: req.url.path, model: $0).document() }
     }
@@ -90,16 +94,50 @@ struct PackageController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return Package.query(on: req.db, owner: owner, repository: repository)
-            .map(MaintainerInfoIndex.Model.init(package:))
+        return PackageResult
+            .query(on: req.db, owner: owner, repository: repository)
+            .map(MaintainerInfoIndex.Model.init(result:))
             .unwrap(or: Abort(.notFound))
             .map { MaintainerInfoIndex.View(path: req.url.path, model: $0).document() }
     }
 }
 
 
-private func fetchReadme(client: Client, package: Package) -> EventLoopFuture<String?> {
+private func fetchReadme(client: Client, package: Joined<Package, Repository>) -> EventLoopFuture<String?> {
     guard let url = package.repository?.readmeHtmlUrl.map(URI.init(string:))
     else { return client.eventLoop.future(nil) }
     return client.get(url).map { $0.body?.asString() }
+}
+
+
+// MARK: - PackageResult
+
+
+extension PackageController {
+    //    (Package - Repository) -< Version
+    //                                 |
+    //                                 |-< Build
+    //                                 |
+    //                                 '-< Product
+    typealias PackageResult = Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>
+}
+
+
+extension PackageController.PackageResult {
+    var package: Package { model.package }
+    var repository: Repository? { model.repository }
+    var versions: [Version] { package.versions }
+
+    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
+        M.query(on: database)
+            .with(\.$versions) {
+                $0.with(\.$products)
+                $0.with(\.$builds)
+            }
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
+            .first()
+            .unwrap(or: Abort(.notFound))
+            .map(Self.init(model:))
+    }
 }

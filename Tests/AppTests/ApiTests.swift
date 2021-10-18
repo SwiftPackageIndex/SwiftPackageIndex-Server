@@ -19,6 +19,7 @@ import XCTVapor
 
 
 class ApiTests: AppTestCase {
+    typealias PackageResult = PackageController.PackageResult
     
     func test_version() throws {
         try app.test(.GET, "api/version", afterResponse: { res in
@@ -344,10 +345,9 @@ class ApiTests: AppTestCase {
                        owner: "foo").save(on: app.db).wait()
         try Version(package: p, reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p, reference: .tag(.init(1, 2, 3))).save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
 
         let owner = "foo"
         let repo = "bar"
@@ -421,10 +421,9 @@ class ApiTests: AppTestCase {
                        license: .mit,
                        name: repo,
                        owner: owner).save(on: app.db).wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try p.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: p).wait()
+        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db)
@@ -445,7 +444,7 @@ class ApiTests: AppTestCase {
                 // validation
                 XCTAssertEqual(res.status, .ok)
 
-                let badge = try res.content.decode(Package.Badge.self)
+                let badge = try res.content.decode(PackageResult.Badge.self)
                 XCTAssertEqual(badge.schemaVersion, 1)
                 XCTAssertEqual(badge.label, "Swift Compatibility")
                 XCTAssertEqual(badge.message, "5.3 | 5.2")
@@ -463,7 +462,7 @@ class ApiTests: AppTestCase {
                 // validation
                 XCTAssertEqual(res.status, .ok)
 
-                let badge = try res.content.decode(Package.Badge.self)
+                let badge = try res.content.decode(PackageResult.Badge.self)
                 XCTAssertEqual(badge.schemaVersion, 1)
                 XCTAssertEqual(badge.label, "Platform Compatibility")
                 XCTAssertEqual(badge.message, "macOS | Linux")

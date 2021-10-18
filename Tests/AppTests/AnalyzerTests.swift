@@ -385,7 +385,6 @@ class AnalyzerTests: AppTestCase {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        try pkg.$repositories.load(on: app.db).wait()
         let queue = DispatchQueue(label: "serial")
         Current.fileManager.fileExists = { _ in true }
         var commands = [String]()
@@ -397,12 +396,13 @@ class AnalyzerTests: AppTestCase {
             }
             return ""
         }
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         
         // MUT
         _ = try refreshCheckout(eventLoop: app.eventLoopGroup.next(),
                                 logger: app.logger,
                                 threadPool: app.threadPool,
-                                package: pkg).wait()
+                                package: jpr).wait()
         
         // validate
         assertSnapshot(matching: commands, as: .dump)
@@ -431,19 +431,19 @@ class AnalyzerTests: AppTestCase {
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
         Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
-        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
+        let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        _ = try pkg.$repositories.get(on: app.db).wait()
-        
+        try Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
+
         // MUT
-        let res = updateRepository(package: pkg)
+        try updateRepository(on: app.db, package: jpr).wait()
         
         // validate
-        let repo = try XCTUnwrap(try res.get().repository)
-        XCTAssertEqual(repo.commitCount, 12)
-        XCTAssertEqual(repo.firstCommitDate, .t0)
-        XCTAssertEqual(repo.lastCommitDate, .t1)
+        let repo = try Repository.find(.id1, on: app.db).wait()
+        XCTAssertEqual(repo?.commitCount, 12)
+        XCTAssertEqual(repo?.firstCommitDate, .t0)
+        XCTAssertEqual(repo?.lastCommitDate, .t1)
     }
     
     func test_updateRepositories() throws {
@@ -455,15 +455,15 @@ class AnalyzerTests: AppTestCase {
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        _ = try pkg.$repositories.get(on: app.db).wait()
-        let packages: [Result<Package, Error>] = [
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        let packages: [Result<Joined<Package, Repository>, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
-            .success(pkg)
+            .success(jpr)
         ]
         
         // MUT
-        let results: [Result<Package, Error>] =
+        let results: [Result<Joined<Package, Repository>, Error>] =
             try updateRepositories(on: app.db, packages: packages).wait()
         
         // validate
@@ -528,7 +528,7 @@ class AnalyzerTests: AppTestCase {
             try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         }
         let pkg = try Package.fetchCandidate(app.db, id: pkgId).wait()
-        let packages: [Result<Package, Error>] = [
+        let packages: [Result<Joined<Package, Repository>, Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
             .success(pkg)
@@ -551,7 +551,7 @@ class AnalyzerTests: AppTestCase {
 
     func test_mergeReleaseInfo() throws {
         // setup
-        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
+        let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         try Repository(package: pkg, releases:[
             .mock(description: "rel 1.2.3", publishedAt: 1, tagName: "1.2.3"),
@@ -561,7 +561,6 @@ class AnalyzerTests: AppTestCase {
             .mock(description: "rel 2.3.0", publishedAt: 4, tagName: "2.3.0", url: "some url"),
             .mock(description: nil, tagName: "2.4.0")
         ]).save(on: app.db).wait()
-        try pkg.$repositories.load(on: app.db).wait()
         let versions: [Version] = try [
             (Date(timeIntervalSince1970: 0), Reference.tag(1, 2, 3)),
             (Date(timeIntervalSince1970: 1), Reference.tag(2, 0, 0)),
@@ -572,16 +571,17 @@ class AnalyzerTests: AppTestCase {
             (Date(timeIntervalSince1970: 6), Reference.branch("main")),
         ].map { date, ref in
             let v = try Version(id: UUID(),
-                                 package: pkg,
-                                 commitDate: date,
-                                 reference: ref)
+                                package: pkg,
+                                commitDate: date,
+                                reference: ref)
             try v.save(on: app.db).wait()
             return v
         }
+        let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
 
         // MUT
         let res = try mergeReleaseInfo(on: app.db,
-                                       package: pkg,
+                                       package: jpr,
                                        versions: versions)
             .wait()
 
@@ -621,7 +621,8 @@ class AnalyzerTests: AppTestCase {
         try version.save(on: app.db).wait()
         
         // MUT
-        let (v, m, d) = try getPackageInfo(package: pkg, version: version).get()
+        let (v, m, d) = try getPackageInfo(package: .init(model: pkg),
+                                           version: version).get()
         
         // validation
         XCTAssertEqual(commands, [
@@ -667,10 +668,10 @@ class AnalyzerTests: AppTestCase {
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try version.save(on: app.db).wait()
         
-        let packageAndVersions: [Result<(Package, [Version]), Error>] = [
+        let packageAndVersions: [Result<(Joined<Package, Repository>, [Version]), Error>] = [
             // feed in one error to see it passed through
             .failure(AppError.invalidPackageUrl(nil, "some reason")),
-            .success((pkg, [version]))
+            .success((.init(model: pkg), [version]))
         ]
         
         // MUT
@@ -814,9 +815,10 @@ class AnalyzerTests: AppTestCase {
     func test_updatePackage() throws {
         // setup
         let packages = try savePackages(on: app.db, ["1", "2"].asURLs)
-        let results: [Result<Package, Error>] = [
+            .map(Joined<Package, Repository>.init(model:))
+        let results: [Result<Joined<Package, Repository>, Error>] = [
             // feed in one error to see it passed through
-            .failure(AppError.noValidVersions(try packages[0].requireID(), "1")),
+            .failure(AppError.noValidVersions(try packages[0].model.requireID(), "1")),
             .success(packages[1])
         ]
         
@@ -928,7 +930,7 @@ class AnalyzerTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
         // setup
         try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
+        let pkgs = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
@@ -949,10 +951,10 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = try pkgs.flatMap { refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
-                                                      logger: self.app.logger,
-                                                      threadPool: self.app.threadPool,
-                                                      packages: $0) }.wait()
+        let res = try refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
+                                       logger: self.app.logger,
+                                       threadPool: self.app.threadPool,
+                                       packages: pkgs).wait()
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
@@ -990,12 +992,10 @@ class AnalyzerTests: AppTestCase {
         // new, not yet considered release version
         try Version(package: pkg, packageName: "foo", reference: .tag(1, 3, 0))
             .save(on: app.db).wait()
-        // load repositories (this will have happened already at the point where
-        // updateLatestVersions is being used and therefore it doesn't reload it)
-        try pkg.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        try updateLatestVersions(on: app.db, package: pkg).wait()
+        try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // validate
         do {  // refetch package to ensure changes are persisted
@@ -1011,9 +1011,11 @@ class AnalyzerTests: AppTestCase {
         // Handle moved tags
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
         // setup
-        let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        try pkg.$repositories.load(on: app.db).wait()
+        do {
+            let pkg = try savePackage(on: app.db, id: .id0, "1".asGithubUrl.url)
+            try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        }
+        let pkg = try Package.fetchCandidate(app.db, id: .id0).wait()
         let queue = DispatchQueue(label: "serial")
         Current.fileManager.fileExists = { _ in true }
         var commands = [String]()
@@ -1037,6 +1039,66 @@ class AnalyzerTests: AppTestCase {
         assertSnapshot(matching: commands, as: .dump)
     }
 
+    func test_updateLatestVersions() throws {
+        // setup
+        func t(_ seconds: TimeInterval) -> Date { Date(timeIntervalSince1970: seconds) }
+        let pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try Version(package: pkg, commitDate: t(2), packageName: "foo", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: pkg, commitDate: t(0), packageName: "foo", reference: .tag(1, 2, 3))
+            .save(on: app.db).wait()
+        try Version(package: pkg, commitDate: t(1), packageName: "foo", reference: .tag(2, 0, 0, "rc1"))
+            .save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+
+        // MUT
+        try updateLatestVersions(on: app.db, package: jpr).wait()
+
+        // validate
+        try pkg.$versions.load(on: app.db).wait()
+        let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
+        XCTAssertEqual(versions.map(\.reference?.description), ["main", "1.2.3", "2.0.0-rc1"])
+        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])
+    }
+
+    func test_updateLatestVersions_old_beta() throws {
+        // Test to ensure outdated betas aren't picked up as latest versions
+        // and that faulty db content (outdated beta marked as latest pre-release)
+        // is correctly reset.
+        // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/188
+        // setup
+        let pkg = Package(id: UUID(), url: "1")
+        try pkg.save(on: app.db).wait()
+        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try Version(package: pkg,
+                    latest: .defaultBranch,
+                    packageName: "foo",
+                    reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    latest: .release,
+                    packageName: "foo",
+                    reference: .tag(2, 0, 0))
+            .save(on: app.db).wait()
+        try Version(package: pkg,
+                    latest: .preRelease,  // this should have been nil - ensure it's reset
+                    packageName: "foo",
+                    reference: .tag(2, 0, 0, "rc1"))
+            .save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+
+        // MUT
+        try updateLatestVersions(on: app.db, package: jpr).wait()
+
+        // validate
+        let versions = try Version.query(on: app.db)
+            .sort(\.$createdAt).all().wait()
+        XCTAssertEqual(versions.map(\.reference?.description), ["main", "2.0.0", "2.0.0-rc1"])
+        XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, nil])
+    }
+
     func test_onNewVersions() throws {
         // ensure that onNewVersions does not propagate errors
         // setup
@@ -1049,8 +1111,9 @@ class AnalyzerTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try version.save(on: app.db).wait()
-        let packageResults: [Result<(Package, [(Version, Manifest)]), Error>] = [
-            .success((pkg, [(version, .mock)]))
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        let packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>] = [
+            .success((jpr, [(version, .mock)]))
         ]
 
         // MUT & validation (no error thrown)

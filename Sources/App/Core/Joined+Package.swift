@@ -12,23 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
+import FluentKit
 
-import Vapor
-import XCTest
 
-class PackageControllerTests: AppTestCase {
+extension Joined where M == Package, R == Repository {
+    var package: Package { model }
+    var repository: Repository? { relation }
 
-    func test_show_owner_repository() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-
-        // MUT
-        try app.test(.GET, "/owner/package", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-        })
+    static func query(on database: Database) -> JoinedQueryBuilder<Joined> {
+        query(on: database,
+              join: \Repository.$package.$id == \Package.$id,
+              // TODO: review this properly
+              method: .left)
     }
-    
 }

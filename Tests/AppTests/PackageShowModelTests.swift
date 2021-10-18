@@ -19,11 +19,12 @@ import SnapshotTesting
 
 
 class PackageShowModelTests: SnapshotTestCase {
+    typealias PackageResult = PackageController.PackageResult
 
     func test_init_no_packageName() throws {
         // Tests behaviour when we're lacking data
         // setup package without package name
-        var pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
                        defaultBranch: "main",
                        forks: 42,
@@ -38,11 +39,10 @@ class PackageShowModelTests: SnapshotTestCase {
         try version.save(on: app.db).wait()
         try Product(version: version,
                     type: .library(.automatic), name: "lib 1").save(on: app.db).wait()
-        // reload via query to ensure relationships are loaded
-        pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
         
         // MUT
-        let m = PackageShow.Model(package: pkg)
+        let m = PackageShow.Model(result: pr)
         
         // validate
         XCTAssertNotNil(m)
@@ -52,7 +52,7 @@ class PackageShowModelTests: SnapshotTestCase {
     func test_query_builds() throws {
         // Ensure the builds relationship is loaded
         // setup
-        var pkg = try savePackage(on: app.db, "1".url)
+        let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
                        defaultBranch: "main",
                        forks: 42,
@@ -71,15 +71,15 @@ class PackageShowModelTests: SnapshotTestCase {
                   swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
-        // re-load repository relationship (required for updateLatestVersions)
-        try pkg.$repositories.load(on: app.db).wait()
-        // update versions
-        _ = try updateLatestVersions(on: app.db, package: pkg).wait()
+        do {  // update versions
+            let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+            try updateLatestVersions(on: app.db, package: jpr).wait()
+        }
         // reload via query to ensure pkg is in the same state it would normally be
-        pkg = try Package.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let m = PackageShow.Model(package: pkg)
+        let m = PackageShow.Model(result: pr)
         
         // validate
         XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)
@@ -286,6 +286,55 @@ class PackageShowModelTests: SnapshotTestCase {
                 .init(references: [.init(name: "2.0.0-b1", kind: .preRelease)], results: result2),
             ])
         }
+    }
+
+    func test_languagePlatformInfo() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+        try [
+            try App.Version(package: pkg, reference: .branch("branch")),
+            try App.Version(package: pkg,
+                            commitDate: daysAgo(1),
+                            reference: .branch("default"),
+                            supportedPlatforms: [.macos("10.15"), .ios("13")],
+                            swiftVersions: ["5.2", "5.3"].asSwiftVersions),
+            try App.Version(package: pkg, reference: .tag(.init(1, 2, 3))),
+            try App.Version(package: pkg,
+                            commitDate: daysAgo(3),
+                            reference: .tag(.init(2, 1, 0)),
+                            supportedPlatforms: [.macos("10.13"), .ios("10")],
+                            swiftVersions: ["4", "5"].asSwiftVersions),
+            try App.Version(package: pkg,
+                            commitDate: daysAgo(2),
+                            reference: .tag(.init(3, 0, 0, "beta")),
+                            supportedPlatforms: [.macos("10.14"), .ios("13")],
+                            swiftVersions: ["5", "5.2"].asSwiftVersions),
+        ].create(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        // update versions
+        try updateLatestVersions(on: app.db, package: jpr).wait()
+        let versions = try pkg.$versions.load(on: app.db)
+            .map { pkg.versions }
+            .wait()
+
+        // MUT
+        let lpInfo = PackageShow.Model.languagePlatformInfo(packageUrl: "1", versions: versions)
+
+        // validate
+        XCTAssertEqual(lpInfo.stable?.link, .init(label: "2.1.0",
+                                                  url: "1/releases/tag/2.1.0"))
+        XCTAssertEqual(lpInfo.stable?.swiftVersions, ["4", "5"])
+        XCTAssertEqual(lpInfo.stable?.platforms, [.macos("10.13"), .ios("10")])
+
+        XCTAssertEqual(lpInfo.beta?.link, .init(label: "3.0.0-beta",
+                                                url: "1/releases/tag/3.0.0-beta"))
+        XCTAssertEqual(lpInfo.beta?.swiftVersions, ["5", "5.2"])
+        XCTAssertEqual(lpInfo.beta?.platforms, [.macos("10.14"), .ios("13")])
+
+        XCTAssertEqual(lpInfo.latest?.link, .init(label: "default", url: "1"))
+        XCTAssertEqual(lpInfo.latest?.swiftVersions, ["5.2", "5.3"])
+        XCTAssertEqual(lpInfo.latest?.platforms, [.macos("10.15"), .ios("13")])
     }
 
 }

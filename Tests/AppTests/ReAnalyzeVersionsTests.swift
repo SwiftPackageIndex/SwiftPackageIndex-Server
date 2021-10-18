@@ -153,7 +153,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
             .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).wait()
 
         // validate
-        XCTAssertEqual(res.map(\.url), ["1", "2"])
+        XCTAssertEqual(res.map(\.model.url), ["1", "2"])
     }
 
     func test_versionsUpdatedOnError() throws {

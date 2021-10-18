@@ -19,6 +19,8 @@ import Vapor
 extension API {
     
     struct PackageController {
+        typealias PackageResult = App.PackageController.PackageResult
+
         func index(req: Request) throws -> EventLoopFuture<[Package]> {
             return Package.query(on: req.db).all()
         }
@@ -56,10 +58,11 @@ extension API {
                 return req.eventLoop.future(error: Abort(.notFound))
             }
             let dto = try req.content.decode(PostBuildTriggerDTO.self)
-            return Package.query(on: req.db, owner: owner, repository: repository)
-                .flatMap { pkg in
+            return PackageResult
+                .query(on: req.db, owner: owner, repository: repository)
+                .flatMap { package -> EventLoopFuture<HTTPStatus> in
                     [App.Version.Kind.release, .preRelease, .defaultBranch]
-                        .compactMap { pkg.latestVersion(for: $0)?.id }
+                        .compactMap { package.versions.latest(for: $0)?.id }
                         .map {
                             Build.trigger(database: req.db,
                                           client: req.client,
@@ -110,7 +113,7 @@ extension API {
         }
 
 
-        func badge(req: Request) throws -> EventLoopFuture<Package.Badge> {
+        func badge(req: Request) throws -> EventLoopFuture<PackageResult.Badge> {
             guard
                 let owner = req.parameters.get("owner"),
                 let repository = req.parameters.get("repository")
@@ -119,13 +122,14 @@ extension API {
             }
             guard
                 let badgeType = req.query[String.self, at: "type"]
-                    .flatMap(Package.BadgeType.init(rawValue:))
+                    .flatMap(PackageResult.BadgeType.init(rawValue:))
             else {
                 return req.eventLoop.future(error: Abort(.badRequest,
                                                          reason: "missing or invalid type parameter"))
             }
 
-            return Package.query(on: req.db, owner: owner, repository: repository)
+            return PackageResult
+                .query(on: req.db, owner: owner, repository: repository)
                 .map { $0.badge(badgeType: badgeType) }
         }
 

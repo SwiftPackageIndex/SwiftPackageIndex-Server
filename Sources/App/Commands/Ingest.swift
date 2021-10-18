@@ -112,8 +112,8 @@ func ingest(client: Client,
 func ingest(client: Client,
             database: Database,
             logger: Logger,
-            packages: [Package]) -> EventLoopFuture<Void> {
-    logger.debug("Ingesting \(packages.compactMap {$0.id})")
+            packages: [Joined<Package, Repository>]) -> EventLoopFuture<Void> {
+    logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
     let metadata = fetchMetadata(client: client, packages: packages)
     let updates = metadata.flatMap { updateRepositories(on: database, metadata: $0) }
@@ -131,12 +131,12 @@ func ingest(client: Client,
 ///   - packages: packages to ingest
 /// - Returns: results future
 func fetchMetadata(
-    client: Client, packages: [Package]
-) -> EventLoopFuture<[Result<(Package, Github.Metadata, Github.License?, Github.Readme?), Error>]> {
+    client: Client, packages: [Joined<Package, Repository>]
+) -> EventLoopFuture<[Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]> {
     let ops = packages.map { pkg in
-        Current.fetchMetadata(client, pkg)
-            .and(Current.fetchLicense(client, pkg))
-            .and(Current.fetchReadme(client, pkg))
+        Current.fetchMetadata(client, pkg.model.url)
+            .and(Current.fetchLicense(client, pkg.model.url))
+            .and(Current.fetchReadme(client, pkg.model.url))
             .map { (pkg, $0.0, $0.1, $1) }
     }
     return EventLoopFuture.whenAllComplete(ops, on: client.eventLoop)
@@ -150,9 +150,9 @@ func fetchMetadata(
 /// - Returns: results future
 func updateRepositories(
     on database: Database,
-    metadata: [Result<(Package, Github.Metadata, Github.License?, Github.Readme?), Error>]
-) -> EventLoopFuture<[Result<Package, Error>]> {
-    let ops = metadata.map { result -> EventLoopFuture<Package> in
+    metadata: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]
+) -> EventLoopFuture<[Result<Joined<Package, Repository>, Error>]> {
+    let ops = metadata.map { result -> EventLoopFuture<Joined<Package, Repository>> in
         switch result {
             case let .success((pkg, metadata, licenseInfo, readmeInfo)):
                 AppMetrics.ingestMetadataSuccessCount?.inc()
@@ -171,18 +171,18 @@ func updateRepositories(
 }
 
 
-/// Insert of update `Repository` of given `Package` with given `Github.Metadata`.
+/// Insert or update `Repository` of given `Package` with given `Github.Metadata`.
 /// - Parameters:
 ///   - database: `Database` object
 ///   - package: package to update
 ///   - metadata: `Github.Metadata` with data for update
 /// - Returns: future
 func insertOrUpdateRepository(on database: Database,
-                              for package: Package,
+                              for package: Joined<Package, Repository>,
                               metadata: Github.Metadata,
                               licenseInfo: Github.License?,
                               readmeInfo: Github.Readme?) -> EventLoopFuture<Void> {
-    guard let pkgId = try? package.requireID() else {
+    guard let pkgId = try? package.model.requireID() else {
         return database.eventLoop.future(error: AppError.genericError(nil, "package id not found"))
     }
 
@@ -192,7 +192,7 @@ func insertOrUpdateRepository(on database: Database,
         .flatMap { repo -> EventLoopFuture<Void> in
             guard let repository = metadata.repository else {
                 return database.eventLoop.future(
-                    error: AppError.genericError(pkgId, "repository is nil for package \(package.url)"))
+                    error: AppError.genericError(pkgId, "repository is nil for package \(package.model.url)"))
             }
             let repo = repo ?? Repository(packageId: pkgId)
             repo.defaultBranch = repository.defaultBranch

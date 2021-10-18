@@ -31,10 +31,11 @@ class PackageReleasesModelTests: AppTestCase {
             .mock(description: nil, descriptionHTML: nil,
                   publishedAt: 1, tagName: "0.0.1", url: "some url"),
         ]).save(on: app.db).wait()
-        try pkg.$repositories.load(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+
         
         // MUT
-        let model = try XCTUnwrap(PackageReleases.Model(package: pkg))
+        let model = try XCTUnwrap(PackageReleases.Model(package: jpr))
         
         // Validate
         XCTAssertEqual(model.releases, [

@@ -17,9 +17,9 @@
 import XCTest
 
 
-class ScoreTests: XCTestCase {
+class ScoreTests: AppTestCase {
     
-    func test_computeScore() throws {
+    func test_compute_input() throws {
         XCTAssertEqual(Score.compute(.init(supportsLatestSwiftVersion: false,
                                            licenseKind: .none,
                                            releaseCount: 0,
@@ -71,4 +71,26 @@ class ScoreTests: XCTestCase {
                        77)
     }
     
+    func test_compute_package_versions() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, defaultBranch: "default", stars: 10_000).save(on: app.db).wait()
+        try Version(package: pkg,
+                    reference: .branch("default"),
+                    swiftVersions: ["5"].asSwiftVersions).save(on: app.db).wait()
+        try (0..<20).forEach {
+            try Version(package: pkg, reference: .tag(.init($0, 0, 0)))
+                .save(on: app.db).wait()
+        }
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        // update versions
+        try updateLatestVersions(on: app.db, package: jpr).wait()
+        let versions = try pkg.$versions.load(on: app.db)
+            .map { pkg.versions }
+            .wait()
+
+        // MUT
+        XCTAssertEqual(Score.compute(package: jpr, versions: versions), 67)
+    }
+
 }

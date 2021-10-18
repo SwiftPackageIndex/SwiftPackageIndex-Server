@@ -66,9 +66,11 @@ extension PackageShow {
             self.keywords = keywords
         }
         
-        init?(package: Package) {
+        init?(result: PackageController.PackageResult) {
+            let package = result.package
+            let versions = result.versions
             guard
-                let repository = package.repository,
+                let repository = result.repository,
                 let repositoryOwner = repository.owner,
                 let repositoryName = repository.name
             else {
@@ -81,7 +83,7 @@ extension PackageShow {
                 organisationName: repository.ownerName,
                 summary: repository.summary,
                 licenseUrl: repository.licenseUrl,
-                version: package.releaseInfo().stable?.link.label,
+                version: PackageShow.releaseInfo(packageUrl: package.url, versions: versions).stable?.link.label,
                 repositoryUrl: package.url.droppingGitExtension,
                 dateCreated: repository.firstCommitDate,
                 dateModified: repository.lastCommitDate,
@@ -122,5 +124,23 @@ extension PackageShow {
             self.name = name
             self.url = url
         }
+    }
+}
+
+
+extension PackageShow {
+    static func releaseInfo(packageUrl: String, versions: [Version]) -> PackageShow.Model.ReleaseInfo {
+        let versions = [Version.Kind.release, .preRelease, .defaultBranch]
+            .map {
+                versions.latest(for: $0)
+                    .flatMap {
+                        makeDatedLink(packageUrl: packageUrl,
+                                      version: $0,
+                                      keyPath: \.commitDate)
+                    }
+            }
+        return .init(stable: versions[0],
+                     beta: versions[1],
+                     latest: versions[2])
     }
 }
