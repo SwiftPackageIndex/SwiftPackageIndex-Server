@@ -258,6 +258,49 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.map(\.repository.name), [])
     }
 
+    func test_query_author() throws {
+        // Tests PackageResult.query with the author filter option
+        // setup
+        // first package
+        let owners = ["foo", "foo", "someone else"]
+        try (0..<3).forEach { index in
+            let pkg = try savePackage(on: app.db, "url-\(index)".url)
+            do {
+                let v = try Version(package: pkg,
+                                    latest: .release,
+                                    packageName: "package \(index)",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.4")
+                try v.save(on: app.db).wait()
+                try Build(version: v,
+                          buildCommand: "build \(index)",
+                          platform: .ios,
+                          status: .ok,
+                          swiftVersion: .v5_5)
+                    .save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library(.automatic),
+                            name: "product \(index)")
+                    .save(on: app.db).wait()
+                try Target(version: v, name: "target \(index)")
+                    .save(on: app.db).wait()
+            }
+            try Repository(package: pkg,
+                           name: "repo \(index)",
+                           owner: owners[index])
+                .save(on: app.db).wait()
+        }
+
+        // MUT
+        let res = try PackageResult.query(on: self.app.db,
+                                          filterBy: .author("foo"))
+            .wait()
+
+        // validate selection (relationship loading is tested in test_query_filter_urls)
+        XCTAssertEqual(res.map(\.version.packageName),
+                       ["package 0", "package 1"])
+    }
+
     func test_generate_from_urls() throws {
         // setup
         Current.date = { Date(timeIntervalSince1970: 1610112345) }
