@@ -32,9 +32,11 @@ class BuildIndexModelTests: AppTestCase {
                        owner: "foo",
                        stars: 17,
                        summary: "summary").save(on: app.db).wait()
+        let res = try PackageController.PackageResult
+            .query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let m = BuildIndex.Model(package: pkg)
+        let m = BuildIndex.Model(result: res)
 
         // validate
         XCTAssertNil(m)

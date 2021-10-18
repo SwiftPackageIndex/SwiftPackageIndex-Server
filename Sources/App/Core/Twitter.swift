@@ -148,9 +148,12 @@ extension Twitter {
 
     static func postToFirehose(client: Client,
                                database: Database,
-                               package: Package,
+                               package: Joined<Package, Repository>,
                                versions: [Version]) -> EventLoopFuture<Void> {
-        let (release, preRelease, defaultBranch) = package.findSignificantReleases()
+        let (release, preRelease, defaultBranch) = Package.findSignificantReleases(
+            versions: versions,
+            branch: package.repository?.defaultBranch
+        )
         let idsLatest = [release, preRelease, defaultBranch].compactMap { $0?.id }
         // filter on versions with a tag and which are in the "latest" triple
         let versions = versions.filter { version in

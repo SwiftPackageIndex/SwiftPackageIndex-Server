@@ -17,7 +17,7 @@
 import Vapor
 import XCTest
 
-class JoinedPackageTests: AppTestCase {
+class Joined3Tests: AppTestCase {
 
     func test_query_no_version() throws {
         // setup
@@ -25,7 +25,7 @@ class JoinedPackageTests: AppTestCase {
         try Repository(package: p).save(on: app.db).wait()
 
         // MUT
-        let res = try JoinedPackage.query(on: app.db)
+        let res = try Joined3<Package, Repository, Version>.query(on: app.db)
             .all()
             .wait()
 
@@ -42,7 +42,7 @@ class JoinedPackageTests: AppTestCase {
         try Version(package: p, latest: .release).save(on: app.db).wait()
 
         // MUT
-        let res = try JoinedPackage.query(on: app.db)
+        let res = try Joined3<Package, Repository, Version>.query(on: app.db)
             .all()
             .wait()
 
@@ -61,7 +61,7 @@ class JoinedPackageTests: AppTestCase {
                     packageName: "package name").save(on: app.db).wait()
 
         // MUT
-        let res = try JoinedPackage.query(on: app.db)
+        let res = try Joined3<Package, Repository, Version>.query(on: app.db)
             .all()
             .wait()
 

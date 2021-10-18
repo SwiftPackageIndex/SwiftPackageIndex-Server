@@ -118,6 +118,7 @@ extension Package {
 
 extension Package {
 
+    @available(*, deprecated)
     /// Return associated `Repository` or `nil` if the relationship has not been loaded.
     var repository: Repository? {
         guard let repositories = $repositories.value else { return nil }
@@ -164,27 +165,22 @@ extension Package {
 
     /// Helper to find the up to three significant versions of a package: latest release, latest pre-release, and latest default branch version.
     /// - Returns: Named tuple of versions
-    func findSignificantReleases() -> (release: Version?, preRelease: Version?, defaultBranch: Version?) {
-        guard let versions = $versions.value else { return (nil, nil, nil) }
+    static func findSignificantReleases(versions: [Version], branch: String?) -> (release: Version?, preRelease: Version?, defaultBranch: Version?) {
+        guard !versions.isEmpty else { return (nil, nil, nil) }
         let release = Package.findRelease(versions)
         let preRelease = Package.findPreRelease(versions, after: release?.reference)
-        let defaultBranch = findDefaultBranchVersion()
+        let defaultBranch = findBranchVersion(versions: versions, branch: branch)
         return (release, preRelease, defaultBranch)
     }
 
     /// Helper to find the version for the default branch.
     /// - Returns: version or nil
-    func findDefaultBranchVersion() -> Version? {
-        guard
-            let versions = $versions.value,
-            let repositories = $repositories.value,
-            let repo = repositories.first,
-            let defaultBranch = repo.defaultBranch
-        else { return nil }
+    static func findBranchVersion(versions: [Version], branch: String?) -> Version? {
+        guard let branch = branch else { return nil }
         return versions.first(where: { v in
             guard let ref = v.reference else { return false }
             switch ref {
-                case .branch(let b) where b == defaultBranch:
+                case .branch(let b) where b == branch:
                     return true
                 default:
                     return false
@@ -252,9 +248,8 @@ extension QueryBuilder where Model == Package {
 
 extension Package {
     static func fetchCandidate(_ database: Database,
-                               id: Id) -> EventLoopFuture<Package> {
-        Package.query(on: database)
-            .with(\.$repositories)
+                               id: Id) -> EventLoopFuture<Joined<Package, Repository>> {
+        Joined.query(on: database)
             .filter(\.$id == id)
             .first()
             .unwrap(or: Abort(.notFound))
@@ -262,9 +257,8 @@ extension Package {
 
     static func fetchCandidates(_ database: Database,
                                 for stage: ProcessingStage,
-                                limit: Int) -> EventLoopFuture<[Package]> {
-        Package.query(on: database)
-            .with(\.$repositories)
+                                limit: Int) -> EventLoopFuture<[Joined<Package, Repository>]> {
+        Joined.query(on: database)
             .filter(for: stage)
             .sort(.sql(raw: "status != 'new'"))
             .sort(\.$updatedAt)
@@ -274,13 +268,13 @@ extension Package {
 }
 
 
-private extension QueryBuilder where Model == Package {
+private extension JoinedQueryBuilder where J == Joined<Package, Repository> {
     func filter(for stage: Package.ProcessingStage) -> Self {
         switch stage {
             case .reconciliation:
                 fatalError("reconciliation stage does not select candidates")
             case .ingestion:
-                return group(.or) {
+                queryBuilder.group(.or) {
                     $0
                         .filter(\.$processingStage == .reconciliation)
                         .group(.and) {
@@ -291,7 +285,8 @@ private extension QueryBuilder where Model == Package {
                         }
                 }
             case .analysis:
-                return filter(\.$processingStage == .ingestion)
+                queryBuilder.filter(\.$processingStage == .ingestion)
         }
+        return self
     }
 }

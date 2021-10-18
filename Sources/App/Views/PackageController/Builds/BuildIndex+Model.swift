@@ -16,6 +16,8 @@ import Plot
 
 
 extension BuildIndex {
+    typealias PackageResult = PackageController.PackageResult
+
     struct Model {
         var owner: String
         var repositoryName: String
@@ -23,14 +25,14 @@ extension BuildIndex {
         var completedBuildCount: Int
         var buildMatrix: BuildMatrix
 
-        init?(package: Package) {
+        init?(result: PackageResult) {
             // we consider certain attributes as essential and return nil (raising .notFound)
-            guard let name = package.name(),
-                  let owner = package.repository?.owner,
-                  let repositoryName = package.repository?.name else { return nil }
+            guard let name = result.versions.packageName(),
+                  let owner = result.repository?.owner,
+                  let repositoryName = result.repository?.name else { return nil }
 
             let buildGroups = [App.Version.Kind.release, .preRelease, .defaultBranch]
-                .map { ($0, package.latestVersion(for: $0)) }
+                .map { ($0, result.versions.latest(for: $0)) }
                 .compactMap { (kind, version) in
                     version.flatMap { BuildGroup(version: $0, kind: kind) }
                 }

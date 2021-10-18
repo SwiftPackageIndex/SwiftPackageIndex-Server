@@ -12,23 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-
-import Vapor
-import XCTest
-
-class PackageControllerTests: AppTestCase {
-
-    func test_show_owner_repository() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-
-        // MUT
-        try app.test(.GET, "/owner/package", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-        })
+extension Array where Element == Version {
+    func latest(for kind: Version.Kind) -> Version? {
+        first { $0.latest == kind }
     }
-    
+
+    var releases: Self { filter { $0.reference?.isTag ?? false } }
+
+    func packageName(for kind: Version.Kind = .defaultBranch) -> String? {
+        latest(for: kind)?.packageName
+    }
 }

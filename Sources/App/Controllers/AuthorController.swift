@@ -19,8 +19,8 @@ import Vapor
 
 struct AuthorController {
 
-    static func query(on database: Database, owner: String) -> EventLoopFuture<[JoinedPackage]> {
-        JoinedPackage
+    static func query(on database: Database, owner: String) -> EventLoopFuture<[Joined3<Package, Repository, Version>]> {
+        Joined3
             .query(on: database)
             .filter(
                 DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),

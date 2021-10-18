@@ -12,23 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-
-import Vapor
-import XCTest
-
-class PackageControllerTests: AppTestCase {
-
-    func test_show_owner_repository() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-
-        // MUT
-        try app.test(.GET, "/owner/package", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-        })
-    }
-    
+struct Pair<T: Hashable, V: Hashable>: Hashable {
+    var left: T
+    var right: V
 }

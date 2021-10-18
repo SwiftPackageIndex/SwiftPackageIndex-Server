@@ -58,6 +58,7 @@ class IngestorTests: AppTestCase {
         // setup
         let packages = try savePackages(on: app.db, ["https://github.com/foo/1",
                                                      "https://github.com/foo/2"])
+            .map(Joined<Package, Repository>.init(model:))
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "https://github.com/foo/1" {
                 return self.future(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
@@ -77,20 +78,21 @@ class IngestorTests: AppTestCase {
     
     func test_insertOrUpdateRepository() throws {
         let pkg = try savePackage(on: app.db, "https://github.com/foo/bar")
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         do {  // test insert
             try insertOrUpdateRepository(on: app.db,
-                                         for: pkg,
-                                         metadata: .mock(for: pkg),
+                                         for: jpr,
+                                         metadata: .mock(for: pkg.url),
                                          licenseInfo: .init(htmlUrl: ""),
                                          readmeInfo: .init(downloadUrl: "", htmlUrl: "")).wait()
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("This is package https://github.com/foo/bar")])
         }
         do {  // test update - run the same package again, with different metadata
-            var md = Github.Metadata.mock(for: pkg)
+            var md = Github.Metadata.mock(for: pkg.url)
             md.repository?.description = "New description"
             try insertOrUpdateRepository(on: app.db,
-                                         for: pkg,
+                                         for: jpr,
                                          metadata: md,
                                          licenseInfo: .init(htmlUrl: ""),
                                          readmeInfo: .init(downloadUrl: "", htmlUrl: "")).wait()
@@ -102,10 +104,11 @@ class IngestorTests: AppTestCase {
     func test_updateRepositories() throws {
         // setup
         let pkg = try savePackage(on: app.db, "2")
-        let metadata: [Result<(Package, Github.Metadata, Github.License?, Github.Readme?),
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        let metadata: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?),
                               Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-            .success((pkg,
+            .success((jpr,
                       .init(defaultBranch: "main",
                             forks: 1,
                             issuesClosedAtDates: [
@@ -181,8 +184,9 @@ class IngestorTests: AppTestCase {
         // setup
         let pkgs = try savePackages(on: app.db, ["https://github.com/foo/1",
                                                  "https://github.com/foo/2"])
-        let results: [Result<Package, Error>] = [
-            .failure(AppError.metadataRequestFailed(try pkgs[0].requireID(), .badRequest, "1")),
+            .map(Joined<Package, Repository>.init(model:))
+        let results: [Result<Joined<Package, Repository>, Error>] = [
+            .failure(AppError.metadataRequestFailed(try pkgs[0].model.requireID(), .badRequest, "1")),
             .success(pkgs[1])
         ]
         
@@ -209,7 +213,8 @@ class IngestorTests: AppTestCase {
             Package(id: UUID(), url: "https://github.com/foo/2", status: .new, processingStage: .reconciliation)
         ]
         try pkgs.save(on: app.db).wait()
-        let results: [Result<Package, Error>] = [ .success(pkgs[0]), .success(pkgs[1])]
+        let results: [Result<Joined<Package, Repository>, Error>] = [ .success(.init(model: pkgs[0])),
+                                              .success(.init(model: pkgs[1]))]
         
         // MUT
         try updatePackages(client: app.client,
@@ -247,9 +252,9 @@ class IngestorTests: AppTestCase {
         // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
         let packages = try savePackages(on: app.db, testUrls100)
         let req = packages
-            .map { ($0, Github.Metadata.mock(for: $0)) }
+            .map { ($0, Github.Metadata.mock(for: $0.url)) }
             .map { insertOrUpdateRepository(on: self.app.db,
-                                            for: $0.0,
+                                            for: .init(model: $0.0),
                                             metadata: $0.1,
                                             licenseInfo: .init(htmlUrl: ""),
                                             readmeInfo: .init(downloadUrl: "", htmlUrl: "")) }
@@ -355,10 +360,11 @@ class IngestorTests: AppTestCase {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
         let packages = try savePackages(on: app.db, ["https://github.com/foo/1"])
+            .map(Joined<Package, Repository>.init(model:))
         // use mock for metadata request which we're not interested in ...
         Current.fetchMetadata = { _, _ in self.future(Github.Metadata()) }
         // and live fetch request for fetchLicense, whose behaviour we want to test ...
-        Current.fetchLicense = Github.fetchLicense(client:package:)
+        Current.fetchLicense = Github.fetchLicense(client:packageUrl:)
         // and simulate its underlying request returning a 404 (by making all requests
         // return a 404, but it's the only one we're sending)
         let client = MockClient { _, resp in resp.status = .notFound }

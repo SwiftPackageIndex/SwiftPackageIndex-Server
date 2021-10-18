@@ -166,6 +166,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         try pkg.save(on: app.db).wait()
         let old = try makeVersion(pkg, "sha_old", .hours(-23), .branch("main"))
         try old.save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         do {  // keep old version if too soon
             Current.git.revisionInfo = { _, _ in
@@ -177,7 +178,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
                                        logger: app.logger,
                                        threadPool: app.threadPool,
                                        transaction: app.db,
-                                       package: pkg).wait()
+                                       package: jpr).wait()
 
             // validate
             XCTAssertEqual(res.toAdd, [])
@@ -198,7 +199,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
                                        logger: app.logger,
                                        threadPool: app.threadPool,
                                        transaction: app.db,
-                                       package: pkg).wait()
+                                       package: jpr).wait()
 
             // validate
             XCTAssertEqual(res.toAdd.map(\.commit), ["sha_new2"])
@@ -219,7 +220,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
                                          logger: app.logger,
                                          threadPool: app.threadPool,
                                          transaction: app.db,
-                                         package: pkg).wait()
+                                         package: jpr).wait()
             // apply the delta to ensure versions are in place for next cycle
             try applyVersionDelta(on: app.db, delta: delta).wait()
             return delta
@@ -228,6 +229,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         // setup
         let pkg = Package(url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // start at t0
         var t = Date.t0

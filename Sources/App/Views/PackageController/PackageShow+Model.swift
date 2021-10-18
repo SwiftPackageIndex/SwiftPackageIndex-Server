@@ -90,14 +90,15 @@ extension PackageShow {
             self.isArchived = isArchived
         }
         
-        init?(package: Package) {
+        init?(result: PackageController.PackageResult) {
             // we consider certain attributes as essential and return nil (raising .notFound)
+            let versions = result.versions
             guard
-                let repository = package.repository,
+                let repository = result.repository,
                 let repositoryOwner = repository.owner,
                 let repositoryOwnerName = repository.ownerDisplayName,
                 let repositoryName = repository.name,
-                let packageId = package.id
+                let packageId = result.package.id
             else { return nil }
 
             self.init(
@@ -105,29 +106,53 @@ extension PackageShow {
                 repositoryOwner: repositoryOwner,
                 repositoryOwnerName: repositoryOwnerName,
                 repositoryName: repositoryName,
-                activity: package.activity(),
-                authors: package.authors(),
-                keywords: package.repository?.keywords,
-                swiftVersionBuildInfo: package.swiftVersionBuildInfo(),
-                platformBuildInfo: package.platformBuildInfo(),
-                history: package.history(),
-                languagePlatforms: package.languagePlatformInfo(),
-                license: package.repository?.license ?? .none,
-                licenseUrl: package.repository?.licenseUrl,
-                products: package.productCounts(),
-                releases: package.releaseInfo(),
-                dependencies: package.dependencyInfo(),
-                stars: package.repository?.stars,
-                summary: package.repository?.summary,
-                title: package.name() ?? repositoryName,
-                url: package.url,
-                score: package.score,
-                isArchived: package.repository?.isArchived ?? false
+                activity: result.activity(),
+                authors: result.authors(),
+                keywords: repository.keywords,
+                swiftVersionBuildInfo: result.swiftVersionBuildInfo(),
+                platformBuildInfo: result.platformBuildInfo(),
+                history: result.history(),
+                languagePlatforms: Self.languagePlatformInfo(packageUrl: result.package.url, versions: versions),
+                license: repository.license,
+                licenseUrl: repository.licenseUrl,
+                products: result.productCounts(),
+                releases: PackageShow.releaseInfo(packageUrl: result.package.url, versions: versions),
+                dependencies: versions
+                    .latest(for: .defaultBranch)?.resolvedDependencies,
+                stars: repository.stars,
+                summary: repository.summary,
+                title: versions.packageName() ?? repositoryName,
+                url: result.package.url,
+                score: result.package.score,
+                isArchived: repository.isArchived ?? false
             )
 
         }
     }
     
+}
+
+
+extension PackageShow.Model {
+    static func makeModelVersion(packageUrl: String, version: App.Version) -> Version? {
+        guard let link = makeLink(packageUrl: packageUrl, version: version) else { return nil }
+        return PackageShow.Model.Version(link: link,
+                                         swiftVersions: version.swiftVersions.map(\.description),
+                                         platforms: version.supportedPlatforms)
+    }
+
+    static func languagePlatformInfo(packageUrl: String, versions: [App.Version]) -> LanguagePlatformInfo {
+        let versions = [App.Version.Kind.release, .preRelease, .defaultBranch]
+            .map {
+                versions.latest(for: $0)
+                    .flatMap {
+                        makeModelVersion(packageUrl: packageUrl, version: $0)
+                    }
+            }
+        return .init(stable: versions[0],
+                     beta: versions[1],
+                     latest: versions[2])
+    }
 }
 
 

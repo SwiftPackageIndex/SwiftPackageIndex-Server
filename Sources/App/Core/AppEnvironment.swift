@@ -24,9 +24,9 @@ struct AppEnvironment {
     var buildTriggerDownscaling: () -> Double
     var date: () -> Date
     var fetchPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
-    var fetchLicense: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.License?>
-    var fetchMetadata: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Metadata>
-    var fetchReadme: (_ client: Client, _ package: Package) -> EventLoopFuture<Github.Readme?>
+    var fetchLicense: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.License?>
+    var fetchMetadata: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.Metadata>
+    var fetchReadme: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.Readme?>
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
@@ -78,9 +78,9 @@ extension AppEnvironment {
         },
         date: Date.init,
         fetchPackageList: liveFetchPackageList,
-        fetchLicense: Github.fetchLicense(client:package:),
-        fetchMetadata: Github.fetchMetadata(client:package:),
-        fetchReadme: Github.fetchReadme(client:package:),
+        fetchLicense: Github.fetchLicense(client:packageUrl:),
+        fetchMetadata: Github.fetchMetadata(client:packageUrl:),
+        fetchReadme: Github.fetchReadme(client:packageUrl:),
         fileManager: .live,
         getStatusCount: { client, status in
             Gitlab.Builder.getStatusCount(
