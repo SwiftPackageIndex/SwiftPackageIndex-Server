@@ -166,10 +166,11 @@ class PackageCollectionTests: AppTestCase {
     func test_Version_init() throws {
         // Tests PackageCollection.Version initialisation from App.Version
         // setup
-        let p = Package(url: "1".asGithubUrl.url)
+        let p = Package(url: "1")
         try p.save(on: app.db).wait()
         do {
             let v = try Version(package: p,
+                                latest: .release,
                                 packageName: "Foo",
                                 publishedAt: Date(timeIntervalSince1970: 0),
                                 reference: .tag(1, 2, 3),
@@ -177,6 +178,7 @@ class PackageCollectionTests: AppTestCase {
                                 supportedPlatforms: [.ios("14.0")],
                                 toolsVersion: "5.3")
             try v.save(on: app.db).wait()
+            try Repository(package: p).save(on: app.db).wait()
             do {
                 try Product(version: v,
                             type: .library(.automatic),
