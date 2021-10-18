@@ -16,13 +16,16 @@ import Fluent
 import Vapor
 
 
-protocol Referencable {}
+protocol Referenceable {}
 
-extension Joined: Referencable {}
+extension Joined: Referenceable {}
 
-extension Build: Referencable {}
-extension Product: Referencable {}
-extension Version: Referencable {}
+extension Build: Referenceable {}
+extension Package: Referenceable {}
+extension Product: Referenceable {}
+extension Repository: Referenceable {}
+extension Target: Referenceable {}
+extension Version: Referenceable {}
 
 
 /// `Ref` and `Ref2`, together with `Joined` allow us to define typed query results
@@ -40,11 +43,21 @@ extension Version: Referencable {}
 ///                              |
 ///                              '-< Product
 /// ```
-struct Ref<M: Referencable, R: Referencable>: Referencable {
+struct Ref<M: Referenceable, R: Referenceable>: Referenceable {
     private(set) var model: M
 }
 
 
-struct Ref2<M: Referencable, R1: Referencable, R2: Referencable>: Referencable {
+struct Ref2<M: Referenceable, R1: Referenceable, R2: Referenceable>: Referenceable {
+    private(set) var model: M
+}
+
+
+struct Ref3<M: Referenceable, R1: Referenceable, R2: Referenceable, R3: Referenceable>: Referenceable {
+    private(set) var model: M
+}
+
+
+struct Ref4<M: Referenceable, R1: Referenceable, R2: Referenceable, R3: Referenceable, R4: Referenceable>: Referenceable {
     private(set) var model: M
 }
