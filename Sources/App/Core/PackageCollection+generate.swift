@@ -29,7 +29,6 @@ extension PackageCollection {
     typealias ProductType = PackageCollectionModel.V1.ProductType
     typealias Target = PackageCollectionModel.V1.Target
 
-    @available(*, deprecated)
     enum Filter {
         case urls([String])
         case author(String)
@@ -46,36 +45,16 @@ extension PackageCollection {
                          keywords: [String]? = nil,
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
-        // TODO: used typed result
-        var query = App.Version.query(on: db)
-            .with(\.$builds)
-            .with(\.$products)
-            .with(\.$targets)
-            .with(\.$package) {
-                $0.with(\.$repositories)
-            }
-            .join(App.Package.self, on: \App.Package.$id == \Version.$package.$id)
-            .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
-            .filter(Version.self, \.$latest ~~ [.release, .preRelease])
-        
-        switch filter {
-            case let .author(owner):
-                query = query
-                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            case let .urls(packageURLs):
-                query = query
-                    .filter(App.Package.self, \.$url ~~ packageURLs)
-        }
-        
-        let res: EventLoopFuture<([Package], String, String)> = query.all()
-            .map { versions in
+        PackageResult.query(on: db, filterBy: filter)
+            .map { results -> [(key: App.Package, value: [Version])] in
                 // Multiple versions can reference the same package, therefore
                 // we need to group them so we don't create duplicate packages.
                 // This requires App.Package to be Hashable and Equatable.
-                Dictionary(grouping: versions, by: { $0.package })
+                Dictionary(grouping: results.map(\.version),
+                           by: { $0.package })
                     .sorted(by: { $0.key.url < $1.key.url })
             }
-            .map { packageToVersions in
+            .map { packageToVersions -> ([Package], String, String) in
                 let packages = packageToVersions.compactMap {
                     Package.init(package: $0.key,
                                  prunedVersions: $0.value,
@@ -85,23 +64,22 @@ extension PackageCollection {
                 let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
                 return (packages, collectionName, overview)
             }
-        
-        return res.flatMap { packages, collectionName, overview in
-            guard !packages.isEmpty else {
-                return db.eventLoop.makeFailedFuture(Error.noResults)
+            .flatMap { packages, collectionName, overview in
+                guard !packages.isEmpty else {
+                    return db.eventLoop.makeFailedFuture(Error.noResults)
+                }
+                return db.eventLoop.makeSucceededFuture(
+                    PackageCollection.init(
+                        name: collectionName,
+                        overview: overview,
+                        keywords: keywords,
+                        packages: packages,
+                        formatVersion: .v1_0,
+                        revision: revision,
+                        generatedAt: Current.date(),
+                        generatedBy: authorName.map(Author.init(name:)))
+                )
             }
-            return db.eventLoop.makeSucceededFuture(
-                PackageCollection.init(
-                    name: collectionName,
-                    overview: overview,
-                    keywords: keywords,
-                    packages: packages,
-                    formatVersion: .v1_0,
-                    revision: revision,
-                    generatedAt: Current.date(),
-                    generatedBy: authorName.map(Author.init(name:)))
-            )
-        }
     }
 
     static func authorLabel(packages: [App.Package]) -> String? {
@@ -352,16 +330,12 @@ extension PackageCollection.PackageResult {
     var products: [App.Product] { version.products }
     var targets: [App.Target] { version.targets }
 
-    enum Filter {
-        case urls([String])
-        case author(String)
-    }
-
-    static func query(on database: Database, filterBy filter: Filter) -> EventLoopFuture<[Self]> {
+    static func query(on database: Database, filterBy filter: PackageCollection.Filter) -> EventLoopFuture<[Self]> {
         let query = M.query(on: database)
             .with(\.$builds)
             .with(\.$products)
             .with(\.$targets)
+        // FIXME: skip package and repo load - we're joining!
             .with(\.$package) {
                 $0.with(\.$repositories)
             }
