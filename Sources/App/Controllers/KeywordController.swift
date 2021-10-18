@@ -20,8 +20,8 @@ import Vapor
 struct KeywordController {
 
     static func query(on database: Database, keyword: String, page: Int, pageSize: Int) -> EventLoopFuture<Page<Joined3<Package, Repository, Version>>> {
-        Joined3
-            .query(on: database)
+        Joined3<Package, Repository, Version>
+            .query(on: database, version: .defaultBranch)
             .filter(
                 DatabaseQuery.Field.path(Repository.path(for: \.$keywords), schema: Repository.schema),
                 DatabaseQuery.Filter.Method.custom("@>"),
