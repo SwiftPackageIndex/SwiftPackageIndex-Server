@@ -165,6 +165,99 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.versions.count, 1)
     }
 
+    typealias PackageResult = PackageCollection.PackageResult
+
+    func test_query_filter_urls() throws {
+        // Tests PackageResult.query with the url filter option
+        // setup
+        try (0..<3).forEach { index in
+            let pkg = try savePackage(on: app.db, "url-\(index)".url)
+            do {
+                let v = try Version(package: pkg,
+                                    latest: .release,
+                                    packageName: "package \(index)",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.4")
+                try v.save(on: app.db).wait()
+                try Build(version: v,
+                          buildCommand: "build \(index)",
+                          platform: .ios,
+                          status: .ok,
+                          swiftVersion: .v5_5)
+                    .save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library(.automatic),
+                            name: "product \(index)")
+                    .save(on: app.db).wait()
+                try Target(version: v, name: "target \(index)")
+                    .save(on: app.db).wait()
+            }
+            try Repository(package: pkg,
+                           name: "repo \(index)")
+                .save(on: app.db).wait()
+        }
+
+        // MUT
+        let res = try PackageResult.query(on: app.db,
+                                          filterBy: .urls(["url-1"])).wait()
+
+        // validate selection and all relations being loaded
+        XCTAssertEqual(res.map(\.version.packageName), ["package 1"])
+        XCTAssertEqual(res.flatMap{ $0.builds.map(\.buildCommand) },
+                       ["build 1"])
+        XCTAssertEqual(res.flatMap{ $0.products.map(\.name) },
+                       ["product 1"])
+        XCTAssertEqual(res.flatMap{ $0.targets.map(\.name) },
+                       ["target 1"])
+        XCTAssertEqual(res.map(\.package.url), ["url-1"])
+        XCTAssertEqual(res.map(\.repository.name), ["repo 1"])
+    }
+
+    func test_query_filter_urls_no_results() throws {
+        // Tests PackageResult.query without results has safe relationship accessors
+        // setup
+        try (0..<3).forEach { index in
+            let pkg = try savePackage(on: app.db, "url-\(index)".url)
+            do {
+                let v = try Version(package: pkg,
+                                    latest: .release,
+                                    packageName: "package \(index)",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.4")
+                try v.save(on: app.db).wait()
+                try Build(version: v,
+                          buildCommand: "build \(index)",
+                          platform: .ios,
+                          status: .ok,
+                          swiftVersion: .v5_5)
+                    .save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library(.automatic),
+                            name: "product \(index)")
+                    .save(on: app.db).wait()
+                try Target(version: v, name: "target \(index)")
+                    .save(on: app.db).wait()
+            }
+            try Repository(package: pkg,
+                           name: "repo \(index)")
+                .save(on: app.db).wait()
+        }
+
+        // MUT
+        let res = try PackageResult.query(
+            on: app.db,
+            filterBy: .urls(["non-existant"])
+        ).wait()
+
+        // validate safe access
+        XCTAssertEqual(res.map(\.version.packageName), [])
+        XCTAssertEqual(res.flatMap{ $0.builds.map(\.buildCommand) }, [])
+        XCTAssertEqual(res.flatMap{ $0.products.map(\.name) }, [])
+        XCTAssertEqual(res.flatMap{ $0.targets.map(\.name) }, [])
+        XCTAssertEqual(res.map(\.package.url), [])
+        XCTAssertEqual(res.map(\.repository.name), [])
+    }
+
     func test_generate_from_urls() throws {
         // setup
         Current.date = { Date(timeIntervalSince1970: 1610112345) }

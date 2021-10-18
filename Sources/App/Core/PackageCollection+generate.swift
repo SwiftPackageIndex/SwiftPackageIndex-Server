@@ -29,6 +29,7 @@ extension PackageCollection {
     typealias ProductType = PackageCollectionModel.V1.ProductType
     typealias Target = PackageCollectionModel.V1.Target
 
+    @available(*, deprecated)
     enum Filter {
         case urls([String])
         case author(String)
@@ -329,5 +330,53 @@ private extension PackageCollection.Platform {
             case .macosSpmArm, .macosXcodebuildArm, .macosSpm, .macosXcodebuild:
                 self.init(name: "macos")
         }
+    }
+}
+
+
+// TODO: move
+
+extension PackageCollection {
+    typealias PackageResult = Ref4<App.Version,
+                                   App.Build,
+                                   App.Product,
+                                   App.Target,
+                                   Ref<App.Package, Repository>>
+}
+
+extension PackageCollection.PackageResult {
+    var version: App.Version { model }
+    var package: App.Package { model.package }
+    var repository: App.Repository { model.package.repositories.first! }
+    var builds: [App.Build] { version.builds }
+    var products: [App.Product] { version.products }
+    var targets: [App.Target] { version.targets }
+
+    enum Filter {
+        case urls([String])
+        case author(String)
+    }
+
+    static func query(on database: Database, filterBy filter: Filter) -> EventLoopFuture<[Self]> {
+        let query = M.query(on: database)
+            .with(\.$builds)
+            .with(\.$products)
+            .with(\.$targets)
+            .with(\.$package) {
+                $0.with(\.$repositories)
+            }
+            .join(App.Package.self, on: \App.Package.$id == \Version.$package.$id)
+            .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
+            .filter(Version.self, \.$latest ~~ [.release, .preRelease])
+
+        switch filter {
+            case let .author(owner):
+                query.filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            case let .urls(packageURLs):
+                query.filter(App.Package.self, \.$url ~~ packageURLs)
+        }
+
+        return query.all()
+            .mapEach(Self.init(model:))
     }
 }
