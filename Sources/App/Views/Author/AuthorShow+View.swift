@@ -76,14 +76,13 @@ enum AuthorShow {
                             .li(
                                 .a(
                                     .href(package.url),
-                                    .class("two_column"),
-                                    .div(
-                                        .h4(.text(package.title)),
-                                        .p(.text(package.description))
-                                    ),
-                                    .p(
-                                        .class("stars"),
-                                        .text(starsText(stars: package.stars))
+                                    .h4(.text(package.title)),
+                                    .p(.text(package.description)),
+                                    .small(
+                                        .span(
+                                            .class("stars"),
+                                            .text(starsText(stars: package.stars))
+                                        )
                                     )
                                 )
                             )

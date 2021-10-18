@@ -36,18 +36,22 @@
         margin: 5px 0;
         color: var(--page-text);
       }
+
+      small > span {
+        color: var(--page-text);
+      }
     }
 
     &.selected {
       background-color: var(--package-list-selectedbackground);
     }
-  }
 
-  .stars {
-    padding-left: 25px;
-    background-size: 18px;
-    background-repeat: no-repeat;
-    background-position: top 2px left;
-    background-image: var(--image-star);
+    .stars {
+      padding-left: 14px;
+      background-size: 11px;
+      background-repeat: no-repeat;
+      background-position: top 1px left;
+      background-image: var(--image-star);
+    }
   }
 }
