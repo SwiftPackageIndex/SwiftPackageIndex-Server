@@ -27,7 +27,7 @@ struct AuthorController {
                 DatabaseQuery.Filter.Method.custom("ilike"),
                 DatabaseQuery.Value.bind(owner)
             )
-            .sort(\.$score, .descending)
+            .sort(Version.self, \.$packageName)
             .all()
             .flatMapThrowing {
                 if $0.isEmpty {

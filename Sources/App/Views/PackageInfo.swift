@@ -16,6 +16,7 @@ struct PackageInfo {
     var title: String
     var description: String
     var url: String
+    var stars: Int
 }
 
 extension PackageInfo {
@@ -30,6 +31,8 @@ extension PackageInfo {
                   description: package.repository?.summary ?? "",
                   url: SiteURL.package(.value(repoOwner),
                                        .value(repoName),
-                                       .none).relativeURL())
+                                       .none).relativeURL(),
+                  stars: package.repository?.stars ?? 0
+        )
     }
 }

@@ -47,20 +47,20 @@ class AuthorControllerTests: AppTestCase {
         }
     }
 
-    func test_query_sort_by_score() throws {
+    func test_query_sort_alphabetically() throws {
         // setup
-        try (0..<3).shuffled().forEach { index in
-            let p = Package(url: "\(index)".url, score: index)
+        try (["gamma", "alpha", "beta"]).forEach { packageName in
+            let p = Package(url: "\(packageName)".url)
             try p.save(on: app.db).wait()
             try Repository(package: p, owner: "owner").save(on: app.db).wait()
-            try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+            try Version(package: p, latest: .defaultBranch, packageName: packageName).save(on: app.db).wait()
         }
 
         // MUT
         let pkg = try AuthorController.query(on: app.db, owner: "owner").wait()
 
         // validate
-        XCTAssertEqual(pkg.map(\.model.url), ["2", "1", "0"])
+        XCTAssertEqual(pkg.map(\.model.url), ["alpha", "beta", "gamma"])
     }
 
     func test_show_owner() throws {
