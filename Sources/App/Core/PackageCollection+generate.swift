@@ -66,9 +66,11 @@ extension PackageCollection {
             }
             .map { resultsToVersions -> ([Package], String, String) in
                 let packages = resultsToVersions.compactMap {
-                    Package.init(version: $0.key,
+                    Package.init(package: $0.key.package,
+                                 repository: $0.key.repository,
                                  prunedVersions: $0.value,
-                                 keywords: keywords) }
+                                 keywords: keywords)
+                }
                 let authorLabel = authorLabel(versions: resultsToVersions.map(\.key))
                 let collectionName = collectionName ?? Self.collectionName(for: filter, authorLabel: authorLabel)
                 let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
@@ -163,10 +165,10 @@ extension PackageCollection.Package {
     ///   - version: `VersionResult`
     ///   - prunedVersions: filtered array of this package's versions to include in the collection
     ///   - keywords: array of keywords to include in the collection
-    init?(version: PackageCollection.VersionResult,
+    init?(package: App.Package,
+          repository: Repository,
           prunedVersions: [App.Version],
           keywords: [String]?) {
-        let repository = version.repository
         let license = PackageCollection.License(
             name: repository.license.shortName,
             url: repository.licenseUrl
@@ -180,7 +182,7 @@ extension PackageCollection.Package {
         let versions = [Version].init(versions: prunedVersions,
                                       license: license)
 
-        guard let url = URL(string: version.package.url),
+        guard let url = URL(string: package.url),
               !versions.isEmpty
         else { return nil }
 

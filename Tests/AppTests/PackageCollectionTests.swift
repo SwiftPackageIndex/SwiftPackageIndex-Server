@@ -279,7 +279,8 @@ class PackageCollectionTests: AppTestCase {
         )
 
         // MUT
-        let res = try XCTUnwrap(PackageCollection.Package(version: result,
+        let res = try XCTUnwrap(PackageCollection.Package(package: result.package,
+                                                          repository: result.repository,
                                                           prunedVersions: [version],
                                                           keywords: ["a", "b"]))
 
@@ -549,7 +550,8 @@ class PackageCollectionTests: AppTestCase {
                     .wait().first
             )
 
-            XCTAssertNil(PackageCollection.Package(version: res,
+            XCTAssertNil(PackageCollection.Package(package: res.package,
+                                                   repository: res.repository,
                                                    prunedVersions: [],
                                                    keywords: nil))
         }
@@ -566,7 +568,8 @@ class PackageCollectionTests: AppTestCase {
                     .wait().first
             )
 
-            XCTAssertNil(PackageCollection.Package(version: res,
+            XCTAssertNil(PackageCollection.Package(package: res.package,
+                                                   repository: res.repository,
                                                    prunedVersions: [version],
                                                    keywords: nil))
         }
