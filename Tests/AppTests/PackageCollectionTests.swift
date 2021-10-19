@@ -73,6 +73,11 @@ class PackageCollectionTests: AppTestCase {
                        ["target 1"])
         XCTAssertEqual(res.map(\.package.url), ["url-1"])
         XCTAssertEqual(res.map(\.repository.name), ["repo 1"])
+        // drill into relations of relations
+        XCTAssertEqual(res.flatMap { $0.version.products.map(\.name) }, ["product 1"])
+        // fatalError - package isn't loading any references, only the top level result is
+        //  XCTAssertEqual(res.flatMap { $0.package.versions.map(\.packageName) }, ["foo"])
+        //  XCTAssertEqual(res.flatMap { $0.package.repositories.first?.name }, ["foo"])
     }
 
     func test_query_filter_urls_no_results() throws {
@@ -251,43 +256,31 @@ class PackageCollectionTests: AppTestCase {
     func test_Package_init() throws {
         // Tests PackageCollection.Package initialisation from App.Package
         // setup
-        do {
-            let p = Package(url: "1".asGithubUrl.url)
-            try p.save(on: app.db).wait()
-            do {
-                let r = try Repository(package: p,
-                                       license: .mit,
-                                       licenseUrl: "https://foo/mit",
-                                       readmeUrl: "readmeUrl",
-                                       summary: "summary")
-                try r.save(on: app.db).wait()
-            }
-            do {
-                let v = try Version(package: p,
-                                    latest: .release,
-                                    packageName: "Foo",
-                                    reference: .tag(1, 2, 3),
-                                    toolsVersion: "5.3")
-                try v.save(on: app.db).wait()
-                try Product(version: v,
-                            type: .library(.automatic),
-                            name: "product").save(on: app.db).wait()
-            }
-        }
-        let p = try Package.query(on: app.db)
-            .with(\.$repositories)
-            .with(\.$versions) {
-                $0.with(\.$builds)
-                $0.with(\.$products)
-                $0.with(\.$targets)
-            }
-            .first()
-            .unwrap(or: Abort(.notFound))
-            .wait()
+        let p = Package(url: "1")
+        try p.save(on: app.db).wait()
+        let r = try Repository(package: p,
+                               license: .mit,
+                               licenseUrl: "https://foo/mit",
+                               readmeUrl: "readmeUrl",
+                               summary: "summary")
+        try r.save(on: app.db).wait()
+        let version = try Version(package: p,
+                            latest: .release,
+                            packageName: "Foo",
+                            reference: .tag(1, 2, 3),
+                            toolsVersion: "5.3")
+        try version.save(on: app.db).wait()
+        try Product(version: version,
+                    type: .library(.automatic),
+                    name: "product").save(on: app.db).wait()
+        let result = try XCTUnwrap(
+            PackageResult.query(on: app.db, filterBy: .urls(["1"]))
+                .wait().first
+        )
 
         // MUT
-        let res = try XCTUnwrap(PackageCollection.Package(package: p,
-                                                          prunedVersions: p.versions,
+        let res = try XCTUnwrap(PackageCollection.Package(version: result,
+                                                          prunedVersions: [version],
                                                           keywords: ["a", "b"]))
 
         // validate
@@ -548,38 +541,34 @@ class PackageCollectionTests: AppTestCase {
         // Ensure we don't include packages without versions (by ensuring
         // init? returns nil, which will be compact mapped away)
         do {  // no versions at all
-            let p = Package(url: "1".asGithubUrl.url)
+            let p = Package(url: "1")
             try p.save(on: app.db).wait()
             try Repository(package: p).save(on: app.db).wait()
-            // TODO: remove
-            try p.$versions.load(on: app.db).wait()
-            try p.$repositories.load(on: app.db).wait()
+            let res = try XCTUnwrap(
+                PackageResult.query(on: app.db, filterBy: .urls(["1"]))
+                    .wait().first
+            )
 
-            XCTAssertNil(PackageCollection.Package(package: p,
-                                                   prunedVersions: p.versions,
+            XCTAssertNil(PackageCollection.Package(version: res,
+                                                   prunedVersions: [],
                                                    keywords: nil))
         }
-        do {  // only invalid versions
-            do {  // setup
-                let p = Package(url: "2".asGithubUrl.url)
-                try p.save(on: app.db).wait()
-                let v = try Version(package: p, latest: .release)
-                try v.save(on: app.db).wait()
-                try Repository(package: p).save(on: app.db).wait()
-            }
-            let p = try XCTUnwrap(
-                Package.query(on: app.db)
-                    .with(\.$versions) {
-                        $0.with(\.$products)
-                    }
-                    .with(\.$repositories)
-                    .first()
-                    .wait()
-            )
-            XCTAssertNil(PackageCollection.Package(package: p,
-                                                   prunedVersions: p.versions,
-                                                   keywords: nil))
 
+        do {  // only invalid versions
+            // setup
+            let p = Package(url: "2")
+            try p.save(on: app.db).wait()
+            let version = try Version(package: p, latest: .release)
+            try version.save(on: app.db).wait()
+            try Repository(package: p).save(on: app.db).wait()
+            let res = try XCTUnwrap(
+                PackageResult.query(on: app.db, filterBy: .urls(["2"]))
+                    .wait().first
+            )
+
+            XCTAssertNil(PackageCollection.Package(version: res,
+                                                   prunedVersions: [version],
+                                                   keywords: nil))
         }
     }
 
