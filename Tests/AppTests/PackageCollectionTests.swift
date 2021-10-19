@@ -256,23 +256,25 @@ class PackageCollectionTests: AppTestCase {
     func test_Package_init() throws {
         // Tests PackageCollection.Package initialisation from App.Package
         // setup
-        let p = Package(url: "1")
-        try p.save(on: app.db).wait()
-        let r = try Repository(package: p,
-                               license: .mit,
-                               licenseUrl: "https://foo/mit",
-                               readmeUrl: "readmeUrl",
-                               summary: "summary")
-        try r.save(on: app.db).wait()
-        let version = try Version(package: p,
-                            latest: .release,
-                            packageName: "Foo",
-                            reference: .tag(1, 2, 3),
-                            toolsVersion: "5.3")
-        try version.save(on: app.db).wait()
-        try Product(version: version,
-                    type: .library(.automatic),
-                    name: "product").save(on: app.db).wait()
+        do {
+            let p = Package(url: "1")
+            try p.save(on: app.db).wait()
+            try Repository(package: p,
+                           license: .mit,
+                           licenseUrl: "https://foo/mit",
+                           readmeUrl: "readmeUrl",
+                           summary: "summary")
+                .save(on: app.db).wait()
+            let v = try Version(package: p,
+                                latest: .release,
+                                packageName: "Foo",
+                                reference: .tag(1, 2, 3),
+                                toolsVersion: "5.3")
+            try v.save(on: app.db).wait()
+            try Product(version: v,
+                        type: .library(.automatic),
+                        name: "product").save(on: app.db).wait()
+        }
         let result = try XCTUnwrap(
             PackageResult.query(on: app.db, filterBy: .urls(["1"]))
                 .wait().first
@@ -281,7 +283,7 @@ class PackageCollectionTests: AppTestCase {
         // MUT
         let res = try XCTUnwrap(PackageCollection.Package(package: result.package,
                                                           repository: result.repository,
-                                                          prunedVersions: [version],
+                                                          prunedVersions: [result.version],
                                                           keywords: ["a", "b"]))
 
         // validate

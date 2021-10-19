@@ -201,9 +201,8 @@ extension PackageCollection.Package {
 
 extension PackageCollection.Package.Version {
     init?(version: App.Version, license: PackageCollection.License?) {
-        // FIXME
-        let products = [PackageCollection.Product]()
-        // version.products.compactMap(PackageCollection.Product.init(product:))
+        let products = version.products
+            .compactMap(PackageCollection.Product.init(product:))
         guard
             let semVer = version.reference?.semVer,
             let packageName = version.packageName,
