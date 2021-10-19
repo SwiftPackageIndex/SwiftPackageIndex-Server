@@ -35,14 +35,6 @@ enum AuthorShow {
             let packagesClause = model.packages.count > 1 ? "1 package" : "\(model.packages.count) packages"
             return "The Swift Package Index is indexing \(packagesClause) authored by \(model.ownerName)."
         }
-        
-        func starsText(stars: Int) -> String {
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .decimal
-            let number = formatter.string(from: NSNumber(value: stars))
-            
-            return "\(number) stars"
-        }
 
         override func content() -> Node<HTML.BodyContext> {
             .group(
