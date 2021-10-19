@@ -73,7 +73,8 @@
             <a href="https://example.com/owner/name.git">
               <h4>Networking Package 1</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>owner/name &ndash; 
+              <small>
+                <span class="identifier">owner/name</span> &ndash; 
                 <span class="stars">4</span>
               </small>
             </a>
@@ -82,7 +83,8 @@
             <a href="https://example.com/owner/name.git">
               <h4>Networking Package 2</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>owner/name &ndash; 
+              <small>
+                <span class="identifier">owner/name</span> &ndash; 
                 <span class="stars">4</span>
               </small>
             </a>
@@ -91,7 +93,8 @@
             <a href="https://example.com/owner/name.git">
               <h4>Networking Package 3</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>owner/name &ndash; 
+              <small>
+                <span class="identifier">owner/name</span> &ndash; 
                 <span class="stars">4</span>
               </small>
             </a>
@@ -100,7 +103,8 @@
             <a href="https://example.com/owner/name.git">
               <h4>Networking Package 4</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>owner/name &ndash; 
+              <small>
+                <span class="identifier">owner/name</span> &ndash; 
                 <span class="stars">4</span>
               </small>
             </a>
@@ -109,7 +113,8 @@
             <a href="https://example.com/owner/name.git">
               <h4>Networking Package 5</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>owner/name &ndash; 
+              <small>
+                <span class="identifier">owner/name</span> &ndash; 
                 <span class="stars">4</span>
               </small>
             </a>
@@ -118,7 +123,8 @@
             <a href="https://example.com/owner/name.git">
               <h4>Networking Package 6</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>owner/name &ndash; 
+              <small>
+                <span class="identifier">owner/name</span> &ndash; 
                 <span class="stars">4</span>
               </small>
             </a>
@@ -127,7 +133,8 @@
             <a href="https://example.com/owner/name.git">
               <h4>Networking Package 7</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>owner/name &ndash; 
+              <small>
+                <span class="identifier">owner/name</span> &ndash; 
                 <span class="stars">4</span>
               </small>
             </a>
@@ -136,7 +143,8 @@
             <a href="https://example.com/owner/name.git">
               <h4>Networking Package 8</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>owner/name &ndash; 
+              <small>
+                <span class="identifier">owner/name</span> &ndash; 
                 <span class="stars">4</span>
               </small>
             </a>
@@ -145,7 +153,8 @@
             <a href="https://example.com/owner/name.git">
               <h4>Networking Package 9</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>owner/name &ndash; 
+              <small>
+                <span class="identifier">owner/name</span> &ndash; 
                 <span class="stars">4</span>
               </small>
             </a>
@@ -154,7 +163,8 @@
             <a href="https://example.com/owner/name.git">
               <h4>Networking Package 10</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>owner/name &ndash; 
+              <small>
+                <span class="identifier">owner/name</span> &ndash; 
                 <span class="stars">4</span>
               </small>
             </a>
