@@ -117,7 +117,7 @@ extension Node where Context == HTML.ListContext {
                 .unwrap(summary) { .p(.text($0)) },
                 .small(
                     .text("\(repositoryOwner)/\(repositoryName)"),
-                    .text(" &ndash "),
+                    .text(" &ndash; "),
                     .starsSpan(numberOfStars: stars)
                 )
             )
