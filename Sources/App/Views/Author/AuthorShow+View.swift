@@ -72,21 +72,7 @@ enum AuthorShow {
                 .ul(
                     .id("package_list"),
                     .group(
-                        model.packages.map { package -> Node<HTML.ListContext> in
-                            .li(
-                                .a(
-                                    .href(package.url),
-                                    .h4(.text(package.title)),
-                                    .p(.text(package.description)),
-                                    .small(
-                                        .span(
-                                            .class("stars"),
-                                            .text(starsText(stars: package.stars))
-                                        )
-                                    )
-                                )
-                            )
-                        }
+                        model.packages.map { .packageListItem(linkUrl: $0.url, packageName: $0.title, summary: $0.description, repositoryOwner: $0.repositoryOwner, repositoryName: $0.repositoryName, stars: $0.stars) }
                     )
                 ),
                 .p(
