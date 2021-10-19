@@ -27,7 +27,7 @@ class PackageCollectionTests: AppTestCase {
         return e
     }()
 
-    typealias PackageResult = PackageCollection.VersionResult
+    typealias VersionResult = PackageCollection.VersionResult
 
     func test_query_filter_urls() throws {
         // Tests PackageResult.query with the url filter option
@@ -60,7 +60,7 @@ class PackageCollectionTests: AppTestCase {
         }
 
         // MUT
-        let res = try PackageResult.query(on: app.db,
+        let res = try VersionResult.query(on: app.db,
                                           filterBy: .urls(["url-1"])).wait()
 
         // validate selection and all relations being loaded
@@ -111,7 +111,7 @@ class PackageCollectionTests: AppTestCase {
         }
 
         // MUT
-        let res = try PackageResult.query(
+        let res = try VersionResult.query(
             on: app.db,
             filterBy: .urls(["non-existant"])
         ).wait()
@@ -159,7 +159,7 @@ class PackageCollectionTests: AppTestCase {
         }
 
         // MUT
-        let res = try PackageResult.query(on: self.app.db,
+        let res = try VersionResult.query(on: self.app.db,
                                           filterBy: .author("foo"))
             .wait()
 
@@ -213,7 +213,7 @@ class PackageCollectionTests: AppTestCase {
                           swiftVersion: .v5_3).save(on: app.db).wait()
             }
         }
-        let v = try XCTUnwrap(PackageResult.query(on: app.db,
+        let v = try XCTUnwrap(VersionResult.query(on: app.db,
                                                   filterBy: .urls(["1"]))
                                 .wait()
                                 .first?.version)
@@ -276,7 +276,7 @@ class PackageCollectionTests: AppTestCase {
                         name: "product").save(on: app.db).wait()
         }
         let result = try XCTUnwrap(
-            PackageResult.query(on: app.db, filterBy: .urls(["1"]))
+            VersionResult.query(on: app.db, filterBy: .urls(["1"]))
                 .wait().first
         )
 
@@ -566,7 +566,7 @@ class PackageCollectionTests: AppTestCase {
                 try Repository(package: p).save(on: app.db).wait()
             }
             let res = try XCTUnwrap(
-                PackageResult.query(on: app.db, filterBy: .urls(["2"]))
+                VersionResult.query(on: app.db, filterBy: .urls(["2"]))
                     .wait().first
             )
 
