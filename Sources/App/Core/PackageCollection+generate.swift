@@ -315,37 +315,43 @@ private extension PackageCollection.Platform {
 // TODO: move
 
 extension PackageCollection {
-    typealias PackageResult = Ref4<App.Version,
+    typealias PackageResult = Ref3<Joined3<App.Version,
+                                           App.Package,
+                                           Repository>,
                                    App.Build,
                                    App.Product,
-                                   App.Target,
-                                   Ref<App.Package, Repository>>
+                                   App.Target>
 }
 
 extension PackageCollection.PackageResult {
-    var version: App.Version { model }
-    var package: App.Package { model.package }
-    var repository: App.Repository { model.package.repositories.first! }
     var builds: [App.Build] { version.builds }
+    var package: Package {
+        // safe to force unwrap due to "inner" join
+        model.package!
+    }
     var products: [App.Product] { version.products }
+    var repository: Repository {
+        // safe to force unwrap due to "inner" join
+        model.repository!
+    }
     var targets: [App.Target] { version.targets }
+    var version: App.Version { model.version }
 
     static func query(on database: Database, filterBy filter: PackageCollection.Filter) -> EventLoopFuture<[Self]> {
-        let query = M.query(on: database)
+        let query = M
+            .query(
+                on: database,
+                join: \App.Package.$id == \App.Version.$package.$id,
+                join: \Repository.$package.$id == \App.Package.$id
+            )
             .with(\.$builds)
             .with(\.$products)
             .with(\.$targets)
-        // FIXME: skip package and repo load - we're joining!
-            .with(\.$package) {
-                $0.with(\.$repositories)
-            }
-            .join(App.Package.self, on: \App.Package.$id == \Version.$package.$id)
-            .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
-            .filter(Version.self, \.$latest ~~ [.release, .preRelease])
+            .filter(App.Version.self, \App.Version.$latest ~~ [.release, .preRelease])
 
         switch filter {
             case let .author(owner):
-                query.filter(Repository.self, \.$owner, .custom("ilike"), owner)
+                query.filter(Repository.self, \Repository.$owner, .custom("ilike"), owner)
             case let .urls(packageURLs):
                 query.filter(App.Package.self, \.$url ~~ packageURLs)
         }
@@ -353,4 +359,11 @@ extension PackageCollection.PackageResult {
         return query.all()
             .mapEach(Self.init(model:))
     }
+}
+
+
+extension Joined3 where M == Version, R1 == Package, R2 == Repository {
+    var version: Version { model }
+    var package: Package? { try? model.joined(R1.self) }
+    var repository: Repository? { try? model.joined(R2.self) }
 }

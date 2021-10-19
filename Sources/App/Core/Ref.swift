@@ -19,6 +19,7 @@ import Vapor
 protocol Referenceable {}
 
 extension Joined: Referenceable {}
+extension Joined3: Referenceable {}
 
 extension Build: Referenceable {}
 extension Package: Referenceable {}
@@ -57,7 +58,7 @@ struct Ref3<M: Referenceable, R1: Referenceable, R2: Referenceable, R3: Referenc
     private(set) var model: M
 }
 
-
+@available(*, deprecated)
 struct Ref4<M: Referenceable, R1: Referenceable, R2: Referenceable, R3: Referenceable, R4: Referenceable>: Referenceable {
     private(set) var model: M
 }
