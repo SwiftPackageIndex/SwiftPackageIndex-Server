@@ -37,8 +37,12 @@
         color: var(--page-text);
       }
 
-      small > span {
+      small {
         color: var(--page-text);
+
+        > .identifier {
+          color: var(--link-text);
+        }
       }
     }
 

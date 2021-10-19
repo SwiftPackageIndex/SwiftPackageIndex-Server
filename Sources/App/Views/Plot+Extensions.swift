@@ -116,7 +116,10 @@ extension Node where Context == HTML.ListContext {
                 .h4(.text(packageName)),
                 .unwrap(summary) { .p(.text($0)) },
                 .small(
-                    .text("\(repositoryOwner)/\(repositoryName)"),
+                    .span(
+                        .class("identifier"),
+                        .text("\(repositoryOwner)/\(repositoryName)")
+                    ),
                     .text(" &ndash; "),
                     .starsSpan(numberOfStars: stars)
                 )

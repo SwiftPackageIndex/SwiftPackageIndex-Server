@@ -72,7 +72,10 @@ extension SearchShow {
                                         .h4(.text(result.title)),
                                         .unwrap(result.summary) { .p(.text($0)) },
                                         .small(
-                                            .text(result.footer)
+                                            .span(
+                                                .class("identifier"),
+                                                .text(result.footer)
+                                            )
                                         )
                                     )
                                 )
