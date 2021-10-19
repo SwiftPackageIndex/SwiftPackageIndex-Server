@@ -544,35 +544,36 @@ class PackageCollectionTests: AppTestCase {
         // Ensure we don't include packages without versions (by ensuring
         // init? returns nil, which will be compact mapped away)
         do {  // no versions at all
-            let p = Package(url: "1")
-            try p.save(on: app.db).wait()
-            try Repository(package: p).save(on: app.db).wait()
-            let res = try XCTUnwrap(
-                PackageResult.query(on: app.db, filterBy: .urls(["1"]))
-                    .wait().first
-            )
+            // setup
+            let pkg = Package(url: "1")
+            try pkg.save(on: app.db).wait()
+            let repo = try Repository(package: pkg)
+            try repo.save(on: app.db).wait()
 
-            XCTAssertNil(PackageCollection.Package(package: res.package,
-                                                   repository: res.repository,
+            // MUT
+            XCTAssertNil(PackageCollection.Package(package: pkg,
+                                                   repository: repo,
                                                    prunedVersions: [],
                                                    keywords: nil))
         }
 
         do {  // only invalid versions
             // setup
-            let p = Package(url: "2")
-            try p.save(on: app.db).wait()
-            let version = try Version(package: p, latest: .release)
-            try version.save(on: app.db).wait()
-            try Repository(package: p).save(on: app.db).wait()
+            do {
+                let p = Package(url: "2")
+                try p.save(on: app.db).wait()
+                try Version(package: p, latest: .release).save(on: app.db).wait()
+                try Repository(package: p).save(on: app.db).wait()
+            }
             let res = try XCTUnwrap(
                 PackageResult.query(on: app.db, filterBy: .urls(["2"]))
                     .wait().first
             )
 
+            // MUT
             XCTAssertNil(PackageCollection.Package(package: res.package,
                                                    repository: res.repository,
-                                                   prunedVersions: [version],
+                                                   prunedVersions: [res.version],
                                                    keywords: nil))
         }
     }
