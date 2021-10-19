@@ -45,7 +45,7 @@ extension PackageCollection {
                          keywords: [String]? = nil,
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
-        PackageResult.query(on: db, filterBy: filter)
+        VersionResult.query(on: db, filterBy: filter)
             .map { results -> [(key: App.Package, value: [Version])] in
                 // Multiple versions can reference the same package, therefore
                 // we need to group them so we don't create duplicate packages.
@@ -332,7 +332,7 @@ private extension PackageCollection.Platform {
 // TODO: move
 
 extension PackageCollection {
-    typealias PackageResult = Ref3<Joined3<App.Version,
+    typealias VersionResult = Ref3<Joined3<App.Version,
                                            App.Package,
                                            Repository>,
                                    App.Build,
@@ -340,7 +340,7 @@ extension PackageCollection {
                                    App.Target>
 }
 
-extension PackageCollection.PackageResult {
+extension PackageCollection.VersionResult {
     var builds: [App.Build] { version.builds }
     var package: Package {
         // safe to force unwrap due to "inner" join

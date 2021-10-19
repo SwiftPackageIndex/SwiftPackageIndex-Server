@@ -27,7 +27,7 @@ class PackageCollectionTests: AppTestCase {
         return e
     }()
 
-    typealias PackageResult = PackageCollection.PackageResult
+    typealias PackageResult = PackageCollection.VersionResult
 
     func test_query_filter_urls() throws {
         // Tests PackageResult.query with the url filter option
