@@ -50,9 +50,19 @@ extension PackageCollection {
                 // Multiple versions can reference the same package, therefore
                 // we need to group them so we don't create duplicate packages.
                 // This requires App.Package to be Hashable and Equatable.
-                Dictionary(grouping: results.map(\.version),
-                           by: { $0.package })
+                // FIXME: temporary
+                let idLookup = Dictionary(
+                    results.map {
+                        ($0.package.id, $0.package)
+                    },
+                    uniquingKeysWith: { _, last in last }
+                )
+                return Dictionary(grouping: results,
+                                  by: { $0.package })
                     .sorted(by: { $0.key.url < $1.key.url })
+                    .map { key, value in
+                        (idLookup[key.id]!, value.map(\.version))
+                    }
             }
             .map { packageToVersions -> ([Package], String, String) in
                 let packages = packageToVersions.compactMap {
@@ -85,7 +95,11 @@ extension PackageCollection {
     static func authorLabel(packages: [App.Package]) -> String? {
         let groupedPackagesByName = Dictionary(
             grouping: packages,
-            by: { $0.repositories.first?.ownerName ?? $0.repositories.first?.owner }
+            by: { _ in
+                // FIXME
+                nil as String?
+                //$0.repositories.first?.ownerName ?? $0.repositories.first?.owner
+            }
         )
 
         let names = groupedPackagesByName.enumerated().compactMap(\.element.key)
@@ -153,9 +167,10 @@ extension PackageCollection.Package {
     init?(package: App.Package,
           prunedVersions: [App.Version],
           keywords: [String]?) {
+        // FIXME
         let license = PackageCollection.License(
-            name: package.repositories.first?.license.shortName,
-            url: package.repositories.first?.licenseUrl
+            name: nil, //package.repositories.first?.license.shortName,
+            url: nil //package.repositories.first?.licenseUrl
         )
 
         let versions = [Version].init(versions: prunedVersions,
@@ -167,10 +182,12 @@ extension PackageCollection.Package {
 
         self.init(
             url: url,
-            summary: package.repositories.first?.summary,
+            // FIXME
+            summary: nil, //package.repositories.first?.summary,
             keywords: keywords,
             versions: versions,
-            readmeURL: package.repositories.first?.readmeUrl.flatMap(URL.init(string:)),
+            // FIXME
+            readmeURL: nil, //package.repositories.first?.readmeUrl.flatMap(URL.init(string:)),
             license: license
         )
     }
