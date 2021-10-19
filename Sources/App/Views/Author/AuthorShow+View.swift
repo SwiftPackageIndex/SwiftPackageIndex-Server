@@ -35,14 +35,6 @@ enum AuthorShow {
             let packagesClause = model.packages.count > 1 ? "1 package" : "\(model.packages.count) packages"
             return "The Swift Package Index is indexing \(packagesClause) authored by \(model.ownerName)."
         }
-        
-        func starsText(stars: Int) -> String {
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .decimal
-            let number = formatter.string(from: NSNumber(value: stars))
-            
-            return "\(number) stars"
-        }
 
         override func content() -> Node<HTML.BodyContext> {
             .group(
@@ -72,21 +64,7 @@ enum AuthorShow {
                 .ul(
                     .id("package_list"),
                     .group(
-                        model.packages.map { package -> Node<HTML.ListContext> in
-                            .li(
-                                .a(
-                                    .href(package.url),
-                                    .h4(.text(package.title)),
-                                    .p(.text(package.description)),
-                                    .small(
-                                        .span(
-                                            .class("stars"),
-                                            .text(starsText(stars: package.stars))
-                                        )
-                                    )
-                                )
-                            )
-                        }
+                        model.packages.map { .packageListItem(linkUrl: $0.url, packageName: $0.title, summary: $0.description, repositoryOwner: $0.repositoryOwner, repositoryName: $0.repositoryName, stars: $0.stars) }
                     )
                 ),
                 .p(

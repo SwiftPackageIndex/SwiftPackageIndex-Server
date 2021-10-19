@@ -12,21 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-
 import Foundation
 
-
-extension KeywordShow.Model {
-    static var mock: Self {
-        let packages = (1...10).map { PackageInfo(
-            title: "Networking Package \($0)",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.",
-            repositoryOwner: "owner",
-            repositoryName: "name",
-            url: "https://example.com/owner/name.git",
-            stars: 4
-        ) }
-        return .init(keyword: "networking", packages: packages, page: 1, hasMoreResults: false)
-    }
+extension NumberFormatter {
+    static var starsFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.thousandSeparator = ","
+        f.numberStyle = .decimal
+        return f
+    }()
 }

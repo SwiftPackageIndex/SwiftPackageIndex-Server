@@ -74,6 +74,17 @@ extension Node where Context: HTML.BodyContext {
             )
         )
     }
+
+    static func starsSpan(numberOfStars: Int) -> Self {
+        if let formattedStars = NumberFormatter.starsFormatter.string(from: NSNumber(value: numberOfStars)) {
+            return .span(
+                .class("stars"),
+                .text(formattedStars)
+            )
+        } else {
+            return .empty
+        }
+    }
 }
 
 extension Node where Context == HTML.FormContext {
@@ -88,6 +99,31 @@ extension Node where Context == HTML.FormContext {
             .enableGrammarly(false),
             .data(named: "focus", value: String(autofocus)),
             .value(query)
+        )
+    }
+}
+
+extension Node where Context == HTML.ListContext {
+    static func packageListItem(linkUrl: String,
+                                packageName: String,
+                                summary: String,
+                                repositoryOwner: String,
+                                repositoryName: String,
+                                stars: Int) -> Self {
+        .li(
+            .a(
+                .href(linkUrl),
+                .h4(.text(packageName)),
+                .unwrap(summary) { .p(.text($0)) },
+                .small(
+                    .span(
+                        .class("identifier"),
+                        .text("\(repositoryOwner)/\(repositoryName)")
+                    ),
+                    .text(" &ndash; "),
+                    .starsSpan(numberOfStars: stars)
+                )
+            )
         )
     }
 }

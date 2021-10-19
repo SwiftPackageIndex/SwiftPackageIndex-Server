@@ -15,6 +15,8 @@
 struct PackageInfo {
     var title: String
     var description: String
+    var repositoryOwner: String
+    var repositoryName: String
     var url: String
     var stars: Int
 }
@@ -29,9 +31,9 @@ extension PackageInfo {
 
         self.init(title: title,
                   description: package.repository?.summary ?? "",
-                  url: SiteURL.package(.value(repoOwner),
-                                       .value(repoName),
-                                       .none).relativeURL(),
+                  repositoryOwner: repoOwner,
+                  repositoryName: repoName,
+                  url: SiteURL.package(.value(repoOwner), .value(repoName), .none).relativeURL(),
                   stars: package.repository?.stars ?? 0
         )
     }
