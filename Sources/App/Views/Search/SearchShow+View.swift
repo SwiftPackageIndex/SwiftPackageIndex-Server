@@ -66,9 +66,7 @@ extension SearchShow {
                         // also include navigation into and out of the query field.
                         .data(named: "focus-query-field", value: String(true)),
                         .group(
-                            model.packageResults.map { packageResult -> Node<HTML.ListContext> in
-                                .packageListItem(linkUrl: packageResult.packageURL, packageName: packageResult.packageName ?? packageResult.repositoryName, summary: packageResult.summary, repositoryOwner: packageResult.repositoryOwner, repositoryName: packageResult.repositoryName, stars: nil)
-                            }
+                            model.packageResults.map { .packageListItem(linkUrl: $0.packageURL, packageName: $0.packageName ?? $0.repositoryName, summary: $0.summary, repositoryOwner: $0.repositoryOwner, repositoryName: $0.repositoryName, stars: nil) }
                         )
                     ),
                     .ul(
