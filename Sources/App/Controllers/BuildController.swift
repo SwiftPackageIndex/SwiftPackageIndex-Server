@@ -24,16 +24,48 @@ struct BuildController {
               let buildId = UUID.init(uuidString: id)
         else { return req.eventLoop.future(error: Abort(.notFound)) }
 
-        return Build.query(on: req.db, buildId: buildId)
-            .flatMap { build in
-                Build.fetchLogs(client: req.client, logUrl: build.logUrl)
-                    .map { (build, $0) }
+        return BuildResult.query(on: req.db, buildId: buildId)
+            .flatMap { result in
+                Build.fetchLogs(client: req.client, logUrl: result.build.logUrl)
+                    .map { (result, $0) }
             }
-            .map(BuildShow.Model.init(build:logs:))
+            .map(BuildShow.Model.init(result:logs:))
             .unwrap(or: Abort(.notFound))
             .map {
                 BuildShow.View(path: req.url.path, model: $0).document()
             }
     }
 
+}
+
+
+// TODO: move to own file
+
+extension BuildController {
+    typealias BuildResult = Joined4<Build, Version, Package, Repository>
+}
+
+
+extension BuildController.BuildResult {
+    var build: Build { model }
+    // It's ok to force unwrap all joined relations, because they
+    // are INNER joins, i.e. the relation will exist for every result.
+    var version: Version { relation1! }
+    var package: Package { relation2! }
+    var repository: Repository { relation3! }
+
+    static func query(on database: Database, buildId: Build.Id) -> EventLoopFuture<Self> {
+        Self.query(
+            on: database,
+            join: \Version.$id == \Build.$version.$id,
+            method: .inner,
+            join: \Package.$id == \Version.$package.$id,
+            method: .inner,
+            join: \Repository.$package.$id == \Package.$id,
+            method: .inner
+        )
+            .filter(\.$id == buildId)
+            .first()
+            .unwrap(or: Abort(.notFound))
+    }
 }

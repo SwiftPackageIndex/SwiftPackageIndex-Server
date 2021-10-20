@@ -14,6 +14,8 @@
 
 extension BuildShow {
 
+    typealias BuildResult = BuildController.BuildResult
+
     struct Model {
         var packageName: String
         var repositoryName: String
@@ -21,17 +23,13 @@ extension BuildShow {
         var buildInfo: BuildInfo
         var versionId: Version.Id
 
-        init?(build: App.Build, logs: String?) {
+        init?(result: BuildResult, logs: String?) {
             guard
-                let packageName = build.version.packageName,
-                let repository = build.version.package.repositories.first,
-                let repositoryOwner = repository.owner,
-                let repositoryName = repository.name,
-                let buildInfo = BuildInfo(build: build, logs: logs),
-                // TODO: why not just
-                // let versionId = build.version.id
-                let version = build.$version.value,
-                let versionId = version.id
+                let packageName = result.version.packageName,
+                let repositoryOwner = result.repository.owner,
+                let repositoryName = result.repository.name,
+                let buildInfo = BuildInfo(build: result.build, logs: logs),
+                let versionId = result.version.id
             else { return nil }
             self.init(buildInfo: buildInfo,
                       packageName: packageName,

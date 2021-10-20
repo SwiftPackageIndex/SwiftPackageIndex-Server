@@ -17,6 +17,7 @@
 import XCTVapor
 
 
+// FIXME: rename
 class BuildShowModelTests: AppTestCase {
 
     func test_buildsURL() throws {
@@ -27,8 +28,8 @@ class BuildShowModelTests: AppTestCase {
         XCTAssertEqual(Model.mock.packageURL, "/foo/bar")
     }
 
-    func test_Build_query() throws {
-        // Tests Build.query as it is used in BuildController by validating
+    func test_query() throws {
+        // Tests BuildResult.query as it is used in BuildController by validating
         // packageName. This property requires relations to be fully loaded,
         // which is what Build.query is taking care of.
         // setup
@@ -51,12 +52,13 @@ class BuildShowModelTests: AppTestCase {
         try updateLatestVersions(on: app.db, package: jpr).wait()
 
         // MUT
-        let m = try Build.query(on: app.db, buildId: buildId)
-            .flatMap { build in
-                Build.fetchLogs(client: self.app.client, logUrl: build.logUrl)
-                    .map { (build, $0) }
+        let m = try BuildController.BuildResult
+            .query(on: app.db, buildId: buildId)
+            .flatMap { result in
+                Build.fetchLogs(client: self.app.client, logUrl: result.build.logUrl)
+                    .map { (result, $0) }
             }
-            .map(BuildShow.Model.init(build:logs:))
+            .map(BuildShow.Model.init(result:logs:))
             .wait()
 
         // validate
