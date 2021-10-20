@@ -58,7 +58,7 @@ extension PackageCollection {
                                  prunedVersions: $0.results.map(\.version),
                                  keywords: keywords)
                 }
-                let authorLabel = authorLabel(versions: groups.map(\.key))
+                let authorLabel = authorLabel(results: groups.map(\.key))
                 let collectionName = collectionName ?? Self.collectionName(for: filter, authorLabel: authorLabel)
                 let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
                 return (packages, collectionName, overview)
@@ -81,18 +81,12 @@ extension PackageCollection {
             }
     }
 
-    static func authorLabel(versions: [PackageCollection.VersionResult]) -> String? {
-        // TODO: review this - couldn't this just be a Set over the ownerName/owner?
-        let groupedByName = Dictionary<String?, [PackageCollection.VersionResult]>(
-            grouping: versions,
-            by: {
+    static func authorLabel(results: [PackageCollection.VersionResult]) -> String? {
+        let names = Set(
+            results.compactMap {
                 $0.repository.ownerName ?? $0.repository.owner
             }
-        )
-
-        let names = groupedByName.enumerated()
-            .compactMap(\.element.key)
-            .sorted()
+        ).sorted()
         switch names.count {
             case 0:
                 // shouldn't be possible really

@@ -744,19 +744,19 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT & validate
         XCTAssertEqual(
-            PackageCollection.authorLabel(versions: []),
+            PackageCollection.authorLabel(results: []),
             nil
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(versions: Array(results.prefix(1))),
+            PackageCollection.authorLabel(results: Array(results.prefix(1))),
             "owner-0"
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(versions: Array(results.prefix(2))),
+            PackageCollection.authorLabel(results: Array(results.prefix(2))),
             "owner-0 and owner-1"
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(versions: results),
+            PackageCollection.authorLabel(results: results),
             "multiple authors"
         )
     }
