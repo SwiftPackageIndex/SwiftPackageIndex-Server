@@ -66,10 +66,7 @@ section.search {
   }
 
   &.home {
-    background-image: radial-gradient(
-      var(--header-gradient-start) 0%,
-      var(--header-gradient-end) 75%
-    );
+    background-image: radial-gradient(var(--header-gradient-start) 0%, var(--header-gradient-end) 75%);
     background-color: var(--header-background);
     color: var(--white);
 
@@ -168,6 +165,17 @@ nav {
 
 section.results {
   margin-top: 50px;
+
+  h4 {
+    margin: 0;
+  }
+
+  .package_results,
+  .author_results,
+  .keyword_results {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 ul.pagination {
