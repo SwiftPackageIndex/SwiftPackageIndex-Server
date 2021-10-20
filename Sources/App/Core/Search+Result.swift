@@ -56,6 +56,33 @@ extension Search {
                     return true
             }
         }
+
+        var authorResult: AuthorResult? {
+            switch self {
+                case let .author(result):
+                    return result
+                case .keyword, .package:
+                    return nil
+            }
+        }
+
+        var keywordResult: KeywordResult? {
+            switch self {
+                case let .keyword(result):
+                    return result
+                case .author, .package:
+                    return nil
+            }
+        }
+
+        var packageResult: PackageResult? {
+            switch self {
+                case let .package(result):
+                    return result
+                case .author, .keyword:
+                    return nil
+            }
+        }
     }
 
     struct AuthorResult: Codable, Equatable {
