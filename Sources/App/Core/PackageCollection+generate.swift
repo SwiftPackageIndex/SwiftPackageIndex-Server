@@ -45,83 +45,54 @@ extension PackageCollection {
                          keywords: [String]? = nil,
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
-        // TODO: used typed result
-        var query = App.Version.query(on: db)
-            .with(\.$builds)
-            .with(\.$products)
-            .with(\.$targets)
-            .with(\.$package) {
-                $0.with(\.$repositories)
-            }
-            .join(App.Package.self, on: \App.Package.$id == \Version.$package.$id)
-            .join(Repository.self, on: \App.Package.$id == \Repository.$package.$id)
-            .filter(Version.self, \.$latest ~~ [.release, .preRelease])
-        
-        switch filter {
-            case let .author(owner):
-                query = query
-                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            case let .urls(packageURLs):
-                query = query
-                    .filter(App.Package.self, \.$url ~~ packageURLs)
-        }
-        
-        let res: EventLoopFuture<([Package], String, String)> = query.all()
-            .map { versions in
+        VersionResult.query(on: db, filterBy: filter)
+            .map { results in
                 // Multiple versions can reference the same package, therefore
                 // we need to group them so we don't create duplicate packages.
-                // This requires App.Package to be Hashable and Equatable.
-                Dictionary(grouping: versions, by: { $0.package })
-                    .sorted(by: { $0.key.url < $1.key.url })
+                results.groupedByPackage(sortBy: .url)
             }
-            .map { packageToVersions in
-                let packages = packageToVersions.compactMap {
-                    Package.init(package: $0.key,
-                                 prunedVersions: $0.value,
-                                 keywords: keywords) }
-                let authorLabel = authorLabel(packages: packageToVersions.map(\.key))
+            .map { groups -> ([Package], String, String) in
+                let packages = groups.compactMap {
+                    Package.init(resultGroup: $0,
+                                 keywords: keywords)
+                }
+                let authorLabel = authorLabel(repositories: groups.map(\.repository))
                 let collectionName = collectionName ?? Self.collectionName(for: filter, authorLabel: authorLabel)
                 let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
                 return (packages, collectionName, overview)
             }
-        
-        return res.flatMap { packages, collectionName, overview in
-            guard !packages.isEmpty else {
-                return db.eventLoop.makeFailedFuture(Error.noResults)
+            .flatMap { packages, collectionName, overview in
+                guard !packages.isEmpty else {
+                    return db.eventLoop.makeFailedFuture(Error.noResults)
+                }
+                return db.eventLoop.makeSucceededFuture(
+                    PackageCollection.init(
+                        name: collectionName,
+                        overview: overview,
+                        keywords: keywords,
+                        packages: packages,
+                        formatVersion: .v1_0,
+                        revision: revision,
+                        generatedAt: Current.date(),
+                        generatedBy: authorName.map(Author.init(name:)))
+                )
             }
-            return db.eventLoop.makeSucceededFuture(
-                PackageCollection.init(
-                    name: collectionName,
-                    overview: overview,
-                    keywords: keywords,
-                    packages: packages,
-                    formatVersion: .v1_0,
-                    revision: revision,
-                    generatedAt: Current.date(),
-                    generatedBy: authorName.map(Author.init(name:)))
-            )
-        }
     }
 
-    static func authorLabel(packages: [App.Package]) -> String? {
-        let groupedPackagesByName = Dictionary(
-            grouping: packages,
-            by: { $0.repository?.ownerName ?? $0.repository?.owner }
-        )
-
-        let names = groupedPackagesByName.enumerated()
-            .compactMap(\.element.key)
-            .sorted()
+    static func authorLabel(repositories: [Repository]) -> String? {
+        let names = Set(
+            repositories.compactMap { $0.ownerName ?? $0.owner }
+        ).sorted()
         switch names.count {
-        case 0:
-            // shouldn't be possible really
-            return nil
-        case 1:
-            return names.first!
-        case 2:
-            return names.joined(separator: " and ")
-        default:
-            return "multiple authors"
+            case 0:
+                // shouldn't be possible really
+                return nil
+            case 1:
+                return names.first!
+            case 2:
+                return names.joined(separator: " and ")
+            default:
+                return "multiple authors"
         }
     }
 
@@ -170,30 +141,31 @@ extension PackageCollection.Package {
     /// Create a PackageCollections.Package from an App.Package (a database record, essentially).
     /// Note that we pass in an array of "pruned" `Version`s instead of using `package.versions`, because the latter would add *all* versions to the package collection, negating the filtering we've done to only include `release` and `preRelease` versions.
     /// - Parameters:
-    ///   - package: package model
+    ///   - version: `VersionResult`
     ///   - prunedVersions: filtered array of this package's versions to include in the collection
     ///   - keywords: array of keywords to include in the collection
-    init?(package: App.Package,
-          prunedVersions: [App.Version],
+    init?(resultGroup: PackageCollection.VersionResultGroup,
           keywords: [String]?) {
+        let repository = resultGroup.repository
         let license = PackageCollection.License(
-            name: package.repository?.license.shortName,
-            url: package.repository?.licenseUrl
+            name: repository.license.shortName,
+            url: repository.licenseUrl
         )
 
-        let versions = [Version].init(versions: prunedVersions,
-                                      license: license)
+        let versions = resultGroup.versions.compactMap {
+            Version(version: $0, license: license)
+        }.sorted { $0.version > $1.version }
 
-        guard let url = URL(string: package.url),
+        guard let url = URL(string: resultGroup.package.url),
               !versions.isEmpty
         else { return nil }
 
         self.init(
             url: url,
-            summary: package.repository?.summary,
+            summary: repository.summary,
             keywords: keywords,
             versions: versions,
-            readmeURL: package.repository?.readmeUrl.flatMap(URL.init(string:)),
+            readmeURL: repository.readmeUrl.flatMap(URL.init(string:)),
             license: license
         )
     }
@@ -229,18 +201,6 @@ extension PackageCollection.Package.Version {
             verifiedCompatibility: .init(builds: version.builds),
             license: license,
             createdAt: version.publishedAt
-        )
-    }
-}
-
-
-private extension Array where Element == PackageCollection.Package.Version {
-    init(versions: [App.Version], license: PackageCollection.License?) {
-        self.init(
-            versions.compactMap {
-                Element.init(version: $0, license: license)
-            }
-            .sorted { $0.version > $1.version }
         )
     }
 }

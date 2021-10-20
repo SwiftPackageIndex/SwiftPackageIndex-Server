@@ -21,11 +21,13 @@ struct Joined3<M: Model, R1: Model, R2: Model>: Joiner {
 
 
 extension Joined3 {
-    static func query<V1: Codable, V2: Codable>(
+    /// Query method that joins R1 and R2 on M via the given join filters.
+    /// - Returns: a `JoinedQueryBuilder<Self>`
+    static func query<V1: Codable, V2: Codable, L1: Schema, L2: Schema>(
         on database: Database,
-        join joinFilter1: JoinFilter<R1, M, V1>,
+        join joinFilter1: JoinFilter<R1, L1, V1>,
         method method1: DatabaseQuery.Join.Method = .inner,
-        join joinFilter2: JoinFilter<R2, M, V2>,
+        join joinFilter2: JoinFilter<R2, L2, V2>,
         method method2: DatabaseQuery.Join.Method = .inner) -> JoinedQueryBuilder<Joined3> {
             .init(
                 queryBuilder: M.query(on: database)

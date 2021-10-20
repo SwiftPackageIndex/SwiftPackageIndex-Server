@@ -119,12 +119,6 @@ extension Package {
 extension Package {
 
     @available(*, deprecated)
-    /// Return associated `Repository` or `nil` if the relationship has not been loaded.
-    var repository: Repository? {
-        guard let repositories = $repositories.value else { return nil }
-        return repositories.first
-    }
-
     /// Fetches associated `Repository` relationship (if not already loaded).
     /// - Parameter db: database object
     /// - Returns: `Repository?` future

@@ -27,13 +27,153 @@ class PackageCollectionTests: AppTestCase {
         return e
     }()
 
+    typealias VersionResult = PackageCollection.VersionResult
+    typealias VersionResultGroup = PackageCollection.VersionResultGroup
+
+    func test_query_filter_urls() throws {
+        // Tests PackageResult.query with the url filter option
+        // setup
+        try (0..<3).forEach { index in
+            let pkg = try savePackage(on: app.db, "url-\(index)".url)
+            do {
+                let v = try Version(package: pkg,
+                                    latest: .release,
+                                    packageName: "package \(index)",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.4")
+                try v.save(on: app.db).wait()
+                try Build(version: v,
+                          buildCommand: "build \(index)",
+                          platform: .ios,
+                          status: .ok,
+                          swiftVersion: .v5_5)
+                    .save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library(.automatic),
+                            name: "product \(index)")
+                    .save(on: app.db).wait()
+                try Target(version: v, name: "target \(index)")
+                    .save(on: app.db).wait()
+            }
+            try Repository(package: pkg,
+                           name: "repo \(index)")
+                .save(on: app.db).wait()
+        }
+
+        // MUT
+        let res = try VersionResult.query(on: app.db,
+                                          filterBy: .urls(["url-1"])).wait()
+
+        // validate selection and all relations being loaded
+        XCTAssertEqual(res.map(\.version.packageName), ["package 1"])
+        XCTAssertEqual(res.flatMap{ $0.builds.map(\.buildCommand) },
+                       ["build 1"])
+        XCTAssertEqual(res.flatMap{ $0.products.map(\.name) },
+                       ["product 1"])
+        XCTAssertEqual(res.flatMap{ $0.targets.map(\.name) },
+                       ["target 1"])
+        XCTAssertEqual(res.map(\.package.url), ["url-1"])
+        XCTAssertEqual(res.map(\.repository.name), ["repo 1"])
+        // drill into relations of relations
+        XCTAssertEqual(res.flatMap { $0.version.products.map(\.name) }, ["product 1"])
+    }
+
+    func test_query_filter_urls_no_results() throws {
+        // Tests PackageResult.query without results has safe relationship accessors
+        // setup
+        try (0..<3).forEach { index in
+            let pkg = try savePackage(on: app.db, "url-\(index)".url)
+            do {
+                let v = try Version(package: pkg,
+                                    latest: .release,
+                                    packageName: "package \(index)",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.4")
+                try v.save(on: app.db).wait()
+                try Build(version: v,
+                          buildCommand: "build \(index)",
+                          platform: .ios,
+                          status: .ok,
+                          swiftVersion: .v5_5)
+                    .save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library(.automatic),
+                            name: "product \(index)")
+                    .save(on: app.db).wait()
+                try Target(version: v, name: "target \(index)")
+                    .save(on: app.db).wait()
+            }
+            try Repository(package: pkg,
+                           name: "repo \(index)")
+                .save(on: app.db).wait()
+        }
+
+        // MUT
+        let res = try VersionResult.query(
+            on: app.db,
+            filterBy: .urls(["non-existant"])
+        ).wait()
+
+        // validate safe access
+        XCTAssertEqual(res.map(\.version.packageName), [])
+        XCTAssertEqual(res.flatMap{ $0.builds.map(\.buildCommand) }, [])
+        XCTAssertEqual(res.flatMap{ $0.products.map(\.name) }, [])
+        XCTAssertEqual(res.flatMap{ $0.targets.map(\.name) }, [])
+        XCTAssertEqual(res.map(\.package.url), [])
+        XCTAssertEqual(res.map(\.repository.name), [])
+    }
+
+    func test_query_author() throws {
+        // Tests PackageResult.query with the author filter option
+        // setup
+        // first package
+        let owners = ["foo", "foo", "someone else"]
+        try (0..<3).forEach { index in
+            let pkg = try savePackage(on: app.db, "url-\(index)".url)
+            do {
+                let v = try Version(package: pkg,
+                                    latest: .release,
+                                    packageName: "package \(index)",
+                                    reference: .tag(1, 2, 3),
+                                    toolsVersion: "5.4")
+                try v.save(on: app.db).wait()
+                try Build(version: v,
+                          buildCommand: "build \(index)",
+                          platform: .ios,
+                          status: .ok,
+                          swiftVersion: .v5_5)
+                    .save(on: app.db).wait()
+                try Product(version: v,
+                            type: .library(.automatic),
+                            name: "product \(index)")
+                    .save(on: app.db).wait()
+                try Target(version: v, name: "target \(index)")
+                    .save(on: app.db).wait()
+            }
+            try Repository(package: pkg,
+                           name: "repo \(index)",
+                           owner: owners[index])
+                .save(on: app.db).wait()
+        }
+
+        // MUT
+        let res = try VersionResult.query(on: self.app.db,
+                                          filterBy: .author("foo"))
+            .wait()
+
+        // validate selection (relationship loading is tested in test_query_filter_urls)
+        XCTAssertEqual(res.map(\.version.packageName),
+                       ["package 0", "package 1"])
+    }
+
     func test_Version_init() throws {
         // Tests PackageCollection.Version initialisation from App.Version
         // setup
-        let p = Package(url: "1".asGithubUrl.url)
+        let p = Package(url: "1")
         try p.save(on: app.db).wait()
         do {
             let v = try Version(package: p,
+                                latest: .release,
                                 packageName: "Foo",
                                 publishedAt: Date(timeIntervalSince1970: 0),
                                 reference: .tag(1, 2, 3),
@@ -41,6 +181,7 @@ class PackageCollectionTests: AppTestCase {
                                 supportedPlatforms: [.ios("14.0")],
                                 toolsVersion: "5.3")
             try v.save(on: app.db).wait()
+            try Repository(package: p).save(on: app.db).wait()
             do {
                 try Product(version: v,
                             type: .library(.automatic),
@@ -70,13 +211,10 @@ class PackageCollectionTests: AppTestCase {
                           swiftVersion: .v5_3).save(on: app.db).wait()
             }
         }
-        let v = try Version.query(on: app.db)
-            .with(\.$builds)
-            .with(\.$products)
-            .with(\.$targets)
-            .first()
-            .unwrap(or: Abort(.notFound))
-            .wait()
+        let v = try XCTUnwrap(VersionResult.query(on: app.db,
+                                                  filterBy: .urls(["1"]))
+                                .wait()
+                                .first?.version)
 
         // MUT
         let res = try XCTUnwrap(
@@ -117,43 +255,37 @@ class PackageCollectionTests: AppTestCase {
         // Tests PackageCollection.Package initialisation from App.Package
         // setup
         do {
-            let p = Package(url: "1".asGithubUrl.url)
+            let p = Package(url: "1")
             try p.save(on: app.db).wait()
-            do {
-                let r = try Repository(package: p,
-                                       license: .mit,
-                                       licenseUrl: "https://foo/mit",
-                                       readmeUrl: "readmeUrl",
-                                       summary: "summary")
-                try r.save(on: app.db).wait()
-            }
-            do {
-                let v = try Version(package: p,
-                                    latest: .release,
-                                    packageName: "Foo",
-                                    reference: .tag(1, 2, 3),
-                                    toolsVersion: "5.3")
-                try v.save(on: app.db).wait()
-                try Product(version: v,
-                            type: .library(.automatic),
-                            name: "product").save(on: app.db).wait()
-            }
+            try Repository(package: p,
+                           license: .mit,
+                           licenseUrl: "https://foo/mit",
+                           readmeUrl: "readmeUrl",
+                           summary: "summary")
+                .save(on: app.db).wait()
+            let v = try Version(package: p,
+                                latest: .release,
+                                packageName: "Foo",
+                                reference: .tag(1, 2, 3),
+                                toolsVersion: "5.3")
+            try v.save(on: app.db).wait()
+            try Product(version: v,
+                        type: .library(.automatic),
+                        name: "product").save(on: app.db).wait()
         }
-        let p = try Package.query(on: app.db)
-            .with(\.$repositories)
-            .with(\.$versions) {
-                $0.with(\.$builds)
-                $0.with(\.$products)
-                $0.with(\.$targets)
-            }
-            .first()
-            .unwrap(or: Abort(.notFound))
-            .wait()
+        let result = try XCTUnwrap(
+            VersionResult.query(on: app.db, filterBy: .urls(["1"]))
+                .wait().first
+        )
+        let group = VersionResultGroup(package: result.package,
+                                       repository: result.repository,
+                                       versions: [result.version])
 
         // MUT
-        let res = try XCTUnwrap(PackageCollection.Package(package: p,
-                                                          prunedVersions: p.versions,
-                                                          keywords: ["a", "b"]))
+        let res = try XCTUnwrap(
+            PackageCollection.Package(resultGroup: group,
+                                      keywords: ["a", "b"])
+        )
 
         // validate
         XCTAssertEqual(res.keywords, ["a", "b"])
@@ -163,6 +295,60 @@ class PackageCollectionTests: AppTestCase {
         // version details tested in test_Version_init
         // simply assert count here
         XCTAssertEqual(res.versions.count, 1)
+    }
+
+    func test_groupedByPackage() throws {
+        // setup
+        // 2 packages by the same author (which we select) with two versions
+        // each.
+        do {
+            let p = Package(url: "2")
+            try p.save(on: app.db).wait()
+            try Repository(
+                package: p,
+                owner: "a"
+            ).save(on: app.db).wait()
+            try Version(package: p, latest: .release, packageName: "2a")
+                .save(on: app.db).wait()
+            try Version(package: p, latest: .release, packageName: "2b")
+                .save(on: app.db).wait()
+        }
+        do {
+            let p = Package(url: "1")
+            try p.save(on: app.db).wait()
+            try Repository(
+                package: p,
+                owner: "a"
+            ).save(on: app.db).wait()
+            try Version(package: p, latest: .release, packageName: "1a")
+                .save(on: app.db).wait()
+            try Version(package: p, latest: .release, packageName: "1b")
+                .save(on: app.db).wait()
+        }
+        let results = try VersionResult.query(on: app.db,
+                                              filterBy: .author("a")).wait()
+
+        // MUT
+        let res = results.groupedByPackage(sortBy: .url)
+
+        // validate
+        XCTAssertEqual(res.map(\.package.url), ["1", "2"])
+        XCTAssertEqual(
+            res.first.flatMap { $0.versions.map(\.packageName) },
+            ["1a", "1b"]
+        )
+        XCTAssertEqual(
+            res.last.flatMap { $0.versions.map(\.packageName) },
+            ["2a", "2b"]
+        )
+    }
+
+    func test_groupedByPackage_empty() throws {
+        // MUT
+        let res = [VersionResult]().groupedByPackage()
+
+        // validate
+        XCTAssertTrue(res.isEmpty)
     }
 
     func test_generate_from_urls() throws {
@@ -413,33 +599,39 @@ class PackageCollectionTests: AppTestCase {
         // Ensure we don't include packages without versions (by ensuring
         // init? returns nil, which will be compact mapped away)
         do {  // no versions at all
-            let p = Package(url: "1".asGithubUrl.url)
-            try p.save(on: app.db).wait()
-            try p.$versions.load(on: app.db).wait()
+            // setup
+            let pkg = Package(url: "1")
+            try pkg.save(on: app.db).wait()
+            let repo = try Repository(package: pkg)
+            try repo.save(on: app.db).wait()
+            let group = VersionResultGroup(package: pkg,
+                                           repository: repo,
+                                           versions: [])
 
-            XCTAssertNil(PackageCollection.Package(package: p,
-                                                   prunedVersions: p.versions,
+            // MUT
+            XCTAssertNil(PackageCollection.Package(resultGroup: group,
                                                    keywords: nil))
         }
-        do {  // only invalid versions
-            do {  // setup
-                let p = Package(url: "2".asGithubUrl.url)
-                try p.save(on: app.db).wait()
-                let v = try Version(package: p, latest: .release)
-                try v.save(on: app.db).wait()
-            }
-            let p = try XCTUnwrap(
-                Package.query(on: app.db)
-                    .with(\.$versions) {
-                        $0.with(\.$products)
-                    }
-                    .first()
-                    .wait()
-            )
-            XCTAssertNil(PackageCollection.Package(package: p,
-                                                   prunedVersions: p.versions,
-                                                   keywords: nil))
 
+        do {  // only invalid versions
+            // setup
+            do {
+                let p = Package(url: "2")
+                try p.save(on: app.db).wait()
+                try Version(package: p, latest: .release).save(on: app.db).wait()
+                try Repository(package: p).save(on: app.db).wait()
+            }
+            let res = try XCTUnwrap(
+                VersionResult.query(on: app.db, filterBy: .urls(["2"]))
+                    .wait().first
+            )
+            let group = VersionResultGroup(package: res.package,
+                                           repository: res.repository,
+                                           versions: [res.version])
+
+            // MUT
+            XCTAssertNil(PackageCollection.Package(resultGroup: group,
+                                                   keywords: nil))
         }
     }
 
@@ -548,31 +740,27 @@ class PackageCollectionTests: AppTestCase {
 
     func test_authorLabel() throws {
         // setup
-        let packages: [Package] = (0..<3).map { idx in
-            Package(url: "\(idx)".url)
-        }
-        try packages.enumerated().forEach { idx, p in
-            try p.save(on: app.db).wait()
-            try Repository(package: p, owner: "owner-\(idx)")
-                .save(on: app.db).wait()
-            try p.$repositories.load(on: app.db).wait()
+        let p = Package(url: "1")
+        try p.save(on: app.db).wait()
+        let repositories = try (0..<3).map {
+            try Repository(package: p, owner: "owner-\($0)")
         }
 
         // MUT & validate
         XCTAssertEqual(
-            PackageCollection.authorLabel(packages: []),
+            PackageCollection.authorLabel(repositories: []),
             nil
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(packages: Array(packages.prefix(1))),
+            PackageCollection.authorLabel(repositories: Array(repositories.prefix(1))),
             "owner-0"
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(packages: Array(packages.prefix(2))),
+            PackageCollection.authorLabel(repositories: Array(repositories.prefix(2))),
             "owner-0 and owner-1"
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(packages: packages),
+            PackageCollection.authorLabel(repositories: repositories),
             "multiple authors"
         )
     }
