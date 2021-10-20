@@ -53,6 +53,7 @@ extension SearchShow {
                 .section(
                     .class("results"),
                     .p(
+                        // If there are *any* results, either author, keyword, or package.
                         .if(model.response.results.count > 0, .text("Results for "), else: .text("No results for ")),
                         .text("&ldquo;"),
                         .strong(.text(model.query)),
@@ -65,20 +66,8 @@ extension SearchShow {
                         // also include navigation into and out of the query field.
                         .data(named: "focus-query-field", value: String(true)),
                         .group(
-                            model.response.results.map { result -> Node<HTML.ListContext> in
-                                .li(
-                                    .a(
-                                        .href(result.link),
-                                        .h4(.text(result.title)),
-                                        .unwrap(result.summary) { .p(.text($0)) },
-                                        .small(
-                                            .span(
-                                                .class("identifier"),
-                                                .text(result.footer)
-                                            )
-                                        )
-                                    )
-                                )
+                            model.packageResults.map { packageResult -> Node<HTML.ListContext> in
+                                .packageListItem(linkUrl: packageResult.packageURL, packageName: packageResult.packageName ?? packageResult.repositoryName, summary: packageResult.summary, repositoryOwner: packageResult.repositoryOwner, repositoryName: packageResult.repositoryName, stars: nil)
                             }
                         )
                     ),
