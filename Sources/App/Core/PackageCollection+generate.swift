@@ -152,13 +152,9 @@ extension PackageCollection.Package {
             url: repository.licenseUrl
         )
 
-        // FIXME: why not just map?
-        //        versions.compactMap {
-        //            Version(version: $0, license: license)
-        //        }
-        //        .sorted { $0.version > $1.version }
-        let versions = [Version].init(versions: resultGroup.versions,
-                                      license: license)
+        let versions = resultGroup.versions.compactMap {
+            Version(version: $0, license: license)
+        }.sorted { $0.version > $1.version }
 
         guard let url = URL(string: resultGroup.package.url),
               !versions.isEmpty
@@ -205,18 +201,6 @@ extension PackageCollection.Package.Version {
             verifiedCompatibility: .init(builds: version.builds),
             license: license,
             createdAt: version.publishedAt
-        )
-    }
-}
-
-
-private extension Array where Element == PackageCollection.Package.Version {
-    init(versions: [App.Version], license: PackageCollection.License?) {
-        self.init(
-            versions.compactMap {
-                Element.init(version: $0, license: license)
-            }
-            .sorted { $0.version > $1.version }
         )
     }
 }
