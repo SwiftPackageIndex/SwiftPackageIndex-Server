@@ -20,8 +20,6 @@ import XCTVapor
 
 
 final class PackageTests: AppTestCase {
-    // TODO: remove?
-    typealias PackageResult = PackageController.PackageResult
 
     func test_Equatable() throws {
         XCTAssertEqual(Package(id: .id0, url: "1".url),
@@ -265,17 +263,6 @@ final class PackageTests: AppTestCase {
         // ensure .git is stripped off
         XCTAssertEqual(Package(url: "https://github.com/foo/bar.git").versionUrl(for: .tag(1, 2, 3)),
                        "https://github.com/foo/bar/releases/tag/1.2.3")
-    }
-
-    func test_badgeMessage_swiftVersions() throws {
-        XCTAssertEqual(PackageResult.badgeMessage(swiftVersions: [.v5_2, .v5_1, .v5_4]), "5.4 | 5.2 | 5.1")
-        XCTAssertNil(PackageResult.badgeMessage(swiftVersions: []))
-    }
-
-    func test_badgeMessage_platforms() throws {
-        XCTAssertEqual(PackageResult.badgeMessage(platforms: [.linux, .ios, .macosXcodebuild, .macosSpm]),
-                       "iOS | macOS | Linux")
-        XCTAssertNil(PackageResult.badgeMessage(platforms: []))
     }
 
     func test_isNew() throws {
