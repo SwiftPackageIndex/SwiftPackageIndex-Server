@@ -114,24 +114,6 @@ extension Package {
 }
 
 
-// MARK: - Relationship helpers
-
-extension Package {
-
-    @available(*, deprecated)
-    /// Fetches associated `Repository` relationship (if not already loaded).
-    /// - Parameter db: database object
-    /// - Returns: `Repository?` future
-    func fetchRepository(_ db: Database) -> EventLoopFuture<Repository?> {
-        if let repos = $repositories.value {
-            return db.eventLoop.future(repos.first)
-        }
-        return $repositories.load(on: db).map { self.repositories.first }
-    }
-
-}
-
-
 // MARK: - Versions & Releases
 
 extension Package {
