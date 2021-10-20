@@ -228,7 +228,7 @@ extension PackageShow.Model {
 
     func starsListItem() -> Node<HTML.ListContext> {
         guard let stars = stars,
-              let str = Self.starsNumberFormatter.string(from: NSNumber(value: stars))
+              let str = NumberFormatter.starsFormatter.string(from: NSNumber(value: stars))
         else { return .empty }
         return .li(
             .class("stars"),
@@ -378,13 +378,6 @@ extension PackageShow.Model {
         }
     }
 
-    static var starsNumberFormatter: NumberFormatter = {
-        let f = NumberFormatter()
-        f.thousandSeparator = ","
-        f.numberStyle = .decimal
-        return f
-    }()
-    
     func stableReleaseMetadata() -> Node<HTML.ListContext> {
         guard let datedLink = releases.stable else { return .empty }
         return releaseMetadata(datedLink, title: "Latest Stable Release", cssClass: "stable")
