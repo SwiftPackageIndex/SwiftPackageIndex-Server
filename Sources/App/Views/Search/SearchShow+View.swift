@@ -59,16 +59,14 @@ extension SearchShow {
                     .text("&rdquo;"),
                     .if(model.response.results.count > 0, .text("&hellip;"), else: .text("."))
                 ),
-                .div(
+                .if(model.authorResults.count > 0 || model.keywordResults.count > 0, .div(
                     .class("two_column"),
-                    .div(
-                        packageResultsSection()
-                    ),
+                    packageResultsSection(),
                     .div(
                         authorResultsSection(),
                         keywordResultsSection()
                     )
-                )
+                ), else: packageResultsSection())
             )
         }
 
