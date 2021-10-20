@@ -33,18 +33,18 @@ enum SearchShow {
                 self.hasMoreResults = response.hasMoreResults
                 self.results = response.results
             }
+        }
 
-            var authorResults: [Search.AuthorResult] {
-                results.compactMap(\.authorResult)
-            }
+        var authorResults: [Search.AuthorResult] {
+            response.results.compactMap(\.authorResult)
+        }
 
-            var keywordResults: [Search.KeywordResult] {
-                results.compactMap(\.keywordResult)
-            }
+        var keywordResults: [Search.KeywordResult] {
+            response.results.compactMap(\.keywordResult)
+        }
 
-            var packageResults: [Search.PackageResult] {
-                results.compactMap(\.packageResult)
-            }
+        var packageResults: [Search.PackageResult] {
+            response.results.compactMap(\.packageResult)
         }
     }
 
