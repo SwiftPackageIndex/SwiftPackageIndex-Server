@@ -75,9 +75,6 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.map(\.repository.name), ["repo 1"])
         // drill into relations of relations
         XCTAssertEqual(res.flatMap { $0.version.products.map(\.name) }, ["product 1"])
-        // fatalError - package isn't loading any references, only the top level result is
-        //  XCTAssertEqual(res.flatMap { $0.package.versions.map(\.packageName) }, ["foo"])
-        //  XCTAssertEqual(res.flatMap { $0.package.repositories.first?.name }, ["foo"])
     }
 
     func test_query_filter_urls_no_results() throws {
