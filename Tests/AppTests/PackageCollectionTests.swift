@@ -727,4 +727,35 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.map(\.swiftVersion).sorted(),
                        ["5.2", "5.3", "5.4"])
     }
+
+    func test_authorLabel() throws {
+        // setup
+        let packages: [Package] = (0..<3).map { idx in
+            Package(url: "\(idx)".url)
+        }
+        try packages.enumerated().forEach { idx, p in
+            try p.save(on: app.db).wait()
+            try Repository(package: p, owner: "owner-\(idx)")
+                .save(on: app.db).wait()
+            try p.$repositories.load(on: app.db).wait()
+        }
+
+        // MUT & validate
+        XCTAssertEqual(
+            PackageCollection.authorLabel(packages: []),
+            nil
+        )
+        XCTAssertEqual(
+            PackageCollection.authorLabel(packages: Array(packages.prefix(1))),
+            "owner-0"
+        )
+        XCTAssertEqual(
+            PackageCollection.authorLabel(packages: Array(packages.prefix(2))),
+            "owner-0 and owner-1"
+        )
+        XCTAssertEqual(
+            PackageCollection.authorLabel(packages: packages),
+            "multiple authors"
+        )
+    }
 }

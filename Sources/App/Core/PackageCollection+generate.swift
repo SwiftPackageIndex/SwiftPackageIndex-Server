@@ -90,7 +90,9 @@ extension PackageCollection {
             }
         )
 
-        let names = groupedByName.enumerated().compactMap(\.element.key)
+        let names = groupedByName.enumerated()
+            .compactMap(\.element.key)
+            .sorted()
         switch names.count {
             case 0:
                 // shouldn't be possible really
