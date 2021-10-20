@@ -123,9 +123,10 @@ class TwitterTests: AppTestCase {
                        summary: "This is a test package").save(on: app.db).wait()
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try version.save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let res = try Twitter.firehoseMessage(db: app.db, for: version).wait()
+        let res = Twitter.firehoseMessage(db: app.db, package: jpr, version: version)
 
         // validate
         XCTAssertEqual(res, """
@@ -145,9 +146,10 @@ class TwitterTests: AppTestCase {
                        summary: "This is a test package").save(on: app.db).wait()
         let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try version.save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let res = try Twitter.firehoseMessage(db: app.db, for: version).wait()
+        let res = Twitter.firehoseMessage(db: app.db, package: jpr, version: version)
 
         // validate
         XCTAssertEqual(res, """
@@ -328,6 +330,7 @@ class TwitterTests: AppTestCase {
                        summary: "This is a test package").save(on: app.db).wait()
         let v = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
         try v.save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
         }
@@ -340,7 +343,7 @@ class TwitterTests: AppTestCase {
         // MUT & validate - disallow if set to false
         Current.allowTwitterPosts = { false }
         XCTAssertThrowsError(
-            try Twitter.postToFirehose(client: app.client, database: app.db, version: v).wait()
+            try Twitter.postToFirehose(client: app.client, database: app.db, package: jpr, version: v).wait()
         ) {
             XCTAssertTrue($0.localizedDescription.contains("App.Twitter.Error error 3"))
         }
@@ -348,7 +351,7 @@ class TwitterTests: AppTestCase {
 
         // MUT & validate - allow if set to true
         Current.allowTwitterPosts = { true }
-        try Twitter.postToFirehose(client: app.client, database: app.db, version: v).wait()
+        try Twitter.postToFirehose(client: app.client, database: app.db, package: jpr, version: v).wait()
         XCTAssertEqual(posted, 1)
     }
 
