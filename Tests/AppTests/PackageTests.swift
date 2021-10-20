@@ -227,8 +227,6 @@ final class PackageTests: AppTestCase {
         )
     }
 
-    // TODO: move most/all of the JPRVB MUT tests into JRVBTests file
-
     func test_findSignificantReleases_old_beta() throws {
         // Test to ensure outdated betas aren't picked up as latest versions
         // setup
