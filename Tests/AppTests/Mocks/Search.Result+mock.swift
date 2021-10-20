@@ -16,11 +16,11 @@
 
 
 extension Search.Result {
-    static func mock(packageId: Package.Id?,
+    static func mock(packageId: Package.Id,
                      packageName: String?,
-                     packageURL: String?,
-                     repositoryName: String?,
-                     repositoryOwner: String?,
+                     packageURL: String,
+                     repositoryName: String,
+                     repositoryOwner: String,
                      summary: String?) -> Self {
             .package(
                 .init(
@@ -30,7 +30,7 @@ extension Search.Result {
                     repositoryName: repositoryName,
                     repositoryOwner: repositoryOwner,
                     summary: summary
-                )
+                )!
             )
     }
 }

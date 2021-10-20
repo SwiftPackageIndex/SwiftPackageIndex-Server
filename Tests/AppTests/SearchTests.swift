@@ -137,7 +137,7 @@ class SearchTests: AppTestCase {
                                           packageURL: "/owner%202/name%202",
                                           repositoryName: "name 2",
                                           repositoryOwner: "owner 2",
-                                          summary: "bar package")
+                                          summary: "bar package")!
                                 )
                              ])
         )
@@ -175,7 +175,7 @@ class SearchTests: AppTestCase {
                                           packageURL: "/owner/package%202",
                                           repositoryName: "package 2",
                                           repositoryOwner: "owner",
-                                          summary: "package 2 description")
+                                          summary: "package 2 description")!
                                 )
                              ])
         )
@@ -213,7 +213,7 @@ class SearchTests: AppTestCase {
                                           packageURL: "/owner%201/name%201",
                                           repositoryName: "name 1",
                                           repositoryOwner: "owner 1",
-                                          summary: "some 'package'")
+                                          summary: "some 'package'")!
                                     )
                              ])
         )
@@ -646,7 +646,7 @@ class SearchTests: AppTestCase {
                            packageURL: "/foo/2",
                            repositoryName: "2",
                            repositoryOwner: "foo",
-                           summary: ""))
+                           summary: "")!)
         ])
     }
     

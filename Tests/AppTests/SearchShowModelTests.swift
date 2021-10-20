@@ -35,31 +35,7 @@ class SearchShowModelTests: AppTestCase {
                   repositoryName: "two",
                   repositoryOwner: "package",
                   summary: nil
-                 ),
-            // Invalid - Missing packageURL
-            .mock(packageId: .id3,
-                  packageName: "3",
-                  packageURL: nil,
-                  repositoryName: "three",
-                  repositoryOwner: "package",
-                  summary: "summary three"
-                 ),
-            // Invalid - Missing repositoryName
-            .mock(packageId: .id4,
-                  packageName: "4",
-                  packageURL: "https://example.com/package/three",
-                  repositoryName: nil,
-                  repositoryOwner: "package",
-                  summary: "summary four"
-                 ),
-            // Invalid - Missing repositoryOwner
-            .mock(packageId: .id5,
-                  packageName: "5",
-                  packageURL: "https://example.com/package/three",
-                  repositoryName: "five",
-                  repositoryOwner: nil,
-                  summary: "summary five"
-            )
+                 )
         ]
 
         // MUT
@@ -71,30 +47,16 @@ class SearchShowModelTests: AppTestCase {
         XCTAssertEqual(model.response.hasMoreResults, false)
         XCTAssertEqual(model.response.results.count, 2)
 
-        let result = model.response.results.first!
-        XCTAssertEqual(result.title, "1")
+        let result = model.packageResults.first!
+        XCTAssertEqual(result.packageId, .id1)
+        XCTAssertEqual(result.packageName, "1")
+        XCTAssertEqual(result.packageURL, "https://example.com/package/one")
+        XCTAssertEqual(result.repositoryName, "one")
+        XCTAssertEqual(result.repositoryOwner, "package")
         XCTAssertEqual(result.summary, "summary one")
-        XCTAssertEqual(result.footer, "package/one")
-        XCTAssertEqual(result.link, "https://example.com/package/one")
-    }
 
-    func test_SearchShow_Model_Record_packageName() throws {
-        // A search record with no package name shouls get a default package name
-        let result: Search.Result = .mock(
-            packageId: .id1,
-            packageName: nil,
-            packageURL: "https://example.com/package/one",
-            repositoryName: "one",
-            repositoryOwner: "package",
-            summary: nil
-        )
-
-        let viewModel = SearchShow.Model.Result(result: result)
-
-        // MUT
-        let packageName = viewModel?.title
-
-        XCTAssertEqual(packageName, "Unknown Package")
+        XCTAssertEqual(model.authorResults, [])
+        XCTAssertEqual(model.keywordResults, [])
     }
 
     // TODO: add keyword search test
