@@ -46,32 +46,19 @@ extension PackageCollection {
                          overview: String? = nil,
                          revision: Int? = nil) -> EventLoopFuture<PackageCollection> {
         VersionResult.query(on: db, filterBy: filter)
-            .map { results -> [(key: VersionResult, value: [Version])] in
+            .map { results in
                 // Multiple versions can reference the same package, therefore
                 // we need to group them so we don't create duplicate packages.
-                // This requires App.Package to be Hashable and Equatable.
-                // FIXME: temporary
-                let idLookup = Dictionary(
-                    results.map {
-                        ($0.package.id, $0)
-                    },
-                    uniquingKeysWith: { _, last in last }
-                )
-                return Dictionary(grouping: results,
-                                  by: { $0.package })
-                    .sorted(by: { $0.key.url < $1.key.url })
-                    .map { key, value in
-                        (idLookup[key.id]!, value.map(\.version))
-                    }
+                results.groupedByPackage(sortBy: .url)
             }
-            .map { resultsToVersions -> ([Package], String, String) in
-                let packages = resultsToVersions.compactMap {
+            .map { groups -> ([Package], String, String) in
+                let packages = groups.compactMap {
                     Package.init(package: $0.key.package,
                                  repository: $0.key.repository,
-                                 prunedVersions: $0.value,
+                                 prunedVersions: $0.results.map(\.version),
                                  keywords: keywords)
                 }
-                let authorLabel = authorLabel(versions: resultsToVersions.map(\.key))
+                let authorLabel = authorLabel(versions: groups.map(\.key))
                 let collectionName = collectionName ?? Self.collectionName(for: filter, authorLabel: authorLabel)
                 let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
                 return (packages, collectionName, overview)

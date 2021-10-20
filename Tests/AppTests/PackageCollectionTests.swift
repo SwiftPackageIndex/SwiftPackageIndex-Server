@@ -293,6 +293,56 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.versions.count, 1)
     }
 
+    func test_groupedByPackage() throws {
+        // setup
+        // 2 packages by the same author (which we select) with two versions
+        // each.
+        do {
+            let p = Package(url: "2")
+            try p.save(on: app.db).wait()
+            try Repository(
+                package: p,
+                owner: "a"
+            ).save(on: app.db).wait()
+            try Version(package: p, latest: .release, packageName: "2a")
+                .save(on: app.db).wait()
+            try Version(package: p, latest: .release, packageName: "2b")
+                .save(on: app.db).wait()
+        }
+        do {
+            let p = Package(url: "1")
+            try p.save(on: app.db).wait()
+            try Repository(
+                package: p,
+                owner: "a"
+            ).save(on: app.db).wait()
+            try Version(package: p, latest: .release, packageName: "1a")
+                .save(on: app.db).wait()
+            try Version(package: p, latest: .release, packageName: "1b")
+                .save(on: app.db).wait()
+        }
+        let results = try VersionResult.query(on: app.db,
+                                              filterBy: .author("a")).wait()
+
+        // MUT
+        let res = results.groupedByPackage(sortBy: .url)
+
+        // validate
+        XCTAssertEqual(res.map(\.key.package.url), ["1", "2"])
+        XCTAssertEqual(res.first.flatMap { $0.results.map(\.version.packageName)
+        }, ["1a", "1b"])
+        XCTAssertEqual(res.last.flatMap { $0.results.map(\.version.packageName)
+        }, ["2a", "2b"])
+    }
+
+    func test_groupedByPackage_empty() throws {
+        // MUT
+        let res = [VersionResult]().groupedByPackage()
+
+        // validate
+        XCTAssertTrue(res.isEmpty)
+    }
+
     func test_generate_from_urls() throws {
         // setup
         Current.date = { Date(timeIntervalSince1970: 1610112345) }
