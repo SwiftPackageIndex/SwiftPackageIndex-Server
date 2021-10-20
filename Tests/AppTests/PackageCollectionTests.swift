@@ -730,31 +730,33 @@ class PackageCollectionTests: AppTestCase {
 
     func test_authorLabel() throws {
         // setup
-        let packages: [Package] = (0..<3).map { idx in
-            Package(url: "\(idx)".url)
-        }
+        let urls = (0..<3).map { "\($0)" }
+        let packages: [Package] = urls.map { Package(url: $0.url) }
         try packages.enumerated().forEach { idx, p in
             try p.save(on: app.db).wait()
             try Repository(package: p, owner: "owner-\(idx)")
                 .save(on: app.db).wait()
             try p.$repositories.load(on: app.db).wait()
+            try Version(package: p, latest: .release).save(on: app.db).wait()
         }
+        let results = try VersionResult.query(on: app.db,
+                                              filterBy: .urls(urls)).wait()
 
         // MUT & validate
         XCTAssertEqual(
-            PackageCollection.authorLabel(packages: []),
+            PackageCollection.authorLabel(versions: []),
             nil
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(packages: Array(packages.prefix(1))),
+            PackageCollection.authorLabel(versions: Array(results.prefix(1))),
             "owner-0"
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(packages: Array(packages.prefix(2))),
+            PackageCollection.authorLabel(versions: Array(results.prefix(2))),
             "owner-0 and owner-1"
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(packages: packages),
+            PackageCollection.authorLabel(versions: results),
             "multiple authors"
         )
     }
