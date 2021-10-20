@@ -59,5 +59,5 @@ class SearchShowModelTests: AppTestCase {
         XCTAssertEqual(model.keywordResults, [])
     }
 
-    // TODO: add keyword search test
+    // TODO: add keyword and author search test
 }
