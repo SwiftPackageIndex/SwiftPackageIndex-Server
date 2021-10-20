@@ -29,10 +29,10 @@ extension Build {
             }
             .first()
             .unwrap(or: Abort(.notFound))
-            .flatMap { build in
-                // load all versions in order to resolve package name
-                build.version.package.$versions.load(on: database).map { build }
-            }
+//            .flatMap { build in
+//                // load all versions in order to resolve package name
+//                build.version.package.$versions.load(on: database).map { build }
+//            }
     }
 
 }
