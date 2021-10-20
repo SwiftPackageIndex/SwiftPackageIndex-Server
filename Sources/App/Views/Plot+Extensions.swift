@@ -106,10 +106,10 @@ extension Node where Context == HTML.FormContext {
 extension Node where Context == HTML.ListContext {
     static func packageListItem(linkUrl: String,
                                 packageName: String,
-                                summary: String,
+                                summary: String?,
                                 repositoryOwner: String,
                                 repositoryName: String,
-                                stars: Int) -> Self {
+                                stars: Int?) -> Self {
         .li(
             .a(
                 .href(linkUrl),
@@ -120,8 +120,12 @@ extension Node where Context == HTML.ListContext {
                         .class("identifier"),
                         .text("\(repositoryOwner)/\(repositoryName)")
                     ),
-                    .text(" &ndash; "),
-                    .starsSpan(numberOfStars: stars)
+                    .unwrap(stars) {
+                        .group(
+                            .text(" &ndash; "),
+                            .starsSpan(numberOfStars: $0)
+                        )
+                    }
                 )
             )
         )
