@@ -28,6 +28,7 @@ class PackageCollectionTests: AppTestCase {
     }()
 
     typealias VersionResult = PackageCollection.VersionResult
+    typealias VersionResultGroup = PackageCollection.VersionResultGroup
 
     func test_query_filter_urls() throws {
         // Tests PackageResult.query with the url filter option
@@ -276,12 +277,15 @@ class PackageCollectionTests: AppTestCase {
             VersionResult.query(on: app.db, filterBy: .urls(["1"]))
                 .wait().first
         )
+        let group = VersionResultGroup(package: result.package,
+                                       repository: result.repository,
+                                       versions: [result.version])
 
         // MUT
-        let res = try XCTUnwrap(PackageCollection.Package(package: result.package,
-                                                          repository: result.repository,
-                                                          prunedVersions: [result.version],
-                                                          keywords: ["a", "b"]))
+        let res = try XCTUnwrap(
+            PackageCollection.Package(resultGroup: group,
+                                      keywords: ["a", "b"])
+        )
 
         // validate
         XCTAssertEqual(res.keywords, ["a", "b"])
@@ -600,11 +604,12 @@ class PackageCollectionTests: AppTestCase {
             try pkg.save(on: app.db).wait()
             let repo = try Repository(package: pkg)
             try repo.save(on: app.db).wait()
+            let group = VersionResultGroup(package: pkg,
+                                           repository: repo,
+                                           versions: [])
 
             // MUT
-            XCTAssertNil(PackageCollection.Package(package: pkg,
-                                                   repository: repo,
-                                                   prunedVersions: [],
+            XCTAssertNil(PackageCollection.Package(resultGroup: group,
                                                    keywords: nil))
         }
 
@@ -620,11 +625,12 @@ class PackageCollectionTests: AppTestCase {
                 VersionResult.query(on: app.db, filterBy: .urls(["2"]))
                     .wait().first
             )
+            let group = VersionResultGroup(package: res.package,
+                                           repository: res.repository,
+                                           versions: [res.version])
 
             // MUT
-            XCTAssertNil(PackageCollection.Package(package: res.package,
-                                                   repository: res.repository,
-                                                   prunedVersions: [res.version],
+            XCTAssertNil(PackageCollection.Package(resultGroup: group,
                                                    keywords: nil))
         }
     }
