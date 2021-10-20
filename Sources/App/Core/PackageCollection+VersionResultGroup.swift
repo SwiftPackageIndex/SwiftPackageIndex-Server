@@ -13,12 +13,21 @@
 // limitations under the License.
 
 
+extension PackageCollection {
+    struct VersionResultGroup {
+        var package: App.Package
+        var repository: Repository
+        var versions: [Version]
+    }
+}
+
+
 extension Array where Element == PackageCollection.VersionResult {
     /// Group `VersionResult`s by the package they reference. The grouping key is a
     /// `VersionResult` instead of the grouped by `Package` to allow callers the use
     /// of the `repository` accessor.
     /// - Returns: Array of groups
-    func groupedByPackage(sortBy sortKey: SortKey = .url) -> [(key: Element, results: [Element])] {
+    func groupedByPackage(sortBy sortKey: SortKey = .url) -> [PackageCollection.VersionResultGroup] {
         // Create a lookup dictionary to be able to refer from the
         // group key `Package` back to its `VersionResult`
         let idLookup = Dictionary(
@@ -34,7 +43,9 @@ extension Array where Element == PackageCollection.VersionResult {
                 }
             })
             .map { key, value in
-                (idLookup[key.id]!, value)
+                .init(package: key,
+                      repository: idLookup[key.id]!.repository,
+                      versions: value.map(\.version))
             }
     }
 

@@ -328,11 +328,15 @@ class PackageCollectionTests: AppTestCase {
         let res = results.groupedByPackage(sortBy: .url)
 
         // validate
-        XCTAssertEqual(res.map(\.key.package.url), ["1", "2"])
-        XCTAssertEqual(res.first.flatMap { $0.results.map(\.version.packageName)
-        }, ["1a", "1b"])
-        XCTAssertEqual(res.last.flatMap { $0.results.map(\.version.packageName)
-        }, ["2a", "2b"])
+        XCTAssertEqual(res.map(\.package.url), ["1", "2"])
+        XCTAssertEqual(
+            res.first.flatMap { $0.versions.map(\.packageName) },
+            ["1a", "1b"]
+        )
+        XCTAssertEqual(
+            res.last.flatMap { $0.versions.map(\.packageName) },
+            ["2a", "2b"]
+        )
     }
 
     func test_groupedByPackage_empty() throws {
@@ -730,33 +734,27 @@ class PackageCollectionTests: AppTestCase {
 
     func test_authorLabel() throws {
         // setup
-        let urls = (0..<3).map { "\($0)" }
-        let packages: [Package] = urls.map { Package(url: $0.url) }
-        try packages.enumerated().forEach { idx, p in
-            try p.save(on: app.db).wait()
-            try Repository(package: p, owner: "owner-\(idx)")
-                .save(on: app.db).wait()
-            try p.$repositories.load(on: app.db).wait()
-            try Version(package: p, latest: .release).save(on: app.db).wait()
+        let p = Package(url: "1")
+        try p.save(on: app.db).wait()
+        let repositories = try (0..<3).map {
+            try Repository(package: p, owner: "owner-\($0)")
         }
-        let results = try VersionResult.query(on: app.db,
-                                              filterBy: .urls(urls)).wait()
 
         // MUT & validate
         XCTAssertEqual(
-            PackageCollection.authorLabel(results: []),
+            PackageCollection.authorLabel(repositories: []),
             nil
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(results: Array(results.prefix(1))),
+            PackageCollection.authorLabel(repositories: Array(repositories.prefix(1))),
             "owner-0"
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(results: Array(results.prefix(2))),
+            PackageCollection.authorLabel(repositories: Array(repositories.prefix(2))),
             "owner-0 and owner-1"
         )
         XCTAssertEqual(
-            PackageCollection.authorLabel(results: results),
+            PackageCollection.authorLabel(repositories: repositories),
             "multiple authors"
         )
     }

@@ -53,12 +53,12 @@ extension PackageCollection {
             }
             .map { groups -> ([Package], String, String) in
                 let packages = groups.compactMap {
-                    Package.init(package: $0.key.package,
-                                 repository: $0.key.repository,
-                                 prunedVersions: $0.results.map(\.version),
+                    Package.init(package: $0.package,
+                                 repository: $0.repository,
+                                 prunedVersions: $0.versions,
                                  keywords: keywords)
                 }
-                let authorLabel = authorLabel(results: groups.map(\.key))
+                let authorLabel = authorLabel(repositories: groups.map(\.repository))
                 let collectionName = collectionName ?? Self.collectionName(for: filter, authorLabel: authorLabel)
                 let overview = overview ?? Self.overview(for: filter, authorLabel: authorLabel)
                 return (packages, collectionName, overview)
@@ -81,11 +81,9 @@ extension PackageCollection {
             }
     }
 
-    static func authorLabel(results: [PackageCollection.VersionResult]) -> String? {
+    static func authorLabel(repositories: [Repository]) -> String? {
         let names = Set(
-            results.compactMap {
-                $0.repository.ownerName ?? $0.repository.owner
-            }
+            repositories.compactMap { $0.ownerName ?? $0.owner }
         ).sorted()
         switch names.count {
             case 0:
