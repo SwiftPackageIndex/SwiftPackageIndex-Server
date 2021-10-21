@@ -49,9 +49,13 @@ struct PackageController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return PackageResult.query(on: req.db, owner: owner, repository: repository)
+        return Joined<Package, Repository>
+            .query(on: req.db, owner: owner, repository: repository)
             .flatMap { result in
-                fetchReadme(client: req.client, package: result.model)
+                guard let url = result.repository?.readmeHtmlUrl
+                else { return req.eventLoop.future(nil) }
+                return req.client.get(URI(string: url))
+                    .map { $0.body?.asString() }
             }
             .map(PackageReadme.Model.init(readme:))
             .map { PackageReadme.View(model: $0).document() }
@@ -99,13 +103,6 @@ struct PackageController {
             .unwrap(or: Abort(.notFound))
             .map { MaintainerInfoIndex.View(path: req.url.path, model: $0).document() }
     }
-}
-
-
-private func fetchReadme(client: Client, package: Joined<Package, Repository>) -> EventLoopFuture<String?> {
-    guard let url = package.repository?.readmeHtmlUrl.map(URI.init(string:))
-    else { return client.eventLoop.future(nil) }
-    return client.get(url).map { $0.body?.asString() }
 }
 
 
