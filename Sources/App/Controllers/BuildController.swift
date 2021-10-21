@@ -24,12 +24,12 @@ struct BuildController {
               let buildId = UUID.init(uuidString: id)
         else { return req.eventLoop.future(error: Abort(.notFound)) }
 
-        return Build.query(on: req.db, buildId: buildId)
-            .flatMap { build in
-                Build.fetchLogs(client: req.client, logUrl: build.logUrl)
-                    .map { (build, $0) }
+        return BuildResult.query(on: req.db, buildId: buildId)
+            .flatMap { result in
+                Build.fetchLogs(client: req.client, logUrl: result.build.logUrl)
+                    .map { (result, $0) }
             }
-            .map(BuildShow.Model.init(build:logs:))
+            .map(BuildShow.Model.init(result:logs:))
             .unwrap(or: Abort(.notFound))
             .map {
                 BuildShow.View(path: req.url.path, model: $0).document()

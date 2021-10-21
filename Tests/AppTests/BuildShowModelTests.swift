@@ -19,6 +19,8 @@ import XCTVapor
 
 class BuildShowModelTests: AppTestCase {
 
+    typealias Model = BuildShow.Model
+
     func test_buildsURL() throws {
         XCTAssertEqual(Model.mock.buildsURL, "/foo/bar/builds")
     }
@@ -27,10 +29,7 @@ class BuildShowModelTests: AppTestCase {
         XCTAssertEqual(Model.mock.packageURL, "/foo/bar")
     }
 
-    func test_Build_query() throws {
-        // Tests Build.query as it is used in BuildController by validating
-        // packageName. This property requires relations to be fully loaded,
-        // which is what Build.query is taking care of.
+    func test_init() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
@@ -41,29 +40,22 @@ class BuildShowModelTests: AppTestCase {
                        owner: "foo",
                        stars: 17,
                        summary: "summary").save(on: app.db).wait()
-        let v = try Version(id: UUID(), package: pkg, packageName: "Bar", reference: .branch("main"))
-        try v.save(on: app.db).wait()
+        let version = try Version(id: UUID(), package: pkg, packageName: "Bar", reference: .branch("main"))
+        try version.save(on: app.db).wait()
         let buildId = UUID()
-        let build = try Build(id: buildId, version: v, platform: .ios, status: .ok, swiftVersion: .init(5, 3, 0))
-        try build.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-
-        // MUT
-        let m = try Build.query(on: app.db, buildId: buildId)
-            .flatMap { build in
-                Build.fetchLogs(client: self.app.client, logUrl: build.logUrl)
-                    .map { (build, $0) }
-            }
-            .map(BuildShow.Model.init(build:logs:))
+        try Build(id: buildId, version: version, platform: .ios, status: .ok, swiftVersion: .init(5, 3, 0))
+            .save(on: app.db).wait()
+        let result = try BuildController.BuildResult
+            .query(on: app.db, buildId: buildId)
             .wait()
 
+        // MUT
+        let model = BuildShow.Model(result: result, logs: "logs")
+
         // validate
-        XCTAssertEqual(m?.packageName, "Bar")
+        XCTAssertEqual(model?.packageName, "Bar")
+        XCTAssertEqual(model?.versionId, version.id)
+        XCTAssertEqual(model?.buildInfo.logs, "logs")
     }
 
 }
-
-
-fileprivate typealias Model = BuildShow.Model
