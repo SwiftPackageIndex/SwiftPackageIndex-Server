@@ -65,9 +65,8 @@ struct PackageController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return PackageResult
+        return Joined<Package, Repository>
             .query(on: req.db, owner: owner, repository: repository)
-            .map(\.model)
             .map(PackageReleases.Model.init(package:))
             .map { PackageReleases.View(model: $0).document() }
     }
