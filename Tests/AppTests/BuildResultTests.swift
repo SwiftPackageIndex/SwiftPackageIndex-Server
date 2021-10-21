@@ -54,6 +54,7 @@ class BuildResultTests: AppTestCase {
 
         // validate
         XCTAssertEqual(m?.packageName, "Bar")
+        XCTAssertEqual(m?.versionId, v.id)
     }
 
 }
