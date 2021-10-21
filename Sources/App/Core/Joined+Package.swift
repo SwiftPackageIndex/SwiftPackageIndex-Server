@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FluentKit
+import Vapor
 
 
 extension Joined where M == Package, R == Repository {
@@ -24,5 +25,13 @@ extension Joined where M == Package, R == Repository {
               join: \Repository.$package.$id == \Package.$id,
               // TODO: review this properly
               method: .left)
+    }
+
+    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
+        query(on: database)
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
+            .first()
+            .unwrap(or: Abort(.notFound))
     }
 }
