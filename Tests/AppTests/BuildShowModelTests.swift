@@ -14,10 +14,10 @@
 
 @testable import App
 
-import XCTest
+import XCTVapor
 
 
-class BuildShowModelTests: XCTestCase {
+class BuildShowModelTests: AppTestCase {
 
     typealias Model = BuildShow.Model
 
@@ -27,6 +27,35 @@ class BuildShowModelTests: XCTestCase {
 
     func test_packageURL() throws {
         XCTAssertEqual(Model.mock.packageURL, "/foo/bar")
+    }
+
+    func test_init() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try Repository(package: pkg,
+                       defaultBranch: "main",
+                       forks: 42,
+                       license: .mit,
+                       name: "bar",
+                       owner: "foo",
+                       stars: 17,
+                       summary: "summary").save(on: app.db).wait()
+        let version = try Version(id: UUID(), package: pkg, packageName: "Bar", reference: .branch("main"))
+        try version.save(on: app.db).wait()
+        let buildId = UUID()
+        try Build(id: buildId, version: version, platform: .ios, status: .ok, swiftVersion: .init(5, 3, 0))
+            .save(on: app.db).wait()
+        let result = try BuildController.BuildResult
+            .query(on: app.db, buildId: buildId)
+            .wait()
+
+        // MUT
+        let model = BuildShow.Model(result: result, logs: "logs")
+
+        // validate
+        XCTAssertEqual(model?.packageName, "Bar")
+        XCTAssertEqual(model?.versionId, version.id)
+        XCTAssertEqual(model?.buildInfo.logs, "logs")
     }
 
 }
