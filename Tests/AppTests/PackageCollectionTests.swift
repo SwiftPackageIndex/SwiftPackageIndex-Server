@@ -334,11 +334,15 @@ class PackageCollectionTests: AppTestCase {
         // validate
         XCTAssertEqual(res.map(\.package.url), ["1", "2"])
         XCTAssertEqual(
-            res.first.flatMap { $0.versions.map(\.packageName) },
+            res.first
+                .flatMap { $0.versions.compactMap(\.packageName) }?
+                .sorted(),
             ["1a", "1b"]
         )
         XCTAssertEqual(
-            res.last.flatMap { $0.versions.map(\.packageName) },
+            res.last
+                .flatMap { $0.versions.compactMap(\.packageName) }?
+                .sorted(),
             ["2a", "2b"]
         )
     }
