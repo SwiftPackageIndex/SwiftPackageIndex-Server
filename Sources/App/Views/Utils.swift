@@ -76,20 +76,15 @@ func listPhrase(opening: Node<HTML.BodyContext> = "",
 // MARK: - View helpers
 
 func makeLink(packageUrl: String, version: Version) -> Link? {
-    // TODO: review this $reference - this should not be required,
-    // reference is not a relation and does not need to be loaded
-    guard
-        let fault = version.$reference.value,
-        let ref = fault
-    else { return nil }
+    guard let reference = version.reference else { return nil }
     let linkUrl: String
-    switch ref {
+    switch reference {
         case .branch:
             linkUrl = packageUrl
         case .tag(_ , let v):
             linkUrl = packageUrl.droppingGitExtension + "/releases/tag/\(v)"
     }
-    return .init(label: "\(ref)", url: linkUrl)
+    return .init(label: "\(reference)", url: linkUrl)
 }
 
 func makeDatedLink(packageUrl: String, version: Version,
