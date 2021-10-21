@@ -41,22 +41,33 @@ struct JoinedQueryBuilder<J: Joiner> {
     }
 
     func sort(_ sort: DatabaseQuery.Sort) -> Self {
+        // the queryBuilder method is not marked with `@discardableResult`
+        // (perhaps an oversight), therefore we need to ignore the return
+        // value
         _ = queryBuilder.sort(sort)
         return self
     }
 
     func sort<Field>(_ field: KeyPath<J.M, Field>, _ direction: DatabaseQuery.Sort.Direction = .ascending) -> Self where J.M == Field.Model, Field : QueryableProperty {
-        // TODO: check that this sorts correctly
+        // the queryBuilder method is not marked with `@discardableResult`
+        // (perhaps an oversight), therefore we need to ignore the return
+        // value
         _ = queryBuilder.sort(field, direction)
         return self
     }
 
     func sort(_ field: DatabaseQuery.Field, _ direction: DatabaseQuery.Sort.Direction) -> Self {
+        // the queryBuilder method is not marked with `@discardableResult`
+        // (perhaps an oversight), therefore we need to ignore the return
+        // value
         _ = queryBuilder.sort(field, direction)
         return self
     }
 
     func sort<Joined, Field>(_ joined: Joined.Type, _ field: KeyPath<Joined, Field>, _ direction: DatabaseQuery.Sort.Direction = .ascending, alias: String? = nil) -> Self where Joined : Schema, Joined == Field.Model, Field : QueryableProperty {
+        // the queryBuilder method is not marked with `@discardableResult`
+        // (perhaps an oversight), therefore we need to ignore the return
+        // value
         _ = queryBuilder.sort(joined, field, direction, alias: alias)
         return self
     }
