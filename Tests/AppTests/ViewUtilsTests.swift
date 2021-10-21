@@ -63,4 +63,42 @@ class ViewUtilsTests: XCTestCase {
         XCTAssertEqual(listPhrase(nodes: ["A", "B", "C"], conjunction: " or ").render(),
                        "A, B, or C")
     }
+
+}
+
+
+// Test that require DB access
+class ViewUtilsDBTests: AppTestCase {
+
+    func test_makeLink() throws {
+        // setup
+        let pkg = Package(url: "1")
+        try pkg.save(on: app.db).wait()
+        let version = try Version(package: pkg)
+        try version.save(on: app.db).wait()
+
+        do {  // no reference
+            XCTAssertEqual(
+                makeLink(packageUrl: "url", version: version),
+                nil
+            )
+        }
+
+        do {  // branch reference
+            version.reference = .branch("main")
+            XCTAssertEqual(
+                makeLink(packageUrl: "url", version: version),
+                .init(label: "main", url: "url")
+            )
+        }
+
+        do {  // tag reference
+            version.reference = .tag(1, 2, 3)
+            XCTAssertEqual(
+                makeLink(packageUrl: "url", version: version),
+                .init(label: "1.2.3", url: "url/releases/tag/1.2.3")
+            )
+        }
+    }
+
 }
