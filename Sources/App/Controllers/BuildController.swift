@@ -39,33 +39,3 @@ struct BuildController {
 }
 
 
-// TODO: move to own file
-
-extension BuildController {
-    typealias BuildResult = Joined4<Build, Version, Package, Repository>
-}
-
-
-extension BuildController.BuildResult {
-    var build: Build { model }
-    // It's ok to force unwrap all joined relations, because they
-    // are INNER joins, i.e. the relation will exist for every result.
-    var version: Version { relation1! }
-    var package: Package { relation2! }
-    var repository: Repository { relation3! }
-
-    static func query(on database: Database, buildId: Build.Id) -> EventLoopFuture<Self> {
-        Self.query(
-            on: database,
-            join: \Version.$id == \Build.$version.$id,
-            method: .inner,
-            join: \Package.$id == \Version.$package.$id,
-            method: .inner,
-            join: \Repository.$package.$id == \Package.$id,
-            method: .inner
-        )
-            .filter(\.$id == buildId)
-            .first()
-            .unwrap(or: Abort(.notFound))
-    }
-}
