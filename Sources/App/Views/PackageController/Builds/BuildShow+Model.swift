@@ -14,8 +14,6 @@
 
 extension BuildShow {
 
-    typealias BuildResult = BuildController.BuildResult
-
     struct Model {
         var packageName: String
         var repositoryName: String
@@ -23,7 +21,7 @@ extension BuildShow {
         var buildInfo: BuildInfo
         var versionId: Version.Id
 
-        init?(result: BuildResult, logs: String?) {
+        init?(result: BuildController.BuildResult, logs: String?) {
             guard
                 let packageName = result.version.packageName,
                 let repositoryOwner = result.repository.owner,
