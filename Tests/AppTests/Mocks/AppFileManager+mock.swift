@@ -25,14 +25,8 @@ extension App.FileManager {
             contentsOfDirectory: { _ in [] },
             contents: { _ in .init() },
             checkoutsDirectory: { DirectoryConfiguration.detect().workingDirectory + "SPI-checkouts" },
-            createDirectory: { path, _, _ in
-                print("ℹ️ MOCK: imagine we're creating a directory at path: \(path)")
-            },
-            fileExists: { path in
-                print("ℹ️ MOCK: file at \(path) exists")
-                
-                return fileExists
-            },
+            createDirectory: { path, _, _ in },
+            fileExists: { path in fileExists },
             removeItem: { _ in },
             workingDirectory: { DirectoryConfiguration.detect().workingDirectory }
         )
