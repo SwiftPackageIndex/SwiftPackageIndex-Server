@@ -73,7 +73,7 @@ class ApiTests: AppTestCase {
                         )
                       ])
             )
-            assertSnapshot(matching: prettyPrintJson(res.body.asString()), as: .lines)
+            assertSnapshot(matching: res.body.asString(), as: .lines)
         })
     }
 

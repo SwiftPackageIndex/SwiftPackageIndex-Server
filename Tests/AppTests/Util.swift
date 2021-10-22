@@ -150,16 +150,3 @@ func makeBody(_ data: Data) -> ByteBuffer {
     buffer.writeBytes(data)
     return buffer
 }
-
-
-func prettyPrintJson(_ string: String) -> String {
-    if let object = try? JSONSerialization.jsonObject(with: Data(string.utf8),
-                                                      options: []),
-          let data = try? JSONSerialization.data(withJSONObject: object,
-                                                 options: .prettyPrinted),
-          let prettyString = String(data: data, encoding: .utf8) {
-        return prettyString
-    } else {
-        return string
-    }
-}
