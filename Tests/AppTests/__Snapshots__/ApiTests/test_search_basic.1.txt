@@ -1,0 +1,17 @@
+{
+  "hasMoreResults" : false,
+  "results" : [
+    {
+      "package" : {
+        "_0" : {
+          "packageURL" : "\/owner%202\/name%202",
+          "repositoryOwner" : "owner 2",
+          "packageName" : "Bar",
+          "packageId" : "85B10001-0F52-4560-BDA6-A4B11D910675",
+          "repositoryName" : "name 2",
+          "summary" : "foo bar package"
+        }
+      }
+    }
+  ]
+}

@@ -36,13 +36,12 @@ class ApiTests: AppTestCase {
         })
     }
     
-    func test_search_basic_param() throws {
+    func test_search_basic() throws {
+        // Basic search test, query and result formats
         // setup
-        let p1 = Package(id: UUID(uuidString: "442cf59f-0135-4d08-be00-bc9a7cebabd3")!,
-                         url: "1")
+        let p1 = Package(id: .id1, url: "1")
         try p1.save(on: app.db).wait()
-        let p2 = Package(id: UUID(uuidString: "4e256250-d1ea-4cdd-9fe9-0fc5dce17a80")!,
-                         url: "2")
+        let p2 = Package(id: .id2, url: "2")
         try p2.save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
@@ -65,7 +64,7 @@ class ApiTests: AppTestCase {
                 .init(hasMoreResults: false,
                       results: [
                         .package(
-                            .init(packageId: UUID(uuidString: "4e256250-d1ea-4cdd-9fe9-0fc5dce17a80")!,
+                            .init(packageId: .id2,
                                   packageName: "Bar",
                                   packageURL: "/owner%202/name%202",
                                   repositoryName: "name 2",
@@ -74,9 +73,10 @@ class ApiTests: AppTestCase {
                         )
                       ])
             )
+            assertSnapshot(matching: prettyPrintJson(res.body.asString()), as: .lines)
         })
     }
-    
+
     func test_post_build() throws {
         // setup
         Current.builderToken = { "secr3t" }
