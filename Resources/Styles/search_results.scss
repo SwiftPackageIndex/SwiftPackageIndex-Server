@@ -20,15 +20,20 @@
 section.results {
   margin-top: 50px;
 
-  h4 {
-    margin: 0;
-  }
-
+  // This rule may seem useless but displaying these sections as flex stops browsers
+  // from collapsing margins. The author and keywords sections must align vertically
+  // with the package results (containing a flex child). This rule ensures consistent
+  // vertical alignment, regardless of content.
+  // More info: https://css-tricks.com/the-rules-of-margin-collapse/
   .package_results,
   .author_results,
   .keyword_results {
     display: flex;
     flex-direction: column;
+  }
+
+  h4 {
+    margin: 0;
   }
 }
 
