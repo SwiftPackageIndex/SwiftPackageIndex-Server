@@ -13,27 +13,38 @@
  * limitations under the License.
  */
 
-$mobile-breakpoint: 767px;
+/* -------------------------------------------------------------------------
+  All styling related search results.
+---------------------------------------------------------------------------- */
 
-@import 'colors.scss';
-@import 'images.scss';
-@import 'base.scss';
-@import 'scta.scss';
-@import 'layout.scss';
-@import 'header_footer.scss';
-@import 'home.scss';
-@import 'markdown.scss';
-@import 'search.scss';
-@import 'search_results.scss';
-@import 'package.scss';
-@import 'package_list.scss';
-@import 'maintainer_info.scss';
-@import 'copyable_input.scss';
-@import 'matrix.scss';
-@import 'build_logs.scss';
-@import 'error.scss';
-@import 'readme.scss';
-@import 'spinner.scss';
-@import 'github-highlighting.scss';
-@import 'tab-bar.scss';
-@import 'keywords.scss';
+section.results {
+  margin-top: 50px;
+
+  h4 {
+    margin: 0;
+  }
+
+  .package_results,
+  .author_results,
+  .keyword_results {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+ul.pagination {
+  padding: 0;
+  display: grid;
+  grid-template-columns: 0.5fr 0.5fr;
+  list-style: none;
+
+  .previous {
+    grid-column-start: 1;
+    justify-self: start;
+  }
+
+  .next {
+    grid-column-start: 2;
+    justify-self: end;
+  }
+}

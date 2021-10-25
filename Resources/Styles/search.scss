@@ -14,7 +14,7 @@
  */
 
 /* -------------------------------------------------------------------------
-  All styling related to the search field, or search section of a page.
+  All styling related to the fields that initiate searches.
 ---------------------------------------------------------------------------- */
 
 /* Search section of the home page. */
@@ -158,39 +158,5 @@ nav {
         display: none;
       }
     }
-  }
-}
-
-/* Results and pagination. */
-
-section.results {
-  margin-top: 50px;
-
-  h4 {
-    margin: 0;
-  }
-
-  .package_results,
-  .author_results,
-  .keyword_results {
-    display: flex;
-    flex-direction: column;
-  }
-}
-
-ul.pagination {
-  padding: 0;
-  display: grid;
-  grid-template-columns: 0.5fr 0.5fr;
-  list-style: none;
-
-  .previous {
-    grid-column-start: 1;
-    justify-self: start;
-  }
-
-  .next {
-    grid-column-start: 2;
-    justify-self: end;
   }
 }
