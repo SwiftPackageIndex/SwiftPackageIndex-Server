@@ -28,19 +28,20 @@ class SearchShowModelTests: AppTestCase {
         XCTAssertEqual(model.query, "query")
 
         XCTAssertEqual(model.response.hasMoreResults, false)
-        XCTAssertEqual(model.response.results.count, 2)
+        XCTAssertEqual(model.response.results.count, 10)
 
-        let result = model.packageResults.first!
-        XCTAssertEqual(result.packageId, .id1)
-        XCTAssertEqual(result.packageName, "1")
-        XCTAssertEqual(result.packageURL, "https://example.com/package/one")
-        XCTAssertEqual(result.repositoryName, "one")
-        XCTAssertEqual(result.repositoryOwner, "package")
-        XCTAssertEqual(result.summary, "summary one")
+        let authorResult = model.authorResults.first!
+        XCTAssertEqual(authorResult.name, "Apple")
 
-        XCTAssertEqual(model.authorResults, [])
-        XCTAssertEqual(model.keywordResults, [])
+        let keywordResult = model.keywordResults.first!
+        XCTAssertEqual(keywordResult.keyword, "keyword1")
+
+        let packageResult = model.packageResults.first!
+        XCTAssertEqual(packageResult.packageId, .id1)
+        XCTAssertEqual(packageResult.packageName, "Package One")
+        XCTAssertEqual(packageResult.packageURL, "https://example.com/package/one")
+        XCTAssertEqual(packageResult.repositoryName, "one")
+        XCTAssertEqual(packageResult.repositoryOwner, "package")
+        XCTAssertEqual(packageResult.summary, "This is a package filled with ones.")
     }
-
-    // TODO: add keyword and author search test
 }
