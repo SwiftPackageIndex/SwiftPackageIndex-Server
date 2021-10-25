@@ -100,7 +100,7 @@ extension SearchShow {
 
             return .section(
                 .class("author_results"),
-                .h4("Matching package authors"),
+                .h4("Matching authors"),
                 .ul(
                     .group(
                         model.authorResults.map { .li(.text($0.name)) }
