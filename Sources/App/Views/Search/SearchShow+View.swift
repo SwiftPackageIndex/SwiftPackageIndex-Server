@@ -50,7 +50,7 @@ extension SearchShow {
 
         func resultsSection() -> Node<HTML.BodyContext> {
             .section(
-                .class("results"),
+                .class("search_results"),
                 .p(
                     // If there are *any* results, either author, keyword, or package.
                     .if(model.response.results.count > 0, .text("Results for "), else: .text("No results for ")),
