@@ -15,22 +15,47 @@
 @testable import App
 
 
-extension Search.Result {
-    static func mock(packageId: Package.Id,
-                     packageName: String?,
-                     packageURL: String,
-                     repositoryName: String,
-                     repositoryOwner: String,
-                     summary: String?) -> Self {
+extension Array where Element == Search.Result {
+
+    static func mock() -> Self {
+        [
+            .author(.init(name: "Apple")),
+            .author(.init(name: "Orange")),
+            .author(.init(name: "Pear")),
+            .keyword(.init(keyword: "keyword1")),
+            .keyword(.init(keyword: "keyword2")),
+            .keyword(.init(keyword: "keyword3")),
+            .keyword(.init(keyword: "keyword4")),
             .package(
                 .init(
-                    packageId: packageId,
-                    packageName: packageName,
-                    packageURL: packageURL,
-                    repositoryName: repositoryName,
-                    repositoryOwner: repositoryOwner,
-                    summary: summary
+                    packageId: .id1,
+                    packageName: "Package One",
+                    packageURL: "https://example.com/package/one",
+                    repositoryName: "one",
+                    repositoryOwner: "package",
+                    summary: "This is a package filled with ones."
+                )!
+            ),
+            .package(
+                .init(
+                    packageId: .id2,
+                    packageName: "Package Two",
+                    packageURL: "https://example.com/package/one",
+                    repositoryName: "one",
+                    repositoryOwner: "package",
+                    summary: "This is a package filled with twos."
+                )!
+            ),
+            .package(
+                .init(
+                    packageId: .id3,
+                    packageName: "Package Three",
+                    packageURL: "https://example.com/package/one",
+                    repositoryName: "one",
+                    repositoryOwner: "package",
+                    summary: "This is a package filled with threes."
                 )!
             )
+        ]
     }
 }

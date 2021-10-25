@@ -19,24 +19,7 @@ import XCTVapor
 class SearchShowModelTests: AppTestCase {
 
     func test_SearchShow_Model_init() throws {
-        let results: [Search.Result] = [
-            // Valid - All fields populated
-            .mock(packageId: .id1,
-                  packageName: "1",
-                  packageURL: "https://example.com/package/one",
-                  repositoryName: "one",
-                  repositoryOwner: "package",
-                  summary: "summary one"
-                 ),
-            // Valid - Optional fields blank
-            .mock(packageId: .id2,
-                  packageName: nil,
-                  packageURL: "https://example.com/package/two",
-                  repositoryName: "two",
-                  repositoryOwner: "package",
-                  summary: nil
-                 )
-        ]
+        let results: [Search.Result] = .mock()
 
         // MUT
         let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false, results: results))
