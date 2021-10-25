@@ -60,7 +60,7 @@ extension SearchShow {
                     .if(model.response.results.count > 0, .text("&hellip;"), else: .text("."))
                 ),
                 .if(model.authorResults.count > 0 || model.keywordResults.count > 0, .div(
-                    .class("two_column"),
+                    .class("two_column mobile_reversed"),
                     packageResultsSection(),
                     .div(
                         authorResultsSection(),
