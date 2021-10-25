@@ -103,7 +103,14 @@ extension SearchShow {
                 .h4("Matching authors"),
                 .ul(
                     .group(
-                        model.authorResults.map { .li(.text($0.name)) }
+                        model.authorResults.map { result in
+                            .li(
+                                .a(
+                                    .href(SiteURL.author(.value(result.name)).relativeURL()),
+                                    .text(result.name)
+                                )
+                            )
+                        }
                     )
                 )
             )
