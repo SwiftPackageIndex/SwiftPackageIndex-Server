@@ -117,8 +117,16 @@ extension SearchShow {
                 .class("keyword_results"),
                 .h4("Matching keywords"),
                 .ul(
+                    .class("keywords"),
                     .group(
-                        model.keywordResults.map { .li(.text($0.keyword)) }
+                        model.keywordResults.map { result in
+                            .li(
+                                .a(
+                                    .href(SiteURL.keywords(.value(result.keyword)).relativeURL()),
+                                    .text(result.keyword)
+                                )
+                            )
+                        }
                     )
                 )
             )
