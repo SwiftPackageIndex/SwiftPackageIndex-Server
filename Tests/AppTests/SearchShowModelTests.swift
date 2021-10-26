@@ -16,7 +16,7 @@
 
 import XCTVapor
 
-class SearchShowModelTests: AppTestCase {
+class SearchShowModelTests: XCTestCase {
 
     func test_SearchShow_Model_init() throws {
         let results: [Search.Result] = .mock()
