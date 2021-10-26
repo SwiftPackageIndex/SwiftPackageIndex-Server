@@ -29,14 +29,35 @@ class SearchShowModelTests: XCTestCase {
 
         XCTAssertEqual(model.response.hasMoreResults, false)
         XCTAssertEqual(model.response.results.count, 10)
+    }
 
+    func test_SearchShow_Model_authorResults() throws {
+        let results: [Search.Result] = .mock()
+        let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false, results: results))
+
+        // MUT
         let authorResult = model.authorResults.first!
+
         XCTAssertEqual(authorResult.name, "Apple")
+    }
 
+    func test_SearchShow_Model_keywordResults() throws {
+        let results: [Search.Result] = .mock()
+        let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false, results: results))
+
+        // MUT
         let keywordResult = model.keywordResults.first!
-        XCTAssertEqual(keywordResult.keyword, "keyword1")
 
+        XCTAssertEqual(keywordResult.keyword, "keyword1")
+    }
+
+    func test_SearchShow_Model_packageResults() throws {
+        let results: [Search.Result] = .mock()
+        let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false, results: results))
+
+        // MUT
         let packageResult = model.packageResults.first!
+
         XCTAssertEqual(packageResult.packageId, .id1)
         XCTAssertEqual(packageResult.packageName, "Package One")
         XCTAssertEqual(packageResult.packageURL, "https://example.com/package/one")
