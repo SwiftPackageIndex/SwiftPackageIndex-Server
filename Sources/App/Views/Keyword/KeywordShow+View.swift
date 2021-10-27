@@ -51,7 +51,7 @@ enum KeywordShow {
                     .p(
                         .strong("\(model.packages.count) \("package".pluralized(for: model.packages.count)).")
                     )
-                ),
+                   ),
                 .ul(
                     .class("pagination"),
                     .if(model.page > 1, .previousPage(model: model)),

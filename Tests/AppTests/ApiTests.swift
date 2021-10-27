@@ -70,7 +70,7 @@ class ApiTests: AppTestCase {
                                   packageURL: "/owner%202/name%202",
                                   repositoryName: "name 2",
                                   repositoryOwner: "owner 2",
-                                  summary: "foo bar package")
+                                  summary: "foo bar package")!
                         )
                       ])
             )

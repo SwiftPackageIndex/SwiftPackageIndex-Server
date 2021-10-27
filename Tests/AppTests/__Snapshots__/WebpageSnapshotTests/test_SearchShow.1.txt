@@ -66,110 +66,85 @@
             </button>
           </form>
         </section>
-        <section class="results">
+        <section class="search_results">
           <p>Results for &ldquo;
             <strong>query</strong>&rdquo;&hellip;
           </p>
-          <ul id="package_list" data-focus-query-field="true">
-            <li>
-              <a href="https://github.com/foo/0">
-                <h4>Package 0</h4>
-                <p>Package number 0</p>
-                <small>
-                  <span class="identifier">foo/bar-0</span>
-                </small>
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/foo/1">
-                <h4>Package 1</h4>
-                <p>Package number 1</p>
-                <small>
-                  <span class="identifier">foo/bar-1</span>
-                </small>
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/foo/2">
-                <h4>Package 2</h4>
-                <p>Package number 2</p>
-                <small>
-                  <span class="identifier">foo/bar-2</span>
-                </small>
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/foo/3">
-                <h4>Package 3</h4>
-                <p>Package number 3</p>
-                <small>
-                  <span class="identifier">foo/bar-3</span>
-                </small>
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/foo/4">
-                <h4>Package 4</h4>
-                <p>Package number 4</p>
-                <small>
-                  <span class="identifier">foo/bar-4</span>
-                </small>
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/foo/5">
-                <h4>Package 5</h4>
-                <p>Package number 5</p>
-                <small>
-                  <span class="identifier">foo/bar-5</span>
-                </small>
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/foo/6">
-                <h4>Package 6</h4>
-                <p>Package number 6</p>
-                <small>
-                  <span class="identifier">foo/bar-6</span>
-                </small>
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/foo/7">
-                <h4>Package 7</h4>
-                <p>Package number 7</p>
-                <small>
-                  <span class="identifier">foo/bar-7</span>
-                </small>
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/foo/8">
-                <h4>Package 8</h4>
-                <p>Package number 8</p>
-                <small>
-                  <span class="identifier">foo/bar-8</span>
-                </small>
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/foo/9">
-                <h4>Package 9</h4>
-                <p>Package number 9</p>
-                <small>
-                  <span class="identifier">foo/bar-9</span>
-                </small>
-              </a>
-            </li>
-          </ul>
-          <ul class="pagination">
-            <li class="previous">
-              <a href="/search?query=query&page=2">Previous Page</a>
-            </li>
-            <li class="next">
-              <a href="/search?query=query&page=4">Next Page</a>
-            </li>
-          </ul>
+          <div class="two_column mobile_reversed">
+            <section class="package_results">
+              <h4>Matching packages</h4>
+              <ul id="package_list" data-focus-query-field="true">
+                <li>
+                  <a href="https://example.com/package/one">
+                    <h4>Package One</h4>
+                    <p>This is a package filled with ones.</p>
+                    <small>
+                      <span class="identifier">package/one</span>
+                    </small>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://example.com/package/one">
+                    <h4>Package Two</h4>
+                    <p>This is a package filled with twos.</p>
+                    <small>
+                      <span class="identifier">package/one</span>
+                    </small>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://example.com/package/one">
+                    <h4>Package Three</h4>
+                    <p>This is a package filled with threes.</p>
+                    <small>
+                      <span class="identifier">package/one</span>
+                    </small>
+                  </a>
+                </li>
+              </ul>
+              <ul class="pagination">
+                <li class="previous">
+                  <a href="/search?query=query&page=2">Previous Page</a>
+                </li>
+                <li class="next">
+                  <a href="/search?query=query&page=4">Next Page</a>
+                </li>
+              </ul>
+            </section>
+            <div>
+              <section class="author_results">
+                <h4>Matching authors</h4>
+                <ul>
+                  <li>
+                    <a href="/Apple">Apple</a>
+                  </li>
+                  <li>
+                    <a href="/Orange">Orange</a>
+                  </li>
+                  <li>
+                    <a href="/Pear">Pear</a>
+                  </li>
+                </ul>
+              </section>
+              <section class="keyword_results">
+                <h4>Matching keywords</h4>
+                <ul class="keywords">
+                  <li>
+                    <a href="/keywords/keyword1">keyword1</a>
+                  </li>
+                  <li>
+                    <a href="/keywords/keyword2">keyword2</a>
+                  </li>
+                  <li>
+                    <a href="/keywords/keyword3">keyword3</a>
+                  </li>
+                  <li>
+                    <a href="/keywords/keyword4">keyword4</a>
+                  </li>
+                </ul>
+              </section>
+            </div>
+          </div>
         </section>
       </div>
     </main>

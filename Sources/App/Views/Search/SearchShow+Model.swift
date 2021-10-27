@@ -27,41 +27,24 @@ enum SearchShow {
 
         struct Response {
             var hasMoreResults: Bool
-            var results: [Model.Result]
+            var results: [Search.Result]
 
             init(response: Search.Response) {
                 self.hasMoreResults = response.hasMoreResults
-                self.results = response.results.compactMap(Model.Result.init)
+                self.results = response.results
             }
         }
 
-        struct Result {
-            var title: String
-            var summary: String?
-            var footer: String
-            var link: String
+        var authorResults: [Search.AuthorResult] {
+            response.results.compactMap(\.authorResult)
+        }
 
-            init?(result: Search.Result) {
-                switch result {
-                    case let .author(res):
-                        title = "✍️ \(res.name)"
-                        link = SiteURL.author(.value(res.name)).relativeURL()
-                        footer = "Author results"
-                    case let .keyword(res):
-                        title = "🏷 \(res.keyword)"
-                        link = SiteURL.keywords(.value(res.keyword)).relativeURL()
-                        footer = "Keyword results"
-                    case let .package(pkg):
-                        guard let packageURL = pkg.packageURL,
-                              let repositoryName = pkg.repositoryName,
-                              let repositoryOwner = pkg.repositoryOwner
-                        else { return nil }
-                        title = pkg.packageName ?? "Unknown Package"
-                        summary = pkg.summary
-                        footer = "\(repositoryOwner)/\(repositoryName)"
-                        link = packageURL
-                }
-            }
+        var keywordResults: [Search.KeywordResult] {
+            response.results.compactMap(\.keywordResult)
+        }
+
+        var packageResults: [Search.PackageResult] {
+            response.results.compactMap(\.packageResult)
         }
     }
 

@@ -49,43 +49,91 @@ extension SearchShow {
         }
 
         func resultsSection() -> Node<HTML.BodyContext> {
-            .group(
-                .section(
-                    .class("results"),
-                    .p(
-                        .if(model.response.results.count > 0, .text("Results for "), else: .text("No results for ")),
-                        .text("&ldquo;"),
-                        .strong(.text(model.query)),
-                        .text("&rdquo;"),
-                        .if(model.response.results.count > 0, .text("&hellip;"), else: .text("."))
-                    ),
-                    .ul(
-                        .id("package_list"),
-                        // Let the JavaScript know that keyboard navigation on this package list should
-                        // also include navigation into and out of the query field.
-                        .data(named: "focus-query-field", value: String(true)),
-                        .group(
-                            model.response.results.map { result -> Node<HTML.ListContext> in
-                                .li(
-                                    .a(
-                                        .href(result.link),
-                                        .h4(.text(result.title)),
-                                        .unwrap(result.summary) { .p(.text($0)) },
-                                        .small(
-                                            .span(
-                                                .class("identifier"),
-                                                .text(result.footer)
-                                            )
-                                        )
-                                    )
+            .section(
+                .class("search_results"),
+                .p(
+                    // If there are *any* results, either author, keyword, or package.
+                    .if(model.response.results.count > 0, .text("Results for "), else: .text("No results for ")),
+                    .text("&ldquo;"),
+                    .strong(.text(model.query)),
+                    .text("&rdquo;"),
+                    .if(model.response.results.count > 0, .text("&hellip;"), else: .text("."))
+                ),
+                .if(model.authorResults.count > 0 || model.keywordResults.count > 0, .div(
+                    .class("two_column mobile_reversed"),
+                    packageResultsSection(),
+                    .div(
+                        authorResultsSection(),
+                        keywordResultsSection()
+                    )
+                ), else: packageResultsSection())
+            )
+        }
+
+        func packageResultsSection() -> Node<HTML.BodyContext> {
+            guard model.packageResults.count > 0
+            else { return .empty }
+
+            return .section(
+                .class("package_results"),
+                .h4("Matching packages"),
+                .ul(
+                    .id("package_list"),
+                    // Let the JavaScript know that keyboard navigation on this package list should
+                    // also include navigation into and out of the query field.
+                    .data(named: "focus-query-field", value: String(true)),
+                    .group(
+                        model.packageResults.map { .packageListItem(linkUrl: $0.packageURL, packageName: $0.packageName ?? $0.repositoryName, summary: $0.summary, repositoryOwner: $0.repositoryOwner, repositoryName: $0.repositoryName, stars: nil) }
+                    )
+                ),
+                .ul(
+                    .class("pagination"),
+                    .if(model.page > 1, .previousPage(model: model)),
+                    .if(model.response.hasMoreResults, .nextPage(model: model))
+                )
+            )
+        }
+
+        func authorResultsSection() -> Node<HTML.BodyContext> {
+            guard model.authorResults.count > 0
+            else { return .empty }
+
+            return .section(
+                .class("author_results"),
+                .h4("Matching authors"),
+                .ul(
+                    .group(
+                        model.authorResults.map { result in
+                            .li(
+                                .a(
+                                    .href(SiteURL.author(.value(result.name)).relativeURL()),
+                                    .text(result.name)
                                 )
-                            }
-                        )
-                    ),
-                    .ul(
-                        .class("pagination"),
-                        .if(model.page > 1, .previousPage(model: model)),
-                        .if(model.response.hasMoreResults, .nextPage(model: model))
+                            )
+                        }
+                    )
+                )
+            )
+        }
+
+        func keywordResultsSection() -> Node<HTML.BodyContext> {
+            guard model.keywordResults.count > 0
+            else { return .empty }
+
+            return .section(
+                .class("keyword_results"),
+                .h4("Matching keywords"),
+                .ul(
+                    .class("keywords"),
+                    .group(
+                        model.keywordResults.map { result in
+                            .li(
+                                .a(
+                                    .href(SiteURL.keywords(.value(result.keyword)).relativeURL()),
+                                    .text(result.keyword)
+                                )
+                            )
+                        }
                     )
                 )
             )

@@ -37,14 +37,14 @@ extension Search {
                 case (.keyword, _, _):
                     return nil
                 case (.package, _, _):
-                    self = .package(
-                        .init(packageId: record.packageId,
-                              packageName: record.packageName,
-                              packageURL: record.packageURL,
-                              repositoryName: record.repositoryName,
-                              repositoryOwner: record.repositoryOwner,
-                              summary: record.summary?.replaceShorthandEmojis())
-                    )
+                    guard let result = PackageResult(packageId: record.packageId,
+                                                     packageName: record.packageName,
+                                                     packageURL: record.packageURL,
+                                                     repositoryName: record.repositoryName,
+                                                     repositoryOwner: record.repositoryOwner,
+                                                     summary: record.summary?.replaceShorthandEmojis())
+                    else { return nil }
+                    self = .package(result)
             }
         }
 
@@ -54,6 +54,33 @@ extension Search {
                     return false
                 case .package:
                     return true
+            }
+        }
+
+        var authorResult: AuthorResult? {
+            switch self {
+                case let .author(result):
+                    return result
+                case .keyword, .package:
+                    return nil
+            }
+        }
+
+        var keywordResult: KeywordResult? {
+            switch self {
+                case let .keyword(result):
+                    return result
+                case .author, .package:
+                    return nil
+            }
+        }
+
+        var packageResult: PackageResult? {
+            switch self {
+                case let .package(result):
+                    return result
+                case .author, .keyword:
+                    return nil
             }
         }
     }
@@ -67,11 +94,26 @@ extension Search {
     }
 
     struct PackageResult: Codable, Equatable {
-        var packageId: Package.Id?
+        var packageId: Package.Id
         var packageName: String?
-        var packageURL: String?
-        var repositoryName: String?
-        var repositoryOwner: String?
+        var packageURL: String
+        var repositoryName: String
+        var repositoryOwner: String
         var summary: String?
+
+        init?(packageId: Package.Id?, packageName: String?, packageURL: String?, repositoryName: String?, repositoryOwner: String?, summary: String?) {
+            guard let packageId = packageId,
+                  let packageURL = packageURL,
+                  let repositoryName = repositoryName,
+                  let repositoryOwner = repositoryOwner
+            else { return nil }
+
+            self.packageId = packageId
+            self.packageName = packageName
+            self.packageURL = packageURL
+            self.repositoryName = repositoryName
+            self.repositoryOwner = repositoryOwner
+            self.summary = summary
+        }
     }
 }
