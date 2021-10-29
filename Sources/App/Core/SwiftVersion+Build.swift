@@ -36,7 +36,7 @@ extension SwiftVersion {
             case .v5_2:
                 return "Xcode 11.6"
             case .v5_3:
-                return "Xcode 12.2"
+                return "Xcode 12.4"
             case .v5_4:
                 return "Xcode 12.5"
             case .v5_5:
