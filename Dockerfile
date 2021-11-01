@@ -15,7 +15,7 @@
 # ================================
 # Build image
 # ================================
-FROM registry.gitlab.com/finestructure/spi-base:0.6.1 as build
+FROM registry.gitlab.com/finestructure/spi-base:0.6.2 as build
 WORKDIR /build
 
 # First just resolve dependencies.
@@ -38,7 +38,7 @@ RUN swift build \
 # Run image
 # ================================
 # we need a special base image so that we can run `swift dump-package`
-FROM registry.gitlab.com/finestructure/spi-base:0.6.1
+FROM registry.gitlab.com/finestructure/spi-base:0.6.2
 
 WORKDIR /run
 
