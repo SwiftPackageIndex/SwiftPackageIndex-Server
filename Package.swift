@@ -55,7 +55,8 @@ let package = Package(
             "SwiftPrometheus",
             "OhhAuth",
             "SwiftSoup",
-            .product(name: "PackageCollectionsModel", package: "SwiftPM")
+            .product(name: "PackageCollectionsModel", package: "SwiftPM"),
+            .product(name: "SwiftPMPackageCollections", package: "SwiftPM")
         ]),
         .target(name: "DependencyResolution"),
         .target(name: "Run", dependencies: ["App"]),
