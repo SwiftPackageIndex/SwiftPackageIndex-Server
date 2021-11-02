@@ -49,7 +49,7 @@ docker-push:
 test-docker:
 	@# run tests inside a docker container
 	docker run --rm -v "$(PWD)":/host -w /host --network="host" \
-	  registry.gitlab.com/finestructure/spi-base:6d1ecb8053cc64786de45d2619d5364b63f58def \
+	  registry.gitlab.com/finestructure/spi-base:22eec776e982b298334fd9ed809fa2c78d0125b1 \
 	  make test
 
 test-e2e: db-reset reconcile ingest analyze
