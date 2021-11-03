@@ -39,7 +39,7 @@ let package = Package(
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
         .package(name: "SwiftPM",
-                 url: "https://github.com/apple/swift-package-manager.git", .branch("main"))
+                 url: "https://github.com/finestructure/swift-package-manager.git", .branch("signer-default-observability-scope"))
     ],
     targets: [
         .target(name: "App", dependencies: [
