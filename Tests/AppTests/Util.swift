@@ -72,9 +72,13 @@ func _resetDb(_ app: Application) throws {
 }
 
 
-func loadData(for fixture: String) throws -> Data {
-    let url = fixturesDirectory().appendingPathComponent(fixture)
-    return try Data(contentsOf: url)
+func fixtureData(for fixture: String) throws -> Data {
+    try Data(contentsOf: fixtureUrl(for: fixture))
+}
+
+
+func fixtureUrl(for fixture: String) -> URL {
+    fixturesDirectory().appendingPathComponent(fixture)
 }
 
 
