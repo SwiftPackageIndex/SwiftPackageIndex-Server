@@ -255,10 +255,10 @@
       },
       {
         "package": "SwiftPM",
-        "repositoryURL": "https://github.com/finestructure/swift-package-manager.git",
+        "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
-          "branch": null,
-          "revision": "7e36dcf37efd18fb2aa8d416429d3fa3b3f92eba",
+          "branch": "main",
+          "revision": "6aabf6738f1bfa37a06de4b943b6c828d4e528b3",
           "version": null
         }
       },
