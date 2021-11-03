@@ -17,6 +17,7 @@ import SnapshotTesting
 import Vapor
 import XCTest
 
+import PackageCollectionsSigning
 
 class PackageCollectionTests: AppTestCase {
 
@@ -768,4 +769,66 @@ class PackageCollectionTests: AppTestCase {
             "multiple authors"
         )
     }
+
+    func test_sign_collection() throws {
+        // setup
+        let collection = PackageCollection(
+            name: "Collection",
+            overview: "Some collection",
+            keywords: [],
+            packages: [
+                .init(url: "url",
+                      summary: nil,
+                      keywords: nil,
+                      versions: [
+                        .init(version: "1.2.3",
+                              summary: nil,
+                              manifests: [
+                                "5.5": .init(toolsVersion: "5.5",
+                                             packageName: "foo",
+                                             targets: [.init(name: "t",
+                                                             moduleName: nil)],
+                                             products: [.init(name: "p",
+                                                              type: .executable,
+                                                              targets: ["t"])],
+                                             minimumPlatformVersions: nil)
+                              ],
+                              defaultToolsVersion: "5.5",
+                              verifiedCompatibility: nil,
+                              license: nil,
+                              createdAt: .t0)
+                      ],
+                      readmeURL: nil,
+                      license: nil)
+            ],
+            formatVersion: .v1_0,
+            revision: nil,
+            generatedAt: .t0,
+            generatedBy: nil)
+        let signer = PackageCollectionSigning(callbackQueue: .main)
+        let exp = expectation(description: "signing")
+        var signCalled = false
+
+        // MUT
+        signer.sign(
+            collection: collection,
+            certChainPaths: [fixtureUrl(for: "package-collections.cer")],
+            privateKeyPEM: try fixtureData(for: "collection_signing_private_key.pem")
+        ) { result in
+            signCalled = true
+            // validate
+            switch result {
+                case .success(let signed):
+                    assertSnapshot(matching: signed, as: .json(self.encoder))
+                case .failure(let error):
+                    XCTFail(error.localizedDescription)
+            }
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 5)
+
+        XCTAssert(signCalled)
+    }
+
+    typealias SignedCollection = PackageCollectionSigning.Model.SignedCollection
 }
