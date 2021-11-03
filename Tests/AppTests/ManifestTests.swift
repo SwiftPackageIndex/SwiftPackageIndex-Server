@@ -95,7 +95,7 @@ class ManifestTests: XCTestCase {
     }
     
     func test_decode_basic() throws {
-        let data = try loadData(for: "manifest-1.json")
+        let data = try fixtureData(for: "manifest-1.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
         XCTAssertEqual(m.name, "SPI-Server")
         XCTAssertEqual(m.platforms, [.init(platformName: .macos, version: "10.15")])
@@ -110,7 +110,7 @@ class ManifestTests: XCTestCase {
     }
 
     func test_decode_products_complex() throws {
-        let data = try loadData(for: "SwiftNIO.json")
+        let data = try fixtureData(for: "SwiftNIO.json")
         let m = try JSONDecoder().decode(Manifest.self, from: data)
         XCTAssertEqual(m.products, [
             .init(name: "NIOEchoServer",

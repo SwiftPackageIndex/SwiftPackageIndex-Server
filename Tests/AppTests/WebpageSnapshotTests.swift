@@ -384,7 +384,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
     }
     
     func test_MarkdownPageStyling() throws {
-        let data = try XCTUnwrap(try loadData(for: "markdown-test.md"))
+        let data = try XCTUnwrap(try fixtureData(for: "markdown-test.md"))
         let markdown = try XCTUnwrap(String(data: data, encoding: .utf8))
         let html = MarkdownParser().parse(markdown).html
         let page = { MarkdownPage(path: "", html: html).document() }

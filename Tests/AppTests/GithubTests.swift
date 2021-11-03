@@ -80,7 +80,7 @@ class GithubTests: AppTestCase {
 
     func test_fetchMetadata() throws {
         Current.githubToken = { "secr3t" }
-        let data = try XCTUnwrap(try loadData(for: "github-graphql-resource.json"))
+        let data = try XCTUnwrap(try fixtureData(for: "github-graphql-resource.json"))
         let client = MockClient { _, resp in
             resp.status = .ok
             resp.body = makeBody(data)
@@ -269,7 +269,7 @@ class GithubTests: AppTestCase {
         // setup
         Current.githubToken = { "secr3t" }
         let pkg = Package(url: "https://github.com/PSPDFKit/PSPDFKit-SP")
-        let data = try XCTUnwrap(try loadData(for: "github-license-response.json"))
+        let data = try XCTUnwrap(try fixtureData(for: "github-license-response.json"))
         let client = MockClient { _, resp in
             resp.status = .ok
             resp.body = makeBody(data)
@@ -300,7 +300,7 @@ class GithubTests: AppTestCase {
         // setup
         Current.githubToken = { "secr3t" }
         let pkg = Package(url: "https://github.com/daveverwer/leftpad")
-        let data = try XCTUnwrap(try loadData(for: "github-readme-response.json"))
+        let data = try XCTUnwrap(try fixtureData(for: "github-readme-response.json"))
         let client = MockClient { _, resp in
             resp.status = .ok
             resp.body = makeBody(data)
