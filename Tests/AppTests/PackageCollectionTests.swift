@@ -17,7 +17,9 @@ import SnapshotTesting
 import Vapor
 import XCTest
 
+import Basics
 import PackageCollectionsSigning
+
 
 class PackageCollectionTests: AppTestCase {
 
@@ -805,7 +807,7 @@ class PackageCollectionTests: AppTestCase {
             revision: nil,
             generatedAt: .t0,
             generatedBy: nil)
-        let signer = PackageCollectionSigning(callbackQueue: .main)
+        let signer = PackageCollectionSigning(observabilityScope: ObservabilitySystem { _, diagnostic in print(diagnostic) }.topScope, callbackQueue: .main)
         let exp = expectation(description: "signing")
         var signCalled = false
 
