@@ -777,6 +777,8 @@ class PackageCollectionTests: AppTestCase {
 class SigningTests: XCTestCase {
 
     func test_sign_collection() throws {
+        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
+
         // setup
         let collection = PackageCollection(
             name: "Collection",
