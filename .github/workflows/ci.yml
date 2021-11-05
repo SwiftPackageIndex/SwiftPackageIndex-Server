@@ -44,6 +44,7 @@ jobs:
       - name: Run tests
         run: cp .env.testing.template .env.testing && make test
         env:
+          COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           DATABASE_HOST: postgres
           DATABASE_PORT: '5432'
 
