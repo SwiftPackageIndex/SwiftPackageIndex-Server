@@ -778,40 +778,18 @@ class PackageCollectionTests: AppTestCase {
         // setup
         let collection: PackageCollection = .mock
 
+        // MUT
         let signedCollection = try PackageCollection.sign(eventLoop: app.eventLoopGroup.next(),
-                                                          collection).wait()
+                                                          collection: collection).wait()
 
         // validate signed collection content
         XCTAssertFalse(signedCollection.signature.signature.isEmpty)
         assertSnapshot(matching: signedCollection, as: .json(self.encoder))
 
         // validate signature
-        var validated = false
-        do {
-            let certsDir = URL(fileURLWithPath: Current.fileManager.workingDirectory())
-                .appendingPathComponent("Resources")
-                .appendingPathComponent("Certs")
-
-            let signer = PackageCollectionSigning(
-                trustedRootCertsDir: certsDir,
-                additionalTrustedRootCerts: nil,
-                observabilityScope: .ignored,
-                callbackQueue: .main
-            )
-
-            let exp = expectation(description: "validate")
-
-            signer.validate(signedCollection: signedCollection) { result in
-                switch result {
-                    case .success:
-                        validated = true
-                    case .failure(let error):
-                        XCTFail(error.localizedDescription)
-                }
-                exp.fulfill()
-            }
-            wait(for: [exp], timeout: 5)
-        }
+        let validated = try PackageCollection.validate(eventLoop: app.eventLoopGroup.next(),
+                                                       signedCollection: signedCollection)
+            .wait()
         XCTAssertTrue(validated)
     }
 
