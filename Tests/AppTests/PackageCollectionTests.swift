@@ -771,16 +771,58 @@ class PackageCollectionTests: AppTestCase {
             "multiple authors"
         )
     }
-}
-
-
-class SigningTests: XCTestCase {
 
     func test_sign_collection() throws {
         try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
 
         // setup
-        let collection = PackageCollection(
+        let collection: PackageCollection = .mock
+
+        let signedCollection = try PackageCollection.sign(eventLoop: app.eventLoopGroup.next(),
+                                                          collection).wait()
+
+        // validate signed collection content
+        XCTAssertFalse(signedCollection.signature.signature.isEmpty)
+        assertSnapshot(matching: signedCollection, as: .json(self.encoder))
+
+        // validate signature
+        var validated = false
+        do {
+            let certsDir = URL(fileURLWithPath: Current.fileManager.workingDirectory())
+                .appendingPathComponent("Resources")
+                .appendingPathComponent("Certs")
+
+            let signer = PackageCollectionSigning(
+                trustedRootCertsDir: certsDir,
+                additionalTrustedRootCerts: nil,
+                observabilityScope: .ignored,
+                callbackQueue: .main
+            )
+
+            let exp = expectation(description: "validate")
+
+            signer.validate(signedCollection: signedCollection) { result in
+                switch result {
+                    case .success:
+                        validated = true
+                    case .failure(let error):
+                        XCTFail(error.localizedDescription)
+                }
+                exp.fulfill()
+            }
+            wait(for: [exp], timeout: 5)
+        }
+        XCTAssertTrue(validated)
+    }
+
+    typealias SignedCollection = PackageCollectionSigning.Model.SignedCollection
+
+}
+
+
+private extension PackageCollection {
+    static var mock: Self {
+        .init(
             name: "Collection",
             overview: "Some collection",
             keywords: [],
@@ -812,80 +854,7 @@ class SigningTests: XCTestCase {
             formatVersion: .v1_0,
             revision: nil,
             generatedAt: .t0,
-            generatedBy: nil)
-        let signer = PackageCollectionSigning(
-            trustedRootCertsDir: fixturesDirectory(),
-            additionalTrustedRootCerts: nil,
-            observabilityScope: .ignored,
-            callbackQueue: .main
+            generatedBy: nil
         )
-
-        var signedCollection: SignedCollection?
-        do {
-            let privateKey = try XCTUnwrap(Current.collectionSigningPrivateKey())
-            let exp = expectation(description: "sign")
-
-            // MUT
-            signer.sign(collection: collection,
-                        certChainPaths: [
-                            fixtureUrl(for: "package_collections_dev.cer"),
-                            fixtureUrl(for: "AppleWWDRCAG3.cer"),
-                            fixtureUrl(for: "AppleIncRootCertificate.cer")
-                        ],
-                        privateKeyPEM: privateKey) { result in
-                switch result {
-                    case .success(let signed):
-                        signedCollection = signed
-                    case .failure(let error):
-                        XCTFail(error.localizedDescription)
-                }
-                exp.fulfill()
-            }
-            wait(for: [exp], timeout: 5)
-        }
-
-        // validate signed collection content
-        let signed = try XCTUnwrap(signedCollection)
-        XCTAssertFalse(signed.signature.signature.isEmpty)
-        assertSnapshot(matching: signed, as: .json(self.encoder))
-
-        // validate signature
-        var validated = false
-        do {
-            let exp = expectation(description: "validate")
-
-            signer.validate(signedCollection: signed) { result in
-                switch result {
-                    case .success:
-                        validated = true
-                    case .failure(let error):
-                        XCTFail(error.localizedDescription)
-                }
-                exp.fulfill()
-            }
-            wait(for: [exp], timeout: 5)
-        }
-        XCTAssertTrue(validated)
-    }
-
-    typealias SignedCollection = PackageCollectionSigning.Model.SignedCollection
-
-    let encoder: JSONEncoder = {
-        let e = JSONEncoder()
-        e.outputFormatting = [.prettyPrinted, .sortedKeys]
-        e.dateEncodingStrategy = .iso8601
-        return e
-    }()
-
-}
-
-
-extension ObservabilityScope {
-    static var logged: ObservabilityScope {
-        ObservabilitySystem { _, diagnostic in print(diagnostic) }.topScope
-    }
-
-    static var ignored: ObservabilityScope {
-        ObservabilitySystem { _, _ in }.topScope
     }
 }
