@@ -779,16 +779,16 @@ class PackageCollectionTests: AppTestCase {
         let collection: PackageCollection = .mock
 
         // MUT
-        let signedCollection = try PackageCollection.sign(eventLoop: app.eventLoopGroup.next(),
-                                                          collection: collection).wait()
+        let signedCollection = try SignedCollection.sign(eventLoop: app.eventLoopGroup.next(),
+                                                         collection: collection).wait()
 
         // validate signed collection content
         XCTAssertFalse(signedCollection.signature.signature.isEmpty)
         assertSnapshot(matching: signedCollection, as: .json(self.encoder))
 
         // validate signature
-        let validated = try PackageCollection.validate(eventLoop: app.eventLoopGroup.next(),
-                                                       signedCollection: signedCollection)
+        let validated = try SignedCollection.validate(eventLoop: app.eventLoopGroup.next(),
+                                                      signedCollection: signedCollection)
             .wait()
         XCTAssertTrue(validated)
     }

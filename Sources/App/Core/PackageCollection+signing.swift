@@ -23,6 +23,7 @@ typealias SignedCollection = PackageCollectionSigning.Model.SignedCollection
 
 
 extension SignedCollection {
+
     static func generate(db: Database,
                          filterBy filter: PackageCollection.Filter,
                          authorName: String? = nil,
@@ -38,13 +39,9 @@ extension SignedCollection {
                                    overview: overview,
                                    revision: revision)
             .flatMap {
-                PackageCollection.sign(eventLoop: db.eventLoop, collection: $0)
+                sign(eventLoop: db.eventLoop, collection: $0)
             }
     }
-}
-
-
-extension PackageCollection {
 
     static func sign(eventLoop: EventLoop, collection: PackageCollection) -> EventLoopFuture<SignedCollection> {
         guard let privateKey = Current.collectionSigningPrivateKey() else {
