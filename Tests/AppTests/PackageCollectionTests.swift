@@ -793,8 +793,6 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertTrue(validated)
     }
 
-    typealias SignedCollection = PackageCollectionSigning.Model.SignedCollection
-
 }
 
 

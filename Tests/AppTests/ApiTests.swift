@@ -14,6 +14,7 @@
 
 @testable import App
 
+import PackageCollectionsSigning
 import SnapshotTesting
 import XCTVapor
 
@@ -516,9 +517,10 @@ class ApiTests: AppTestCase {
                          afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .ok)
-                let collection = try res.content.decode(PackageCollection.self)
+                let container = try res.content.decode(SignedCollection.self)
+                XCTAssertFalse(container.signature.signature.isEmpty)
                 // more details are tested in PackageCollectionTests
-                XCTAssertEqual(collection.name, "my collection")
+                XCTAssertEqual(container.collection.name, "my collection")
             })
         }
     }

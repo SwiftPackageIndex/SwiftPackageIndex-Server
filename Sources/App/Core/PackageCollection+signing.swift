@@ -13,12 +13,35 @@
 // limitations under the License.
 
 import Basics
+import Fluent
 import PackageCollectionsModel
 import PackageCollectionsSigning
 import Vapor
 
 
 typealias SignedCollection = PackageCollectionSigning.Model.SignedCollection
+
+
+extension SignedCollection {
+    static func generate(db: Database,
+                         filterBy filter: PackageCollection.Filter,
+                         authorName: String? = nil,
+                         collectionName: String? = nil,
+                         keywords: [String]? = nil,
+                         overview: String? = nil,
+                         revision: Int? = nil) -> EventLoopFuture<SignedCollection> {
+        PackageCollection.generate(db: db,
+                                   filterBy: filter,
+                                   authorName: authorName,
+                                   collectionName: collectionName,
+                                   keywords: keywords,
+                                   overview: overview,
+                                   revision: revision)
+            .flatMap {
+                PackageCollection.sign(eventLoop: db.eventLoop, collection: $0)
+            }
+    }
+}
 
 
 extension PackageCollection {
