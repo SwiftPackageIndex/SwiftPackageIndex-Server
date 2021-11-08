@@ -476,6 +476,7 @@ class ApiTests: AppTestCase {
     }
 
     func test_package_collection_owner() throws {
+        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         // setup
         Current.date = { .t0 }
         let p1 = Package(id: .id1, url: "1")
@@ -527,6 +528,7 @@ class ApiTests: AppTestCase {
 
 
     func test_package_collection_packageURLs() throws {
+        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         // setup
         let refDate = Date(timeIntervalSince1970: 0)
         Current.date = { refDate }

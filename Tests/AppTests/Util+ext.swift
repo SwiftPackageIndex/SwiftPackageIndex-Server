@@ -27,6 +27,10 @@ extension XCTestCase {
         ProcessInfo.processInfo.environment.keys.contains("GITHUB_WORKFLOW")
     }
     
+    var runImageSnapshotTests: Bool {
+        ProcessInfo.processInfo.environment.keys.contains("RUN_IMAGE_SNAPSHOT_TESTS")
+    }
+
     func assertEquals<Root, Value: Equatable>(_ keyPath: KeyPath<Root, Value>,
                                               _ value1: Root,
                                               _ value2: Root,
