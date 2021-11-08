@@ -50,11 +50,7 @@ extension SignedCollection {
 
         let signedCollection = eventLoop.makePromise(of: SignedCollection.self)
         signer.sign(collection: collection,
-                    certChainPaths: [
-                        certsDir.appendingPathComponent("package_collections_dev.cer"),
-                        certsDir.appendingPathComponent("AppleWWDRCAG3.cer"),
-                        certsDir.appendingPathComponent("AppleIncRootCertificate.cer")
-                    ],
+                    certChainPaths: Current.collectionSigningCertificateChain(),
                     privateKeyPEM: privateKey) { result in
             switch result {
                 case .success(let signed):
