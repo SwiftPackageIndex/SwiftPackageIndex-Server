@@ -89,8 +89,7 @@ extension SignedCollection {
 }
 
 
-// FIXME: make private
-extension ObservabilityScope {
+private extension ObservabilityScope {
     static var logged: ObservabilityScope {
         ObservabilitySystem { _, diagnostic in print(diagnostic) }.topScope
     }
