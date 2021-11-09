@@ -132,6 +132,7 @@ class PackageResultTests: AppTestCase {
         // Test build success reporting - we take any success across platforms
         // as a success for a particular x.y swift version (4.2, 5.0, etc, i.e.
         // ignoring swift patch versions)
+        
         // setup
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .branch("main"))
@@ -141,18 +142,18 @@ class PackageResultTests: AppTestCase {
                 .save(on: app.db)
                 .wait()
         }
-        // 5.0 - failed
-        try makeBuild(.failed, .ios, .v5_0)
-        try makeBuild(.failed, .macosXcodebuild, .v5_0)
-        // 5.1 - no data - unknown
-        // 5.2 - ok
-        try makeBuild(.ok, .macosXcodebuild, .v5_2)
+        // 5.1 - failed
+        try makeBuild(.failed, .ios, .v5_1)
+        try makeBuild(.failed, .macosXcodebuild, .v5_1)
+        // 5.2 - no data - unknown
         // 5.3 - ok
-        try makeBuild(.failed, .ios, .v5_3)
         try makeBuild(.ok, .macosXcodebuild, .v5_3)
         // 5.4 - ok
-        try makeBuild(.failed, .ios, .v5_4)
+        try makeBuild(.failed, .ios, .v5_3)
         try makeBuild(.ok, .macosXcodebuild, .v5_4)
+        // 5.5 - ok
+        try makeBuild(.failed, .ios, .v5_4)
+        try makeBuild(.ok, .macosXcodebuild, .v5_5)
         try v.$builds.load(on: app.db).wait()
 
         // MUT
@@ -160,11 +161,11 @@ class PackageResultTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.v5_0, .init(parameter: .v5_0, status: .incompatible))
-        XCTAssertEqual(res?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.results.v5_2, .init(parameter: .v5_2, status: .compatible))
+        XCTAssertEqual(res?.results.v5_1, .init(parameter: .v5_1, status: .incompatible))
+        XCTAssertEqual(res?.results.v5_2, .init(parameter: .v5_2, status: .unknown))
         XCTAssertEqual(res?.results.v5_3, .init(parameter: .v5_3, status: .compatible))
         XCTAssertEqual(res?.results.v5_4, .init(parameter: .v5_4, status: .compatible))
+        XCTAssertEqual(res?.results.v5_5, .init(parameter: .v5_5, status: .compatible))
     }
 
     func test_buildResults_platforms() throws {
