@@ -212,10 +212,10 @@ class PackageResultTests: AppTestCase {
         // update versions
         try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
-        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
+        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 3, 2))
             .save(on: app.db)
             .wait()
-        try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 0, 2))
+        try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 2, 4))
             .save(on: app.db)
             .wait()
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
@@ -225,11 +225,11 @@ class PackageResultTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.v5_0, .init(parameter: .v5_0, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_2, .init(parameter: .v5_2, status: .compatible))
-        XCTAssertEqual(res?.stable?.results.v5_3, .init(parameter: .v5_3, status: .unknown))
+        XCTAssertEqual(res?.stable?.results.v5_2, .init(parameter: .v5_2, status: .incompatible))
+        XCTAssertEqual(res?.stable?.results.v5_3, .init(parameter: .v5_3, status: .compatible))
         XCTAssertEqual(res?.stable?.results.v5_4, .init(parameter: .v5_4, status: .unknown))
+        XCTAssertEqual(res?.stable?.results.v5_5, .init(parameter: .v5_5, status: .unknown))
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }
