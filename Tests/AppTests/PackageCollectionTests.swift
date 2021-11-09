@@ -793,6 +793,38 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertTrue(validated)
     }
 
+    func test_sign_collection_revoked_key() throws {
+        // setup
+        let collection: PackageCollection = .mock
+        // get cert and key and make sure the inputs are valid (apart from being revoked)
+        // so we don't fail for that reason
+        let revokedUrl = fixtureUrl(for: "revoked.cer")
+        XCTAssertTrue(Foundation.FileManager.default.fileExists(atPath: revokedUrl.path))
+        let revokedKey = try XCTUnwrap(fixtureData(for: "revoked.pem"))
+
+        Current.collectionSigningCertificateChain = {
+            [
+                revokedUrl,
+                SignedCollection.certsDir
+                    .appendingPathComponent("AppleWWDRCAG3.cer"),
+                SignedCollection.certsDir
+                    .appendingPathComponent("AppleIncRootCertificate.cer")
+            ]
+        }
+        Current.collectionSigningPrivateKey = { revokedKey }
+
+        // MUT
+        do {
+            _ = try SignedCollection.sign(eventLoop: app.eventLoopGroup.next(),
+                                          collection: collection).wait()
+            XCTFail("signing with a revoked certificate must fail")
+        } catch PackageCollectionSigningError.invalidCertChain {
+            // ok
+        } catch {
+            XCTFail("unexpected signing error: \(error)")
+        }
+    }
+
 }
 
 
