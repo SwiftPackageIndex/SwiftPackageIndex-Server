@@ -112,7 +112,7 @@ Set up any of the other required environment variables in an `.env` file and run
 env VERSION=2.47.11 docker-compose -f app.yml up -d
 ```
 
-to bring up the full stack. The `VERSION` variable references a tag name or a git sha. You can either rely on docker pulling a previously built image from the registry or build and tag the current version locally:
+to bring up the full stack. The `VERSION` variable references a tag name or a git sha. You can either rely on docker pulling a previously built image from the registry or build and tag a version you want to run locally:
 
 ```
 $ make docker-build
@@ -124,7 +124,7 @@ Sending build context to Docker daemon  536.1MB
 
 Use the logged `VERSION` for the `docker-compose` command.
 
-Note that this will launch quite a number of services defined in `app.yml`, including the services that continuously process packages. In order to limit this to just the Vapor app and the database, run
+Note that this will launch quite a number of services defined in `app.yml`, including the services that continuously process packages. In order to limit this to just the Vapor app, run
 
 ```
 env VERSION=... docker-compose -f app.yml up -d server
