@@ -102,13 +102,17 @@ This does not replace testing but helps with API exploration and integration tes
 
 ## Running the full stack locally
 
-Set up the required environment variables in an `.env` file and run
+The application stack is defined in the `app.yml` docker compose file. The only other required component is the database, which can be brough up via `make db-up-dev` and populated via the processing steps or a database dump.
+
+If you connect to a locally running database, either one brought up via `make db-up-dev` or one running directly on your machine, make sure to specify the `DATABASE_HOST` variable as `host.docker.internal`, which is the hostname of the machine running docker as seen from within a container and automatically configured by docker's networking.
+
+Set up any of the other required environment variables in an `.env` file and run
 
 ```
-env VERSION=0.4.5 docker-compose up -d
+env VERSION=2.47.11 docker-compose -f app.yml up -d
 ```
 
-where the `VERSION` variable references a tag name or a git sha. You can either rely on docker pulling a previously built image from the registry or build and tag the current version locally:
+to bring up the full stack. The `VERSION` variable references a tag name or a git sha. You can either rely on docker pulling a previously built image from the registry or build and tag the current version locally:
 
 ```
 $ make docker-build
@@ -120,10 +124,8 @@ Sending build context to Docker daemon  536.1MB
 
 Use the logged `VERSION` for the `docker-compose` command.
 
-Note that this will launch quite a number of services defined in `docker-compose.yml`, including the services that continuously process packages. In order to limit this to just the Vapor app and the database, run
+Note that this will launch quite a number of services defined in `app.yml`, including the services that continuously process packages. In order to limit this to just the Vapor app and the database, run
 
 ```
-env VERSION=... docker-compose up -d app db
+env VERSION=... docker-compose -f app.yml up -d server
 ```
-
-If you already have a database running on the host that you want to connect to from the app container, use `DATABASE_HOST=172.17.0.1` as the database host. `172.17.0.1` should be the host's IP address for docker services in general.
