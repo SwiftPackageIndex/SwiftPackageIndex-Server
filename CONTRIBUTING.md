@@ -1,21 +1,3 @@
-# Contributing to the Swift Package Index
-
-This project welcomes contributions! We're looking forward to working with you!
-
-## Where Should Contributions Start?
-
-To keep our issues list under control, most bug reports or feature requests work best started as a [discussion in our forum](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions). From there, we can promote it into an issue and start work on a pull request.
-
-We also have a Discord server. If you'd like to join, please [use this invite](https://discord.gg/vQRb6KkYRw)!
-
-## Code of Conduct
-
-All participation in this project, whether contributing code, communicating in discussions or issues, or pull requests, is subject to our code of conduct. Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
-
-## Contributor License Agreements
-
-The Swift Package Index is [licensed under the Apache 2.0 license](LICENSE). Before we can accept your contributions, you'll need to sign a standard Apache 2.0 Contributor License Agreement. We will organise this during your first pull request.
-
 ## Configuring a Local Development Environment
 
 To run the project on your local machine, you'll need the [latest non-beta version of Xcode](https://developer.apple.com/xcode/resources/) and [Docker Desktop for macOS](https://www.docker.com/products/docker-desktop) installed.
@@ -123,7 +105,7 @@ To analyse more than one package, use the `--limit` parameter.
 
 ## Running the Full Stack Locally
 
-**Note:** You will not need to run the full stack locally unless you're working on hosting the server.
+**Note:** You will not need to run the full stack locally unless you're working on debugging the hosting environment for the project.
 
 The `app.yml` Docker compose file defines the application stack. The only other required component is the database which can be brought up via `make db-up-dev` and populated via the processing steps or with a database dump.
 
