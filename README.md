@@ -40,6 +40,15 @@ make serve-front-end
 
 This will serve the frontend.
 
+## Environment Variables
+
+We check for the presence of some environment variables to control various aspects of building and testing:
+
+| Environment variable     | Description                                       |
+| ------------------------ | ------------------------------------------------- |
+| RUN_IMAGE_SNAPSHOT_TESTS | Enable/disable image snapshots during testing.    |
+| GITHUB_WORKFLOW          | Enable/disable certain tests in a CI environment. |
+
 ## Running the project from Xcode
 
 Alternatively, you can open the `Package.swift` file in Xcode and run the server from there. However, it's important to set a custom working directory before running. To do this, navigate to the **Product** | **Scheme** | **Edit Scheme...** menu or press ⌘+<. Select the **Run** scheme action and select the **Options** tab. Finally, check the **Working Directory** checkbox and enter the directory where you have this source code checked out.
