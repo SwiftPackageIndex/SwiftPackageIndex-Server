@@ -15,7 +15,7 @@
 import FluentKit
 
 
-protocol Joiner {
+protocol ModelInitializable {
     associatedtype M: Model
     init(model: M)
 }

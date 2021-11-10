@@ -16,7 +16,7 @@ import FluentKit
 
 
 /// JoinedQueryBuilder is a wrapper around QueryBuilder to allow Joined to be used like a Model query without actually being a Model
-struct JoinedQueryBuilder<J: Joiner> {
+struct JoinedQueryBuilder<J: ModelInitializable> {
     var queryBuilder: QueryBuilder<J.M>
 
     @discardableResult func filter(_ filter: ModelValueFilter<J.M>) -> Self {
