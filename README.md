@@ -37,8 +37,8 @@ This will bring up a local development server.
 ```
 make serve-front-end
 ```
-This will serve the frontend. 
 
+This will serve the frontend.
 
 ## Running the project from Xcode
 
@@ -52,7 +52,7 @@ You can reset the database to a clean slate by tearing down the containers by ru
 make db-reset
 ```
 
-This command will *destroy* both the development, and test docker containers. Recreate them, and finally migrate the development database.
+This command will _destroy_ both the development, and test docker containers. Recreate them, and finally migrate the development database.
 
 ## Running an end-to-end test
 
@@ -62,7 +62,7 @@ Once you're all set up, run:
 make test-e2e
 ```
 
-This will kick off a local test run of the server update process (reconciliation, ingestion, and analysis) processing just *one* package. This is a good way to verify everything is working.
+This will kick off a local test run of the server update process (reconciliation, ingestion, and analysis) processing just _one_ package. This is a good way to verify everything is working.
 
 ## Running ingestion locally
 
