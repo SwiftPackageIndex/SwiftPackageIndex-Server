@@ -22,6 +22,8 @@ struct AppEnvironment {
     var appVersion: () -> String?
     var builderToken: () -> String?
     var buildTriggerDownscaling: () -> Double
+    var collectionSigningCertificateChain: () -> [URL]
+    var collectionSigningPrivateKey: () -> Data?
     var date: () -> Date
     var fetchPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
     var fetchLicense: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.License?>
@@ -75,6 +77,20 @@ extension AppEnvironment {
             Environment.get("BUILD_TRIGGER_DOWNSCALING")
                 .flatMap(Double.init)
                 ?? 1.0
+        },
+        collectionSigningCertificateChain: {
+            [
+                SignedCollection.certsDir
+                    .appendingPathComponent("package_collections_prod.cer"),
+                SignedCollection.certsDir
+                    .appendingPathComponent("AppleWWDRCAG3.cer"),
+                SignedCollection.certsDir
+                    .appendingPathComponent("AppleIncRootCertificate.cer")
+            ]
+        },
+        collectionSigningPrivateKey: {
+            Environment.get("COLLECTION_SIGNING_PRIVATE_KEY")
+                .map { Data($0.utf8) }
         },
         date: Date.init,
         fetchPackageList: liveFetchPackageList,

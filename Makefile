@@ -33,12 +33,13 @@ run:
 	swift run
 
 test:
+	env RUN_IMAGE_SNAPSHOT_TESTS=true \
 	swift test --enable-code-coverage --disable-automatic-resolution --sanitize=thread
 
 test-fast:
 	@echo Skipping image snapshot tests
 	@echo Running without --sanitize=thread
-	env GITHUB_WORKFLOW=true swift test --enable-code-coverage --disable-automatic-resolution
+	env swift test --enable-code-coverage --disable-automatic-resolution
 
 docker-build: version
 	docker build -t $(DOCKER_IMAGE):$(VERSION) .
@@ -49,7 +50,7 @@ docker-push:
 test-docker:
 	@# run tests inside a docker container
 	docker run --rm -v "$(PWD)":/host -w /host --network="host" \
-	  registry.gitlab.com/finestructure/spi-base:0.6.2 \
+	  registry.gitlab.com/finestructure/spi-base:0.6.3 \
 	  make test
 
 test-e2e: db-reset reconcile ingest analyze

@@ -20,10 +20,10 @@ extension API {
 
     struct PackageCollectionController {
 
-        func generate(req: Request) throws -> EventLoopFuture<PackageCollection> {
+        func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
             // First try decoding "owner" type DTO
             if let dto = try? req.content.decode(PostPackageCollectionOwnerDTO.self) {
-                return PackageCollection.generate(
+                return SignedCollection.generate(
                     db: req.db,
                     filterBy: .author(dto.owner),
                     authorName: dto.authorName ?? "Swift Package Index",
@@ -39,7 +39,7 @@ extension API {
             guard dto.packageUrls.count <= 20 else {
                 throw Abort(.badRequest)
             }
-            return PackageCollection.generate(
+            return SignedCollection.generate(
                 db: req.db,
                 filterBy: .urls(dto.packageUrls),
                 authorName: dto.authorName ?? "Swift Package Index",
@@ -55,7 +55,7 @@ extension API {
 }
 
 
-extension PackageCollection: Content {}
+extension SignedCollection: Content {}
 
 
 extension API {
