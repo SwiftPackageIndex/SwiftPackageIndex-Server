@@ -70,8 +70,9 @@
     </section>
     <main>
       <div class="inner">
-        <div class="scta">This site is entirely funded by community donations. Please consider supporting this project by 
-          <a href="https://github.com/sponsors/SwiftPackageIndex">sponsoring the Swift Package Index</a>. 
+        <div class="scta">The Swift Package Index is an 
+          <a href="https://github.com/sponsors/SwiftPackageIndex">open-source project</a> entirely funded by community donations. Please consider 
+          <a href="https://github.com/sponsors/SwiftPackageIndex">sponsoring the project</a>. 
           <strong>Thank you!</strong>
         </div>
         <div class="recent">

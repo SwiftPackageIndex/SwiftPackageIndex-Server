@@ -39,6 +39,10 @@
 
 #menu_scta_help {
   display: none;
+
+  p {
+    margin: 5px 0;
+  }
 }
 
 // Note: This is min-width, not max-width as usual. This *only* for larger devices.

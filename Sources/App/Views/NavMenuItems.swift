@@ -32,8 +32,11 @@ enum NavMenuItem {
                     ),
                     .div(
                         .id("menu_scta_help"),
-                        .text("This site is entirely funded by community donations. Please consider sponsoring this project. "),
-                        .strong("Thank you!")
+                        .p("The Swift Package Index is an open-source project entirely funded by community donations."),
+                        .p(
+                            .text("Please consider sponsoring this project. "),
+                            .strong("Thank you!")
+                        )
                     )
                 )
             case .addPackage:
