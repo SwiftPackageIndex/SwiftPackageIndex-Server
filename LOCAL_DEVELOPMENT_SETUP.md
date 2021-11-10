@@ -103,6 +103,14 @@ To analyse more than one package, use the `--limit` parameter.
 
 **Note:** Analysis checks out repositories into your local file system. BY default, it will create and use a `SPI-checkouts` directory in your project's working directory, but you can change this location by setting the environment variable `CHECKOUTS_DIR` to another path.
 
+### Running an end-to-end test
+
+The `Makefile` includes a command to run a full test of the server update process (reconciliation, ingestion, and analysis) processing just _one_ package. This is a good way to verify everything.
+
+```
+make test-e2e
+```
+
 ## Running the Full Stack Locally
 
 **Note:** You will not need to run the full stack locally unless you're working on debugging the hosting environment for the project.
