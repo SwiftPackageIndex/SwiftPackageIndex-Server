@@ -44,25 +44,25 @@ extension PackageShow.Model {
             swiftVersionBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",
-                    results: .init(status5_0: .incompatible,
-                                   status5_1: .incompatible,
-                                   status5_2: .unknown,
-                                   status5_3: .compatible,
-                                   status5_4: .compatible)),
+                    results: .init(status5_1: .incompatible,
+                                   status5_2: .incompatible,
+                                   status5_3: .unknown,
+                                   status5_4: .compatible,
+                                   status5_5: .compatible)),
                 beta: NamedBuildResults(
                     referenceName: "6.0.0-b1",
-                    results: .init(status5_0: .incompatible,
-                                   status5_1: .compatible,
+                    results: .init(status5_1: .incompatible,
                                    status5_2: .compatible,
                                    status5_3: .compatible,
-                                   status5_4: .compatible)),
+                                   status5_4: .compatible,
+                                   status5_5: .compatible)),
                 latest: NamedBuildResults(
                     referenceName: "main",
-                    results: .init(status5_0: .incompatible,
-                                   status5_1: .incompatible,
-                                   status5_2: .unknown,
-                                   status5_3: .compatible,
-                                   status5_4: .compatible))),
+                    results: .init(status5_1: .incompatible,
+                                   status5_2: .incompatible,
+                                   status5_3: .unknown,
+                                   status5_4: .compatible,
+                                   status5_5: .compatible))),
             platformBuildInfo: .init(
                 stable: NamedBuildResults(
                     referenceName: "5.2.3",

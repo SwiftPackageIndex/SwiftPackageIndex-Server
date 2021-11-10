@@ -131,18 +131,18 @@
                     </div>
                     <div class="row_values">
                       <div class="column_label">
+                        <div>5.5</div>
                         <div>5.4</div>
                         <div>5.3</div>
                         <div>5.2</div>
                         <div>5.1</div>
-                        <div>5.0</div>
                       </div>
                       <div class="result">
+                        <div class="compatible" title="Built successfully with Swift 5.5"></div>
                         <div class="compatible" title="Built successfully with Swift 5.4"></div>
-                        <div class="compatible" title="Built successfully with Swift 5.3"></div>
-                        <div class="unknown" title="No build information available for Swift 5.2"></div>
+                        <div class="unknown" title="No build information available for Swift 5.3"></div>
+                        <div class="incompatible" title="Build failed with Swift 5.2"></div>
                         <div class="incompatible" title="Build failed with Swift 5.1"></div>
-                        <div class="incompatible" title="Build failed with Swift 5.0"></div>
                       </div>
                     </div>
                   </li>
@@ -156,18 +156,18 @@
                     </div>
                     <div class="row_values">
                       <div class="column_label">
+                        <div>5.5</div>
                         <div>5.4</div>
                         <div>5.3</div>
                         <div>5.2</div>
                         <div>5.1</div>
-                        <div>5.0</div>
                       </div>
                       <div class="result">
+                        <div class="compatible" title="Built successfully with Swift 5.5"></div>
                         <div class="compatible" title="Built successfully with Swift 5.4"></div>
                         <div class="compatible" title="Built successfully with Swift 5.3"></div>
                         <div class="compatible" title="Built successfully with Swift 5.2"></div>
-                        <div class="compatible" title="Built successfully with Swift 5.1"></div>
-                        <div class="incompatible" title="Build failed with Swift 5.0"></div>
+                        <div class="incompatible" title="Build failed with Swift 5.1"></div>
                       </div>
                     </div>
                   </li>
