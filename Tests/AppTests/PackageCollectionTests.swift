@@ -17,6 +17,9 @@ import SnapshotTesting
 import Vapor
 import XCTest
 
+import Basics
+import PackageCollectionsSigning
+
 
 class PackageCollectionTests: AppTestCase {
 
@@ -766,6 +769,100 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(
             PackageCollection.authorLabel(repositories: repositories),
             "multiple authors"
+        )
+    }
+
+    func test_sign_collection() throws {
+        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
+
+        // setup
+        let collection: PackageCollection = .mock
+
+        // MUT
+        let signedCollection = try SignedCollection.sign(eventLoop: app.eventLoopGroup.next(),
+                                                         collection: collection).wait()
+
+        // validate signed collection content
+        XCTAssertFalse(signedCollection.signature.signature.isEmpty)
+        assertSnapshot(matching: signedCollection, as: .json(self.encoder))
+
+        // validate signature
+        let validated = try SignedCollection.validate(eventLoop: app.eventLoopGroup.next(),
+                                                      signedCollection: signedCollection)
+            .wait()
+        XCTAssertTrue(validated)
+    }
+
+    func test_sign_collection_revoked_key() throws {
+        // setup
+        let collection: PackageCollection = .mock
+        // get cert and key and make sure the inputs are valid (apart from being revoked)
+        // so we don't fail for that reason
+        let revokedUrl = fixtureUrl(for: "revoked.cer")
+        XCTAssertTrue(Foundation.FileManager.default.fileExists(atPath: revokedUrl.path))
+        let revokedKey = try XCTUnwrap(fixtureData(for: "revoked.pem"))
+
+        Current.collectionSigningCertificateChain = {
+            [
+                revokedUrl,
+                SignedCollection.certsDir
+                    .appendingPathComponent("AppleWWDRCAG3.cer"),
+                SignedCollection.certsDir
+                    .appendingPathComponent("AppleIncRootCertificate.cer")
+            ]
+        }
+        Current.collectionSigningPrivateKey = { revokedKey }
+
+        // MUT
+        do {
+            _ = try SignedCollection.sign(eventLoop: app.eventLoopGroup.next(),
+                                          collection: collection).wait()
+            XCTFail("signing with a revoked certificate must fail")
+        } catch PackageCollectionSigningError.invalidCertChain {
+            // ok
+        } catch {
+            XCTFail("unexpected signing error: \(error)")
+        }
+    }
+
+}
+
+
+private extension PackageCollection {
+    static var mock: Self {
+        .init(
+            name: "Collection",
+            overview: "Some collection",
+            keywords: [],
+            packages: [
+                .init(url: "url",
+                      summary: nil,
+                      keywords: nil,
+                      versions: [
+                        .init(version: "1.2.3",
+                              summary: nil,
+                              manifests: [
+                                "5.5": .init(toolsVersion: "5.5",
+                                             packageName: "foo",
+                                             targets: [.init(name: "t",
+                                                             moduleName: nil)],
+                                             products: [.init(name: "p",
+                                                              type: .executable,
+                                                              targets: ["t"])],
+                                             minimumPlatformVersions: nil)
+                              ],
+                              defaultToolsVersion: "5.5",
+                              verifiedCompatibility: nil,
+                              license: nil,
+                              createdAt: .t0)
+                      ],
+                      readmeURL: nil,
+                      license: nil)
+            ],
+            formatVersion: .v1_0,
+            revision: nil,
+            generatedAt: .t0,
+            generatedBy: nil
         )
     }
 }

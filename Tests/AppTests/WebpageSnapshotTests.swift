@@ -41,7 +41,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
         
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -59,7 +59,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
         
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -79,7 +79,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -102,7 +102,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -123,7 +123,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
         
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -144,7 +144,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -165,7 +165,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -186,7 +186,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -207,7 +207,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -230,7 +230,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
         
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -279,7 +279,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
         
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -298,7 +298,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -317,7 +317,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -335,7 +335,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -353,7 +353,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
         
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -371,7 +371,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
         
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -392,7 +392,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
         
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 var mutableSize = $0.size
                 mutableSize.height = 3000
@@ -412,7 +412,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -430,7 +430,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -448,7 +448,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: 0.999,
@@ -466,7 +466,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: 0.999,
@@ -484,7 +484,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,
@@ -502,7 +502,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
 
         #if os(macOS)
-        if !isRunningInCI {
+        if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
                                as: .image(precision: defaultPrecision,

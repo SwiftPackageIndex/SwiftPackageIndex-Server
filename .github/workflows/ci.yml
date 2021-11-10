@@ -21,7 +21,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container:
-      image: registry.gitlab.com/finestructure/spi-base:0.6.2
+      image: registry.gitlab.com/finestructure/spi-base:0.6.3
     services:
       postgres:
         image: postgres:11.6-alpine
@@ -44,6 +44,7 @@ jobs:
       - name: Run tests
         run: cp .env.testing.template .env.testing && make test
         env:
+          COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
           DATABASE_HOST: postgres
           DATABASE_PORT: '5432'
 

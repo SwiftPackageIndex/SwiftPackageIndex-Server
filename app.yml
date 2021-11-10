@@ -26,6 +26,7 @@ x-shared: &shared
     BUILD_TRIGGER_SLEEP: ${BUILD_TRIGGER_SLEEP}
     BUILDER_TOKEN: ${BUILDER_TOKEN}
     CHECKOUTS_DIR: ${CHECKOUTS_DIR}
+    COLLECTION_SIGNING_PRIVATE_KEY: ${COLLECTION_SIGNING_PRIVATE_KEY}
     DATABASE_HOST: ${DATABASE_HOST}
     DATABASE_PORT: ${DATABASE_PORT}
     DATABASE_NAME: ${DATABASE_NAME}
@@ -146,23 +147,10 @@ services:
   migrate:
     image: registry.gitlab.com/finestructure/swiftpackageindex:${VERSION}
     <<: *shared
-    depends_on:
-      - db
     command: ["migrate", "--yes"]
     deploy:
       restart_policy:
         condition: none
-    networks:
-      - backend
-
-
-  # for db connections
-  sshd:
-    image: registry.gitlab.com/finestructure/spi-sshd:0.0.1
-    entrypoint: ["/bin/bash"]
-    command: ["-c", "--", "echo '${authorized_keys}' > /root/.ssh/authorized_keys && chmod 0400 /root/.ssh/authorized_keys && ssh-start ssh-server"]
-    ports:
-      - "2222:22"
     networks:
       - backend
 

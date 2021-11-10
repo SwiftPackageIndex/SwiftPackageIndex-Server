@@ -16,12 +16,12 @@ import Vapor
 
 
 struct PackageCollectionController {
-    func generate(req: Request) throws -> EventLoopFuture<PackageCollection> {
+    func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
         guard let owner = req.parameters.get("owner") else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return PackageCollection.generate(
+        return SignedCollection.generate(
             db: req.db,
             filterBy: .author(owner),
             authorName: "\(owner) via the Swift Package Index"

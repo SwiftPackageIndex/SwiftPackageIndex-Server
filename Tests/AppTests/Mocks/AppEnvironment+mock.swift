@@ -26,6 +26,20 @@ extension AppEnvironment {
             appVersion: { "test" },
             builderToken: { nil },
             buildTriggerDownscaling: { 1.0 },
+            collectionSigningCertificateChain: {
+                [
+                    SignedCollection.certsDir
+                        .appendingPathComponent("package_collections_dev.cer"),
+                    SignedCollection.certsDir
+                        .appendingPathComponent("AppleWWDRCAG3.cer"),
+                    SignedCollection.certsDir
+                        .appendingPathComponent("AppleIncRootCertificate.cer")
+                ]
+            },
+            collectionSigningPrivateKey: {
+                Environment.get("COLLECTION_SIGNING_PRIVATE_KEY")
+                    .map { Data($0.utf8) }
+            },
             date: Date.init,
             fetchPackageList: { _ in
                 eventLoop.future(["https://github.com/finestructure/Gala",

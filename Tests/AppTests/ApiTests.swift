@@ -14,6 +14,7 @@
 
 @testable import App
 
+import PackageCollectionsSigning
 import SnapshotTesting
 import XCTVapor
 
@@ -475,6 +476,7 @@ class ApiTests: AppTestCase {
     }
 
     func test_package_collection_owner() throws {
+        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         // setup
         Current.date = { .t0 }
         let p1 = Package(id: .id1, url: "1")
@@ -516,15 +518,17 @@ class ApiTests: AppTestCase {
                          afterResponse: { res in
                 // validation
                 XCTAssertEqual(res.status, .ok)
-                let collection = try res.content.decode(PackageCollection.self)
+                let container = try res.content.decode(SignedCollection.self)
+                XCTAssertFalse(container.signature.signature.isEmpty)
                 // more details are tested in PackageCollectionTests
-                XCTAssertEqual(collection.name, "my collection")
+                XCTAssertEqual(container.collection.name, "my collection")
             })
         }
     }
 
 
     func test_package_collection_packageURLs() throws {
+        try XCTSkipIf(!isRunningInCI && Current.collectionSigningPrivateKey() == nil, "Skip test for local user due to unset COLLECTION_SIGNING_PRIVATE_KEY env variable")
         // setup
         let refDate = Date(timeIntervalSince1970: 0)
         Current.date = { refDate }
