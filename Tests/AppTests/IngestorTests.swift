@@ -35,7 +35,7 @@ class IngestorTests: AppTestCase {
         
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
-        XCTAssertEqual(repos.map(\.$package.id), packages.map(\.id))
+        XCTAssertEqual(Set(repos.map(\.$package.id)), Set(packages.map(\.id)))
         repos.forEach {
             XCTAssertNotNil($0.id)
             XCTAssertNotNil($0.$package.id)
