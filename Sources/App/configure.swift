@@ -23,6 +23,14 @@ public func configure(_ app: Application) throws {
 
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.middleware.use(ErrorMiddleware())
+
+    // The default is 1 and there is one eventloop per system core by default.
+    // Each process (analysis, reconcile etc - a total of 5, see app.yml) contributes to this count.
+    // Our current dev setup has 1 vm with 2 cores -> 20 connections max with a db connection limit of 55.
+    // Our current prod setup has 3 vms with 4 cores -> 240 connections max with a db connection limit of 105.
+    // It should be safe to set this to 4 even though the theoretical max on prod is higher than the supported max, because these wouldn't be utilised across all three nodes at the same time. And even if they are, the failure mode is exactly the same we have before increasing the limits.
+    // This parameter could also be made configurable via an env variable.
+    let maxConnectionsPerEventLoop = 4
     
     guard
         let host = Environment.get("DATABASE_HOST"),
@@ -47,7 +55,8 @@ public func configure(_ app: Application) throws {
                                 password: password,
                                 database: database,
                                 tlsConfiguration: tlsConfig,
-                                maxConnectionsPerEventLoop: 4), as: .psql)
+                                maxConnectionsPerEventLoop: maxConnectionsPerEventLoop),
+                      as: .psql)
     
     do {  // Migration 001 - schema 1.0
         app.migrations.add(CreatePackage())
