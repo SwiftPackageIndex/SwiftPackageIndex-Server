@@ -21,6 +21,8 @@ extension API {
     struct PackageCollectionController {
 
         func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
+            AppMetrics.apiPackageCollectionGetTotal?.inc()
+
             // First try decoding "owner" type DTO
             if let dto = try? req.content.decode(PostPackageCollectionOwnerDTO.self) {
                 return SignedCollection.generate(
