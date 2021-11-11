@@ -8,7 +8,7 @@ It is not possible to run the [build system](https://blog.swiftpackageindex.com/
 
 Once you have the project cloned locally, the `Makefile` defines a set of useful commands to get you up and running.
 
-You'll need some environment variables configured, but the project has template files in `.env.testing.template` and `.env.development.template`. Your first step should be to copy these files as `.env.testing` and `.env.development` and review their content in case your setup deviates from the default.
+You'll need some environment variables configured before you can run the project. There are template files in the repository as `.env.testing.template` and `.env.development.template` and your first step should be to copy these files as `.env.testing` and `.env.development` and review their content in case your setup deviates from the default.
 
 Then, to create Postgres databases in Docker for your development and test environments, run:
 
@@ -30,13 +30,13 @@ Then, select the "Run" scheme and click the "Edit…" button. Select the "Run" s
 
 ![A screenshot of Xcode showing the Edit Scheme window with the Run scheme action selected.](.readme-images/edit-scheme.png)
 
-Close the scheme editor, ensure that the "Run" scheme is selected in the Xcode toolbar and run the project with Xcode!
-
-When the development server starts, you should see this output in the Xcode console:
+Close the scheme editor, ensure that the "Run" scheme is selected in the Xcode toolbar and run the project with Xcode! When the development server starts, you should see this output in the Xcode console:
 
 ```
 [ NOTICE ] Server starting on http://127.0.0.1:8080 [component: server]
 ```
+
+**Note:** When working on some features, it will be helpful to have a database with pre-populated data from the live system. Talk to us on Discord, and we'll supply you with a recent database dump that you can load with `./scripts/load-db.sh`.
 
 ### Setup the Front End
 
@@ -51,7 +51,7 @@ make build-front-end
 If you want to set up the front end for active development, run a local front end server with:
 
 ```
-make build-front-end
+make serve-front-end
 ```
 
 **Note:** If you are doing extensive work with the front end, you may want to install `node` and `yarn` locally rather than running them via Docker.
@@ -105,7 +105,7 @@ To analyse more than one package, use the `--limit` parameter.
 
 ### Running an end-to-end test
 
-The `Makefile` includes a command to run a full test of the server update process (reconciliation, ingestion, and analysis) processing just _one_ package. This is a good way to verify everything.
+The `Makefile` also includes a command to run a full test of the server update process (reconciliation, ingestion, and analysis) processing just _one_ package. This is a good way to verify everything.
 
 ```
 make test-e2e
