@@ -46,7 +46,8 @@ public func configure(_ app: Application) throws {
                                 username: username,
                                 password: password,
                                 database: database,
-                                tlsConfiguration: tlsConfig), as: .psql)
+                                tlsConfiguration: tlsConfig,
+                                maxConnectionsPerEventLoop: 4), as: .psql)
     
     do {  // Migration 001 - schema 1.0
         app.migrations.add(CreatePackage())
