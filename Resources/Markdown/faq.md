@@ -112,9 +112,9 @@ If the package license shows with an orange background but does _not_ say "No Li
 
 <h3 id="contributing">Can I contribute to the Swift Package Index?</h3>
 
-Absolutely. The Swift Package Index is [open-source](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server), and we’d love it if you wanted to help us make it better. Please see the [guide to contributing](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/CONTRIBUTING.md) for more information.
+Absolutely. The Swift Package Index is [open-source](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server), and we’d love it if you wanted to help us make it better. Please see the [guide to contributing in our README](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/README.md#contributing) for more information.
 
-All participation in this project, whether it be contributing code or discussions in issues are subject to our code of conduct. Please read the [code of conduct](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/CODE_OF_CONDUCT.md) for more information.
+All participation in this project, whether contributing code, communicating in discussions or issues, or pull requests, is subject to our code of conduct. Please read the [Code of Conduct](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/CODE_OF_CONDUCT.md) before contributing.
 
 ---
 
