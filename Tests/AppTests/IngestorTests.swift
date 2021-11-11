@@ -243,7 +243,7 @@ class IngestorTests: AppTestCase {
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.count, testUrls.count)
-        XCTAssertEqual(repos.map(\.$package.id), packages.map(\.id))
+        XCTAssertEqual(Set(repos.map(\.$package.id)), Set(packages.map(\.id)))
     }
     
     func test_insertOrUpdateRepository_bulk() throws {
