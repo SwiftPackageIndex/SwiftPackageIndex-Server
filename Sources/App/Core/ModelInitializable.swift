@@ -15,6 +15,10 @@
 import FluentKit
 
 
+// Ideally, this protocal wouldn't be necessary and the initialisers private,
+// in order to prevent mis-use (instantiating a not properly populated Joined
+// or Ref). However, this is not possible for reasons outlined here:
+// https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/1367#issue-1051671014
 protocol ModelInitializable {
     associatedtype M: Model
     init(model: M)
