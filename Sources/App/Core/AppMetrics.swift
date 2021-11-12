@@ -94,6 +94,10 @@ enum AppMetrics {
         counter("spi_api_build_report_total", Labels.Build.self)
     }
 
+    static var apiPackageCollectionGetTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_api_package_collection_get_total", EmptyLabels.self)
+    }
+
     static var apiSearchGetTotal: PromCounter<Int, EmptyLabels>? {
         counter("spi_api_search_get_total", EmptyLabels.self)
     }
@@ -137,6 +141,11 @@ enum AppMetrics {
     static var ingestMetadataFailureCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_ingest_metadata_failure_count", EmptyLabels.self)
     }
+
+    static var packageCollectionGetTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_package_collection_get_total", EmptyLabels.self)
+    }
+
 }
 
 

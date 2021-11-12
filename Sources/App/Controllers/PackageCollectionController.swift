@@ -17,6 +17,8 @@ import Vapor
 
 struct PackageCollectionController {
     func generate(req: Request) throws -> EventLoopFuture<SignedCollection> {
+        AppMetrics.packageCollectionGetTotal?.inc()
+
         guard let owner = req.parameters.get("owner") else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
