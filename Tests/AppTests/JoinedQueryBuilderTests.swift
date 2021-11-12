@@ -69,7 +69,7 @@ class JoinedQueryBuilderTests: AppTestCase {
 
 }
 
-extension Package: Joiner {
+extension Package: ModelInitializable {
     convenience public init(model: Package) {
         self.init(id: model.id,
                   url: model.url.url,

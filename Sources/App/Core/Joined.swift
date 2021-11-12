@@ -15,7 +15,7 @@
 import FluentKit
 
 
-struct Joined<M: Model, R: Model>: Joiner {
+struct Joined<M: Model, R: Model>: ModelInitializable {
     private(set) var model: M
 }
 

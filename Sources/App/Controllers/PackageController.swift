@@ -125,7 +125,7 @@ extension PackageController.PackageResult {
     var versions: [Version] { package.versions }
 
     static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        M.query(on: database)
+        Joined<Package, Repository>.query(on: database)
             .with(\.$versions) {
                 $0.with(\.$products)
                 $0.with(\.$builds)
