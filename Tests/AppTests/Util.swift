@@ -85,8 +85,7 @@ func fixtureUrl(for fixture: String) -> URL {
 func fixturesDirectory(path: String = #file) -> URL {
     let url = URL(fileURLWithPath: path)
     let testsDir = url.deletingLastPathComponent()
-    let res = testsDir.appendingPathComponent("Fixtures")
-    return res
+    return testsDir.appendingPathComponent("Fixtures")
 }
 
 
