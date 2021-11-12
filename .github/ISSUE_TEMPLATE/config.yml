@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Idea or Feature Request
+    url: https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions/new?category=ideas
+    about: Do you have an idea for a new feature?
+  - name: Ask a Question
+    url: https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/discussions/new?category=q-a
+    about: Have a question related to the Package Index?
