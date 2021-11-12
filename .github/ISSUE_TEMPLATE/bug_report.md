@@ -1,17 +1,16 @@
 ---
 name: Bug report
-about: Did the site crash, show incorrect package data, or did something else go wrong?
+about: Did the site crash or behave unexpectedly?
 title: ''
 labels: bug
 assignees: ''
-
 ---
 
 **Please describe the bug**
 
-Please give a clear and concise description of what went wrong, or if a package page shows incorrect information, explain what information is inaccurate and what should be displayed.
+Please give a clear and concise description of what went wrong.
 
-**Explain the steps needed to reproduce the bug, if relevant**
+**Explain the steps needed to reproduce the bug**
 
 1. Navigate to to '…'
 2. Click on '…'
@@ -21,15 +20,15 @@ Please give a clear and concise description of what went wrong, or if a package 
 
 **Screenshots**
 
-If applicable, add screenshots to help explain your problem.
+If applicable, please add screenshots to help explain your problem.
 
-**What web browser were you using?**
+**What web browser were you using? (if relevant)**
 
-If this is a front-end bug, please include your browser information below:
+If you're reporting a bug with the front end, please include your browser information below:
 
- - Platform: Desktop/Tablet/Smartphone
- - Browser [e.g. Chrome, Safari]
- - Version [e.g. Version 15.1]
+- Platform: Desktop/Tablet/Smartphone
+- Browser [e.g. Chrome, Safari]
+- Version [e.g. Version 15.1]
 
 **Additional context**
 
