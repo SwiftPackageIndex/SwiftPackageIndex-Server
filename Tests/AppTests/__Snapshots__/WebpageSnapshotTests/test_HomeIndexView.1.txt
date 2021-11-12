@@ -71,7 +71,7 @@
     <main>
       <div class="inner">
         <div class="scta">The Swift Package Index is an 
-          <a href="https://github.com/sponsors/SwiftPackageIndex">open-source project</a> entirely funded by community donations. Please consider 
+          <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">open-source project</a> entirely funded by community donations. Please consider 
           <a href="https://github.com/sponsors/SwiftPackageIndex">sponsoring the project</a>. 
           <strong>Thank you!</strong>
         </div>
