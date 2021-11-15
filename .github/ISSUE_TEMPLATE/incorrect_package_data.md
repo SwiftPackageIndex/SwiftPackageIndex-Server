@@ -2,7 +2,7 @@
 name: Incorrect package data
 about: Is the site showing incorrect data for a package?
 title: ''
-labels: bug
+labels: 'package data'
 assignees: ''
 ---
 
