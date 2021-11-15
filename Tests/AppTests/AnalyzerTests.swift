@@ -116,16 +116,16 @@ class AnalyzerTests: AppTestCase {
             // since 1970.
             // It is important the tags aren't created at identical times for tags on the same
             // package, or else we will collect multiple recent releases (as there is no "latest")
-            let tagToSha: [Reference: CommitHash] = [
-                .tag(1, 0, 0): "sha-0",
-                .tag(1, 1, 1): "sha-1",
-                .tag(2, 0, 0): "sha-2",
-                .tag(2, 1, 0): "sha-3",
-                .branch("main"): "sha-4",
+            let refs: [Reference] = [
+                .tag(1, 0, 0),
+                .tag(1, 1, 1),
+                .tag(2, 0, 0),
+                .tag(2, 1, 0),
+                .branch("main")
             ]
-            for (tag, sha) in tagToSha {
-                if cmd == .gitRevisionInfo(reference: tag, separator: "-") {
-                    return sha
+            for (idx, ref) in refs.enumerated() {
+                if cmd == .gitRevisionInfo(reference: ref, separator: "-") {
+                    return "sha-\(idx)"
                 }
             }
 
