@@ -618,7 +618,7 @@ class AnalyzerTests: AppTestCase {
             queue.sync {
                 commands.append(cmd.string)
             }
-            if cmd.string.hasSuffix("swift package dump-package") {
+            if cmd == .swiftDumpPackage {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             return ""
@@ -666,7 +666,7 @@ class AnalyzerTests: AppTestCase {
             queue.sync {
                 commands.append(cmd.string)
             }
-            if cmd.string.hasSuffix("swift package dump-package") {
+            if cmd == .swiftDumpPackage {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             return ""
@@ -954,7 +954,7 @@ class AnalyzerTests: AppTestCase {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
                 commands.append(c)
             }
-            if cmd.string.hasPrefix("git checkout") {
+            if cmd == .gitCheckout(branch: "master") {
                 throw TestError.simulatedCheckoutError
             }
             return ""
@@ -1035,7 +1035,7 @@ class AnalyzerTests: AppTestCase {
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
                 commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
             }
-            if cmd.string.hasPrefix("git fetch") { throw TestError.simulatedFetchError }
+            if cmd == .gitFetch { throw TestError.simulatedFetchError }
             return ""
         }
 
@@ -1137,19 +1137,22 @@ class AnalyzerTests: AppTestCase {
         // Ensure we handle 404 repos properly
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/914
         // setup
-        try savePackage(on: app.db,
-                        "1".asGithubUrl.url,
-                        processingStage: .ingestion)
-        Current.fileManager.fileExists = { path in
-            if path.hasSuffix("github.com-foo-1") { return false }
-            return true
-        }
-        struct ShellOutError: Error {}
-        Current.shell.run = { cmd, path in
-            if cmd.string.hasPrefix("git clone") {
-                throw ShellOutError()
+        do {
+            let url = "1".asGithubUrl.url
+            let pkg = Package.init(url: url, processingStage: .ingestion)
+            try pkg.save(on: app.db).wait()
+            Current.fileManager.fileExists = { path in
+                if path.hasSuffix("github.com-foo-1") { return false }
+                return true
             }
-            fatalError("should not be reached")
+            let repoDir = try Current.fileManager.checkoutsDirectory() + "/" + XCTUnwrap(pkg.cacheDirectoryName)
+            struct ShellOutError: Error {}
+            Current.shell.run = { cmd, path in
+                if cmd == .gitClone(url: url, to: repoDir) {
+                    throw ShellOutError()
+                }
+                fatalError("should not be reached")
+            }
         }
         let lastUpdated = Date()
 
