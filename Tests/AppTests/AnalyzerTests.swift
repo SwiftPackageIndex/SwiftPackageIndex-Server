@@ -351,19 +351,26 @@ class AnalyzerTests: AppTestCase {
 
         Current.git = .live
 
+        let refs: [Reference] = [.tag(1, 0, 0), .tag(1, 1, 1), .branch("main")]
+        var mockResults: [ShellOutCommand: String] = [
+            .gitListTags: refs.filter(\.isTag).map { "\($0)" }.joined(separator: "\n"),
+            .gitCommitCount: "12",
+            .gitFirstCommitDate: "0",
+            .gitLastCommitDate: "1",
+        ]
+        for (idx, ref) in refs.enumerated() {
+            mockResults[.gitRevisionInfo(reference: ref, separator: "-")] = "sha-\(idx)"
+        }
+
         let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
             queue.sync {
                 commands.append(.init(command: cmd.string, path: path))
             }
-            if cmd.string == "git tag" {
-                return ["1.0.0", "1.1.1"].joined(separator: "\n")
-            }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+
+            if let result = mockResults[cmd] { return result }
+
             // returning a blank string will cause an exception when trying to
             // decode it as the manifest result - we use this to simulate errors
             return ""
@@ -1182,9 +1189,15 @@ class AnalyzerTests: AppTestCase {
 }
 
 
-extension ShellOutCommand: Equatable {
+// We shouldn't be conforming a type we don't own to protocols we don't own
+// but in a test module we can loosen that rule a bit.
+extension ShellOutCommand: Equatable, Hashable {
     public static func == (lhs: ShellOutCommand, rhs: ShellOutCommand) -> Bool {
         lhs.string == rhs.string
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(string)
     }
 }
 
