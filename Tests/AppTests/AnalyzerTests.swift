@@ -147,10 +147,16 @@ class AnalyzerTests: AppTestCase {
         let outDir = try XCTUnwrap(checkoutDir)
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
         XCTAssertEqual(commands.count, 32)
-        // We need to sort the issued commands, because macOS and Linux have stable but different
-        // sort orders o.O
-        assertSnapshot(matching: commands.map(\.description), as: .dump)
-        
+
+        // Snapshot for each package individually to avoid ordering issues when
+        // concurrent processing causes commands to interleave between packages.
+        assertSnapshot(matching: commands
+                        .filter { $0.path.hasSuffix("foo-1") }
+                        .map(\.description), as: .dump)
+        assertSnapshot(matching: commands
+                        .filter { $0.path.hasSuffix("foo-2") }
+                        .map(\.description), as: .dump)
+
         // validate versions
         // A bit awkward... create a helper? There has to be a better way?
         let pkg1 = try Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first().wait()!
