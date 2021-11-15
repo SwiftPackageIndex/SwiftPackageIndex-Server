@@ -16,6 +16,15 @@ assignees: ''
 
 Give as much detail as possible.
 
+**If the problem relates to the compatibility matrix, does it apply to specific builds?**
+
+Please find the builds exhibiting the problem from the "Full Package Compatibility Report" menu item in the side menu and link the build reports here.
+
+- https://swiftpackageindex.com/builds/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+- https://swiftpackageindex.com/builds/YYYYYYYY-YYYY-YYYY-YYYY-YYYYYYYYYYYY
+
+Where possible, try and replicate the problem you have found by running the "Build Command" at the top of a build report. This command is what our build servers execute.
+
 **Screenshots**
 
 If they would be helpful, please add screenshots to help explain the problem.
