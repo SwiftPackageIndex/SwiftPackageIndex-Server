@@ -67,8 +67,7 @@ class AnalyzerTests: AppTestCase {
             try queue.sync {
                 let trimmedPath = path.replacingOccurrences(of: checkoutDir!,
                                                             with: ".")
-                commands.append(try XCTUnwrap(Command2(cmd: cmd, path: trimmedPath),
-                                              "\(cmd.string)"))
+                commands.append(try XCTUnwrap(.init(cmd: cmd, path: trimmedPath)))
             }
             if cmd == .gitListTags && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
@@ -363,10 +362,10 @@ class AnalyzerTests: AppTestCase {
         }
 
         let queue = DispatchQueue(label: "serial")
-        var commands = [Command]()
+        var commands = [Command2]()
         Current.shell.run = { cmd, path in
-            queue.sync {
-                commands.append(.init(command: cmd.string, path: path))
+            try queue.sync {
+                commands.append(try XCTUnwrap(.init(cmd: cmd, path: path)))
             }
 
             if let result = mockResults[cmd] { return result }
@@ -1201,20 +1200,6 @@ extension ShellOutCommand: Equatable, Hashable {
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(string)
-    }
-}
-
-
-@available(*, deprecated)
-struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
-    var command: String
-    var path: String
-    
-    var description: String { "'\(command)' at: '\(path)'" }
-    
-    static func < (lhs: Command, rhs: Command) -> Bool {
-        if lhs.command < rhs.command { return true }
-        return lhs.path < rhs.path
     }
 }
 
