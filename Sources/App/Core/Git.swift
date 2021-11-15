@@ -26,9 +26,7 @@ enum GitError: LocalizedError {
 extension Git {
     
     static func commitCount(at path: String) throws -> Int {
-        let res = try Current.shell.run(
-            command: .init(string: "git rev-list --count HEAD"),
-            at: path)
+        let res = try Current.shell.run(command: .gitCommitCount, at: path)
         guard let count = Int(res) else {
             throw GitError.invalidInteger
         }
@@ -36,9 +34,7 @@ extension Git {
     }
     
     static func firstCommitDate(at path: String) throws -> Date {
-        let res = try Current.shell.run(
-            command: .init(string: #"git log --max-parents=0 -n1 --format=format:"%ct""#),
-            at: path)
+        let res = try Current.shell.run(command: .gitFirstCommitDate, at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
@@ -46,9 +42,7 @@ extension Git {
     }
     
     static func lastCommitDate(at path: String) throws -> Date {
-        let res = try Current.shell.run(
-            command: .init(string: #"git log -n1 --format=format:"%ct""#),
-            at: path)
+        let res = try Current.shell.run(command: .gitLastCommitDate, at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
@@ -56,7 +50,7 @@ extension Git {
     }
     
     static func getTags(at path: String) throws -> [Reference] {
-        let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
+        let tags = try Current.shell.run(command: .gitTag, at: path)
         return tags.split(separator: "\n")
             .map(String.init)
             .compactMap { tag in SemanticVersion(tag).map { ($0, tag) } }
@@ -64,9 +58,7 @@ extension Git {
     }
     
     static func showDate(_ commit: CommitHash, at path: String) throws -> Date {
-        let safe = sanitizeInput("\(commit)")
-        let res = try Current.shell.run(command: .init(string: #"git show -s --format=%ct "\#(safe)""#),
-                                        at: path)
+        let res = try Current.shell.run(command: .gitShowDate(commit), at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
@@ -74,12 +66,9 @@ extension Git {
     }
     
     static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
-        let safe = sanitizeInput("\(reference)")
         let separator = "-"
-        let res = try Current.shell.run(
-            command: .init(string: #"git log -n1 --format=format:"%H\#(separator)%ct" "\#(safe)""#),
-            at: path
-        )
+        let res = try Current.shell.run(command: .gitRevisionInfo(reference: reference,
+                                                                  separator: separator), at: path)
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else { throw GitError.invalidRevisionInfo }
         let hash = parts[0]
@@ -108,4 +97,51 @@ extension Git {
         let commit: CommitHash
         let date: Date
     }
+}
+
+
+extension ShellOutCommand {
+
+    static var gitClean: Self {
+        .init(string: "git clean -fdx")
+    }
+
+    static var gitCommitCount: Self {
+        .init(string: "git rev-list --count HEAD")
+    }
+
+    static var gitFetch: Self {
+        .init(string: "git fetch --tags")
+    }
+
+    static var gitFirstCommitDate: Self {
+        .init(string: #"git log --max-parents=0 -n1 --format=format:"%ct""#)
+    }
+
+    static var gitLastCommitDate: Self {
+        .init(string: #"git log -n1 --format=format:"%ct""#)
+    }
+
+    static func gitReset(hard: Bool) -> Self {
+        .init(string: "git reset\(hard ? " --hard" : "")")
+    }
+
+    static func gitReset(to branch: String, hard: Bool) -> Self {
+        .init(string: #"git reset "origin/\#(branch)"\#(hard ? " --hard" : "")"#)
+    }
+
+    static func gitRevisionInfo(reference: Reference, separator: String) -> Self {
+        let safe = Git.sanitizeInput("\(reference)")
+        return .init(string: #"git log -n1 --format=format:"%H\#(separator)%ct" "\#(safe)""#)
+    }
+
+    static func gitShowDate(_ commit: CommitHash) -> Self {
+        let safe = Git.sanitizeInput("\(commit)")
+        return .init(string: #"git show -s --format=%ct "\#(safe)""#)
+    }
+
+    static var gitTag: Self {
+        .init(string: "git tag")
+    }
+
 }

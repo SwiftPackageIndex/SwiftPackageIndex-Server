@@ -62,20 +62,21 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
         Current.git = .live
         let queue = DispatchQueue(label: "serial")
-        var commands = [Command]()
+        var commands = [Command2]()
         Current.shell.run = { cmd, path in
-            queue.sync {
-                let c = cmd.string.replacingOccurrences(of: checkoutDir!, with: "...")
-                let p = path.replacingOccurrences(of: checkoutDir!, with: "...")
-                commands.append(.init(command: c, path: p))
+            try queue.sync {
+                let trimmedPath = path.replacingOccurrences(of: checkoutDir!,
+                                                            with: ".")
+                commands.append(try XCTUnwrap(Command2(cmd: cmd, path: trimmedPath),
+                                              "\(cmd.string)"))
             }
-            if cmd.string == "git tag" && path.hasSuffix("foo-1") {
+            if cmd == .gitTag && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
-            if cmd.string == "git tag" && path.hasSuffix("foo-2") {
+            if cmd == .gitTag && path.hasSuffix("foo-2") {
                 return ["2.0.0", "2.1.0"].joined(separator: "\n")
             }
-            if cmd.string == "swift package dump-package" && path.hasSuffix("foo-1") {
+            if cmd == .swiftDumpPackage && path.hasSuffix("foo-1") {
                 return #"""
                     {
                       "name": "foo-1",
@@ -92,7 +93,7 @@ class AnalyzerTests: AppTestCase {
                     }
                     """#
             }
-            if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
+            if cmd == .swiftDumpPackage && path.hasSuffix("foo-2") {
                 return #"""
                     {
                       "name": "foo-2",
@@ -112,24 +113,26 @@ class AnalyzerTests: AppTestCase {
             
             // Git.revisionInfo (per ref - default branch & tags)
             // These return a string in the format `commit sha`-`timestamp (sec since 1970)`
-            // We simply use `fakesha` for the sha (it bears no meaning) and a range of seconds
+            // We simply use `sha` for the sha (it bears no meaning) and a range of seconds
             // since 1970.
             // It is important the tags aren't created at identical times for tags on the same
             // package, or else we will collect multiple recent releases (as there is no "latest")
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.0.0""# { return "fakesha-0" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.1.1""# { return "fakesha-1" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "2.0.0""# { return "fakesha-0" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "2.1.0""# { return "fakesha-1" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "main""# { return "fakesha-2" }
-            
-            // Git.commitCount
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            
-            // Git.firstCommitDate
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            
-            // Git.lastCommitDate
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+            let tagToSha: [Reference: CommitHash] = [
+                .tag(1, 0, 0): "sha-0",
+                .tag(1, 1, 1): "sha-1",
+                .tag(2, 0, 0): "sha-2",
+                .tag(2, 1, 0): "sha-3",
+                .branch("main"): "sha-4",
+            ]
+            for (tag, sha) in tagToSha {
+                if cmd == .gitRevisionInfo(reference: tag, separator: "-") {
+                    return sha
+                }
+            }
+
+            if cmd == .gitCommitCount { return "12" }
+            if cmd == .gitFirstCommitDate { return "0" }
+            if cmd == .gitLastCommitDate { return "1" }
             
             return ""
         }
@@ -147,7 +150,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(commands.count, 32)
         // We need to sort the issued commands, because macOS and Linux have stable but different
         // sort orders o.O
-        assertSnapshot(matching: commands.sorted(), as: .dump)
+        assertSnapshot(matching: commands.map(\.description), as: .dump)
         
         // validate versions
         // A bit awkward... create a helper? There has to be a better way?
@@ -627,7 +630,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         XCTAssertEqual(commands, [
             "git checkout \"0.4.2\" --quiet",
-            "/swift-5.4/usr/bin/swift package dump-package"
+            "swift package dump-package"
         ])
         XCTAssertEqual(v.id, version.id)
         XCTAssertEqual(m.name, "SPI-Server")
@@ -680,7 +683,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         XCTAssertEqual(commands, [
             "git checkout \"0.4.2\" --quiet",
-            "/swift-5.4/usr/bin/swift package dump-package"
+            "swift package dump-package"
         ])
         XCTAssertEqual(results.map(\.isSuccess), [false, true])
         let (_, versionsManifests) = try XCTUnwrap(results.last).get()
@@ -1179,15 +1182,96 @@ class AnalyzerTests: AppTestCase {
 }
 
 
+extension ShellOutCommand: Equatable {
+    public static func == (lhs: ShellOutCommand, rhs: ShellOutCommand) -> Bool {
+        lhs.string == rhs.string
+    }
+}
+
+
+@available(*, deprecated)
 struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
     var command: String
     var path: String
     
-    var description: String { "'\(command)' at path: '\(path)'" }
+    var description: String { "'\(command)' at: '\(path)'" }
     
     static func < (lhs: Command, rhs: Command) -> Bool {
         if lhs.command < rhs.command { return true }
         return lhs.path < rhs.path
+    }
+}
+
+
+struct Command2: CustomStringConvertible {
+    var cmd: Cmd
+    var path: String
+
+    enum Cmd {
+        case checkout
+        case clean
+        case clone(String)
+        case commitCount
+        case dumpPackage
+        case fetch
+        case firstCommitDate
+        case lastCommitDate
+        case getTags
+        case reset
+        case resetToBranch(String)
+        case showDate
+        case revisionInfo
+    }
+
+    init?(cmd: ShellOutCommand, path: String) {
+        let separator = "-"
+        self.path = path
+        switch cmd {
+            case _ where cmd.string.starts(with: "git checkout"):
+                self.cmd = .checkout
+            case .gitClean:
+                self.cmd = .clean
+            case _ where cmd.string.starts(with: "git clone"):
+                let url = String(cmd.string.split(separator: " ")
+                                    .filter { $0.contains("https://") }
+                                    .first!)
+                self.cmd = .clone(url)
+            case .gitCommitCount:
+                self.cmd = .commitCount
+            case .gitFetch:
+                self.cmd = .fetch
+            case .gitFirstCommitDate:
+                self.cmd = .firstCommitDate
+            case .gitLastCommitDate:
+                self.cmd = .lastCommitDate
+            case .gitTag:
+                self.cmd = .getTags
+            case .gitReset(hard: true):
+                self.cmd = .reset
+            case _ where cmd.string.starts(with: #"git reset "origin"#):
+                let branch = String(cmd.string.split(separator: " ")[2])
+                    .trimmingCharacters(in: .init(charactersIn: "\""))
+                self.cmd = .resetToBranch(branch)
+            case _ where cmd.string.starts(with: #"git show -s --format=%ct"#):
+                self.cmd = .showDate
+            case _ where cmd.string.starts(with: #"git log -n1 --format=format:"%H\#(separator)%ct""#):
+                self.cmd = .revisionInfo
+            case .swiftDumpPackage:
+                self.cmd = .dumpPackage
+            default:
+                return nil
+        }
+    }
+
+    var description: String {
+        switch self.cmd {
+            case .checkout, .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .showDate, .reset, .revisionInfo:
+                return "\(path): \(cmd)"
+            case .clone(let url):
+                return "\(path): clone \(url)"
+            case .resetToBranch(let branch):
+                return "\(path): reset to \(branch)"
+        }
     }
 }
 
