@@ -50,7 +50,7 @@ extension Git {
     }
     
     static func getTags(at path: String) throws -> [Reference] {
-        let tags = try Current.shell.run(command: .gitTag, at: path)
+        let tags = try Current.shell.run(command: .gitListTags, at: path)
         return tags.split(separator: "\n")
             .map(String.init)
             .compactMap { tag in SemanticVersion(tag).map { ($0, tag) } }
@@ -76,23 +76,7 @@ extension Git {
         let date = Date(timeIntervalSince1970: timestamp)
         return .init(commit: hash, date: date)
     }
-    
-    
-    /// Sanitize input strings not controlled by us. Ensure commands that use input strings
-    /// properly quote the commands:
-    ///   let safe = sanitizeInput(input)
-    /// and then use the result in quoted commands only:
-    ///   Current.shell.run(#"ls -l "\(safe)""#)
-    /// - Parameter input: user input string
-    /// - Returns: sanitized string
-    static func sanitizeInput(_ input: String) -> String {
-        let bannedCharacters = CharacterSet.init(charactersIn: "\"\\")
-            .union(CharacterSet.newlines)
-            .union(CharacterSet.decomposables)
-            .union(CharacterSet.illegalCharacters)
-        return String(input.unicodeScalars.filter { !bannedCharacters.contains($0) })
-    }
-    
+
     struct RevisionInfo: Equatable {
         let commit: CommitHash
         let date: Date
@@ -100,48 +84,3 @@ extension Git {
 }
 
 
-extension ShellOutCommand {
-
-    static var gitClean: Self {
-        .init(string: "git clean -fdx")
-    }
-
-    static var gitCommitCount: Self {
-        .init(string: "git rev-list --count HEAD")
-    }
-
-    static var gitFetch: Self {
-        .init(string: "git fetch --tags")
-    }
-
-    static var gitFirstCommitDate: Self {
-        .init(string: #"git log --max-parents=0 -n1 --format=format:"%ct""#)
-    }
-
-    static var gitLastCommitDate: Self {
-        .init(string: #"git log -n1 --format=format:"%ct""#)
-    }
-
-    static func gitReset(hard: Bool) -> Self {
-        .init(string: "git reset\(hard ? " --hard" : "")")
-    }
-
-    static func gitReset(to branch: String, hard: Bool) -> Self {
-        .init(string: #"git reset "origin/\#(branch)"\#(hard ? " --hard" : "")"#)
-    }
-
-    static func gitRevisionInfo(reference: Reference, separator: String) -> Self {
-        let safe = Git.sanitizeInput("\(reference)")
-        return .init(string: #"git log -n1 --format=format:"%H\#(separator)%ct" "\#(safe)""#)
-    }
-
-    static func gitShowDate(_ commit: CommitHash) -> Self {
-        let safe = Git.sanitizeInput("\(commit)")
-        return .init(string: #"git show -s --format=%ct "\#(safe)""#)
-    }
-
-    static var gitTag: Self {
-        .init(string: "git tag")
-    }
-
-}

@@ -70,10 +70,10 @@ class AnalyzerTests: AppTestCase {
                 commands.append(try XCTUnwrap(Command2(cmd: cmd, path: trimmedPath),
                                               "\(cmd.string)"))
             }
-            if cmd == .gitTag && path.hasSuffix("foo-1") {
+            if cmd == .gitListTags && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
-            if cmd == .gitTag && path.hasSuffix("foo-2") {
+            if cmd == .gitListTags && path.hasSuffix("foo-2") {
                 return ["2.0.0", "2.1.0"].joined(separator: "\n")
             }
             if cmd == .swiftDumpPackage && path.hasSuffix("foo-1") {
@@ -1246,7 +1246,7 @@ struct Command2: CustomStringConvertible {
                 self.command = .firstCommitDate
             case .gitLastCommitDate:
                 self.command = .lastCommitDate
-            case .gitTag:
+            case .gitListTags:
                 self.command = .getTags
             case .gitReset(hard: true):
                 self.command = .reset
