@@ -119,6 +119,7 @@ class SearchTests: AppTestCase {
                        defaultBranch: "main",
                        name: "name 2",
                        owner: "owner 2",
+                       stars: 1234,
                        summary: "bar package").save(on: app.db).wait()
         try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
@@ -137,6 +138,7 @@ class SearchTests: AppTestCase {
                                           packageURL: "/owner%202/name%202",
                                           repositoryName: "name 2",
                                           repositoryOwner: "owner 2",
+                                          stars: 1234,
                                           summary: "bar package")!
                                 )
                              ])
@@ -157,6 +159,7 @@ class SearchTests: AppTestCase {
                        defaultBranch: "main",
                        name: "package 2",
                        owner: "owner",
+                       stars: 1234,
                        summary: "package 2 description").save(on: app.db).wait()
         try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
@@ -175,6 +178,7 @@ class SearchTests: AppTestCase {
                                           packageURL: "/owner/package%202",
                                           repositoryName: "package 2",
                                           repositoryOwner: "owner",
+                                          stars: 1234,
                                           summary: "package 2 description")!
                                 )
                              ])
@@ -190,6 +194,7 @@ class SearchTests: AppTestCase {
                        defaultBranch: "main",
                        name: "name 1",
                        owner: "owner 1",
+                       stars: 1234,
                        summary: "some 'package'").save(on: app.db).wait()
         try Repository(package: p2,
                        defaultBranch: "main",
@@ -213,6 +218,7 @@ class SearchTests: AppTestCase {
                                           packageURL: "/owner%201/name%201",
                                           repositoryName: "name 1",
                                           repositoryOwner: "owner 1",
+                                          stars: 1234,
                                           summary: "some 'package'")!
                                     )
                              ])
@@ -628,6 +634,7 @@ class SearchTests: AppTestCase {
                        defaultBranch: "main",
                        name: "2",
                        owner: "foo",
+                       stars: 1234,
                        summary: "").save(on: app.db).wait()
         try Version(package: p1, packageName: "p1", reference: .branch("main"))
             .save(on: app.db).wait()
@@ -646,6 +653,7 @@ class SearchTests: AppTestCase {
                            packageURL: "/foo/2",
                            repositoryName: "2",
                            repositoryOwner: "foo",
+                           stars: 1234,
                            summary: "")!)
         ])
     }

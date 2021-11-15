@@ -52,6 +52,7 @@ class ApiTests: AppTestCase {
                        defaultBranch: "main",
                        name: "name 2",
                        owner: "owner 2",
+                       stars: 1234,
                        summary: "foo bar package").save(on: app.db).wait()
         try Version(package: p1, packageName: "Foo", reference: .branch("main")).save(on: app.db).wait()
         try Version(package: p2, packageName: "Bar", reference: .branch("main")).save(on: app.db).wait()
@@ -71,6 +72,7 @@ class ApiTests: AppTestCase {
                                   packageURL: "/owner%202/name%202",
                                   repositoryName: "name 2",
                                   repositoryOwner: "owner 2",
+                                  stars: 1234,
                                   summary: "foo bar package")!
                         )
                       ])
