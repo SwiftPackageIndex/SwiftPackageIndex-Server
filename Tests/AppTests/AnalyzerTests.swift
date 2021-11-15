@@ -1227,7 +1227,7 @@ private struct Command: CustomStringConvertible {
         case reset
         case resetToBranch(String)
         case showDate
-        case revisionInfo
+        case revisionInfo(String)
     }
 
     init?(command: ShellOutCommand, path: String) {
@@ -1265,7 +1265,9 @@ private struct Command: CustomStringConvertible {
             case _ where command.string.starts(with: #"git show -s --format=%ct"#):
                 self.kind = .showDate
             case _ where command.string.starts(with: #"git log -n1 --format=format:"%H\#(separator)%ct""#):
-                self.kind = .revisionInfo
+                let ref = String(command.string.split(separator: " ").last!)
+                    .trimmingCharacters(in: quotes)
+                self.kind = .revisionInfo(ref)
             case .swiftDumpPackage:
                 self.kind = .dumpPackage
             default:
@@ -1275,7 +1277,7 @@ private struct Command: CustomStringConvertible {
 
     var description: String {
         switch self.kind {
-            case .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .showDate, .reset, .revisionInfo:
+            case .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .showDate, .reset:
                 return "\(path): \(kind)"
             case .checkout(let ref):
                 return "\(path): checkout \(ref)"
@@ -1283,6 +1285,8 @@ private struct Command: CustomStringConvertible {
                 return "\(path): clone \(url)"
             case .resetToBranch(let branch):
                 return "\(path): reset to \(branch)"
+            case .revisionInfo(let ref):
+                return "\(path): revisionInfo for \(ref)"
         }
     }
 }
