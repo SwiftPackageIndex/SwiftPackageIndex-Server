@@ -62,12 +62,12 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
         Current.git = .live
         let queue = DispatchQueue(label: "serial")
-        var commands = [Command2]()
+        var commands = [Command]()
         Current.shell.run = { cmd, path in
             try queue.sync {
                 let trimmedPath = path.replacingOccurrences(of: checkoutDir!,
                                                             with: ".")
-                commands.append(try XCTUnwrap(.init(cmd: cmd, path: trimmedPath)))
+                commands.append(try XCTUnwrap(.init(command: cmd, path: trimmedPath)))
             }
             if cmd == .gitListTags && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
@@ -362,10 +362,10 @@ class AnalyzerTests: AppTestCase {
         }
 
         let queue = DispatchQueue(label: "serial")
-        var commands = [Command2]()
+        var commands = [Command]()
         Current.shell.run = { cmd, path in
             try queue.sync {
-                commands.append(try XCTUnwrap(.init(cmd: cmd, path: path)))
+                commands.append(try XCTUnwrap(.init(command: cmd, path: path)))
             }
 
             if let result = mockResults[cmd] { return result }
@@ -1204,13 +1204,11 @@ extension ShellOutCommand: Equatable, Hashable {
 }
 
 
-// TODO: rename to Command or something else
-struct Command2: CustomStringConvertible {
-    var command: Cmd
+private struct Command: CustomStringConvertible {
+    var kind: Kind
     var path: String
 
-    // TODO: find a name for this
-    enum Cmd {
+    enum Kind {
         case checkout
         case clean
         case clone(String)
@@ -1226,50 +1224,50 @@ struct Command2: CustomStringConvertible {
         case revisionInfo
     }
 
-    init?(cmd: ShellOutCommand, path: String) {
+    init?(command: ShellOutCommand, path: String) {
         let separator = "-"
         self.path = path
-        switch cmd {
-            case _ where cmd.string.starts(with: "git checkout"):
-                self.command = .checkout
+        switch command {
+            case _ where command.string.starts(with: "git checkout"):
+                self.kind = .checkout
             case .gitClean:
-                self.command = .clean
-            case _ where cmd.string.starts(with: "git clone"):
-                let url = String(cmd.string.split(separator: " ")
+                self.kind = .clean
+            case _ where command.string.starts(with: "git clone"):
+                let url = String(command.string.split(separator: " ")
                                     .filter { $0.contains("https://") }
                                     .first!)
-                self.command = .clone(url)
+                self.kind = .clone(url)
             case .gitCommitCount:
-                self.command = .commitCount
+                self.kind = .commitCount
             case .gitFetch:
-                self.command = .fetch
+                self.kind = .fetch
             case .gitFirstCommitDate:
-                self.command = .firstCommitDate
+                self.kind = .firstCommitDate
             case .gitLastCommitDate:
-                self.command = .lastCommitDate
+                self.kind = .lastCommitDate
             case .gitListTags:
-                self.command = .getTags
+                self.kind = .getTags
             case .gitReset(hard: true):
-                self.command = .reset
-            case _ where cmd.string.starts(with: #"git reset "origin"#):
-                let branch = String(cmd.string.split(separator: " ")[2])
+                self.kind = .reset
+            case _ where command.string.starts(with: #"git reset "origin"#):
+                let branch = String(command.string.split(separator: " ")[2])
                     .trimmingCharacters(in: .init(charactersIn: "\""))
-                self.command = .resetToBranch(branch)
-            case _ where cmd.string.starts(with: #"git show -s --format=%ct"#):
-                self.command = .showDate
-            case _ where cmd.string.starts(with: #"git log -n1 --format=format:"%H\#(separator)%ct""#):
-                self.command = .revisionInfo
+                self.kind = .resetToBranch(branch)
+            case _ where command.string.starts(with: #"git show -s --format=%ct"#):
+                self.kind = .showDate
+            case _ where command.string.starts(with: #"git log -n1 --format=format:"%H\#(separator)%ct""#):
+                self.kind = .revisionInfo
             case .swiftDumpPackage:
-                self.command = .dumpPackage
+                self.kind = .dumpPackage
             default:
                 return nil
         }
     }
 
     var description: String {
-        switch self.command {
+        switch self.kind {
             case .checkout, .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .showDate, .reset, .revisionInfo:
-                return "\(path): \(command)"
+                return "\(path): \(kind)"
             case .clone(let url):
                 return "\(path): clone \(url)"
             case .resetToBranch(let branch):
