@@ -17,6 +17,9 @@ import Foundation
 import ShellOut
 
 
+// MARK: Git commands
+
+
 extension ShellOutCommand {
 
     static var gitClean: Self {
@@ -60,6 +63,22 @@ extension ShellOutCommand {
     static var gitListTags: Self {
         .init(string: "git tag")
     }
+
+}
+
+
+//MARK: Other commands
+
+extension ShellOutCommand {
+    static var swiftDumpPackage: Self {
+        .init(string: "swift package dump-package")
+    }
+}
+
+
+// MARK: Helper
+
+extension ShellOutCommand {
 
     /// Sanitize input strings not controlled by us. Ensure commands that use input strings
     /// properly quote the commands:

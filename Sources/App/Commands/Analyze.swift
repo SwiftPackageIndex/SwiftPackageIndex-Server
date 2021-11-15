@@ -639,13 +639,6 @@ func dumpPackage(at path: String) throws -> Manifest {
 }
 
 
-extension ShellOutCommand {
-    static var swiftDumpPackage: Self {
-        .init(string: "swift package dump-package")
-    }
-}
-
-
 /// Get `Manifest` and `[ResolvedDepedency]` for a given `Package` at version `Version`.
 /// - Parameters:
 ///   - package: `Package` to analyse
