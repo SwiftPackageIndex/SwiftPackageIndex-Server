@@ -1215,7 +1215,7 @@ private struct Command: CustomStringConvertible {
     var path: String
 
     enum Kind {
-        case checkout
+        case checkout(String)
         case clean
         case clone(String)
         case commitCount
@@ -1231,11 +1231,14 @@ private struct Command: CustomStringConvertible {
     }
 
     init?(command: ShellOutCommand, path: String) {
+        let quotes = CharacterSet(charactersIn: "\"")
         let separator = "-"
         self.path = path
         switch command {
             case _ where command.string.starts(with: "git checkout"):
-                self.kind = .checkout
+                let ref = String(command.string.split(separator: " ")[2])
+                    .trimmingCharacters(in: quotes)
+                self.kind = .checkout(ref)
             case .gitClean:
                 self.kind = .clean
             case _ where command.string.starts(with: "git clone"):
@@ -1257,7 +1260,7 @@ private struct Command: CustomStringConvertible {
                 self.kind = .reset
             case _ where command.string.starts(with: #"git reset "origin"#):
                 let branch = String(command.string.split(separator: " ")[2])
-                    .trimmingCharacters(in: .init(charactersIn: "\""))
+                    .trimmingCharacters(in: quotes)
                 self.kind = .resetToBranch(branch)
             case _ where command.string.starts(with: #"git show -s --format=%ct"#):
                 self.kind = .showDate
@@ -1272,8 +1275,10 @@ private struct Command: CustomStringConvertible {
 
     var description: String {
         switch self.kind {
-            case .checkout, .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .showDate, .reset, .revisionInfo:
+            case .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .showDate, .reset, .revisionInfo:
                 return "\(path): \(kind)"
+            case .checkout(let ref):
+                return "\(path): checkout \(ref)"
             case .clone(let url):
                 return "\(path): clone \(url)"
             case .resetToBranch(let branch):
