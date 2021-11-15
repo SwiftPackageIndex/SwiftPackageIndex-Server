@@ -1203,10 +1203,12 @@ struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
 }
 
 
+// TODO: rename to Command or something else
 struct Command2: CustomStringConvertible {
-    var cmd: Cmd
+    var command: Cmd
     var path: String
 
+    // TODO: find a name for this
     enum Cmd {
         case checkout
         case clean
@@ -1228,45 +1230,45 @@ struct Command2: CustomStringConvertible {
         self.path = path
         switch cmd {
             case _ where cmd.string.starts(with: "git checkout"):
-                self.cmd = .checkout
+                self.command = .checkout
             case .gitClean:
-                self.cmd = .clean
+                self.command = .clean
             case _ where cmd.string.starts(with: "git clone"):
                 let url = String(cmd.string.split(separator: " ")
                                     .filter { $0.contains("https://") }
                                     .first!)
-                self.cmd = .clone(url)
+                self.command = .clone(url)
             case .gitCommitCount:
-                self.cmd = .commitCount
+                self.command = .commitCount
             case .gitFetch:
-                self.cmd = .fetch
+                self.command = .fetch
             case .gitFirstCommitDate:
-                self.cmd = .firstCommitDate
+                self.command = .firstCommitDate
             case .gitLastCommitDate:
-                self.cmd = .lastCommitDate
+                self.command = .lastCommitDate
             case .gitTag:
-                self.cmd = .getTags
+                self.command = .getTags
             case .gitReset(hard: true):
-                self.cmd = .reset
+                self.command = .reset
             case _ where cmd.string.starts(with: #"git reset "origin"#):
                 let branch = String(cmd.string.split(separator: " ")[2])
                     .trimmingCharacters(in: .init(charactersIn: "\""))
-                self.cmd = .resetToBranch(branch)
+                self.command = .resetToBranch(branch)
             case _ where cmd.string.starts(with: #"git show -s --format=%ct"#):
-                self.cmd = .showDate
+                self.command = .showDate
             case _ where cmd.string.starts(with: #"git log -n1 --format=format:"%H\#(separator)%ct""#):
-                self.cmd = .revisionInfo
+                self.command = .revisionInfo
             case .swiftDumpPackage:
-                self.cmd = .dumpPackage
+                self.command = .dumpPackage
             default:
                 return nil
         }
     }
 
     var description: String {
-        switch self.cmd {
+        switch self.command {
             case .checkout, .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .showDate, .reset, .revisionInfo:
-                return "\(path): \(cmd)"
+                return "\(path): \(command)"
             case .clone(let url):
                 return "\(path): clone \(url)"
             case .resetToBranch(let branch):
