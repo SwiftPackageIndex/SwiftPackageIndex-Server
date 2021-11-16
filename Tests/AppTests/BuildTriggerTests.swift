@@ -580,7 +580,7 @@ class BuildTriggerTests: AppTestCase {
 
             // make old builds "old" by resetting "created_at"
             try [deleteId1, keepBuildId2].forEach { id in
-                let sql = "update builds set created_at = created_at - interval '4 hours' where id = '\(id.uuidString)'"
+                let sql = "update builds set created_at = created_at - interval '5 hours' where id = '\(id.uuidString)'"
                 try (app.db as! SQLDatabase).raw(.init(sql)).run().wait()
             }
         }
@@ -697,7 +697,7 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 
         do { // make build "old" by resetting "created_at"
-            let sql = "update builds set created_at = created_at - interval '4 hours' where id = '\(buildId.uuidString)'"
+            let sql = "update builds set created_at = created_at - interval '5 hours' where id = '\(buildId.uuidString)'"
             try (app.db as! SQLDatabase).raw(.init(sql)).run().wait()
         }
 
