@@ -26,9 +26,7 @@ enum GitError: LocalizedError {
 extension Git {
     
     static func commitCount(at path: String) throws -> Int {
-        let res = try Current.shell.run(
-            command: .init(string: "git rev-list --count HEAD"),
-            at: path)
+        let res = try Current.shell.run(command: .gitCommitCount, at: path)
         guard let count = Int(res) else {
             throw GitError.invalidInteger
         }
@@ -36,9 +34,7 @@ extension Git {
     }
     
     static func firstCommitDate(at path: String) throws -> Date {
-        let res = try Current.shell.run(
-            command: .init(string: #"git log --max-parents=0 -n1 --format=format:"%ct""#),
-            at: path)
+        let res = try Current.shell.run(command: .gitFirstCommitDate, at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
@@ -46,9 +42,7 @@ extension Git {
     }
     
     static func lastCommitDate(at path: String) throws -> Date {
-        let res = try Current.shell.run(
-            command: .init(string: #"git log -n1 --format=format:"%ct""#),
-            at: path)
+        let res = try Current.shell.run(command: .gitLastCommitDate, at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
@@ -56,7 +50,7 @@ extension Git {
     }
     
     static func getTags(at path: String) throws -> [Reference] {
-        let tags = try Current.shell.run(command: .init(string: "git tag"), at: path)
+        let tags = try Current.shell.run(command: .gitListTags, at: path)
         return tags.split(separator: "\n")
             .map(String.init)
             .compactMap { tag in SemanticVersion(tag).map { ($0, tag) } }
@@ -64,9 +58,7 @@ extension Git {
     }
     
     static func showDate(_ commit: CommitHash, at path: String) throws -> Date {
-        let safe = sanitizeInput("\(commit)")
-        let res = try Current.shell.run(command: .init(string: #"git show -s --format=%ct "\#(safe)""#),
-                                        at: path)
+        let res = try Current.shell.run(command: .gitShowDate(commit), at: path)
         guard let timestamp = TimeInterval(res) else {
             throw GitError.invalidTimestamp
         }
@@ -74,12 +66,9 @@ extension Git {
     }
     
     static func revisionInfo(_ reference: Reference, at path: String) throws -> RevisionInfo {
-        let safe = sanitizeInput("\(reference)")
         let separator = "-"
-        let res = try Current.shell.run(
-            command: .init(string: #"git log -n1 --format=format:"%H\#(separator)%ct" "\#(safe)""#),
-            at: path
-        )
+        let res = try Current.shell.run(command: .gitRevisionInfo(reference: reference,
+                                                                  separator: separator), at: path)
         let parts = res.components(separatedBy: separator)
         guard parts.count == 2 else { throw GitError.invalidRevisionInfo }
         let hash = parts[0]
@@ -87,25 +76,11 @@ extension Git {
         let date = Date(timeIntervalSince1970: timestamp)
         return .init(commit: hash, date: date)
     }
-    
-    
-    /// Sanitize input strings not controlled by us. Ensure commands that use input strings
-    /// properly quote the commands:
-    ///   let safe = sanitizeInput(input)
-    /// and then use the result in quoted commands only:
-    ///   Current.shell.run(#"ls -l "\(safe)""#)
-    /// - Parameter input: user input string
-    /// - Returns: sanitized string
-    static func sanitizeInput(_ input: String) -> String {
-        let bannedCharacters = CharacterSet.init(charactersIn: "\"\\")
-            .union(CharacterSet.newlines)
-            .union(CharacterSet.decomposables)
-            .union(CharacterSet.illegalCharacters)
-        return String(input.unicodeScalars.filter { !bannedCharacters.contains($0) })
-    }
-    
+
     struct RevisionInfo: Equatable {
         let commit: CommitHash
         let date: Date
     }
 }
+
+

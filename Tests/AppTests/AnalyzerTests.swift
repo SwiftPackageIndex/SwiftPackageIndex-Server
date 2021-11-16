@@ -64,18 +64,18 @@ class AnalyzerTests: AppTestCase {
         let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            queue.sync {
-                let c = cmd.string.replacingOccurrences(of: checkoutDir!, with: "...")
-                let p = path.replacingOccurrences(of: checkoutDir!, with: "...")
-                commands.append(.init(command: c, path: p))
+            try queue.sync {
+                let trimmedPath = path.replacingOccurrences(of: checkoutDir!,
+                                                            with: ".")
+                commands.append(try XCTUnwrap(.init(command: cmd, path: trimmedPath)))
             }
-            if cmd.string == "git tag" && path.hasSuffix("foo-1") {
+            if cmd == .gitListTags && path.hasSuffix("foo-1") {
                 return ["1.0.0", "1.1.1"].joined(separator: "\n")
             }
-            if cmd.string == "git tag" && path.hasSuffix("foo-2") {
+            if cmd == .gitListTags && path.hasSuffix("foo-2") {
                 return ["2.0.0", "2.1.0"].joined(separator: "\n")
             }
-            if cmd.string == "swift package dump-package" && path.hasSuffix("foo-1") {
+            if cmd == .swiftDumpPackage && path.hasSuffix("foo-1") {
                 return #"""
                     {
                       "name": "foo-1",
@@ -92,7 +92,7 @@ class AnalyzerTests: AppTestCase {
                     }
                     """#
             }
-            if cmd.string == "swift package dump-package" && path.hasSuffix("foo-2") {
+            if cmd == .swiftDumpPackage && path.hasSuffix("foo-2") {
                 return #"""
                     {
                       "name": "foo-2",
@@ -112,24 +112,19 @@ class AnalyzerTests: AppTestCase {
             
             // Git.revisionInfo (per ref - default branch & tags)
             // These return a string in the format `commit sha`-`timestamp (sec since 1970)`
-            // We simply use `fakesha` for the sha (it bears no meaning) and a range of seconds
+            // We simply use `sha` for the sha (it bears no meaning) and a range of seconds
             // since 1970.
             // It is important the tags aren't created at identical times for tags on the same
             // package, or else we will collect multiple recent releases (as there is no "latest")
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.0.0""# { return "fakesha-0" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "1.1.1""# { return "fakesha-1" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "2.0.0""# { return "fakesha-0" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "2.1.0""# { return "fakesha-1" }
-            if cmd.string == #"git log -n1 --format=format:"%H-%ct" "main""# { return "fakesha-2" }
-            
-            // Git.commitCount
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            
-            // Git.firstCommitDate
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            
-            // Git.lastCommitDate
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+            if cmd == .gitRevisionInfo(reference: .tag(1, 0, 0)) { return "sha-0" }
+            if cmd == .gitRevisionInfo(reference: .tag(1, 1, 1)) { return "sha-1" }
+            if cmd == .gitRevisionInfo(reference: .tag(2, 0, 0)) { return "sha-2" }
+            if cmd == .gitRevisionInfo(reference: .tag(2, 1, 0)) { return "sha-3" }
+            if cmd == .gitRevisionInfo(reference: .branch("main")) { return "sha-4" }
+
+            if cmd == .gitCommitCount { return "12" }
+            if cmd == .gitFirstCommitDate { return "0" }
+            if cmd == .gitLastCommitDate { return "4" }
             
             return ""
         }
@@ -145,10 +140,16 @@ class AnalyzerTests: AppTestCase {
         let outDir = try XCTUnwrap(checkoutDir)
         XCTAssert(outDir.hasSuffix("SPI-checkouts"), "unexpected checkout dir, was: \(outDir)")
         XCTAssertEqual(commands.count, 32)
-        // We need to sort the issued commands, because macOS and Linux have stable but different
-        // sort orders o.O
-        assertSnapshot(matching: commands.sorted(), as: .dump)
-        
+
+        // Snapshot for each package individually to avoid ordering issues when
+        // concurrent processing causes commands to interleave between packages.
+        assertSnapshot(matching: commands
+                        .filter { $0.path.hasSuffix("foo-1") }
+                        .map(\.description), as: .dump)
+        assertSnapshot(matching: commands
+                        .filter { $0.path.hasSuffix("foo-2") }
+                        .map(\.description), as: .dump)
+
         // validate versions
         // A bit awkward... create a helper? There has to be a better way?
         let pkg1 = try Package.query(on: app.db).filter(by: urls[0].url).with(\.$versions).first().wait()!
@@ -348,19 +349,26 @@ class AnalyzerTests: AppTestCase {
 
         Current.git = .live
 
+        let refs: [Reference] = [.tag(1, 0, 0), .tag(1, 1, 1), .branch("main")]
+        var mockResults: [ShellOutCommand: String] = [
+            .gitListTags: refs.filter(\.isTag).map { "\($0)" }.joined(separator: "\n"),
+            .gitCommitCount: "12",
+            .gitFirstCommitDate: "0",
+            .gitLastCommitDate: "1",
+        ]
+        for (idx, ref) in refs.enumerated() {
+            mockResults[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
+        }
+
         let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            queue.sync {
-                commands.append(.init(command: cmd.string, path: path))
+            try queue.sync {
+                commands.append(try XCTUnwrap(.init(command: cmd, path: path)))
             }
-            if cmd.string == "git tag" {
-                return ["1.0.0", "1.1.1"].joined(separator: "\n")
-            }
-            if cmd.string.hasPrefix(#"git log -n1 --format=format:"%H-%ct""#) { return "sha-0" }
-            if cmd.string == "git rev-list --count HEAD" { return "12" }
-            if cmd.string == #"git log --max-parents=0 -n1 --format=format:"%ct""# { return "0" }
-            if cmd.string == #"git log -n1 --format=format:"%ct""# { return "1" }
+
+            if let result = mockResults[cmd] { return result }
+
             // returning a blank string will cause an exception when trying to
             // decode it as the manifest result - we use this to simulate errors
             return ""
@@ -608,7 +616,7 @@ class AnalyzerTests: AppTestCase {
             queue.sync {
                 commands.append(cmd.string)
             }
-            if cmd.string.hasSuffix("swift package dump-package") {
+            if cmd == .swiftDumpPackage {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             return ""
@@ -627,7 +635,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         XCTAssertEqual(commands, [
             "git checkout \"0.4.2\" --quiet",
-            "/swift-5.4/usr/bin/swift package dump-package"
+            "swift package dump-package"
         ])
         XCTAssertEqual(v.id, version.id)
         XCTAssertEqual(m.name, "SPI-Server")
@@ -656,7 +664,7 @@ class AnalyzerTests: AppTestCase {
             queue.sync {
                 commands.append(cmd.string)
             }
-            if cmd.string.hasSuffix("swift package dump-package") {
+            if cmd == .swiftDumpPackage {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
             }
             return ""
@@ -680,7 +688,7 @@ class AnalyzerTests: AppTestCase {
         // validation
         XCTAssertEqual(commands, [
             "git checkout \"0.4.2\" --quiet",
-            "/swift-5.4/usr/bin/swift package dump-package"
+            "swift package dump-package"
         ])
         XCTAssertEqual(results.map(\.isSuccess), [false, true])
         let (_, versionsManifests) = try XCTUnwrap(results.last).get()
@@ -944,7 +952,7 @@ class AnalyzerTests: AppTestCase {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
                 commands.append(c)
             }
-            if cmd.string.hasPrefix("git checkout") {
+            if cmd == .gitCheckout(branch: "master") {
                 throw TestError.simulatedCheckoutError
             }
             return ""
@@ -1025,7 +1033,7 @@ class AnalyzerTests: AppTestCase {
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
                 commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
             }
-            if cmd.string.hasPrefix("git fetch") { throw TestError.simulatedFetchError }
+            if cmd == .gitFetch { throw TestError.simulatedFetchError }
             return ""
         }
 
@@ -1127,19 +1135,22 @@ class AnalyzerTests: AppTestCase {
         // Ensure we handle 404 repos properly
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/914
         // setup
-        try savePackage(on: app.db,
-                        "1".asGithubUrl.url,
-                        processingStage: .ingestion)
-        Current.fileManager.fileExists = { path in
-            if path.hasSuffix("github.com-foo-1") { return false }
-            return true
-        }
-        struct ShellOutError: Error {}
-        Current.shell.run = { cmd, path in
-            if cmd.string.hasPrefix("git clone") {
-                throw ShellOutError()
+        do {
+            let url = "1".asGithubUrl.url
+            let pkg = Package.init(url: url, processingStage: .ingestion)
+            try pkg.save(on: app.db).wait()
+            Current.fileManager.fileExists = { path in
+                if path.hasSuffix("github.com-foo-1") { return false }
+                return true
             }
-            fatalError("should not be reached")
+            let repoDir = try Current.fileManager.checkoutsDirectory() + "/" + XCTUnwrap(pkg.cacheDirectoryName)
+            struct ShellOutError: Error {}
+            Current.shell.run = { cmd, path in
+                if cmd == .gitClone(url: url, to: repoDir) {
+                    throw ShellOutError()
+                }
+                fatalError("should not be reached")
+            }
         }
         let lastUpdated = Date()
 
@@ -1179,15 +1190,97 @@ class AnalyzerTests: AppTestCase {
 }
 
 
-struct Command: Equatable, CustomStringConvertible, Hashable, Comparable {
-    var command: String
+// We shouldn't be conforming a type we don't own to protocols we don't own
+// but in a test module we can loosen that rule a bit.
+extension ShellOutCommand: Equatable, Hashable {
+    public static func == (lhs: ShellOutCommand, rhs: ShellOutCommand) -> Bool {
+        lhs.string == rhs.string
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(string)
+    }
+}
+
+
+private struct Command: CustomStringConvertible {
+    var kind: Kind
     var path: String
-    
-    var description: String { "'\(command)' at path: '\(path)'" }
-    
-    static func < (lhs: Command, rhs: Command) -> Bool {
-        if lhs.command < rhs.command { return true }
-        return lhs.path < rhs.path
+
+    enum Kind {
+        case checkout(String)
+        case clean
+        case clone(String)
+        case commitCount
+        case dumpPackage
+        case fetch
+        case firstCommitDate
+        case lastCommitDate
+        case getTags
+        case reset
+        case resetToBranch(String)
+        case showDate
+        case revisionInfo(String)
+    }
+
+    init?(command: ShellOutCommand, path: String) {
+        let quotes = CharacterSet(charactersIn: "\"")
+        let separator = "-"
+        self.path = path
+        switch command {
+            case _ where command.string.starts(with: "git checkout"):
+                let ref = String(command.string.split(separator: " ")[2])
+                    .trimmingCharacters(in: quotes)
+                self.kind = .checkout(ref)
+            case .gitClean:
+                self.kind = .clean
+            case _ where command.string.starts(with: "git clone"):
+                let url = String(command.string.split(separator: " ")
+                                    .filter { $0.contains("https://") }
+                                    .first!)
+                self.kind = .clone(url)
+            case .gitCommitCount:
+                self.kind = .commitCount
+            case .gitFetch:
+                self.kind = .fetch
+            case .gitFirstCommitDate:
+                self.kind = .firstCommitDate
+            case .gitLastCommitDate:
+                self.kind = .lastCommitDate
+            case .gitListTags:
+                self.kind = .getTags
+            case .gitReset(hard: true):
+                self.kind = .reset
+            case _ where command.string.starts(with: #"git reset "origin"#):
+                let branch = String(command.string.split(separator: " ")[2])
+                    .trimmingCharacters(in: quotes)
+                self.kind = .resetToBranch(branch)
+            case _ where command.string.starts(with: #"git show -s --format=%ct"#):
+                self.kind = .showDate
+            case _ where command.string.starts(with: #"git log -n1 --format=format:"%H\#(separator)%ct""#):
+                let ref = String(command.string.split(separator: " ").last!)
+                    .trimmingCharacters(in: quotes)
+                self.kind = .revisionInfo(ref)
+            case .swiftDumpPackage:
+                self.kind = .dumpPackage
+            default:
+                return nil
+        }
+    }
+
+    var description: String {
+        switch self.kind {
+            case .clean, .commitCount, .dumpPackage, .fetch, .firstCommitDate, .lastCommitDate, .getTags, .showDate, .reset:
+                return "\(path): \(kind)"
+            case .checkout(let ref):
+                return "\(path): checkout \(ref)"
+            case .clone(let url):
+                return "\(path): clone \(url)"
+            case .resetToBranch(let branch):
+                return "\(path): reset to \(branch)"
+            case .revisionInfo(let ref):
+                return "\(path): revisionInfo for \(ref)"
+        }
     }
 }
 

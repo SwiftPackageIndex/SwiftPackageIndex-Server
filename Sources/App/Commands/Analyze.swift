@@ -277,11 +277,11 @@ func fetch(logger: Logger, cacheDir: String, branch: String, url: String) throws
         }
     }
     // git reset --hard to deal with stray .DS_Store files on macOS
-    try Current.shell.run(command: .init(string: "git reset --hard"), at: cacheDir)
-    try Current.shell.run(command: .init(string: "git clean -fdx"), at: cacheDir)
-    try Current.shell.run(command: .init(string: "git fetch --tags"), at: cacheDir)
+    try Current.shell.run(command: .gitReset(hard: true), at: cacheDir)
+    try Current.shell.run(command: .gitClean, at: cacheDir)
+    try Current.shell.run(command: .gitFetch, at: cacheDir)
     try Current.shell.run(command: .gitCheckout(branch: branch), at: cacheDir)
-    try Current.shell.run(command: .init(string: #"git reset "origin/\#(branch)" --hard"#),
+    try Current.shell.run(command: .gitReset(to: branch, hard: true),
                           at: cacheDir)
 }
 
@@ -634,11 +634,7 @@ func dumpPackage(at path: String) throws -> Manifest {
         // up the tree through parent directories to find one
         throw AppError.invalidRevision(nil, "no Package.swift")
     }
-    let swiftCommand = Current.fileManager.fileExists("/swift-5.4/usr/bin/swift")
-        ? "/swift-5.4/usr/bin/swift"
-        : "swift"
-    let json = try Current.shell.run(command: .init(string: "\(swiftCommand) package dump-package"),
-                                     at: path)
+    let json = try Current.shell.run(command: .swiftDumpPackage, at: path)
     return try JSONDecoder().decode(Manifest.self, from: Data(json.utf8))
 }
 
