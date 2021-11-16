@@ -451,7 +451,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(precision: 0.999,
+                               as: .image(precision: defaultPrecision,
                                           size: $0.size,
                                           baseURL: TempWebRoot.baseURL),
                                named: $0.name)
@@ -469,7 +469,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         if runImageSnapshotTests {
             configs.forEach {
                 assertSnapshot(matching: page,
-                               as: .image(precision: 0.999,
+                               as: .image(precision: defaultPrecision,
                                           size: $0.size,
                                           baseURL: TempWebRoot.baseURL),
                                named: $0.name)

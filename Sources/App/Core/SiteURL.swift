@@ -239,22 +239,24 @@ enum SiteURL: Resourceable {
                 fatalError("invalid resource path for routing - only use in static HTML (DSL)")
         }
     }
-    
+
+    static let _absoluteURL: (String) -> String = { path in
+        Current.siteURL() + relativeURL(path)
+    }
+
     static let _relativeURL: (String) -> String = { path in
         guard path.hasPrefix("/") else { return "/" + path }
         return path
     }
-    
+
     #if DEBUG
     // make `var` for debug so we can dependency inject
+    static var absoluteURL = _absoluteURL
     static var relativeURL = _relativeURL
     #else
+    static let absoluteURL = _absoluteURL
     static let relativeURL = _relativeURL
     #endif
-    
-    static func absoluteURL(_ path: String) -> String {
-        Current.siteURL() + relativeURL(path)
-    }
     
     static var apiBaseURL: String { absoluteURL("api") }
 
