@@ -181,6 +181,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 036 - make packages.score required
         app.migrations.add(UpdatePackageScoreNotNullable())
     }
+    do {  // Migration 037 - add last_activity_at to search
+        app.migrations.add(UpdateSearch3())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
