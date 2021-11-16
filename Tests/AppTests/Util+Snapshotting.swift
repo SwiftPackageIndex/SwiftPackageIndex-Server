@@ -55,6 +55,17 @@ extension Snapshotting where Value == () -> HTML, Format == NSImage {
                     return SiteURL._relativeURL(path)
             }
         }
+        SiteURL.absoluteURL = { path in
+            switch path {
+                case _ where path.hasSuffix("/collection.json"):
+                    // Avoid leaking the temp dir path into the image snapshot,
+                    // see https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1330
+                    // for details
+                    return "http://localhost:8080/" + path
+                default:
+                    return SiteURL._absoluteURL(path)
+            }
+        }
 
         // Force light mode
         NSApplication.shared.appearance = NSAppearance(named: .aqua)
