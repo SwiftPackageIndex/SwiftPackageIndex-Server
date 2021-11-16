@@ -39,7 +39,7 @@ test:
 test-fast:
 	@echo Skipping image snapshot tests
 	@echo Running without --sanitize=thread
-	env swift test --disable-automatic-resolution
+	swift test --disable-automatic-resolution
 
 docker-build: version
 	docker build -t $(DOCKER_IMAGE):$(VERSION) .
