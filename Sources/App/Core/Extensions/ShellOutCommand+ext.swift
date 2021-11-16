@@ -50,7 +50,7 @@ extension ShellOutCommand {
         .init(string: #"git reset "origin/\#(branch)"\#(hard ? " --hard" : "")"#)
     }
 
-    static func gitRevisionInfo(reference: Reference, separator: String) -> Self {
+    static func gitRevisionInfo(reference: Reference, separator: String = "-") -> Self {
         let safe = sanitizeInput("\(reference)")
         return .init(string: #"git log -n1 --format=format:"%H\#(separator)%ct" "\#(safe)""#)
     }

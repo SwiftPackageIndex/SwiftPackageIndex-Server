@@ -116,18 +116,11 @@ class AnalyzerTests: AppTestCase {
             // since 1970.
             // It is important the tags aren't created at identical times for tags on the same
             // package, or else we will collect multiple recent releases (as there is no "latest")
-            let refs: [Reference] = [
-                .tag(1, 0, 0),
-                .tag(1, 1, 1),
-                .tag(2, 0, 0),
-                .tag(2, 1, 0),
-                .branch("main")
-            ]
-            for (idx, ref) in refs.enumerated() {
-                if cmd == .gitRevisionInfo(reference: ref, separator: "-") {
-                    return "sha-\(idx)"
-                }
-            }
+            if cmd == .gitRevisionInfo(reference: .tag(1, 0, 0)) { return "sha-0" }
+            if cmd == .gitRevisionInfo(reference: .tag(1, 1, 1)) { return "sha-1" }
+            if cmd == .gitRevisionInfo(reference: .tag(2, 0, 0)) { return "sha-2" }
+            if cmd == .gitRevisionInfo(reference: .tag(2, 1, 0)) { return "sha-3" }
+            if cmd == .gitRevisionInfo(reference: .branch("main")) { return "sha-4" }
 
             if cmd == .gitCommitCount { return "12" }
             if cmd == .gitFirstCommitDate { return "0" }
@@ -364,7 +357,7 @@ class AnalyzerTests: AppTestCase {
             .gitLastCommitDate: "1",
         ]
         for (idx, ref) in refs.enumerated() {
-            mockResults[.gitRevisionInfo(reference: ref, separator: "-")] = "sha-\(idx)"
+            mockResults[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
         }
 
         let queue = DispatchQueue(label: "serial")
