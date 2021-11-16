@@ -58,11 +58,15 @@ let package = Package(
         ]),
         .target(name: "DependencyResolution"),
         .executableTarget(name: "Run", dependencies: ["App"]),
-        .testTarget(name: "AppTests", dependencies: [
-            .target(name: "App"),
-            .product(name: "XCTVapor", package: "vapor"),
-            "SnapshotTesting"
-        ])
+        .testTarget(
+            name: "AppTests",
+            dependencies: [
+                .target(name: "App"),
+                .product(name: "XCTVapor", package: "vapor"),
+                "SnapshotTesting"
+            ],
+            exclude: ["__Snapshots__", "Fixtures"]
+        )
     ],
     swiftLanguageVersions: [.v5]
 )
