@@ -124,7 +124,7 @@ class AnalyzerTests: AppTestCase {
 
             if cmd == .gitCommitCount { return "12" }
             if cmd == .gitFirstCommitDate { return "0" }
-            if cmd == .gitLastCommitDate { return "1" }
+            if cmd == .gitLastCommitDate { return "4" }
             
             return ""
         }
