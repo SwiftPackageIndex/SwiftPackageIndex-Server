@@ -73,6 +73,7 @@ enum Search {
         var packageName: String?
         var repositoryName: String?
         var repositoryOwner: String?
+        var stars: Int?
         var summary: String?
         
         enum CodingKeys: String, CodingKey {
@@ -82,6 +83,7 @@ enum Search {
             case packageName = "package_name"
             case repositoryName = "repo_name"
             case repositoryOwner = "repo_owner"
+            case stars
             case summary
         }
         

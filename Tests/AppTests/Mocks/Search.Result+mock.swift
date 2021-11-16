@@ -33,6 +33,7 @@ extension Array where Element == Search.Result {
                     packageURL: "https://example.com/package/one",
                     repositoryName: "one",
                     repositoryOwner: "package",
+                    stars: 1111,
                     summary: "This is a package filled with ones."
                 )!
             ),
@@ -43,6 +44,7 @@ extension Array where Element == Search.Result {
                     packageURL: "https://example.com/package/one",
                     repositoryName: "one",
                     repositoryOwner: "package",
+                    stars: 2222,
                     summary: "This is a package filled with twos."
                 )!
             ),
@@ -53,6 +55,7 @@ extension Array where Element == Search.Result {
                     packageURL: "https://example.com/package/one",
                     repositoryName: "one",
                     repositoryOwner: "package",
+                    stars: 3333,
                     summary: "This is a package filled with threes."
                 )!
             )
