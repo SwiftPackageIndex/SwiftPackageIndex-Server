@@ -14,25 +14,25 @@
 
 import Fluent
 import Vapor
-import _NIOConcurrency
 
 
 struct ReconcileCommand: Command {
     struct Signature: CommandSignature { }
-
+    
     var help: String { "Reconcile package list with server" }
 
     func run(using context: CommandContext, signature: Signature) throws {
-        let promise = context.application.eventLoopGroup.next()
-            .makePromise(of: Void.self)
-        promise.completeWithAsync {
+        let group = DispatchGroup()
+        group.enter()
+        detach {
             let logger = Logger(component: "reconcile")
             logger.info("Reconciling ...")
-            try await reconcile(client: context.application.client,
+            try? await reconcile(client: context.application.client,
                                  database: context.application.db)
             logger.info("done.")
+            group.leave()
         }
-        try promise.futureResult.wait()
+        group.wait()
     }
 }
 
