@@ -24,7 +24,7 @@ struct ReconcileCommand: Command {
     func run(using context: CommandContext, signature: Signature) throws {
         let group = DispatchGroup()
         group.enter()
-        detach {
+        Task.detached {
             let logger = Logger(component: "reconcile")
             logger.info("Reconciling ...")
             try? await reconcile(client: context.application.client,
