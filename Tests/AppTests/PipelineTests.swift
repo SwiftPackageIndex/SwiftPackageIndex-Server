@@ -129,7 +129,13 @@ class PipelineTests: AppTestCase {
         XCTAssertEqual(batch.map(\.model.url), ["4", "1", "2", "3"])
     }
     
-    func test_processing_pipeline() async throws {
+    func test_processing_pipeline() throws {
+        runAsyncTest {
+            // Temporary while `runAsyncTest` is in place to avoid having to write
+            // self.app everywhere
+            let app = self.app!
+            // end
+
         // Test pipeline pick-up end to end
         // setup
         let urls = ["1", "2", "3"].asGithubUrls
@@ -259,6 +265,7 @@ class PipelineTests: AppTestCase {
         
         // at this point we've ensured that retriggering ingestion after the deadtime will
         // refresh analysis as expected
+        }
     }
     
 }
