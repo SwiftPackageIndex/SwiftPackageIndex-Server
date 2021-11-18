@@ -87,23 +87,23 @@ extension API {
                 case .reconcile:
                     try await reconcile(client: req.client, database: req.db)
                     return try await Package.query(on: req.db).count()
-                                .map { Command.Response.init(status: "ok", rows: $0) }
-                                .get()
+                        .map { Command.Response.init(status: "ok", rows: $0) }
+                        .get()
                 case .ingest:
                     return try await ingest(client: req.application.client,
-                                  database: req.application.db,
-                                  logger: req.application.logger,
-                                  limit: limit)
+                                            database: req.application.db,
+                                            logger: req.application.logger,
+                                            limit: limit)
                         .map {
                             Command.Response(status: "ok", rows: limit)
                         }
                         .get()
                 case .analyze:
                     return try await analyze(client: req.application.client,
-                                   database: req.application.db,
-                                   logger: req.application.logger,
-                                   threadPool: req.application.threadPool,
-                                   limit: limit)
+                                             database: req.application.db,
+                                             logger: req.application.logger,
+                                             threadPool: req.application.threadPool,
+                                             limit: limit)
                         .map {
                             Command.Response(status: "ok", rows: limit)
                         }
