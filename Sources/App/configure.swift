@@ -26,13 +26,13 @@ public func configure(_ app: Application) throws {
 
     // The default is 1 and there is one eventloop per system core by default.
     // Each process (analysis, reconcile etc - a total of 5, see app.yml) contributes to this count.
-    // Our current dev setup has 1 vm with 2 cores -> 20 connections max with a db connection limit of 55.
-    // Our current prod setup has 3 vms with 4 cores -> 240 connections max with a db connection limit of 105.
-    // It should be safe to set this to 4 even though the theoretical max on prod is higher than the supported
+    // Our current dev setup has 1 vm with 2 cores -> 10n connections max with a db connection limit of 55.
+    // Our current prod setup has 3 vms with 4 cores -> 60n connections max with a db connection limit of 105.
+    // It should be safe to set this to n=3 even though the theoretical max on prod is then higher than the supported
     // max, because these wouldn't be utilised across all three nodes at the same time. And even if they are,
     // the failure mode is exactly the same we have before increasing the limits.
     // This parameter could also be made configurable via an env variable.
-    let maxConnectionsPerEventLoop = 4
+    let maxConnectionsPerEventLoop = 3
     
     guard
         let host = Environment.get("DATABASE_HOST"),
