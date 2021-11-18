@@ -79,29 +79,27 @@ extension API {
                 }
         }
         
-        func run(req: Request) throws -> EventLoopFuture<Command.Response> {
+        func run(req: Request) async throws -> Command.Response {
             let cmd = req.parameters.get("command")
                 .flatMap(Command.init(rawValue:))
             let limit = req.query[Int.self, at: "limit"] ?? 10
             switch cmd {
                 case .reconcile:
-                    // FIXME: just remove this whole API
-//                    return try reconcile(client: req.client, database: req.db)
-//                        .flatMap {
-//                            Package.query(on: req.db).count()
-//                                .map { Command.Response.init(status: "ok", rows: $0) }
-//                        }
-                    return req.eventLoop.makeSucceededFuture(.init(status: "ok", rows: 0))
+                    try await reconcile(client: req.client, database: req.db)
+                    return try await Package.query(on: req.db).count()
+                                .map { Command.Response.init(status: "ok", rows: $0) }
+                                .get()
                 case .ingest:
-                    return ingest(client: req.application.client,
+                    return try await ingest(client: req.application.client,
                                   database: req.application.db,
                                   logger: req.application.logger,
                                   limit: limit)
                         .map {
                             Command.Response(status: "ok", rows: limit)
                         }
+                        .get()
                 case .analyze:
-                    return analyze(client: req.application.client,
+                    return try await analyze(client: req.application.client,
                                    database: req.application.db,
                                    logger: req.application.logger,
                                    threadPool: req.application.threadPool,
@@ -109,8 +107,9 @@ extension API {
                         .map {
                             Command.Response(status: "ok", rows: limit)
                         }
+                        .get()
                 case .none:
-                    return req.eventLoop.makeFailedFuture(Abort(.notFound))
+                    throw Abort(.notFound)
             }
         }
 
