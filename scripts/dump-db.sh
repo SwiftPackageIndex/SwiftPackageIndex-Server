@@ -25,5 +25,5 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 then
   # This command assumes the db will be available on $PORT on localhost, via an ssh tunnel:
   # For example: ssh -i <your private key> -L 7432:db:5432 -p 2222 root@173.255.229.82
-  pg_dump --no-owner -Fc -h localhost -p ${PORT} -U ${USER}@${HOST} ${DATABASE} > ${HOST}-$(date +%Y-%m-%d).dump
+  pg_dump --no-owner -Fc -h localhost -p ${PORT} -U ${USER}@${HOST} ${DATABASE} > ${USER}-$(date +%Y-%m-%d).dump
 fi
