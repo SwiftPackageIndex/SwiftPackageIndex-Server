@@ -23,8 +23,15 @@ struct UpdateSearch3: Migration {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        let updatedViewSQL: SQLQueryString =
+
+        let alterRepositoriesTable: SQLQueryString = """
+            ALTER TABLE repositories
+            ADD COLUMN last_activity_at TIMESTAMPTZ GENERATED ALWAYS AS (
+                GREATEST(last_commit_date, last_issue_closed_at, last_pull_request_closed_at)
+            ) STORED;
             """
+
+        let updateSearchView: SQLQueryString = """
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -35,7 +42,7 @@ struct UpdateSearch3: Migration {
               r.name AS repo_name,
               r.owner AS repo_owner,
               r.stars,
-              GREATEST(r.last_commit_date, r.last_issue_closed_at, r.last_pull_request_closed_at) AS last_activity_at,
+              r.last_activity_at,
               r.summary,
               v.package_name
             FROM packages p
@@ -43,16 +50,22 @@ struct UpdateSearch3: Migration {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """
+
         return db.raw(dropSQL).run()
-            .flatMap { db.raw(updatedViewSQL).run() }
+            .flatMap { db.raw(alterRepositoriesTable).run() }
+            .flatMap { db.raw(updateSearchView).run() }
     }
     
     func revert(on database: Database) -> EventLoopFuture<Void> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        let oldViewSQL: SQLQueryString =
+
+        let alterRepositoriesTable: SQLQueryString = """
+            ALTER TABLE repositories DROP COLUMN last_activity_at;
             """
+
+        let restoreSearchView: SQLQueryString = """
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -70,7 +83,9 @@ struct UpdateSearch3: Migration {
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """
+
         return db.raw(dropSQL).run()
-            .flatMap { db.raw(oldViewSQL).run() }
+            .flatMap { db.raw(restoreSearchView).run() }
+            .flatMap { db.raw(alterRepositoriesTable).run() }
     }
 }
