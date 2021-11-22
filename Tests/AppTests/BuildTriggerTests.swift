@@ -288,7 +288,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId, force: false)).wait()
+                              parameter: .packageId(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 0)
@@ -314,7 +314,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId, force: false)).wait()
+                              parameter: .packageId(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 36)
@@ -346,7 +346,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId, force: true)).wait()
+                              parameter: .packageId(pkgId, force: true)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 36)
@@ -419,7 +419,7 @@ class BuildTriggerTests: AppTestCase {
         try triggerBuilds(on: app.db,
                           client: client,
                           logger: app.logger,
-                          parameter: .id(pkgId, force: false)).wait()
+                          parameter: .packageId(pkgId, force: false)).wait()
 
         // validate
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
@@ -457,7 +457,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId, force: false)).wait()
+                              parameter: .packageId(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 0)
@@ -479,7 +479,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId, force: false)).wait()
+                              parameter: .packageId(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 36)
@@ -518,7 +518,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId, force: false)).wait()
+                              parameter: .packageId(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 0)
@@ -540,7 +540,7 @@ class BuildTriggerTests: AppTestCase {
             try triggerBuilds(on: app.db,
                               client: client,
                               logger: app.logger,
-                              parameter: .id(pkgId, force: false)).wait()
+                              parameter: .packageId(pkgId, force: false)).wait()
 
             // validate
             XCTAssertEqual(triggerCount, 36)

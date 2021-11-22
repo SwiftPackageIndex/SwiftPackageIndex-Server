@@ -25,15 +25,15 @@ struct TriggerBuildsCommand: Command {
         var limit: Int?
         @Flag(name: "force", short: "f", help: "override pipeline capacity check and downscaling (--id only)")
         var force: Bool
-        @Option(name: "id")
-        var id: UUID?
+        @Option(name: "package-id", short: "p")
+        var packageId: Package.Id?
     }
 
     var help: String { "Trigger package builds" }
 
     enum Parameter {
         case limit(Int)
-        case id(UUID, force: Bool)
+        case packageId(UUID, force: Bool)
     }
 
     func run(using context: CommandContext, signature: Signature) throws {
@@ -44,9 +44,9 @@ struct TriggerBuildsCommand: Command {
         Self.resetMetrics()
 
         let parameter: Parameter
-        if let id = signature.id {
+        if let id = signature.packageId {
             logger.info("Triggering builds (id: \(id)) ...")
-            parameter = .id(id, force: force)
+            parameter = .packageId(id, force: force)
         } else {
             if force {
                 logger.warning("--force has no effect when used with --limit")
@@ -97,7 +97,7 @@ func triggerBuilds(on database: Database,
                                          client: client,
                                          logger: logger,
                                          packages: $0) }
-        case let .id(id, force):
+        case let .packageId(id, force):
             return triggerBuilds(on: database,
                                  client: client,
                                  logger: logger,
