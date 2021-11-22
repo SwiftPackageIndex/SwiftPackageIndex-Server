@@ -13,6 +13,9 @@
 // limitations under the License.
 
 extension SwiftVersion {
+    // NB: Remember to remove any old builds from the database when *removing* a Swift
+    // version here!
+    // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1267#issuecomment-975379966
     static let v5_1: Self = .init(5, 1, 5)
     static let v5_2: Self = .init(5, 2, 4)
     static let v5_3: Self = .init(5, 3, 3)
