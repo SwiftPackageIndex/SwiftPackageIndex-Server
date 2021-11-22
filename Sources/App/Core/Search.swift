@@ -30,6 +30,7 @@ enum Search {
     static let repoOwner = SQLIdentifier("repo_owner")
     static let score = SQLIdentifier("score")
     static let stars = SQLIdentifier("stars")
+    static let lastActivityAt = SQLIdentifier("last_activity_at")
     static let license = SQLIdentifier("license")
     static let lastCommitDate = SQLIdentifier("last_commit_date")
     static let searchView = SQLIdentifier("search")
@@ -74,6 +75,7 @@ enum Search {
         var repositoryName: String?
         var repositoryOwner: String?
         var stars: Int?
+        var lastActivityAt: Date?
         var summary: String?
         
         enum CodingKeys: String, CodingKey {
@@ -84,6 +86,7 @@ enum Search {
             case repositoryName = "repo_name"
             case repositoryOwner = "repo_owner"
             case stars
+            case lastActivityAt = "last_activity_at"
             case summary
         }
         
@@ -157,6 +160,7 @@ enum Search {
             .column(stars)
             .column(license)
             .column(lastCommitDate)
+            .column(lastActivityAt)
             .from(searchView)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
@@ -189,7 +193,8 @@ enum Search {
             .column(null, as: summary)
             .column(null, as: stars)
             .column(null, as: license)
-            .column(null, as: lastCommitDate)
+            .column(nullTimestamp, as: lastCommitDate)
+            .column(nullTimestamp, as: lastActivityAt)
             .from(searchView)
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
             .where(keyword, .equal, mergedTerms)
@@ -218,6 +223,7 @@ enum Search {
             .column(nullInt, as: stars)
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
+            .column(nullTimestamp, as: lastActivityAt)
             .from(searchView)
             .where(repoOwner, ilike, mergedTerms)
             .limit(1)
