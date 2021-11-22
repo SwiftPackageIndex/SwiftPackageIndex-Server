@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.5
 
 // Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
@@ -19,7 +19,7 @@ import PackageDescription
 let package = Package(
     name: "SPI-Server",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v12)
     ],
     products: [
         .library(name: "DependencyResolution", targets: ["DependencyResolution"])
@@ -57,12 +57,16 @@ let package = Package(
             .product(name: "SwiftPMPackageCollections", package: "SwiftPM")
         ]),
         .target(name: "DependencyResolution"),
-        .target(name: "Run", dependencies: ["App"]),
-        .testTarget(name: "AppTests", dependencies: [
-            .target(name: "App"),
-            .product(name: "XCTVapor", package: "vapor"),
-            "SnapshotTesting"
-        ])
+        .executableTarget(name: "Run", dependencies: ["App"]),
+        .testTarget(
+            name: "AppTests",
+            dependencies: [
+                .target(name: "App"),
+                .product(name: "XCTVapor", package: "vapor"),
+                "SnapshotTesting"
+            ],
+            exclude: ["__Snapshots__", "Fixtures"]
+        )
     ],
     swiftLanguageVersions: [.v5]
 )

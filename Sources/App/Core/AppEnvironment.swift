@@ -25,7 +25,7 @@ struct AppEnvironment {
     var collectionSigningCertificateChain: () -> [URL]
     var collectionSigningPrivateKey: () -> Data?
     var date: () -> Date
-    var fetchPackageList: (_ client: Client) throws -> EventLoopFuture<[URL]>
+    var fetchPackageList: (_ client: Client) async throws -> [URL]
     var fetchLicense: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.License?>
     var fetchMetadata: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.Metadata>
     var fetchReadme: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.Readme?>

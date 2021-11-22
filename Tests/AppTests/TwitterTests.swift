@@ -239,6 +239,12 @@ class TwitterTests: AppTestCase {
     }
 
     func test_endToEnd() throws {
+        runAsyncTest {
+            // Temporary while `runAsyncTest` is in place to avoid having to write
+            // self.app everywhere
+            let app = self.app!
+            // end
+
         // setup
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
@@ -256,7 +262,7 @@ class TwitterTests: AppTestCase {
         var tag = Reference.tag(1, 2, 3)
         let url = "https://github.com/foo/bar"
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
-        Current.fetchPackageList = { _ in self.future([url.url]) }
+        Current.fetchPackageList = { _ in [url.url] }
 
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
@@ -271,7 +277,7 @@ class TwitterTests: AppTestCase {
             return ""
         }
         // run first two processing steps
-        try reconcile(client: app.client, database: app.db).wait()
+        try await reconcile(client: app.client, database: app.db)
         try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
 
         // MUT - analyze, triggering the tweet
@@ -287,7 +293,7 @@ class TwitterTests: AppTestCase {
 
         // run stages again to simulate the cycle...
         message = nil
-        try reconcile(client: app.client, database: app.db).wait()
+        try await reconcile(client: app.client, database: app.db)
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
 
@@ -317,6 +323,7 @@ class TwitterTests: AppTestCase {
         // validate
         let msg = try XCTUnwrap(message)
         XCTAssertTrue(msg.hasPrefix("⬆️ foo just released Mock v2.0.0"), "was: \(msg)")
+        }
     }
 
     func test_allowTwitterPosts_switch() throws {
