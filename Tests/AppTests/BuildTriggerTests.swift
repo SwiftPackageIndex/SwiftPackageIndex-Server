@@ -21,6 +21,11 @@ import XCTest
 
 class BuildTriggerTests: AppTestCase {
 
+    func test_BuildTriggerInfo_emptyPair() throws {
+        XCTAssertNotNil(BuildTriggerInfo(versionId: .id0, pairs: Set([BuildPair(.ios, .v5_5)])))
+        XCTAssertNil(BuildTriggerInfo(versionId: .id0, pairs: []))
+    }
+
     func test_fetchBuildCandidates_missingBuilds() throws {
         // setup
         let pkgIdComplete = UUID()
@@ -129,7 +134,7 @@ class BuildTriggerTests: AppTestCase {
         let expectedPairs = Set(SwiftVersion.allActive.map { BuildPair(droppedPlatform, $0) })
         XCTAssertEqual(res, [.init(versionId: versionId,
                                    pairs: expectedPairs,
-                                   reference: .tag(1, 2, 3))])
+                                   reference: .tag(1, 2, 3))!])
     }
 
     func test_triggerBuildsUnchecked() throws {
@@ -161,7 +166,7 @@ class BuildTriggerTests: AppTestCase {
             try v.save(on: app.db).wait()
         }
         let triggers = [BuildTriggerInfo(versionId: versionId,
-                                         pairs: [BuildPair(.ios, .v5_4)])]
+                                         pairs: [BuildPair(.ios, .v5_4)])!]
 
         // MUT
         try triggerBuildsUnchecked(on: app.db,

@@ -282,10 +282,11 @@ struct BuildTriggerInfo: Equatable {
     var packageName: String?
     var reference: Reference?
 
-    init(versionId: Version.Id,
+    init?(versionId: Version.Id,
          pairs: Set<BuildPair>,
          packageName: String? = nil,
          reference: Reference? = nil) {
+        guard !pairs.isEmpty else { return nil }
         self.versionId = versionId
         self.pairs = pairs
         self.packageName = packageName
