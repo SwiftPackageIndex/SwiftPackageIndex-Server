@@ -83,100 +83,140 @@
             <a href="https://example.com/owner/name.git">
               <h4>vapor-1</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>
-                <span class="identifier">owner/name</span> &ndash; 
-                <span class="stars">3</span>
-              </small>
+              <ul class="metadata">
+                <li class="identifier">
+                  <small>owner/name</small>
+                </li>
+                <li class="stars">
+                  <small>3 stars</small>
+                </li>
+              </ul>
             </a>
           </li>
           <li>
             <a href="https://example.com/owner/name.git">
               <h4>vapor-2</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>
-                <span class="identifier">owner/name</span> &ndash; 
-                <span class="stars">3</span>
-              </small>
+              <ul class="metadata">
+                <li class="identifier">
+                  <small>owner/name</small>
+                </li>
+                <li class="stars">
+                  <small>3 stars</small>
+                </li>
+              </ul>
             </a>
           </li>
           <li>
             <a href="https://example.com/owner/name.git">
               <h4>vapor-3</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>
-                <span class="identifier">owner/name</span> &ndash; 
-                <span class="stars">3</span>
-              </small>
+              <ul class="metadata">
+                <li class="identifier">
+                  <small>owner/name</small>
+                </li>
+                <li class="stars">
+                  <small>3 stars</small>
+                </li>
+              </ul>
             </a>
           </li>
           <li>
             <a href="https://example.com/owner/name.git">
               <h4>vapor-4</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>
-                <span class="identifier">owner/name</span> &ndash; 
-                <span class="stars">3</span>
-              </small>
+              <ul class="metadata">
+                <li class="identifier">
+                  <small>owner/name</small>
+                </li>
+                <li class="stars">
+                  <small>3 stars</small>
+                </li>
+              </ul>
             </a>
           </li>
           <li>
             <a href="https://example.com/owner/name.git">
               <h4>vapor-5</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>
-                <span class="identifier">owner/name</span> &ndash; 
-                <span class="stars">3</span>
-              </small>
+              <ul class="metadata">
+                <li class="identifier">
+                  <small>owner/name</small>
+                </li>
+                <li class="stars">
+                  <small>3 stars</small>
+                </li>
+              </ul>
             </a>
           </li>
           <li>
             <a href="https://example.com/owner/name.git">
               <h4>vapor-6</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>
-                <span class="identifier">owner/name</span> &ndash; 
-                <span class="stars">3</span>
-              </small>
+              <ul class="metadata">
+                <li class="identifier">
+                  <small>owner/name</small>
+                </li>
+                <li class="stars">
+                  <small>3 stars</small>
+                </li>
+              </ul>
             </a>
           </li>
           <li>
             <a href="https://example.com/owner/name.git">
               <h4>vapor-7</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>
-                <span class="identifier">owner/name</span> &ndash; 
-                <span class="stars">3</span>
-              </small>
+              <ul class="metadata">
+                <li class="identifier">
+                  <small>owner/name</small>
+                </li>
+                <li class="stars">
+                  <small>3 stars</small>
+                </li>
+              </ul>
             </a>
           </li>
           <li>
             <a href="https://example.com/owner/name.git">
               <h4>vapor-8</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>
-                <span class="identifier">owner/name</span> &ndash; 
-                <span class="stars">3</span>
-              </small>
+              <ul class="metadata">
+                <li class="identifier">
+                  <small>owner/name</small>
+                </li>
+                <li class="stars">
+                  <small>3 stars</small>
+                </li>
+              </ul>
             </a>
           </li>
           <li>
             <a href="https://example.com/owner/name.git">
               <h4>vapor-9</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>
-                <span class="identifier">owner/name</span> &ndash; 
-                <span class="stars">3</span>
-              </small>
+              <ul class="metadata">
+                <li class="identifier">
+                  <small>owner/name</small>
+                </li>
+                <li class="stars">
+                  <small>3 stars</small>
+                </li>
+              </ul>
             </a>
           </li>
           <li>
             <a href="https://example.com/owner/name.git">
               <h4>vapor-10</h4>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nec orci scelerisque, interdum purus a, tempus turpis.</p>
-              <small>
-                <span class="identifier">owner/name</span> &ndash; 
-                <span class="stars">3</span>
-              </small>
+              <ul class="metadata">
+                <li class="identifier">
+                  <small>owner/name</small>
+                </li>
+                <li class="stars">
+                  <small>3 stars</small>
+                </li>
+              </ul>
             </a>
           </li>
         </ul>
