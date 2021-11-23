@@ -150,6 +150,10 @@ enum AppMetrics {
         counter("spi_package_collection_get_total", EmptyLabels.self)
     }
 
+    static var reconcileDurationSeconds: PromGauge<Double, EmptyLabels>? {
+        gauge("reconcile_duration_seconds", EmptyLabels.self)
+    }
+
 }
 
 
@@ -206,6 +210,16 @@ extension AppMetrics {
                 // absorb error - we don't want metrics issues to cause upstream failures
                 return client.eventLoop.future()
             }
+    }
+
+
+    /// Async-await wrapper for `EventLoopFuture`-based `push`
+    /// - Parameters:
+    ///   - client: `Client`
+    ///   - logger: `Logger`
+    ///   - jobName: job name
+    static func push(client: Client, logger: Logger, jobName: String) async throws {
+        try await push(client: client, logger: logger, jobName: jobName).get()
     }
 
 }

@@ -85,7 +85,26 @@ class MetricsTests: AppTestCase {
                        initialDeletedTag + 1)
     }
 
-    func test_ingestion_timer() throws {
+    func test_reconcileDurationSeconds() throws {
+        runAsyncTest {
+            // Temporary while `runAsyncTest` is in place to avoid having to write
+            // self.app everywhere
+            let app = self.app!
+            // end
+
+        // setup
+        Current.fetchPackageList = { _ in ["1", "2", "3"].asURLs }
+
+        // MUT
+        try await reconcile(client: app.client, database: app.db)
+
+        // validation
+        XCTAssert((AppMetrics.reconcileDurationSeconds?.get()) ?? 0 > 0)
+        
+        }
+    }
+
+    func test_ingestDurationSeconds() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
 
@@ -94,7 +113,6 @@ class MetricsTests: AppTestCase {
 
         // validation
         XCTAssert((AppMetrics.ingestDurationSeconds?.get()) ?? 0 > 0)
-        print(AppMetrics.ingestDurationSeconds!.get())
     }
 
 }
