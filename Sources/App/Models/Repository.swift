@@ -147,8 +147,7 @@ final class Repository: Model, Content {
          readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
          stars: Int? = nil,
-         summary: String? = nil,
-         lastActivityAt: Date? = nil
+         summary: String? = nil
     ) throws {
         self.id = id
         self.$package.id = try package.requireID()
@@ -179,7 +178,6 @@ final class Repository: Model, Content {
         self.readmeHtmlUrl = readmeHtmlUrl
         self.releases = releases
         self.stars = stars
-        self.lastActivityAt = lastActivityAt
     }
     
     init(packageId: Package.Id) {
