@@ -71,7 +71,7 @@ enum AppMetrics {
     }
 
     static var analyzeDurationSeconds: PromGauge<Double, EmptyLabels>? {
-        gauge("analyze_duration_seconds", EmptyLabels.self)
+        gauge("spi_analyze_duration_seconds", EmptyLabels.self)
     }
 
     static var analyzeTrimCheckoutsCount: PromGauge<Int, EmptyLabels>? {
@@ -143,7 +143,7 @@ enum AppMetrics {
     }
 
     static var ingestDurationSeconds: PromGauge<Double, EmptyLabels>? {
-        gauge("ingest_duration_seconds", EmptyLabels.self)
+        gauge("spi_ingest_duration_seconds", EmptyLabels.self)
     }
 
     static var ingestMetadataSuccessCount: PromGauge<Int, EmptyLabels>? {
@@ -159,7 +159,7 @@ enum AppMetrics {
     }
 
     static var reconcileDurationSeconds: PromGauge<Double, EmptyLabels>? {
-        gauge("reconcile_duration_seconds", EmptyLabels.self)
+        gauge("spi_reconcile_duration_seconds", EmptyLabels.self)
     }
 
 }
