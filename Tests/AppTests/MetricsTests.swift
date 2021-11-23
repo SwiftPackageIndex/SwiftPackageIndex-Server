@@ -50,7 +50,7 @@ class MetricsTests: AppTestCase {
     }
 
     func test_versions_added() throws {
-        //setup
+        // setup
         let initialAddedBranch = try
             XCTUnwrap(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")))
         let initialAddedTag = try
@@ -83,6 +83,18 @@ class MetricsTests: AppTestCase {
                        initialDeletedBranch + 1)
         XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(.init("tag")),
                        initialDeletedTag + 1)
+    }
+
+    func test_ingestion_timer() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+
+        // MUT
+        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .id(pkg.id!)).wait()
+
+        // validation
+        XCTAssert((AppMetrics.ingestDurationSeconds?.get()) ?? 0 > 0)
+        print(AppMetrics.ingestDurationSeconds!.get())
     }
 
 }

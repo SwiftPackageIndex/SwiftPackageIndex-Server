@@ -72,6 +72,7 @@ func ingest(client: Client,
             database: Database,
             logger: Logger,
             mode: IngestCommand.Mode) -> EventLoopFuture<Void> {
+    let start = DispatchTime.now().uptimeNanoseconds
     switch mode {
         case .id(let id):
             logger.info("Ingesting (id: \(id)) ...")
@@ -83,6 +84,9 @@ func ingest(client: Client,
                            logger: logger,
                            packages: packages)
                 }
+                .map {
+                    AppMetrics.ingestDurationSeconds?.time(since: start)
+                }
         case .limit(let limit):
             logger.info("Ingesting (limit: \(limit)) ...")
             return Package.fetchCandidates(database, for: .ingestion, limit: limit)
@@ -90,6 +94,9 @@ func ingest(client: Client,
                                   database: database,
                                   logger: logger,
                                   packages: $0) }
+                .map {
+                    AppMetrics.ingestDurationSeconds?.time(since: start)
+                }
     }
 }
 

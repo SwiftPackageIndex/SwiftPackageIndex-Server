@@ -134,6 +134,10 @@ enum AppMetrics {
         gauge("spi_ingest_candidates_count", EmptyLabels.self)
     }
 
+    static var ingestDurationSeconds: PromGauge<Double, EmptyLabels>? {
+        gauge("ingest_duration_seconds", EmptyLabels.self)
+    }
+
     static var ingestMetadataSuccessCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_ingest_metadata_success_count", EmptyLabels.self)
     }
@@ -153,14 +157,14 @@ enum AppMetrics {
 
 extension AppMetrics {
 
-    static func counter<U: MetricLabels>(_ name: String, _ labels: U.Type) -> PromCounter<Int, U>? {
+    static func counter<V: Numeric, L: MetricLabels>(_ name: String, _ labels: L.Type) -> PromCounter<V, L>? {
         try? MetricsSystem.prometheus()
-            .createCounter(forType: Int.self, named: name, withLabelType: labels)
+            .createCounter(forType: V.self, named: name, withLabelType: labels)
     }
 
-    static func gauge<U: MetricLabels>(_ name: String, _ labels: U.Type) -> PromGauge<Int, U>? {
+    static func gauge<V: DoubleRepresentable, L: MetricLabels>(_ name: String, _ labels: L.Type) -> PromGauge<V, L>? {
         try? MetricsSystem.prometheus()
-            .createGauge(forType: Int.self, named: name, withLabelType: labels)
+            .createGauge(forType: V.self, named: name, withLabelType: labels)
     }
 
 }
@@ -204,4 +208,13 @@ extension AppMetrics {
             }
     }
 
+}
+
+
+extension PromGauge {
+    @inlinable
+    public func time(_ labels: Labels? = nil, since start: UInt64) {
+        let delta = Double(DispatchTime.now().uptimeNanoseconds - start)
+        self.set(.init(delta / 1_000_000_000), labels)
+    }
 }
