@@ -37,7 +37,7 @@ struct SearchFilterParser {
     static var allSearchFilters: [SearchFilter.Type] = [
         StarsSearchFilter.self,
         LicenseSearchFilter.self,
-        LastCommitSearchFilter.self,
+        LastActiveSearchFilter.self,
     ]
     
     /// Separates search terms from filter syntax.
@@ -227,20 +227,20 @@ struct LicenseSearchFilter: SearchFilter {
     }
 }
 
-// MARK: Last Commit Date
+// MARK: Last Active Date
 
-/// Filters by the date in which the package's main branch was last updated.
+/// Filters by the date this package was last updated via a commit or an issue/PR being merged/closed.
 ///
 /// Dates must be provided in the `YYYY-MM-DD` format.
 ///
 /// Examples:
 /// ```
-/// last_commit:2020-07-01  - Updated on exactly July 1st 2020
-/// last_commit:!2020-07-01 - Updated on any day other than July 1st 2020
-/// last_commit:>2020-07-01 - Updated on any day more recent than July 1st 2020
-/// last_commit:<2020-07-01 - Updated on any day older than July 1st 2020
+/// last_active:2020-07-01  - Last active on exactly July 1st 2020
+/// last_active:!2020-07-01 - Last active on any day other than July 1st 2020
+/// last_active:>2020-07-01 - Last active on any day more recent than July 1st 2020
+/// last_active:<2020-07-01 - Last active on any day older than July 1st 2020
 /// ```
-struct LastCommitSearchFilter: SearchFilter {
+struct LastActiveSearchFilter: SearchFilter {
     static var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -250,7 +250,7 @@ struct LastCommitSearchFilter: SearchFilter {
         return formatter
     }()
     
-    static var key: String = "last_commit"
+    static var key: String = "last_active"
     
     let comparison: SearchFilterComparison
     let date: Date
@@ -266,7 +266,7 @@ struct LastCommitSearchFilter: SearchFilter {
     
     func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
         builder.where(
-            SQLIdentifier("last_commit_date"),
+            SQLIdentifier("last_activity_at"),
             comparison.binaryOperator(),
             date
         )
