@@ -285,7 +285,7 @@ class TwitterTests: AppTestCase {
                     database: app.db,
                     logger: app.logger,
                     threadPool: app.threadPool,
-                    limit: 10).wait()
+                    mode: .limit(10)).wait()
         do {
             let msg = try XCTUnwrap(message)
             XCTAssertTrue(msg.hasPrefix("📦 foo just added a new package, Mock"), "was \(msg)")
@@ -302,7 +302,7 @@ class TwitterTests: AppTestCase {
                     database: app.db,
                     logger: app.logger,
                     threadPool: app.threadPool,
-                    limit: 10).wait()
+                    mode: .limit(10)).wait()
 
         // validate - there are no new tweets to send
         XCTAssertNil(message)
@@ -318,7 +318,7 @@ class TwitterTests: AppTestCase {
                     database: app.db,
                     logger: app.logger,
                     threadPool: app.threadPool,
-                    limit: 10).wait()
+                    mode: .limit(10)).wait()
 
         // validate
         let msg = try XCTUnwrap(message)

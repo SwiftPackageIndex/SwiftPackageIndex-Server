@@ -103,7 +103,7 @@ extension API {
                                              database: req.application.db,
                                              logger: req.application.logger,
                                              threadPool: req.application.threadPool,
-                                             limit: limit)
+                                             mode: .limit(limit))
                         .map {
                             Command.Response(status: "ok", rows: limit)
                         }

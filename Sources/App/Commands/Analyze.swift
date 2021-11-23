@@ -29,7 +29,12 @@ struct AnalyzeCommand: Command {
     }
     
     var help: String { "Run package analysis (fetching git repository and inspecting content)" }
-    
+
+    enum Mode {
+        case id(Package.Id)
+        case limit(Int)
+    }
+
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
 
@@ -40,23 +45,13 @@ struct AnalyzeCommand: Command {
 
         Self.resetMetrics()
 
-        if let id = signature.id {
-            logger.info("Analyzing (id: \(id)) ...")
-            try analyze(client: client,
-                        database: db,
-                        logger: logger,
-                        threadPool: threadPool,
-                        id: id)
-                .wait()
-        } else {
-            logger.info("Analyzing (limit: \(limit)) ...")
-            try analyze(client: client,
-                        database: db,
-                        logger: logger,
-                        threadPool: threadPool,
-                        limit: limit)
-                .wait()
-        }
+        let mode = signature.id.map(Mode.id) ?? .limit(limit)
+        try analyze(client: client,
+                    database: db,
+                    logger: logger,
+                    threadPool: threadPool,
+                    mode: mode)
+            .wait()
 
         try Self.trimCheckouts()
 
@@ -104,50 +99,40 @@ extension AnalyzeCommand {
 }
 
 
-/// Analyse a given `Package`, identified by its `Id`.
+/// Analyze via a given mode: either one `Package` identified by its `Id` or a limited number of `Package`s.
 /// - Parameters:
 ///   - client: `Client` object
 ///   - database: `Database` object
 ///   - logger: `Logger` object
 ///   - threadPool: `NIOThreadPool` (for running shell commands)
-///   - id: package id
+///   - mode: process a single `Package.Id` or a `limit` number of packages
 /// - Returns: future
 func analyze(client: Client,
              database: Database,
              logger: Logger,
              threadPool: NIOThreadPool,
-             id: Package.Id) -> EventLoopFuture<Void> {
-    Package.fetchCandidate(database, id: id)
-        .map { [$0] }
-        .flatMap {
-            analyze(client: client,
-                    database: database,
-                    logger: logger,
-                    threadPool: threadPool,
-                    packages: $0)
-        }
-}
-
-
-/// Analyse a number of `Package`s, selected from a candidate list with a given limit.
-/// - Parameters:
-///   - client: `Client` object
-///   - database: `Database` object
-///   - logger: `Logger` object
-///   - threadPool: `NIOThreadPool` (for running shell commands)
-///   - limit: number of `Package`s to select from the candidate list
-/// - Returns: future
-func analyze(client: Client,
-             database: Database,
-             logger: Logger,
-             threadPool: NIOThreadPool,
-             limit: Int) -> EventLoopFuture<Void> {
-    Package.fetchCandidates(database, for: .analysis, limit: limit)
-        .flatMap { analyze(client: client,
-                           database: database,
-                           logger: logger,
-                           threadPool: threadPool,
-                           packages: $0) }
+             mode: AnalyzeCommand.Mode) -> EventLoopFuture<Void> {
+    switch mode {
+        case .id(let id):
+            logger.info("Analyzing (id: \(id)) ...")
+            return Package.fetchCandidate(database, id: id)
+                .map { [$0] }
+                .flatMap {
+                    analyze(client: client,
+                            database: database,
+                            logger: logger,
+                            threadPool: threadPool,
+                            packages: $0)
+                }
+        case .limit(let limit):
+            logger.info("Analyzing (limit: \(limit)) ...")
+            return Package.fetchCandidates(database, for: .analysis, limit: limit)
+                .flatMap { analyze(client: client,
+                                   database: database,
+                                   logger: logger,
+                                   threadPool: threadPool,
+                                   packages: $0) }
+    }
 }
 
 

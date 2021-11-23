@@ -312,7 +312,7 @@ final class PackageTests: AppTestCase {
                     database: app.db,
                     logger: app.logger,
                     threadPool: app.threadPool,
-                    limit: 10).wait()
+                    mode: .limit(10)).wait()
 
         // MUT & validate
         do {
@@ -339,7 +339,7 @@ final class PackageTests: AppTestCase {
                     database: app.db,
                     logger: app.logger,
                     threadPool: app.threadPool,
-                    limit: 10).wait()
+                    mode: .limit(10)).wait()
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
             XCTAssertFalse(pkg.isNew)

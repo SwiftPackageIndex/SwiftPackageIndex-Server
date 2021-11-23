@@ -82,7 +82,7 @@ class ErrorReportingTests: AppTestCase {
                     database: app.db,
                     logger: app.logger,
                     threadPool: app.threadPool,
-                    limit: 10).wait()
+                    mode: .limit(10)).wait()
         
         // validation
         XCTAssertNotNil(reportedError)
@@ -98,7 +98,7 @@ class ErrorReportingTests: AppTestCase {
                     database: app.db,
                     logger: app.logger,
                     threadPool: app.threadPool,
-                    limit: 10).wait()
+                    mode: .limit(10)).wait()
         
         // validation
         let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
