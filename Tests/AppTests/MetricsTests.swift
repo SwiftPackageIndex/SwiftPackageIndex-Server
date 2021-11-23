@@ -50,7 +50,7 @@ class MetricsTests: AppTestCase {
     }
 
     func test_versions_added() throws {
-        //setup
+        // setup
         let initialAddedBranch = try
             XCTUnwrap(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")))
         let initialAddedTag = try
@@ -83,6 +83,59 @@ class MetricsTests: AppTestCase {
                        initialDeletedBranch + 1)
         XCTAssertEqual(AppMetrics.analyzeVersionsDeletedCount?.get(.init("tag")),
                        initialDeletedTag + 1)
+    }
+
+    func test_reconcileDurationSeconds() throws {
+        runAsyncTest {
+            // Temporary while `runAsyncTest` is in place to avoid having to write
+            // self.app everywhere
+            let app = self.app!
+            // end
+
+        // setup
+        Current.fetchPackageList = { _ in ["1", "2", "3"].asURLs }
+
+        // MUT
+        try await reconcile(client: app.client, database: app.db)
+
+        // validation
+        XCTAssert((AppMetrics.reconcileDurationSeconds?.get()) ?? 0 > 0)
+        
+        }
+    }
+
+    func test_ingestDurationSeconds() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+
+        // MUT
+        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .id(pkg.id!)).wait()
+
+        // validation
+        XCTAssert((AppMetrics.ingestDurationSeconds?.get()) ?? 0 > 0)
+    }
+
+    func test_analyzeDurationSeconds() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+
+        // MUT
+        try analyze(client: app.client, database: app.db, logger: app.logger, threadPool: app.threadPool, mode: .id(pkg.id!)).wait()
+
+        // validation
+        XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)
+    }
+
+    func test_triggerBuildsDurationSeconds() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+
+        // MUT
+        try triggerBuilds(on: app.db, client: app.client, logger: app.logger, mode: .packageId(pkg.id!, force: true)).wait()
+
+        // validation
+        XCTAssert((AppMetrics.buildTriggerDurationSeconds?.get()) ?? 0 > 0)
+        print(AppMetrics.buildTriggerDurationSeconds!.get())
     }
 
 }

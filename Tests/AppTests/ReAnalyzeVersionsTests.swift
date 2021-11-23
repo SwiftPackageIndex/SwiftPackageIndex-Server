@@ -65,7 +65,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                         database: app.db,
                         logger: app.logger,
                         threadPool: app.threadPool,
-                        limit: 10).wait()
+                        mode: .limit(10)).wait()
             let versions = try Version.query(on: app.db)
                 .with(\.$targets)
                 .all().wait()
@@ -97,7 +97,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                         database: app.db,
                         logger: app.logger,
                         threadPool: app.threadPool,
-                        limit: 10).wait()
+                        mode: .limit(10)).wait()
             let versions = try Version.query(on: app.db)
                 .with(\.$targets)
                 .all().wait()
@@ -183,7 +183,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
                     database: app.db,
                     logger: app.logger,
                     threadPool: app.threadPool,
-                    limit: 10).wait()
+                    mode: .limit(10)).wait()
         try setAllVersionsUpdatedAt(app.db, updatedAt: .t0)
         do {
             let candidates = try Package

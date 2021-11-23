@@ -30,6 +30,10 @@ struct ReconcileCommand: Command {
             try? await reconcile(client: context.application.client,
                                  database: context.application.db)
             logger.info("done.")
+
+            try await AppMetrics.push(client: context.application.client,
+                                      logger: context.application.logger,
+                                      jobName: "reconcile")
             group.leave()
         }
         group.wait()
@@ -38,11 +42,13 @@ struct ReconcileCommand: Command {
 
 
 func reconcile(client: Client, database: Database) async throws {
+    let start = DispatchTime.now().uptimeNanoseconds
+    defer { AppMetrics.reconcileDurationSeconds?.time(since: start) }
     async let packageList = try Current.fetchPackageList(client)
     async let currentList = try fetchCurrentPackageList(database)
-    return try await reconcileLists(db: database,
-                                    source: packageList,
-                                    target: currentList)
+    try await reconcileLists(db: database,
+                             source: packageList,
+                             target: currentList)
 }
 
 

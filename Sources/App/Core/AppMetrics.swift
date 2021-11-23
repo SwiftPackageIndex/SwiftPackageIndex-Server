@@ -70,6 +70,10 @@ enum AppMetrics {
         gauge("spi_analyze_candidates_count", EmptyLabels.self)
     }
 
+    static var analyzeDurationSeconds: PromGauge<Double, EmptyLabels>? {
+        gauge("spi_analyze_duration_seconds", EmptyLabels.self)
+    }
+
     static var analyzeTrimCheckoutsCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_analyze_trim_checkouts_count", EmptyLabels.self)
     }
@@ -122,6 +126,10 @@ enum AppMetrics {
         gauge("spi_build_trigger_count", Labels.Build.self)
     }
 
+    static var buildTriggerDurationSeconds: PromGauge<Double, EmptyLabels>? {
+        gauge("spi_build_trigger_duration_seconds", EmptyLabels.self)
+    }
+
     static var buildTrimCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_build_trim_count", EmptyLabels.self)
     }
@@ -132,6 +140,10 @@ enum AppMetrics {
 
     static var ingestCandidatesCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_ingest_candidates_count", EmptyLabels.self)
+    }
+
+    static var ingestDurationSeconds: PromGauge<Double, EmptyLabels>? {
+        gauge("spi_ingest_duration_seconds", EmptyLabels.self)
     }
 
     static var ingestMetadataSuccessCount: PromGauge<Int, EmptyLabels>? {
@@ -146,6 +158,10 @@ enum AppMetrics {
         counter("spi_package_collection_get_total", EmptyLabels.self)
     }
 
+    static var reconcileDurationSeconds: PromGauge<Double, EmptyLabels>? {
+        gauge("spi_reconcile_duration_seconds", EmptyLabels.self)
+    }
+
 }
 
 
@@ -153,14 +169,14 @@ enum AppMetrics {
 
 extension AppMetrics {
 
-    static func counter<U: MetricLabels>(_ name: String, _ labels: U.Type) -> PromCounter<Int, U>? {
+    static func counter<V: Numeric, L: MetricLabels>(_ name: String, _ labels: L.Type) -> PromCounter<V, L>? {
         try? MetricsSystem.prometheus()
-            .createCounter(forType: Int.self, named: name, withLabelType: labels)
+            .createCounter(forType: V.self, named: name, withLabelType: labels)
     }
 
-    static func gauge<U: MetricLabels>(_ name: String, _ labels: U.Type) -> PromGauge<Int, U>? {
+    static func gauge<V: DoubleRepresentable, L: MetricLabels>(_ name: String, _ labels: L.Type) -> PromGauge<V, L>? {
         try? MetricsSystem.prometheus()
-            .createGauge(forType: Int.self, named: name, withLabelType: labels)
+            .createGauge(forType: V.self, named: name, withLabelType: labels)
     }
 
 }
@@ -204,4 +220,23 @@ extension AppMetrics {
             }
     }
 
+
+    /// Async-await wrapper for `EventLoopFuture`-based `push`
+    /// - Parameters:
+    ///   - client: `Client`
+    ///   - logger: `Logger`
+    ///   - jobName: job name
+    static func push(client: Client, logger: Logger, jobName: String) async throws {
+        try await push(client: client, logger: logger, jobName: jobName).get()
+    }
+
+}
+
+
+extension PromGauge {
+    @inlinable
+    public func time(_ labels: Labels? = nil, since start: UInt64) {
+        let delta = Double(DispatchTime.now().uptimeNanoseconds - start)
+        self.set(.init(delta / 1_000_000_000), labels)
+    }
 }

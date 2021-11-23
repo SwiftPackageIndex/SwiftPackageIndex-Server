@@ -28,7 +28,12 @@ struct IngestCommand: Command {
     }
     
     var help: String { "Run package ingestion (fetching repository metadata)" }
-    
+
+    enum Mode {
+        case id(Package.Id)
+        case limit(Int)
+    }
+
     func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
 
@@ -38,15 +43,9 @@ struct IngestCommand: Command {
 
         Self.resetMetrics()
 
-        if let id = signature.id {
-            logger.info("Ingesting (id: \(id)) ...")
-            try ingest(client: client, database: db, logger: logger, id: id)
-                .wait()
-        } else {
-            logger.info("Ingesting (limit: \(limit)) ...")
-            try ingest(client: client, database: db, logger: logger, limit: limit)
-                .wait()
-        }
+        let mode = signature.id.map(Mode.id) ?? .limit(limit)
+        try ingest(client: client, database: db, logger: logger, mode: mode)
+            .wait()
         try AppMetrics.push(client: client,
                             logger: logger,
                             jobName: "ingest").wait()
@@ -61,44 +60,44 @@ extension IngestCommand {
     }
 }
 
-/// Ingest given `Package` identified by its `Id`.
+
+/// Ingest via a given mode: either one `Package` identified by its `Id` or a limited number of `Package`s.
 /// - Parameters:
 ///   - client: `Client` object
 ///   - database: `Database` object
 ///   - logger: `Logger` object
-///   - id: package id
+///   - mode: process a single `Package.Id` or a `limit` number of packages
 /// - Returns: future
 func ingest(client: Client,
             database: Database,
             logger: Logger,
-            id: Package.Id) -> EventLoopFuture<Void> {
-    Package.fetchCandidate(database, id: id)
-        .map { [$0] }
-        .flatMap { packages in
-            ingest(client: client,
-                   database: database,
-                   logger: logger,
-                   packages: packages)
-        }
-}
-
-
-/// Ingest a number of `Package`s, selected from a candidate list with a given limit.
-/// - Parameters:
-///   - client: `Client` object
-///   - database: `Database` object
-///   - logger: `Logger` object
-///   - limit: number of `Package`s to select from the candidate list
-/// - Returns: future
-func ingest(client: Client,
-            database: Database,
-            logger: Logger,
-            limit: Int) -> EventLoopFuture<Void> {
-    Package.fetchCandidates(database, for: .ingestion, limit: limit)
-        .flatMap { ingest(client: client,
-                          database: database,
-                          logger: logger,
-                          packages: $0) }
+            mode: IngestCommand.Mode) -> EventLoopFuture<Void> {
+    let start = DispatchTime.now().uptimeNanoseconds
+    switch mode {
+        case .id(let id):
+            logger.info("Ingesting (id: \(id)) ...")
+            return Package.fetchCandidate(database, id: id)
+                .map { [$0] }
+                .flatMap { packages in
+                    ingest(client: client,
+                           database: database,
+                           logger: logger,
+                           packages: packages)
+                }
+                .map {
+                    AppMetrics.ingestDurationSeconds?.time(since: start)
+                }
+        case .limit(let limit):
+            logger.info("Ingesting (limit: \(limit)) ...")
+            return Package.fetchCandidates(database, for: .ingestion, limit: limit)
+                .flatMap { ingest(client: client,
+                                  database: database,
+                                  logger: logger,
+                                  packages: $0) }
+                .map {
+                    AppMetrics.ingestDurationSeconds?.time(since: start)
+                }
+    }
 }
 
 
