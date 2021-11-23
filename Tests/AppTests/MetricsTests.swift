@@ -115,4 +115,15 @@ class MetricsTests: AppTestCase {
         XCTAssert((AppMetrics.ingestDurationSeconds?.get()) ?? 0 > 0)
     }
 
+    func test_analyzeDurationSeconds() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+
+        // MUT
+        try analyze(client: app.client, database: app.db, logger: app.logger, threadPool: app.threadPool, mode: .id(pkg.id!)).wait()
+
+        // validation
+        XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)
+    }
+
 }

@@ -112,6 +112,7 @@ func analyze(client: Client,
              logger: Logger,
              threadPool: NIOThreadPool,
              mode: AnalyzeCommand.Mode) -> EventLoopFuture<Void> {
+    let start = DispatchTime.now().uptimeNanoseconds
     switch mode {
         case .id(let id):
             logger.info("Analyzing (id: \(id)) ...")
@@ -124,6 +125,9 @@ func analyze(client: Client,
                             threadPool: threadPool,
                             packages: $0)
                 }
+                .map {
+                    AppMetrics.analyzeDurationSeconds?.time(since: start)
+                }
         case .limit(let limit):
             logger.info("Analyzing (limit: \(limit)) ...")
             return Package.fetchCandidates(database, for: .analysis, limit: limit)
@@ -131,7 +135,12 @@ func analyze(client: Client,
                                    database: database,
                                    logger: logger,
                                    threadPool: threadPool,
-                                   packages: $0) }
+                                   packages: $0)
+                }
+                .map {
+                    AppMetrics.analyzeDurationSeconds?.time(since: start)
+                }
+            
     }
 }
 
