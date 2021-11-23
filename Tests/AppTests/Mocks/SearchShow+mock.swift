@@ -18,10 +18,9 @@ import Foundation
 
 
 extension SearchShow.Model {
-    static var mock: Self {
-        let results: [Search.Result] = .mock()
-        return .init(page: 3,
-                     query: "query",
-                     response: .init(hasMoreResults: true, results: results))
+    static func mock(results: [Search.Result] = .mock()) -> Self {
+        .init(page: 3,
+              query: "query",
+              response: .init(hasMoreResults: true, results: results))
     }
 }

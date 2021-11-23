@@ -479,7 +479,50 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
     }
 
     func test_SearchShow() throws {
-        let page = { SearchShow.View(path: "", model: .mock).document() }
+        let packageResults: [Search.Result] = [
+            .package(
+                .init(
+                    packageId: .id1,
+                    packageName: "Package One",
+                    packageURL: "https://example.com/package/one",
+                    repositoryName: "one",
+                    repositoryOwner: "package",
+                    stars: 1111,
+                    // 24 hours + 4 hours to take it firmly into "one day ago" for the snapshot.
+                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -28, to: Current.date()),
+                    summary: "This is a package filled with ones."
+                )!
+            ),
+            .package(
+                .init(
+                    packageId: .id2,
+                    packageName: "Package Two",
+                    packageURL: "https://example.com/package/one",
+                    repositoryName: "one",
+                    repositoryOwner: "package",
+                    stars: 2222,
+                    // 48 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
+                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -52, to: Current.date()),
+                    summary: "This is a package filled with twos."
+                )!
+            ),
+            .package(
+                .init(
+                    packageId: .id3,
+                    packageName: "Package Three",
+                    packageURL: "https://example.com/package/one",
+                    repositoryName: "one",
+                    repositoryOwner: "package",
+                    stars: 3333,
+                    // 72 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
+                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -76, to: Current.date()),
+                    summary: "This is a package filled with threes."
+                )!
+            )
+        ]
+
+        let mockResults: [Search.Result] = .mock(packageResults)
+        let page = { SearchShow.View(path: "", model: .mock(results: mockResults)).document() }
 
         assertSnapshot(matching: page, as: .html)
 

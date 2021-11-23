@@ -17,7 +17,46 @@ import Foundation
 
 extension Array where Element == Search.Result {
 
-    static func mock() -> Self {
+    static var defaultPackageResults: [Search.Result] = [
+        .package(
+            .init(
+                packageId: .id1,
+                packageName: "Package One",
+                packageURL: "https://example.com/package/one",
+                repositoryName: "one",
+                repositoryOwner: "package",
+                stars: 1111,
+                lastActivityAt: .t0,
+                summary: "This is a package filled with ones."
+            )!
+        ),
+        .package(
+            .init(
+                packageId: .id2,
+                packageName: "Package Two",
+                packageURL: "https://example.com/package/one",
+                repositoryName: "one",
+                repositoryOwner: "package",
+                stars: 2222,
+                lastActivityAt: .t0,
+                summary: "This is a package filled with twos."
+            )!
+        ),
+        .package(
+            .init(
+                packageId: .id3,
+                packageName: "Package Three",
+                packageURL: "https://example.com/package/one",
+                repositoryName: "one",
+                repositoryOwner: "package",
+                stars: 3333,
+                lastActivityAt: .t0,
+                summary: "This is a package filled with threes."
+            )!
+        )
+    ]
+
+    static func mock(_ packageResults: [Search.Result] = .defaultPackageResults) -> Self {
         [
             .author(.init(name: "Apple")),
             .author(.init(name: "Orange")),
@@ -26,45 +65,7 @@ extension Array where Element == Search.Result {
             .keyword(.init(keyword: "keyword2")),
             .keyword(.init(keyword: "keyword3")),
             .keyword(.init(keyword: "keyword4")),
-            .package(
-                .init(
-                    packageId: .id1,
-                    packageName: "Package One",
-                    packageURL: "https://example.com/package/one",
-                    repositoryName: "one",
-                    repositoryOwner: "package",
-                    stars: 1111,
-                    // 24 hours + 4 hours to take it firmly into "one day ago" for the snapshots.
-                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -28, to: Current.date()),
-                    summary: "This is a package filled with ones."
-                )!
-            ),
-            .package(
-                .init(
-                    packageId: .id2,
-                    packageName: "Package Two",
-                    packageURL: "https://example.com/package/one",
-                    repositoryName: "one",
-                    repositoryOwner: "package",
-                    stars: 2222,
-                    // 48 hours + 4 hours to take it firmly into "two days ago" for the snapshots.
-                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -52, to: Current.date()),
-                    summary: "This is a package filled with twos."
-                )!
-            ),
-            .package(
-                .init(
-                    packageId: .id3,
-                    packageName: "Package Three",
-                    packageURL: "https://example.com/package/one",
-                    repositoryName: "one",
-                    repositoryOwner: "package",
-                    stars: 3333,
-                    // 72 hours + 4 hours to take it firmly into "two days ago" for the snapshots.
-                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -76, to: Current.date()),
-                    summary: "This is a package filled with threes."
-                )!
-            )
         ]
+        + packageResults
     }
 }
