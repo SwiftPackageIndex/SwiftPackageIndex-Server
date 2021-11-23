@@ -37,7 +37,7 @@ struct SearchFilterParser {
     static var allSearchFilters: [SearchFilter.Type] = [
         StarsSearchFilter.self,
         LicenseSearchFilter.self,
-        LastActiveSearchFilter.self,
+        LastActivitySearchFilter.self,
     ]
     
     /// Separates search terms from filter syntax.
@@ -235,12 +235,12 @@ struct LicenseSearchFilter: SearchFilter {
 ///
 /// Examples:
 /// ```
-/// last_active:2020-07-01  - Last active on exactly July 1st 2020
-/// last_active:!2020-07-01 - Last active on any day other than July 1st 2020
-/// last_active:>2020-07-01 - Last active on any day more recent than July 1st 2020
-/// last_active:<2020-07-01 - Last active on any day older than July 1st 2020
+/// last_activity:2020-07-01  - Last active on exactly July 1st 2020
+/// last_activity:!2020-07-01 - Last active on any day other than July 1st 2020
+/// last_activity:>2020-07-01 - Last active on any day more recent than July 1st 2020
+/// last_activity:<2020-07-01 - Last active on any day older than July 1st 2020
 /// ```
-struct LastActiveSearchFilter: SearchFilter {
+struct LastActivitySearchFilter: SearchFilter {
     static var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -250,7 +250,7 @@ struct LastActiveSearchFilter: SearchFilter {
         return formatter
     }()
     
-    static var key: String = "last_active"
+    static var key: String = "last_activity"
     
     let comparison: SearchFilterComparison
     let date: Date

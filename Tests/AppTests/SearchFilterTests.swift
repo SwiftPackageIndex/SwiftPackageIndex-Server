@@ -26,7 +26,7 @@ class SearchFilterTests: AppTestCase {
                 .allSearchFilters
                 .map { $0.key }
                 .sorted(),
-            [ "last_active", "license", "stars" ]
+            [ "last_activity", "license", "stars" ]
         )
     }
     
@@ -149,11 +149,11 @@ class SearchFilterTests: AppTestCase {
     }
     
     func test_lastCommitFilter() throws {
-        XCTAssertEqual(LastActiveSearchFilter.key, "last_active")
-        XCTAssertThrowsError(try LastActiveSearchFilter(value: "23rd June 2021", comparison: .match))
-        XCTAssertEqual(try LastActiveSearchFilter(value: "1970-01-01", comparison: .match).date, .t0)
+        XCTAssertEqual(LastActivitySearchFilter.key, "last_activity")
+        XCTAssertThrowsError(try LastActivitySearchFilter(value: "23rd June 2021", comparison: .match))
+        XCTAssertEqual(try LastActivitySearchFilter(value: "1970-01-01", comparison: .match).date, .t0)
 
-        let filter = try LastActiveSearchFilter(value: "1970-01-01", comparison: .match)
+        let filter = try LastActivitySearchFilter(value: "1970-01-01", comparison: .match)
         let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
             .where(searchFilters: [filter])
         let sql = renderSQL(builder, resolveBinds: true)
