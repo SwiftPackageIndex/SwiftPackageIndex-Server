@@ -235,10 +235,10 @@ struct LicenseSearchFilter: SearchFilter {
 ///
 /// Examples:
 /// ```
-/// last_activity:2020-07-01  - Last active on exactly July 1st 2020
-/// last_activity:!2020-07-01 - Last active on any day other than July 1st 2020
-/// last_activity:>2020-07-01 - Last active on any day more recent than July 1st 2020
-/// last_activity:<2020-07-01 - Last active on any day older than July 1st 2020
+/// last_activity:2020-07-01  - Last maintenance activity on exactly July 1st 2020
+/// last_activity:!2020-07-01 - Last maintenance activity on any day other than July 1st 2020
+/// last_activity:>2020-07-01 - Last maintenance activity on any day more recent than July 1st 2020
+/// last_activity:<2020-07-01 - Last maintenance activity on any day older than July 1st 2020
 /// ```
 struct LastActivitySearchFilter: SearchFilter {
     static var dateFormatter: DateFormatter = {
