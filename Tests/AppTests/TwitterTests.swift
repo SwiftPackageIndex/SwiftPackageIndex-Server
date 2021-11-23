@@ -278,7 +278,7 @@ class TwitterTests: AppTestCase {
         }
         // run first two processing steps
         try await reconcile(client: app.client, database: app.db)
-        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
+            try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
 
         // MUT - analyze, triggering the tweet
         try analyze(client: app.client,
@@ -295,7 +295,7 @@ class TwitterTests: AppTestCase {
         message = nil
         try await reconcile(client: app.client, database: app.db)
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
-        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
 
         // MUT - analyze, triggering tweets if any
         try analyze(client: app.client,
@@ -311,7 +311,7 @@ class TwitterTests: AppTestCase {
         tag = .tag(2, 0, 0)
         // fast forward our clock by the deadtime interval again (*2) and re-ingest
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime * 2) }
-        try ingest(client: app.client, database: app.db, logger: app.logger, limit: 10).wait()
+        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
 
         // MUT - analyze again
         try analyze(client: app.client,
