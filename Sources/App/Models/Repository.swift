@@ -114,6 +114,9 @@ final class Repository: Model, Content {
     @Field(key: "summary")
     var summary: String?
 
+    @Field(key: "last_activity_at")
+    var lastActivityAt: Date?
+
     // initializers
     
     init() { }
@@ -144,7 +147,8 @@ final class Repository: Model, Content {
          readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
          stars: Int? = nil,
-         summary: String? = nil
+         summary: String? = nil,
+         lastActivityAt: Date? = nil
     ) throws {
         self.id = id
         self.$package.id = try package.requireID()
@@ -175,6 +179,7 @@ final class Repository: Model, Content {
         self.readmeHtmlUrl = readmeHtmlUrl
         self.releases = releases
         self.stars = stars
+        self.lastActivityAt = lastActivityAt
     }
     
     init(packageId: Package.Id) {

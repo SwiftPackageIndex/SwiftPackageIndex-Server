@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 struct PackageInfo {
     var title: String
     var description: String
@@ -19,6 +21,7 @@ struct PackageInfo {
     var repositoryName: String
     var url: String
     var stars: Int
+    var lastActivityAt: Date?
 }
 
 extension PackageInfo {
@@ -34,7 +37,8 @@ extension PackageInfo {
                   repositoryOwner: repoOwner,
                   repositoryName: repoName,
                   url: SiteURL.package(.value(repoOwner), .value(repoName), .none).relativeURL(),
-                  stars: package.repository?.stars ?? 0
+                  stars: package.repository?.stars ?? 0,
+                  lastActivityAt: package.repository?.lastActivityAt
         )
     }
 }
