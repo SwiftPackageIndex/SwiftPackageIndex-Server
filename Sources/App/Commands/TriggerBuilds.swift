@@ -31,9 +31,9 @@ struct TriggerBuildsCommand: Command {
 
     var help: String { "Trigger package builds" }
 
-    enum Parameter {
+    enum Mode {
         case limit(Int)
-        case packageId(UUID, force: Bool)
+        case packageId(Package.Id, force: Bool)
     }
 
     func run(using context: CommandContext, signature: Signature) throws {
@@ -43,21 +43,16 @@ struct TriggerBuildsCommand: Command {
 
         Self.resetMetrics()
 
-        let parameter: Parameter
-        if let id = signature.packageId {
-            logger.info("Triggering builds (id: \(id)) ...")
-            parameter = .packageId(id, force: force)
-        } else {
-            if force {
-                logger.warning("--force has no effect when used with --limit")
-            }
-            logger.info("Triggering builds (limit: \(limit)) ...")
-            parameter = .limit(limit)
+        let mode = signature.packageId
+            .map { Mode.packageId($0, force: force) } ?? .limit(limit)
+        if force, case .limit = mode {
+            logger.warning("--force has no effect when used with --limit")
         }
+
         try triggerBuilds(on: context.application.db,
                           client: context.application.client,
                           logger: logger,
-                          parameter: parameter).wait()
+                          mode: mode).wait()
         try AppMetrics.push(client: context.application.client,
                             logger: context.application.logger,
                             jobName: "trigger-builds").wait()
@@ -85,9 +80,10 @@ extension TriggerBuildsCommand {
 func triggerBuilds(on database: Database,
                    client: Client,
                    logger: Logger,
-                   parameter: TriggerBuildsCommand.Parameter) -> EventLoopFuture<Void> {
-    switch parameter {
+                   mode: TriggerBuildsCommand.Mode) -> EventLoopFuture<Void> {
+    switch mode {
         case .limit(let limit):
+            logger.info("Triggering builds (limit: \(limit)) ...")
             return fetchBuildCandidates(database)
                 .map { candidates in
                     AppMetrics.buildCandidatesCount?.set(candidates.count)
@@ -98,6 +94,7 @@ func triggerBuilds(on database: Database,
                                          logger: logger,
                                          packages: $0) }
         case let .packageId(id, force):
+            logger.info("Triggering builds (id: \(id)) ...")
             return triggerBuilds(on: database,
                                  client: client,
                                  logger: logger,
