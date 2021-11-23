@@ -35,7 +35,7 @@ extension Array where Element == Search.Result {
                     repositoryOwner: "package",
                     stars: 1111,
                     // 24 hours + 4 hours to take it firmly into "one day ago" for the snapshots.
-                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -28, to: Date()),
+                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -28, to: Current.date()),
                     summary: "This is a package filled with ones."
                 )!
             ),
@@ -48,7 +48,7 @@ extension Array where Element == Search.Result {
                     repositoryOwner: "package",
                     stars: 2222,
                     // 48 hours + 4 hours to take it firmly into "two days ago" for the snapshots.
-                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -52, to: Date()),
+                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -52, to: Current.date()),
                     summary: "This is a package filled with twos."
                 )!
             ),
@@ -61,7 +61,7 @@ extension Array where Element == Search.Result {
                     repositoryOwner: "package",
                     stars: 3333,
                     // 72 hours + 4 hours to take it firmly into "two days ago" for the snapshots.
-                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -76, to: Date()),
+                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -76, to: Current.date()),
                     summary: "This is a package filled with threes."
                 )!
             )
