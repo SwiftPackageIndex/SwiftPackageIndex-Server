@@ -126,4 +126,16 @@ class MetricsTests: AppTestCase {
         XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)
     }
 
+    func test_triggerBuildsDurationSeconds() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+
+        // MUT
+        try triggerBuilds(on: app.db, client: app.client, logger: app.logger, mode: .packageId(pkg.id!, force: true)).wait()
+
+        // validation
+        XCTAssert((AppMetrics.buildTriggerDurationSeconds?.get()) ?? 0 > 0)
+        print(AppMetrics.buildTriggerDurationSeconds!.get())
+    }
+
 }

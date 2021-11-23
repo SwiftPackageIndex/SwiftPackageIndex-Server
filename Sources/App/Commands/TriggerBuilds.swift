@@ -81,6 +81,7 @@ func triggerBuilds(on database: Database,
                    client: Client,
                    logger: Logger,
                    mode: TriggerBuildsCommand.Mode) -> EventLoopFuture<Void> {
+    let start = DispatchTime.now().uptimeNanoseconds
     switch mode {
         case .limit(let limit):
             logger.info("Triggering builds (limit: \(limit)) ...")
@@ -92,7 +93,11 @@ func triggerBuilds(on database: Database,
                 .flatMap { triggerBuilds(on: database,
                                          client: client,
                                          logger: logger,
-                                         packages: $0) }
+                                         packages: $0)
+                }
+                .map {
+                    AppMetrics.buildTriggerDurationSeconds?.time(since: start)
+                }
         case let .packageId(id, force):
             logger.info("Triggering builds (id: \(id)) ...")
             return triggerBuilds(on: database,
@@ -100,6 +105,9 @@ func triggerBuilds(on database: Database,
                                  logger: logger,
                                  packages: [id],
                                  force: force)
+                .map {
+                    AppMetrics.buildTriggerDurationSeconds?.time(since: start)
+                }
     }
 }
 

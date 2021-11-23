@@ -126,6 +126,10 @@ enum AppMetrics {
         gauge("spi_build_trigger_count", Labels.Build.self)
     }
 
+    static var buildTriggerDurationSeconds: PromGauge<Double, EmptyLabels>? {
+        gauge("spi_build_trigger_duration_seconds", EmptyLabels.self)
+    }
+
     static var buildTrimCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_build_trim_count", EmptyLabels.self)
     }
