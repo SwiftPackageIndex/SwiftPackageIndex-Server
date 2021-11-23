@@ -74,17 +74,6 @@ extension Node where Context: HTML.BodyContext {
             )
         )
     }
-
-    static func starsSpan(numberOfStars: Int) -> Self {
-        if let formattedStars = NumberFormatter.starsFormatter.string(from: NSNumber(value: numberOfStars)) {
-            return .span(
-                .class("stars"),
-                .text(formattedStars)
-            )
-        } else {
-            return .empty
-        }
-    }
 }
 
 extension Node where Context == HTML.FormContext {
@@ -104,28 +93,44 @@ extension Node where Context == HTML.FormContext {
 }
 
 extension Node where Context == HTML.ListContext {
+    static func starsListItem(numberOfStars: Int) -> Self {
+        if let formattedStars = NumberFormatter.starsFormatter.string(from: NSNumber(value: numberOfStars)) {
+            return .li(
+                .class("stars"),
+                .small(
+                    .text(formattedStars),
+                    .text(" stars")
+                )
+            )
+        } else {
+            return .empty
+        }
+    }
+
     static func packageListItem(linkUrl: String, packageName: String, summary: String?, repositoryOwner: String, repositoryName: String, stars: Int?, lastActivityAt: Date?) -> Self {
         .li(
             .a(
                 .href(linkUrl),
                 .h4(.text(packageName)),
                 .unwrap(summary) { .p(.text($0)) },
-                .small(
-                    .span(
+                .ul(
+                    .class("metadata"),
+                    .li(
                         .class("identifier"),
-                        .text("\(repositoryOwner)/\(repositoryName)")
+                        .small(
+                            .text("\(repositoryOwner)/\(repositoryName)")
+                        )
                     ),
                     .unwrap(lastActivityAt) {
-                        .group(
-                            .text(" &ndash; "),
-                            .text("Active \(date: $0, relativeTo: Current.date())")
+                        .li(
+                            .class("activity"),
+                            .small(
+                                .text("Active \(date: $0, relativeTo: Current.date())")
+                            )
                         )
                     },
                     .unwrap(stars) {
-                        .group(
-                            .text(" &ndash; "),
-                            .starsSpan(numberOfStars: $0)
-                        )
+                        .starsListItem(numberOfStars: $0)
                     }
                 )
             )
