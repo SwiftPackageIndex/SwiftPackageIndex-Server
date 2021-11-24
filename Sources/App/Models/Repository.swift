@@ -135,7 +135,7 @@ final class Repository: Model, Content {
          license: License = .none,
          licenseUrl: String? = nil,
          name: String? = nil,
-         openIssues: Int? = nil,
+         openIssues: Int = 0,
          openPullRequests: Int? = nil,
          owner: String? = nil,
          ownerName: String? = nil,
