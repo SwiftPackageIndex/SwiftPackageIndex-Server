@@ -124,7 +124,7 @@ final class Repository: Model, Content {
          commitCount: Int? = nil,
          defaultBranch: String? = nil,
          firstCommitDate: Date? = nil,
-         forks: Int? = nil,
+         forks: Int = 0,
          forkedFrom: Repository? = nil,
          isArchived: Bool? = nil,
          isInOrganization: Bool? = nil,

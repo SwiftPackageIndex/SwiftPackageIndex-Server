@@ -181,8 +181,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 036 - make packages.score required
         app.migrations.add(UpdatePackageScoreNotNullable())
     }
-    do {  // Migration 037 - make repositories.stars required
+    do {  // Migration 037 - make repositories.stars and repositories.forks required
         app.migrations.add(UpdateRepositoryStarsNotNullable())
+        app.migrations.add(UpdateRepositoryForksNotNullable())
     }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
