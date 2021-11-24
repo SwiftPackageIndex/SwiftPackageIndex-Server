@@ -67,7 +67,7 @@ enum Score {
                   licenseKind: repo.license.licenseKind,
                   releaseCount: versions.releases.count,
                   likeCount: repo.stars,
-                  isArchived: repo.isArchived ?? false)
+                  isArchived: repo.isArchived)
         )
     }
 }

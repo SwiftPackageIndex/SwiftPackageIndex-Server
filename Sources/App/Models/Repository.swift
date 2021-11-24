@@ -58,7 +58,7 @@ final class Repository: Model, Content {
     var forks: Int
 
     @Field(key: "is_archived")
-    var isArchived: Bool?
+    var isArchived: Bool
 
     @Field(key: "is_in_organization")
     var isInOrganization: Bool?
@@ -126,7 +126,7 @@ final class Repository: Model, Content {
          firstCommitDate: Date? = nil,
          forks: Int = 0,
          forkedFrom: Repository? = nil,
-         isArchived: Bool? = nil,
+         isArchived: Bool = false,
          isInOrganization: Bool? = nil,
          keywords: [String] = [],
          lastCommitDate: Date? = nil,
