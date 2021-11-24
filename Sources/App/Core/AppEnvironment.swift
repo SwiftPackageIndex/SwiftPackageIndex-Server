@@ -25,6 +25,7 @@ struct AppEnvironment {
     var collectionSigningCertificateChain: () -> [URL]
     var collectionSigningPrivateKey: () -> Data?
     var date: () -> Date
+    var dbId: () -> String?
     var fetchPackageList: (_ client: Client) async throws -> [URL]
     var fetchLicense: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.License?>
     var fetchMetadata: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.Metadata>
@@ -93,6 +94,7 @@ extension AppEnvironment {
                 .map { Data($0.utf8) }
         },
         date: Date.init,
+        dbId: { Environment.get("DATABASE_ID") },
         fetchPackageList: liveFetchPackageList,
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),

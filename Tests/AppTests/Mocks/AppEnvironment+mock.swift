@@ -41,6 +41,7 @@ extension AppEnvironment {
                     .map { Data($0.utf8) }
             },
             date: Date.init,
+            dbId: { "db-id" },
             fetchPackageList: { _ in
                 ["https://github.com/finestructure/Gala",
                  "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"].asURLs
