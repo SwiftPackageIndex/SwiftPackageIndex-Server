@@ -188,6 +188,7 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateRepositoryOpenIssuesNotNullable())
         app.migrations.add(UpdateRepositoryOpenPullRequestsNotNullable())
         app.migrations.add(UpdateRepositoryIsArchivedNotNullable())
+        app.migrations.add(UpdateRepositoryIsInOrganizationNotNullable())
     }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
