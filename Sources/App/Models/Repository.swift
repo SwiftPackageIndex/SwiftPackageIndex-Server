@@ -88,7 +88,7 @@ final class Repository: Model, Content {
     var openIssues: Int?
 
     @Field(key: "open_pull_requests")
-    var openPullRequests: Int?
+    var openPullRequests: Int
 
     @Field(key: "owner")
     var owner: String?
@@ -136,7 +136,7 @@ final class Repository: Model, Content {
          licenseUrl: String? = nil,
          name: String? = nil,
          openIssues: Int = 0,
-         openPullRequests: Int? = nil,
+         openPullRequests: Int = 0,
          owner: String? = nil,
          ownerName: String? = nil,
          ownerAvatarUrl: String? = nil,
