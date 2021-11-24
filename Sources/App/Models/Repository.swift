@@ -109,7 +109,7 @@ final class Repository: Model, Content {
     var releases: [Release]
 
     @Field(key: "stars")
-    var stars: Int?
+    var stars: Int
 
     @Field(key: "summary")
     var summary: String?
@@ -143,7 +143,7 @@ final class Repository: Model, Content {
          readmeUrl: String? = nil,
          readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
-         stars: Int? = nil,
+         stars: Int = 0,
          summary: String? = nil
     ) throws {
         self.id = id

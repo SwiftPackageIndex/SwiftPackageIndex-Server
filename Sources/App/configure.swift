@@ -181,6 +181,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 036 - make packages.score required
         app.migrations.add(UpdatePackageScoreNotNullable())
     }
+    do {  // Migration 037 - make repositories.stars required
+        app.migrations.add(UpdateRepositoryStarsNotNullable())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

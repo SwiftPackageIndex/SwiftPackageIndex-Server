@@ -60,14 +60,13 @@ enum Score {
     static func compute(package: Joined<Package, Repository>, versions: [Version]) -> Int {
         guard
             let defaultVersion = versions.latest(for: .defaultBranch),
-            let repo = package.repository,
-            let starsCount = repo.stars
+            let repo = package.repository
         else { return 0 }
         return Score.compute(
             .init(supportsLatestSwiftVersion: defaultVersion.supportsMajorSwiftVersion(SwiftVersion.latestMajor),
                   licenseKind: repo.license.licenseKind,
                   releaseCount: versions.releases.count,
-                  likeCount: starsCount,
+                  likeCount: repo.stars,
                   isArchived: repo.isArchived ?? false)
         )
     }
