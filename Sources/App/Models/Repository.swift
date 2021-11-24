@@ -55,7 +55,7 @@ final class Repository: Model, Content {
     var firstCommitDate: Date?
     
     @Field(key: "forks")
-    var forks: Int?
+    var forks: Int
 
     @Field(key: "is_archived")
     var isArchived: Bool?
@@ -85,7 +85,7 @@ final class Repository: Model, Content {
     var name: String?
 
     @Field(key: "open_issues")
-    var openIssues: Int?
+    var openIssues: Int
 
     @Field(key: "open_pull_requests")
     var openPullRequests: Int
