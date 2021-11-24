@@ -184,6 +184,7 @@ public func configure(_ app: Application) throws {
     do {  // Migration 037 - make repositories.stars and repositories.forks required
         app.migrations.add(UpdateRepositoryStarsNotNullable())
         app.migrations.add(UpdateRepositoryForksNotNullable())
+        app.migrations.add(UpdateRepositoryCommitCountNotNullable())
     }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")

@@ -46,7 +46,7 @@ final class Repository: Model, Content {
     var authors: [Author]
     
     @Field(key: "commit_count")
-    var commitCount: Int?
+    var commitCount: Int
     
     @Field(key: "default_branch")
     var defaultBranch: String?
@@ -121,7 +121,7 @@ final class Repository: Model, Content {
     init(id: Id? = nil,
          package: Package,
          authors: [Author] = [],
-         commitCount: Int? = nil,
+         commitCount: Int = 0,
          defaultBranch: String? = nil,
          firstCommitDate: Date? = nil,
          forks: Int = 0,

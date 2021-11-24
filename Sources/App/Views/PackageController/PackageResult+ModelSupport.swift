@@ -27,14 +27,13 @@ extension PackageController.PackageResult {
         let releases = versions.filter({ $0.reference?.isRelease ?? false })
         guard
             let repo = repository,
-            let commitCount = repo.commitCount,
             let defaultBranch = repo.defaultBranch,
             let firstCommitDate = repo.firstCommitDate,
-            let commitCountString = Self.numberFormatter.string(from: NSNumber(value: commitCount)),
+            let commitCountString = Self.numberFormatter.string(from: NSNumber(value: repo.commitCount)),
             let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))
         else { return nil }
         let cl = Link(
-            label: commitCountString + " commit".pluralized(for: commitCount),
+            label: commitCountString + " commit".pluralized(for: repo.commitCount),
             url: package.url.droppingGitExtension + "/commits/\(defaultBranch)")
         let rl = Link(
             label: releaseCountString + " release".pluralized(for: releases.count),
