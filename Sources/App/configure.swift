@@ -181,6 +181,15 @@ public func configure(_ app: Application) throws {
     do {  // Migration 036 - make packages.score required
         app.migrations.add(UpdatePackageScoreNotNullable())
     }
+    do {  // Migration 037 - make several columns on repositories required
+        app.migrations.add(UpdateRepositoryStarsNotNullable())
+        app.migrations.add(UpdateRepositoryForksNotNullable())
+        app.migrations.add(UpdateRepositoryCommitCountNotNullable())
+        app.migrations.add(UpdateRepositoryOpenIssuesNotNullable())
+        app.migrations.add(UpdateRepositoryOpenPullRequestsNotNullable())
+        app.migrations.add(UpdateRepositoryIsArchivedNotNullable())
+        app.migrations.add(UpdateRepositoryIsInOrganizationNotNullable())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

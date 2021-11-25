@@ -365,7 +365,7 @@ func updateRepository(on database: Database, package: Joined<Package, Repository
         )
     }
 
-    repo.commitCount = try? Current.git.commitCount(gitDirectory)
+    repo.commitCount = (try? Current.git.commitCount(gitDirectory)) ?? 0
     repo.firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
     repo.lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
 

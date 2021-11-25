@@ -46,7 +46,7 @@ final class Repository: Model, Content {
     var authors: [Author]
     
     @Field(key: "commit_count")
-    var commitCount: Int?
+    var commitCount: Int
     
     @Field(key: "default_branch")
     var defaultBranch: String?
@@ -55,13 +55,13 @@ final class Repository: Model, Content {
     var firstCommitDate: Date?
     
     @Field(key: "forks")
-    var forks: Int?
+    var forks: Int
 
     @Field(key: "is_archived")
-    var isArchived: Bool?
+    var isArchived: Bool
 
     @Field(key: "is_in_organization")
-    var isInOrganization: Bool?
+    var isInOrganization: Bool
 
     @Field(key: "keywords")
     var keywords: [String]
@@ -85,10 +85,10 @@ final class Repository: Model, Content {
     var name: String?
 
     @Field(key: "open_issues")
-    var openIssues: Int?
+    var openIssues: Int
 
     @Field(key: "open_pull_requests")
-    var openPullRequests: Int?
+    var openPullRequests: Int
 
     @Field(key: "owner")
     var owner: String?
@@ -109,7 +109,7 @@ final class Repository: Model, Content {
     var releases: [Release]
 
     @Field(key: "stars")
-    var stars: Int?
+    var stars: Int
 
     @Field(key: "summary")
     var summary: String?
@@ -121,13 +121,13 @@ final class Repository: Model, Content {
     init(id: Id? = nil,
          package: Package,
          authors: [Author] = [],
-         commitCount: Int? = nil,
+         commitCount: Int = 0,
          defaultBranch: String? = nil,
          firstCommitDate: Date? = nil,
-         forks: Int? = nil,
+         forks: Int = 0,
          forkedFrom: Repository? = nil,
-         isArchived: Bool? = nil,
-         isInOrganization: Bool? = nil,
+         isArchived: Bool = false,
+         isInOrganization: Bool = false,
          keywords: [String] = [],
          lastCommitDate: Date? = nil,
          lastIssueClosedAt: Date? = nil,
@@ -135,15 +135,15 @@ final class Repository: Model, Content {
          license: License = .none,
          licenseUrl: String? = nil,
          name: String? = nil,
-         openIssues: Int? = nil,
-         openPullRequests: Int? = nil,
+         openIssues: Int = 0,
+         openPullRequests: Int = 0,
          owner: String? = nil,
          ownerName: String? = nil,
          ownerAvatarUrl: String? = nil,
          readmeUrl: String? = nil,
          readmeHtmlUrl: String? = nil,
          releases: [Release] = [],
-         stars: Int? = nil,
+         stars: Int = 0,
          summary: String? = nil
     ) throws {
         self.id = id
