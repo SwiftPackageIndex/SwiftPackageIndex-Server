@@ -19,6 +19,7 @@ enum Score {
         var releaseCount: Int
         var likeCount: Int
         var isArchived: Bool
+        var numberOfDependencies: Int?
     }
     
     static func compute(_ candidate: Input) -> Int {
@@ -53,6 +54,13 @@ enum Score {
             case 5_000..<10_000:  score += 35
             default:              score += 37
         }
+
+        // Number of resolved dependencies
+        switch candidate.numberOfDependencies {
+            case .some(..<3): score += 5
+            case .some(3..<5): score += 2
+            default: break
+        }
         
         return score
     }
@@ -62,12 +70,14 @@ enum Score {
             let defaultVersion = versions.latest(for: .defaultBranch),
             let repo = package.repository
         else { return 0 }
+
         return Score.compute(
             .init(supportsLatestSwiftVersion: defaultVersion.supportsMajorSwiftVersion(SwiftVersion.latestMajor),
                   licenseKind: repo.license.licenseKind,
                   releaseCount: versions.releases.count,
                   likeCount: repo.stars,
-                  isArchived: repo.isArchived)
+                  isArchived: repo.isArchived,
+                  numberOfDependencies: defaultVersion.resolvedDependencies?.count)
         )
     }
 }
