@@ -81,6 +81,7 @@ ul.filter_list {
   flex-direction: column;
   list-style: none;
   gap: 8px;
+  padding-left: 0;
 
   .filter-key, .filter-value {
     background-color: var(--blockquote-border);
@@ -88,5 +89,13 @@ ul.filter_list {
   }
   .filter-comparison {
     color: var(--blockquote-text);
+  }
+
+  li:not(:first-child):before {
+    content: "&";
+    margin-right: 5px;
+  }
+  li:first-child {
+    margin-left: 16px;
   }
 }
