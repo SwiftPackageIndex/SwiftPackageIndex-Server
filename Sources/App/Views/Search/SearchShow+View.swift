@@ -79,7 +79,7 @@ extension SearchShow {
                 .h4("Matching packages\(model.filters.isEmpty ? "" : " where&hellip;")"),
                 .if(model.filters.isEmpty == false,
                     .ul(
-                        .id("filter_list"),
+                        .class("filter_list"),
                         .group(
                             model.filters.map {
                                 .li(

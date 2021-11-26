@@ -75,3 +75,18 @@ ul.pagination {
     justify-self: end;
   }
 }
+
+ul.filter_list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  gap: 8px;
+
+  .filter-key, .filter-value {
+    background-color: var(--blockquote-border);
+    padding: 3px 6px;
+  }
+  .filter-comparison {
+    color: var(--blockquote-text);
+  }
+}
