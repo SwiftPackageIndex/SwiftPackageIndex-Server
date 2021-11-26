@@ -24,4 +24,16 @@ extension SearchShow.Model {
                      query: "query",
                      response: .init(hasMoreResults: true, searchTerm: "query", searchFilters: [], results: results))
     }
+    
+    static var mockWithFilter: Self {
+        let results: [Search.Result] = .mock()
+        return .init(page: 3,
+                     query: "query license:mit",
+                     response: .init(hasMoreResults: true,
+                                     searchTerm: "query",
+                                     searchFilters: [
+                                        .init(key: "license", comparison: .match, value: "mit")
+                                     ],
+                                     results: results))
+    }
 }
