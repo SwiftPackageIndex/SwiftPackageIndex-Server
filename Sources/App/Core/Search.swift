@@ -63,6 +63,8 @@ enum Search {
 
     struct Response: Content, Equatable {
         var hasMoreResults: Bool
+        var searchTerm: String
+        var searchFilters: [String]
         var results: [Search.Result]
     }
 
@@ -225,19 +227,17 @@ enum Search {
     }
 
     static func query(_ database: Database,
-                      _ terms: [String],
+                      _ sanitizedTerms: [String],
+                      filters: [SearchFilter] = [],
                       page: Int,
                       pageSize: Int) -> SQLSelectBuilder? {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        let unfilteredSanitizedTerms = sanitize(terms)
-        guard !unfilteredSanitizedTerms.isEmpty else {
+        guard !sanitizedTerms.isEmpty else {
             return nil
         }
-        
-        let (sanitizedTerms, filters) = SearchFilterParser().split(terms: unfilteredSanitizedTerms)
 
         // page is one-based, clamp it to ensure we get a >=0 offset
         let page = page.clamped(to: 1...)
@@ -267,11 +267,16 @@ enum Search {
                       page: Int,
                       pageSize: Int) -> EventLoopFuture<Search.Response> {
         let page = page.clamped(to: 1...)
+        let (sanitizedTerms, filters) = SearchFilterParser().split(terms: sanitize(terms))
+        
         guard let query = query(database,
-                                terms,
+                                sanitizedTerms,
+                                filters: filters,
                                 page: page,
                                 pageSize: pageSize) else {
             return database.eventLoop.future(.init(hasMoreResults: false,
+                                                   searchTerm: sanitizedTerms.joined(separator: " "),
+                                                   searchFilters: [],
                                                    results: []))
         }
         return query.all(decoding: DBRecord.self)
@@ -283,6 +288,8 @@ enum Search {
                 ? pageSize + results.filter{ !$0.isPackage }.count
                 : pageSize
                 return Search.Response(hasMoreResults: hasMoreResults,
+                                       searchTerm: sanitizedTerms.joined(separator: " "),
+                                       searchFilters: [],
                                        results: Array(results.prefix(keep)))
             }
     }

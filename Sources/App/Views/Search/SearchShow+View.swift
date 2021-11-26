@@ -28,7 +28,7 @@ extension SearchShow {
 
         override func pageTitle() -> String? {
             if model.query.count > 0 {
-                return "Search Results for &ldquo;\(model.query)&rdquo;"
+                return "Search Results for &ldquo;\(model.term)&rdquo;"
             } else {
                 return "Search"
             }
@@ -55,7 +55,7 @@ extension SearchShow {
                     // If there are *any* results, either author, keyword, or package.
                     .if(model.response.results.count > 0, .text("Results for "), else: .text("No results for ")),
                     .text("&ldquo;"),
-                    .strong(.text(model.query)),
+                    .strong(.text(model.term)),
                     .text("&rdquo;"),
                     .if(model.response.results.count > 0, .text("&hellip;"), else: .text("."))
                 ),

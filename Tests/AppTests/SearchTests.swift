@@ -131,6 +131,8 @@ class SearchTests: AppTestCase {
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
+                             searchTerm: "bar",
+                             searchFilters: [],
                              results: [
                                 .package(
                                     .init(packageId: try p2.requireID(),
@@ -171,6 +173,8 @@ class SearchTests: AppTestCase {
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
+                             searchTerm: "owner bar",
+                             searchFilters: [],
                              results: [
                                 .package(
                                     .init(packageId: try p2.requireID(),
@@ -211,6 +215,8 @@ class SearchTests: AppTestCase {
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
+                             searchTerm: "'",
+                             searchFilters: [],
                              results: [
                                 .package(
                                     .init(packageId: try p1.requireID(),
@@ -574,7 +580,7 @@ class SearchTests: AppTestCase {
         let res = try Search.fetch(app.db, ["*"], page: 1, pageSize: 20).wait()
 
         // validation
-        XCTAssertEqual(res, .init(hasMoreResults: false, results: []))
+        XCTAssertEqual(res, .init(hasMoreResults: false, searchTerm: "\\*", searchFilters: [], results: []))
     }
 
     func test_search_keyword() throws {

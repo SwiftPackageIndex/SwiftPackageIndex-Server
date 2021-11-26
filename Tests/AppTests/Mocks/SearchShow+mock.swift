@@ -22,6 +22,6 @@ extension SearchShow.Model {
         let results: [Search.Result] = .mock()
         return .init(page: 3,
                      query: "query",
-                     response: .init(hasMoreResults: true, results: results))
+                     response: .init(hasMoreResults: true, searchTerm: "query", searchFilters: [], results: results))
     }
 }

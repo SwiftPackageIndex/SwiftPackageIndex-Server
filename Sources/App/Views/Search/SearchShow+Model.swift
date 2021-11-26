@@ -17,11 +17,13 @@ enum SearchShow {
     struct Model {
         var page: Int
         var query: String
+        var term: String
         var response: Response
         
         internal init(page: Int, query: String, response: Search.Response) {
             self.page = page
             self.query = query
+            self.term = response.searchTerm
             self.response = Model.Response(response: response)
         }
 

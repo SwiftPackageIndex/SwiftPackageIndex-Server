@@ -38,7 +38,10 @@ extension API {
                        pageSize: Int) -> EventLoopFuture<Search.Response> {
         let terms = query.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
         guard !terms.isEmpty else {
-            return database.eventLoop.future(.init(hasMoreResults: false, results: []))
+            return database.eventLoop.future(.init(hasMoreResults: false,
+                                                   searchTerm: query,
+                                                   searchFilters: [],
+                                                   results: []))
         }
         return Search.fetch(database, terms, page: page, pageSize: pageSize)
     }
