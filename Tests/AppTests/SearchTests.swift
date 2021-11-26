@@ -716,8 +716,8 @@ class SearchTests: AppTestCase {
         do { // with filter
             let query = Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5)
             let sql = renderSQL(query)
-            XCTAssertFalse(sql.contains(#"SELECT 'author' AS "match_type""#))
-            XCTAssertFalse(sql.contains(#"SELECT 'keyword' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT 'keyword' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
         }
         
