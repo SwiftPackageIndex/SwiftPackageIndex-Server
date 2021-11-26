@@ -101,3 +101,15 @@ g-emoji {
     vertical-align: -.075em;
     margin-right: -10px;
 }
+
+@media (prefers-color-scheme: light) {
+  [href$="#gh-dark-mode-only"] {
+    display: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  [href$="#gh-light-mode-only"] {
+    display: none;
+  }
+}
