@@ -29,6 +29,15 @@ protocol SearchFilter {
     
     /// Add a SQLKit `where` clause to the "SELECT" expression, using the filter's stored value and provided comparison method for context.
     func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder
+    
+    /// Creates a simple view model representation of this active filter. This is used to pass through to the view for client-side rendering.
+    func createViewModel() -> SearchFilterViewModel
+}
+
+struct SearchFilterViewModel: Equatable, Codable {
+    let key: String
+    let comparison: SearchFilterComparison
+    let value: String
 }
 
 struct SearchFilterParser {
@@ -101,7 +110,7 @@ struct SearchFilterParser {
     
 }
 
-enum SearchFilterComparison: Equatable {
+enum SearchFilterComparison: String, Codable, Equatable {
     case match
     case negativeMatch
     case greaterThan
@@ -117,6 +126,15 @@ enum SearchFilterComparison: Equatable {
                 return isSet ? .notIn : .notEqual
             case .match:
                 return isSet ? .in : .equal
+        }
+    }
+    
+    var userFacingString: String {
+        switch self {
+        case .match: return "matches"
+        case .negativeMatch: return "does not match"
+        case .greaterThan: return "is greater than"
+        case .lessThan: return "is less than"
         }
     }
 }
@@ -163,6 +181,10 @@ struct StarsSearchFilter: SearchFilter {
             value
         )
     }
+    
+    func createViewModel() -> SearchFilterViewModel {
+        .init(key: Self.key, comparison: comparison, value: "\(value)")
+    }
 }
 
 // MARK: License
@@ -194,6 +216,7 @@ struct LicenseSearchFilter: SearchFilter {
     
     let comparison: SearchFilterComparison
     let filterType: FilterType
+    let value: String
     
     init(value: String, comparison: SearchFilterComparison) throws {
         guard let filterType = FilterType(rawValue: value) else {
@@ -204,6 +227,7 @@ struct LicenseSearchFilter: SearchFilter {
             throw SearchFilterError.unsupportedComparisonMethod
         }
         
+        self.value = value
         self.comparison = comparison
         self.filterType = filterType
     }
@@ -224,6 +248,10 @@ struct LicenseSearchFilter: SearchFilter {
                     license.rawValue
                 )
         }
+    }
+    
+    func createViewModel() -> SearchFilterViewModel {
+        .init(key: Self.key, comparison: comparison, value: value)
     }
 }
 
@@ -254,12 +282,14 @@ struct LastCommitSearchFilter: SearchFilter {
     
     let comparison: SearchFilterComparison
     let date: Date
+    let value: String
     
     init(value: String, comparison: SearchFilterComparison) throws {
         guard let date = Self.dateFormatter.date(from: value) else {
             throw SearchFilterError.invalidValueType
         }
         
+        self.value = value
         self.comparison = comparison
         self.date = date
     }
@@ -270,5 +300,9 @@ struct LastCommitSearchFilter: SearchFilter {
             comparison.binaryOperator(),
             date
         )
+    }
+    
+    func createViewModel() -> SearchFilterViewModel {
+        .init(key: Self.key, comparison: comparison, value: value)
     }
 }

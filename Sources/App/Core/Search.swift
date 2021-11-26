@@ -64,7 +64,7 @@ enum Search {
     struct Response: Content, Equatable {
         var hasMoreResults: Bool
         var searchTerm: String
-        var searchFilters: [String]
+        var searchFilters: [SearchFilterViewModel]
         var results: [Search.Result]
     }
 
@@ -289,7 +289,7 @@ enum Search {
                 : pageSize
                 return Search.Response(hasMoreResults: hasMoreResults,
                                        searchTerm: sanitizedTerms.joined(separator: " "),
-                                       searchFilters: [],
+                                       searchFilters: filters.map { $0.createViewModel() },
                                        results: Array(results.prefix(keep)))
             }
     }

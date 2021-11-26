@@ -178,6 +178,10 @@ class SearchFilterTests: AppTestCase {
         func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
             return builder
         }
+        
+        func createViewModel() -> SearchFilterViewModel {
+            .init(key: Self.key, comparison: comparison, value: value)
+        }
     }
     
 }

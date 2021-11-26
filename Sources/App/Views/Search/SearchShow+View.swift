@@ -76,7 +76,32 @@ extension SearchShow {
 
             return .section(
                 .class("package_results"),
-                .h4("Matching packages"),
+                .h4("Matching packages\(model.filters.isEmpty ? "" : " where&hellip;")"),
+                .if(model.filters.isEmpty == false,
+                    .ul(
+                        .id("filter_list"),
+                        .group(
+                            model.filters.map {
+                                .li(
+                                    .span(
+                                        .class("filter-key"),
+                                        .text($0.key)
+                                    ),
+                                    .text(" "),
+                                    .span(
+                                        .class("filter-comparison"),
+                                        .text($0.comparison.userFacingString)
+                                    ),
+                                    .text(" "),
+                                    .span(
+                                        .class("filter-value"),
+                                        .text($0.value)
+                                    )
+                                )
+                            }
+                        )
+                    )
+                ),
                 .ul(
                     .id("package_list"),
                     // Let the JavaScript know that keyboard navigation on this package list should
