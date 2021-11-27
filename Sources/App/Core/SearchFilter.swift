@@ -162,6 +162,12 @@ enum SearchFilterError: Error {
 struct StarsSearchFilter: SearchFilter {
     static var key: String = "stars"
     
+    private static var numberFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter
+    }()
+    
     var comparison: SearchFilterComparison
     var value: Int
     
@@ -183,7 +189,11 @@ struct StarsSearchFilter: SearchFilter {
     }
     
     func createViewModel() -> SearchFilterViewModel {
-        .init(key: Self.key, comparison: comparison, value: "\(value)")
+        .init(
+            key: "number of stars",
+            comparison: comparison,
+            value: Self.numberFormatter.string(from: NSNumber(value: value)) ?? "\(value)"
+        )
     }
 }
 
@@ -216,7 +226,6 @@ struct LicenseSearchFilter: SearchFilter {
     
     let comparison: SearchFilterComparison
     let filterType: FilterType
-    let value: String
     
     init(value: String, comparison: SearchFilterComparison) throws {
         guard let filterType = FilterType(rawValue: value) else {
@@ -227,7 +236,6 @@ struct LicenseSearchFilter: SearchFilter {
             throw SearchFilterError.unsupportedComparisonMethod
         }
         
-        self.value = value
         self.comparison = comparison
         self.filterType = filterType
     }
@@ -251,7 +259,12 @@ struct LicenseSearchFilter: SearchFilter {
     }
     
     func createViewModel() -> SearchFilterViewModel {
-        .init(key: Self.key, comparison: comparison, value: value)
+        switch filterType {
+        case .appStoreCompatible:
+            return .init(key: Self.key, comparison: comparison, value: "app store compatible")
+        case .license(let license):
+            return .init(key: Self.key, comparison: comparison, value: license.shortName)
+        }
     }
 }
 
@@ -269,9 +282,18 @@ struct LicenseSearchFilter: SearchFilter {
 /// last_commit:<2020-07-01 - Updated on any day older than July 1st 2020
 /// ```
 struct LastCommitSearchFilter: SearchFilter {
-    static var dateFormatter: DateFormatter = {
+    static var parseDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        return formatter
+    }()
+    
+    static var viewDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM yyyy"
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
         
@@ -285,7 +307,7 @@ struct LastCommitSearchFilter: SearchFilter {
     let value: String
     
     init(value: String, comparison: SearchFilterComparison) throws {
-        guard let date = Self.dateFormatter.date(from: value) else {
+        guard let date = Self.parseDateFormatter.date(from: value) else {
             throw SearchFilterError.invalidValueType
         }
         
@@ -303,6 +325,10 @@ struct LastCommitSearchFilter: SearchFilter {
     }
     
     func createViewModel() -> SearchFilterViewModel {
-        .init(key: Self.key, comparison: comparison, value: value)
+        .init(
+            key: "last commit date",
+            comparison: comparison,
+            value: Self.viewDateFormatter.string(from: date) ?? value
+        )
     }
 }
