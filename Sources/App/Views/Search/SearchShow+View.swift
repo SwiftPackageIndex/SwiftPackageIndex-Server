@@ -27,10 +27,10 @@ extension SearchShow {
         }
 
         override func pageTitle() -> String? {
-            if model.query.count > 0 {
+            if model.query.count > 0 && model.term.isEmpty == false {
                 return "Search Results for &ldquo;\(model.term)&rdquo;"
             } else {
-                return "Search"
+                return "Search Results"
             }
         }
 
