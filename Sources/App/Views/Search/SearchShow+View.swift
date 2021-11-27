@@ -51,14 +51,14 @@ extension SearchShow {
         func resultsSection() -> Node<HTML.BodyContext> {
             .section(
                 .class("search_results"),
-                .p(
+                .if(model.term.isEmpty == false, .p(
                     // If there are *any* results, either author, keyword, or package.
                     .if(model.response.results.count > 0, .text("Results for "), else: .text("No results for ")),
                     .text("&ldquo;"),
                     .strong(.text(model.term)),
                     .text("&rdquo;"),
                     .if(model.response.results.count > 0, .text("&hellip;"), else: .text("."))
-                ),
+                )),
                 .if(model.authorResults.count > 0 || model.keywordResults.count > 0, .div(
                     .class("two_column mobile_reversed"),
                     packageResultsSection(),
