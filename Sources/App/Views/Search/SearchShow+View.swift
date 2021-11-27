@@ -52,12 +52,9 @@ extension SearchShow {
             .section(
                 .class("search_results"),
                 .if(model.term.isEmpty == false, .p(
-                    // If there are *any* results, either author, keyword, or package.
-                    .if(model.response.results.count > 0, .text("Results for "), else: .text("No results for ")),
-                    .text("&ldquo;"),
+                    .text("Results for &ldquo;"),
                     .strong(.text(model.term)),
-                    .text("&rdquo;"),
-                    .if(model.response.results.count > 0, .text("&hellip;"), else: .text("."))
+                    .text("&rdquo;&hellip;")
                 )),
                 .if(model.authorResults.count > 0 || model.keywordResults.count > 0, .div(
                     .class("two_column mobile_reversed"),
@@ -71,9 +68,6 @@ extension SearchShow {
         }
 
         func packageResultsSection() -> Node<HTML.BodyContext> {
-            guard model.packageResults.count > 0
-            else { return .empty }
-
             return .section(
                 .class("package_results"),
                 .h4("Matching packages\(model.filters.isEmpty ? "" : " where&hellip;")"),
@@ -102,6 +96,9 @@ extension SearchShow {
                         )
                     )
                 ),
+                .if(model.packageResults.isEmpty, .p(
+                    .text("No packages found.")
+                )),
                 .ul(
                     .id("package_list"),
                     // Let the JavaScript know that keyboard navigation on this package list should
