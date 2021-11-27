@@ -57,11 +57,6 @@ struct SearchFilterParser {
     /// In this example: `["test", "stars:>500"]` - `"test"` is a search term, and `"stars:>500"` is filter syntax (instructing the search controller to
     /// only return results with more than 500 stars.)
     func split(terms: [String]) -> (terms: [String], filters: [SearchFilter]) {
-        // Do not support filter syntax in production yet.
-        if Environment.current == .production {
-            return (terms: terms, filters: [])
-        }
-        
         return terms.reduce(into: (terms: [], filters: [])) { builder, term in
             if let filter = parse(term: term) {
                 builder.filters.append(filter)
