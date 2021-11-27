@@ -190,7 +190,7 @@ struct StarsSearchFilter: SearchFilter {
     
     func createViewModel() -> SearchFilterViewModel {
         .init(
-            key: "number of stars",
+            key: "stars",
             comparison: comparison,
             value: Self.numberFormatter.string(from: NSNumber(value: value)) ?? "\(value)"
         )
@@ -261,7 +261,7 @@ struct LicenseSearchFilter: SearchFilter {
     func createViewModel() -> SearchFilterViewModel {
         switch filterType {
         case .appStoreCompatible:
-            return .init(key: Self.key, comparison: comparison, value: "app store compatible")
+            return .init(key: Self.key, comparison: comparison, value: "App Store compatible")
         case .license(let license):
             return .init(key: Self.key, comparison: comparison, value: license.shortName)
         }
@@ -326,9 +326,9 @@ struct LastCommitSearchFilter: SearchFilter {
     
     func createViewModel() -> SearchFilterViewModel {
         .init(
-            key: "last commit date",
+            key: "last commit",
             comparison: comparison,
-            value: Self.viewDateFormatter.string(from: date) 
+            value: Self.viewDateFormatter.string(from: date)
         )
     }
 }
