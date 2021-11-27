@@ -113,7 +113,7 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(try StarsSearchFilter(value: "1", comparison: .match).value, 1)
         XCTAssertEqual(
             try StarsSearchFilter(value: "1", comparison: .match).createViewModel().description,
-            "number of stars matches 1"
+            "stars matches 1"
         )
         
         let filter = try StarsSearchFilter(value: "1", comparison: .greaterThan)
@@ -131,7 +131,7 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(try LicenseSearchFilter(value: "appStoreCompatible", comparison: .match).filterType, .appStoreCompatible)
         XCTAssertEqual(
             try LicenseSearchFilter(value: "appStoreCompatible", comparison: .match).createViewModel().description,
-            "license matches app store compatible"
+            "license matches App Store compatible"
         )
         
         do {
@@ -162,7 +162,7 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(try LastCommitSearchFilter(value: "1970-01-01", comparison: .match).date, .t0)
         XCTAssertEqual(
             try LastCommitSearchFilter(value: "1970-01-01", comparison: .match).createViewModel().description,
-            "last commit date matches 1 Jan 1970"
+            "last commit matches 1 Jan 1970"
         )
 
         let filter = try LastCommitSearchFilter(value: "1970-01-01", comparison: .match)
