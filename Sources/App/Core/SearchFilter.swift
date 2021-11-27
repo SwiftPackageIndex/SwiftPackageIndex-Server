@@ -204,7 +204,8 @@ struct StarsSearchFilter: SearchFilter {
 /// Examples:
 /// ```
 /// license:compatible   - The license is compatible with the app store
-/// license:incompatible - The license is unknown, none is provided, or the one provided is not compatible with the app store
+/// license:!compatible - The license is unknown, none is provided, or the one provided is not compatible with the app store
+/// license:mit - The package specifically uses the MIT license (any can be used)
 /// ```
 struct LicenseSearchFilter: SearchFilter {
     enum FilterType: Equatable {
@@ -212,7 +213,7 @@ struct LicenseSearchFilter: SearchFilter {
         case license(License)
         
         init?(rawValue: String) {
-            if rawValue == "appStoreCompatible" {
+            if rawValue == "compatible" {
                 self = .appStoreCompatible
             } else if let license = License(rawValue: rawValue) {
                 self = .license(license)

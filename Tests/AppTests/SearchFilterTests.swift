@@ -127,15 +127,15 @@ class SearchFilterTests: AppTestCase {
     
     func test_licenseFilter() throws {
         XCTAssertEqual(LicenseSearchFilter.key, "license")
-        XCTAssertThrowsError(try LicenseSearchFilter(value: "appStoreCompatible", comparison: .greaterThan))
-        XCTAssertEqual(try LicenseSearchFilter(value: "appStoreCompatible", comparison: .match).filterType, .appStoreCompatible)
+        XCTAssertThrowsError(try LicenseSearchFilter(value: "compatible", comparison: .greaterThan))
+        XCTAssertEqual(try LicenseSearchFilter(value: "compatible", comparison: .match).filterType, .appStoreCompatible)
         XCTAssertEqual(
-            try LicenseSearchFilter(value: "appStoreCompatible", comparison: .match).createViewModel().description,
+            try LicenseSearchFilter(value: "compatible", comparison: .match).createViewModel().description,
             "license matches App Store compatible"
         )
         
         do {
-            let filter = try LicenseSearchFilter(value: "appStoreCompatible", comparison: .match)
+            let filter = try LicenseSearchFilter(value: "compatible", comparison: .match)
             let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
                 .where(searchFilters: [filter])
             let sql = renderSQL(builder, resolveBinds: true)
