@@ -162,12 +162,6 @@ enum SearchFilterError: Error {
 struct StarsSearchFilter: SearchFilter {
     static var key: String = "stars"
     
-    private static var numberFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return formatter
-    }()
-    
     var comparison: SearchFilterComparison
     var value: Int
     
@@ -192,7 +186,7 @@ struct StarsSearchFilter: SearchFilter {
         .init(
             key: "stars",
             comparison: comparison,
-            value: Self.numberFormatter.string(from: NSNumber(value: value)) ?? "\(value)"
+            value: NumberFormatter.starsFormatter.string(from: NSNumber(value: value)) ?? "\(value)"
         )
     }
 }
