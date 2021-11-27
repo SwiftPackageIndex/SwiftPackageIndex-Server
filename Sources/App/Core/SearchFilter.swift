@@ -328,7 +328,7 @@ struct LastCommitSearchFilter: SearchFilter {
         .init(
             key: "last commit date",
             comparison: comparison,
-            value: Self.viewDateFormatter.string(from: date) ?? value
+            value: Self.viewDateFormatter.string(from: date) 
         )
     }
 }
