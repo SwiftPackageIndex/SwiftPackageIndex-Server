@@ -131,6 +131,8 @@ class SearchTests: AppTestCase {
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
+                             searchTerm: "bar",
+                             searchFilters: [],
                              results: [
                                 .package(
                                     .init(packageId: try p2.requireID(),
@@ -171,6 +173,8 @@ class SearchTests: AppTestCase {
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
+                             searchTerm: "owner bar",
+                             searchFilters: [],
                              results: [
                                 .package(
                                     .init(packageId: try p2.requireID(),
@@ -211,6 +215,8 @@ class SearchTests: AppTestCase {
         // validation
         XCTAssertEqual(res,
                        .init(hasMoreResults: false,
+                             searchTerm: "'",
+                             searchFilters: [],
                              results: [
                                 .package(
                                     .init(packageId: try p1.requireID(),
@@ -574,7 +580,7 @@ class SearchTests: AppTestCase {
         let res = try Search.fetch(app.db, ["*"], page: 1, pageSize: 20).wait()
 
         // validation
-        XCTAssertEqual(res, .init(hasMoreResults: false, results: []))
+        XCTAssertEqual(res, .init(hasMoreResults: false, searchTerm: "\\*", searchFilters: [], results: []))
     }
 
     func test_search_keyword() throws {
@@ -658,6 +664,35 @@ class SearchTests: AppTestCase {
         ])
     }
     
+    func test_search_withNoTerms() throws {
+        // Setup
+        let p1 = Package(id: .id1, url: "1", score: 10)
+        let p2 = Package(id: .id2, url: "2", score: 20)
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "bar",
+                       stars: 50,
+                       summary: "test package").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       name: "2",
+                       owner: "foo",
+                       stars: 10,
+                       summary: "test package").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+        
+        // MUT
+        let res = try Search.fetch(app.db, ["stars:>15"], page: 1, pageSize: 20).wait()
+        XCTAssertEqual(res.results.count, 1)
+        XCTAssertEqual(res.results.compactMap(\.package).compactMap(\.packageName).sorted(), ["p1"])
+    }
+    
     func test_search_withFilter_stars() throws {
         // Setup
         let p1 = Package(id: .id1, url: "1", score: 10)
@@ -716,8 +751,8 @@ class SearchTests: AppTestCase {
         do { // with filter
             let query = Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5)
             let sql = renderSQL(query)
-            XCTAssertFalse(sql.contains(#"SELECT 'author' AS "match_type""#))
-            XCTAssertFalse(sql.contains(#"SELECT 'keyword' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT 'keyword' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
         }
         

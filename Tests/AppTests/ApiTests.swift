@@ -33,7 +33,10 @@ class ApiTests: AppTestCase {
         try app.test(.GET, "api/search", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(try res.content.decode(Search.Response.self),
-                           .init(hasMoreResults: false, results: []))
+                           .init(hasMoreResults: false,
+                                 searchTerm: "",
+                                 searchFilters: [],
+                                 results: []))
         })
     }
     
@@ -65,6 +68,8 @@ class ApiTests: AppTestCase {
             XCTAssertEqual(
                 try res.content.decode(Search.Response.self),
                 .init(hasMoreResults: false,
+                      searchTerm: "foo bar",
+                      searchFilters: [],
                       results: [
                         .package(
                             .init(packageId: UUID(uuidString: "4e256250-d1ea-4cdd-9fe9-0fc5dce17a80")!,

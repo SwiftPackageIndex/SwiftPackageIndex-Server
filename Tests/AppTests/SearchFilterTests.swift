@@ -111,6 +111,10 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(StarsSearchFilter.key, "stars")
         XCTAssertThrowsError(try StarsSearchFilter(value: "one", comparison: .match))
         XCTAssertEqual(try StarsSearchFilter(value: "1", comparison: .match).value, 1)
+        XCTAssertEqual(
+            try StarsSearchFilter(value: "1", comparison: .match).createViewModel().description,
+            "stars matches 1"
+        )
         
         let filter = try StarsSearchFilter(value: "1", comparison: .greaterThan)
         let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
@@ -123,11 +127,15 @@ class SearchFilterTests: AppTestCase {
     
     func test_licenseFilter() throws {
         XCTAssertEqual(LicenseSearchFilter.key, "license")
-        XCTAssertThrowsError(try LicenseSearchFilter(value: "appStoreCompatible", comparison: .greaterThan))
-        XCTAssertEqual(try LicenseSearchFilter(value: "appStoreCompatible", comparison: .match).filterType, .appStoreCompatible)
+        XCTAssertThrowsError(try LicenseSearchFilter(value: "compatible", comparison: .greaterThan))
+        XCTAssertEqual(try LicenseSearchFilter(value: "compatible", comparison: .match).filterType, .appStoreCompatible)
+        XCTAssertEqual(
+            try LicenseSearchFilter(value: "compatible", comparison: .match).createViewModel().description,
+            "license matches App Store compatible"
+        )
         
         do {
-            let filter = try LicenseSearchFilter(value: "appStoreCompatible", comparison: .match)
+            let filter = try LicenseSearchFilter(value: "compatible", comparison: .match)
             let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
                 .where(searchFilters: [filter])
             let sql = renderSQL(builder, resolveBinds: true)
@@ -152,6 +160,10 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(LastCommitSearchFilter.key, "last_commit")
         XCTAssertThrowsError(try LastCommitSearchFilter(value: "23rd June 2021", comparison: .match))
         XCTAssertEqual(try LastCommitSearchFilter(value: "1970-01-01", comparison: .match).date, .t0)
+        XCTAssertEqual(
+            try LastCommitSearchFilter(value: "1970-01-01", comparison: .match).createViewModel().description,
+            "last commit matches 1 Jan 1970"
+        )
 
         let filter = try LastCommitSearchFilter(value: "1970-01-01", comparison: .match)
         let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
@@ -178,6 +190,16 @@ class SearchFilterTests: AppTestCase {
         func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
             return builder
         }
+        
+        func createViewModel() -> SearchFilterViewModel {
+            .init(key: Self.key, comparison: comparison, value: value)
+        }
     }
     
+}
+
+extension SearchFilterViewModel: CustomStringConvertible {
+    public var description: String {
+        "\(key) \(comparison.userFacingString) \(value)"
+    }
 }

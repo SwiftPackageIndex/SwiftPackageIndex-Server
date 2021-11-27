@@ -140,6 +140,9 @@
   --tab-bar-hover: var(--very-light-grey);
   --tab-bar-border: var(--light-grey);
   --tab-bar-border-active: var(--light-green);
+
+  --search-filter-background: var(--very-light-grey);
+  --search-filter-ampersand-color: var(--dark-grey);
 }
 
 /* Dark mode semantic color overrides */
@@ -202,5 +205,8 @@
     --tab-bar-background: var(--very-very-dark-grey);
     --tab-bar-hover: var(--very-dark-grey);
     --tab-bar-border: var(--dark-grey);
+
+    --search-filter-background: var(--dark-grey);
+    --search-filter-ampersand-color: var(--light-grey);
   }
 }

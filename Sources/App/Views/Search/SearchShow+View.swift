@@ -27,10 +27,10 @@ extension SearchShow {
         }
 
         override func pageTitle() -> String? {
-            if model.query.count > 0 {
-                return "Search Results for &ldquo;\(model.query)&rdquo;"
+            if model.query.count > 0 && model.term.isEmpty == false {
+                return "Search Results for &ldquo;\(model.term)&rdquo;"
             } else {
-                return "Search"
+                return "Search Results"
             }
         }
 
@@ -51,14 +51,11 @@ extension SearchShow {
         func resultsSection() -> Node<HTML.BodyContext> {
             .section(
                 .class("search_results"),
-                .p(
-                    // If there are *any* results, either author, keyword, or package.
-                    .if(model.response.results.count > 0, .text("Results for "), else: .text("No results for ")),
-                    .text("&ldquo;"),
-                    .strong(.text(model.query)),
-                    .text("&rdquo;"),
-                    .if(model.response.results.count > 0, .text("&hellip;"), else: .text("."))
-                ),
+                .if(model.term.isEmpty == false, .p(
+                    .text("Results for &ldquo;"),
+                    .strong(.text(model.term)),
+                    .text("&rdquo;&hellip;")
+                )),
                 .if(model.authorResults.count > 0 || model.keywordResults.count > 0, .div(
                     .class("two_column mobile_reversed"),
                     packageResultsSection(),
@@ -71,12 +68,37 @@ extension SearchShow {
         }
 
         func packageResultsSection() -> Node<HTML.BodyContext> {
-            guard model.packageResults.count > 0
-            else { return .empty }
-
             return .section(
                 .class("package_results"),
-                .h4("Matching packages"),
+                .h4("Matching packages\(model.filters.isEmpty ? "" : " where&hellip;")"),
+                .if(model.filters.isEmpty == false,
+                    .ul(
+                        .class("filter_list"),
+                        .group(
+                            model.filters.map {
+                                .li(
+                                    .span(
+                                        .class("filter-key"),
+                                        .text($0.key)
+                                    ),
+                                    .text(" "),
+                                    .span(
+                                        .class("filter-comparison"),
+                                        .text($0.comparison.userFacingString)
+                                    ),
+                                    .text(" "),
+                                    .span(
+                                        .class("filter-value"),
+                                        .text($0.value)
+                                    )
+                                )
+                            }
+                        )
+                    )
+                ),
+                .if(model.packageResults.isEmpty, .p(
+                    .text("No packages found.")
+                )),
                 .ul(
                     .id("package_list"),
                     // Let the JavaScript know that keyboard navigation on this package list should
