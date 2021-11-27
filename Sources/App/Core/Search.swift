@@ -235,7 +235,8 @@ enum Search {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        guard !sanitizedTerms.isEmpty else {
+        // ensure we have at least one filter or one term in order to search
+        if sanitizedTerms.isEmpty, filters.isEmpty {
             return nil
         }
 
