@@ -26,7 +26,7 @@ class SearchFilterTests: AppTestCase {
                 .allSearchFilters
                 .map { $0.key }
                 .sorted(),
-            [ "last_commit", "license", "stars" ]
+            [ "last_activity", "last_commit", "license", "stars" ]
         )
     }
     
@@ -173,6 +173,23 @@ class SearchFilterTests: AppTestCase {
         """)
     }
     
+    func test_lastActivityFilter() throws {
+        XCTAssertThrowsError(try LastActivitySearchFilter(value: "23rd June 2021", comparison: .match))
+        XCTAssertEqual(try LastActivitySearchFilter(value: "1970-01-01", comparison: .match).date, .t0)
+        XCTAssertEqual(
+            try LastActivitySearchFilter(value: "1970-01-01", comparison: .match).createViewModel().description,
+            "last activity matches 1 Jan 1970"
+        )
+
+        let filter = try LastActivitySearchFilter(value: "1970-01-01", comparison: .match)
+        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+            .where(searchFilters: [filter])
+        let sql = renderSQL(builder, resolveBinds: true)
+        _assertInlineSnapshot(matching: sql, as: .lines, with: """
+        SELECT  WHERE ("last_activity_at" = '1970-01-01')
+        """)
+    }
+
     // MARK: Mock
     
     struct MockSearchFilter: SearchFilter {

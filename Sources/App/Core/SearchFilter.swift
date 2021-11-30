@@ -47,6 +47,7 @@ struct SearchFilterParser {
         StarsSearchFilter.self,
         LicenseSearchFilter.self,
         LastCommitSearchFilter.self,
+        LastActivitySearchFilter.self
     ]
     
     /// Separates search terms from filter syntax.
@@ -317,6 +318,71 @@ struct LastCommitSearchFilter: SearchFilter {
     func createViewModel() -> SearchFilterViewModel {
         .init(
             key: "last commit",
+            comparison: comparison,
+            value: Self.viewDateFormatter.string(from: date)
+        )
+    }
+}
+
+// MARK: Last Active At
+
+/// Filters by the date this package was last updated via a commit or an issue/PR being merged/closed.
+///
+/// Dates must be provided in the `YYYY-MM-DD` format.
+///
+/// Examples:
+/// ```
+/// last_activity:2021-10-01  - Last maintenance activity on exactly November 1st 2021
+/// last_activity:!2021-10-01 - Last maintenance activity on any day other than November 1st 2021
+/// last_activity:>2021-10-01 - Last maintenance activity on any day more recent than November 1st 2021
+/// last_activity:<2021-10-01 - Last maintenance activity on any day older than November 1st 2021
+/// ```
+struct LastActivitySearchFilter: SearchFilter {
+    static var parseDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        return formatter
+    }()
+
+    static var viewDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM yyyy"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        return formatter
+    }()
+
+    static var key: String = "last_activity"
+
+    let comparison: SearchFilterComparison
+    let date: Date
+    let value: String
+
+    init(value: String, comparison: SearchFilterComparison) throws {
+        guard let date = Self.parseDateFormatter.date(from: value) else {
+            throw SearchFilterError.invalidValueType
+        }
+
+        self.value = value
+        self.comparison = comparison
+        self.date = date
+    }
+
+    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
+        builder.where(
+            SQLIdentifier("last_activity_at"),
+            comparison.binaryOperator(),
+            date
+        )
+    }
+
+    func createViewModel() -> SearchFilterViewModel {
+        .init(
+            key: "last activity",
             comparison: comparison,
             value: Self.viewDateFormatter.string(from: date)
         )
