@@ -191,6 +191,7 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateRepositoryIsInOrganizationNotNullable())
     }
     do {  // Migration 038 - add last_activity_at to search
+        app.migrations.add(AddLastActivityAtToRepositories())
         app.migrations.add(UpdateSearch3())
     }
 

@@ -18,20 +18,14 @@ import SQLKit
 
 struct UpdateSearch3: Migration {
     let dropSQL: SQLQueryString = "DROP MATERIALIZED VIEW search"
-
+    
     func prepare(on database: Database) -> EventLoopFuture<Void> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-
-        let alterRepositoriesTable: SQLQueryString = """
-            ALTER TABLE repositories
-            ADD COLUMN last_activity_at TIMESTAMPTZ GENERATED ALWAYS AS (
-                GREATEST(last_commit_date, last_issue_closed_at, last_pull_request_closed_at)
-            ) STORED;
-            """
-
-        let updateSearchView: SQLQueryString = """
+        
+        return db.raw(dropSQL).run()
+            .flatMap { db.raw("""
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -49,23 +43,16 @@ struct UpdateSearch3: Migration {
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
-            """
-
-        return db.raw(dropSQL).run()
-            .flatMap { db.raw(alterRepositoriesTable).run() }
-            .flatMap { db.raw(updateSearchView).run() }
+            """).run() }
     }
     
     func revert(on database: Database) -> EventLoopFuture<Void> {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-
-        let alterRepositoriesTable: SQLQueryString = """
-            ALTER TABLE repositories DROP COLUMN last_activity_at;
-            """
-
-        let restoreSearchView: SQLQueryString = """
+        
+        return db.raw(dropSQL).run()
+            .flatMap { db.raw("""
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -82,10 +69,6 @@ struct UpdateSearch3: Migration {
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
             WHERE v.reference ->> 'branch' = r.default_branch
-            """
-
-        return db.raw(dropSQL).run()
-            .flatMap { db.raw(restoreSearchView).run() }
-            .flatMap { db.raw(alterRepositoriesTable).run() }
+            """).run() }
     }
 }
