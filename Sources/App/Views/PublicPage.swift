@@ -29,7 +29,8 @@ class PublicPage {
     final func document() -> HTML {
         HTML(
             .lang(.english),
-            .comment("Version: \(appVersion)"),
+            .comment("Version: \(Current.appVersion())"),
+            .comment("DB Id: \(Current.dbId())"),
             head(),
             body()
         )

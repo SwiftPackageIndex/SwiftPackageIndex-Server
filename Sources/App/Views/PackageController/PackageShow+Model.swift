@@ -124,7 +124,7 @@ extension PackageShow {
                 title: versions.packageName() ?? repositoryName,
                 url: result.package.url,
                 score: result.package.score,
-                isArchived: repository.isArchived ?? false
+                isArchived: repository.isArchived
             )
 
         }

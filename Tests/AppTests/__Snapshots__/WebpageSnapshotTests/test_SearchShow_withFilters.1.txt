@@ -63,7 +63,7 @@
       <div class="inner">
         <section class="search">
           <form action="/search">
-            <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false" data-focus="true" value="query"/>
+            <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false" data-focus="true" value="query license:mit"/>
             <button type="submit">
               <div title="Search"></div>
             </button>
@@ -75,66 +75,52 @@
           </p>
           <div class="two_column mobile_reversed">
             <section class="package_results">
-              <h4>Matching packages</h4>
+              <h4>Matching packages where&hellip;</h4>
+              <ul class="filter_list">
+                <li>
+                  <span class="filter-key">license</span> 
+                  <span class="filter-comparison">matches</span> 
+                  <span class="filter-value">mit</span>
+                </li>
+              </ul>
               <ul id="package_list" data-focus-query-field="true">
                 <li>
                   <a href="https://example.com/package/one">
                     <h4>Package One</h4>
                     <p>This is a package filled with ones.</p>
-                    <ul class="metadata">
-                      <li class="identifier">
-                        <small>package/one</small>
-                      </li>
-                      <li class="activity">
-                        <small>Active 1 day ago</small>
-                      </li>
-                      <li class="stars">
-                        <small>1,111 stars</small>
-                      </li>
-                    </ul>
+                    <small>
+                      <span class="identifier">package/one</span> &ndash; 
+                      <span class="stars">1,111</span>
+                    </small>
                   </a>
                 </li>
                 <li>
                   <a href="https://example.com/package/one">
                     <h4>Package Two</h4>
                     <p>This is a package filled with twos.</p>
-                    <ul class="metadata">
-                      <li class="identifier">
-                        <small>package/one</small>
-                      </li>
-                      <li class="activity">
-                        <small>Active 2 days ago</small>
-                      </li>
-                      <li class="stars">
-                        <small>2,222 stars</small>
-                      </li>
-                    </ul>
+                    <small>
+                      <span class="identifier">package/one</span> &ndash; 
+                      <span class="stars">2,222</span>
+                    </small>
                   </a>
                 </li>
                 <li>
                   <a href="https://example.com/package/one">
                     <h4>Package Three</h4>
                     <p>This is a package filled with threes.</p>
-                    <ul class="metadata">
-                      <li class="identifier">
-                        <small>package/one</small>
-                      </li>
-                      <li class="activity">
-                        <small>Active 3 days ago</small>
-                      </li>
-                      <li class="stars">
-                        <small>3,333 stars</small>
-                      </li>
-                    </ul>
+                    <small>
+                      <span class="identifier">package/one</span> &ndash; 
+                      <span class="stars">3,333</span>
+                    </small>
                   </a>
                 </li>
               </ul>
               <ul class="pagination">
                 <li class="previous">
-                  <a href="/search?query=query&page=2">Previous Page</a>
+                  <a href="/search?query=query%20license:mit&page=2">Previous Page</a>
                 </li>
                 <li class="next">
-                  <a href="/search?query=query&page=4">Next Page</a>
+                  <a href="/search?query=query%20license:mit&page=4">Next Page</a>
                 </li>
               </ul>
             </section>

@@ -181,7 +181,16 @@ public func configure(_ app: Application) throws {
     do {  // Migration 036 - make packages.score required
         app.migrations.add(UpdatePackageScoreNotNullable())
     }
-    do {  // Migration 037 - add last_activity_at to search
+    do {  // Migration 037 - make several columns on repositories required
+        app.migrations.add(UpdateRepositoryStarsNotNullable())
+        app.migrations.add(UpdateRepositoryForksNotNullable())
+        app.migrations.add(UpdateRepositoryCommitCountNotNullable())
+        app.migrations.add(UpdateRepositoryOpenIssuesNotNullable())
+        app.migrations.add(UpdateRepositoryOpenPullRequestsNotNullable())
+        app.migrations.add(UpdateRepositoryIsArchivedNotNullable())
+        app.migrations.add(UpdateRepositoryIsInOrganizationNotNullable())
+    }
+    do {  // Migration 038 - add last_activity_at to search
         app.migrations.add(UpdateSearch3())
     }
 

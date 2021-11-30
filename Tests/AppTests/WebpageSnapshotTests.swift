@@ -538,6 +538,24 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         }
         #endif
     }
+    
+    func test_SearchShow_withFilters() throws {
+        let page = { SearchShow.View(path: "", model: .mockWithFilter()).document() }
+
+        assertSnapshot(matching: page, as: .html)
+
+        #if os(macOS)
+        if runImageSnapshotTests {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(precision: defaultPrecision,
+                                          size: $0.size,
+                                          baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
 
     func test_KeywordShow() throws {
         let page = { KeywordShow.View(path: "", model: .mock).document() }

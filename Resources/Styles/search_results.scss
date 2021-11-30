@@ -75,3 +75,29 @@ ul.pagination {
     justify-self: end;
   }
 }
+
+ul.filter_list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  gap: 5px;
+  padding: 0;
+
+  .filter-key,
+  .filter-value {
+    background-color: var(--search-filter-background);
+    padding: 3px 6px;
+    font-weight: 500;
+  }
+
+  li:not(:first-child):before {
+    content: 'and';
+    font-weight: 500;
+    color: var(--search-filter-ampersand-color);
+    margin-right: 5px;
+  }
+
+  li:first-child {
+    margin-left: 33px;
+  }
+}
