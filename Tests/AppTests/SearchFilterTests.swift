@@ -157,7 +157,6 @@ class SearchFilterTests: AppTestCase {
     }
     
     func test_lastCommitFilter() throws {
-        XCTAssertEqual(LastCommitSearchFilter.key, "last_commit")
         XCTAssertThrowsError(try LastCommitSearchFilter(value: "23rd June 2021", comparison: .match))
         XCTAssertEqual(try LastCommitSearchFilter(value: "1970-01-01", comparison: .match).date, .t0)
         XCTAssertEqual(
