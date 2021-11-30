@@ -89,7 +89,74 @@ final class RepositoryTests: AppTestCase {
             XCTAssertEqual(r.summary, "desc")
         }
     }
-    
+
+    func test_generated_lastActivityAt_lastCommitDate() throws {
+        let pkg = Package(url: "p1")
+        try pkg.save(on: app.db).wait()
+
+        let oldestDate = Date(timeIntervalSinceReferenceDate: 0)
+        let moreRecentDate = Date(timeIntervalSinceReferenceDate: 100)
+
+        let repo = try Repository(package: pkg)
+        repo.lastCommitDate = moreRecentDate
+        repo.lastIssueClosedAt = oldestDate
+        repo.lastPullRequestClosedAt = oldestDate
+        try repo.save(on: app.db).wait()
+
+        let fetchedRepo = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
+        XCTAssertEqual(fetchedRepo.lastActivityAt, moreRecentDate)
+    }
+
+    func test_generated_lastActivityAt_lastIssueClosedAt() throws {
+        let pkg = Package(url: "p1")
+        try pkg.save(on: app.db).wait()
+
+        let oldestDate = Date(timeIntervalSinceReferenceDate: 0)
+        let moreRecentDate = Date(timeIntervalSinceReferenceDate: 100)
+
+        let repo = try Repository(package: pkg)
+        repo.lastCommitDate = oldestDate
+        repo.lastIssueClosedAt = moreRecentDate
+        repo.lastPullRequestClosedAt = oldestDate
+        try repo.save(on: app.db).wait()
+
+        let fetchedRepo = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
+        XCTAssertEqual(fetchedRepo.lastActivityAt, moreRecentDate)
+    }
+
+    func test_generated_lastActivityAt_lastPullRequestClosedAt() throws {
+        let pkg = Package(url: "p1")
+        try pkg.save(on: app.db).wait()
+
+        let oldestDate = Date(timeIntervalSinceReferenceDate: 0)
+        let moreRecentDate = Date(timeIntervalSinceReferenceDate: 100)
+
+        let repo = try Repository(package: pkg)
+        repo.lastCommitDate = oldestDate
+        repo.lastIssueClosedAt = oldestDate
+        repo.lastPullRequestClosedAt = moreRecentDate
+        try repo.save(on: app.db).wait()
+
+        let fetchedRepo = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
+        XCTAssertEqual(fetchedRepo.lastActivityAt, moreRecentDate)
+    }
+
+    func test_generated_lastActivityAt_nullValues() throws {
+        let pkg = Package(url: "p1")
+        try pkg.save(on: app.db).wait()
+
+        let date = Date(timeIntervalSinceReferenceDate: 0)
+
+        let repo = try Repository(package: pkg)
+        repo.lastCommitDate = date
+        repo.lastIssueClosedAt = nil
+        repo.lastPullRequestClosedAt = nil
+        try repo.save(on: app.db).wait()
+
+        let fetchedRepo = try XCTUnwrap(Repository.find(repo.id, on: app.db).wait())
+        XCTAssertEqual(fetchedRepo.lastActivityAt, date)
+    }
+
     func test_package_relationship() throws {
         let pkg = Package(url: "p1")
         try pkg.save(on: app.db).wait()
