@@ -266,10 +266,10 @@ struct LicenseSearchFilter: SearchFilter {
 ///
 /// Examples:
 /// ```
-/// last_commit:2020-07-01  - Updated on exactly July 1st 2020
-/// last_commit:!2020-07-01 - Updated on any day other than July 1st 2020
-/// last_commit:>2020-07-01 - Updated on any day more recent than July 1st 2020
-/// last_commit:<2020-07-01 - Updated on any day older than July 1st 2020
+/// last_commit:2020-07-01  - Last commit made on exactly July 1st 2020
+/// last_commit:!2020-07-01 - Last commit made on any day other than July 1st 2020
+/// last_commit:>2020-07-01 - Last commit made on any day more recent than July 1st 2020
+/// last_commit:<2020-07-01 - Last commit made on any day older than July 1st 2020
 /// ```
 struct LastCommitSearchFilter: SearchFilter {
     static var parseDateFormatter: DateFormatter = {
