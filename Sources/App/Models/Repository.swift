@@ -66,6 +66,9 @@ final class Repository: Model, Content {
     @Field(key: "keywords")
     var keywords: [String]
 
+    @Field(key: "last_activity_at")
+    var lastActivityAt: Date?
+
     @Field(key: "last_commit_date")
     var lastCommitDate: Date?
 
@@ -113,9 +116,6 @@ final class Repository: Model, Content {
 
     @Field(key: "summary")
     var summary: String?
-
-    @Field(key: "last_activity_at")
-    var lastActivityAt: Date?
 
     // initializers
     

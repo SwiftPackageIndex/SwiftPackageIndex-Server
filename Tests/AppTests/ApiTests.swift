@@ -53,7 +53,7 @@ class ApiTests: AppTestCase {
                        summary: "some package").save(on: app.db).wait()
         try Repository(package: p2,
                        defaultBranch: "main",
-                       lastCommitDate: Date(timeIntervalSinceReferenceDate: 0),
+                       lastCommitDate: .t0,
                        name: "name 2",
                        owner: "owner 2",
                        stars: 1234,
@@ -79,7 +79,7 @@ class ApiTests: AppTestCase {
                                   repositoryName: "name 2",
                                   repositoryOwner: "owner 2",
                                   stars: 1234,
-                                  lastActivityAt: Date(timeIntervalSinceReferenceDate: 0),
+                                  lastActivityAt: .t0,
                                   summary: "foo bar package")!
                         )
                       ])
