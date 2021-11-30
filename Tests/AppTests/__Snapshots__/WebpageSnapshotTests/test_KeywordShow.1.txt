@@ -80,6 +80,9 @@
                 <li class="identifier">
                   <small>owner/name</small>
                 </li>
+                <li class="activity">
+                  <small>Active in 0 seconds</small>
+                </li>
                 <li class="stars">
                   <small>4 stars</small>
                 </li>
@@ -93,6 +96,9 @@
               <ul class="metadata">
                 <li class="identifier">
                   <small>owner/name</small>
+                </li>
+                <li class="activity">
+                  <small>Active in 0 seconds</small>
                 </li>
                 <li class="stars">
                   <small>4 stars</small>
@@ -108,6 +114,9 @@
                 <li class="identifier">
                   <small>owner/name</small>
                 </li>
+                <li class="activity">
+                  <small>Active in 0 seconds</small>
+                </li>
                 <li class="stars">
                   <small>4 stars</small>
                 </li>
@@ -121,6 +130,9 @@
               <ul class="metadata">
                 <li class="identifier">
                   <small>owner/name</small>
+                </li>
+                <li class="activity">
+                  <small>Active in 0 seconds</small>
                 </li>
                 <li class="stars">
                   <small>4 stars</small>
@@ -136,6 +148,9 @@
                 <li class="identifier">
                   <small>owner/name</small>
                 </li>
+                <li class="activity">
+                  <small>Active in 0 seconds</small>
+                </li>
                 <li class="stars">
                   <small>4 stars</small>
                 </li>
@@ -149,6 +164,9 @@
               <ul class="metadata">
                 <li class="identifier">
                   <small>owner/name</small>
+                </li>
+                <li class="activity">
+                  <small>Active in 0 seconds</small>
                 </li>
                 <li class="stars">
                   <small>4 stars</small>
@@ -164,6 +182,9 @@
                 <li class="identifier">
                   <small>owner/name</small>
                 </li>
+                <li class="activity">
+                  <small>Active in 0 seconds</small>
+                </li>
                 <li class="stars">
                   <small>4 stars</small>
                 </li>
@@ -177,6 +198,9 @@
               <ul class="metadata">
                 <li class="identifier">
                   <small>owner/name</small>
+                </li>
+                <li class="activity">
+                  <small>Active in 0 seconds</small>
                 </li>
                 <li class="stars">
                   <small>4 stars</small>
@@ -192,6 +216,9 @@
                 <li class="identifier">
                   <small>owner/name</small>
                 </li>
+                <li class="activity">
+                  <small>Active in 0 seconds</small>
+                </li>
                 <li class="stars">
                   <small>4 stars</small>
                 </li>
@@ -205,6 +232,9 @@
               <ul class="metadata">
                 <li class="identifier">
                   <small>owner/name</small>
+                </li>
+                <li class="activity">
+                  <small>Active in 0 seconds</small>
                 </li>
                 <li class="stars">
                   <small>4 stars</small>
