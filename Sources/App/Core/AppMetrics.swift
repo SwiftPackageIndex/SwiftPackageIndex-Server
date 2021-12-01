@@ -105,6 +105,22 @@ enum AppMetrics {
     static var apiSearchGetTotal: PromCounter<Int, EmptyLabels>? {
         counter("spi_api_search_get_total", EmptyLabels.self)
     }
+    
+    static var apiSearchGetWithFilterTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_api_search_get_with_filter_total", EmptyLabels.self)
+    }
+    
+    static func apiSearchGetWithFilterTotal(key: String) -> PromCounter<Int, EmptyLabels>? {
+        counter("spi_api_search_get_with_filter_\(key)_total", EmptyLabels.self)
+    }
+    
+    static var searchTermsCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_search_terms_count", EmptyLabels.self)
+    }
+    
+    static var searchFiltersCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_search_filters_count", EmptyLabels.self)
+    }
 
     static var buildCandidatesCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_build_candidates_count", EmptyLabels.self)
