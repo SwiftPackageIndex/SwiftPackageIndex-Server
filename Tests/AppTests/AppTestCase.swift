@@ -65,7 +65,7 @@ extension AppTestCase {
         query?.serialize(to: &serializer)
         return serializer.binds.reduce(into: []) { result, bind in
             if let bind = bind as? String { result.append(bind) }
-            if let bind = bind as? Date { result.append(LastCommitSearchFilter.parseDateFormatter.string(from: bind)) }
+            if let bind = bind as? Date { result.append(DateFormatter.filterParseFormatter.string(from: bind)) }
             if let bind = bind as? Int { result.append(String(bind)) }
         }
     }

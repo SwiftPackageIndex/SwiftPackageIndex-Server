@@ -273,24 +273,6 @@ struct LicenseSearchFilter: SearchFilter {
 /// last_commit:<2020-07-01 - Last commit made on any day older than July 1st 2020
 /// ```
 struct LastCommitSearchFilter: SearchFilter {
-    static var parseDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        
-        return formatter
-    }()
-    
-    static var viewDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM yyyy"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        
-        return formatter
-    }()
-    
     static var key: String = "last_commit"
     
     let comparison: SearchFilterComparison
@@ -298,7 +280,7 @@ struct LastCommitSearchFilter: SearchFilter {
     let value: String
     
     init(value: String, comparison: SearchFilterComparison) throws {
-        guard let date = Self.parseDateFormatter.date(from: value) else {
+        guard let date = DateFormatter.filterParseFormatter.date(from: value) else {
             throw SearchFilterError.invalidValueType
         }
         
@@ -319,7 +301,7 @@ struct LastCommitSearchFilter: SearchFilter {
         .init(
             key: "last commit",
             comparison: comparison,
-            value: Self.viewDateFormatter.string(from: date)
+            value: DateFormatter.filterDisplayFormatter.string(from: date)
         )
     }
 }
@@ -338,24 +320,6 @@ struct LastCommitSearchFilter: SearchFilter {
 /// last_activity:<2021-10-01 - Last maintenance activity on any day older than November 1st 2021
 /// ```
 struct LastActivitySearchFilter: SearchFilter {
-    static var parseDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-
-        return formatter
-    }()
-
-    static var viewDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM yyyy"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-
-        return formatter
-    }()
-
     static var key: String = "last_activity"
 
     let comparison: SearchFilterComparison
@@ -363,7 +327,7 @@ struct LastActivitySearchFilter: SearchFilter {
     let value: String
 
     init(value: String, comparison: SearchFilterComparison) throws {
-        guard let date = Self.parseDateFormatter.date(from: value) else {
+        guard let date = DateFormatter.filterParseFormatter.date(from: value) else {
             throw SearchFilterError.invalidValueType
         }
 
@@ -384,7 +348,7 @@ struct LastActivitySearchFilter: SearchFilter {
         .init(
             key: "last activity",
             comparison: comparison,
-            value: Self.viewDateFormatter.string(from: date)
+            value: DateFormatter.filterDisplayFormatter.string(from: date)
         )
     }
 }
