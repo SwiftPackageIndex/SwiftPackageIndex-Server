@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/swift-server/async-http-client.git",
         "state": {
           "branch": null,
-          "revision": "ec2e080d7011a81bd67f10bf41efe6104d7799d6",
-          "version": "1.7.0"
+          "revision": "70826d038d5bdc3142a386b735792d87ef7a5dfc",
+          "version": "1.8.1"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/vapor/async-kit.git",
         "state": {
           "branch": null,
-          "revision": "748c026f4dc93c0b9d05fe43a07d3922ca126744",
-          "version": "1.10.0"
+          "revision": "3b1e7e9069a62295151c6c1609050cd38a0a7af5",
+          "version": "1.11.0"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "4dc196da17177d0099510c6a3e8b6db0e33466b5",
-          "version": "1.16.2"
+          "revision": "a3630ca9939bcb21b9f23c258764d82349f4d12d",
+          "version": "1.17.0"
         }
       },
       {
@@ -105,8 +105,8 @@
         "repositoryURL": "https://github.com/vapor/postgres-nio.git",
         "state": {
           "branch": null,
-          "revision": "1042870acc1c0aeb74ca44ced238ef2a639ba5b5",
-          "version": "1.6.4"
+          "revision": "780a510863bfc00b2239b649df4f403080c4bc9c",
+          "version": "1.7.2"
         }
       },
       {
@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/vapor/sql-kit.git",
         "state": {
           "branch": null,
-          "revision": "dff8aba9973f2edd7ddb1d29d8d6994a516cf3c1",
-          "version": "3.13.0"
+          "revision": "1a788f4947c36bc5eff2b8ceb3560a0ce50c4f58",
+          "version": "3.13.1"
         }
       },
       {
@@ -177,7 +177,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "4fbb1d6b6e9c2fecd0cd4751f067080c914a577d",
+          "revision": "a287667013627828ad9917e8e1c262e1af14d8b3",
           "version": null
         }
       },
@@ -213,8 +213,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio.git",
         "state": {
           "branch": null,
-          "revision": "addf69cfe60376c325397c8926589415576b1dd1",
-          "version": "2.34.0"
+          "revision": "37e7a33de45bac894c0b08b56a2f755ebe4884e6",
+          "version": "2.35.0"
         }
       },
       {
@@ -231,8 +231,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-http2.git",
         "state": {
           "branch": null,
-          "revision": "326f7f9a8c8c8402e3691adac04911cac9f9d87f",
-          "version": "1.18.4"
+          "revision": "39ed0e753596afadad920e302ae769b28f3a982b",
+          "version": "1.19.0"
         }
       },
       {
@@ -240,8 +240,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-ssl.git",
         "state": {
           "branch": null,
-          "revision": "36f6419f2b1b6490a8c0faa840298e28027cefe9",
-          "version": "2.16.3"
+          "revision": "0324d60429870284810ba5bdb039640761bf10c9",
+          "version": "2.17.0"
         }
       },
       {
