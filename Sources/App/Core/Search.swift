@@ -112,6 +112,7 @@ enum Search {
 
     static func sanitize(_ terms: [String]) -> [String] {
         terms
+            .map { $0.replacingOccurrences(of: "\\", with: "") }
             .map { $0.replacingOccurrences(of: "*", with: "\\*") }
             .map { $0.replacingOccurrences(of: "?", with: "\\?") }
             .map { $0.replacingOccurrences(of: "(", with: "\\(") }

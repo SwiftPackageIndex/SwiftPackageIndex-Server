@@ -576,18 +576,31 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(Search.sanitize([")"]), ["\\)"])
         XCTAssertEqual(Search.sanitize(["["]), ["\\["])
         XCTAssertEqual(Search.sanitize(["]"]), ["\\]"])
+        XCTAssertEqual(Search.sanitize(["\\"]), [])
+        XCTAssertEqual(Search.sanitize(["test\\"]), ["test"])
     }
 
     func test_invalid_characters() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/974
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1402
         // Ensure we don't raise a 500 for certain characters
         // "server: invalid regular expression: quantifier operand invalid"
 
-        // MUT
-        let res = try Search.fetch(app.db, ["*"], page: 1, pageSize: 20).wait()
+        do {
+            // MUT
+            let res = try Search.fetch(app.db, ["*"], page: 1, pageSize: 20).wait()
 
-        // validation
-        XCTAssertEqual(res, .init(hasMoreResults: false, searchTerm: "\\*", searchFilters: [], results: []))
+            // validation
+            XCTAssertEqual(res, .init(hasMoreResults: false, searchTerm: "\\*", searchFilters: [], results: []))
+        }
+
+        do {
+            // MUT
+            let res = try Search.fetch(app.db, ["\\"], page: 1, pageSize: 20).wait()
+
+            // validation
+            XCTAssertEqual(res, .init(hasMoreResults: false, searchTerm: "", searchFilters: [], results: []))
+        }
     }
 
     func test_search_keyword() throws {
