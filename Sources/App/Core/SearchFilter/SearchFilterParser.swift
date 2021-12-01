@@ -54,28 +54,32 @@ struct SearchFilterParser {
         }
         
         // Operator
-        let filterComparison: SearchFilterComparison = {
-            let comparisonOperator = String(components[1].prefix(1))
-            switch comparisonOperator {
-                case ">":
-                    return .greaterThan
-                case "<":
-                    return .lessThan
-                case "!":
-                    return .negativeMatch
+        let comparison: (length: Int, value: SearchFilterComparison) = {
+            let value = components[1]
+            switch value {
+                case _ where value.hasPrefix(">="):
+                    return (2, .greaterThanOrEqual)
+                case _ where value.hasPrefix(">"):
+                    return (1, .greaterThan)
+                case _ where value.hasPrefix("<="):
+                    return (2, .lessThanOrEqual)
+                case _ where value.hasPrefix("<"):
+                    return (1, .lessThan)
+                case _ where value.hasPrefix("!"):
+                    return (1, .negativeMatch)
                 default:
-                    return .match
+                    return (0, .match)
             }
         }()
         
         // Value
-        let stringValue = filterComparison == .match ? components[1] : String(components[1].dropFirst())
+        let stringValue = String(components[1].dropFirst(comparison.length))
         guard !stringValue.isEmpty else { return nil }
         
         // Filter
         return try? allFilters
             .first(where: { $0.key == components[0] })?
-            .init(value: stringValue, comparison: filterComparison)
+            .init(value: stringValue, comparison: comparison.value)
     }
     
 }

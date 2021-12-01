@@ -44,14 +44,20 @@ enum SearchFilterComparison: String, Codable, Equatable {
     case match
     case negativeMatch
     case greaterThan
+    case greaterThanOrEqual
     case lessThan
+    case lessThanOrEqual
     
     func binaryOperator(isSet: Bool = false) -> SQLBinaryOperator {
         switch self {
             case .greaterThan:
                 return .greaterThan
+            case .greaterThanOrEqual:
+                return .greaterThanOrEqual
             case .lessThan:
                 return .lessThan
+            case .lessThanOrEqual:
+                return .lessThanOrEqual
             case .negativeMatch:
                 return isSet ? .notIn : .notEqual
             case .match:
@@ -64,7 +70,9 @@ enum SearchFilterComparison: String, Codable, Equatable {
         case .match: return "matches"
         case .negativeMatch: return "does not match"
         case .greaterThan: return "is greater than"
+        case .greaterThanOrEqual: return "is greather than or equal to"
         case .lessThan: return "is less than"
+        case .lessThanOrEqual: return "is less than or equal to"
         }
     }
 }

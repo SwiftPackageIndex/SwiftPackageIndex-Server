@@ -51,12 +51,15 @@ class SearchFilterTests: AppTestCase {
             try XCTAssertEqual(mockParse(term: "mock:1").comparison, .match)
             try XCTAssertEqual(mockParse(term: "mock:>1").comparison, .greaterThan)
             try XCTAssertEqual(mockParse(term: "mock:<1").comparison, .lessThan)
+            try XCTAssertEqual(mockParse(term: "mock:>=1").comparison, .greaterThanOrEqual)
+            try XCTAssertEqual(mockParse(term: "mock:<=1").comparison, .lessThanOrEqual)
             try XCTAssertEqual(mockParse(term: "mock:!1").comparison, .negativeMatch)
         }
         
         do { // Correct value
-            try XCTAssertEqual(mockParse(term: "mock:test").value, "test")
-            try XCTAssertEqual(mockParse(term: "mock:!test").value, "test")
+            try XCTAssertEqual(mockParse(term: "mock:test").value, "test") // 0 char comparison
+            try XCTAssertEqual(mockParse(term: "mock:!test").value, "test") // 1 char comparison
+            try XCTAssertEqual(mockParse(term: "mock:>=test").value, "test") // 2 char comparison
             
             // terms are usually tokenised based on spaces meaning this should, in theory,
             // never happen. However, the filter system does support it.
@@ -87,11 +90,15 @@ class SearchFilterTests: AppTestCase {
         let matrix: [(SearchFilterComparison, Bool, SQLBinaryOperator, UInt)] = [
             (.greaterThan, false, .greaterThan, #line),
             (.lessThan, false, .lessThan, #line),
+            (.greaterThanOrEqual, false, .greaterThanOrEqual, #line),
+            (.lessThanOrEqual, false, .lessThanOrEqual, #line),
             (.match, false, .equal, #line),
             (.negativeMatch, false, .notEqual, #line),
             
             (.greaterThan, true, .greaterThan, #line),
             (.lessThan, true, .lessThan, #line),
+            (.greaterThanOrEqual, true, .greaterThanOrEqual, #line),
+            (.lessThanOrEqual, true, .lessThanOrEqual, #line),
             (.match, true, .in, #line),
             (.negativeMatch, true, .notIn, #line),
         ]
