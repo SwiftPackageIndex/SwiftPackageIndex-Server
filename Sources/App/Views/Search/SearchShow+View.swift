@@ -38,6 +38,7 @@ extension SearchShow {
             .group(
                 .section(
                     .class("search"),
+                    .data(named: "filter-suggestions", value: "true"),
                     .searchForm(query: model.query)
                 ),
                 .if(model.query.count > 0, resultsSection())
