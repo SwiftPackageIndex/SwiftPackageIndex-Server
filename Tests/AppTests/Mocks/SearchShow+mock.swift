@@ -16,17 +16,14 @@
 
 import Foundation
 
-
 extension SearchShow.Model {
-    static var mock: Self {
-        let results: [Search.Result] = .mock()
+    static func mock(results: [Search.Result] = .mock()) -> Self {
         return .init(page: 3,
                      query: "query",
                      response: .init(hasMoreResults: true, searchTerm: "query", searchFilters: [], results: results))
     }
     
-    static var mockWithFilter: Self {
-        let results: [Search.Result] = .mock()
+    static func mockWithFilter(results: [Search.Result] = .mock()) -> Self {
         return .init(page: 3,
                      query: "query license:mit",
                      response: .init(hasMoreResults: true,

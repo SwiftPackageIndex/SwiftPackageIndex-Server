@@ -77,7 +77,7 @@ analyze:
 db-up: db-up-dev db-up-test
 
 db-up-dev:
-	docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 6432:5432 -d postgres:11.6-alpine
+	docker run --name spi_dev -e POSTGRES_DB=spi_dev -e POSTGRES_USER=spi_dev -e POSTGRES_PASSWORD=xxx -p 6432:5432 -d postgres:13.5-alpine
 
 db-up-test:
 	docker run --name spi_test \
@@ -88,7 +88,7 @@ db-up-test:
 		--tmpfs /pgdata:rw,noexec,nosuid,size=1024m \
 		-p 5432:5432 \
 		-d \
-		postgres:11.6-alpine
+		postgres:13.5-alpine
 
 db-up-test-log-statement:
 	docker run --name spi_test \
@@ -99,7 +99,7 @@ db-up-test-log-statement:
 		--tmpfs /pgdata:rw,noexec,nosuid,size=1024m \
 		-p 5432:5432 \
 		--rm \
-		postgres:11.6-alpine \
+		postgres:13.5-alpine \
 		postgres -c log_statement=all
 
 db-down: db-down-dev db-down-test

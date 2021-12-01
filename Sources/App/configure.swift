@@ -190,6 +190,10 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateRepositoryIsArchivedNotNullable())
         app.migrations.add(UpdateRepositoryIsInOrganizationNotNullable())
     }
+    do {  // Migration 038 - add last_activity_at to search
+        app.migrations.add(AddLastActivityAtToRepositories())
+        app.migrations.add(UpdateSearch3())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

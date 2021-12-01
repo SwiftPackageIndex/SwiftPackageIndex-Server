@@ -43,6 +43,7 @@ extension Search {
                                                      repositoryName: record.repositoryName,
                                                      repositoryOwner: record.repositoryOwner,
                                                      stars: record.stars,
+                                                     lastActivityAt: record.lastActivityAt,
                                                      summary: record.summary?.replaceShorthandEmojis())
                     else { return nil }
                     self = .package(result)
@@ -101,9 +102,10 @@ extension Search {
         var repositoryName: String
         var repositoryOwner: String
         var stars: Int?
+        var lastActivityAt: Date?
         var summary: String?
 
-        init?(packageId: Package.Id?, packageName: String?, packageURL: String?, repositoryName: String?, repositoryOwner: String?, stars: Int?, summary: String?) {
+        init?(packageId: Package.Id?, packageName: String?, packageURL: String?, repositoryName: String?, repositoryOwner: String?, stars: Int?, lastActivityAt: Date?, summary: String?) {
             guard let packageId = packageId,
                   let packageURL = packageURL,
                   let repositoryName = repositoryName,
@@ -116,6 +118,7 @@ extension Search {
             self.repositoryName = repositoryName
             self.repositoryOwner = repositoryOwner
             self.stars = stars
+            self.lastActivityAt = lastActivityAt
             self.summary = summary
         }
     }

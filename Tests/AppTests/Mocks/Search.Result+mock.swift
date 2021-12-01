@@ -14,10 +14,48 @@
 
 @testable import App
 
-
 extension Array where Element == Search.Result {
 
-    static func mock() -> Self {
+    static var defaultPackageResults: [Search.Result] = [
+        .package(
+            .init(
+                packageId: .id1,
+                packageName: "Package One",
+                packageURL: "https://example.com/package/one",
+                repositoryName: "one",
+                repositoryOwner: "package",
+                stars: 1111,
+                lastActivityAt: .t0,
+                summary: "This is a package filled with ones."
+            )!
+        ),
+        .package(
+            .init(
+                packageId: .id2,
+                packageName: "Package Two",
+                packageURL: "https://example.com/package/one",
+                repositoryName: "one",
+                repositoryOwner: "package",
+                stars: 2222,
+                lastActivityAt: .t0,
+                summary: "This is a package filled with twos."
+            )!
+        ),
+        .package(
+            .init(
+                packageId: .id3,
+                packageName: "Package Three",
+                packageURL: "https://example.com/package/one",
+                repositoryName: "one",
+                repositoryOwner: "package",
+                stars: 3333,
+                lastActivityAt: .t0,
+                summary: "This is a package filled with threes."
+            )!
+        )
+    ]
+
+    static func mock(_ packageResults: [Search.Result] = .defaultPackageResults) -> Self {
         [
             .author(.init(name: "Apple")),
             .author(.init(name: "Orange")),
@@ -26,39 +64,7 @@ extension Array where Element == Search.Result {
             .keyword(.init(keyword: "keyword2")),
             .keyword(.init(keyword: "keyword3")),
             .keyword(.init(keyword: "keyword4")),
-            .package(
-                .init(
-                    packageId: .id1,
-                    packageName: "Package One",
-                    packageURL: "https://example.com/package/one",
-                    repositoryName: "one",
-                    repositoryOwner: "package",
-                    stars: 1111,
-                    summary: "This is a package filled with ones."
-                )!
-            ),
-            .package(
-                .init(
-                    packageId: .id2,
-                    packageName: "Package Two",
-                    packageURL: "https://example.com/package/one",
-                    repositoryName: "one",
-                    repositoryOwner: "package",
-                    stars: 2222,
-                    summary: "This is a package filled with twos."
-                )!
-            ),
-            .package(
-                .init(
-                    packageId: .id3,
-                    packageName: "Package Three",
-                    packageURL: "https://example.com/package/one",
-                    repositoryName: "one",
-                    repositoryOwner: "package",
-                    stars: 3333,
-                    summary: "This is a package filled with threes."
-                )!
-            )
         ]
+        + packageResults
     }
 }
