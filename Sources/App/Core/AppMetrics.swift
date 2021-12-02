@@ -64,6 +64,10 @@ enum AppMetrics {
                 }
             }
         }
+
+        struct SearchFilterKey: MetricLabels {
+            var key: String = ""
+        }
     }
 
     static var analyzeCandidatesCount: PromGauge<Int, EmptyLabels>? {
@@ -106,14 +110,10 @@ enum AppMetrics {
         counter("spi_api_search_get_total", EmptyLabels.self)
     }
     
-    static var apiSearchGetWithFilterTotal: PromCounter<Int, EmptyLabels>? {
-        counter("spi_api_search_get_with_filter_total", EmptyLabels.self)
+    static var apiSearchGetWithFilterTotal: PromCounter<Int, Labels.SearchFilterKey>? {
+        counter("spi_api_search_get_with_filter_total", Labels.SearchFilterKey.self)
     }
-    
-    static func apiSearchGetWithFilterTotal(key: String) -> PromCounter<Int, EmptyLabels>? {
-        counter("spi_api_search_get_with_filter_\(key)_total", EmptyLabels.self)
-    }
-    
+
     static var searchTermsCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_search_terms_count", EmptyLabels.self)
     }
