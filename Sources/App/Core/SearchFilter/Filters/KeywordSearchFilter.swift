@@ -47,7 +47,7 @@ struct KeywordSearchFilter: SearchFilter {
     
     func createViewModel() -> SearchFilterViewModel {
         .init(
-            key: "keyword",
+            key: "keywords",
             comparison: comparison,
             value: value
         )

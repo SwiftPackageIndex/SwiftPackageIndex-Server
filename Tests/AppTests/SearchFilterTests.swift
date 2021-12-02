@@ -26,7 +26,7 @@ class SearchFilterTests: AppTestCase {
                 .allSearchFilters
                 .map { $0.key }
                 .sorted(),
-            [ "last_activity", "last_commit", "license", "stars" ]
+            [ "author", "keyword", "last_activity", "last_commit", "license", "stars" ]
         )
     }
     
@@ -194,6 +194,38 @@ class SearchFilterTests: AppTestCase {
         let sql = renderSQL(builder, resolveBinds: true)
         _assertInlineSnapshot(matching: sql, as: .lines, with: """
         SELECT  WHERE ("last_activity_at" = '1970-01-01')
+        """)
+    }
+    
+    func test_authorFilter() throws {
+        XCTAssertThrowsError(try AuthorSearchFilter(value: "sherlouk", comparison: .greaterThan))
+        XCTAssertEqual(
+            try AuthorSearchFilter(value: "sherlouk", comparison: .match).createViewModel().description,
+            "author matches sherlouk"
+        )
+
+        let filter = try AuthorSearchFilter(value: "sherlouk", comparison: .match)
+        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+            .where(searchFilters: [filter])
+        let sql = renderSQL(builder, resolveBinds: true)
+        _assertInlineSnapshot(matching: sql, as: .lines, with: """
+        SELECT  WHERE ("repo_owner" ILIKE 'sherlouk')
+        """)
+    }
+    
+    func test_keywordFilter() throws {
+        XCTAssertThrowsError(try KeywordSearchFilter(value: "cache", comparison: .greaterThan))
+        XCTAssertEqual(
+            try KeywordSearchFilter(value: "cache", comparison: .match).createViewModel().description,
+            "keywords matches cache"
+        )
+
+        let filter = try KeywordSearchFilter(value: "cache", comparison: .match)
+        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+            .where(searchFilters: [filter])
+        let sql = renderSQL(builder, resolveBinds: true)
+        _assertInlineSnapshot(matching: sql, as: .lines, with: """
+        SELECT  WHERE ("keyword" ILIKE '%cache%')
         """)
     }
 
