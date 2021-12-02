@@ -55,7 +55,7 @@ let package = Package(
             "OhhAuth",
             "SwiftSoup",
             .product(name: "SwiftPMPackageCollections", package: "SwiftPM")
-        ], exclude: [ "Core/SearchFilter/README.md" ]),
+        ]),
         .target(name: "DependencyResolution"),
         .executableTarget(name: "Run", dependencies: ["App"]),
         .testTarget(
