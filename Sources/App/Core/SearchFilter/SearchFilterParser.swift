@@ -77,9 +77,13 @@ struct SearchFilterParser {
         guard !stringValue.isEmpty else { return nil }
         
         // Filter
-        return try? allFilters
-            .first(where: { $0.key == components[0] })?
-            .init(value: stringValue, comparison: comparison.value)
+        guard let matchingFilter = allFilters.first(where: { $0.key == components[0] }) else {
+            return nil
+        }
+        
+        AppMetrics.apiSearchGetWithFilterTotal?.inc(1, .init(key: matchingFilter.key))
+        
+        return try? matchingFilter.init(value: stringValue, comparison: comparison.value)
     }
     
 }
