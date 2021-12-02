@@ -278,10 +278,6 @@ enum Search {
         let (sanitizedTerms, filters) = SearchFilterParser().split(terms: sanitize(terms))
         
         // Metrics
-        if filters.isEmpty == false {
-            AppMetrics.apiSearchGetWithFilterTotal?.inc()
-        }
-        
         AppMetrics.searchTermsCount?.set(sanitizedTerms.count)
         AppMetrics.searchFiltersCount?.set(filters.count)
         
