@@ -81,7 +81,7 @@ struct SearchFilterParser {
             return nil
         }
         
-        AppMetrics.apiSearchGetWithFilterTotal(key: matchingFilter.key)?.inc()
+        AppMetrics.apiSearchGetWithFilterTotal?.inc(1, .init(key: matchingFilter.key))
         
         return try? matchingFilter.init(value: stringValue, comparison: comparison.value)
     }
