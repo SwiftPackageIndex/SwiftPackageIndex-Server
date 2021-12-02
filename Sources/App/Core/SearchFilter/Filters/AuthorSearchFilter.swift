@@ -40,8 +40,8 @@ struct AuthorSearchFilter: SearchFilter {
     func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
         builder.where(
             SQLIdentifier("repo_owner"),
-            comparison.binaryOperator(),
-            value
+            comparison == .match ? SQLRaw("ILIKE") : SQLRaw("NOT ILIKE"),
+            SQLLiteral.string(value)
         )
     }
     
