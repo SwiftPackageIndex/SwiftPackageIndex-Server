@@ -179,7 +179,7 @@ You can search for packages that have a license which is compatible with the App
 
 You can also specify a specific license you wish a package to have from one of our [built-in options](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/Sources/App/Models/License.swift). For example, a query of [`license:lgpl-2.1`](https://swiftpackageindex.com/search?query=license%3Algpl-2.1) matches any package with the license LGPL 2.1.
 
-#### Exclude results
+#### Excluding results
 
 You can also exclude packages that match a given query by prefixing the filter value with an `!` character.
 
