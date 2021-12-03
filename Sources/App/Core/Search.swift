@@ -153,7 +153,7 @@ enum Search {
         let preamble = db
             .select()
             .column(.package)
-            .column(null, as: keyword)
+            .column(keyword)
             .column(packageId)
             .column(packageName)
             .column(repoName)
@@ -165,6 +165,7 @@ enum Search {
             .column(lastCommitDate)
             .column(lastActivityAt)
             .from(searchView)
+            .from(SQLFunction("CONCAT", args: keywords), as: keyword)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(packageName))

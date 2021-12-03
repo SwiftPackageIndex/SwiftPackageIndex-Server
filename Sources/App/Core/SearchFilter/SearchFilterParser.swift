@@ -21,7 +21,9 @@ struct SearchFilterParser {
         StarsSearchFilter.self,
         LicenseSearchFilter.self,
         LastCommitSearchFilter.self,
-        LastActivitySearchFilter.self
+        LastActivitySearchFilter.self,
+        AuthorSearchFilter.self,
+        KeywordSearchFilter.self,
     ]
     
     /// Separates search terms from filter syntax.

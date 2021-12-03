@@ -156,6 +156,8 @@ The following package metadata fields are supported:
 - `last_commit` (Date): The date of the last commit to the package repository.
 - `last_activity` (Date): The date of the last maintenance activity on the package repository. Any commit to the default branch or merging/closing an issue or pull request counts as maintenance activity.
 - `license` (License): The package's license.
+- `author` (Author): The owner of the package repository.
+- `keyword` (Keyword): Filter on matching package keywords.
 
 #### Query operators
 
@@ -178,6 +180,12 @@ For example, a query of [`charts last_activity:>=2021-02-01`](https://swiftpacka
 You can search for packages that have a license which is compatible with the App Store by simply querying [`license:compatible`](https://swiftpackageindex.com/search?query=license%3Acompatible).
 
 You can also specify a specific license you wish a package to have from one of our [built-in options](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/Sources/App/Models/License.swift). For example, a query of [`license:lgpl-2.1`](https://swiftpackageindex.com/search?query=license%3Algpl-2.1) matches any package with the license LGPL 2.1.
+
+#### Querying authors or keywords
+
+You can also search for packages created by a specific user or organisation by filtering on `author`. For example, a query of [`fluent author:vapor`](https://swiftpackageindex.com/search?query=fluent+author%3Avapor) matches any package containing the word "fluent" owned by the vapor organisation.
+
+Similarly, you can search for packages that contain keywords with a `keyword` filter. For example, [`keyword:accessibility`](https://swiftpackageindex.com/search?query=keyword%3Aaccessibility) matches any package having the "accessibility" keyword.
 
 #### Excluding results
 
