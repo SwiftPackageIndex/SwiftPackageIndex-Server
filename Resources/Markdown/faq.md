@@ -148,40 +148,30 @@ If you don't have the SPI-Playgrounds app installed, you can [download it for ma
 
 <h3 id="search-filters">How can I filter my search results?</h3>
 
-Swift Package Index search supports a number of search filters using a special search syntax. Search filters only apply
-to package results, and does not impact the keywords or package authors returned. 
+Swift Package Index search supports a number of search filters using a special search syntax. Search filters only apply to package results, and does not impact the keywords or package authors returned.
 
 #### Query for values greater or less than another value
 
-You can use `>`, `>=`, `<` and `<=` to search for values that are greater than, greater than or equal to, less than,
-and less than or equal to another value.
+You can use `>`, `>=`, `<` and `<=` to search for values that are greater than, greater than or equal to, less than, and less than or equal to another value.
 
-For example, a query of [`http stars:>500`](https://swiftpackageindex.com/search?query=http+stars%3A%3E500) matches packages
-containing the word "http" and that also have more than 500 stars.
+For example, a query of [`http stars:>500`](https://swiftpackageindex.com/search?query=http+stars%3A%3E500) matches packages containing the word "http" and that also have more than 500 stars.
 
 #### Query for dates
 
-You can search for dates that are earlier or later than another date by using the same `>`, `>=`, `<` and `<=` operators. 
-Dates must be formatted following [ISO8601](https://en.wikipedia.org/wiki/ISO_8601), which is `YYYY-MM-DD` (year-month-day).
+You can search for dates that are earlier or later than another date by using the same `>`, `>=`, `<` and `<=` operators. Dates must be formatted following [ISO8601](https://en.wikipedia.org/wiki/ISO_8601), which is `YYYY-MM-DD` (year-month-day).
 
-For example, a query of [`charts last_activity:>=2021-02-01`](https://swiftpackageindex.com/search?query=charts+last_activity%3A%3E2021-01-01)
-matches packages containing the word "charts" and that have also received some activity since the start of February 2021.
+For example, a query of [`charts last_activity:>=2021-02-01`](https://swiftpackageindex.com/search?query=charts+last_activity%3A%3E2021-01-01) matches packages containing the word "charts" and that have also received some activity since the start of February 2021.
 
-Filters using the date format include `last_activity` (which is either the latest commit, or an issue or PR being merged/closed)
-and `last_commit` (the last commit to the default branch)
+Filters using the date format include `last_activity` (which is either the latest commit, or an issue or PR being merged/closed) and `last_commit` (the last commit to the default branch)
 
 #### Query for licenses
 
 You can search for packages that have a license which is compatible with the App Store by simply querying [`license:compatible`](https://swiftpackageindex.com/search?query=license%3Acompatible).
 
-You can also specify a specific license you wish a package to have from one of our [built-in options](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/Sources/App/Models/License.swift). 
-For example, a query of [`license:lgpl-2.1`](https://swiftpackageindex.com/search?query=license%3Algpl-2.1) matches any
-package with the license LGPL 2.1. 
+You can also specify a specific license you wish a package to have from one of our [built-in options](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/Sources/App/Models/License.swift). For example, a query of [`license:lgpl-2.1`](https://swiftpackageindex.com/search?query=license%3Algpl-2.1) matches any package with the license LGPL 2.1.
 
 #### Exclude certain results
 
-You can also filter packages in such a way where it hides results which match a given query. This is done by prefixing
-the value with an `!`.
+You can also filter packages in such a way where it hides results which match a given query. This is done by prefixing the value with an `!`.
 
-For example, a query of [`license:!mit`](https://swiftpackageindex.com/search?query=license%3A%21mit) matches packages
-where the license is not MIT.
+For example, a query of [`license:!mit`](https://swiftpackageindex.com/search?query=license%3A%21mit) matches packages where the license is not MIT.
