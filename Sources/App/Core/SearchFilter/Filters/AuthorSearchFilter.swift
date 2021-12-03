@@ -41,7 +41,7 @@ struct AuthorSearchFilter: SearchFilter {
         builder.where(
             SQLIdentifier("repo_owner"),
             comparison == .match ? SQLRaw("ILIKE") : SQLRaw("NOT ILIKE"),
-            SQLLiteral.string(value)
+            SQLBind(value)
         )
     }
     

@@ -41,7 +41,7 @@ struct KeywordSearchFilter: SearchFilter {
         builder.where(
             SQLIdentifier("keyword"),
             comparison == .match ? SQLRaw("ILIKE") : SQLRaw("NOT ILIKE"),
-            SQLLiteral.string("%\(value)%")
+            SQLBind("%\(value)%")
         )
     }
     
