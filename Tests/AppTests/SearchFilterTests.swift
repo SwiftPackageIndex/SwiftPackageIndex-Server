@@ -135,7 +135,7 @@ class SearchFilterTests: AppTestCase {
     func test_licenseFilter() throws {
         XCTAssertEqual(LicenseSearchFilter.key, "license")
         XCTAssertThrowsError(try LicenseSearchFilter(value: "compatible", comparison: .greaterThan))
-        XCTAssertEqual(try LicenseSearchFilter(value: "compatible", comparison: .match).filterType, .appStoreCompatible)
+        XCTAssertEqual(try LicenseSearchFilter(value: "compatible", comparison: .match).filterType, .kind(.compatibleWithAppStore))
         XCTAssertEqual(
             try LicenseSearchFilter(value: "compatible", comparison: .match).createViewModel().description,
             "license matches App Store compatible"
