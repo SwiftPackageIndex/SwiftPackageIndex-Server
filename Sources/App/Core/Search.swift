@@ -277,6 +277,10 @@ enum Search {
         let page = page.clamped(to: 1...)
         let (sanitizedTerms, filters) = SearchFilterParser().split(terms: sanitize(terms))
         
+        // Metrics
+        AppMetrics.searchTermsCount?.set(sanitizedTerms.count)
+        AppMetrics.searchFiltersCount?.set(filters.count)
+        
         guard let query = query(database,
                                 sanitizedTerms,
                                 filters: filters,
