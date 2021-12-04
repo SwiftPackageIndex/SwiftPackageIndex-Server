@@ -158,6 +158,7 @@ The following package metadata fields are supported:
 - `license` (License): The package's license.
 - `author` (Author): The owner of the package repository.
 - `keyword` (Keyword): Filter on matching package keywords.
+- `platform` (Platform): The platform the package supports.
 
 #### Query operators
 
@@ -186,6 +187,12 @@ You can also specify a specific license you wish a package to have from one of o
 You can also search for packages created by a specific user or organisation by filtering on `author`. For example, a query of [`fluent author:vapor`](https://swiftpackageindex.com/search?query=fluent+author%3Avapor) matches any package containing the word "fluent" owned by the vapor organisation.
 
 Similarly, you can search for packages that contain keywords with a `keyword` filter. For example, [`keyword:accessibility`](https://swiftpackageindex.com/search?query=keyword%3Aaccessibility) matches any package having the "accessibility" keyword.
+
+#### Querying for platform compatibility
+
+You can also search for packages which are compatible with a certain platform, including iOS, macOS, tvOS and watchOS. For example, a query of [`grid platform:macos`](https://swiftpackageindex.com/search?query=grid+platform%3Amacos) matches any package containing the word "grid" and that our build system has checked for compatibility with macOS.
+
+We determine platform compatibility based on real-world builds, you can learn more about how we do this in the [Swift Package Index Build System FAQ](/docs/builds).  
 
 #### Excluding results
 
