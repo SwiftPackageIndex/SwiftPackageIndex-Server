@@ -26,7 +26,7 @@ class SearchFilterTests: AppTestCase {
                 .allSearchFilters
                 .map { $0.key }
                 .sorted(),
-            [ "author", "keyword", "last_activity", "last_commit", "license", "stars" ]
+            [ "author", "keyword", "last_activity", "last_commit", "license", "platform", "stars" ]
         )
     }
     
@@ -232,6 +232,29 @@ class SearchFilterTests: AppTestCase {
         let sql = renderSQL(builder, resolveBinds: true)
         _assertInlineSnapshot(matching: sql, as: .lines, with: """
         SELECT  WHERE ("keyword" ILIKE '%cache%')
+        """)
+    }
+    
+    func test_platformFilter() throws {
+        // linux is not one of our stored platforms
+        XCTAssertThrowsError(try PlatformSearchFilter(value: "linux", comparison: .match))
+        // can only use a match/negativeMatch comparison method
+        XCTAssertThrowsError(try PlatformSearchFilter(value: "macos", comparison: .greaterThan))
+        // casing doesn't matter on input
+        XCTAssertNoThrow(try PlatformSearchFilter(value: "macos", comparison: .match))
+        XCTAssertNoThrow(try PlatformSearchFilter(value: "macOS", comparison: .match))
+        
+        XCTAssertEqual(
+            try PlatformSearchFilter(value: "ios", comparison: .match).createViewModel().description,
+            "platform is iOS"
+        )
+
+        let filter = try PlatformSearchFilter(value: "tvos", comparison: .match)
+        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+            .where(searchFilters: [filter])
+        let sql = renderSQL(builder, resolveBinds: true)
+        _assertInlineSnapshot(matching: sql, as: .lines, with: """
+        SELECT  WHERE ("platforms"::jsonb @> '[{"name":"tvos"}]'::jsonb)
         """)
     }
 

@@ -33,7 +33,7 @@ struct PlatformSearchFilter: SearchFilter {
             throw SearchFilterError.unsupportedComparisonMethod
         }
         
-        guard let platform = Platform.Name(rawValue: value) else {
+        guard let platform = Platform.Name(rawValue: value.lowercased()) else {
             throw SearchFilterError.invalidValueType
         }
         
