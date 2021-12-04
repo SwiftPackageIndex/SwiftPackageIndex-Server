@@ -151,6 +151,15 @@ enum License: String, Codable, Equatable, CaseIterable {
         case other
         case incompatibleWithAppStore = "incompatible"
         case compatibleWithAppStore = "compatible"
+        
+        var userFacingString: String {
+            switch self {
+            case .none: return "not defined"
+            case .other: return "unknown"
+            case .incompatibleWithAppStore: return "incompatible with the App Store"
+            case .compatibleWithAppStore: return "compatible with the App Store"
+            }
+        }
     }
     
     static func withKind(_ predicate: (Kind) -> Bool) -> [String] {

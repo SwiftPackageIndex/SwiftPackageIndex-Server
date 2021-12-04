@@ -25,12 +25,12 @@ import SQLKit
 /// ```
 struct LicenseSearchFilter: SearchFilter {
     enum FilterType: Equatable {
-        case appStoreCompatible
+        case kind(License.Kind)
         case license(License)
         
         init?(rawValue: String) {
-            if rawValue == "compatible" {
-                self = .appStoreCompatible
+            if let kind = License.Kind(rawValue: rawValue) {
+                self = .kind(kind)
             } else if let license = License(rawValue: rawValue) {
                 self = .license(license)
             } else {
@@ -59,11 +59,11 @@ struct LicenseSearchFilter: SearchFilter {
     
     func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
         switch filterType {
-            case .appStoreCompatible:
+            case .kind(let kind):
                 return builder.where(
                     SQLIdentifier("license"),
                     comparison.binaryOperator(isSet: true),
-                    License.withKind { $0 == .compatibleWithAppStore }
+                    License.withKind { $0 == kind }
                 )
                 
             case .license(let license):
@@ -77,8 +77,8 @@ struct LicenseSearchFilter: SearchFilter {
     
     func createViewModel() -> SearchFilterViewModel {
         switch filterType {
-        case .appStoreCompatible:
-            return .init(key: Self.key, comparison: comparison, value: "App Store compatible")
+        case .kind(let kind):
+            return .init(key: Self.key, comparison: comparison, value: kind.userFacingString)
         case .license(let license):
             return .init(key: Self.key, comparison: comparison, value: license.shortName)
         }

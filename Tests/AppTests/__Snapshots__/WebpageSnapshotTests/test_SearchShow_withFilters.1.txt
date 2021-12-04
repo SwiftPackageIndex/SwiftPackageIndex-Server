@@ -79,7 +79,7 @@
               <ul class="filter_list">
                 <li>
                   <span class="filter-key">license</span> 
-                  <span class="filter-comparison">matches</span> 
+                  <span class="filter-comparison">is</span> 
                   <span class="filter-value">mit</span>
                 </li>
               </ul>
