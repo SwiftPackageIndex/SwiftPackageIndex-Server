@@ -22,6 +22,7 @@ enum Search {
     
     // identifiers
     static let author = SQLIdentifier("author")
+    static let dependenciesCount = SQLIdentifier("dependencies_count")
     static let keyword = SQLIdentifier("keyword")
     static let keywords = SQLIdentifier("keywords")
     static let packageId = SQLIdentifier("package_id")
@@ -33,6 +34,7 @@ enum Search {
     static let lastActivityAt = SQLIdentifier("last_activity_at")
     static let license = SQLIdentifier("license")
     static let lastCommitDate = SQLIdentifier("last_commit_date")
+    static let resolvedDependencies = SQLIdentifier("resolved_dependencies")
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
 
@@ -164,8 +166,20 @@ enum Search {
             .column(license)
             .column(lastCommitDate)
             .column(lastActivityAt)
+            .column(dependenciesCount)
             .from(searchView)
             .from(SQLFunction("CONCAT", args: keywords), as: keyword)
+            .from(
+                SQLFunction(
+                    "COALESCE",
+                    args: SQLFunction(
+                        "array_length",
+                        args: resolvedDependencies, SQLLiteral.numeric("1")
+                    ),
+                    SQLLiteral.numeric("0") // default to zero if NULL or empty array
+                ),
+                as: dependenciesCount
+            )
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(packageName))
@@ -199,6 +213,7 @@ enum Search {
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
             .column(nullTimestamp, as: lastActivityAt)
+            .column(nullInt, as: dependenciesCount)
             .from(searchView)
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
             .where(keyword, .equal, mergedTerms)
@@ -228,6 +243,7 @@ enum Search {
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
             .column(nullTimestamp, as: lastActivityAt)
+            .column(nullInt, as: dependenciesCount)
             .from(searchView)
             .where(repoOwner, ilike, mergedTerms)
             .limit(1)

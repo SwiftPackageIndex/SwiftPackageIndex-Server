@@ -158,6 +158,7 @@ The following package metadata fields are supported:
 - `license` (License): The package's license.
 - `author` (Author): The owner of the package repository.
 - `keyword` (Keyword): Filter on matching package keywords.
+- `dependencies` (Number): The number of dependencies the package has.
 
 #### Query operators
 
