@@ -26,7 +26,7 @@ class SearchFilterTests: AppTestCase {
                 .allSearchFilters
                 .map { $0.key }
                 .sorted(),
-            [ "author", "keyword", "last_activity", "last_commit", "license", "stars" ]
+            [ "author", "dependencies", "keyword", "last_activity", "last_commit", "license", "stars" ]
         )
     }
     
@@ -232,6 +232,23 @@ class SearchFilterTests: AppTestCase {
         let sql = renderSQL(builder, resolveBinds: true)
         _assertInlineSnapshot(matching: sql, as: .lines, with: """
         SELECT  WHERE ("keyword" ILIKE '%cache%')
+        """)
+    }
+    
+    func test_dependenciesFilter() throws {
+        XCTAssertThrowsError(try DependenciesSearchFilter(value: "one", comparison: .match))
+        XCTAssertEqual(try DependenciesSearchFilter(value: "1", comparison: .match).value, 1)
+        XCTAssertEqual(
+            try DependenciesSearchFilter(value: "1", comparison: .match).createViewModel().description,
+            "dependencies is 1"
+        )
+        
+        let filter = try DependenciesSearchFilter(value: "1", comparison: .greaterThan)
+        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+            .where(searchFilters: [filter])
+        let sql = renderSQL(builder, resolveBinds: true)
+        _assertInlineSnapshot(matching: sql, as: .lines, with: """
+        SELECT  WHERE ("dependencies_count" > '1')
         """)
     }
 
