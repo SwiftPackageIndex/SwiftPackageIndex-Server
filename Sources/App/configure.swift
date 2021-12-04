@@ -194,6 +194,9 @@ public func configure(_ app: Application) throws {
         app.migrations.add(AddLastActivityAtToRepositories())
         app.migrations.add(UpdateSearch3())
     }
+    do {  // Migration 039 - add supported_platforms and swift_versions to search
+        app.migrations.add(UpdateSearch4())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

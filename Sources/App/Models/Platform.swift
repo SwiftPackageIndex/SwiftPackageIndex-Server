@@ -41,17 +41,23 @@ extension Platform {
 }
 
 
+extension Platform.Name: CustomStringConvertible {
+    var description: String {
+        switch self {
+            case .ios:
+                return "iOS"
+            case .macos:
+                return "macOS"
+            case .watchos:
+                return "watchOS"
+            case .tvos:
+                return "tvOS"
+        }
+    }
+}
+
 extension Platform: CustomStringConvertible {
     var description: String {
-        switch name {
-            case .ios:
-                return "iOS \(version)"
-            case .macos:
-                return "macOS \(version)"
-            case .watchos:
-                return "watchOS \(version)"
-            case .tvos:
-                return "tvOS \(version)"
-        }
+        "\(name) \(version)"
     }
 }

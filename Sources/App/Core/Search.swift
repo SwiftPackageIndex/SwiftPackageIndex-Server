@@ -33,12 +33,16 @@ enum Search {
     static let lastActivityAt = SQLIdentifier("last_activity_at")
     static let license = SQLIdentifier("license")
     static let lastCommitDate = SQLIdentifier("last_commit_date")
+    static let platforms = SQLIdentifier("platforms")
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
+    static let supportedPlatforms = SQLIdentifier("supported_platforms")
+    static let swiftVersions = SQLIdentifier("swift_versions")
 
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
     static let nullInt = SQLRaw("NULL::INT")
+    static let nullJSON = SQLRaw("NULL::JSON")
     static let nullUUID = SQLRaw("NULL::UUID")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
 
@@ -164,8 +168,10 @@ enum Search {
             .column(license)
             .column(lastCommitDate)
             .column(lastActivityAt)
+            .column(platforms)
             .from(searchView)
             .from(SQLFunction("CONCAT", args: keywords), as: keyword)
+            .from(SQLFunction("array_to_json", args: supportedPlatforms), as: platforms)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(packageName))
@@ -199,6 +205,7 @@ enum Search {
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
             .column(nullTimestamp, as: lastActivityAt)
+            .column(nullJSON, as: platforms)
             .from(searchView)
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
             .where(keyword, .equal, mergedTerms)
@@ -228,6 +235,7 @@ enum Search {
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
             .column(nullTimestamp, as: lastActivityAt)
+            .column(nullJSON, as: platforms)
             .from(searchView)
             .where(repoOwner, ilike, mergedTerms)
             .limit(1)

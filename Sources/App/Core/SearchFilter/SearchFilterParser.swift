@@ -24,6 +24,7 @@ struct SearchFilterParser {
         LastActivitySearchFilter.self,
         AuthorSearchFilter.self,
         KeywordSearchFilter.self,
+        PlatformSearchFilter.self,
     ]
     
     /// Separates search terms from filter syntax.
