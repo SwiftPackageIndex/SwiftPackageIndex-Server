@@ -67,8 +67,8 @@ enum SearchFilterComparison: String, Codable, Equatable {
     
     var userFacingString: String {
         switch self {
-        case .match: return "matches"
-        case .negativeMatch: return "does not match"
+        case .match: return "is"
+        case .negativeMatch: return "is not"
         case .greaterThan: return "is greater than"
         case .greaterThanOrEqual: return "is greather than or equal to"
         case .lessThan: return "is less than"

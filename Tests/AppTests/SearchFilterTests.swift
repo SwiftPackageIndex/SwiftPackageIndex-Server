@@ -120,7 +120,7 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(try StarsSearchFilter(value: "1", comparison: .match).value, 1)
         XCTAssertEqual(
             try StarsSearchFilter(value: "1", comparison: .match).createViewModel().description,
-            "stars matches 1"
+            "stars is 1"
         )
         
         let filter = try StarsSearchFilter(value: "1", comparison: .greaterThan)
@@ -138,7 +138,7 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(try LicenseSearchFilter(value: "compatible", comparison: .match).filterType, .kind(.compatibleWithAppStore))
         XCTAssertEqual(
             try LicenseSearchFilter(value: "compatible", comparison: .match).createViewModel().description,
-            "license matches App Store compatible"
+            "license is compatible with the App Store"
         )
         
         func createLicenseQuery(input: String, comparison: SearchFilterComparison = .match) throws -> String {
@@ -174,7 +174,7 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(try LastCommitSearchFilter(value: "1970-01-01", comparison: .match).date, .t0)
         XCTAssertEqual(
             try LastCommitSearchFilter(value: "1970-01-01", comparison: .match).createViewModel().description,
-            "last commit matches 1 Jan 1970"
+            "last commit is 1 Jan 1970"
         )
 
         let filter = try LastCommitSearchFilter(value: "1970-01-01", comparison: .match)
@@ -191,7 +191,7 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(try LastActivitySearchFilter(value: "1970-01-01", comparison: .match).date, .t0)
         XCTAssertEqual(
             try LastActivitySearchFilter(value: "1970-01-01", comparison: .match).createViewModel().description,
-            "last activity matches 1 Jan 1970"
+            "last activity is 1 Jan 1970"
         )
 
         let filter = try LastActivitySearchFilter(value: "1970-01-01", comparison: .match)
@@ -207,7 +207,7 @@ class SearchFilterTests: AppTestCase {
         XCTAssertThrowsError(try AuthorSearchFilter(value: "sherlouk", comparison: .greaterThan))
         XCTAssertEqual(
             try AuthorSearchFilter(value: "sherlouk", comparison: .match).createViewModel().description,
-            "author matches sherlouk"
+            "author is sherlouk"
         )
 
         let filter = try AuthorSearchFilter(value: "sherlouk", comparison: .match)
@@ -223,7 +223,7 @@ class SearchFilterTests: AppTestCase {
         XCTAssertThrowsError(try KeywordSearchFilter(value: "cache", comparison: .greaterThan))
         XCTAssertEqual(
             try KeywordSearchFilter(value: "cache", comparison: .match).createViewModel().description,
-            "keywords matches cache"
+            "keywords is cache"
         )
 
         let filter = try KeywordSearchFilter(value: "cache", comparison: .match)

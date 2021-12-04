@@ -154,10 +154,10 @@ enum License: String, Codable, Equatable, CaseIterable {
         
         var userFacingString: String {
             switch self {
-            case .none: return License.none.shortName
-            case .other: return License.other.shortName
-            case .incompatibleWithAppStore: return "App Store incompatible"
-            case .compatibleWithAppStore: return "App Store compatible"
+            case .none: return "not defined"
+            case .other: return "unknown"
+            case .incompatibleWithAppStore: return "incompatible with the App Store"
+            case .compatibleWithAppStore: return "compatible with the App Store"
             }
         }
     }
