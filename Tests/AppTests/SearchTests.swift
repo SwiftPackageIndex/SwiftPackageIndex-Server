@@ -21,8 +21,6 @@ import XCTVapor
 
 class SearchTests: AppTestCase {
     
-    let recordSQL = false
-    
     func test_DBRecord_packageURL() throws {
         XCTAssertEqual(Search.DBRecord(matchType: .package,
                                        packageId: UUID(),
@@ -38,7 +36,7 @@ class SearchTests: AppTestCase {
 
     func test_packageMatchQuery_single_term() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, record: recordSQL, with: """
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
         SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "dependencies_count" FROM "search", CONCAT("keywords") AS "keyword", COALESCE(array_length("resolved_dependencies", 1), 0) AS "dependencies_count" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC
         """)
         XCTAssertEqual(binds(b), ["a", "a"])
@@ -46,7 +44,7 @@ class SearchTests: AppTestCase {
 
     func test_packageMatchQuery_multiple_terms() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"], filters: [])
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, record: recordSQL, with: """
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
         SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "dependencies_count" FROM "search", CONCAT("keywords") AS "keyword", COALESCE(array_length("resolved_dependencies", 1), 0) AS "dependencies_count" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
         """)
         XCTAssertEqual(binds(b), ["a", "b", "a b"])
@@ -56,14 +54,14 @@ class SearchTests: AppTestCase {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"],
             filters: [try StarsSearchFilter(value: "500", comparison: .greaterThan)])
         
-        _assertInlineSnapshot(matching: renderSQL(b, resolveBinds: true), as: .lines, record: recordSQL, with: """
+        _assertInlineSnapshot(matching: renderSQL(b, resolveBinds: true), as: .lines, with: """
         SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "dependencies_count" FROM "search", CONCAT("keywords") AS "keyword", COALESCE(array_length("resolved_dependencies", 1), 0) AS "dependencies_count" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* 'a' AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("stars" > '500') ORDER BY LOWER("package_name") = 'a' DESC, "score" DESC, "package_name" ASC
         """)
     }
 
     func test_keywordMatchQuery_single_term() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, record: recordSQL, with: """
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
         SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::INT AS "dependencies_count" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1
         """)
         XCTAssertEqual(binds(b), ["a"])
@@ -71,7 +69,7 @@ class SearchTests: AppTestCase {
 
     func test_keywordMatchQuery_multiple_terms() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, record: recordSQL, with: """
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
         SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::INT AS "dependencies_count" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1
         """)
         XCTAssertEqual(binds(b), ["a b"])
@@ -79,7 +77,7 @@ class SearchTests: AppTestCase {
 
     func test_authorMatchQuery_single_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, record: recordSQL, with: """
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
         SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::INT AS "dependencies_count" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1
         """)
         XCTAssertEqual(binds(b), ["a"])
@@ -87,7 +85,7 @@ class SearchTests: AppTestCase {
 
     func test_authorMatchQuery_multiple_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, record: recordSQL, with: """
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
         SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL::INT AS "dependencies_count" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1
         """)
         XCTAssertEqual(binds(b), ["a b"])
@@ -118,7 +116,7 @@ class SearchTests: AppTestCase {
         )
         XCTAssertEqual(renderSQL(query, resolveBinds: true),
                        #"SELECT * FROM ((\#(authors)) UNION ALL (\#(keywords)) UNION ALL (\#(packages))) AS "t""#)
-        assertSnapshot(matching: renderSQL(query, resolveBinds: true), as: .lines, record: recordSQL)
+        assertSnapshot(matching: renderSQL(query, resolveBinds: true), as: .lines)
     }
 
     func test_fetch_single() throws {

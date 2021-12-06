@@ -168,14 +168,10 @@ enum Search {
             .column(lastActivityAt)
             .column(dependenciesCount)
             .from(searchView)
-            .from(SQLFunction("CONCAT", args: keywords), as: keyword)
+            .from(concat(keywords), as: keyword)
             .from(
-                SQLFunction(
-                    "COALESCE",
-                    args: SQLFunction(
-                        "array_length",
-                        args: resolvedDependencies, SQLLiteral.numeric("1")
-                    ),
+                coalesce(
+                    arrayLength(resolvedDependencies),
                     SQLLiteral.numeric("0") // default to zero if NULL or empty array
                 ),
                 as: dependenciesCount

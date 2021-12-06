@@ -49,3 +49,6 @@ func eq(_ lhs: SQLExpression, _ rhs: SQLExpression) -> SQLBinaryExpression {
     SQLBinaryExpression(left: lhs, op: SQLBinaryOperator.equal, right: rhs)
 }
 
+func arrayLength(_ arg: SQLExpression) -> SQLFunction {
+    SQLFunction("array_length", args: [ arg, SQLLiteral.numeric("1") ])
+}
