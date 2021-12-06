@@ -114,8 +114,8 @@
         "repositoryURL": "https://github.com/vapor/routing-kit.git",
         "state": {
           "branch": null,
-          "revision": "a0801a36a6ad501d5ad6285cbcd4774de6b0a734",
-          "version": "4.3.0"
+          "revision": "5603b81ceb744b8318feab1e60943704977a866b",
+          "version": "4.3.1"
         }
       },
       {
@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/vapor/sql-kit.git",
         "state": {
           "branch": null,
-          "revision": "1a788f4947c36bc5eff2b8ceb3560a0ce50c4f58",
-          "version": "3.13.1"
+          "revision": "bfcaa637917faf2e2fbb4cec6aa45e9659c945b4",
+          "version": "3.14.0"
         }
       },
       {
@@ -177,7 +177,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "a287667013627828ad9917e8e1c262e1af14d8b3",
+          "revision": "9ef905a68300e82e4dd72fab2ecf369a917b09b1",
           "version": null
         }
       },
