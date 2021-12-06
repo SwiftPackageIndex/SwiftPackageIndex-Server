@@ -40,13 +40,13 @@ class AppTestCase: XCTestCase {
 
 
 extension AppTestCase {
-    func renderSQL(_ builder: SQLSelectBuilder?) -> String {
-        renderSQL(builder?.query)
+    func renderSQL(_ builder: SQLSelectBuilder) -> String {
+        renderSQL(builder.query)
     }
 
-    func renderSQL(_ query: SQLExpression?) -> String {
+    func renderSQL(_ query: SQLExpression) -> String {
         var serializer = SQLSerializer(database: app.db as! SQLDatabase)
-        query?.serialize(to: &serializer)
+        query.serialize(to: &serializer)
         return serializer.sql
     }
 
