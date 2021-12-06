@@ -14,8 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-HOST=${SPI_DBDUMP_HOST:-'spi-prod-db-1-dump'}
-PORT=${SPI_DBDUMP_PORT:-'7435'}
+PORT=${SPI_DBDUMP_PORT:-'7434'}
 USER=${SPI_DBDUMP_USER:-'spi_prod'}
 DATABASE=${SPI_DBDUMP_DATABASE:-'spi_prod'}
 
@@ -25,5 +24,5 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 then
   # This command assumes the db will be available on $PORT on localhost, via an ssh tunnel:
   # For example: ssh -i <your private key> -L 7432:db:5432 -p 2222 root@173.255.229.82
-  pg_dump --no-owner -Fc -h localhost -p ${PORT} -U ${USER}@${HOST} ${DATABASE} > ${USER}-$(date +%Y-%m-%d).dump
+  pg_dump --no-owner -Fc -h localhost -p ${PORT} -U ${USER} ${DATABASE} > ${USER}-$(date +%Y-%m-%d).dump
 fi
