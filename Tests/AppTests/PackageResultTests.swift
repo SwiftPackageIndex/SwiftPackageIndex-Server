@@ -111,7 +111,7 @@ class PackageResultTests: AppTestCase {
                        openIssues: 27,
                        openPullRequests: 1,
                        owner: "foo").create(on: app.db).wait()
-        let pr = try Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>.query(on: app.db, owner: "foo", repository: "bar")
+        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar")
             .wait()
 
         // MUT
@@ -126,6 +126,39 @@ class PackageResultTests: AppTestCase {
                                                      url: "https://github.com/Alamofire/Alamofire/pulls"),
                              lastIssueClosedAt: "5 days ago",
                              lastPullRequestClosedAt: "6 days ago"))
+    }
+
+    func test_productCounts() throws {
+        // setup
+        let p = try savePackage(on: app.db, "https://github.com/Alamofire/Alamofire")
+        try Repository(package: p,
+                       name: "bar",
+                       owner: "foo").create(on: app.db).wait()
+        do {
+            let v = try Version(package: p, latest: .defaultBranch)
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "lib1")
+                .save(on: app.db).wait()
+            try Product(version: v, type: .library(.dynamic), name: "lib2")
+                .save(on: app.db).wait()
+            try Product(version: v, type: .executable, name: "exe")
+                .save(on: app.db).wait()
+        }
+        do {  // decoy version, should not be picked up
+            let v = try Version(package: p, latest: .release)
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "lib")
+                .save(on: app.db).wait()
+        }
+        let res = try PackageResult.query(on: app.db, owner: "foo", repository: "bar")
+            .wait()
+
+        // MUT
+        let productCounts = res.productCounts()
+
+        // validation
+        XCTAssertEqual(productCounts?.libraries, 2)
+        XCTAssertEqual(productCounts?.executables, 1)
     }
 
     func test_buildResults_swiftVersions() throws {
