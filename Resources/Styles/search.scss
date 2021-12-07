@@ -76,6 +76,12 @@ section.search {
     a {
       cursor: pointer;
     }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      .suggestion {
+        display: none;
+      }
+    }
   }
 
   &.home {
