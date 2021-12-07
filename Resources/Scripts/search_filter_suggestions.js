@@ -29,15 +29,21 @@ export class SPISearchFilterSuggestions {
   ]
 
   constructor() {
+    document.addEventListener('turbo:before-cache', () => {
+      const searchSectionElement = document.querySelector('[data-filter-suggestions]')
+      if (!searchSectionElement) return
+
+      // Remove any search filter suggestions before the page is cached so they can be
+      // re-inserted correctly. Otherwise, the handler events all get removed.
+      const filterSuggestionsElement = searchSectionElement.querySelector('.filter_suggestions')
+      if (filterSuggestionsElement) filterSuggestionsElement.remove()
+    })
+
     document.addEventListener('turbo:load', () => {
       const searchSectionElement = document.querySelector('[data-filter-suggestions]')
       if (!searchSectionElement) return
       const searchFieldElement = searchSectionElement.querySelector('form input[type=search]')
       if (!searchFieldElement) return
-
-      // If a previously cached instance of this page is loaded there's no need to add it again, we're done.
-      const existingSearchSuggestionsElement = searchSectionElement.querySelector('.filter_suggestions')
-      if (existingSearchSuggestionsElement) return
 
       // Add the search suggestions below the search field.
       const filterSuggestionsElement = document.createElement('div')
