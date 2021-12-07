@@ -19,11 +19,11 @@ export class SPISearchFilterSuggestions {
       description: 'Filter on packages with more than 500 stars.',
     },
     {
-      filter: 'last_activity:>2021-01-01',
+      filter: `last_activity:>${this.formattedFilterDate()}`,
       description: 'Filter on packages with a commit or a closed/merged pull request or issue in the last 30 days.',
     },
     {
-      filter: 'last_commit:>2021-01-01',
+      filter: `last_commit:>${this.formattedFilterDate()}`,
       description: 'Filter on packages with a commit in the last 30 days.',
     },
   ]
@@ -87,5 +87,16 @@ export class SPISearchFilterSuggestions {
         })
       })
     })
+  }
+
+  static formattedFilterDate() {
+    var thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    const year = thirtyDaysAgo.getFullYear()
+    const month = thirtyDaysAgo.getMonth() + 1 // Yes, JavaScript returns months as zero based.
+    const day = thirtyDaysAgo.getDate() // ... but not the day of the month. That's one based.
+
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
   }
 }
