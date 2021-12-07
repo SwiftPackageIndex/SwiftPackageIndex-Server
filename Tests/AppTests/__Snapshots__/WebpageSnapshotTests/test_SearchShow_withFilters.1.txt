@@ -61,13 +61,16 @@
     </header>
     <main>
       <div class="inner">
-        <section class="search" data-filter-suggestions="true">
+        <section class="search">
           <form action="/search">
             <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false" data-focus="true" value="query license:mit"/>
             <button type="submit">
               <div title="Search"></div>
             </button>
           </form>
+          <div class="filter_suggestions">Add filters to narrow search results (
+            <a href="/faq#search-filters">Learn more</a>). 
+          </div>
         </section>
         <section class="search_results">
           <p>Results for &ldquo;
