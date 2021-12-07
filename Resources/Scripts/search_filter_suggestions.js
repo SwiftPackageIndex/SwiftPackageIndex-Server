@@ -13,10 +13,73 @@
 // limitations under the License.
 
 export class SPISearchFilterSuggestions {
+  static suggestions = [
+    {
+      filter: 'stars:>500',
+      description: 'Filter on packages with more than 500 stars.',
+    },
+    {
+      filter: 'last_activity:>2021-01-01',
+      description: 'Filter on packages with a commit or a closed/merged pull request or issue in the last 30 days.',
+    },
+    {
+      filter: 'last_commit:>2021-01-01',
+      description: 'Filter on packages with a commit in the last 30 days.',
+    },
+  ]
+
   constructor() {
     document.addEventListener('turbo:load', () => {
       const searchSectionElement = document.querySelector('[data-filter-suggestions]')
       if (!searchSectionElement) return
+      const searchFieldElement = searchSectionElement.querySelector('form input[type=search]')
+      if (!searchFieldElement) return
+
+      // If a previously cached instance of this page is loaded there's no need to add it again, we're done.
+      const existingSearchSuggestionsElement = searchSectionElement.querySelector('.filter_suggestions')
+      if (existingSearchSuggestionsElement) return
+
+      // Add the search suggestions below the search field.
+      const filterSuggestionsElement = document.createElement('div')
+      filterSuggestionsElement.classList.add('filter_suggestions')
+      filterSuggestionsElement.innerHTML =
+        'Add filters for better results (<a href="/faq#search-filters">Learn more</a>). For example: '
+      searchSectionElement.appendChild(filterSuggestionsElement)
+
+      SPISearchFilterSuggestions.suggestions.forEach((suggestion) => {
+        const linkElement = document.createElement('a')
+        linkElement.textContent = suggestion.filter
+        linkElement.title = suggestion.description
+        linkElement.dataset.filter = suggestion.filter
+        filterSuggestionsElement.appendChild(linkElement)
+
+        // Top and tail with quotes.
+        // Note: The element *must* be inserted into the DOM for this to work.
+        linkElement.insertAdjacentHTML('beforebegin', '&ldquo;')
+        linkElement.insertAdjacentHTML('afterend', '&rdquo; ')
+
+        linkElement.addEventListener('click', (event) => {
+          event.preventDefault()
+
+          // Grab the filter and parse it out to get the lengths of each side.
+          const separator = ':'
+          const filter = linkElement.dataset.filter
+          const filterElements = filter.split(separator)
+          const valueLength = filterElements.pop().length
+          const fieldLength = filterElements.pop().length
+          const whitespace = ' ' // To separate the suggested filter from the existing search term
+
+          // Append the filter to the existing search term.
+          var currentSearch = searchFieldElement.value.trimEnd()
+          searchFieldElement.value = currentSearch + whitespace + filter
+
+          // Finally, focus the value portion of the suggested filter.
+          const selectionStart = currentSearch.length + fieldLength + separator.length + whitespace.length
+          const selectionEnd = selectionStart + valueLength
+          searchFieldElement.focus()
+          searchFieldElement.setSelectionRange(selectionStart, selectionEnd, 'forward')
+        })
+      })
     })
   }
 }
