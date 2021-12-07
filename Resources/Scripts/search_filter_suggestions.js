@@ -16,15 +16,15 @@ export class SPISearchFilterSuggestions {
   static suggestions = [
     {
       filter: 'stars:>500',
-      description: 'Filter on packages with more than 500 stars.',
+      description: 'Filter to packages having more than 500 stars.',
     },
     {
       filter: `last_activity:>${this.formattedFilterDate()}`,
-      description: 'Filter on packages with a commit or a closed/merged pull request or issue in the last 30 days.',
+      description: 'Filter to packages having a commit or a closed/merged pull request or issue in the last 30 days.',
     },
     {
       filter: `last_commit:>${this.formattedFilterDate()}`,
-      description: 'Filter on packages with a commit in the last 30 days.',
+      description: 'Filter to packages having a commit in the last 30 days.',
     },
   ]
 
@@ -49,7 +49,7 @@ export class SPISearchFilterSuggestions {
       const filterSuggestionsElement = document.createElement('div')
       filterSuggestionsElement.classList.add('filter_suggestions')
       filterSuggestionsElement.innerHTML =
-        'Add filters for better results (<a href="/faq#search-filters">Learn more</a>). For example: '
+        'Add filters to narrow search results (<a href="/faq#search-filters">Learn more</a>). For example: '
       searchSectionElement.appendChild(filterSuggestionsElement)
 
       SPISearchFilterSuggestions.suggestions.forEach((suggestion) => {
