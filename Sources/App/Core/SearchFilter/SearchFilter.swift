@@ -70,7 +70,7 @@ enum SearchFilterComparison: String, Codable, Equatable {
         case .match: return "is"
         case .negativeMatch: return "is not"
         case .greaterThan: return "is greater than"
-        case .greaterThanOrEqual: return "is greather than or equal to"
+        case .greaterThanOrEqual: return "is greater than or equal to"
         case .lessThan: return "is less than"
         case .lessThanOrEqual: return "is less than or equal to"
         }
