@@ -61,7 +61,7 @@
     </header>
     <main>
       <div class="inner">
-        <section class="search">
+        <section class="search" data-filter-suggestions="true">
           <form action="/search">
             <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false" data-focus="true" value="query"/>
             <button type="submit">
