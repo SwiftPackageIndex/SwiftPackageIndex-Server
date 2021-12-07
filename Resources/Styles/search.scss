@@ -69,6 +69,10 @@ section.search {
     margin-top: 5px;
     font-size: 12px;
 
+    .suggestion {
+      margin-right: 5px;
+    }
+
     a {
       cursor: pointer;
     }

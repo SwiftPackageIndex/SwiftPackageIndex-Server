@@ -30,39 +30,39 @@ export class SPISearchFilterSuggestions {
 
   constructor() {
     document.addEventListener('turbo:before-cache', () => {
-      const searchSectionElement = document.querySelector('[data-filter-suggestions]')
-      if (!searchSectionElement) return
-
       // Remove any search filter suggestions before the page is cached so they can be
       // re-inserted correctly. Otherwise, the handler events all get removed.
-      const filterSuggestionsElement = searchSectionElement.querySelector('.filter_suggestions')
-      if (filterSuggestionsElement) filterSuggestionsElement.remove()
+      const suggestionElements = document.querySelectorAll('.filter_suggestions .suggestion')
+      suggestionElements.forEach((suggestionElement) => {
+        suggestionElement.remove()
+      })
     })
 
     document.addEventListener('turbo:load', () => {
-      const searchSectionElement = document.querySelector('[data-filter-suggestions]')
-      if (!searchSectionElement) return
-      const searchFieldElement = searchSectionElement.querySelector('form input[type=search]')
+      const filterSuggestionsElement = document.querySelector('.filter_suggestions')
+      if (!filterSuggestionsElement) return
+      const searchFieldElement = document.querySelector('form input[type=search]')
       if (!searchFieldElement) return
 
-      // Add the search suggestions below the search field.
-      const filterSuggestionsElement = document.createElement('div')
-      filterSuggestionsElement.classList.add('filter_suggestions')
-      filterSuggestionsElement.innerHTML =
-        'Add filters to narrow search results (<a href="/faq#search-filters">Learn more</a>). For example: '
-      searchSectionElement.appendChild(filterSuggestionsElement)
+      const forExampleElement = document.createElement('span')
+      forExampleElement.classList.add('suggestion')
+      forExampleElement.textContent = 'Try:'
+      filterSuggestionsElement.appendChild(forExampleElement)
 
       SPISearchFilterSuggestions.suggestions.forEach((suggestion) => {
+        const suggestionSpanElement = document.createElement('span')
+        suggestionSpanElement.classList.add('suggestion')
+        filterSuggestionsElement.appendChild(suggestionSpanElement)
+
         const linkElement = document.createElement('a')
         linkElement.textContent = suggestion.filter
         linkElement.title = suggestion.description
         linkElement.dataset.filter = suggestion.filter
-        filterSuggestionsElement.appendChild(linkElement)
+        suggestionSpanElement.appendChild(linkElement)
 
-        // Top and tail with quotes.
-        // Note: The element *must* be inserted into the DOM for this to work.
-        linkElement.insertAdjacentHTML('beforebegin', '&ldquo;')
-        linkElement.insertAdjacentHTML('afterend', '&rdquo; ')
+        // Top and tail each suggestion with quotes.
+        suggestionSpanElement.insertAdjacentHTML('afterbegin', '&ldquo;')
+        suggestionSpanElement.insertAdjacentHTML('beforeend', '&rdquo;')
 
         linkElement.addEventListener('click', (event) => {
           event.preventDefault()
