@@ -21,7 +21,7 @@ import SQLKit
 struct RecentRelease: Decodable, Equatable {
     static let schema = "recent_releases"
     
-    var id: UUID
+    var packageId: UUID
     var repositoryOwner: String
     var repositoryName: String
     var packageName: String
@@ -32,7 +32,7 @@ struct RecentRelease: Decodable, Equatable {
     var releaseNotesHTML: String?
     
     enum CodingKeys: String, CodingKey {
-        case id
+        case packageId = "package_id"
         case repositoryOwner = "repository_owner"
         case repositoryName = "repository_name"
         case packageName = "package_name"
