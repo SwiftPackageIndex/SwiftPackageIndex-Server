@@ -65,12 +65,16 @@ extension RSSFeed {
 }
 
 extension RecentPackage {
+    var rssGuid: String {
+        "\(repositoryOwner)/\(repositoryName)"
+    }
+
     var rssItem: Node<RSS.ChannelContext> {
         let link = SiteURL.package(.value(repositoryOwner),
                                    .value(repositoryName),
                                    .none).absoluteURL()
         return .item(
-            .guid(.text(link), .isPermaLink(true)),
+            .guid(.text(rssGuid), .isPermaLink(false)),
             .title(packageName),
             .link(link),
             .pubDate(createdAt, timeZone: .utc),
@@ -88,6 +92,10 @@ extension RecentPackage {
 }
 
 extension RecentRelease {
+    var rssGuid: String {
+        "\(repositoryOwner)/\(repositoryName)/\(version)"
+    }
+
     var rssItem: Node<RSS.ChannelContext> {
         let packageUrl = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
         let releasesUrl = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL(anchor: "releases")
@@ -116,7 +124,7 @@ extension RecentRelease {
         }
 
         return .item(
-            .guid(.text(packageUrl), .isPermaLink(true)),
+            .guid(.text(rssGuid), .isPermaLink(false)),
             .title("\(packageName) - \(version)"),
             .link(packageUrl),
             .pubDate(releasedAt, timeZone: .utc),

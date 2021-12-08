@@ -1,7 +1,7 @@
 <item>
-  <guid isPermaLink="true">http://localhost:8080/owner/repo</guid>
-  <title>package</title>
-  <link>http://localhost:8080/owner/repo</link>
+  <guid isPermaLink="false">repositoryOwner/repositoryName</guid>
+  <title>packageName</title>
+  <link>http://localhost:8080/repositoryOwner/repositoryName</link>
   <pubDate>Thu, 1 Jan 1970 00:00:00 +0000</pubDate>
-  <description><![CDATA[<p>summary</p><small><a href="http://localhost:8080/owner/repo">owner/repo</a></small>]]></description>
+  <description><![CDATA[<p>packageSummary</p><small><a href="http://localhost:8080/repositoryOwner/repositoryName">repositoryOwner/repositoryName</a></small>]]></description>
 </item>

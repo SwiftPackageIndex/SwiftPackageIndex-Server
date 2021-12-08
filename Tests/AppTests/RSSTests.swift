@@ -20,15 +20,19 @@ import XCTVapor
 
 class RSSTests: SnapshotTestCase {
 
+    func test_recentPackage_rssGuid() throws {
+        let recentPackage = RecentPackage.mock(repositoryOwner: "owner", repositoryName: "name")
+        XCTAssertEqual(recentPackage.rssGuid, "owner/name")
+    }
+
+    func test_recentRelease_rssGuid() throws {
+        let recentRelease = RecentRelease.mock(repositoryOwner: "owner", repositoryName: "name", version: "version")
+        XCTAssertEqual(recentRelease.rssGuid, "owner/name/version")
+    }
+
     func test_render_item() throws {
-        let item = RecentPackage(id: UUID(),
-                                 repositoryOwner: "owner",
-                                 repositoryName: "repo",
-                                 packageName: "package",
-                                 packageSummary: "summary",
-                                 createdAt: Date(timeIntervalSince1970: 0))
-            .rssItem
-        
+        let item = RecentPackage.mock().rssItem
+
         // MUT + validation
         assertSnapshot(matching: item.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
@@ -40,20 +44,21 @@ class RSSTests: SnapshotTestCase {
         let feed = RSSFeed(title: "feed title", description: "feed description",
                            link: "https://SwiftPackageIndex.com",
                            items: [
-                            RecentPackage(id: UUID(),
-                                          repositoryOwner: "owner0",
-                                          repositoryName: "repo0",
-                                          packageName: "package0",
-                                          packageSummary: "summary0",
-                                          createdAt: Date(timeIntervalSince1970: 0)).rssItem,
-                            RecentPackage(id: UUID(),
-                                          repositoryOwner: "owner1",
-                                          repositoryName: "repo1",
-                                          packageName: "package1",
-                                          packageSummary: "summary1",
-                                          createdAt: Date(timeIntervalSince1970: 1)).rssItem]
+                            RecentPackage.mock(id: .id0,
+                                               repositoryOwner: "repositoryOwner0",
+                                               repositoryName: "repositoryName0",
+                                               packageName: "packageName0",
+                                               packageSummary: "packageSummary0",
+                                               createdAt: .t0).rssItem,
+                            RecentPackage.mock(id: .id1,
+                                               repositoryOwner: "repositoryOwner1",
+                                               repositoryName: "repositoryName1",
+                                               packageName: "packageName1",
+                                               packageSummary: "packageSummary1",
+                                               createdAt: .t1).rssItem
+                           ]
         )
-        
+
         // MUT + validation
         assertSnapshot(matching: feed.rss.render(indentedBy: .spaces(2)),
                        as: .init(pathExtension: "xml", diffing: .lines))
