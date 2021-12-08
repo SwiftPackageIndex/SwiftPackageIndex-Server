@@ -388,26 +388,7 @@ final class PackageTests: AppTestCase {
         try savePackage(on: app.db, "2")
 
         // MUT
-        try (app.db as! SQLDatabase).raw(
-            #"""
-            UPDATE packages p SET platform_compatibility = ARRAY(
-                SELECT
-                    CASE
-                        WHEN b.platform LIKE 'macos-%' THEN 'macos'
-                        ELSE b.platform
-                    END
-                FROM versions v
-                JOIN builds b ON b.version_id = v.id
-                WHERE v.package_id = p.id
-                AND v.latest IS NOT NULL
-                AND b.status = 'ok'
-                GROUP BY b.platform
-                HAVING count(*) > 0
-            )
-            WHERE p.id = \#(bind: p.id)
-            """#
-        )
-            .run().wait()
+        try p.updatePlatformCompatibility(on: app.db).wait()
 
         // validate
         let p1 = try XCTUnwrap(
