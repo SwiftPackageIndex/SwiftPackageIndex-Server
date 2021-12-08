@@ -35,10 +35,8 @@ export class SPISearchFilterSuggestions {
     document.addEventListener('turbo:before-cache', () => {
       // Remove any search filter suggestions before the page is cached so they can be
       // re-inserted correctly. Otherwise, the handler events all get removed.
-      const suggestionElements = document.querySelectorAll('.filter_suggestions .suggestion')
-      suggestionElements.forEach((suggestionElement) => {
-        suggestionElement.remove()
-      })
+      const suggestionsSentenceElement = document.querySelector('.filter_suggestions .suggestions')
+      if (suggestionsSentenceElement) suggestionsSentenceElement.remove()
     })
 
     document.addEventListener('turbo:load', () => {
@@ -76,16 +74,28 @@ export class SPISearchFilterSuggestions {
         return linkElement
       })
 
+      // Put all suggestions in an identifiable element so they can be removed in `before-cache`.
+      const suggestionsSentenceElement = document.createElement('span')
+      suggestionsSentenceElement.classList.add('suggestions')
+      filterSuggestionsElement.append(suggestionsSentenceElement)
+
       // Construct the sentence containing all suggestions.
       const lastSuggestionElement = suggestionElements.pop()
-      filterSuggestionsElement.insertAdjacentText('beforeend', 'Try filtering by ')
+      suggestionsSentenceElement.appendChild(document.createTextNode('Try filtering by '))
       suggestionElements.forEach((suggestionElement) => {
-        filterSuggestionsElement.insertAdjacentElement('beforeend', suggestionElement)
-        filterSuggestionsElement.insertAdjacentText('beforeend', ', ')
+        suggestionsSentenceElement.appendChild(suggestionElement)
+        suggestionsSentenceElement.appendChild(document.createTextNode(', '))
       })
-      filterSuggestionsElement.insertAdjacentText('beforeend', 'or ')
-      filterSuggestionsElement.insertAdjacentElement('beforeend', lastSuggestionElement)
-      filterSuggestionsElement.insertAdjacentText('beforeend', '.')
+      suggestionsSentenceElement.appendChild(document.createTextNode('or '))
+      suggestionsSentenceElement.appendChild(lastSuggestionElement)
+      suggestionsSentenceElement.appendChild(document.createTextNode('. '))
+
+      // Move the "Learn more" link to the end of the sentence.
+      const learnMoreElement = filterSuggestionsElement.querySelector('.learn_more')
+      if (learnMoreElement) {
+        learnMoreElement.remove()
+        filterSuggestionsElement.insertAdjacentElement('beforeend', learnMoreElement)
+      }
     })
   }
 

@@ -41,12 +41,15 @@ extension SearchShow {
                     .searchForm(query: model.query),
                     .div(
                         .class("filter_suggestions"),
-                        .text("Add filters to narrow search results ("),
-                        .a(
-                            .href(SiteURL.faq.relativeURL(anchor: "search-filters")),
-                            .text("Learn more")
-                        ),
-                        .text("). ")
+                        .text("Add filters to narrow search results. "),
+                        .span(
+                            .class("learn_more"),
+                            .a(
+                                .href(SiteURL.faq.relativeURL(anchor: "search-filters")),
+                                .text("Learn more")
+                            ),
+                            .text(".")
+                        )
                     )
                 ),
                 .if(model.query.count > 0, resultsSection())
