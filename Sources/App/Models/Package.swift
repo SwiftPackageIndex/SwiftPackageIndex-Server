@@ -34,7 +34,10 @@ final class Package: Model, Content {
     var updatedAt: Date?
     
     // data fields
-    
+
+    @Field(key: "platform_compatibility")
+    var platformCompatibility: [PlatformCompatibility]
+
     @OptionalEnum(key: "processing_stage")
     var processingStage: ProcessingStage?
     
@@ -61,11 +64,13 @@ final class Package: Model, Content {
          url: URL,
          score: Int = 0,
          status: Status = .new,
+         platformCompatibility: [PlatformCompatibility] = [],
          processingStage: ProcessingStage? = nil) {
         self.id = id
         self.url = url.absoluteString
         self.score = score
         self.status = status
+        self.platformCompatibility = platformCompatibility
         self.processingStage = processingStage
     }
 }
@@ -82,6 +87,17 @@ extension Package: Equatable {
 extension Package: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+}
+
+
+extension Package {
+    enum PlatformCompatibility: String, Codable {
+        case ios
+        case macos
+        case linux
+        case tvos
+        case watchos
     }
 }
 

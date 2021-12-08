@@ -354,6 +354,14 @@ final class PackageTests: AppTestCase {
         XCTAssertTrue(pkg.isNew)
     }
 
+    func test_save_platformCompatibility() throws {
+        try Package(url: "1".url, platformCompatibility: [.ios])
+            .save(on: app.db).wait()
+        let readBack = try XCTUnwrap(Package.query(on: app.db).first().wait())
+        XCTAssertEqual(readBack.platformCompatibility, [.ios])
+
+    }
+
 }
 
 
