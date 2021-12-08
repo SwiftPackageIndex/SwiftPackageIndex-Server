@@ -22,12 +22,13 @@ export class SPISearchFilterSuggestions {
     {
       text: 'last maintenance activity',
       filter: `last_activity:>${this.formattedFilterDate()}`,
-      description: 'Filter to packages having a commit or a closed/merged pull request or issue in the last 30 days.',
+      description:
+        'Filter to packages having a commit or a closed/merged pull request or issue in the last three months.',
     },
     {
       text: 'last commit',
       filter: `last_commit:>${this.formattedFilterDate()}`,
-      description: 'Filter to packages having a commit in the last 30 days.',
+      description: 'Filter to packages having a commit in the last three months.',
     },
   ]
 
@@ -100,12 +101,12 @@ export class SPISearchFilterSuggestions {
   }
 
   static formattedFilterDate() {
-    var thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    var ninetyDaysAgo = new Date()
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
 
-    const year = thirtyDaysAgo.getFullYear()
-    const month = thirtyDaysAgo.getMonth() + 1 // Yes, JavaScript returns months as zero based.
-    const day = thirtyDaysAgo.getDate() // ... but not the day of the month. That's one based.
+    const year = ninetyDaysAgo.getFullYear()
+    const month = ninetyDaysAgo.getMonth() + 1 // Yes, JavaScript returns months as zero based.
+    const day = ninetyDaysAgo.getDate() // ... but not the day of the month. That's one based.
 
     return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
   }
