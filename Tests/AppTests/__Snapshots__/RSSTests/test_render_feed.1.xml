@@ -7,18 +7,18 @@
     <ttl>60</ttl>
     <atom:link href="https://SwiftPackageIndex.com" rel="self" type="application/rss+xml"/>
     <item>
-      <guid isPermaLink="true">http://localhost:8080/owner0/repo0</guid>
-      <title>package0</title>
-      <link>http://localhost:8080/owner0/repo0</link>
+      <guid isPermaLink="false">repositoryOwner0/repositoryName0</guid>
+      <title>packageName0</title>
+      <link>http://localhost:8080/repositoryOwner0/repositoryName0</link>
       <pubDate>Thu, 1 Jan 1970 00:00:00 +0000</pubDate>
-      <description><![CDATA[<p>summary0</p><small><a href="http://localhost:8080/owner0/repo0">owner0/repo0</a></small>]]></description>
+      <description><![CDATA[<p>packageSummary0</p><small><a href="http://localhost:8080/repositoryOwner0/repositoryName0">repositoryOwner0/repositoryName0</a></small>]]></description>
     </item>
     <item>
-      <guid isPermaLink="true">http://localhost:8080/owner1/repo1</guid>
-      <title>package1</title>
-      <link>http://localhost:8080/owner1/repo1</link>
+      <guid isPermaLink="false">repositoryOwner1/repositoryName1</guid>
+      <title>packageName1</title>
+      <link>http://localhost:8080/repositoryOwner1/repositoryName1</link>
       <pubDate>Thu, 1 Jan 1970 00:00:01 +0000</pubDate>
-      <description><![CDATA[<p>summary1</p><small><a href="http://localhost:8080/owner1/repo1">owner1/repo1</a></small>]]></description>
+      <description><![CDATA[<p>packageSummary1</p><small><a href="http://localhost:8080/repositoryOwner1/repositoryName1">repositoryOwner1/repositoryName1</a></small>]]></description>
     </item>
   </channel>
 </rss>
