@@ -20,6 +20,16 @@ import XCTVapor
 
 class RSSTests: SnapshotTestCase {
 
+    func test_recentPackage_rssGuid() throws {
+        let recentPackage = RecentPackage.mock(repositoryOwner: "owner", repositoryName: "name")
+        XCTAssertEqual(recentPackage.rssGuid, "owner/name")
+    }
+
+    func test_recentRelease_rssGuid() throws {
+        let recentRelease = RecentRelease.mock(repositoryOwner: "owner", repositoryName: "name", version: "version")
+        XCTAssertEqual(recentRelease.rssGuid, "owner/name/version")
+    }
+
     func test_render_item() throws {
         let item = RecentPackage(id: UUID(),
                                  repositoryOwner: "owner",

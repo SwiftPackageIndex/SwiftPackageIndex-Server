@@ -65,6 +65,10 @@ extension RSSFeed {
 }
 
 extension RecentPackage {
+    var rssGuid: String {
+        "\(repositoryOwner)/\(repositoryName)"
+    }
+
     var rssItem: Node<RSS.ChannelContext> {
         let link = SiteURL.package(.value(repositoryOwner),
                                    .value(repositoryName),
@@ -88,6 +92,10 @@ extension RecentPackage {
 }
 
 extension RecentRelease {
+    var rssGuid: String {
+        "\(repositoryOwner)/\(repositoryName)/\(version)"
+    }
+
     var rssItem: Node<RSS.ChannelContext> {
         let packageUrl = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
         let releasesUrl = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL(anchor: "releases")
