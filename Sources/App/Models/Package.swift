@@ -254,7 +254,8 @@ extension Package {
                 AND b.status = 'ok'
                 GROUP BY b.platform
                 HAVING count(*) > 0
-            )
+            ),
+            updated_at = NOW()
             WHERE p.id = \#(bind: id)
             """#
         ).run()
