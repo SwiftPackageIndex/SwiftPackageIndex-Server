@@ -13,7 +13,7 @@
 // limitations under the License.
 
 extension Build {
-    enum Platform: String, Codable, Equatable {
+    enum Platform: String, Codable, Equatable, CaseIterable {
         case ios
         case macosSpmArm        = "macos-spm-arm"
         case macosXcodebuildArm = "macos-xcodebuild-arm"

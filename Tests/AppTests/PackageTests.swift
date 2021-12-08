@@ -382,9 +382,27 @@ final class PackageTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try v.save(on: app.db).wait()
-        // TODO: create builds for all platforms to ensure we only convert to readable values
-        try Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_5)
-            .save(on: app.db).wait()
+        try Build.Platform.allCases.forEach {
+            // Create a build record for each platform to ensure we can read back
+            // any mapped build correctly.
+            // For instance, if macos-spm wasn't mapped to macos in the update statement,
+            // reading back that package would fail when de-serialising `macos-spm`
+            // into `Package.PlatformCompatibility`, because it has no such enum
+            // case.
+            // We need to test this explicitly, because the raw SQL update statement
+            // in combination with a plain TEXT[] backing field for
+            // platform_compatibility prevents us from relying on type safety.
+            // This test ensures that a newly added case in Build.Platform
+            // must also be handled in the updatePlatformCompatibility SQL
+            // statement.
+            // If it isn't, this test will fail with:
+            // invalid field: platform_compatibility type: Set<PlatformCompatibility> error: Unexpected data type: TEXT. Expected jsonb/json
+            // (which is a bit obscure but means that the content of
+            // platform_compatibility cannot be de-serialised into
+            // PlatformCompatibility)
+            try Build(version: v, platform: $0, status: .ok, swiftVersion: .v5_5)
+                .save(on: app.db).wait()
+        }
         try savePackage(on: app.db, "2")
 
         // MUT
@@ -394,7 +412,7 @@ final class PackageTests: AppTestCase {
         let p1 = try XCTUnwrap(
             Package.query(on: app.db).filter(by: "1".url).first().wait()
         )
-        XCTAssertEqual(p1.platformCompatibility, [.macos])
+        XCTAssertEqual(p1.platformCompatibility, [.ios, .macos, .linux, .tvos, .watchos])
         let p2 = try XCTUnwrap(
             Package.query(on: app.db).filter(by: "2".url).first().wait()
         )
