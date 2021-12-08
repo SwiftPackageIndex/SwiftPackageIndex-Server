@@ -65,6 +65,15 @@ section.search {
     }
   }
 
+  .filter_suggestions {
+    margin-top: 5px;
+    font-size: 12px;
+
+    a {
+      cursor: pointer;
+    }
+  }
+
   &.home {
     background-image: radial-gradient(var(--header-gradient-start) 0%, var(--header-gradient-end) 75%);
     background-color: var(--header-background);

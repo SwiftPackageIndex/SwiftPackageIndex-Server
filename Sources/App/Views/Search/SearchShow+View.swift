@@ -38,7 +38,19 @@ extension SearchShow {
             .group(
                 .section(
                     .class("search"),
-                    .searchForm(query: model.query)
+                    .searchForm(query: model.query),
+                    .div(
+                        .class("filter_suggestions"),
+                        .text("Add filters to narrow search results. "),
+                        .span(
+                            .class("learn_more"),
+                            .a(
+                                .href(SiteURL.faq.relativeURL(anchor: "search-filters")),
+                                .text("Learn more")
+                            ),
+                            .text(".")
+                        )
+                    )
                 ),
                 .if(model.query.count > 0, resultsSection())
             )

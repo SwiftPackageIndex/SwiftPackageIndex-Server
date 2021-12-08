@@ -68,6 +68,11 @@
               <div title="Search"></div>
             </button>
           </form>
+          <div class="filter_suggestions">Add filters to narrow search results. 
+            <span class="learn_more">
+              <a href="/faq#search-filters">Learn more</a>.
+            </span>
+          </div>
         </section>
         <section class="search_results">
           <p>Results for &ldquo;
