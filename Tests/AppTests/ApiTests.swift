@@ -91,7 +91,7 @@ class ApiTests: AppTestCase {
         // setup
         Current.builderToken = { "secr3t" }
         let p = try savePackage(on: app.db, "1")
-        let v = try Version(package: p)
+        let v = try Version(package: p, latest: .defaultBranch)
         try v.save(on: app.db).wait()
         let versionId = try XCTUnwrap(v.id)
         
@@ -128,6 +128,9 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
                     let v = try Version.find(versionId, on: app.db).unwrap(or: Abort(.notFound)).wait()
                     XCTAssertEqual(v.resolvedDependencies, [])
+                    // build failed, hence no package platform compatibility yet
+                    let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
+                    XCTAssertEqual(p.platformCompatibility, [])
                 })
         }
         
@@ -161,6 +164,31 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(v.resolvedDependencies,
                                    [.init(packageName: "foo",
                                           repositoryURL: "http://foo/bar")])
+                    // build ok now -> package is macos compatible
+                    let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
+                    XCTAssertEqual(p.platformCompatibility, [.macos])
+                })
+        }
+
+        do {  // MUT - add another build to test Package.platformCompatibility
+            let dto: API.PostCreateBuildDTO = .init(
+                platform: .ios,
+                resolvedDependencies: [.init(packageName: "foo",
+                                             repositoryURL: "http://foo/bar")],
+                status: .ok,
+                swiftVersion: .init(5, 2, 0)
+            )
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try app.test(
+                .POST,
+                "api/versions/\(versionId)/builds",
+                headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+                body: body,
+                afterResponse: { res in
+                    // validation
+                    // additional ios build ok -> package is also ios compatible
+                    let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
+                    XCTAssertEqual(p.platformCompatibility, [.ios, .macos])
                 })
         }
 
