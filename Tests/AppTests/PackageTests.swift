@@ -377,6 +377,49 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(readBack.platformCompatibility, [.ios])
     }
 
+    func test_updatePlatformCompatibility() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch)
+        try v.save(on: app.db).wait()
+        // TODO: create builds for all platforms to ensure we only convert to readable values
+        try Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_5)
+            .save(on: app.db).wait()
+        try savePackage(on: app.db, "2")
+
+        // MUT
+        try (app.db as! SQLDatabase).raw(
+            #"""
+            UPDATE packages p SET platform_compatibility = ARRAY(
+                SELECT
+                    CASE
+                        WHEN b.platform LIKE 'macos-%' THEN 'macos'
+                        ELSE b.platform
+                    END
+                FROM versions v
+                JOIN builds b ON b.version_id = v.id
+                WHERE v.package_id = p.id
+                AND v.latest IS NOT NULL
+                AND b.status = 'ok'
+                GROUP BY b.platform
+                HAVING count(*) > 0
+            )
+            WHERE p.id = \#(bind: p.id)
+            """#
+        )
+            .run().wait()
+
+        // validate
+        let p1 = try XCTUnwrap(
+            Package.query(on: app.db).filter(by: "1".url).first().wait()
+        )
+        XCTAssertEqual(p1.platformCompatibility, [.macos])
+        let p2 = try XCTUnwrap(
+            Package.query(on: app.db).filter(by: "2".url).first().wait()
+        )
+        XCTAssertEqual(p2.platformCompatibility, [])
+    }
+
 }
 
 
