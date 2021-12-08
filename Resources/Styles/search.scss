@@ -37,6 +37,7 @@ section.search {
       background-color: var(--input-background);
       border: none;
       width: 100%;
+      -webkit-appearance: none;
 
       &:focus {
         outline: none;
