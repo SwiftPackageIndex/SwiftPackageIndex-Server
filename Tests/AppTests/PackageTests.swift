@@ -15,6 +15,7 @@
 @testable import App
 
 import Fluent
+import SQLKit
 import Vapor
 import XCTVapor
 
@@ -354,12 +355,24 @@ final class PackageTests: AppTestCase {
         XCTAssertTrue(pkg.isNew)
     }
 
-    func test_save_platformCompatibility() throws {
-        try Package(url: "1".url, platformCompatibility: [.ios])
+    func test_save_platformCompatibility_save() throws {
+        try Package(url: "1".url, platformCompatibility: [.ios, .ios, .macos])
             .save(on: app.db).wait()
         let readBack = try XCTUnwrap(Package.query(on: app.db).first().wait())
-        XCTAssertEqual(readBack.platformCompatibility, [.ios])
+        XCTAssertEqual(readBack.platformCompatibility, [.ios, .macos])
+    }
 
+    func test_save_platformCompatibility_read_nonunique() throws {
+        // test reading back of a non-unique array (this shouldn't be
+        // occuring but we can't enforce a set at the DDL level so it's
+        // technically possible and we want to ensure it doesn't cause
+        // errors)
+        try Package(url: "1".url).save(on: app.db).wait()
+        try (app.db as! SQLDatabase).raw(
+            "update packages set platform_compatibility = '{ios,ios}'"
+        ).run().wait()
+        let readBack = try XCTUnwrap(Package.query(on: app.db).first().wait())
+        XCTAssertEqual(readBack.platformCompatibility, [.ios])
     }
 
 }

@@ -36,7 +36,7 @@ final class Package: Model, Content {
     // data fields
 
     @Field(key: "platform_compatibility")
-    var platformCompatibility: [PlatformCompatibility]
+    var platformCompatibility: Set<PlatformCompatibility>
 
     @OptionalEnum(key: "processing_stage")
     var processingStage: ProcessingStage?
@@ -64,7 +64,7 @@ final class Package: Model, Content {
          url: URL,
          score: Int = 0,
          status: Status = .new,
-         platformCompatibility: [PlatformCompatibility] = [],
+         platformCompatibility: Set<PlatformCompatibility> = .init(),
          processingStage: ProcessingStage? = nil) {
         self.id = id
         self.url = url.absoluteString
