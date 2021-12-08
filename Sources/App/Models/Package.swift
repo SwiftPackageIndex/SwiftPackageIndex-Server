@@ -96,8 +96,6 @@ extension Package {
     enum PlatformCompatibility: String, Codable {
         case ios
         case macos
-        // TODO: decide if we want to include macosArm here
-        case macosArm
         case linux
         case tvos
         case watchos
