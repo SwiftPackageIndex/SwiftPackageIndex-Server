@@ -1,5 +1,6 @@
 {
   "name": "SwiftPackageIndex",
+  "license": "Apache-2.0",
   "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
   "scripts": {
     "clean": "rm -f Public/main.css Public/main.css.map Public/main.js Public/main.js.map",
@@ -7,16 +8,16 @@
     "serve": "yarn clean && rollup -c Resources/rollup-dev.js --watch"
   },
   "dependencies": {
-    "@hotwired/turbo": "^7.0.0-beta.5",
-    "lodash": "^4.17.20",
+    "@hotwired/turbo": "^7.1.0",
+    "lodash": "^4.17.21",
     "normalize.css": "^8.0.1"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^19.0.0",
-    "@rollup/plugin-node-resolve": "^13.0.0",
-    "rollup": "^2.52.3",
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "rollup": "^2.60.2",
     "rollup-plugin-styles": "^3.14.1",
     "rollup-plugin-terser": "^7.0.2",
-    "sass": "^1.35.1"
+    "sass": "^1.44.0"
   }
 }
