@@ -91,7 +91,8 @@ final class PackageTests: AppTestCase {
             "score": 17,
             "status": "ok",
             "createdAt": 0,
-            "updatedAt": 1
+            "updatedAt": 1,
+            "platformCompatibility": ["macos","ios"]
         }
         """
         let decoder = JSONDecoder()
@@ -102,6 +103,7 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(p.status, .ok)
         XCTAssertEqual(p.createdAt, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(p.updatedAt, Date(timeIntervalSince1970: 1))
+        XCTAssertEqual(p.platformCompatibility, [.ios, .macos])
     }
     
     func test_unique_url() throws {
@@ -356,7 +358,7 @@ final class PackageTests: AppTestCase {
     }
 
     func test_save_platformCompatibility_save() throws {
-        try Package(url: "1".url, platformCompatibility: [.ios, .ios, .macos])
+        try Package(url: "1".url, platformCompatibility: [.ios, .macos, .ios])
             .save(on: app.db).wait()
         let readBack = try XCTUnwrap(Package.query(on: app.db).first().wait())
         XCTAssertEqual(readBack.platformCompatibility, [.ios, .macos])
