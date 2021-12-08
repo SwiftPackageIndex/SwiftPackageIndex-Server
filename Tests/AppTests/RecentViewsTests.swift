@@ -158,7 +158,7 @@ class RecentViewsTests: AppTestCase {
             let minor = $0 % 3  // 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0
             let patch = $0 % 2  // 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
             let pre = $0 <= 10 ? "" : "-b1"
-            return RecentRelease(id: UUID(),
+            return RecentRelease(packageId: UUID(),
                                  repositoryOwner: "",
                                  repositoryName: "",
                                  packageName: "",
