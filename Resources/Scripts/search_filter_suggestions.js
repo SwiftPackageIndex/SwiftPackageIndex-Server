@@ -15,14 +15,17 @@
 export class SPISearchFilterSuggestions {
   static suggestions = [
     {
+      text: 'number of stars',
       filter: 'stars:>500',
       description: 'Filter to packages having more than 500 stars.',
     },
     {
+      text: 'last maintenance activity',
       filter: `last_activity:>${this.formattedFilterDate()}`,
       description: 'Filter to packages having a commit or a closed/merged pull request or issue in the last 30 days.',
     },
     {
+      text: 'last commit',
       filter: `last_commit:>${this.formattedFilterDate()}`,
       description: 'Filter to packages having a commit in the last 30 days.',
     },
@@ -44,26 +47,11 @@ export class SPISearchFilterSuggestions {
       const searchFieldElement = document.querySelector('form input[type=search]')
       if (!searchFieldElement) return
 
-      const forExampleElement = document.createElement('span')
-      forExampleElement.classList.add('suggestion')
-      forExampleElement.textContent = 'Try:'
-      filterSuggestionsElement.appendChild(forExampleElement)
-
-      SPISearchFilterSuggestions.suggestions.forEach((suggestion) => {
-        const suggestionSpanElement = document.createElement('span')
-        suggestionSpanElement.classList.add('suggestion')
-        filterSuggestionsElement.appendChild(suggestionSpanElement)
-
+      const suggestionElements = SPISearchFilterSuggestions.suggestions.map((suggestion) => {
         const linkElement = document.createElement('a')
-        linkElement.textContent = suggestion.filter
+        linkElement.textContent = suggestion.text
         linkElement.title = suggestion.description
         linkElement.dataset.filter = suggestion.filter
-        suggestionSpanElement.appendChild(linkElement)
-
-        // Top and tail each suggestion with quotes.
-        suggestionSpanElement.insertAdjacentHTML('afterbegin', '&ldquo;')
-        suggestionSpanElement.insertAdjacentHTML('beforeend', '&rdquo;')
-
         linkElement.addEventListener('click', (event) => {
           event.preventDefault()
 
@@ -82,10 +70,22 @@ export class SPISearchFilterSuggestions {
           // Finally, focus the value portion of the suggested filter.
           const selectionStart = currentSearch.length + fieldLength + separator.length + whitespace.length
           const selectionEnd = selectionStart + valueLength
-          searchFieldElement.focus()
+          searchFieldElement.focus() // Focus must be set before the selection otherwise the text field does not scroll to end.
           searchFieldElement.setSelectionRange(selectionStart, selectionEnd, 'forward')
         })
+        return linkElement
       })
+
+      // Construct the sentence containing all suggestions.
+      const lastSuggestionElement = suggestionElements.pop()
+      filterSuggestionsElement.insertAdjacentText('beforeend', 'Try filtering by ')
+      suggestionElements.forEach((suggestionElement) => {
+        filterSuggestionsElement.insertAdjacentElement('beforeend', suggestionElement)
+        filterSuggestionsElement.insertAdjacentText('beforeend', ', ')
+      })
+      filterSuggestionsElement.insertAdjacentText('beforeend', 'or ')
+      filterSuggestionsElement.insertAdjacentElement('beforeend', lastSuggestionElement)
+      filterSuggestionsElement.insertAdjacentText('beforeend', '.')
     })
   }
 
