@@ -74,7 +74,7 @@ extension RecentPackage {
                                    .value(repositoryName),
                                    .none).absoluteURL()
         return .item(
-            .guid(.text(link), .isPermaLink(true)),
+            .guid(.text(rssGuid), .isPermaLink(false)),
             .title(packageName),
             .link(link),
             .pubDate(createdAt, timeZone: .utc),
@@ -124,7 +124,7 @@ extension RecentRelease {
         }
 
         return .item(
-            .guid(.text(packageUrl), .isPermaLink(true)),
+            .guid(.text(rssGuid), .isPermaLink(false)),
             .title("\(packageName) - \(version)"),
             .link(packageUrl),
             .pubDate(releasedAt, timeZone: .utc),
