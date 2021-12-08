@@ -194,6 +194,9 @@ public func configure(_ app: Application) throws {
         app.migrations.add(AddLastActivityAtToRepositories())
         app.migrations.add(UpdateSearch3())
     }
+    do {  // Migration 039 - rename id to package_id on recent_releases
+        app.migrations.add(UpdateRecentReleases7())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
