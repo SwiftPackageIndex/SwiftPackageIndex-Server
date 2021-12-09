@@ -73,7 +73,7 @@
         <section class="error_message">
           <h4>404 - Not Found</h4>
           <p>If you were expecting to find a page here, please 
-            <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new">raise an issue</a>.
+            <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose">raise an issue</a>.
           </p>
           <p>From here, you'll want to 
             <a href="/">go to the home page</a> or 
