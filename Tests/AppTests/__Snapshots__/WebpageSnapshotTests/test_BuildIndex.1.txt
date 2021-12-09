@@ -78,7 +78,7 @@
           </p>
           <p>If you are the author of this package and see unexpected build failures, please check the 
             <a href="/docs/builds">build system documentation</a> to see how we derive build parameters. If you still see surprising results, please 
-            <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new">raise an issue</a>.
+            <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose">raise an issue</a>.
           </p>
           <hr/>
           <h3>Swift 5.5</h3>
