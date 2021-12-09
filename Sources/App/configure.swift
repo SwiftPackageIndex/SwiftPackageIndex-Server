@@ -200,6 +200,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 040 - add platform_compatibility field
         app.migrations.add(UpdatePackageAppPlatformCompatibility())
     }
+    do {  // Migration 041 - add platform_compatibility to search
+        app.migrations.add(UpdateSearch4())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
