@@ -22,6 +22,7 @@ struct SearchFilterParser {
         LastActivitySearchFilter.self,
         LastCommitSearchFilter.self,
         LicenseSearchFilter.self,
+        PlatformSearchFilter.self,
         StarsSearchFilter.self,
     ]
     
