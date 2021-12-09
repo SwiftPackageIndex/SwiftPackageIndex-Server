@@ -833,6 +833,48 @@ class SearchTests: AppTestCase {
             XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
         }
     }
+
+    func test_platformSearchFilter() throws {
+        // Setup
+        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "foo",
+                       summary: "test package").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       name: "2",
+                       owner: "foo",
+                       summary: "test package").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {
+            // MUT
+            let res = try Search.fetch(app.db, ["test", "platform:ios"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
+        }
+
+        do {  // double check that leaving the `platform` term off does select both packages
+            // MUT
+            let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(
+                res.results.compactMap(\.packageResult?.repositoryName).sorted(),
+                ["1", "2"]
+            )
+        }
+    }
+
 }
 
 
