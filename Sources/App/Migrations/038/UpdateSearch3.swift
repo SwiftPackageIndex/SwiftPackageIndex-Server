@@ -26,6 +26,7 @@ struct UpdateSearch3: Migration {
         
         return db.raw(dropSQL).run()
             .flatMap { db.raw("""
+            -- v4
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -53,6 +54,7 @@ struct UpdateSearch3: Migration {
         
         return db.raw(dropSQL).run()
             .flatMap { db.raw("""
+            -- v3
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,

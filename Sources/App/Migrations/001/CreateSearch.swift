@@ -23,6 +23,7 @@ struct CreateSearch: Migration {
         }
         return db.raw(
             """
+            -- v1
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id,

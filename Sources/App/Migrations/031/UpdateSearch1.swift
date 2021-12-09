@@ -25,6 +25,7 @@ struct UpdateSearch1: Migration {
         }
         let updatedViewSQL: SQLQueryString =
             """
+            -- v2
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -49,6 +50,7 @@ struct UpdateSearch1: Migration {
         }
         let oldViewSQL: SQLQueryString =
             """
+            -- v1
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id,
