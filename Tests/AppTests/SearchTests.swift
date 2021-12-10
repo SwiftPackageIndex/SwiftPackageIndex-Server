@@ -45,14 +45,78 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(b), ["a", "b", "a b"])
     }
-    
-    func test_packageMatchQuery_with_filter() throws {
+
+    func test_packageMatchQuery_AuthorSearchFilter() throws {
+        let b = Search.packageMatchQueryBuilder(
+            on: app.db, terms: ["a"],
+            filters: [try AuthorSearchFilter(value: "foo", comparison: .match)]
+        )
+
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
+              SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("repo_owner" ILIKE $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+              """)
+        XCTAssertEqual(binds(b), ["a", "foo", "a"])
+    }
+
+    func test_packageMatchQuery_KeywordSearchFilter() throws {
+        let b = Search.packageMatchQueryBuilder(
+            on: app.db, terms: ["a"],
+            filters: [try KeywordSearchFilter(value: "foo", comparison: .match)]
+        )
+
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
+            SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("keyword" ILIKE $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+            """)
+        XCTAssertEqual(binds(b), ["a", "%foo%", "a"])
+    }
+
+    func test_packageMatchQuery_LastActivitySearchFilter() throws {
+        let b = Search.packageMatchQueryBuilder(
+            on: app.db, terms: ["a"],
+            filters: [try LastActivitySearchFilter(value: "2021-12-01",
+                                                   comparison: .greaterThan)]
+        )
+
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
+            SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("last_activity_at" > $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+            """)
+        XCTAssertEqual(binds(b), ["a", "2021-12-01", "a"])
+    }
+
+    func test_packageMatchQuery_LastCommitSearchFilter() throws {
+        let b = Search.packageMatchQueryBuilder(
+            on: app.db, terms: ["a"],
+            filters: [try LastCommitSearchFilter(value: "2021-12-01",
+                                                 comparison: .greaterThan)]
+        )
+
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
+            SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("last_commit_date" > $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+            """)
+        XCTAssertEqual(binds(b), ["a", "2021-12-01", "a"])
+    }
+
+    func test_packageMatchQuery_LicenseSearchFilter() throws {
+        let b = Search.packageMatchQueryBuilder(
+            on: app.db, terms: ["a"],
+            filters: [try LicenseSearchFilter(value: "mit",
+                                              comparison: .match)]
+        )
+
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
+            SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("license" = $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+            """)
+        XCTAssertEqual(binds(b), ["a", "mit", "a"])
+    }
+
+    func test_packageMatchQuery_StarsSearchFilter() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"],
             filters: [try StarsSearchFilter(value: "500", comparison: .greaterThan)])
-        
-        _assertInlineSnapshot(matching: renderSQL(b, resolveBinds: true), as: .lines, with: """
-        SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* 'a' AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("stars" > '500') ORDER BY LOWER("package_name") = 'a' DESC, "score" DESC, "package_name" ASC
-        """)
+
+        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
+            SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("stars" > $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+            """)
+        XCTAssertEqual(binds(b), ["a", "500", "a"])
     }
 
     func test_keywordMatchQuery_single_term() throws {
@@ -84,27 +148,10 @@ class SearchTests: AppTestCase {
         // MUT
         let query = Search.query(app.db, ["test"], page: 1, pageSize: 20)
         // validate
-        // generate subqueries for validation to avoid repetition (these are tested separately above)
-        // we only want to test the `UNION ALL` glue query
-        let packages = renderSQL(
-            Search.packageMatchQueryBuilder(on: app.db,
-                                            terms: ["test"],
-                                            filters: [],
-                                            offset: 0,
-                                            limit: 21),
-            resolveBinds: true
-        )
-        let authors = renderSQL(
-            Search.authorMatchQueryBuilder(on: app.db, terms: ["test"]),
-            resolveBinds: true
-        )
-        let keywords = renderSQL(
-            Search.keywordMatchQueryBuilder(on: app.db, terms: ["test"]),
-            resolveBinds: true
-        )
-        XCTAssertEqual(renderSQL(query, resolveBinds: true),
-                       #"SELECT * FROM ((\#(authors)) UNION ALL (\#(keywords)) UNION ALL (\#(packages))) AS "t""#)
-        assertSnapshot(matching: renderSQL(query, resolveBinds: true), as: .lines)
+        _assertInlineSnapshot(matching: renderSQL(query), as: .lines, with: """
+            SELECT * FROM ((SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1) UNION ALL (SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $2 LIMIT 1) UNION ALL (SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $3 AND "package_name" IS NOT NULL AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $4 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
+            """)
+        XCTAssertEqual(binds(query), ["test", "test", "test", "test"])
     }
 
     func test_fetch_single() throws {

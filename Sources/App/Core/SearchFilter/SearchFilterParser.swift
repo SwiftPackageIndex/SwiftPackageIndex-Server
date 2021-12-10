@@ -18,12 +18,12 @@ struct SearchFilterParser {
     
     /// A list of all currently supported search filters.
     static var allSearchFilters: [SearchFilter.Type] = [
-        StarsSearchFilter.self,
-        LicenseSearchFilter.self,
-        LastCommitSearchFilter.self,
-        LastActivitySearchFilter.self,
         AuthorSearchFilter.self,
         KeywordSearchFilter.self,
+        LastActivitySearchFilter.self,
+        LastCommitSearchFilter.self,
+        LicenseSearchFilter.self,
+        StarsSearchFilter.self,
     ]
     
     /// Separates search terms from filter syntax.

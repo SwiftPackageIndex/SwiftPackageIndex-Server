@@ -126,10 +126,10 @@ class SearchFilterTests: AppTestCase {
         let filter = try StarsSearchFilter(value: "1", comparison: .greaterThan)
         let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
             .where(searchFilters: [filter])
-        let sql = renderSQL(builder, resolveBinds: true)
-        _assertInlineSnapshot(matching: sql, as: .lines, with: """
-        SELECT  WHERE ("stars" > '1')
-        """)
+        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
+            SELECT  WHERE ("stars" > $1)
+            """)
+        XCTAssertEqual(binds(builder), ["1"])
     }
     
     func test_licenseFilter() throws {
@@ -141,32 +141,51 @@ class SearchFilterTests: AppTestCase {
             "license is compatible with the App Store"
         )
         
-        func createLicenseQuery(input: String, comparison: SearchFilterComparison = .match) throws -> String {
+        func createLicenseQuery(input: String, comparison: SearchFilterComparison = .match) throws -> SQLSelectBuilder {
             let filter = try LicenseSearchFilter(value: input, comparison: comparison)
-            let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+            return SQLSelectBuilder(on: app.db as! SQLDatabase)
                 .where(searchFilters: [filter])
-            return renderSQL(builder, resolveBinds: true)
         }
-        
-        try _assertInlineSnapshot(matching: createLicenseQuery(input: "compatible"), as: .lines, with: """
-        SELECT  WHERE ("license" IN ('afl-3.0', 'apache-2.0', 'artistic-2.0', 'bsd-2-clause', 'bsd-3-clause', 'bsd-3-clause-clear', 'bsl-1.0', 'cc', 'cc0-1.0', 'afl-3.0'0, 'afl-3.0'1, 'afl-3.0'2, 'afl-3.0'3, 'afl-3.0'4, 'afl-3.0'5, 'afl-3.0'6, 'afl-3.0'7, 'afl-3.0'8, 'afl-3.0'9, 'apache-2.0'0, 'apache-2.0'1, 'apache-2.0'2, 'apache-2.0'3, 'apache-2.0'4))
-        """)
-        
-        try _assertInlineSnapshot(matching: createLicenseQuery(input: "mit"), as: .lines, with: """
-        SELECT  WHERE ("license" = 'mit')
-        """)
-        
-        try _assertInlineSnapshot(matching: createLicenseQuery(input: "incompatible"), as: .lines, with: """
-        SELECT  WHERE ("license" IN ('agpl-3.0', 'gpl', 'gpl-2.0', 'gpl-3.0', 'lgpl', 'lgpl-2.1', 'lgpl-3.0'))
-        """)
-        
-        try _assertInlineSnapshot(matching: createLicenseQuery(input: "none"), as: .lines, with: """
-        SELECT  WHERE ("license" IN ('none'))
-        """)
-        
-        try _assertInlineSnapshot(matching: createLicenseQuery(input: "other"), as: .lines, with: """
-        SELECT  WHERE ("license" IN ('other'))
-        """)
+
+        do {
+            let q = try createLicenseQuery(input: "compatible")
+            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
+            SELECT  WHERE ("license" IN ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24))
+            """)
+            XCTAssertEqual(binds(q), ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"])
+        }
+
+        do {
+            let q = try createLicenseQuery(input: "mit")
+            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
+                SELECT  WHERE ("license" = $1)
+                """)
+            XCTAssertEqual(binds(q), ["mit"])
+        }
+
+        do {
+            let q = try createLicenseQuery(input: "incompatible")
+            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
+            SELECT  WHERE ("license" IN ($1, $2, $3, $4, $5, $6, $7))
+            """)
+            XCTAssertEqual(binds(q), ["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"])
+        }
+
+        do {
+            let q = try createLicenseQuery(input: "none")
+            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
+                SELECT  WHERE ("license" IN ($1))
+                """)
+            XCTAssertEqual(binds(q), ["none"])
+        }
+
+        do {
+            let q = try createLicenseQuery(input: "other")
+            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
+                SELECT  WHERE ("license" IN ($1))
+                """)
+            XCTAssertEqual(binds(q), ["other"])
+        }
     }
     
     func test_lastCommitFilter() throws {
@@ -180,10 +199,10 @@ class SearchFilterTests: AppTestCase {
         let filter = try LastCommitSearchFilter(value: "1970-01-01", comparison: .match)
         let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
             .where(searchFilters: [filter])
-        let sql = renderSQL(builder, resolveBinds: true)
-        _assertInlineSnapshot(matching: sql, as: .lines, with: """
-        SELECT  WHERE ("last_commit_date" = '1970-01-01')
-        """)
+        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
+            SELECT  WHERE ("last_commit_date" = $1)
+            """)
+        XCTAssertEqual(binds(builder), ["1970-01-01"])
     }
     
     func test_lastActivityFilter() throws {
@@ -197,10 +216,10 @@ class SearchFilterTests: AppTestCase {
         let filter = try LastActivitySearchFilter(value: "1970-01-01", comparison: .match)
         let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
             .where(searchFilters: [filter])
-        let sql = renderSQL(builder, resolveBinds: true)
-        _assertInlineSnapshot(matching: sql, as: .lines, with: """
-        SELECT  WHERE ("last_activity_at" = '1970-01-01')
-        """)
+        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
+            SELECT  WHERE ("last_activity_at" = $1)
+            """)
+        XCTAssertEqual(binds(builder), ["1970-01-01"])
     }
     
     func test_authorFilter() throws {
@@ -213,10 +232,10 @@ class SearchFilterTests: AppTestCase {
         let filter = try AuthorSearchFilter(value: "sherlouk", comparison: .match)
         let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
             .where(searchFilters: [filter])
-        let sql = renderSQL(builder, resolveBinds: true)
-        _assertInlineSnapshot(matching: sql, as: .lines, with: """
-        SELECT  WHERE ("repo_owner" ILIKE 'sherlouk')
-        """)
+        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
+            SELECT  WHERE ("repo_owner" ILIKE $1)
+            """)
+        XCTAssertEqual(binds(builder), ["sherlouk"])
     }
     
     func test_keywordFilter() throws {
@@ -229,10 +248,10 @@ class SearchFilterTests: AppTestCase {
         let filter = try KeywordSearchFilter(value: "cache", comparison: .match)
         let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
             .where(searchFilters: [filter])
-        let sql = renderSQL(builder, resolveBinds: true)
-        _assertInlineSnapshot(matching: sql, as: .lines, with: """
-        SELECT  WHERE ("keyword" ILIKE '%cache%')
-        """)
+        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
+            SELECT  WHERE ("keyword" ILIKE $1)
+            """)
+        XCTAssertEqual(binds(builder), ["%cache%"])
     }
 
     // MARK: Mock
