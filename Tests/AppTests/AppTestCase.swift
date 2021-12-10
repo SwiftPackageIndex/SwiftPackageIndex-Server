@@ -64,9 +64,12 @@ extension AppTestCase {
         var serializer = SQLSerializer(database: app.db as! SQLDatabase)
         query?.serialize(to: &serializer)
         return serializer.binds.reduce(into: []) { result, bind in
-            if let bind = bind as? String { result.append(bind) }
-            if let bind = bind as? Date { result.append(DateFormatter.filterParseFormatter.string(from: bind)) }
-            if let bind = bind as? Int { result.append(String(bind)) }
+            switch bind {
+                case let bind as Date:
+                    result.append(DateFormatter.filterParseFormatter.string(from: bind))
+                default:
+                    result.append("\(bind)")
+            }
         }
     }
 }
