@@ -26,7 +26,7 @@ class SearchFilterTests: AppTestCase {
                 .allSearchFilters
                 .map { $0.key }
                 .sorted(),
-            [ "author", "keyword", "last_activity", "last_commit", "license", "stars" ]
+            ["author", "keyword", "last_activity", "last_commit", "license", "platform", "stars"]
         )
     }
     
@@ -252,6 +252,29 @@ class SearchFilterTests: AppTestCase {
             SELECT  WHERE ("keyword" ILIKE $1)
             """)
         XCTAssertEqual(binds(builder), ["%cache%"])
+    }
+
+    func test_platformFilter() throws {
+        XCTAssertThrowsError(try PlatformSearchFilter(value: "foo",
+                                                      comparison: .negativeMatch)) {
+            XCTAssertEqual($0 as? SearchFilterError,
+                           SearchFilterError.unsupportedComparisonMethod)
+        }
+        XCTAssertEqual(try PlatformSearchFilter(value: "ios").value, [.ios])
+        XCTAssertEqual(try PlatformSearchFilter(value: "iOS").value, [.ios])
+
+        XCTAssertThrowsError(try PlatformSearchFilter(value: "")) {
+            XCTAssertEqual($0 as? SearchFilterError, SearchFilterError.invalidValueType)
+        }
+        XCTAssertThrowsError(try PlatformSearchFilter(value: ",")) {
+            XCTAssertEqual($0 as? SearchFilterError, SearchFilterError.invalidValueType)
+        }
+        XCTAssertThrowsError(try PlatformSearchFilter(value: "MacOS X")) {
+            XCTAssertEqual($0 as? SearchFilterError, SearchFilterError.invalidValueType)
+        }
+
+        XCTAssertEqual(try PlatformSearchFilter(value: "iOS,macos,MacOS X").value, [.ios, .macos])
+        XCTAssertEqual(try PlatformSearchFilter(value: "iOS,macos,ios").value, [.ios, .macos])
     }
 
     // MARK: Mock

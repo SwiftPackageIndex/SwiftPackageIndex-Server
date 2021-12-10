@@ -16,7 +16,7 @@ import Fluent
 import SQLKit
 
 
-struct UpdateSearch3: Migration {
+struct UpdateSearch4: Migration {
     let dropSQL: SQLQueryString = "DROP MATERIALIZED VIEW search"
     
     func prepare(on database: Database) -> EventLoopFuture<Void> {
@@ -26,10 +26,11 @@ struct UpdateSearch3: Migration {
         
         return db.raw(dropSQL).run()
             .flatMap { db.raw("""
-            -- v4
+            -- v5
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
+              p.platform_compatibility,
               p.score,
               r.keywords,
               r.last_commit_date,
@@ -54,7 +55,7 @@ struct UpdateSearch3: Migration {
         
         return db.raw(dropSQL).run()
             .flatMap { db.raw("""
-            -- v3
+            -- v4
             CREATE MATERIALIZED VIEW search AS
             SELECT
               p.id AS package_id,
@@ -65,6 +66,7 @@ struct UpdateSearch3: Migration {
               r.name AS repo_name,
               r.owner AS repo_owner,
               r.stars,
+              r.last_activity_at,
               r.summary,
               v.package_name
             FROM packages p

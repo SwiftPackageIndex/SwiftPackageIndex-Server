@@ -26,9 +26,9 @@ export class SPISearchFilterSuggestions {
         'Filter to packages having a commit or a closed/merged pull request or issue in the last three months.',
     },
     {
-      text: 'last commit',
-      filter: `last_commit:>${this.formattedFilterDate()}`,
-      description: 'Filter to packages having a commit in the last three months.',
+      text: 'compatible platforms',
+      filter: `platform:ios,macos`,
+      description: 'Filter to packages compatible with both iOS and macOS.',
     },
   ]
 

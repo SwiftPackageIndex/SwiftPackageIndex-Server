@@ -166,7 +166,7 @@ public func configure(_ app: Application) throws {
     do {  // Migration 031 - add search.keywords
         app.migrations.add(UpdateSearch1())
     }
-    do {  // Migration 032 - add [license, stars, last_commit_date, supported_platforms, swift_versions] to search
+    do {  // Migration 032 - add [license, stars, last_commit_date] to search
         app.migrations.add(UpdateSearch2())
     }
     do {  // Migration 033 - add resolved_dependencies to versions
@@ -199,6 +199,9 @@ public func configure(_ app: Application) throws {
     }
     do {  // Migration 040 - add platform_compatibility field
         app.migrations.add(UpdatePackageAppPlatformCompatibility())
+    }
+    do {  // Migration 041 - add platform_compatibility to search
+        app.migrations.add(UpdateSearch4())
     }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")

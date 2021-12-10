@@ -152,12 +152,13 @@ You can narrow package search results with a search syntax that filters based on
 
 The following package metadata fields are supported:
 
-- `stars` (Number): The number of stars the package has.
-- `last_commit` (Date): The date of the last commit to the package repository.
-- `last_activity` (Date): The date of the last maintenance activity on the package repository. Any commit to the default branch or merging/closing an issue or pull request counts as maintenance activity.
-- `license` (License): The package's license.
 - `author` (Author): The owner of the package repository.
+- `last_activity` (Date): The date of the last maintenance activity on the package repository. Any commit to the default branch or merging/closing an issue or pull request counts as maintenance activity.
+- `last_commit` (Date): The date of the last commit to the package repository.
+- `license` (License): The package's license.
 - `keyword` (Keyword): Filter on matching package keywords.
+- `platform` (Platform(s)): Filter on one or more platforms (e.g. iOS, macOS, Linux, tvOS, watchOS)
+- `stars` (Number): The number of stars the package has.
 
 #### Query operators
 
