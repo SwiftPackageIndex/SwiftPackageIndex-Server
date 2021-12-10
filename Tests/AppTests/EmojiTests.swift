@@ -39,6 +39,7 @@ class EmojiTests: XCTestCase {
     }
     
     func test_emojiReplacementPerformance() throws {
+        throw XCTSkip("not working as intended (no timing recorded)")
         let sentence = """
         Lorem commodo hac :smile: accumsan massa odio :joy: nunc, phasellus vitae sed ante
         orci tortor integer, fringilla at sem ex :star_struck: vivamus :grin:. Vel purus metus urna
