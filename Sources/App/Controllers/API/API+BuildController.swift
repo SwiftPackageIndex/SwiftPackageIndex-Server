@@ -31,13 +31,23 @@ extension API {
                     return version.save(on: req.db)
                         .transform(to: version)
                 }
-                .flatMapThrowing { try Build(dto, $0) }
-                .flatMap { build in
+                .flatMapThrowing { ($0, try Build(dto, $0)) }
+                .flatMap { (version, build) -> EventLoopFuture<(App.Version, Build)> in
                     AppMetrics.apiBuildReportTotal?.inc(1, .init(build.platform, build.swiftVersion))
                     if build.status == .infrastructureError {
                         req.logger.critical("build infrastructure error: \(build.jobUrl)")
                     }
-                    return build.upsert(on: req.db).transform(to: build)
+                    return build.upsert(on: req.db).transform(to: (version, build))
+                }
+                .flatMap { (version, build) in
+                    Package.find(version.$package.id, on: req.db)
+                        .flatMap { package -> EventLoopFuture<Void> in
+                            guard let package = package else {
+                                return req.eventLoop.future()
+                            }
+                            return package.updatePlatformCompatibility(on: req.db)
+                        }
+                        .transform(to: build)
                 }
         }
         

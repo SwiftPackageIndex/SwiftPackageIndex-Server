@@ -15,6 +15,7 @@
 @testable import App
 
 import Fluent
+import SQLKit
 import Vapor
 import XCTVapor
 
@@ -90,7 +91,8 @@ final class PackageTests: AppTestCase {
             "score": 17,
             "status": "ok",
             "createdAt": 0,
-            "updatedAt": 1
+            "updatedAt": 1,
+            "platformCompatibility": ["macos","ios"]
         }
         """
         let decoder = JSONDecoder()
@@ -101,6 +103,7 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(p.status, .ok)
         XCTAssertEqual(p.createdAt, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(p.updatedAt, Date(timeIntervalSince1970: 1))
+        XCTAssertEqual(p.platformCompatibility, [.ios, .macos])
     }
     
     func test_unique_url() throws {
@@ -352,6 +355,68 @@ final class PackageTests: AppTestCase {
         // MUT & validate
         let pkg = Package(url: "1", processingStage: nil)
         XCTAssertTrue(pkg.isNew)
+    }
+
+    func test_save_platformCompatibility_save() throws {
+        try Package(url: "1".url, platformCompatibility: [.ios, .macos, .ios])
+            .save(on: app.db).wait()
+        let readBack = try XCTUnwrap(Package.query(on: app.db).first().wait())
+        XCTAssertEqual(readBack.platformCompatibility, [.ios, .macos])
+    }
+
+    func test_save_platformCompatibility_read_nonunique() throws {
+        // test reading back of a non-unique array (this shouldn't be
+        // occuring but we can't enforce a set at the DDL level so it's
+        // technically possible and we want to ensure it doesn't cause
+        // errors)
+        try Package(url: "1".url).save(on: app.db).wait()
+        try (app.db as! SQLDatabase).raw(
+            "update packages set platform_compatibility = '{ios,ios}'"
+        ).run().wait()
+        let readBack = try XCTUnwrap(Package.query(on: app.db).first().wait())
+        XCTAssertEqual(readBack.platformCompatibility, [.ios])
+    }
+
+    func test_updatePlatformCompatibility() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch)
+        try v.save(on: app.db).wait()
+        try Build.Platform.allCases.forEach {
+            // Create a build record for each platform to ensure we can read back
+            // any mapped build correctly.
+            // For instance, if macos-spm wasn't mapped to macos in the update statement,
+            // reading back that package would fail when de-serialising `macos-spm`
+            // into `Package.PlatformCompatibility`, because it has no such enum
+            // case.
+            // We need to test this explicitly, because the raw SQL update statement
+            // in combination with a plain TEXT[] backing field for
+            // platform_compatibility prevents us from relying on type safety.
+            // This test ensures that a newly added case in Build.Platform
+            // must also be handled in the updatePlatformCompatibility SQL
+            // statement.
+            // If it isn't, this test will fail with:
+            // invalid field: platform_compatibility type: Set<PlatformCompatibility> error: Unexpected data type: TEXT. Expected jsonb/json
+            // (which is a bit obscure but means that the content of
+            // platform_compatibility cannot be de-serialised into
+            // PlatformCompatibility)
+            try Build(version: v, platform: $0, status: .ok, swiftVersion: .v5_5)
+                .save(on: app.db).wait()
+        }
+        try savePackage(on: app.db, "2")
+
+        // MUT
+        try p.updatePlatformCompatibility(on: app.db).wait()
+
+        // validate
+        let p1 = try XCTUnwrap(
+            Package.query(on: app.db).filter(by: "1".url).first().wait()
+        )
+        XCTAssertEqual(p1.platformCompatibility, [.ios, .macos, .linux, .tvos, .watchos])
+        let p2 = try XCTUnwrap(
+            Package.query(on: app.db).filter(by: "2".url).first().wait()
+        )
+        XCTAssertEqual(p2.platformCompatibility, [])
     }
 
 }

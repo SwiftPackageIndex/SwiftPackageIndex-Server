@@ -197,6 +197,9 @@ public func configure(_ app: Application) throws {
     do {  // Migration 039 - rename id to package_id on recent_releases
         app.migrations.add(UpdateRecentReleases7())
     }
+    do {  // Migration 040 - add platform_compatibility field
+        app.migrations.add(UpdatePackageAppPlatformCompatibility())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
