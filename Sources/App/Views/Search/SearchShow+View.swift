@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
 import Plot
 
 
@@ -40,19 +39,18 @@ extension SearchShow {
                 .section(
                     .class("search"),
                     .searchForm(query: model.query),
-                    .if(Environment.current != .production,
-                        .div(
-                            .class("filter_suggestions"),
-                            .text("Add filters to narrow search results. "),
-                            .span(
-                                .class("learn_more"),
-                                .a(
-                                    .href(SiteURL.faq.relativeURL(anchor: "search-filters")),
-                                    .text("Learn more")
-                                ),
-                                .text(".")
-                            )
-                        ))
+                    .div(
+                        .class("filter_suggestions"),
+                        .text("Add filters to narrow search results. "),
+                        .span(
+                            .class("learn_more"),
+                            .a(
+                                .href(SiteURL.faq.relativeURL(anchor: "search-filters")),
+                                .text("Learn more")
+                            ),
+                            .text(".")
+                        )
+                    )
                 ),
                 .if(model.query.count > 0, resultsSection())
             )

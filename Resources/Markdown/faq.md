@@ -18,6 +18,7 @@ description: Frequently Asked Questions about the Swift Package Index
 - [Is there an API?](#api)
 - [Why are package versions missing?](#missing-versions)
 - [What is the SPI-Playgrounds app?](#spi-playgrounds-app)
+- [How can I filter my search results?](#search-filters)
 
 ---
 
@@ -142,3 +143,52 @@ A good way to check what the latest semantic version release of a package is is 
 Have you ever wanted to try out a package in a Swift playground before you decide to use it? Click “Try in a Playground” from any package page and have the Swift Package Index Playgrounds app create a playground with the package automatically imported, ready for testing and experimentation.
 
 If you don't have the SPI-Playgrounds app installed, you can [download it for macOS here](/try-in-a-playground).
+
+---
+
+<h3 id="search-filters">How can I filter my search results?</h3>
+
+You can narrow package search results with a search syntax that filters based on package metadata. For example, you could search for packages that [match "networking" and have more than 500 stars](https://swiftpackageindex.com/search?query=networking+stars%3A%3E500).
+
+The following package metadata fields are supported:
+
+- `stars` (Number): The number of stars the package has.
+- `last_commit` (Date): The date of the last commit to the package repository.
+- `last_activity` (Date): The date of the last maintenance activity on the package repository. Any commit to the default branch or merging/closing an issue or pull request counts as maintenance activity.
+- `license` (License): The package's license.
+- `author` (Author): The owner of the package repository.
+- `keyword` (Keyword): Filter on matching package keywords.
+
+#### Query operators
+
+You can use `>`, `>=`, `<` and `<=` to search for values that are greater than, greater than or equal to, less than, and less than or equal to another value.
+
+For example, a query of [`http stars:>500`](https://swiftpackageindex.com/search?query=http+stars%3A%3E500) matches packages containing the word "http" and that also have more than 500 stars.
+
+#### Querying numeric values
+
+You can search for numeric values with any integer and the standard `>`, `>=`, `<` and `<=` operators.
+
+#### Querying date values
+
+You can search for dates with the standard `>`, `>=`, `<` and `<=` operators. Dates must be formatted following [ISO8601](https://en.wikipedia.org/wiki/ISO_8601), which is `YYYY-MM-DD` (year-month-day).
+
+For example, a query of [`charts last_activity:>=2021-02-01`](https://swiftpackageindex.com/search?query=charts+last_activity%3A%3E2021-01-01) matches packages containing the word "charts" and that have also received some activity since the start of February 2021.
+
+#### Querying licenses
+
+You can search for packages that have a license which is compatible with the App Store by simply querying [`license:compatible`](https://swiftpackageindex.com/search?query=license%3Acompatible).
+
+You can also specify a specific license you wish a package to have from one of our [built-in options](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/Sources/App/Models/License.swift). For example, a query of [`license:lgpl-2.1`](https://swiftpackageindex.com/search?query=license%3Algpl-2.1) matches any package with the license LGPL 2.1.
+
+#### Querying authors or keywords
+
+You can also search for packages created by a specific user or organisation by filtering on `author`. For example, a query of [`fluent author:vapor`](https://swiftpackageindex.com/search?query=fluent+author%3Avapor) matches any package containing the word "fluent" owned by the vapor organisation.
+
+Similarly, you can search for packages that contain keywords with a `keyword` filter. For example, [`keyword:accessibility`](https://swiftpackageindex.com/search?query=keyword%3Aaccessibility) matches any package having the "accessibility" keyword.
+
+#### Excluding results
+
+You can also exclude packages that match a given query by prefixing the filter value with an `!` character.
+
+For example, searching for [`license:!mit`](https://swiftpackageindex.com/search?query=license%3A%21mit) matches packages that are not licensed under the MIT license.
