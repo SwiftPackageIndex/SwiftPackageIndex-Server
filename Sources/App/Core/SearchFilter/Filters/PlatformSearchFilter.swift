@@ -59,7 +59,25 @@ struct PlatformSearchFilter: SearchFilter {
         .init(
             key: "platform compatibility",
             comparison: comparison,
-            value: value.map(\.rawValue).joined(separator: ",")
+            value: value.map(\.displayDescription).pluralized()
         )
+    }
+}
+
+
+private extension Package.PlatformCompatibility {
+    var displayDescription: String {
+        switch self {
+            case .ios:
+                return "iOS"
+            case .macos:
+                return "macOS"
+            case .linux:
+                return "Linux"
+            case .tvos:
+                return "tvOS"
+            case .watchos:
+                return "watchOS"
+        }
     }
 }
