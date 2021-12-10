@@ -62,7 +62,7 @@ extension AppTestCase {
                 case let bind as Date:
                     result.append(DateFormatter.filterParseFormatter.string(from: bind))
                 case let bind as Set<Package.PlatformCompatibility>:
-                    let s = bind.map(\.rawValue).joined(separator: ",")
+                    let s = bind.map(\.rawValue).sorted().joined(separator: ",")
                     result.append("{\(s)}")
                 default:
                     result.append("\(bind)")
