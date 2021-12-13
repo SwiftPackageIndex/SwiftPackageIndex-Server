@@ -34,11 +34,10 @@ extension PackageController.PackageResult {
 
     /// Returns swift versions compatibility across a package's significant versions.
     /// - Returns: A `CompatibilityResult` of `SwiftVersion`
-    func swiftVersionCompatibility() -> CompatibilityResult<SwiftVersion> {
-        let allBuilds = allSignificantBuilds()
-        if allBuilds.allSatisfy({ $0.status == .triggered }) { return .pending }
+    static func swiftVersionCompatibility(_ builds: SignificantBuilds) -> CompatibilityResult<SwiftVersion> {
+        if builds.allSatisfy({ $0.status == .triggered }) { return .pending }
         
-        let builds = allBuilds
+        let builds = builds
             .filter { $0.status == .ok }
         let compatibility = SwiftVersion.allActive.map { swiftVersion -> (SwiftVersion, Bool) in
             for build in builds {
@@ -151,7 +150,7 @@ extension PackageController.PackageResult {
                         return ("pending", false)
                 }
             case .swiftVersions:
-                switch swiftVersionCompatibility() {
+                switch Self.swiftVersionCompatibility(signigicantBuilds) {
                     case .available(let versions):
                         if let message = Self.badgeMessage(swiftVersions: versions) {
                             return (message, true)

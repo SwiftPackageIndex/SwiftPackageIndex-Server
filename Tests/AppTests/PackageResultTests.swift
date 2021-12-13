@@ -319,9 +319,10 @@ class PackageResultTests: AppTestCase {
             .save(on: app.db)
             .wait()
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let builds = PackageResult.SignificantBuilds(versions: pr.versions)
 
         // MUT
-        let res = try XCTUnwrap(pr.swiftVersionCompatibility().values)
+        let res = try XCTUnwrap(PackageResult.swiftVersionCompatibility(builds).values)
 
         // validate
         XCTAssertEqual(res.sorted(), [.v5_2, .v5_3])
@@ -347,9 +348,10 @@ class PackageResultTests: AppTestCase {
             .save(on: app.db)
             .wait()
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let builds = PackageResult.SignificantBuilds(versions: pr.versions)
 
         // MUT
-        let res = pr.swiftVersionCompatibility()
+        let res = PackageResult.swiftVersionCompatibility(builds)
 
         // validate
         XCTAssertEqual(res, .pending)
@@ -375,9 +377,10 @@ class PackageResultTests: AppTestCase {
             .save(on: app.db)
             .wait()
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let builds = PackageResult.SignificantBuilds(versions: pr.versions)
 
         // MUT
-        let res = try XCTUnwrap(pr.swiftVersionCompatibility().values)
+        let res = try XCTUnwrap(PackageResult.swiftVersionCompatibility(builds).values)
 
         // validate
         XCTAssertEqual(res.sorted(), [ .v5_3 ])
