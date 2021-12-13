@@ -125,7 +125,9 @@ extension PackageController.PackageResult {
                 label = "Swift Compatibility"
         }
 
-        let (message, success) = badgeMessage(badgeType: badgeType)
+        let significantBuilds = SignificantBuilds(versions: versions)
+        let (message, success) = Self.badgeMessage(significantBuilds: significantBuilds,
+                                                   badgeType: badgeType)
         return Badge(schemaVersion: 1,
                      label: label,
                      message: message,
@@ -135,13 +137,12 @@ extension PackageController.PackageResult {
                      logoSvg: Self.loadSVGLogo())
     }
 
-    func badgeMessage(badgeType: BadgeType) -> (message: String, success: Bool) {
-        let signigicantBuilds = SignificantBuilds(versions: versions)
+    static func badgeMessage(significantBuilds: SignificantBuilds, badgeType: BadgeType) -> (message: String, success: Bool) {
         switch badgeType {
             case .platforms:
-                switch Self.platformCompatibility(signigicantBuilds) {
+                switch platformCompatibility(significantBuilds) {
                     case .available(let platforms):
-                        if let message = Self.badgeMessage(platforms: platforms) {
+                        if let message = badgeMessage(platforms: platforms) {
                             return (message, true)
                         } else {
                             return ("unavailable", false)
@@ -150,9 +151,9 @@ extension PackageController.PackageResult {
                         return ("pending", false)
                 }
             case .swiftVersions:
-                switch Self.swiftVersionCompatibility(signigicantBuilds) {
+                switch swiftVersionCompatibility(significantBuilds) {
                     case .available(let versions):
-                        if let message = Self.badgeMessage(swiftVersions: versions) {
+                        if let message = badgeMessage(swiftVersions: versions) {
                             return (message, true)
                         } else {
                             return ("unavailable", false)
