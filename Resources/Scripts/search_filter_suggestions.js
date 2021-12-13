@@ -27,8 +27,8 @@ export class SPISearchFilterSuggestions {
     },
     {
       text: 'compatible platforms',
-      filter: `platform:ios,macos`,
-      description: 'Filter to packages compatible with both iOS and macOS.',
+      filter: `platform:ios,linux`,
+      description: 'Filter to packages compatible with both iOS and Linux.',
     },
   ]
 
