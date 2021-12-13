@@ -203,6 +203,10 @@ public func configure(_ app: Application) throws {
     do {  // Migration 041 - add platform_compatibility to search
         app.migrations.add(UpdateSearch4())
     }
+    do {  // Migration 042 - increase number of rows in recent_releases and recent_packages
+        app.migrations.add(UpdateRecentPackages4())
+        app.migrations.add(UpdateRecentReleases8())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
