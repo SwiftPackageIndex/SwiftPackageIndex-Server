@@ -33,7 +33,7 @@ enum Constants {
     
     static let reIngestionDeadtime: TimeInterval = .minutes(90)
     
-    static let rssFeedMaxItemCount = 100
+    static let rssFeedMaxItemCount = 500
     static let rssTTL: TimeInterval = .minutes(60)
     
     static let resultsPageSize = 20
