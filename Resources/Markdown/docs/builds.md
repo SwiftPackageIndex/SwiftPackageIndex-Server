@@ -5,21 +5,23 @@ description: Frequently Asked Questions about the Swift Package Index Build Syst
 
 ## The Swift Package Index Build System
 
-* [What is the Build System?](#build-system)
-* [Why does a package show missing or incomplete compatibility?](#no-builds)
-* [What revision is the default branch built for?](#what-revision)
-* [How are packages built?](#built-how)
-* [How does the build system build with different Swift versions?](#swift-versions)
-* [When was a package last built?](#last-built)
-* [Is it possible to hide failing builds for unsupported platforms?](#hide-failing-builds)
-* [If a build is showing failed incorrectly, how can I fix it?](#fix-false-negative)
-* [If a build is showing an error that seems unrelated to the build, how can I fix it?](#unrelated-error)
+- [What is the Swift Package Index Build System?](#build-system)
+- [Why does a package show missing or incomplete compatibility?](#no-builds)
+- [What revision is the default branch built for?](#what-revision)
+- [How are packages built?](#built-how)
+- [How does the build system build with different Swift versions?](#swift-versions)
+- [When was a package last built?](#last-built)
+- [Is it possible to hide failing builds for unsupported platforms?](#hide-failing-builds)
+- [If a build is showing failed incorrectly, how can I fix it?](#fix-false-negative)
+- [If a build is showing an error that seems unrelated to the build, how can I fix it?](#unrelated-error)
 
-<h3 id="build-system">What is the Build System?</h3>
+<h3 id="build-system">What is the Swift Package Index Build System?</h3>
 
-A Swift package manifest includes support for declaring [Swift version support](https://developer.apple.com/documentation/swift_packages/package/3197887-swiftlanguageversions) and [platform support](https://developer.apple.com/documentation/swift_packages/package/3197886-platforms). There are a few problems with relying on this data, so the Swift Package Index takes a different approach. What better way to determine compatibility with a specific version of Swift on a particular platform than to build it?
+The Swift Package Index bases its Swift version and platform compatibility data on real-world results from our build system. The build system supports all Apple platforms (iOS, macOS, tvOS, watchOS) and Linux, giving comprehensive, proven, real-world compatibility information.
 
-The Swift Package Index build system is a mechanism that keeps a package page always up to date with real-world build results targeting various Swift versions across multiple platforms, including Linux.
+The Swift Package Index polls every package for changes and new releases constantly. Whenever it sees changes, it compiles the code across a comprehensive set of Swift versions and platforms. For example, check out the [package compatibility report](https://swiftpackageindex.com/SnapKit/SnapKit/builds) for [SnapKit](https://swiftpackageindex.com/SnapKit/SnapKit).
+
+**Note:** The build system checks compatibility for every release, no matter how frequent, whereas the system builds the default branch for a package at most every 24-hours. If there are updates to a default branch during the same day, new compatibility checks start once the 24-hour timeout expires.
 
 <h3 id="no-builds">Why does a package show missing or incomplete compatibility?</h3>
 
@@ -39,11 +41,11 @@ When running `xcodebuild`, we apply some heuristics to find the correct scheme t
 
 The build system aims to reproduce a real-world environment for building packages as much as possible. Ideally, if the Swift Package Index says it's compatible with Swift 5.1 and your project uses Swift 5.1, it should work. The most real-world way for us to build is to use multiple different versions of Xcode to process each package. We use the latest available version of Xcode that shipped with the release of Swift that we want to compile with as default.
 
-* Swift 4.2 builds with Xcode 10.1.
-* Swift 5.0 builds with Xcode 10.3.
-* Swift 5.1 builds with Xcode 11.3.1.
-* Swift 5.2 builds with Xcode 11.6.
-* Swift 5.3 (beta) builds with Xcode 12 (beta).
+- Swift 5.1 builds with Xcode 11.3.1.
+- Swift 5.2 builds with Xcode 11.6.
+- Swift 5.3 builds with Xcode 12.4.
+- Swift 5.4 builds with Xcode 12.5.
+- Swift 5.5 builds with Xcode 13.1.
 
 The build system uses the `DEVELOPER_DIR` environment variable to switch versions of Xcode. This applies to both `xcodebuild` and `swift build` commands.
 
