@@ -255,14 +255,24 @@ enum Search {
 
         // only include non-package results on first page
         let query = page == 1
-        ? db.unionAll(
-            authorMatchQueryBuilder(on: database, terms: sanitizedTerms),
-            keywordMatchQueryBuilder(on: database, terms: sanitizedTerms),
-            packageMatchQueryBuilder(on: database, terms: sanitizedTerms, filters: filters,
-                                     offset: offset, limit: limit)
-        ).query
-        : packageMatchQueryBuilder(on: database, terms: sanitizedTerms, filters: filters,
-                                   offset: offset, limit: limit).query
+        ? authorMatchQueryBuilder(on: database, terms: sanitizedTerms)
+            .union(all: { _ in
+                keywordMatchQueryBuilder(on: database, terms: sanitizedTerms)
+
+            })
+            .union(all: { _ in
+                packageMatchQueryBuilder(on: database,
+                                         terms: sanitizedTerms,
+                                         filters: filters,
+                                         offset: offset,
+                                         limit: limit)
+
+            }).query
+        : packageMatchQueryBuilder(on: database,
+                                   terms: sanitizedTerms,
+                                   filters: filters,
+                                   offset: offset,
+                                   limit: limit).query
 
         return db.select()
             .column("*")

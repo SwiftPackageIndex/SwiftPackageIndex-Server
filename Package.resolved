@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "a3630ca9939bcb21b9f23c258764d82349f4d12d",
-          "version": "1.17.0"
+          "revision": "2f1af22f4d495bc6f35365e537c4bb5eb60c5f17",
+          "version": "1.18.0"
         }
       },
       {
@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/vapor/sql-kit.git",
         "state": {
           "branch": null,
-          "revision": "bfcaa637917faf2e2fbb4cec6aa45e9659c945b4",
-          "version": "3.14.0"
+          "revision": "d2027b4b81a19d2ac7bd01936e7a778d7f0afa02",
+          "version": "3.15.0"
         }
       },
       {
@@ -177,16 +177,16 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "9ef905a68300e82e4dd72fab2ecf369a917b09b1",
+          "revision": "05b53acbe7e6c31301bbffa1b27c28700177b95b",
           "version": null
         }
       },
       {
         "package": "llbuild",
-        "repositoryURL": "https://github.com/finestructure/swift-llbuild.git",
+        "repositoryURL": "https://github.com/apple/swift-llbuild.git",
         "state": {
           "branch": "main",
-          "revision": "47445303f4eeb81183ae64bc9b02413154100a56",
+          "revision": "acd686530e56122d916acd49a166beb9198e9b87",
           "version": null
         }
       },
@@ -255,10 +255,10 @@
       },
       {
         "package": "SwiftPM",
-        "repositoryURL": "https://github.com/finestructure/swift-package-manager.git",
+        "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "main",
-          "revision": "b966422ebda5de1139e8bb0a8ba2629ab2ea4b65",
+          "revision": "0a661491b9f7733596ae7d5b636c69ed6bc73eef",
           "version": null
         }
       },
@@ -273,10 +273,10 @@
       },
       {
         "package": "swift-tools-support-core",
-        "repositoryURL": "https://github.com/finestructure/swift-tools-support-core.git",
+        "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
           "branch": "main",
-          "revision": "aa190c39d8affacfb50f3b727eef00e0f5a5c9d8",
+          "revision": "8e324ae429b1628afa9a08b5894528df3a63e1d7",
           "version": null
         }
       },
@@ -294,8 +294,8 @@
         "repositoryURL": "https://github.com/scinfu/SwiftSoup.git",
         "state": {
           "branch": null,
-          "revision": "02c63b7be50bda384f22c56c64d347231754a07e",
-          "version": "2.3.3"
+          "revision": "3fa09f4d79e5172b14cb50e02f1d5f115a2bbaef",
+          "version": "2.3.4"
         }
       },
       {
@@ -303,8 +303,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "6a5a3b5244d39e2614382c77ddf62e63b712ad06",
-          "version": "4.53.0"
+          "revision": "34bf1b303623de04801d2b9bef5b2ed48b3e9319",
+          "version": "4.54.0"
         }
       },
       {
