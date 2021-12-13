@@ -163,18 +163,6 @@ extension PackageController.PackageResult {
         }
     }
 
-    /// Returns all builds for a packages significant versions
-    /// - Returns: Array of `Build`s
-    @available(*, deprecated)
-    func allSignificantBuilds() -> [Build] {
-        let versions = [Version.Kind.release, .preRelease, .defaultBranch]
-            .compactMap(versions.latest(for:))
-        return versions.reduce(into: []) {
-            $0.append(contentsOf: $1.$builds.value ?? [])
-        }
-    }
-
-
     static private func loadSVGLogo() -> String? {
         let pathToFile = Current.fileManager.workingDirectory()
             .appending("Public/images/logo-tiny.svg")
