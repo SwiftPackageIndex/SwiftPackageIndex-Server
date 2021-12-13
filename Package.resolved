@@ -183,10 +183,10 @@
       },
       {
         "package": "llbuild",
-        "repositoryURL": "https://github.com/finestructure/swift-llbuild.git",
+        "repositoryURL": "https://github.com/apple/swift-llbuild.git",
         "state": {
           "branch": "main",
-          "revision": "47445303f4eeb81183ae64bc9b02413154100a56",
+          "revision": "acd686530e56122d916acd49a166beb9198e9b87",
           "version": null
         }
       },
@@ -255,10 +255,10 @@
       },
       {
         "package": "SwiftPM",
-        "repositoryURL": "https://github.com/finestructure/swift-package-manager.git",
+        "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "main",
-          "revision": "b966422ebda5de1139e8bb0a8ba2629ab2ea4b65",
+          "revision": "0a661491b9f7733596ae7d5b636c69ed6bc73eef",
           "version": null
         }
       },
@@ -273,10 +273,10 @@
       },
       {
         "package": "swift-tools-support-core",
-        "repositoryURL": "https://github.com/finestructure/swift-tools-support-core.git",
+        "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
           "branch": "main",
-          "revision": "aa190c39d8affacfb50f3b727eef00e0f5a5c9d8",
+          "revision": "8e324ae429b1628afa9a08b5894528df3a63e1d7",
           "version": null
         }
       },
