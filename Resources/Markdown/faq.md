@@ -188,7 +188,7 @@ Similarly, you can search for packages that contain keywords with a `keyword` fi
 
 #### Querying Platform values
 
-You can search for packages that are compatible with a platform using a `platform` filter. Specify multiple platforms together with commas. For example, [`layout platform:ios,linux`](https://swiftpackageindex.com/search?query=layout+platform%3Aios%2Clinux) shows packages matching the word "layout" that are compatible with both iOS and Linux.
+You can search for packages that are compatible with a platform using a `platform` filter. Specify multiple platforms together with commas. For example, [`testing platform:ios,linux`](https://swiftpackageindex.com/search?query=testing+platform%3Aios%2Clinux) shows packages matching the word "layout" that are compatible with both iOS and Linux.
 
 **Note:** Platform compatibility data comes from the [build system](/docs/builds) and is sourced from real-world build results.
 
