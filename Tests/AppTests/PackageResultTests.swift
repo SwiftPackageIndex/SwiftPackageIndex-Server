@@ -403,9 +403,10 @@ class PackageResultTests: AppTestCase {
             .save(on: app.db)
             .wait()
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let builds = PackageResult.SignificantBuilds(versions: pr.versions)
 
         // MUT
-        let res = try XCTUnwrap(pr.platformCompatibility().values)
+        let res = try XCTUnwrap(PackageResult.platformCompatibility(builds).values)
 
         // validate
         XCTAssertEqual(res.sorted(), [.macosXcodebuild, .linux])
@@ -431,9 +432,10 @@ class PackageResultTests: AppTestCase {
             .save(on: app.db)
             .wait()
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let builds = PackageResult.SignificantBuilds(versions: pr.versions)
 
         // MUT
-        let res = pr.platformCompatibility()
+        let res = PackageResult.platformCompatibility(builds)
 
         // validate
         XCTAssertEqual(res, .pending)
@@ -459,9 +461,10 @@ class PackageResultTests: AppTestCase {
             .save(on: app.db)
             .wait()
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let builds = PackageResult.SignificantBuilds(versions: pr.versions)
 
         // MUT
-        let res = try XCTUnwrap(pr.platformCompatibility().values)
+        let res = try XCTUnwrap(PackageResult.platformCompatibility(builds).values)
 
         // validate
         XCTAssertEqual(res.sorted(), [ .linux ])

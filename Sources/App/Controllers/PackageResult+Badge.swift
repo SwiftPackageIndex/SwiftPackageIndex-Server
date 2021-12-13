@@ -55,14 +55,32 @@ extension PackageController.PackageResult {
         )
     }
 
+    struct SignificantBuilds {
+        var builds: [Build]
+
+        init(versions: [Version]) {
+            self.builds = [Version.Kind.release, .preRelease, .defaultBranch]
+                .compactMap(versions.latest(for:))
+                .reduce(into: []) {
+                    $0.append(contentsOf: $1.$builds.value ?? [])
+                }
+        }
+
+        func allSatisfy(_ predicate: (Build) throws -> Bool) rethrows -> Bool {
+            try builds.allSatisfy(predicate)
+        }
+
+        func filter(_ isIncluded: (Build) throws -> Bool) rethrows -> [Build] {
+            try builds.filter(isIncluded)
+        }
+    }
 
     /// Returns platform compatibility across a package's significant versions.
     /// - Returns: A `CompatibilityResult` of `Platform`
-    func platformCompatibility() -> CompatibilityResult<Build.Platform> {
-        let allBuilds = allSignificantBuilds()
-        if allBuilds.allSatisfy({ $0.status == .triggered }) { return .pending }
+    static func platformCompatibility(_ builds: SignificantBuilds) -> CompatibilityResult<Build.Platform> {
+        if builds.allSatisfy({ $0.status == .triggered }) { return .pending }
 
-        let builds = allBuilds
+        let builds = builds
             .filter { $0.status == .ok }
         let compatibility = Build.Platform.allActive.map { platform -> (Build.Platform, Bool) in
             for build in builds {
@@ -119,9 +137,10 @@ extension PackageController.PackageResult {
     }
 
     func badgeMessage(badgeType: BadgeType) -> (message: String, success: Bool) {
+        let signigicantBuilds = SignificantBuilds(versions: versions)
         switch badgeType {
             case .platforms:
-                switch platformCompatibility() {
+                switch Self.platformCompatibility(signigicantBuilds) {
                     case .available(let platforms):
                         if let message = Self.badgeMessage(platforms: platforms) {
                             return (message, true)
@@ -147,6 +166,7 @@ extension PackageController.PackageResult {
 
     /// Returns all builds for a packages significant versions
     /// - Returns: Array of `Build`s
+    @available(*, deprecated)
     func allSignificantBuilds() -> [Build] {
         let versions = [Version.Kind.release, .preRelease, .defaultBranch]
             .compactMap(versions.latest(for:))
