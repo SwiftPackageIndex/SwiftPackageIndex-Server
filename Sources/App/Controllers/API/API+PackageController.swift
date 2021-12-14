@@ -113,8 +113,7 @@ extension API {
             }
         }
 
-
-        func badge(req: Request) throws -> EventLoopFuture<PackageResult.Badge> {
+        func badge(req: Request) throws -> EventLoopFuture<Badge> {
             guard
                 let owner = req.parameters.get("owner"),
                 let repository = req.parameters.get("repository")
@@ -123,15 +122,17 @@ extension API {
             }
             guard
                 let badgeType = req.query[String.self, at: "type"]
-                    .flatMap(PackageResult.BadgeType.init(rawValue:))
+                    .flatMap(BadgeType.init(rawValue:))
             else {
                 return req.eventLoop.future(error: Abort(.badRequest,
                                                          reason: "missing or invalid type parameter"))
             }
 
-            return PackageResult
+            return SignificantBuilds
                 .query(on: req.db, owner: owner, repository: repository)
-                .map { $0.badge(badgeType: badgeType) }
+                .map {
+                    Badge(significantBuilds: $0, badgeType: badgeType)
+                }
         }
 
     }
