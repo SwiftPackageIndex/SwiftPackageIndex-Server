@@ -450,7 +450,7 @@ class ApiTests: AppTestCase {
     func test_get_badge() throws {
         // setup
         let owner = "owner"
-        let repo = "1"
+        let repo = "repo"
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
