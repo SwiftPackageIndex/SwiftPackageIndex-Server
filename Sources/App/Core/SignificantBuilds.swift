@@ -30,7 +30,6 @@ struct SignificantBuilds {
 
     var builds: [BuildInfo]
 
-    // TODO: add tests
     static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
         return Build.query(on: database)
             .join(parent: \.$version)
