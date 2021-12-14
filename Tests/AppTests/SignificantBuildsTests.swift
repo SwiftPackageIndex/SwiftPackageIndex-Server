@@ -21,11 +21,14 @@ class SignificantBuildsTests: AppTestCase {
 
     func test_swiftVersionCompatibility() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .ok),
-            .init(.v5_4, .macosSpm, .ok),
-            .init(.v5_3, .ios, .failed)
-        ])
+        let sb = SignificantBuilds(
+            repositoryOwner: "foo",
+            repositoryName: "bar",
+            builds: [
+                .init(.v5_5, .linux, .ok),
+                .init(.v5_4, .macosSpm, .ok),
+                .init(.v5_3, .ios, .failed)
+            ])
 
         // MUT
         let res = try XCTUnwrap(sb.swiftVersionCompatibility().values)
@@ -36,11 +39,14 @@ class SignificantBuildsTests: AppTestCase {
 
     func test_swiftVersionCompatibility_allPending() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .triggered),
-            .init(.v5_4, .macosSpm, .triggered),
-            .init(.v5_3, .ios, .triggered)
-        ])
+        let sb = SignificantBuilds(
+            repositoryOwner: "foo",
+            repositoryName: "bar",
+            builds: [
+                .init(.v5_5, .linux, .triggered),
+                .init(.v5_4, .macosSpm, .triggered),
+                .init(.v5_3, .ios, .triggered)
+            ])
 
         // MUT
         let res = sb.swiftVersionCompatibility()
@@ -51,11 +57,14 @@ class SignificantBuildsTests: AppTestCase {
 
     func test_swiftVersionCompatibility_partialPending() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .ok),
-            .init(.v5_4, .macosSpm, .failed),
-            .init(.v5_3, .ios, .triggered)
-        ])
+        let sb = SignificantBuilds(
+            repositoryOwner: "foo",
+            repositoryName: "bar",
+            builds: [
+                .init(.v5_5, .linux, .ok),
+                .init(.v5_4, .macosSpm, .failed),
+                .init(.v5_3, .ios, .triggered)
+            ])
 
         // MUT
         let res = try XCTUnwrap(sb.swiftVersionCompatibility().values)
@@ -66,11 +75,14 @@ class SignificantBuildsTests: AppTestCase {
 
     func test_platformCompatibility() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .ok),
-            .init(.v5_4, .macosSpm, .ok),
-            .init(.v5_3, .ios, .failed)
-        ])
+        let sb = SignificantBuilds(
+            repositoryOwner: "foo",
+            repositoryName: "bar",
+            builds: [
+                .init(.v5_5, .linux, .ok),
+                .init(.v5_4, .macosSpm, .ok),
+                .init(.v5_3, .ios, .failed)
+            ])
         
         // MUT
         let res = try XCTUnwrap(sb.platformCompatibility().values)
@@ -81,11 +93,14 @@ class SignificantBuildsTests: AppTestCase {
 
     func test_platformCompatibility_allPending() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .triggered),
-            .init(.v5_4, .macosSpm, .triggered),
-            .init(.v5_3, .ios, .triggered)
-        ])
+        let sb = SignificantBuilds(
+            repositoryOwner: "foo",
+            repositoryName: "bar",
+            builds: [
+                .init(.v5_5, .linux, .triggered),
+                .init(.v5_4, .macosSpm, .triggered),
+                .init(.v5_3, .ios, .triggered)
+            ])
 
         // MUT
         let res = sb.platformCompatibility()
@@ -96,11 +111,14 @@ class SignificantBuildsTests: AppTestCase {
 
     func test_platformCompatibility_partialPending() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .ok),
-            .init(.v5_4, .macosSpm, .failed),
-            .init(.v5_3, .ios, .triggered)
-        ])
+        let sb = SignificantBuilds(
+            repositoryOwner: "foo",
+            repositoryName: "bar",
+            builds: [
+                .init(.v5_5, .linux, .ok),
+                .init(.v5_4, .macosSpm, .failed),
+                .init(.v5_3, .ios, .triggered)
+            ])
 
         // MUT
         let res = try XCTUnwrap(sb.platformCompatibility().values)
@@ -148,6 +166,8 @@ class SignificantBuildsTests: AppTestCase {
         let sb = try SignificantBuilds.query(on: app.db, owner: "owner", repository: "repo").wait()
 
         // validate
+        XCTAssertEqual(sb.repositoryOwner, "owner")
+        XCTAssertEqual(sb.repositoryName, "repo")
         XCTAssertEqual(sb.builds.sorted(), [
             .init(.v5_4, .macosSpm, .ok),
             .init(.v5_5, .linux, .ok)

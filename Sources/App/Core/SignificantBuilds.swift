@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Fluent
+import Vapor
 
 
 struct SignificantBuilds {
@@ -28,6 +29,8 @@ struct SignificantBuilds {
         }
     }
 
+    var repositoryOwner: String
+    var repositoryName: String
     var builds: [BuildInfo]
 
     static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
@@ -39,13 +42,21 @@ struct SignificantBuilds {
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .filter(Repository.self, \.$name, .custom("ilike"), repository)
             .field(\.$platform)
-            .field(\.$swiftVersion)
             .field(\.$status)
+            .field(\.$swiftVersion)
+            .field(Repository.self, \.$owner)
+            .field(Repository.self, \.$name)
             .all()
-            .mapEach {
-                BuildInfo($0.swiftVersion, $0.platform, $0.status)
+            .flatMapThrowing { builds -> (String, String, [BuildInfo]) in
+                guard let first = builds.first else { throw Abort(.notFound) }
+                let repo = try first.joined(Repository.self)
+                guard let repoOwner = repo.owner, let repoName = repo.name else {
+                    throw Abort(.notFound)
+                }
+                let builds = builds.map{ BuildInfo($0.swiftVersion, $0.platform, $0.status) }
+                return (repoOwner, repoName, builds)
             }
-            .map(Self.init(builds:))
+            .map(Self.init(repositoryOwner:repositoryName:builds:))
     }
 }
 
