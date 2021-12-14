@@ -16,15 +16,15 @@ import Fluent
 
 
 struct SignificantBuilds {
-    struct BuildInfo {
-        var status: Build.Status
-        var platform: Build.Platform
+    struct BuildInfo: Equatable {
         var swiftVersion: SwiftVersion
+        var platform: Build.Platform
+        var status: Build.Status
 
-        init(_ status: Build.Status, _ platform: Build.Platform, _ swiftVersion: SwiftVersion) {
-            self.status = status
-            self.platform = platform
+        init(_ swiftVersion: SwiftVersion, _ platform: Build.Platform, _ status: Build.Status) {
             self.swiftVersion = swiftVersion
+            self.platform = platform
+            self.status = status
         }
     }
 
@@ -44,7 +44,7 @@ struct SignificantBuilds {
             .field(\.$status)
             .all()
             .mapEach {
-                BuildInfo($0.status, $0.platform, $0.swiftVersion)
+                BuildInfo($0.swiftVersion, $0.platform, $0.status)
             }
             .map(Self.init(builds:))
     }
