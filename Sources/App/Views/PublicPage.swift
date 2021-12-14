@@ -338,6 +338,12 @@ class PublicPage {
                         ),
                         .li(
                             .a(
+                                .href("https://swiftpackageindex.statuspage.io"),
+                                "Uptime and Status"
+                            )
+                        ),
+                        .li(
+                            .a(
                                 .href("https://twitter.com/swiftpackages"),
                                 "Twitter"
                             )
