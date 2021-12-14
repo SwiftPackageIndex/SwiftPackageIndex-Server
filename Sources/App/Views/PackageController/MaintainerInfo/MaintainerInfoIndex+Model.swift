@@ -38,19 +38,19 @@ extension MaintainerInfoIndex {
             self.repositoryName = repositoryName
         }
 
-        func badgeURL(for type: PackageResult.BadgeType) -> String {
+        func badgeURL(for type: BadgeType) -> String {
             let characterSet = CharacterSet.urlHostAllowed.subtracting(.init(charactersIn: "=:"))
             let url = SiteURL.api(.packages(.value(repositoryOwner), .value(repositoryName), .badge)).absoluteURL(parameters: [QueryParameter(key: "type", value: type.rawValue)])
             let escaped = url.addingPercentEncoding(withAllowedCharacters: characterSet) ?? url
             return "https://img.shields.io/endpoint?url=\(escaped)"
         }
 
-        func badgeMarkdown(for type: PackageResult.BadgeType) -> String {
+        func badgeMarkdown(for type: BadgeType) -> String {
             let spiPackageURL = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
             return "[![](\(badgeURL(for: type)))](\(spiPackageURL))"
         }
 
-        func badgeMarkdowDisplay(for type: PackageResult.BadgeType) -> Node<HTML.FormContext> {
+        func badgeMarkdowDisplay(for type: BadgeType) -> Node<HTML.FormContext> {
             .input(
                 .type(.text),
                 .value(badgeMarkdown(for: type)),

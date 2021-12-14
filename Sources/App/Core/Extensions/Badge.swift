@@ -13,9 +13,59 @@
 // limitations under the License.
 
 import Vapor
+import Foundation
 
 
-extension PackageController.PackageResult {
+struct Badge: Content, Equatable {
+    var schemaVersion: Int
+    var label: String
+    var message: String
+    var isError: Bool
+    var color: String
+    var cacheSeconds: Int
+    var logoSvg: String?
+
+    private init(schemaVersion: Int, label: String, message: String, isError: Bool, color: String, cacheSeconds: Int, logoSvg: String? = nil) {
+        self.schemaVersion = schemaVersion
+        self.label = label
+        self.message = message
+        self.isError = isError
+        self.color = color
+        self.cacheSeconds = cacheSeconds
+        self.logoSvg = logoSvg
+    }
+
+    init(significantBuilds: SignificantBuilds, badgeType: BadgeType) {
+        let cacheSeconds = 6*3600
+
+        let label: String
+        switch badgeType {
+            case .platforms:
+                label = "Platform Compatibility"
+            case .swiftVersions:
+                label = "Swift Compatibility"
+        }
+
+        let (message, success) = Self.badgeMessage(significantBuilds: significantBuilds,
+                                                   badgeType: badgeType)
+        self.init(schemaVersion: 1,
+                  label: label,
+                  message: message,
+                  isError: !success,
+                  color: success ? "F05138" : "inactive",
+                  cacheSeconds: cacheSeconds,
+                  logoSvg: Self.loadSVGLogo())
+    }
+}
+
+
+enum BadgeType: String {
+    case platforms
+    case swiftVersions = "swift-versions"
+}
+
+
+extension Badge {
 
     enum CompatibilityResult<Value: Equatable>: Equatable {
         case available([Value])
@@ -30,7 +80,6 @@ extension PackageController.PackageResult {
             }
         }
     }
-
 
     /// Returns swift versions compatibility across a package's significant versions.
     /// - Returns: A `CompatibilityResult` of `SwiftVersion`
@@ -52,26 +101,6 @@ extension PackageController.PackageResult {
                 .filter { $0.1 }
                 .map { $0.0 }
         )
-    }
-
-    struct SignificantBuilds {
-        var builds: [Build]
-
-        init(versions: [Version]) {
-            self.builds = [Version.Kind.release, .preRelease, .defaultBranch]
-                .compactMap(versions.latest(for:))
-                .reduce(into: []) {
-                    $0.append(contentsOf: $1.$builds.value ?? [])
-                }
-        }
-
-        func allSatisfy(_ predicate: (Build) throws -> Bool) rethrows -> Bool {
-            try builds.allSatisfy(predicate)
-        }
-
-        func filter(_ isIncluded: (Build) throws -> Bool) rethrows -> [Build] {
-            try builds.filter(isIncluded)
-        }
     }
 
     /// Returns platform compatibility across a package's significant versions.
@@ -96,45 +125,11 @@ extension PackageController.PackageResult {
         )
     }
 
+    static private func loadSVGLogo() -> String? {
+        let pathToFile = Current.fileManager.workingDirectory()
+            .appending("Public/images/logo-tiny.svg")
 
-    enum BadgeType: String {
-        case platforms
-        case swiftVersions = "swift-versions"
-    }
-
-
-    struct Badge: Content, Equatable {
-        var schemaVersion: Int
-        var label: String
-        var message: String
-        var isError: Bool
-        var color: String
-        var cacheSeconds: Int
-        var logoSvg: String?
-    }
-
-
-    func badge(badgeType: BadgeType) -> Badge {
-        let cacheSeconds = 6*3600
-
-        let label: String
-        switch badgeType {
-            case .platforms:
-                label = "Platform Compatibility"
-            case .swiftVersions:
-                label = "Swift Compatibility"
-        }
-
-        let significantBuilds = SignificantBuilds(versions: versions)
-        let (message, success) = Self.badgeMessage(significantBuilds: significantBuilds,
-                                                   badgeType: badgeType)
-        return Badge(schemaVersion: 1,
-                     label: label,
-                     message: message,
-                     isError: !success,
-                     color: success ? "F05138" : "inactive",
-                     cacheSeconds: cacheSeconds,
-                     logoSvg: Self.loadSVGLogo())
+        return try? String(contentsOfFile: pathToFile)
     }
 
     static func badgeMessage(significantBuilds: SignificantBuilds, badgeType: BadgeType) -> (message: String, success: Bool) {
@@ -163,14 +158,6 @@ extension PackageController.PackageResult {
                 }
         }
     }
-
-    static private func loadSVGLogo() -> String? {
-        let pathToFile = Current.fileManager.workingDirectory()
-            .appending("Public/images/logo-tiny.svg")
-
-        return try? String(contentsOfFile: pathToFile)
-    }
-
 
     static func badgeMessage(platforms: [Build.Platform]) -> String? {
         guard !platforms.isEmpty else { return nil }
