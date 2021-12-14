@@ -470,16 +470,6 @@ class ApiTests: AppTestCase {
         try p.versions.forEach {
             try $0.$builds.load(on: app.db).wait()
         }
-        do { // save decoy
-            let p = try savePackage(on: app.db, "2")
-            try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
-                .save(on: app.db).wait()
-            try Repository(package: p,
-                           defaultBranch: "main",
-                           license: .mit,
-                           name: "2",
-                           owner: owner).save(on: app.db).wait()
-        }
 
         // MUT - swift versions
         try app.test(

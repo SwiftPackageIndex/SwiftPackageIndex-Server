@@ -67,64 +67,6 @@ enum BadgeType: String {
 
 extension Badge {
 
-    enum CompatibilityResult<Value: Equatable>: Equatable {
-        case available([Value])
-        case pending
-        
-        var values: [Value]? {
-            switch self {
-                case .available(let values):
-                    return values
-                case .pending:
-                    return nil
-            }
-        }
-    }
-
-    /// Returns swift versions compatibility across a package's significant versions.
-    /// - Returns: A `CompatibilityResult` of `SwiftVersion`
-    static func swiftVersionCompatibility(_ builds: SignificantBuilds) -> CompatibilityResult<SwiftVersion> {
-        if builds.allSatisfy({ $0.status == .triggered }) { return .pending }
-        
-        let builds = builds
-            .filter { $0.status == .ok }
-        let compatibility = SwiftVersion.allActive.map { swiftVersion -> (SwiftVersion, Bool) in
-            for build in builds {
-                if build.swiftVersion.isCompatible(with: swiftVersion) {
-                    return (swiftVersion, true)
-                }
-            }
-            return (swiftVersion, false)
-        }
-        return .available(
-            compatibility
-                .filter { $0.1 }
-                .map { $0.0 }
-        )
-    }
-
-    /// Returns platform compatibility across a package's significant versions.
-    /// - Returns: A `CompatibilityResult` of `Platform`
-    static func platformCompatibility(_ builds: SignificantBuilds) -> CompatibilityResult<Build.Platform> {
-        if builds.allSatisfy({ $0.status == .triggered }) { return .pending }
-
-        let builds = builds
-            .filter { $0.status == .ok }
-        let compatibility = Build.Platform.allActive.map { platform -> (Build.Platform, Bool) in
-            for build in builds {
-                if build.platform == platform {
-                    return (platform, true)
-                }
-            }
-            return (platform, false)
-        }
-        return .available(
-            compatibility
-                .filter { $0.1 }
-                .map { $0.0 }
-        )
-    }
-
     static private func loadSVGLogo() -> String? {
         let pathToFile = Current.fileManager.workingDirectory()
             .appending("Public/images/logo-tiny.svg")
@@ -135,7 +77,7 @@ extension Badge {
     static func badgeMessage(significantBuilds: SignificantBuilds, badgeType: BadgeType) -> (message: String, success: Bool) {
         switch badgeType {
             case .platforms:
-                switch platformCompatibility(significantBuilds) {
+                switch significantBuilds.platformCompatibility() {
                     case .available(let platforms):
                         if let message = badgeMessage(platforms: platforms) {
                             return (message, true)
@@ -146,7 +88,7 @@ extension Badge {
                         return ("pending", false)
                 }
             case .swiftVersions:
-                switch swiftVersionCompatibility(significantBuilds) {
+                switch significantBuilds.swiftVersionCompatibility() {
                     case .available(let versions):
                         if let message = badgeMessage(swiftVersions: versions) {
                             return (message, true)
