@@ -145,7 +145,7 @@ class SignificantBuildsTests: AppTestCase {
         }
 
         // MUT
-        let sb = try SignificantBuilds.query(on: app.db, owner: "owner", repository: "repo").wait()
+        let sb: SignificantBuilds = try SignificantBuilds.query(on: app.db, owner: "owner", repository: "repo").wait()
 
         // validate
         XCTAssertEqual(sb.builds.sorted(), [
