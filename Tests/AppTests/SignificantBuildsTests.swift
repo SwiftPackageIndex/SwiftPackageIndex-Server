@@ -148,9 +148,23 @@ class SignificantBuildsTests: AppTestCase {
         let sb = try SignificantBuilds.query(on: app.db, owner: "owner", repository: "repo").wait()
 
         // validate
-        XCTAssertEqual(sb.builds, [
-
+        XCTAssertEqual(sb.builds.sorted(), [
+            .init(.v5_4, .macosSpm, .ok),
+            .init(.v5_5, .linux, .ok)
         ])
     }
 
+}
+
+
+extension SignificantBuilds.BuildInfo: Comparable {
+    public static func < (lhs: SignificantBuilds.BuildInfo, rhs: SignificantBuilds.BuildInfo) -> Bool {
+        if lhs.swiftVersion != rhs.swiftVersion {
+            return lhs.swiftVersion < rhs.swiftVersion
+        }
+        if lhs.platform != rhs.platform {
+            return lhs.platform < rhs.platform
+        }
+        return lhs.status.rawValue < rhs.status.rawValue
+    }
 }
