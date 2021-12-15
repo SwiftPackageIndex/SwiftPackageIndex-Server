@@ -109,6 +109,7 @@ class SignificantBuildsTests: AppTestCase {
         XCTAssertEqual(res.sorted(), [ .linux ])
     }
 
+    #warning("move")
     func test_query() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
@@ -145,7 +146,7 @@ class SignificantBuildsTests: AppTestCase {
         }
 
         // MUT
-        let sb: SignificantBuilds = try SignificantBuilds.query(on: app.db, owner: "owner", repository: "repo").wait()
+        let sb = try API.PackageController.BadgeRoute.query(on: app.db, owner: "owner", repository: "repo").wait()
 
         // validate
         XCTAssertEqual(sb.builds.sorted(), [

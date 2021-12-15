@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Fluent
-import Vapor
-
 
 struct SignificantBuilds {
     struct BuildInfo: Equatable {
@@ -34,25 +31,6 @@ struct SignificantBuilds {
     init(buildInfo: [(SwiftVersion, Build.Platform, Build.Status)]) {
         self.builds = buildInfo.map(BuildInfo.init)
     }
-
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        Build.query(on: database)
-            .join(parent: \.$version)
-            .join(Package.self, on: \App.Version.$package.$id == \Package.$id)
-            .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
-            .filter(App.Version.self, \App.Version.$latest != nil)
-            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            .filter(Repository.self, \.$name, .custom("ilike"), repository)
-            .field(\.$platform)
-            .field(\.$status)
-            .field(\.$swiftVersion)
-            .all()
-            .mapEach {
-                ($0.swiftVersion, $0.platform, $0.status)
-            }
-            .map(Self.init(buildInfo:))
-    }
-
 }
 
 
