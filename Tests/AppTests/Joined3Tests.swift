@@ -62,12 +62,41 @@ class Joined3Tests: AppTestCase {
 
         // MUT
         let res = try Joined3<Package, Repository, Version>.query(on: app.db)
-            .all()
-            .wait()
+            .all().wait()
 
         // validate
-        XCTAssertEqual(res.map { $0.repository?.owner }, ["owner"])
-        XCTAssertEqual(res.map { $0.version?.packageName }, ["package name"])
+        XCTAssertEqual(res.map { $0.repository.owner }, ["owner"])
+        XCTAssertEqual(res.map { $0.version.packageName }, ["package name"])
+    }
+
+    func test_query_missing_relations() throws {
+        // Neither should be possible in practice, this is just ensuring we cannot
+        // force unwrap the `repository` or `version` properties in the pathological
+        // event, because there are no results to access the properties on.
+        do {  // no repository
+            let p = try savePackage(on: app.db, "1")
+            try Version(package: p,
+                        latest: .defaultBranch,
+                        packageName: "package name").save(on: app.db).wait()
+
+            // MUT
+            let res = try Joined3<Package, Repository, Version>.query(on: app.db)
+                .all().wait()
+
+            // validate - result is empty, `res[0].repository` cannot be called
+            XCTAssertTrue(res.isEmpty)
+        }
+        do {  // no version
+            let p = try savePackage(on: app.db, "2")
+            try Repository(package: p, owner: "owner").save(on: app.db).wait()
+
+            // MUT
+            let res = try Joined3<Package, Repository, Version>.query(on: app.db)
+                .all().wait()
+
+            // validate - result is empty, `res[0].repository` cannot be called
+            XCTAssertTrue(res.isEmpty)
+        }
     }
 
 }

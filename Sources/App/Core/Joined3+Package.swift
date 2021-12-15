@@ -16,14 +16,16 @@ import FluentKit
 
 
 extension Joined3 where M == Package, R1 == Repository, R2 == Version {
-    var repository: Repository? { relation1 }
-    var version: Version? { relation2 }
+    // Force-unwrapping is safe, because the inner joins guarantee the relations
+    // to be set, if the query returns any results at all.
+    var repository: Repository { relation1! }
+    var version: Version { relation2! }
 
     static func query(on database: Database,
                       version latest: Version.Kind = .defaultBranch) -> JoinedQueryBuilder<Joined3> {
         query(on: database,
-              join: \Repository.$package.$id == \Package.$id,
-              join: \Version.$package.$id == \Package.$id)
+              join: \Repository.$package.$id == \Package.$id, method: .inner,
+              join: \Version.$package.$id == \Package.$id, method: .inner)
             .filter(Version.self, \.$latest == latest)
     }
 }

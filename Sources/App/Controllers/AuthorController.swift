@@ -45,8 +45,8 @@ struct AuthorController {
         return Self.query(on: req.db, owner: owner)
             .map {
                 AuthorShow.Model(
-                    owner: $0.first?.repository?.owner ?? owner,
-                    ownerName: $0.first?.repository?.ownerDisplayName ?? owner,
+                    owner: $0.first?.repository.owner ?? owner,
+                    ownerName: $0.first?.repository.ownerDisplayName ?? owner,
                     packages: $0.compactMap(PackageInfo.init(package:))
                 )
             }
