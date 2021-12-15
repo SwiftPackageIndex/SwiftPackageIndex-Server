@@ -140,6 +140,28 @@ extension PackageController {
                 self.repositoryOwner = repoOwner
                 self.repositoryName = repoName
             }
+
+            static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(PackageInfo)> {
+#warning("use Joined here (because we're using `.joined(...)` downstream")
+                return Version.query(on: database)
+                    .join(parent: \.$package)
+                    .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
+                    .filter(Version.self, \Version.$latest == .defaultBranch)
+                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+                    .filter(Repository.self, \.$name, .custom("ilike"), repository)
+                    .first()
+                    .unwrap(or: Abort(.notFound))
+                    .flatMapThrowing { version in
+                        let repo = try version.joined(Repository.self)
+                        guard let repoOwner = repo.owner,
+                              let repoName = repo.name else {
+                                  throw Abort(.notFound)
+                              }
+                        return .init(packageName: version.packageName,
+                                     repositoryOwner: repoOwner,
+                                     repositoryName: repoName)
+                    }
+            }
         }
 
         struct BuildInfo: Equatable {
@@ -149,42 +171,43 @@ extension PackageController {
             var swiftVersion: SwiftVersion
             var platform: Build.Platform
             var status: Build.Status
+
+            static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<[BuildInfo]> {
+#warning("use Joined here (because we're using `.joined(...)` downstream")
+                return Build.query(on: database)
+                    .join(parent: \.$version)
+                    .join(Package.self, on: \Version.$package.$id == \Package.$id)
+                    .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
+                    .filter(Version.self, \Version.$latest != nil)
+                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+                    .filter(Repository.self, \.$name, .custom("ilike"), repository)
+                    .field(\.$id)
+                    .field(\.$swiftVersion)
+                    .field(\.$platform)
+                    .field(\.$status)
+                    .field(Version.self, \.$latest)
+                    .field(Version.self, \.$packageName)
+                    .field(Version.self, \.$reference)
+                    .all()
+                    .flatMapThrowing { builds in
+                        try builds.compactMap { b -> BuildInfo? in
+                            let version = try b.joined(Version.self)
+                            guard let kind = version.latest,
+                                  let reference = version.reference else { return nil }
+                            return try BuildInfo(versionKind: kind,
+                                                 reference: reference,
+                                                 buildId: b.requireID(),
+                                                 swiftVersion: b.swiftVersion,
+                                                 platform: b.platform,
+                                                 status: b.status)
+                        }
+                    }
+            }
         }
 
         static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(PackageInfo, [BuildInfo])> {
-            #warning("use Joined here (because we're using `.joined(...)` downstream")
-            return Build.query(on: database)
-                .join(parent: \.$version)
-                .join(Package.self, on: \Version.$package.$id == \Package.$id)
-                .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
-                .filter(App.Version.self, \Version.$latest != nil)
-                .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-                .filter(Repository.self, \.$name, .custom("ilike"), repository)
-                .field(\.$id)
-                .field(\.$swiftVersion)
-                .field(\.$platform)
-                .field(\.$status)
-                .field(Version.self, \.$latest)
-                .field(Version.self, \.$packageName)
-                .field(Version.self, \.$reference)
-                .field(Repository.self, \.$owner)
-                .field(Repository.self, \.$name)
-                .all()
-                .flatMapThrowing { builds in
-                    let pkgInfo = try PackageInfo(builds: builds)
-                    let buildInfo = try builds.compactMap { b -> BuildInfo? in
-                        let version = try b.joined(Version.self)
-                        guard let kind = version.latest,
-                              let reference = version.reference else { return nil }
-                        return try BuildInfo(versionKind: kind,
-                                             reference: reference,
-                                             buildId: b.requireID(),
-                                             swiftVersion: b.swiftVersion,
-                                             platform: b.platform,
-                                             status: b.status)
-                    }
-                    return (pkgInfo, buildInfo)
-                }
+            PackageInfo.query(on: database, owner: owner, repository: repository)
+                .and(BuildInfo.query(on: database, owner: owner, repository: repository))
         }
     }
 }

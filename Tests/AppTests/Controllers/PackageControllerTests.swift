@@ -76,14 +76,15 @@ class PackageControllerTests: AppTestCase {
                        owner: "foo",
                        stars: 17,
                        summary: "summary").save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+        // no builds and also no packageName set
+        try Version(package: pkg, latest: .defaultBranch, packageName: nil).save(on: app.db).wait()
 
         // MUT
         let (pkgInfo, buildInfo) = try PackageController.BuildsRoute
             .query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // validate
-        XCTAssertEqual(pkgInfo, .init(packageName: "pkg",
+        XCTAssertEqual(pkgInfo, .init(packageName: nil,
                                       repositoryOwner: "foo",
                                       repositoryName: "bar"))
         XCTAssertEqual(buildInfo, [])
