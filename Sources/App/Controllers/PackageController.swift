@@ -143,11 +143,8 @@ extension PackageController {
             var status: Build.Status
 
             static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<[BuildInfo]> {
-#warning("use Joined here (because we're using `.joined(...)` downstream")
-                return Build.query(on: database)
-                    .join(parent: \.$version)
-                    .join(Package.self, on: \Version.$package.$id == \Package.$id)
-                    .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
+                Joined4<Build, Version, Package, Repository>
+                    .query(on: database)
                     .filter(Version.self, \Version.$latest != nil)
                     .filter(Repository.self, \.$owner, .custom("ilike"), owner)
                     .filter(Repository.self, \.$name, .custom("ilike"), repository)
@@ -159,18 +156,22 @@ extension PackageController {
                     .field(Version.self, \.$packageName)
                     .field(Version.self, \.$reference)
                     .all()
-                    .flatMapThrowing { builds in
-                        try builds.compactMap { b -> BuildInfo? in
-                            let version = try b.joined(Version.self)
-                            guard let kind = version.latest,
-                                  let reference = version.reference else { return nil }
-                            return try BuildInfo(versionKind: kind,
-                                                 reference: reference,
-                                                 buildId: b.requireID(),
-                                                 swiftVersion: b.swiftVersion,
-                                                 platform: b.platform,
-                                                 status: b.status)
-                        }
+                    .flatMapThrowing { results in
+                        try results
+                            .compactMap { res -> BuildInfo? in
+                                let build = res.build
+                                let version = res.version
+                                guard let kind = version.latest,
+                                      let reference = version.reference else {
+                                          return nil
+                                      }
+                                return try BuildInfo(versionKind: kind,
+                                                     reference: reference,
+                                                     buildId: build.requireID(),
+                                                     swiftVersion: build.swiftVersion,
+                                                     platform: build.platform,
+                                                     status: build.status)
+                            }
                     }
             }
         }

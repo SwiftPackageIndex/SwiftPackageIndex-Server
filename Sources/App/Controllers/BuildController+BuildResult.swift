@@ -29,8 +29,8 @@ extension BuildController.BuildResult {
     var package: Package { relation2! }
     var repository: Repository { relation3! }
 
-    static func query(on database: Database, buildId: Build.Id) -> EventLoopFuture<Self> {
-        Self.query(
+    static func query(on database: Database) -> JoinedQueryBuilder<Self> {
+        query(
             on: database,
             join: \Version.$id == \Build.$version.$id,
             method: .inner,
@@ -39,6 +39,10 @@ extension BuildController.BuildResult {
             join: \Repository.$package.$id == \Package.$id,
             method: .inner
         )
+    }
+
+    static func query(on database: Database, buildId: Build.Id) -> EventLoopFuture<Self> {
+        query(on: database)
             .filter(\.$id == buildId)
             .first()
             .unwrap(or: Abort(.notFound))
