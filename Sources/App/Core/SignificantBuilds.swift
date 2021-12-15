@@ -31,7 +31,11 @@ struct SignificantBuilds {
 
     var builds: [BuildInfo]
 
-    private static func _query(on database: Database, owner: String, repository: String) -> QueryBuilder<Build> {
+    init(buildInfo: [(SwiftVersion, Build.Platform, Build.Status)]) {
+        self.builds = buildInfo.map(BuildInfo.init)
+    }
+
+    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
         Build.query(on: database)
             .join(parent: \.$version)
             .join(Package.self, on: \App.Version.$package.$id == \Package.$id)
@@ -42,51 +46,11 @@ struct SignificantBuilds {
             .field(\.$platform)
             .field(\.$status)
             .field(\.$swiftVersion)
-    }
-
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        return _query(on: database, owner: owner, repository: repository)
             .all()
             .mapEach {
-                BuildInfo($0.swiftVersion, $0.platform, $0.status)
+                ($0.swiftVersion, $0.platform, $0.status)
             }
-            .map(Self.init(builds:))
-    }
-
-    struct PackageInfo {
-        var packageName: String?
-        var repositoryOwner: String
-        var repositoryName: String
-
-        init(builds: [Build]) throws {
-            guard let firstBuild = builds.first else { throw Abort(.notFound) }
-            let repo = try firstBuild.joined(Repository.self)
-            guard let repoOwner = repo.owner, let repoName = repo.name else {
-                throw Abort(.notFound)
-            }
-            let firstDefaultVersion = try? builds.first {
-                try $0.joined(Version.self).latest == .defaultBranch
-            }?.version
-            self.packageName = firstDefaultVersion?.packageName
-            self.repositoryOwner = repoOwner
-            self.repositoryName = repoName
-        }
-    }
-
-    #warning("add test")
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(PackageInfo, SignificantBuilds)> {
-        return _query(on: database, owner: owner, repository: repository)
-            .field(Version.self, \.$packageName)
-            .field(Version.self, \.$latest)
-            .field(Repository.self, \.$owner)
-            .field(Repository.self, \.$name)
-            .all()
-            .flatMapThrowing { builds in
-                let pkgInfo = try PackageInfo(builds: builds)
-                let significantBuilds = SignificantBuilds(builds: builds.map{ BuildInfo($0.swiftVersion, $0.platform, $0.status)
-                })
-                return (pkgInfo, significantBuilds)
-            }
+            .map(Self.init(buildInfo:))
     }
 
 }

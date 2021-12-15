@@ -106,6 +106,56 @@ struct PackageController {
 }
 
 
+// TODO: move
+extension PackageController {
+    enum BuildsRoute {
+        struct PackageInfo {
+            var packageName: String?
+            var repositoryOwner: String
+            var repositoryName: String
+
+            init(builds: [Build]) throws {
+                guard let firstBuild = builds.first else { throw Abort(.notFound) }
+                let repo = try firstBuild.joined(Repository.self)
+                guard let repoOwner = repo.owner, let repoName = repo.name else {
+                    throw Abort(.notFound)
+                }
+                let firstDefaultVersion = try? builds.first {
+                    try $0.joined(Version.self).latest == .defaultBranch
+                }?.version
+                self.packageName = firstDefaultVersion?.packageName
+                self.repositoryOwner = repoOwner
+                self.repositoryName = repoName
+            }
+        }
+
+        #warning("add test")
+        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(PackageInfo, SignificantBuilds)> {
+            Build.query(on: database)
+                .join(parent: \.$version)
+                .join(Package.self, on: \App.Version.$package.$id == \Package.$id)
+                .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
+                .filter(App.Version.self, \App.Version.$latest != nil)
+                .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+                .filter(Repository.self, \.$name, .custom("ilike"), repository)
+                .field(\.$platform)
+                .field(\.$status)
+                .field(\.$swiftVersion)
+                .field(Version.self, \.$packageName)
+                .field(Version.self, \.$latest)
+                .field(Repository.self, \.$owner)
+                .field(Repository.self, \.$name)
+                .all()
+                .flatMapThrowing { builds in
+                    let pkgInfo = try PackageInfo(builds: builds)
+                    let significantBuilds = SignificantBuilds(buildInfo: builds.map{ ($0.swiftVersion, $0.platform, $0.status) })
+                    return (pkgInfo, significantBuilds)
+                }
+        }
+    }
+}
+
+
 // MARK: - PackageResult
 
 
