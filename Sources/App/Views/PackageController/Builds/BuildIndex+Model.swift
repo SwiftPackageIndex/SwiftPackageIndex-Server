@@ -25,24 +25,6 @@ extension BuildIndex {
         var completedBuildCount: Int
         var buildMatrix: BuildMatrix
 
-        init?(result: PackageResult) {
-            // we consider certain attributes as essential and return nil (raising .notFound)
-            guard let name = result.versions.packageName(),
-                  let owner = result.repository?.owner,
-                  let repositoryName = result.repository?.name else { return nil }
-
-            let buildGroups = [App.Version.Kind.release, .preRelease, .defaultBranch]
-                .map { ($0, result.versions.latest(for: $0)) }
-                .compactMap { (kind, version) in
-                    version.flatMap { BuildGroup(version: $0, kind: kind) }
-                }
-
-            self.init(owner: owner,
-                      repositoryName: repositoryName,
-                      packageName: name,
-                      buildGroups: buildGroups)
-        }
-
         internal init(owner: String,
                       repositoryName: String,
                       packageName: String,
@@ -53,6 +35,35 @@ extension BuildIndex {
             self.completedBuildCount = buildGroups.reduce(0) { $0 + $1.builds.filter(\.isCompleted).count }
             buildMatrix = .init(buildGroups: buildGroups)
         }
+
+        init?(packageInfo: PackageController.BuildsRoute.PackageInfo, buildInfo: [PackageController.BuildsRoute.BuildInfo]) {
+            guard let packageName = packageInfo.packageName else { return nil }
+
+            let buildGroups = [App.Version.Kind.release, .preRelease, .defaultBranch]
+                .compactMap(buildInfo.grouped(by:))
+
+            self.init(owner: packageInfo.repositoryOwner,
+                      repositoryName: packageInfo.repositoryName,
+                      packageName: packageName,
+                      buildGroups: buildGroups)
+        }
+
+    }
+}
+
+
+// TODO: move
+extension Array where Element == PackageController.BuildsRoute.BuildInfo {
+    func grouped(by kind: Version.Kind) -> BuildIndex.Model.BuildGroup? {
+        let filteredBuildInfo = filter { $0.versionKind == kind }
+        guard let name = filteredBuildInfo.first?.reference.description else { return nil }
+        let buildInfo = filteredBuildInfo.map {
+            BuildIndex.Model.BuildInfo.init(id: $0.buildId,
+                                            swiftVersion: $0.swiftVersion,
+                                            platform: $0.platform,
+                                            status: $0.status)
+        }
+        return .init(name: name, kind: kind, builds: buildInfo)
     }
 }
 
@@ -62,11 +73,6 @@ extension BuildIndex.Model {
         var name: String
         var kind: App.Version.Kind
         var builds: [BuildInfo]
-
-        init?(version: Version, kind: App.Version.Kind) {
-            guard let name = version.reference?.description else { return nil }
-            self.init(name: name, kind: kind, builds: version.builds.compactMap(BuildInfo.init))
-        }
 
         internal init(name: String, kind: App.Version.Kind, builds: [BuildInfo]) {
             self.name = name
