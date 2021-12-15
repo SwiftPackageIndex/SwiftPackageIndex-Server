@@ -22,11 +22,7 @@ struct AuthorController {
     static func query(on database: Database, owner: String) -> EventLoopFuture<[Joined3<Package, Repository, Version>]> {
         Joined3<Package, Repository, Version>
             .query(on: database, version: .defaultBranch)
-            .filter(
-                DatabaseQuery.Field.path(Repository.path(for: \.$owner), schema: Repository.schema),
-                DatabaseQuery.Filter.Method.custom("ilike"),
-                DatabaseQuery.Value.bind(owner)
-            )
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .sort(Version.self, \.$packageName)
             .all()
             .flatMapThrowing {
