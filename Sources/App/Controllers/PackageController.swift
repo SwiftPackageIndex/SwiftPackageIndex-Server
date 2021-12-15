@@ -114,50 +114,20 @@ extension PackageController {
             var repositoryOwner: String
             var repositoryName: String
 
-            internal init(packageName: String? = nil, repositoryOwner: String, repositoryName: String) {
-                self.packageName = packageName
-                self.repositoryOwner = repositoryOwner
-                self.repositoryName = repositoryName
-            }
-
-            init(builds: [Build]) throws {
-                guard let firstBuild = builds.first else { throw Abort(.notFound) }
-                let repo = try firstBuild.joined(Repository.self)
-                guard let repoOwner = repo.owner, let repoName = repo.name else {
-                    throw Abort(.notFound)
-                }
-                let packageName = try builds
-                    .compactMap { b -> (kind: Version.Kind, packageName: String?)? in
-                        let v = try b.joined(Version.self)
-                        guard let latest = v.latest else { return nil }
-                        return (latest, v.packageName)
-                    }
-                    .lazy
-                    .first {
-                        $0.kind == .defaultBranch
-                    }?.packageName
-                self.packageName = packageName
-                self.repositoryOwner = repoOwner
-                self.repositoryName = repoName
-            }
-
             static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(PackageInfo)> {
-#warning("use Joined here (because we're using `.joined(...)` downstream")
-                return Version.query(on: database)
-                    .join(parent: \.$package)
-                    .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
-                    .filter(Version.self, \Version.$latest == .defaultBranch)
+                Joined3<Package, Repository, Version>
+                    .query(on: database, version: .defaultBranch)
                     .filter(Repository.self, \.$owner, .custom("ilike"), owner)
                     .filter(Repository.self, \.$name, .custom("ilike"), repository)
                     .first()
                     .unwrap(or: Abort(.notFound))
-                    .flatMapThrowing { version in
-                        let repo = try version.joined(Repository.self)
+                    .flatMapThrowing { model in
+                        let repo = model.repository
                         guard let repoOwner = repo.owner,
                               let repoName = repo.name else {
                                   throw Abort(.notFound)
                               }
-                        return .init(packageName: version.packageName,
+                        return .init(packageName: model.version.packageName,
                                      repositoryOwner: repoOwner,
                                      repositoryName: repoName)
                     }
