@@ -109,10 +109,16 @@ struct PackageController {
 // TODO: move
 extension PackageController {
     enum BuildsRoute {
-        struct PackageInfo {
+        struct PackageInfo: Equatable {
             var packageName: String?
             var repositoryOwner: String
             var repositoryName: String
+
+            internal init(packageName: String? = nil, repositoryOwner: String, repositoryName: String) {
+                self.packageName = packageName
+                self.repositoryOwner = repositoryOwner
+                self.repositoryName = repositoryName
+            }
 
             init(builds: [Build]) throws {
                 guard let firstBuild = builds.first else { throw Abort(.notFound) }
@@ -120,16 +126,23 @@ extension PackageController {
                 guard let repoOwner = repo.owner, let repoName = repo.name else {
                     throw Abort(.notFound)
                 }
-                let firstDefaultVersion = try? builds.first {
-                    try $0.joined(Version.self).latest == .defaultBranch
-                }?.version
-                self.packageName = firstDefaultVersion?.packageName
+                let packageName = try builds
+                    .compactMap { b -> (kind: Version.Kind, packageName: String?)? in
+                        let v = try b.joined(Version.self)
+                        guard let latest = v.latest else { return nil }
+                        return (latest, v.packageName)
+                    }
+                    .lazy
+                    .first {
+                        $0.kind == .defaultBranch
+                    }?.packageName
+                self.packageName = packageName
                 self.repositoryOwner = repoOwner
                 self.repositoryName = repoName
             }
         }
 
-        struct BuildInfo {
+        struct BuildInfo: Equatable {
             var versionKind: Version.Kind
             var reference: Reference
             var buildId: Build.Id
@@ -138,7 +151,6 @@ extension PackageController {
             var status: Build.Status
         }
 
-        #warning("add test")
         static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(PackageInfo, [BuildInfo])> {
             #warning("use Joined here (because we're using `.joined(...)` downstream")
             return Build.query(on: database)
