@@ -1,9 +1,0 @@
-# https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1072
-# Example invocation:
-#   env base_url=http://localhost:8080 rester restfiles/perf-test-builds-page.restfile -c 20 -s
-requests:
-
-    Alamofire:
-        url: ${base_url}/Alamofire/Alamofire/builds
-        validation:
-            status: 200
