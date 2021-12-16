@@ -52,8 +52,7 @@ extension BuildIndex {
 }
 
 
-// TODO: move
-extension Array where Element == PackageController.BuildsRoute.BuildInfo {
+private extension Array where Element == PackageController.BuildsRoute.BuildInfo {
     func grouped(by kind: Version.Kind) -> BuildIndex.Model.BuildGroup? {
         let filteredBuildInfo = filter { $0.versionKind == kind }
         guard let name = filteredBuildInfo.first?.reference.description else { return nil }
