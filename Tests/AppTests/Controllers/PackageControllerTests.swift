@@ -19,7 +19,7 @@ import XCTest
 
 class PackageControllerTests: AppTestCase {
 
-    func test_show_owner_repository() throws {
+    func test_show() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
@@ -27,6 +27,35 @@ class PackageControllerTests: AppTestCase {
 
         // MUT
         try app.test(.GET, "/owner/package", afterResponse: { response in
+            XCTAssertEqual(response.status, .ok)
+        })
+    }
+
+    func test_maintainerInfo() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+            .save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/information-for-package-maintainers", afterResponse: { response in
+            XCTAssertEqual(response.status, .ok)
+        })
+    }
+
+    func test_maintainerInfo_no_packageName() throws {
+        // Ensure we display the page even if packageName is not set
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch, packageName: nil)
+            .save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/information-for-package-maintainers", afterResponse: { response in
             XCTAssertEqual(response.status, .ok)
         })
     }

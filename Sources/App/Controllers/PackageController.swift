@@ -92,17 +92,21 @@ struct PackageController {
 
         return Joined3<Package, Repository, Version>
             .query(on: req.db, owner: owner, repository: repository, version: .defaultBranch)
+            .field(Version.self, \.$packageName)
+            .field(Repository.self, \.$owner)
+            .field(Repository.self, \.$name)
             .first()
             .unwrap(or: Abort(.notFound))
             .flatMapThrowing { result in
-                guard let packageName = result.version.packageName,
-                      let repositoryOwner = result.repository.owner,
+                guard let repositoryOwner = result.repository.owner,
                       let repositoryName = result.repository.name else {
                           throw Abort(.notFound)
                       }
-                return MaintainerInfoIndex.Model(packageName: packageName,
-                                                 repositoryOwner: repositoryOwner,
-                                                 repositoryName: repositoryName)
+                return MaintainerInfoIndex.Model(
+                    packageName: result.version.packageName ?? repositoryName,
+                    repositoryOwner: repositoryOwner,
+                    repositoryName: repositoryName
+                )
             }
             .map { MaintainerInfoIndex.View(path: req.url.path, model: $0).document() }
     }
