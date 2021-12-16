@@ -50,7 +50,7 @@ extension API {
                 .transform(to: .ok)
         }
         
-        func trigger(req: Request) throws -> EventLoopFuture<HTTPStatus> {
+        func triggerBuilds(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             guard
                 let owner = req.parameters.get("owner"),
                 let repository = req.parameters.get("repository")

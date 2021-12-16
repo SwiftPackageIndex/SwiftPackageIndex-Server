@@ -110,14 +110,14 @@ func routes(_ app: Application) throws {
 
         // protected routes
         app.group(User.TokenAuthenticator(), User.guardMiddleware()) { protected in
-            let builds = API.BuildController()
+            let buildController = API.BuildController()
             protected.on(.POST, SiteURL.api(.versions(.key, .builds)).pathComponents,
-                         use: builds.create)
+                         use: buildController.create)
             protected.post(SiteURL.api(.versions(.key, .triggerBuild)).pathComponents,
-                           use: builds.trigger)
-            let packages = API.PackageController()
+                           use: buildController.trigger)
+            let packageController = API.PackageController()
             protected.post(SiteURL.api(.packages(.key, .key, .triggerBuilds)).pathComponents,
-                           use: packages.trigger)
+                           use: packageController.triggerBuilds)
         }
         
         // sas: 2020-05-19: shut down public API until we have an auth mechanism
