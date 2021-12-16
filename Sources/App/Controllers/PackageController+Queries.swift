@@ -45,7 +45,9 @@ extension PackageController {
 
 extension PackageController.PackageResult {
     var package: Package { model.package }
-    var repository: Repository? { model.repository }
+    // We can safely force-unwrap model.repository because it's a relation from
+    // an INNER query.
+    var repository: Repository { model.repository! }
     var versions: [Version] { package.versions }
 
     static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {

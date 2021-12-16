@@ -26,14 +26,13 @@ extension PackageController.PackageResult {
     func history() -> PackageShow.Model.History? {
         let releases = versions.filter({ $0.reference?.isRelease ?? false })
         guard
-            let repo = repository,
-            let defaultBranch = repo.defaultBranch,
-            let firstCommitDate = repo.firstCommitDate,
-            let commitCountString = Self.numberFormatter.string(from: NSNumber(value: repo.commitCount)),
+            let defaultBranch = repository.defaultBranch,
+            let firstCommitDate = repository.firstCommitDate,
+            let commitCountString = Self.numberFormatter.string(from: NSNumber(value: repository.commitCount)),
             let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))
         else { return nil }
         let cl = Link(
-            label: commitCountString + " commit".pluralized(for: repo.commitCount),
+            label: commitCountString + " commit".pluralized(for: repository.commitCount),
             url: package.url.droppingGitExtension + "/commits/\(defaultBranch)")
         let rl = Link(
             label: releaseCountString + " release".pluralized(for: releases.count),
@@ -44,18 +43,15 @@ extension PackageController.PackageResult {
     }
     
     func activity() -> PackageShow.Model.Activity? {
-        guard
-            let repo = repository,
-            repo.lastPullRequestClosedAt != nil
-        else { return nil }
+        guard repository.lastPullRequestClosedAt != nil else { return nil }
 
-        let openIssues = Link(label: pluralizedCount(repo.openIssues, singular: "open issue"),
+        let openIssues = Link(label: pluralizedCount(repository.openIssues, singular: "open issue"),
                               url: package.url.droppingGitExtension + "/issues")
-        let openPRs = Link(label: pluralizedCount(repo.openPullRequests, singular: "open pull request"),
+        let openPRs = Link(label: pluralizedCount(repository.openPullRequests, singular: "open pull request"),
                            url: package.url.droppingGitExtension + "/pulls")
-        let lastIssueClosed = repo.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
-        let lastPRClosed = repo.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
-        return .init(openIssuesCount: repo.openIssues,
+        let lastIssueClosed = repository.lastIssueClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
+        let lastPRClosed = repository.lastPullRequestClosedAt.map { "\(date: $0, relativeTo: Current.date())" }
+        return .init(openIssuesCount: repository.openIssues,
                      openIssues: openIssues,
                      openPullRequests: openPRs,
                      lastIssueClosedAt: lastIssueClosed,

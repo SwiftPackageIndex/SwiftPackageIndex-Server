@@ -26,8 +26,8 @@ extension MaintainerInfoIndex {
 
         init?(result: PackageResult) {
             guard let packageName = result.versions.packageName(),
-                  let repositoryOwner = result.repository?.owner,
-                  let repositoryName = result.repository?.name else { return nil }
+                  let repositoryOwner = result.repository.owner,
+                  let repositoryName = result.repository.name else { return nil }
 
             self.init(packageName: packageName, repositoryOwner: repositoryOwner, repositoryName: repositoryName)
         }
