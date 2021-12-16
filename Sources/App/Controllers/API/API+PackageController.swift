@@ -156,11 +156,9 @@ extension API.PackageController {
 extension API.PackageController {
     enum BadgeRoute {
         static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<SignificantBuilds> {
-            Build.query(on: database)
-                .join(parent: \.$version)
-                .join(Package.self, on: \App.Version.$package.$id == \Package.$id)
-                .join(Repository.self, on: \Repository.$package.$id == \Package.$id)
-                .filter(App.Version.self, \App.Version.$latest != nil)
+            Joined4<Build, Version, Package, Repository>
+                .query(on: database)
+                .filter(Version.self, \Version.$latest != nil)
                 .filter(Repository.self, \.$owner, .custom("ilike"), owner)
                 .filter(Repository.self, \.$name, .custom("ilike"), repository)
                 .field(\.$platform)
@@ -168,7 +166,7 @@ extension API.PackageController {
                 .field(\.$swiftVersion)
                 .all()
                 .mapEach {
-                    ($0.swiftVersion, $0.platform, $0.status)
+                    ($0.build.swiftVersion, $0.build.platform, $0.build.status)
                 }
                 .map(SignificantBuilds.init(buildInfo:))
         }
