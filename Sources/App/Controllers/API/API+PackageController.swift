@@ -153,8 +153,6 @@ extension API.PackageController {
 }
 
 
-// TODO: move
-
 extension API.PackageController {
     enum BadgeRoute {
         static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<SignificantBuilds> {
