@@ -93,8 +93,8 @@ extension PackageShow {
         init?(result: PackageController.PackageResult) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             let versions = result.versions
+            let repository = result.repository
             guard
-                let repository = result.repository,
                 let repositoryOwner = repository.owner,
                 let repositoryOwnerName = repository.ownerDisplayName,
                 let repositoryName = repository.name,

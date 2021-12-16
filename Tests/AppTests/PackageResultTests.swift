@@ -41,7 +41,7 @@ class PackageResultTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res.package.id, pkg.id)
-        XCTAssertEqual(res.repository?.name, "bar")
+        XCTAssertEqual(res.repository.name, "bar")
     }
 
     func test_query_owner_repository_case_insensitivity() throws {
