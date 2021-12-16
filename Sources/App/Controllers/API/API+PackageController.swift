@@ -50,7 +50,7 @@ extension API {
                 .transform(to: .ok)
         }
         
-        func trigger(req: Request) throws -> EventLoopFuture<HTTPStatus> {
+        func triggerBuilds(req: Request) throws -> EventLoopFuture<HTTPStatus> {
             guard
                 let owner = req.parameters.get("owner"),
                 let repository = req.parameters.get("repository")
@@ -58,24 +58,19 @@ extension API {
                 return req.eventLoop.future(error: Abort(.notFound))
             }
             let dto = try req.content.decode(PostBuildTriggerDTO.self)
-            return PackageResult
+            return TriggerBuildRoute
                 .query(on: req.db, owner: owner, repository: repository)
-                .flatMap { package -> EventLoopFuture<HTTPStatus> in
-                    [App.Version.Kind.release, .preRelease, .defaultBranch]
-                        .compactMap { package.versions.latest(for: $0)?.id }
-                        .map {
-                            Build.trigger(database: req.db,
-                                          client: req.client,
-                                          platform: dto.platform,
-                                          swiftVersion: dto.swiftVersion,
-                                          versionId: $0)
-                        }
-                        .flatten(on: req.eventLoop)
-                        .mapEach(\.status)
-                        .map { statuses in
-                            statuses.allSatisfy { $0 == .created || $0 == .ok }
-                                ? .ok : .badRequest
-                        }
+                .flatMapEach(on: req.eventLoop) { versionId -> EventLoopFuture<HTTPStatus> in
+                    Build.trigger(database: req.db,
+                                  client: req.client,
+                                  platform: dto.platform,
+                                  swiftVersion: dto.swiftVersion,
+                                  versionId: versionId)
+                        .map(\.status)
+                }
+                .map { statuses -> HTTPStatus in
+                    statuses.allSatisfy { $0 == .created || $0 == .ok }
+                    ? .ok : .badRequest
                 }
         }
         
@@ -169,6 +164,22 @@ extension API.PackageController {
                     ($0.build.swiftVersion, $0.build.platform, $0.build.status)
                 }
                 .map(SignificantBuilds.init(buildInfo:))
+        }
+    }
+}
+
+
+extension API.PackageController {
+    enum TriggerBuildRoute {
+        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<[Version.Id]> {
+            Joined3<Package, Repository, Version>
+                .query(on: database)
+                .filter(Version.self, \.$latest != nil)
+                .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+                .filter(Repository.self, \.$name, .custom("ilike"), repository)
+                .field(Version.self, \.$id)
+                .all()
+                .flatMapEachThrowing { try $0.version.requireID() }
         }
     }
 }

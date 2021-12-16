@@ -21,18 +21,21 @@ extension Joined3 where M == Package, R1 == Repository, R2 == Version {
     var repository: Repository { relation1! }
     var version: Version { relation2! }
 
-    static func query(on database: Database,
-                      version latest: Version.Kind = .defaultBranch) -> JoinedQueryBuilder<Joined3> {
+    static func query(on database: Database) -> JoinedQueryBuilder<Joined3> {
         query(on: database,
               join: \Repository.$package.$id == \Package.$id, method: .inner,
               join: \Version.$package.$id == \Package.$id, method: .inner)
+    }
+
+    static func query(on database: Database, version latest: Version.Kind) -> JoinedQueryBuilder<Joined3> {
+        query(on: database)
             .filter(Version.self, \.$latest == latest)
     }
 
     static func query(on database: Database,
                       owner: String,
                       repository: String,
-                      version latest: Version.Kind = .defaultBranch) -> JoinedQueryBuilder<Joined3> {
+                      version latest: Version.Kind) -> JoinedQueryBuilder<Joined3> {
         query(on: database, version: latest)
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .filter(Repository.self, \.$name, .custom("ilike"), repository)

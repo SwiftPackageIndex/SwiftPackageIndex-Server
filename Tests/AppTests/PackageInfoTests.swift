@@ -28,7 +28,7 @@ class PackageInfoTests: AppTestCase {
         try Version(package: p, latest: .defaultBranch, packageName: "package name")
             .save(on: app.db).wait()
         let joined = try XCTUnwrap(Joined3<Package, Repository, Version>
-                                    .query(on: app.db)
+                                    .query(on: app.db, version: .defaultBranch)
                                     .first()
                                     .wait())
 
@@ -48,7 +48,7 @@ class PackageInfoTests: AppTestCase {
         try Version(package: p, latest: .defaultBranch, packageName: nil)
             .save(on: app.db).wait()
         let joined = try XCTUnwrap(Joined3<Package, Repository, Version>
-                                    .query(on: app.db)
+                                    .query(on: app.db, version: .defaultBranch)
                                     .first()
                                     .wait())
 
