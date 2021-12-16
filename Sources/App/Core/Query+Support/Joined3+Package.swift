@@ -28,4 +28,13 @@ extension Joined3 where M == Package, R1 == Repository, R2 == Version {
               join: \Version.$package.$id == \Package.$id, method: .inner)
             .filter(Version.self, \.$latest == latest)
     }
+
+    static func query(on database: Database,
+                      owner: String,
+                      repository: String,
+                      version latest: Version.Kind = .defaultBranch) -> JoinedQueryBuilder<Joined3> {
+        query(on: database, version: latest)
+            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+            .filter(Repository.self, \.$name, .custom("ilike"), repository)
+    }
 }

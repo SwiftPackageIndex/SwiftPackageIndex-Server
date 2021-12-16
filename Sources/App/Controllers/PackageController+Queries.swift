@@ -74,9 +74,10 @@ extension PackageController {
 
             static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(PackageInfo)> {
                 Joined3<Package, Repository, Version>
-                    .query(on: database, version: .defaultBranch)
-                    .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-                    .filter(Repository.self, \.$name, .custom("ilike"), repository)
+                    .query(on: database, owner: owner, repository: repository, version: .defaultBranch)
+                    .field(Repository.self, \.$owner)
+                    .field(Repository.self, \.$name)
+                    .field(Version.self, \.$packageName)
                     .first()
                     .unwrap(or: Abort(.notFound))
                     .flatMapThrowing { model in
