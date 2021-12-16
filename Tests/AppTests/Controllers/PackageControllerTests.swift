@@ -30,5 +30,65 @@ class PackageControllerTests: AppTestCase {
             XCTAssertEqual(response.status, .ok)
         })
     }
-    
+
+    func test_BuildsRoute_query() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try Repository(package: pkg,
+                       defaultBranch: "main",
+                       forks: 42,
+                       license: .mit,
+                       name: "bar",
+                       owner: "foo",
+                       stars: 17,
+                       summary: "summary").save(on: app.db).wait()
+        let v = try Version(package: pkg, latest: .defaultBranch, packageName: "pkg", reference: .branch("main"))
+        try v.save(on: app.db).wait()
+        try Build(id: .id0, version: v, platform: .ios, status: .ok, swiftVersion: .v5_5)
+            .save(on: app.db).wait()
+
+        // MUT
+        let (pkgInfo, buildInfo) = try PackageController.BuildsRoute
+            .query(on: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertEqual(pkgInfo, .init(packageName: "pkg",
+                                      repositoryOwner: "foo",
+                                      repositoryName: "bar"))
+        XCTAssertEqual(buildInfo, [
+            .init(versionKind: .defaultBranch,
+                  reference: .branch("main"),
+                  buildId: .id0,
+                  swiftVersion: .v5_5,
+                  platform: .ios,
+                  status: .ok)
+        ])
+    }
+
+    func test_BuildsRoute_query_no_builds() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try Repository(package: pkg,
+                       defaultBranch: "main",
+                       forks: 42,
+                       license: .mit,
+                       name: "bar",
+                       owner: "foo",
+                       stars: 17,
+                       summary: "summary").save(on: app.db).wait()
+        // no builds and also no packageName set
+        try Version(package: pkg, latest: .defaultBranch, packageName: nil).save(on: app.db).wait()
+
+        // MUT
+        let (pkgInfo, buildInfo) = try PackageController.BuildsRoute
+            .query(on: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertEqual(pkgInfo, .init(packageName: nil,
+                                      repositoryOwner: "foo",
+                                      repositoryName: "bar"))
+        XCTAssertEqual(buildInfo, [])
+
+    }
+
 }

@@ -16,12 +16,7 @@ import Fluent
 import Vapor
 
 
-extension BuildController {
-    typealias BuildResult = Joined4<Build, Version, Package, Repository>
-}
-
-
-extension BuildController.BuildResult {
+extension Joined4 where M == Build, R1 == Version, R2 == Package, R3 == Repository {
     var build: Build { model }
     // It's ok to force unwrap all joined relations, because they
     // are INNER joins, i.e. the relation will exist for every result.
@@ -29,8 +24,8 @@ extension BuildController.BuildResult {
     var package: Package { relation2! }
     var repository: Repository { relation3! }
 
-    static func query(on database: Database, buildId: Build.Id) -> EventLoopFuture<Self> {
-        Self.query(
+    static func query(on database: Database) -> JoinedQueryBuilder<Self> {
+        query(
             on: database,
             join: \Version.$id == \Build.$version.$id,
             method: .inner,
@@ -39,6 +34,10 @@ extension BuildController.BuildResult {
             join: \Repository.$package.$id == \Package.$id,
             method: .inner
         )
+    }
+
+    static func query(on database: Database, buildId: Build.Id) -> EventLoopFuture<Self> {
+        query(on: database)
             .filter(\.$id == buildId)
             .first()
             .unwrap(or: Abort(.notFound))

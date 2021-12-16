@@ -26,19 +26,19 @@ struct PackageInfo {
 
 extension PackageInfo {
     init?(package: Joined3<Package, Repository, Version>) {
-        guard let repoName = package.repository?.name,
-              let repoOwner = package.repository?.owner
+        guard let repoName = package.repository.name,
+              let repoOwner = package.repository.owner
         else { return nil }
 
-        let title = package.version?.packageName ?? repoName
+        let title = package.version.packageName ?? repoName
 
         self.init(title: title,
-                  description: package.repository?.summary ?? "",
+                  description: package.repository.summary ?? "",
                   repositoryOwner: repoOwner,
                   repositoryName: repoName,
                   url: SiteURL.package(.value(repoOwner), .value(repoName), .none).relativeURL(),
-                  stars: package.repository?.stars ?? 0,
-                  lastActivityAt: package.repository?.lastActivityAt
+                  stars: package.repository.stars,
+                  lastActivityAt: package.repository.lastActivityAt
         )
     }
 }

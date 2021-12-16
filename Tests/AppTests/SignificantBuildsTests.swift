@@ -17,14 +17,14 @@
 import XCTest
 
 
-class SignificantBuildsTests: AppTestCase {
+class SignificantBuildsTests: XCTestCase {
 
     func test_swiftVersionCompatibility() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .ok),
-            .init(.v5_4, .macosSpm, .ok),
-            .init(.v5_3, .ios, .failed)
+        let sb = SignificantBuilds(buildInfo: [
+            (.v5_5, .linux, .ok),
+            (.v5_4, .macosSpm, .ok),
+            (.v5_3, .ios, .failed)
         ])
 
         // MUT
@@ -36,10 +36,10 @@ class SignificantBuildsTests: AppTestCase {
 
     func test_swiftVersionCompatibility_allPending() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .triggered),
-            .init(.v5_4, .macosSpm, .triggered),
-            .init(.v5_3, .ios, .triggered)
+        let sb = SignificantBuilds(buildInfo: [
+            (.v5_5, .linux, .triggered),
+            (.v5_4, .macosSpm, .triggered),
+            (.v5_3, .ios, .triggered)
         ])
 
         // MUT
@@ -51,10 +51,10 @@ class SignificantBuildsTests: AppTestCase {
 
     func test_swiftVersionCompatibility_partialPending() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .ok),
-            .init(.v5_4, .macosSpm, .failed),
-            .init(.v5_3, .ios, .triggered)
+        let sb = SignificantBuilds(buildInfo: [
+            (.v5_5, .linux, .ok),
+            (.v5_4, .macosSpm, .failed),
+            (.v5_3, .ios, .triggered)
         ])
 
         // MUT
@@ -66,10 +66,10 @@ class SignificantBuildsTests: AppTestCase {
 
     func test_platformCompatibility() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .ok),
-            .init(.v5_4, .macosSpm, .ok),
-            .init(.v5_3, .ios, .failed)
+        let sb = SignificantBuilds(buildInfo: [
+            (.v5_5, .linux, .ok),
+            (.v5_4, .macosSpm, .ok),
+            (.v5_3, .ios, .failed)
         ])
         
         // MUT
@@ -81,10 +81,10 @@ class SignificantBuildsTests: AppTestCase {
 
     func test_platformCompatibility_allPending() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .triggered),
-            .init(.v5_4, .macosSpm, .triggered),
-            .init(.v5_3, .ios, .triggered)
+        let sb = SignificantBuilds(buildInfo: [
+            (.v5_5, .linux, .triggered),
+            (.v5_4, .macosSpm, .triggered),
+            (.v5_3, .ios, .triggered)
         ])
 
         // MUT
@@ -96,10 +96,10 @@ class SignificantBuildsTests: AppTestCase {
 
     func test_platformCompatibility_partialPending() throws {
         // setup
-        let sb = SignificantBuilds(builds: [
-            .init(.v5_5, .linux, .ok),
-            .init(.v5_4, .macosSpm, .failed),
-            .init(.v5_3, .ios, .triggered)
+        let sb = SignificantBuilds(buildInfo: [
+            (.v5_5, .linux, .ok),
+            (.v5_4, .macosSpm, .failed),
+            (.v5_3, .ios, .triggered)
         ])
 
         // MUT
@@ -107,51 +107,6 @@ class SignificantBuildsTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res.sorted(), [ .linux ])
-    }
-
-    func test_query() throws {
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        let v = try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        try Repository(package: p,
-                       defaultBranch: "main",
-                       license: .mit,
-                       name: "repo",
-                       owner: "owner").save(on: app.db).wait()
-        // add builds
-        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .v5_5)
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_4)
-            .save(on: app.db)
-            .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
-        do { // save decoy
-            let p = try savePackage(on: app.db, "2")
-            let v = try Version(package: p, latest: .release, reference: .tag(.init(2, 0, 0)))
-            try v.save(on: app.db).wait()
-            try Repository(package: p,
-                           defaultBranch: "main",
-                           license: .mit,
-                           name: "decoy",
-                           owner: "owner").save(on: app.db).wait()
-            try Build(version: v, platform: .ios, status: .ok, swiftVersion: .v5_3)
-                .save(on: app.db)
-                .wait()
-        }
-
-        // MUT
-        let sb = try SignificantBuilds.query(on: app.db, owner: "owner", repository: "repo").wait()
-
-        // validate
-        XCTAssertEqual(sb.builds.sorted(), [
-            .init(.v5_4, .macosSpm, .ok),
-            .init(.v5_5, .linux, .ok)
-        ])
     }
 
 }

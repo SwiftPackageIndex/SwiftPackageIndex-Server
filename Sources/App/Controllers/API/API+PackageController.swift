@@ -128,7 +128,7 @@ extension API {
                                                          reason: "missing or invalid type parameter"))
             }
 
-            return SignificantBuilds
+            return BadgeRoute
                 .query(on: req.db, owner: owner, repository: repository)
                 .map {
                     Badge(significantBuilds: $0, badgeType: badgeType)
@@ -148,6 +148,27 @@ extension API.PackageController {
         struct Response: Content {
             var status: String
             var rows: Int
+        }
+    }
+}
+
+
+extension API.PackageController {
+    enum BadgeRoute {
+        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<SignificantBuilds> {
+            Joined4<Build, Version, Package, Repository>
+                .query(on: database)
+                .filter(Version.self, \Version.$latest != nil)
+                .filter(Repository.self, \.$owner, .custom("ilike"), owner)
+                .filter(Repository.self, \.$name, .custom("ilike"), repository)
+                .field(\.$platform)
+                .field(\.$status)
+                .field(\.$swiftVersion)
+                .all()
+                .mapEach {
+                    ($0.build.swiftVersion, $0.build.platform, $0.build.status)
+                }
+                .map(SignificantBuilds.init(buildInfo:))
         }
     }
 }

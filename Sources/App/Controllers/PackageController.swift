@@ -25,20 +25,13 @@ struct PackageController {
         else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
-        return PackageResult
+        return ShowRoute
             .query(on: req.db, owner: owner, repository: repository)
-            .map { result -> (PackageShow.Model, PackageShow.PackageSchema)? in
-                guard
-                    let model = PackageShow.Model(result: result),
-                    let schema = PackageShow.PackageSchema(result: result)
-                else {
-                    return nil
-                }
-                
-                return (model, schema)
+            .map {
+                PackageShow.View(path: req.url.path,
+                                 model: $0.model, packageSchema: $0.schema)
+                    .document()
             }
-            .unwrap(or: Abort(.notFound))
-            .map { PackageShow.View(path: req.url.path, model: $0.0, packageSchema: $0.1).document() }
     }
 
     func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
@@ -82,9 +75,9 @@ struct PackageController {
         else {
             return req.eventLoop.future(error: Abort(.notFound))
         }
-        return PackageResult
+        return BuildsRoute
             .query(on: req.db, owner: owner, repository: repository)
-            .map(BuildIndex.Model.init(result:))
+            .map(BuildIndex.Model.init(packageInfo:buildInfo:))
             .unwrap(or: Abort(.notFound))
             .map { BuildIndex.View(path: req.url.path, model: $0).document() }
     }
@@ -102,38 +95,5 @@ struct PackageController {
             .map(MaintainerInfoIndex.Model.init(result:))
             .unwrap(or: Abort(.notFound))
             .map { MaintainerInfoIndex.View(path: req.url.path, model: $0).document() }
-    }
-}
-
-
-// MARK: - PackageResult
-
-
-extension PackageController {
-    //    (Package - Repository) -< Version
-    //                                 |
-    //                                 |-< Build
-    //                                 |
-    //                                 '-< Product
-    typealias PackageResult = Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>
-}
-
-
-extension PackageController.PackageResult {
-    var package: Package { model.package }
-    var repository: Repository? { model.repository }
-    var versions: [Version] { package.versions }
-
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        Joined<Package, Repository>.query(on: database)
-            .with(\.$versions) {
-                $0.with(\.$products)
-                $0.with(\.$builds)
-            }
-            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            .filter(Repository.self, \.$name, .custom("ilike"), repository)
-            .first()
-            .unwrap(or: Abort(.notFound))
-            .map(Self.init(model:))
     }
 }

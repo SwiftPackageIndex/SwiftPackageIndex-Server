@@ -87,6 +87,18 @@ struct JoinedQueryBuilder<J: ModelInitializable> {
         return self
     }
 
+    @discardableResult
+    public func field<Field>(_ field: KeyPath<J.M, Field>) -> Self where Field: QueryableProperty, Field.Model == J.M {
+        queryBuilder.field(field)
+        return self
+    }
+
+    @discardableResult
+    public func field<Joined, Field>(_ joined: Joined.Type, _ field: KeyPath<Joined, Field>) -> Self where Joined: Schema, Field: QueryableProperty, Field.Model == Joined {
+        queryBuilder.field(joined, field)
+        return self
+    }
+
     @discardableResult func fields<Joined>(for model: Joined.Type) -> Self where Joined : Schema {
         queryBuilder.fields(for: model)
         return self
