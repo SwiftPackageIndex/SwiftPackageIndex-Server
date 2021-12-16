@@ -42,7 +42,8 @@ class Joined3Tests: AppTestCase {
         try Version(package: p, latest: .release).save(on: app.db).wait()
 
         // MUT
-        let res = try Joined3<Package, Repository, Version>.query(on: app.db)
+        let res = try Joined3<Package, Repository, Version>
+            .query(on: app.db, version: .defaultBranch)
             .all()
             .wait()
 
@@ -61,7 +62,8 @@ class Joined3Tests: AppTestCase {
                     packageName: "package name").save(on: app.db).wait()
 
         // MUT
-        let res = try Joined3<Package, Repository, Version>.query(on: app.db)
+        let res = try Joined3<Package, Repository, Version>
+            .query(on: app.db, version: .defaultBranch)
             .all().wait()
 
         // validate
@@ -80,7 +82,8 @@ class Joined3Tests: AppTestCase {
                         packageName: "package name").save(on: app.db).wait()
 
             // MUT
-            let res = try Joined3<Package, Repository, Version>.query(on: app.db)
+            let res = try Joined3<Package, Repository, Version>
+                .query(on: app.db, version: .defaultBranch)
                 .all().wait()
 
             // validate - result is empty, `res[0].repository` cannot be called
@@ -91,7 +94,8 @@ class Joined3Tests: AppTestCase {
             try Repository(package: p, owner: "owner").save(on: app.db).wait()
 
             // MUT
-            let res = try Joined3<Package, Repository, Version>.query(on: app.db)
+            let res = try Joined3<Package, Repository, Version>
+                .query(on: app.db, version: .defaultBranch)
                 .all().wait()
 
             // validate - result is empty, `res[0].repository` cannot be called
