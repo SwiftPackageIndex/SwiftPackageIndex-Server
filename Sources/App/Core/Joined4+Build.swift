@@ -16,12 +16,7 @@ import Fluent
 import Vapor
 
 
-extension BuildController {
-    typealias BuildResult = Joined4<Build, Version, Package, Repository>
-}
-
-
-extension BuildController.BuildResult {
+extension Joined4 where M == Build, R1 == Version, R2 == Package, R3 == Repository {
     var build: Build { model }
     // It's ok to force unwrap all joined relations, because they
     // are INNER joins, i.e. the relation will exist for every result.
