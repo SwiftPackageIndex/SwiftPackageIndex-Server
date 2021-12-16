@@ -301,7 +301,39 @@ class ApiTests: AppTestCase {
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
             })
     }
-    
+
+    func test_TriggerBuildRoute_query() throws {
+        // setup
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(id: .id0, package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
+        try v.save(on: app.db).wait()
+        try Repository(package: p,
+                       defaultBranch: "main",
+                       license: .mit,
+                       name: "repo",
+                       owner: "owner").save(on: app.db).wait()
+        // save decoy version
+        try Version(id: .id1, package: p, latest: nil, reference: .tag(2, 0, 0))
+            .save(on: app.db).wait()
+        do { // save decoy package
+            let p = try savePackage(on: app.db, "2")
+            let v = try Version(package: p, latest: .release, reference: .tag(.init(2, 0, 0)))
+            try v.save(on: app.db).wait()
+            try Repository(package: p,
+                           defaultBranch: "main",
+                           license: .mit,
+                           name: "decoy",
+                           owner: "owner").save(on: app.db).wait()
+        }
+
+        // MUT
+        let versionIds = try API.PackageController.TriggerBuildRoute
+            .query(on: app.db, owner: "owner", repository: "repo").wait()
+
+        // validate
+        XCTAssertEqual(Set(versionIds), [.id0])
+    }
+
     func test_post_build_trigger() throws {
         // Test basic build trigger (high level API, details tested in GitlabBuilderTests)
         // setup
@@ -464,10 +496,6 @@ class ApiTests: AppTestCase {
         try Build(version: v, platform: .macosSpm, status: .ok, swiftVersion: .v5_4)
             .save(on: app.db)
             .wait()
-        try p.$versions.load(on: app.db).wait()
-        try p.versions.forEach {
-            try $0.$builds.load(on: app.db).wait()
-        }
         do { // save decoy
             let p = try savePackage(on: app.db, "2")
             let v = try Version(package: p, latest: .release, reference: .tag(.init(2, 0, 0)))

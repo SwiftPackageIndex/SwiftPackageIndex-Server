@@ -171,7 +171,6 @@ extension API.PackageController {
 
 extension API.PackageController {
     enum TriggerBuildRoute {
-        #warning("add test")
         static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<[Version.Id]> {
             Joined3<Package, Repository, Version>
                 .query(on: database)
