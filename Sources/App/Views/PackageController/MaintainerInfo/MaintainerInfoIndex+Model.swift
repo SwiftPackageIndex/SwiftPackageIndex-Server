@@ -24,20 +24,6 @@ extension MaintainerInfoIndex {
         var repositoryOwner: String
         var repositoryName: String
 
-        init?(result: PackageResult) {
-            guard let packageName = result.versions.packageName(),
-                  let repositoryOwner = result.repository.owner,
-                  let repositoryName = result.repository.name else { return nil }
-
-            self.init(packageName: packageName, repositoryOwner: repositoryOwner, repositoryName: repositoryName)
-        }
-
-        internal init(packageName: String, repositoryOwner: String, repositoryName: String) {
-            self.packageName = packageName
-            self.repositoryOwner = repositoryOwner
-            self.repositoryName = repositoryName
-        }
-
         func badgeURL(for type: BadgeType) -> String {
             let characterSet = CharacterSet.urlHostAllowed.subtracting(.init(charactersIn: "=:"))
             let url = SiteURL.api(.packages(.value(repositoryOwner), .value(repositoryName), .badge)).absoluteURL(parameters: [QueryParameter(key: "type", value: type.rawValue)])

@@ -90,10 +90,20 @@ struct PackageController {
             return req.eventLoop.future(error: Abort(.notFound))
         }
 
-        return PackageResult
-            .query(on: req.db, owner: owner, repository: repository)
-            .map(MaintainerInfoIndex.Model.init(result:))
+        return Joined3<Package, Repository, Version>
+            .query(on: req.db, owner: owner, repository: repository, version: .defaultBranch)
+            .first()
             .unwrap(or: Abort(.notFound))
+            .flatMapThrowing { result in
+                guard let packageName = result.version.packageName,
+                      let repositoryOwner = result.repository.owner,
+                      let repositoryName = result.repository.name else {
+                          throw Abort(.notFound)
+                      }
+                return MaintainerInfoIndex.Model(packageName: packageName,
+                                                 repositoryOwner: repositoryOwner,
+                                                 repositoryName: repositoryName)
+            }
             .map { MaintainerInfoIndex.View(path: req.url.path, model: $0).document() }
     }
 }
