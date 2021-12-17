@@ -59,10 +59,9 @@ extension PackageController.PackageResult {
     }
     
     func productCounts() -> PackageShow.Model.ProductCounts? {
-        guard let version = versions.latest(for: .defaultBranch) else { return nil }
         return .init(
-            libraries: version.products.filter(\.isLibrary).count,
-            executables: version.products.filter(\.isExecutable).count
+            libraries: defaultBranchVersion.products.filter(\.isLibrary).count,
+            executables: defaultBranchVersion.products.filter(\.isExecutable).count
         )
     }
 

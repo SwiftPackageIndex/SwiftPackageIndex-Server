@@ -17,12 +17,7 @@ import Vapor
 
 
 extension PackageController {
-    //    (Package - Repository) -< Version
-    //                                 |
-    //                                 |-< Build
-    //                                 |
-    //                                 '-< Product
-    typealias PackageResult = Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>
+    typealias PackageResult = Joined5<Package, Repository, DefaultVersion, ReleaseVersion, PreReleaseVersion>
 
     enum ShowRoute {
         static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(model: PackageShow.Model, schema: PackageShow.PackageSchema)> {
@@ -44,24 +39,67 @@ extension PackageController {
 
 
 extension PackageController.PackageResult {
-    var package: Package { model.package }
-    // We can safely force-unwrap model.repository because it's a relation from
-    // an INNER query.
-    var repository: Repository { model.repository! }
-    var versions: [Version] { package.versions }
+    var package: Package { model }
+    // We can force-unwrap due to the inner join
+    var repository: Repository { relation1! }
+    // We can force-unwrap due to the inner join
+    var defaultBranchVersion: DefaultVersion { relation2! }
+    var releaseVersion: ReleaseVersion? { relation3 }
+    var preReleaseVersion: PreReleaseVersion? { relation4 }
+
+    @available(*, deprecated)
+    var versions: [Version] {
+        [defaultBranchVersion.model, releaseVersion?.model, preReleaseVersion?.model].compactMap { $0 }
+    }
 
     static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        Joined<Package, Repository>.query(on: database)
-            .with(\.$versions) {
-                $0.with(\.$products)
-                $0.with(\.$builds)
-            }
+        Package.query(on: database)
+            .join(Repository.self,
+                  on: \Repository.$package.$id == \Package.$id,
+                  method: .inner)
+            .join(DefaultVersion.self,
+                  on: \DefaultVersion.$package.$id == \Package.$id,
+                  method: .inner)
+            .join(Package.self, ReleaseVersion.self,
+                  on: .custom(#"""
+                    LEFT JOIN "\#(Version.schema)" AS "\#(ReleaseVersion.name)"
+                    ON "\#(Package.schema)"."id" = "\#(ReleaseVersion.name)"."package_id"
+                    AND "\#(ReleaseVersion.name)"."latest" = 'release'
+                    """#)
+            )
+            .join(Package.self, PreReleaseVersion.self,
+                  on: .custom(#"""
+                    LEFT JOIN "\#(Version.schema)" AS "\#(PreReleaseVersion.name)"
+                    ON "\#(Package.schema)"."id" = "\#(PreReleaseVersion.name)"."package_id"
+                    AND "\#(PreReleaseVersion.name)"."latest" = 'pre_release'
+                    """#)
+            )
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .filter(Repository.self, \.$name, .custom("ilike"), repository)
+            .filter(DefaultVersion.self, \.$latest == .defaultBranch)
             .first()
             .unwrap(or: Abort(.notFound))
             .map(Self.init(model:))
     }
+}
+
+
+final class DefaultVersion: ModelAlias {
+    static let name = "default_version"
+    let model = Version()
+
+    #warning("temp. to make it compile")
+    var products: [Product] { [] }
+}
+
+final class ReleaseVersion: ModelAlias {
+    static let name = "release_version"
+    let model = Version()
+}
+
+final class PreReleaseVersion: ModelAlias {
+    static let name = "pre_release_version"
+    let model = Version()
 }
 
 

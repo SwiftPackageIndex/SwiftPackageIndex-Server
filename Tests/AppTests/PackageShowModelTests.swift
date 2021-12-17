@@ -62,6 +62,7 @@ class PackageShowModelTests: SnapshotTestCase {
                        stars: 17,
                        summary: "summary").save(on: app.db).wait()
         let version = try App.Version(package: pkg,
+                                      latest: .defaultBranch,
                                       packageName: "test package",
                                       reference: .branch("main"))
         try version.save(on: app.db).wait()
@@ -71,10 +72,6 @@ class PackageShowModelTests: SnapshotTestCase {
                   swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
             .wait()
-        do {  // update versions
-            let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-            try updateLatestVersions(on: app.db, package: jpr).wait()
-        }
         // reload via query to ensure pkg is in the same state it would normally be
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
 

@@ -19,24 +19,46 @@ import XCTest
 
 class PackageShowTests: AppTestCase {
 
+    typealias PackageResult = PackageController.PackageResult
+
     func test_releaseInfo() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
-        let versions = [
-            try Version(package: pkg, reference: .branch("branch")),
-            try Version(package: pkg, commitDate: daysAgo(1), reference: .branch("default")),
-            try Version(package: pkg, reference: .tag(.init(1, 2, 3))),
-            try Version(package: pkg, commitDate: daysAgo(3), reference: .tag(.init(2, 1, 0))),
-            try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(3, 0, 0, "beta"))),
-        ]
-        try versions.create(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
+        try Repository(package: pkg,
+                       defaultBranch: "default",
+                       name: "bar",
+                       owner: "foo").save(on: app.db).wait()
+        try [
+            try Version(package: pkg,
+                        latest: nil,
+                        reference: .branch("branch")),
+            try Version(package: pkg,
+                        commitDate: daysAgo(1),
+                        latest: .defaultBranch,
+                        reference: .branch("default")),
+            try Version(package: pkg,
+                        latest: nil,
+                        reference: .tag(.init(1, 2, 3))),
+            try Version(package: pkg,
+                        commitDate: daysAgo(3),
+                        latest: .release,
+                        reference: .tag(.init(2, 1, 0))),
+            try Version(package: pkg,
+                        commitDate: daysAgo(2),
+                        latest: .preRelease,
+                        reference: .tag(.init(3, 0, 0, "beta"))),
+        ].save(on: app.db).wait()
+        let pr = try PackageResult.query(on: app.db,
+                                         owner: "foo",
+                                         repository: "bar").wait()
 
         // MUT
-        let info = PackageShow.releaseInfo(packageUrl: "1", versions: jpr.model.versions)
+        let info = PackageShow.releaseInfo(
+            packageUrl: "1",
+            defaultBranchVersion: pr.defaultBranchVersion,
+            releaseVersion: pr.releaseVersion,
+            preReleaseVersion: pr.preReleaseVersion
+        )
 
         // validate
         XCTAssertEqual(info.stable?.date, "3 days ago")
@@ -44,42 +66,44 @@ class PackageShowTests: AppTestCase {
         XCTAssertEqual(info.latest?.date, "1 day ago")
     }
 
-    func test_releaseInfo_exclude_old_betas() throws {
-        // Test to ensure that we don't publish a beta that's older than stable
+    func test_releaseInfo_exclude_non_latest() throws {
+        // Test to ensure that we don't include versions with `latest IS NULL`
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+        try Repository(package: pkg,
+                       defaultBranch: "default",
+                       name: "bar",
+                       owner: "foo").save(on: app.db).wait()
         try [
-            try Version(package: pkg, commitDate: daysAgo(1), reference: .branch("default")),
-            try Version(package: pkg, commitDate: daysAgo(3), reference: .tag(.init(2, 1, 0))),
-            try Version(package: pkg, commitDate: daysAgo(2), reference: .tag(.init(2, 0, 0, "beta"))),
-        ].create(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        let versions = try pkg.$versions.load(on: app.db)
-            .map { pkg.versions }
-            .wait()
+            try Version(package: pkg,
+                        commitDate: daysAgo(1),
+                        latest: .defaultBranch,
+                        reference: .branch("default")),
+            try Version(package: pkg,
+                        commitDate: daysAgo(3),
+                        latest: .release,
+                        reference: .tag(.init(2, 1, 0))),
+            try Version(package: pkg,
+                        commitDate: daysAgo(2),
+                        latest: nil,
+                        reference: .tag(.init(2, 0, 0, "beta"))),
+        ].save(on: app.db).wait()
+        let pr = try PackageResult.query(on: app.db,
+                                         owner: "foo",
+                                         repository: "bar").wait()
 
         // MUT
-        let info = PackageShow.releaseInfo(packageUrl: "1", versions: versions)
+        let info = PackageShow.releaseInfo(
+            packageUrl: "1",
+            defaultBranchVersion: pr.defaultBranchVersion,
+            releaseVersion: pr.releaseVersion,
+            preReleaseVersion: pr.preReleaseVersion
+        )
 
         // validate
         XCTAssertEqual(info.stable?.date, "3 days ago")
         XCTAssertEqual(info.beta, nil)
         XCTAssertEqual(info.latest?.date, "1 day ago")
-    }
-
-    func test_releaseInfo_nonEager() throws {
-        // ensure non-eager access does not fatalError
-        let pkg = try savePackage(on: app.db, "1")
-        let versions = [
-            try Version(package: pkg, reference: .branch("default")),
-        ]
-        try versions.create(on: app.db).wait()
-
-        // MUT / validate
-        XCTAssertNoThrow(PackageShow.releaseInfo(packageUrl: "1", versions: versions))
     }
 
 }

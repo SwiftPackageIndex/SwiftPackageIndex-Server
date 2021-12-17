@@ -116,7 +116,11 @@ extension PackageShow {
                 license: repository.license,
                 licenseUrl: repository.licenseUrl,
                 products: result.productCounts(),
-                releases: PackageShow.releaseInfo(packageUrl: result.package.url, versions: versions),
+                releases: PackageShow.releaseInfo(
+                    packageUrl: result.package.url,
+                    defaultBranchVersion: result.defaultBranchVersion,
+                    releaseVersion: result.releaseVersion,
+                    preReleaseVersion: result.preReleaseVersion),
                 dependencies: versions
                     .latest(for: .defaultBranch)?.resolvedDependencies,
                 stars: repository.stars,

@@ -20,6 +20,116 @@ import XCTest
 class PackageResultTests: AppTestCase {
     typealias PackageResult = PackageController.PackageResult
 
+    func test_joined5() throws {
+        do {
+            let pkg = try savePackage(on: app.db, "1".url)
+            try Repository(package: pkg,
+                           defaultBranch: "main",
+                           forks: 42,
+                           license: .mit,
+                           name: "bar",
+                           owner: "foo",
+                           stars: 17,
+                           summary: "summary").save(on: app.db).wait()
+            do {
+                try App.Version(package: pkg,
+                                latest: .defaultBranch,
+                                reference: .branch("main")
+                ).save(on: app.db).wait()
+            }
+            do {
+                try App.Version(package: pkg,
+                                latest: .release,
+                                reference: .tag(1, 2, 3)
+                ).save(on: app.db).wait()
+            }
+            do {
+                try App.Version(package: pkg,
+                                latest: .preRelease,
+                                reference: .tag(2, 0, 0, "b1")
+                ).save(on: app.db).wait()
+            }
+        }
+
+        // MUT
+        let res = try PackageController.PackageResult
+            .query(on: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertEqual(res.model.url, "1")
+        XCTAssertEqual(res.repository.name, "bar")
+        XCTAssertEqual(res.defaultBranchVersion.reference, .branch("main"))
+        XCTAssertEqual(res.releaseVersion?.reference, .tag(1, 2, 3))
+        XCTAssertEqual(res.preReleaseVersion?.reference, .tag(2, 0, 0, "b1"))
+    }
+
+    func test_joined5_no_preRelease() throws {
+        do {
+            // FIXME: add unrelated package and version to test right/left join correctness
+            let pkg = try savePackage(on: app.db, "1".url)
+            try Repository(package: pkg,
+                           defaultBranch: "main",
+                           forks: 42,
+                           license: .mit,
+                           name: "bar",
+                           owner: "foo",
+                           stars: 17,
+                           summary: "summary").save(on: app.db).wait()
+            do {
+                try App.Version(package: pkg,
+                                latest: .defaultBranch,
+                                reference: .branch("main")
+                ).save(on: app.db).wait()
+            }
+            do {
+                try App.Version(package: pkg,
+                                latest: .release,
+                                reference: .tag(1, 2, 3)
+                ).save(on: app.db).wait()
+            }
+        }
+
+        // MUT
+        let res = try PackageController.PackageResult
+            .query(on: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertEqual(res.model.url, "1")
+        XCTAssertEqual(res.repository.name, "bar")
+        XCTAssertEqual(res.defaultBranchVersion.reference, .branch("main"))
+        XCTAssertEqual(res.releaseVersion?.reference, .tag(1, 2, 3))
+    }
+
+    func test_joined5_defaultBranch_only() throws {
+        do {
+            // FIXME: add unrelated package and version to test right/left join correctness
+            let pkg = try savePackage(on: app.db, "1".url)
+            try Repository(package: pkg,
+                           defaultBranch: "main",
+                           forks: 42,
+                           license: .mit,
+                           name: "bar",
+                           owner: "foo",
+                           stars: 17,
+                           summary: "summary").save(on: app.db).wait()
+            do {
+                try App.Version(package: pkg,
+                                latest: .defaultBranch,
+                                reference: .branch("main")
+                ).save(on: app.db).wait()
+            }
+        }
+
+        // MUT
+        let res = try PackageController.PackageResult
+            .query(on: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertEqual(res.model.url, "1")
+        XCTAssertEqual(res.repository.name, "bar")
+        XCTAssertEqual(res.defaultBranchVersion.reference, .branch("main"))
+    }
+
     func test_query_owner_repository() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
@@ -32,6 +142,7 @@ class PackageResultTests: AppTestCase {
                        stars: 17,
                        summary: "summary").save(on: app.db).wait()
         let version = try App.Version(package: pkg,
+                                      latest: .defaultBranch,
                                       packageName: "test package",
                                       reference: .branch("main"))
         try version.save(on: app.db).wait()
@@ -56,6 +167,7 @@ class PackageResultTests: AppTestCase {
                        stars: 17,
                        summary: "summary").save(on: app.db).wait()
         let version = try App.Version(package: pkg,
+                                      latest: .defaultBranch,
                                       packageName: "test package",
                                       reference: .branch("main"))
         try version.save(on: app.db).wait()
@@ -80,7 +192,12 @@ class PackageResultTests: AppTestCase {
                        name: "bar",
                        owner: "foo").create(on: app.db).wait()
         try (0..<10).forEach {
-            try Version(package: pkg, reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
+            try Version(package: pkg,
+                        latest: .defaultBranch,
+                        reference: .branch("main")).create(on: app.db).wait()
+            try Version(package: pkg,
+                        latest: .release,
+                        reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
         }
         // add pre-release and default branch - these should *not* be counted as releases
         try Version(package: pkg, reference: .branch("main")).create(on: app.db).wait()
@@ -111,6 +228,7 @@ class PackageResultTests: AppTestCase {
                        openIssues: 27,
                        openPullRequests: 1,
                        owner: "foo").create(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar")
             .wait()
 
@@ -240,11 +358,9 @@ class PackageResultTests: AppTestCase {
         // setup
         let p = try savePackage(on: app.db, "1")
         try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
+        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+        let v = try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 3, 2))
             .save(on: app.db)
@@ -272,11 +388,9 @@ class PackageResultTests: AppTestCase {
         // setup
         let p = try savePackage(on: app.db, "1")
         try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        let v = try Version(package: p, reference: .tag(.init(1, 2, 3)))
+        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
+        let v = try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
         try v.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
-        // update versions
-        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
         // add builds
         try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
             .save(on: app.db)
