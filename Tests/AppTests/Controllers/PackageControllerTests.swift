@@ -24,6 +24,7 @@ class PackageControllerTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg, name: "package", owner: "owner")
             .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
 
         // MUT
         try app.test(.GET, "/owner/package", afterResponse: { response in
