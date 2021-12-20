@@ -77,6 +77,7 @@ extension PackageController.PackageResult {
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .filter(Repository.self, \.$name, .custom("ilike"), repository)
             .filter(DefaultVersion.self, \.$latest == .defaultBranch)
+        // TODO: only load required fields
             .first()
             .unwrap(or: Abort(.notFound))
             .map(Self.init(model:))
