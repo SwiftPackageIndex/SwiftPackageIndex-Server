@@ -40,9 +40,9 @@ class PackageShowModelTests: SnapshotTestCase {
         try Product(version: version,
                     type: .library(.automatic), name: "lib 1").save(on: app.db).wait()
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-        
+
         // MUT
-        let m = PackageShow.Model(result: pr)
+        let m = PackageShow.Model(result: pr, history: .mock)
         
         // validate
         XCTAssertNotNil(m)
@@ -76,7 +76,7 @@ class PackageShowModelTests: SnapshotTestCase {
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let m = PackageShow.Model(result: pr)
+        let m = PackageShow.Model(result: pr, history: .mock)
         
         // validate
         XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)
@@ -342,3 +342,12 @@ fileprivate typealias Version = PackageShow.Model.Version
 fileprivate typealias BuildInfo = PackageShow.Model.BuildInfo
 fileprivate typealias BuildResults = PackageShow.Model.SwiftVersionResults
 fileprivate typealias BuildStatusRow = PackageShow.Model.BuildStatusRow
+
+
+extension PackageShow.Model.History {
+    static var mock: Self {
+        .init(since: "",
+              commitCount: .init(label: "", url: ""),
+              releaseCount: .init(label: "", url: ""))
+    }
+}

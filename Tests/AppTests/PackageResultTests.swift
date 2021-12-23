@@ -179,6 +179,8 @@ class PackageResultTests: AppTestCase {
         XCTAssertEqual(res.package.id, pkg.id)
     }
 
+    #warning("move")
+    #warning("split into query and history tests")
     func test_history() throws {
         // setup
         Current.date = {
@@ -202,10 +204,10 @@ class PackageResultTests: AppTestCase {
         // add pre-release and default branch - these should *not* be counted as releases
         try Version(package: pkg, reference: .branch("main")).create(on: app.db).wait()
         try Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db).wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let historyRecord = try XCTUnwrap(PackageController.History.query(on: app.db, owner: "foo", repository: "bar").wait())
 
         // MUT
-        let history = try XCTUnwrap(pr.history())
+        let history = try XCTUnwrap(historyRecord.history())
 
         // validate
         XCTAssertEqual(history.since, "50 years")

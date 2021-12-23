@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Fluent
+import SQLKit
 import Vapor
 
 
@@ -20,12 +21,21 @@ extension PackageController {
     typealias PackageResult = Joined5<Package, Repository, DefaultVersion, ReleaseVersion, PreReleaseVersion>
 
     enum ShowRoute {
+
+        /// Assembles individual queries and transforms them into model structs.
+        /// - Parameters:
+        ///   - database: `Database`
+        ///   - owner: repository owner
+        ///   - repository: repository name
+        /// - Returns: model structs
         static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(model: PackageShow.Model, schema: PackageShow.PackageSchema)> {
             PackageResult.query(on: database, owner: owner, repository: repository)
-                .map { result -> (model: PackageShow.Model, schema: PackageShow.PackageSchema)? in
+                .and(History.query(on: database, owner: owner, repository: repository))
+                .map { (packageResult, historyRecord) -> (model: PackageShow.Model, schema: PackageShow.PackageSchema)? in
                     guard
-                        let model = PackageShow.Model(result: result),
-                        let schema = PackageShow.PackageSchema(result: result)
+                        let history = historyRecord?.history(),
+                        let model = PackageShow.Model(result: packageResult, history: history),
+                        let schema = PackageShow.PackageSchema(result: packageResult)
                     else {
                         return nil
                     }
@@ -33,6 +43,55 @@ extension PackageController {
                     return (model, schema)
                 }
                 .unwrap(or: Abort(.notFound))
+        }
+    }
+
+    enum History {
+        struct Record: Codable {
+            var url: String
+            var defaultBranch: String
+            var firstCommitDate: Date
+            var commitCount: Int
+            var releaseCount: Int
+
+            enum CodingKeys: String, CodingKey {
+                case url
+                case defaultBranch = "default_branch"
+                case firstCommitDate = "first_commit_date"
+                case commitCount = "commit_count"
+                case releaseCount = "release_count"
+            }
+
+            func history() -> PackageShow.Model.History {
+                let cl = Link(
+                    label: pluralizedCount(commitCount, singular: "commit"),
+                    url: url.droppingGitExtension + "/commits/\(defaultBranch)")
+                let rl = Link(
+                    label: pluralizedCount(releaseCount, singular: "release"),
+                    url: url.droppingGitExtension + "/releases")
+                return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
+                             commitCount: cl,
+                             releaseCount: rl)
+            }
+        }
+
+        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Record?> {
+            guard let db = database as? SQLDatabase else {
+                fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+            }
+            return db.raw(#"""
+                SELECT p.url, r.default_branch, r.first_commit_date, r.commit_count, count(*) AS "release_count"
+                FROM packages p
+                JOIN versions v ON v.package_id = p.id
+                JOIN repositories r ON r.package_id = p.id
+                WHERE r.owner ILIKE \#(bind: owner)
+                AND r.name ILIKE \#(bind: repository)
+                AND v.reference->'tag' IS NOT NULL
+                AND v.reference->'tag'->'semVer'->>'build' = ''
+                AND v.reference->'tag'->'semVer'->>'preRelease' = ''
+                GROUP BY p.url, r.default_branch, r.first_commit_date, r.commit_count
+                """#)
+                .first(decoding: Record.self)
         }
     }
 }

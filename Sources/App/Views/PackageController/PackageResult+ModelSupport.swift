@@ -22,26 +22,7 @@ extension PackageController.PackageResult {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/175
         return nil
     }
-    
-    func history() -> PackageShow.Model.History? {
-        let releases = versions.filter({ $0.reference?.isRelease ?? false })
-        guard
-            let defaultBranch = repository.defaultBranch,
-            let firstCommitDate = repository.firstCommitDate,
-            let commitCountString = Self.numberFormatter.string(from: NSNumber(value: repository.commitCount)),
-            let releaseCountString = Self.numberFormatter.string(from: NSNumber(value: releases.count))
-        else { return nil }
-        let cl = Link(
-            label: commitCountString + " commit".pluralized(for: repository.commitCount),
-            url: package.url.droppingGitExtension + "/commits/\(defaultBranch)")
-        let rl = Link(
-            label: releaseCountString + " release".pluralized(for: releases.count),
-            url: package.url.droppingGitExtension + "/releases")
-        return .init(since: "\(inWords: Current.date().timeIntervalSince(firstCommitDate))",
-                     commitCount: cl,
-                     releaseCount: rl)
-    }
-    
+
     func activity() -> PackageShow.Model.Activity? {
         guard repository.lastPullRequestClosedAt != nil else { return nil }
 
@@ -65,13 +46,6 @@ extension PackageController.PackageResult {
         )
     }
 
-    static let numberFormatter: NumberFormatter = {
-        let f = NumberFormatter()
-        f.thousandSeparator = ","
-        f.numberStyle = .decimal
-        return f
-    }()
-    
 }
 
 
