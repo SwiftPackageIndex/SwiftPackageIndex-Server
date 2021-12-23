@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-postgres-driver.git",
         "state": {
           "branch": null,
-          "revision": "0b7a43c78b7ae47eafad5736ab0fdc00aa31ca6f",
-          "version": "2.2.1"
+          "revision": "131e154a2263591fe2a0b87148e3dcbf43d6c9f7",
+          "version": "2.2.2"
         }
       },
       {
@@ -96,8 +96,8 @@
         "repositoryURL": "https://github.com/vapor/postgres-kit.git",
         "state": {
           "branch": null,
-          "revision": "8e5fc0eb654b11f47e65a76d64c4d7e678d36a40",
-          "version": "2.4.0"
+          "revision": "70ce73449fc559028aaa7da52096288974ebb5e0",
+          "version": "2.5.0"
         }
       },
       {
@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/vapor/sql-kit.git",
         "state": {
           "branch": null,
-          "revision": "d2027b4b81a19d2ac7bd01936e7a778d7f0afa02",
-          "version": "3.15.0"
+          "revision": "9cc30f8cef132e91a07e36005612b37f918731fc",
+          "version": "3.16.0"
         }
       },
       {
@@ -177,7 +177,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "05b53acbe7e6c31301bbffa1b27c28700177b95b",
+          "revision": "c0d2cf9c06bcb60987ec89a8f5791aaaae38e4f1",
           "version": null
         }
       },
@@ -186,7 +186,7 @@
         "repositoryURL": "https://github.com/apple/swift-llbuild.git",
         "state": {
           "branch": "main",
-          "revision": "acd686530e56122d916acd49a166beb9198e9b87",
+          "revision": "2fc95055014e81e35b9e80ffc646ffebf2fd73b9",
           "version": null
         }
       },
@@ -213,8 +213,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio.git",
         "state": {
           "branch": null,
-          "revision": "37e7a33de45bac894c0b08b56a2f755ebe4884e6",
-          "version": "2.35.0"
+          "revision": "213eb6887e526e0dfac526a2eae559a1893ebbac",
+          "version": "2.36.0"
         }
       },
       {
@@ -231,8 +231,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-http2.git",
         "state": {
           "branch": null,
-          "revision": "39ed0e753596afadad920e302ae769b28f3a982b",
-          "version": "1.19.0"
+          "revision": "6e94a7be32891d1b303a3fcfde8b5bf64d162e74",
+          "version": "1.19.1"
         }
       },
       {
@@ -240,8 +240,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-ssl.git",
         "state": {
           "branch": null,
-          "revision": "0324d60429870284810ba5bdb039640761bf10c9",
-          "version": "2.17.0"
+          "revision": "2b329e37e9dd34fb382655181a680261d58cbbf1",
+          "version": "2.17.1"
         }
       },
       {
@@ -258,7 +258,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "main",
-          "revision": "0a661491b9f7733596ae7d5b636c69ed6bc73eef",
+          "revision": "af43c15d900d96615afe5fd502f949026cfb8714",
           "version": null
         }
       },
@@ -272,11 +272,20 @@
         }
       },
       {
+        "package": "swift-system",
+        "repositoryURL": "https://github.com/apple/swift-system.git",
+        "state": {
+          "branch": null,
+          "revision": "836bc4557b74fe6d2660218d56e3ce96aff76574",
+          "version": "1.1.1"
+        }
+      },
+      {
         "package": "swift-tools-support-core",
         "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
           "branch": "main",
-          "revision": "8e324ae429b1628afa9a08b5894528df3a63e1d7",
+          "revision": "bc0d6a7068ee1c09cecef02c34491c0af99c1ee2",
           "version": null
         }
       },
@@ -312,8 +321,8 @@
         "repositoryURL": "https://github.com/vapor/websocket-kit.git",
         "state": {
           "branch": null,
-          "revision": "b1c4df8f6c848c2e977726903bbe6578eed723ad",
-          "version": "2.2.0"
+          "revision": "ff8fbce837ef01a93d49c6fb49a72be0f150dac7",
+          "version": "2.3.0"
         }
       },
       {

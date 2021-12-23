@@ -21,6 +21,7 @@ class PackageReleasesModelTests: AppTestCase {
 
     func test_initialise() throws {
         // Setup
+        Current.date = { .spiBirthday }
         let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
         
@@ -39,10 +40,10 @@ class PackageReleasesModelTests: AppTestCase {
         
         // Validate
         XCTAssertEqual(model.releases, [
-            .init(title: "1.0.0", date: "Released 51 years ago on 1 January 1970",
+            .init(title: "1.0.0", date: "Released 50 years ago on 1 January 1970",
                   html: "Release Notes", link: "some url"),
             
-            .init(title: "0.0.1", date: "Released 51 years ago on 1 January 1970",
+            .init(title: "0.0.1", date: "Released 50 years ago on 1 January 1970",
                   html: nil, link: "some url"),
         ])
     }

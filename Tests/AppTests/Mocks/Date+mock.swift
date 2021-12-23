@@ -21,4 +21,5 @@ extension Date {
     static let t2 = Date(timeIntervalSince1970: 2)
     static let t3 = Date(timeIntervalSince1970: 3)
     static let t4 = Date(timeIntervalSince1970: 4)
+    static let spiBirthday = Date.init(rfc1123: "Sat, 25 Apr 2020 10:55:00 UTC")!
 }
