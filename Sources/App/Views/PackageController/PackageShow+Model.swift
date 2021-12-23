@@ -90,7 +90,7 @@ extension PackageShow {
             self.isArchived = isArchived
         }
         
-        init?(result: PackageController.PackageResult, history: History) {
+        init?(result: PackageController.PackageResult, history: History?) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             let versions = result.versions
             let repository = result.repository

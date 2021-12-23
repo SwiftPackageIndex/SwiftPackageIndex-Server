@@ -31,11 +31,10 @@ extension PackageController {
         static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(model: PackageShow.Model, schema: PackageShow.PackageSchema)> {
             PackageResult.query(on: database, owner: owner, repository: repository)
                 .and(History.query(on: database, owner: owner, repository: repository))
-                .map { (packageResult, historyRecord) -> (model: PackageShow.Model, schema: PackageShow.PackageSchema)? in
-                    guard
-                        let history = historyRecord?.history(),
-                        let model = PackageShow.Model(result: packageResult, history: history),
-                        let schema = PackageShow.PackageSchema(result: packageResult)
+                .map { (packageResult, historyResult) -> (model: PackageShow.Model, schema: PackageShow.PackageSchema)? in
+                    guard let model = PackageShow.Model(result: packageResult,
+                                                        history: historyResult?.history()),
+                          let schema = PackageShow.PackageSchema(result: packageResult)
                     else {
                         return nil
                     }
@@ -49,8 +48,8 @@ extension PackageController {
     enum History {
         struct Record: Codable {
             var url: String
-            var defaultBranch: String
-            var firstCommitDate: Date
+            var defaultBranch: String?
+            var firstCommitDate: Date?
             var commitCount: Int
             var releaseCount: Int
 
@@ -62,7 +61,11 @@ extension PackageController {
                 case releaseCount = "release_count"
             }
 
-            func history() -> PackageShow.Model.History {
+            func history() -> PackageShow.Model.History? {
+                guard let defaultBranch = defaultBranch,
+                      let firstCommitDate = firstCommitDate else {
+                    return nil
+                }
                 let cl = Link(
                     label: pluralizedCount(commitCount, singular: "commit"),
                     url: url.droppingGitExtension + "/commits/\(defaultBranch)")
@@ -79,16 +82,18 @@ extension PackageController {
             guard let db = database as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
+            // This query cannot expressed in Fluent, because it doesn't support
+            // GROUP BY clauses.
             return db.raw(#"""
-                SELECT p.url, r.default_branch, r.first_commit_date, r.commit_count, count(*) AS "release_count"
+                SELECT p.url, r.default_branch, r.first_commit_date, r.commit_count, count(v.reference) AS "release_count"
                 FROM packages p
-                JOIN versions v ON v.package_id = p.id
                 JOIN repositories r ON r.package_id = p.id
+                LEFT JOIN versions v ON v.package_id = p.id
+                    AND v.reference->'tag' IS NOT NULL
+                    AND v.reference->'tag'->'semVer'->>'build' = ''
+                    AND v.reference->'tag'->'semVer'->>'preRelease' = ''
                 WHERE r.owner ILIKE \#(bind: owner)
                 AND r.name ILIKE \#(bind: repository)
-                AND v.reference->'tag' IS NOT NULL
-                AND v.reference->'tag'->'semVer'->>'build' = ''
-                AND v.reference->'tag'->'semVer'->>'preRelease' = ''
                 GROUP BY p.url, r.default_branch, r.first_commit_date, r.commit_count
                 """#)
                 .first(decoding: Record.self)
