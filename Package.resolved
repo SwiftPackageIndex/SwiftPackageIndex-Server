@@ -177,7 +177,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "27147e2c1338f1ae265a22601bef2aa66e21b817",
+          "revision": "c0d2cf9c06bcb60987ec89a8f5791aaaae38e4f1",
           "version": null
         }
       },
@@ -258,7 +258,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "main",
-          "revision": "3570f6e77e7dd5a8408a622c49d56aaa98fec3bf",
+          "revision": "af43c15d900d96615afe5fd502f949026cfb8714",
           "version": null
         }
       },
@@ -285,7 +285,7 @@
         "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
           "branch": "main",
-          "revision": "de090acab9e14a32224dd73ad6a3727f00f8d489",
+          "revision": "bc0d6a7068ee1c09cecef02c34491c0af99c1ee2",
           "version": null
         }
       },
@@ -321,8 +321,8 @@
         "repositoryURL": "https://github.com/vapor/websocket-kit.git",
         "state": {
           "branch": null,
-          "revision": "b1c4df8f6c848c2e977726903bbe6578eed723ad",
-          "version": "2.2.0"
+          "revision": "ff8fbce837ef01a93d49c6fb49a72be0f150dac7",
+          "version": "2.3.0"
         }
       },
       {
