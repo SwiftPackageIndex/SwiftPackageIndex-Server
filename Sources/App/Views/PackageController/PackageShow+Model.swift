@@ -232,7 +232,7 @@ extension PackageShow.Model {
 
     func starsListItem() -> Node<HTML.ListContext> {
         guard let stars = stars,
-              let str = NumberFormatter.starsFormatter.string(from: NSNumber(value: stars))
+              let str = NumberFormatter.spiDefault.string(from: stars)
         else { return .empty }
         return .li(
             .class("stars"),

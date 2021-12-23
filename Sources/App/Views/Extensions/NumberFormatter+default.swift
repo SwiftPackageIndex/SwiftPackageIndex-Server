@@ -15,10 +15,14 @@
 import Foundation
 
 extension NumberFormatter {
-    static var starsFormatter: NumberFormatter = {
+    static var spiDefault: NumberFormatter = {
         let f = NumberFormatter()
         f.thousandSeparator = ","
         f.numberStyle = .decimal
         return f
     }()
+
+    func string(from value: Int) -> String? {
+        string(from: NSNumber(value: value))
+    }
 }

@@ -94,7 +94,7 @@ extension Node where Context == HTML.FormContext {
 
 extension Node where Context == HTML.ListContext {
     static func starsListItem(numberOfStars: Int) -> Self {
-        if let formattedStars = NumberFormatter.starsFormatter.string(from: NSNumber(value: numberOfStars)) {
+        if let formattedStars = NumberFormatter.spiDefault.string(from: numberOfStars) {
             return .li(
                 .class("stars"),
                 .small(
