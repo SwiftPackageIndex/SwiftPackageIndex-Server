@@ -18,7 +18,7 @@ import Plot
 
 // MARK: - Pluralisation
 
-func pluralizedCount(_ count: Int, singular: String, plural: String? = nil, capitalized: Bool = false) -> String {
+func pluralizedCount(_ count: Int, singular: String, plural: String? = nil, capitalized: Bool = false, numberFormatter: NumberFormatter = .spiDefault) -> String {
     let plural = plural ?? singular + "s"
     switch count {
         case 0:
@@ -26,7 +26,7 @@ func pluralizedCount(_ count: Int, singular: String, plural: String? = nil, capi
         case 1:
             return "1 \(singular)"
         default:
-            return "\(count) \(plural)"
+            return "\(numberFormatter.string(from: count) ?? "\(count)") \(plural)"
     }
 }
 
