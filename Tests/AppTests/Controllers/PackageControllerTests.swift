@@ -135,6 +135,42 @@ class PackageControllerTests: AppTestCase {
         }
     }
 
+    func test_ProductCount_query() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg,
+                       defaultBranch: "main",
+                       name: "bar",
+                       owner: "foo").create(on: app.db).wait()
+        do {
+            let v = try Version(package: pkg,
+                                latest: .defaultBranch,
+                                reference: .branch("main"))
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .executable, name: "e1")
+                .save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "l1")
+                .save(on: app.db).wait()
+            try Product(version: v, type: .library(.static), name: "l2")
+                .save(on: app.db).wait()
+        }
+        do {  // decoy version
+            let v = try Version(package: pkg,
+                                latest: .release,
+                                reference: .tag(1, 2, 3))
+            try v.save(on: app.db).wait()
+            try Product(version: v, type: .library(.automatic), name: "l3")
+                .save(on: app.db).wait()
+        }
+
+        // MUT
+        let res = try PackageController.ProductCount.query(on: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertEqual(res.filter(\.isExecutable).count, 1)
+        XCTAssertEqual(res.filter(\.isLibrary).count, 2)
+    }
+
     func test_show() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")

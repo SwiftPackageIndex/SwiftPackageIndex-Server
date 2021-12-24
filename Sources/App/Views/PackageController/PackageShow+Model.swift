@@ -90,7 +90,7 @@ extension PackageShow {
             self.isArchived = isArchived
         }
         
-        init?(result: PackageController.PackageResult, history: History?) {
+        init?(result: PackageController.PackageResult, history: History?, productCounts: ProductCounts) {
             // we consider certain attributes as essential and return nil (raising .notFound)
             let versions = result.versions
             let repository = result.repository
@@ -115,7 +115,7 @@ extension PackageShow {
                 languagePlatforms: Self.languagePlatformInfo(packageUrl: result.package.url, versions: versions),
                 license: repository.license,
                 licenseUrl: repository.licenseUrl,
-                products: result.productCounts(),
+                products: productCounts,
                 releases: PackageShow.releaseInfo(
                     packageUrl: result.package.url,
                     defaultBranchVersion: result.defaultBranchVersion,

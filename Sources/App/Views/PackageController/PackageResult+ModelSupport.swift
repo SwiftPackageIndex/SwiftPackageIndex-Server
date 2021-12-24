@@ -38,13 +38,6 @@ extension PackageController.PackageResult {
                      lastIssueClosedAt: lastIssueClosed,
                      lastPullRequestClosedAt: lastPRClosed)
     }
-    
-    func productCounts() -> PackageShow.Model.ProductCounts? {
-        return .init(
-            libraries: defaultBranchVersion.products.filter(\.isLibrary).count,
-            executables: defaultBranchVersion.products.filter(\.isExecutable).count
-        )
-    }
 
 }
 

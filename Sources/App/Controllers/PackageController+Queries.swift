@@ -31,10 +31,18 @@ extension PackageController {
         static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(model: PackageShow.Model, schema: PackageShow.PackageSchema)> {
             PackageResult.query(on: database, owner: owner, repository: repository)
                 .and(History.query(on: database, owner: owner, repository: repository))
-                .map { (packageResult, historyResult) -> (model: PackageShow.Model, schema: PackageShow.PackageSchema)? in
-                    guard let model = PackageShow.Model(result: packageResult,
-                                                        history: historyResult?.history()),
-                          let schema = PackageShow.PackageSchema(result: packageResult)
+                .and(ProductCount.query(on: database, owner: owner, repository: repository))
+                .map { ($0.0.0, $0.0.1, $0.1) }
+                .map { (packageResult, historyResult, productTypes) -> (model: PackageShow.Model, schema: PackageShow.PackageSchema)? in
+                    guard
+                        let model = PackageShow.Model(
+                            result: packageResult,
+                            history: historyResult?.history(),
+                            productCounts: .init(
+                                libraries: productTypes.filter(\.isLibrary).count,
+                                executables: productTypes.filter(\.isExecutable).count)
+                        ),
+                        let schema = PackageShow.PackageSchema(result: packageResult)
                     else {
                         return nil
                     }
@@ -97,6 +105,16 @@ extension PackageController {
                 GROUP BY p.url, r.default_branch, r.first_commit_date, r.commit_count
                 """#)
                 .first(decoding: Record.self)
+        }
+    }
+
+    enum ProductCount {
+        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<[ProductType]> {
+            Joined4<Package, Repository, Version, Product>
+                .query(on: database, owner: owner, repository: repository)
+                .field(Product.self, \.$type)
+                .all()
+                .mapEachCompact { $0.product.type }
         }
     }
 }
