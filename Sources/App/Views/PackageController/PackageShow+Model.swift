@@ -92,7 +92,6 @@ extension PackageShow {
         
         init?(result: PackageController.PackageResult, history: History?, productCounts: ProductCounts) {
             // we consider certain attributes as essential and return nil (raising .notFound)
-            let versions = result.versions
             let repository = result.repository
             guard
                 let repositoryOwner = repository.owner,
@@ -112,7 +111,11 @@ extension PackageShow {
                 swiftVersionBuildInfo: result.swiftVersionBuildInfo(),
                 platformBuildInfo: result.platformBuildInfo(),
                 history: history,
-                languagePlatforms: Self.languagePlatformInfo(packageUrl: result.package.url, versions: versions),
+                languagePlatforms: Self.languagePlatformInfo(
+                    packageUrl: result.package.url,
+                    defaultBranchVersion: result.defaultBranchVersion,
+                    releaseVersion: result.releaseVersion,
+                    preReleaseVersion: result.preReleaseVersion),
                 license: repository.license,
                 licenseUrl: repository.licenseUrl,
                 productCounts: productCounts,
@@ -121,11 +124,10 @@ extension PackageShow {
                     defaultBranchVersion: result.defaultBranchVersion,
                     releaseVersion: result.releaseVersion,
                     preReleaseVersion: result.preReleaseVersion),
-                dependencies: versions
-                    .latest(for: .defaultBranch)?.resolvedDependencies,
+                dependencies: result.defaultBranchVersion.resolvedDependencies,
                 stars: repository.stars,
                 summary: repository.summary,
-                title: versions.packageName() ?? repositoryName,
+                title: result.defaultBranchVersion.packageName ?? repositoryName,
                 url: result.package.url,
                 score: result.package.score,
                 isArchived: repository.isArchived
@@ -145,6 +147,7 @@ extension PackageShow.Model {
                                          platforms: version.supportedPlatforms)
     }
 
+    @available(*, deprecated)
     static func languagePlatformInfo(packageUrl: String, versions: [App.Version]) -> LanguagePlatformInfo {
         let versions = [App.Version.Kind.release, .preRelease, .defaultBranch]
             .map {
@@ -152,6 +155,19 @@ extension PackageShow.Model {
                     .flatMap {
                         makeModelVersion(packageUrl: packageUrl, version: $0)
                     }
+            }
+        return .init(stable: versions[0],
+                     beta: versions[1],
+                     latest: versions[2])
+    }
+
+    static func languagePlatformInfo(packageUrl: String,
+                                     defaultBranchVersion: DefaultVersion?,
+                                     releaseVersion: ReleaseVersion?,
+                                     preReleaseVersion: PreReleaseVersion?) -> LanguagePlatformInfo {
+        let versions = [releaseVersion?.model, preReleaseVersion?.model, defaultBranchVersion?.model]
+            .map { version -> Version? in
+                version.flatMap { makeModelVersion(packageUrl: packageUrl, version: $0) }
             }
         return .init(stable: versions[0],
                      beta: versions[1],

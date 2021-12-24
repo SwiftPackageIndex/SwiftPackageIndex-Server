@@ -52,6 +52,7 @@ extension PackageController.PackageResult {
     typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
     typealias PlatformResults = PackageShow.Model.PlatformResults
 
+    @available(*, deprecated)
     func swiftVersionBuildInfo() -> BuildInfo<SwiftVersionResults>? {
         .init(
             stable: versions.latest(for: .release).flatMap(Self.buildResults),
@@ -60,6 +61,7 @@ extension PackageController.PackageResult {
 
     }
 
+    @available(*, deprecated)
     func platformBuildInfo() -> BuildInfo<PlatformResults>? {
         .init(
             stable: versions.latest(for: .release).flatMap(Self.buildResults),

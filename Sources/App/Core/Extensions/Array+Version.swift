@@ -19,6 +19,7 @@ extension Array where Element == Version {
 
     var releases: Self { filter { $0.reference?.isTag ?? false } }
 
+    // TODO: deprecate this?
     func packageName(for kind: Version.Kind = .defaultBranch) -> String? {
         latest(for: kind)?.packageName
     }
