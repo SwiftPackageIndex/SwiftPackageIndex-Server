@@ -34,7 +34,7 @@ extension PackageShow {
         var languagePlatforms: LanguagePlatformInfo
         var license: License
         var licenseUrl: String?
-        var products: ProductCounts?
+        var productCounts: ProductCounts?
         var releases: ReleaseInfo
         var dependencies: [ResolvedDependency]?
         var stars: Int?
@@ -57,7 +57,7 @@ extension PackageShow {
                       languagePlatforms: LanguagePlatformInfo,
                       license: License,
                       licenseUrl: String? = nil,
-                      products: ProductCounts? = nil,
+                      productCounts: ProductCounts? = nil,
                       releases: ReleaseInfo,
                       dependencies: [ResolvedDependency]?,
                       stars: Int? = nil,
@@ -79,7 +79,7 @@ extension PackageShow {
             self.languagePlatforms = languagePlatforms
             self.license = license
             self.licenseUrl = licenseUrl
-            self.products = products
+            self.productCounts = productCounts
             self.releases = releases
             self.dependencies = dependencies
             self.stars = stars
@@ -115,7 +115,7 @@ extension PackageShow {
                 languagePlatforms: Self.languagePlatformInfo(packageUrl: result.package.url, versions: versions),
                 license: repository.license,
                 licenseUrl: repository.licenseUrl,
-                products: productCounts,
+                productCounts: productCounts,
                 releases: PackageShow.releaseInfo(
                     packageUrl: result.package.url,
                     defaultBranchVersion: result.defaultBranchVersion,
@@ -342,22 +342,22 @@ extension PackageShow.Model {
     }
 
     func librariesListItem() -> Node<HTML.ListContext> {
-        guard let products = products
+        guard let productCounts = productCounts
         else { return .empty }
 
         return .li(
             .class("libraries"),
-            .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries", capitalized: true))
+            .text(pluralizedCount(productCounts.libraries, singular: "library", plural: "libraries", capitalized: true))
         )
     }
 
     func executablesListItem() -> Node<HTML.ListContext> {
-        guard let products = products
+        guard let productCounts = productCounts
         else { return .empty }
 
         return .li(
             .class("executables"),
-            .text(pluralizedCount(products.executables, singular: "executable", capitalized: true))
+            .text(pluralizedCount(productCounts.executables, singular: "executable", capitalized: true))
         )
     }
 

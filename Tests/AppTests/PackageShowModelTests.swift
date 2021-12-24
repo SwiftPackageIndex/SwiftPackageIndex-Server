@@ -212,21 +212,21 @@ class PackageShowModelTests: SnapshotTestCase {
 
     func test_num_libraries_formatting() throws {
         var model = PackageShow.Model.mock
-        model.products?.libraries = 0
+        model.productCounts?.libraries = 0
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">No libraries</li>")
-        model.products?.libraries = 1
+        model.productCounts?.libraries = 1
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">1 library</li>")
-        model.products?.libraries = 2
+        model.productCounts?.libraries = 2
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">2 libraries</li>")
     }
     
     func test_num_executables_formatting() throws {
         var model = PackageShow.Model.mock
-        model.products?.executables = 0
+        model.productCounts?.executables = 0
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">No executables</li>")
-        model.products?.executables = 1
+        model.productCounts?.executables = 1
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">1 executable</li>")
-        model.products?.executables = 2
+        model.productCounts?.executables = 2
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">2 executables</li>")
     }
 
