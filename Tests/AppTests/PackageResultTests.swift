@@ -179,44 +179,6 @@ class PackageResultTests: AppTestCase {
         XCTAssertEqual(res.package.id, pkg.id)
     }
 
-    #warning("move")
-    #warning("split into query and history tests")
-    func test_history() throws {
-        // setup
-        Current.date = {
-            Date.init(timeIntervalSince1970: 1608000588)  // Dec 15, 2020
-        }
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg,
-                       commitCount: 1433,
-                       defaultBranch: "default",
-                       firstCommitDate: .t0,
-                       name: "bar",
-                       owner: "foo").create(on: app.db).wait()
-        try (0..<10).forEach {
-            try Version(package: pkg,
-                        latest: .defaultBranch,
-                        reference: .branch("main")).create(on: app.db).wait()
-            try Version(package: pkg,
-                        latest: .release,
-                        reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
-        }
-        // add pre-release and default branch - these should *not* be counted as releases
-        try Version(package: pkg, reference: .branch("main")).create(on: app.db).wait()
-        try Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db).wait()
-        let historyRecord = try XCTUnwrap(PackageController.History.query(on: app.db, owner: "foo", repository: "bar").wait())
-
-        // MUT
-        let history = try XCTUnwrap(historyRecord.history())
-
-        // validate
-        XCTAssertEqual(history.since, "50 years")
-        XCTAssertEqual(history.commitCount.label, "1,433 commits")
-        XCTAssertEqual(history.commitCount.url, "1/commits/default")
-        XCTAssertEqual(history.releaseCount.label, "10 releases")
-        XCTAssertEqual(history.releaseCount.url, "1/releases")
-    }
-
     func test_activity() throws {
         // setup
         let m: TimeInterval = 60

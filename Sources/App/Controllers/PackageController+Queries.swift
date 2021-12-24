@@ -46,7 +46,7 @@ extension PackageController {
     }
 
     enum History {
-        struct Record: Codable {
+        struct Record: Codable, Equatable {
             var url: String
             var defaultBranch: String?
             var firstCommitDate: Date?
