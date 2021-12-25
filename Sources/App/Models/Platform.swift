@@ -17,8 +17,11 @@ import Foundation
 
 struct Platform: Codable, Equatable {
     enum Name: String, Codable, Equatable, CaseIterable {
+        case custom
+        case driverkit
         case ios
         case macos
+        case maccatalyst
         case watchos
         case tvos
     }
@@ -44,9 +47,13 @@ extension Platform {
 extension Platform: CustomStringConvertible {
     var description: String {
         switch name {
+            case .custom:
+                return "Custom \(version)"
+            case .driverkit:
+                return "DriverKit \(version)"
             case .ios:
                 return "iOS \(version)"
-            case .macos:
+            case .macos, .maccatalyst:
                 return "macOS \(version)"
             case .watchos:
                 return "watchOS \(version)"

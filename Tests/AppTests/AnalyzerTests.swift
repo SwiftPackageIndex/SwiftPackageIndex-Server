@@ -986,6 +986,24 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
+    func test_dumpPackage_5_5() throws {
+        // Test parsing a Package.swift that requires a 5.5 toolchain
+        // NB: If this test fails on macOS with Xcode 12, make sure
+        // xcode-select -p points to the correct version of Xcode!
+        // See also https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1441
+        // setup
+        Current.fileManager = .live
+        Current.shell = .live
+        try withTempDir { tempDir in
+            let fixture = fixturesDirectory()
+                .appendingPathComponent("Firestarter-Package-swift").path
+            let fname = tempDir.appending("/Package.swift")
+            try ShellOut.shellOut(to: .copyFile(from: fixture, to: fname))
+            let m = try dumpPackage(at: tempDir)
+            XCTAssertEqual(m.name, "Firestarter")
+        }
+    }
+
     func test_issue_577() throws {
         // Duplicate "latest release" versions
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/577

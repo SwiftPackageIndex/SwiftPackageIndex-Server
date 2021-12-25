@@ -491,6 +491,12 @@ extension Platform {
                 return 2
             case .tvos:
                 return 3
+            case .custom:
+                return 4
+            case .driverkit:
+                return 6
+            case .maccatalyst:
+                return 5
         }
     }
 }
