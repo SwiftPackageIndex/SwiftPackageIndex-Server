@@ -590,33 +590,24 @@ class SearchTests: AppTestCase {
     
     func test_exclude_null_fields() throws {
         // Ensure excluding results with NULL fields
-        // setup
-        // Three packages that all match but each has a different required field with
-        // a NULL value
+        // setup:
+        // Packages that all match but each having one NULL for a required field
         let p1 = Package(id: UUID(), url: "1", score: 10)
         let p2 = Package(id: UUID(), url: "2", score: 20)
-        let p3 = Package(id: UUID(), url: "3", score: 30)
-        try [p1, p2, p3].save(on: app.db).wait()
+        try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
-                       name: "1",
+                       name: nil, // Missing repository name
                        owner: "foobar",
                        summary: "").save(on: app.db).wait()
         try Repository(package: p2,
                        defaultBranch: "main",
-                       name: nil,
-                       owner: "foobar",
-                       summary: "").save(on: app.db).wait()
-        try Repository(package: p3,
-                       defaultBranch: "main",
-                       name: "3",
-                       owner: nil,
+                       name: "2",
+                       owner: nil, // Missing repository owner
                        summary: "foo bar").save(on: app.db).wait()
-        try Version(package: p1, packageName: nil, reference: .branch("main"))
+        try Version(package: p1, packageName: "foo1", reference: .branch("main"))
             .save(on: app.db).wait()
         try Version(package: p2, packageName: "foo2", reference: .branch("main"))
-            .save(on: app.db).wait()
-        try Version(package: p3, packageName: "foo3", reference: .branch("main"))
             .save(on: app.db).wait()
         try Search.refresh(on: app.db).wait()
         
