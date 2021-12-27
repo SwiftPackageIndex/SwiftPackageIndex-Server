@@ -70,6 +70,7 @@ extension PackageController.PackageResult {
         )
     }
 
+    @available(*, deprecated)
     static func buildResults(_ version: Version) -> NamedBuildResults<SwiftVersionResults>? {
         guard let builds = version.$builds.value,
               let referenceName = version.reference?.description else { return nil }
@@ -90,6 +91,7 @@ extension PackageController.PackageResult {
             )
     }
 
+    @available(*, deprecated)
     static func buildResults(_ version: Version) -> NamedBuildResults<PlatformResults>? {
         guard let builds = version.$builds.value,
               let referenceName = version.reference?.description else { return nil }
@@ -116,6 +118,7 @@ extension PackageController.PackageResult {
 
 
 extension Array where Element == Build {
+    @available(*, deprecated)
     var buildStatus: PackageShow.Model.BuildStatus {
         guard !isEmpty else { return .unknown }
         if anySucceeded {

@@ -32,15 +32,22 @@ extension PackageController {
             PackageResult.query(on: database, owner: owner, repository: repository)
                 .and(History.query(on: database, owner: owner, repository: repository))
                 .and(ProductCount.query(on: database, owner: owner, repository: repository))
-                .map { ($0.0.0, $0.0.1, $0.1) }
-                .map { (packageResult, historyResult, productTypes) -> (model: PackageShow.Model, schema: PackageShow.PackageSchema)? in
+                .and(BuildInfo.query(on: database, owner: owner, repository: repository))
+                .map {
+                    // This monster will go away when we switch to async/await,
+                    // leaving this in for now, it should be short-lived
+                    ($0.0.0.0, $0.0.0.1, $0.0.1, $0.1)
+                }
+                .map { (packageResult, historyResult, productTypes, buildInfo) -> (model: PackageShow.Model, schema: PackageShow.PackageSchema)? in
                     guard
                         let model = PackageShow.Model(
                             result: packageResult,
                             history: historyResult?.history(),
                             productCounts: .init(
                                 libraries: productTypes.filter(\.isLibrary).count,
-                                executables: productTypes.filter(\.isExecutable).count)
+                                executables: productTypes.filter(\.isExecutable).count),
+                            swiftVersionBuildInfo: buildInfo.swiftVersion,
+                            platformBuildInfo: buildInfo.platform
                         ),
                         let schema = PackageShow.PackageSchema(result: packageResult)
                     else {
@@ -115,6 +122,140 @@ extension PackageController {
                 .field(Product.self, \.$type)
                 .all()
                 .mapEachCompact { $0.product.type }
+        }
+    }
+
+    struct BuildInfo: Equatable {
+        typealias ModelBuildInfo = PackageShow.Model.BuildInfo
+        typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
+        typealias PlatformResults = PackageShow.Model.PlatformResults
+
+        var platform: ModelBuildInfo<PlatformResults>
+        var swiftVersion: ModelBuildInfo<SwiftVersionResults>
+
+        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
+            BuildsRoute.BuildInfo.query(on: database, owner: owner, repository: repository)
+                .map { builds in
+                    Self.init(
+                        platform: .init(
+                            stable: builds.platformBuildResults(kind: .release),
+                            beta: builds.platformBuildResults(kind: .preRelease),
+                            latest: builds.platformBuildResults(kind: .defaultBranch)
+                        ),
+                        swiftVersion: .init(
+                            stable: builds.swiftVersionBuildResults(kind: .release),
+                            beta: builds.swiftVersionBuildResults(kind: .preRelease),
+                            latest: builds.swiftVersionBuildResults(kind: .defaultBranch)
+                        )
+                    )
+                }
+        }
+    }
+}
+
+
+private extension Array where Element == PackageController.BuildsRoute.BuildInfo {
+
+    var buildStatus: PackageShow.Model.BuildStatus {
+        guard !isEmpty else { return .unknown }
+        if anySucceeded {
+            return .compatible
+        } else {
+            return anyPending ? .unknown : .incompatible
+        }
+    }
+
+    typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
+    typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
+    typealias PlatformResults = PackageShow.Model.PlatformResults
+
+    func platformBuildResults(kind: Version.Kind) -> NamedBuildResults<PlatformResults>? {
+        let builds = filter { $0.versionKind == kind}
+        // builds of the same kind all originate from the same Version via a join,
+        // so we can just pick the first one for the reference name
+        guard let referenceName = builds.first?.reference.description else {
+            return nil
+        }
+        // For each reported platform pick appropriate build matches
+        let ios = builds.filter { $0.platform.isCompatible(with: .ios) }
+        let linux = builds.filter { $0.platform.isCompatible(with: .linux) }
+        let macos = builds.filter { $0.platform.isCompatible(with: .macos) }
+        let macosArm = builds.filter { $0.platform.isCompatible(with: .macosArm) }
+        let tvos = builds.filter { $0.platform.isCompatible(with: .tvos) }
+        let watchos = builds.filter { $0.platform.isCompatible(with: .watchos) }
+        // ... and report the status
+        return
+            .init(referenceName: referenceName,
+                  results: .init(iosStatus: ios.buildStatus,
+                                 linuxStatus: linux.buildStatus,
+                                 macosStatus: macos.buildStatus,
+                                 macosArmStatus: macosArm.buildStatus,
+                                 tvosStatus: tvos.buildStatus,
+                                 watchosStatus: watchos.buildStatus)
+            )
+    }
+
+    func swiftVersionBuildResults(kind: Version.Kind) -> NamedBuildResults<SwiftVersionResults>? {
+        let builds = filter { $0.versionKind == kind}
+        // builds of the same kind all originate from the same Version via a join,
+        // so we can just pick the first one for the reference name
+        guard let referenceName = builds.first?.reference.description else {
+            return nil
+        }
+        // For each reported swift version pick major/minor version matches
+        let v5_1 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_1) }
+        let v5_2 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_2) }
+        let v5_3 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_3) }
+        let v5_4 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_4) }
+        let v5_5 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_5) }
+        // ... and report the status
+        return
+            .init(referenceName: referenceName,
+                  results: .init(status5_1: v5_1.buildStatus,
+                                 status5_2: v5_2.buildStatus,
+                                 status5_3: v5_3.buildStatus,
+                                 status5_4: v5_4.buildStatus,
+                                 status5_5: v5_5.buildStatus)
+            )
+    }
+
+}
+
+
+extension Array where Element == PackageController.BuildsRoute.BuildInfo {
+    var noneSucceeded: Bool {
+        allSatisfy { $0.status != .ok }
+    }
+
+    var anySucceeded: Bool {
+        !noneSucceeded
+    }
+
+    var nonePending: Bool {
+        allSatisfy { $0.status.isCompleted }
+    }
+
+    var anyPending: Bool {
+        !nonePending
+    }
+}
+
+
+private extension Build.Platform {
+    func isCompatible(with other: PackageShow.Model.PlatformCompatibility) -> Bool {
+        switch self {
+            case .ios:
+                return other == .ios
+            case .macosSpm, .macosXcodebuild:
+                return other == .macos
+            case .macosSpmArm, .macosXcodebuildArm:
+                return other == .macosArm
+            case .tvos:
+                return other == .tvos
+            case .watchos:
+                return other == .watchos
+            case .linux:
+                return other == .linux
         }
     }
 }

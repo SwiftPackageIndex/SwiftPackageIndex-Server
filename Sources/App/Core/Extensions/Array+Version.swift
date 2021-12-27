@@ -13,6 +13,7 @@
 // limitations under the License.
 
 extension Array where Element == Version {
+    // TODO: deprecate this?
     func latest(for kind: Version.Kind) -> Version? {
         first { $0.latest == kind }
     }

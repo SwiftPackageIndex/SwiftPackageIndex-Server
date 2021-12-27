@@ -42,44 +42,15 @@ class PackageShowModelTests: SnapshotTestCase {
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
-        let m = PackageShow.Model(result: pr, history: .mock, productCounts: .mock)
+        let m = PackageShow.Model(result: pr,
+                                  history: nil,
+                                  productCounts: .mock,
+                                  swiftVersionBuildInfo: nil,
+                                  platformBuildInfo: nil)
         
         // validate
         XCTAssertNotNil(m)
         XCTAssertEqual(m?.title, "bar")
-    }
-    
-    func test_query_builds() throws {
-        // Ensure the builds relationship is loaded
-        // setup
-        let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
-                       defaultBranch: "main",
-                       forks: 42,
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       summary: "summary").save(on: app.db).wait()
-        let version = try App.Version(package: pkg,
-                                      latest: .defaultBranch,
-                                      packageName: "test package",
-                                      reference: .branch("main"))
-        try version.save(on: app.db).wait()
-        try Build(version: version,
-                  platform: .macosXcodebuild,
-                  status: .ok,
-                  swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        // reload via query to ensure pkg is in the same state it would normally be
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let m = PackageShow.Model(result: pr, history: .mock, productCounts: .mock)
-        
-        // validate
-        XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)
     }
 
     func test_history() throws {
@@ -342,15 +313,6 @@ fileprivate typealias Version = PackageShow.Model.Version
 fileprivate typealias BuildInfo = PackageShow.Model.BuildInfo
 fileprivate typealias BuildResults = PackageShow.Model.SwiftVersionResults
 fileprivate typealias BuildStatusRow = PackageShow.Model.BuildStatusRow
-
-
-private extension PackageShow.Model.History {
-    static var mock: Self {
-        .init(since: "",
-              commitCount: .init(label: "", url: ""),
-              releaseCount: .init(label: "", url: ""))
-    }
-}
 
 
 private extension PackageShow.Model.ProductCounts {

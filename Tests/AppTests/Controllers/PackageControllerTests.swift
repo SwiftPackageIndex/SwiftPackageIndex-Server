@@ -171,6 +171,70 @@ class PackageControllerTests: AppTestCase {
         XCTAssertEqual(res.filter(\.isLibrary).count, 2)
     }
 
+    func test_BuildInfo_query() throws {
+        typealias BuildDetails = (reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status)
+
+        // setup
+        let pkg = try savePackage(on: app.db, "1".url)
+        try Repository(package: pkg,
+                       defaultBranch: "main",
+                       name: "bar",
+                       owner: "foo").save(on: app.db).wait()
+        let builds: [BuildDetails] = [
+            (.branch("main"), .ios, .v5_5, .ok),
+            (.branch("main"), .tvos, .v5_4, .failed),
+            (.tag(1, 2, 3), .ios, .v5_5, .ok),
+            (.tag(2, 0, 0, "b1"), .ios, .v5_5, .failed),
+        ]
+        try builds.forEach { b in
+            let v = try App.Version(package: pkg,
+                                    latest: b.reference.kind,
+                                    packageName: "p1",
+                                    reference: b.reference)
+            try v.save(on: app.db).wait()
+            try Build(version: v, platform: b.platform, status: b.status, swiftVersion: b.swiftVersion)
+                .save(on: app.db).wait()
+        }
+        do { // unrelated package and build
+            let pkg = try savePackage(on: app.db, "2".url)
+            try Repository(package: pkg,
+                           defaultBranch: "main",
+                           name: "bar2",
+                           owner: "foo").save(on: app.db).wait()
+            let builds: [BuildDetails] = [
+                (.branch("develop"), .ios, .v5_3, .ok),
+            ]
+            try builds.forEach { b in
+                let v = try App.Version(package: pkg,
+                                        latest: b.reference.kind,
+                                        packageName: "p1",
+                                        reference: b.reference)
+                try v.save(on: app.db).wait()
+                try Build(version: v, platform: b.platform, status: b.status, swiftVersion: b.swiftVersion)
+                    .save(on: app.db).wait()
+            }
+        }
+
+        // MUT
+        let res = try PackageController.BuildInfo.query(on: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        // just test reference names and some details for `latest`
+        // more detailed tests are covered in the lower level test
+        XCTAssertEqual(res.platform.latest?.referenceName, "main")
+        XCTAssertEqual(res.platform.latest?.results.ios.status, .compatible)
+        XCTAssertEqual(res.platform.latest?.results.tvos.status, .incompatible)
+        XCTAssertEqual(res.platform.latest?.results.watchos.status, .unknown)
+        XCTAssertEqual(res.platform.stable?.referenceName, "1.2.3")
+        XCTAssertEqual(res.platform.beta?.referenceName, "2.0.0-b1")
+        XCTAssertEqual(res.swiftVersion.latest?.referenceName, "main")
+        XCTAssertEqual(res.swiftVersion.latest?.results.v5_5.status, .compatible)
+        XCTAssertEqual(res.swiftVersion.latest?.results.v5_4.status, .incompatible)
+        XCTAssertEqual(res.swiftVersion.latest?.results.v5_3.status, .unknown)
+        XCTAssertEqual(res.swiftVersion.stable?.referenceName, "1.2.3")
+        XCTAssertEqual(res.swiftVersion.beta?.referenceName, "2.0.0-b1")
+    }
+
     func test_show() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -211,6 +275,10 @@ class PackageControllerTests: AppTestCase {
         try app.test(.GET, "/owner/package/information-for-package-maintainers", afterResponse: { response in
             XCTAssertEqual(response.status, .ok)
         })
+    }
+
+    func test_BuildsRoute_BuildInfo_query() throws {
+        XCTFail("implement")
     }
 
     func test_BuildsRoute_query() throws {
@@ -273,4 +341,13 @@ class PackageControllerTests: AppTestCase {
 
     }
 
+}
+
+
+extension Reference {
+    var kind: Version.Kind {
+        isBranch
+        ? .defaultBranch
+        : (isRelease ? .release : .preRelease)
+    }
 }

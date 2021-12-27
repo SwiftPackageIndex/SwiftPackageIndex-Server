@@ -276,18 +276,22 @@ extension Build {
 // MARK: - Array extension
 
 extension Array where Element == Build {
+    @available(*, deprecated)
     var noneSucceeded: Bool {
         allSatisfy { $0.status != .ok }
     }
 
+    @available(*, deprecated)
     var anySucceeded: Bool {
         !noneSucceeded
     }
 
+    @available(*, deprecated)
     var nonePending: Bool {
         allSatisfy { $0.status.isCompleted }
     }
     
+    @available(*, deprecated)
     var anyPending: Bool {
         !nonePending
     }
