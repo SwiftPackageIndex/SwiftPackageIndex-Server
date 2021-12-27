@@ -40,7 +40,7 @@ class BuildIndexModelTests: AppTestCase {
         let m = BuildIndex.Model(packageInfo: pkgInfo, buildInfo: buildInfo)
 
         // validate
-        XCTAssertNil(m)
+        XCTAssertNotNil(m)
     }
 
     func test_completedBuildCount() throws {
