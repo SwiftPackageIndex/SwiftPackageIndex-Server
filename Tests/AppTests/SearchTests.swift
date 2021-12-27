@@ -617,6 +617,33 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(res.results, [])
     }
 
+    func test_include_null_package_name() throws {
+        // Ensure that packages that somehow have a NULL package name do *not* get excluded from search results.
+        let p1 = Package(id: .id0, url: "1", score: 10)
+        try p1.save(on: app.db).wait()
+
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "foobar",
+                       summary: "foo and bar").save(on: app.db).wait()
+
+        // Version record with a missing package name.
+        try Version(package: p1, packageName: nil, reference: .branch("main"))
+            .save(on: app.db).wait()
+
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).wait()
+
+        let result = res.results.first!
+        XCTAssertEqual(result.package?.packageId, .id0)
+        XCTAssertEqual(result.package?.repositoryName, "1")
+        XCTAssertEqual(result.package?.repositoryOwner, "foobar")
+        XCTAssertEqual(result.package?.packageName, nil)
+    }
+
     func test_sanitize() throws {
         XCTAssertEqual(Search.sanitize(["*"]), ["\\*"])
         XCTAssertEqual(Search.sanitize(["?"]), ["\\?"])
