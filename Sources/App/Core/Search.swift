@@ -168,7 +168,6 @@ enum Search {
             .from(SQLFunction("CONCAT", args: keywords), as: keyword)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
-            .where(isNotNull(packageName))
             .where(isNotNull(repoOwner))
             .where(isNotNull(repoName))
             .where(searchFilters: filters)
