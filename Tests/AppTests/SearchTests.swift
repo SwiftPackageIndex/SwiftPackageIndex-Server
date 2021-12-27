@@ -637,11 +637,11 @@ class SearchTests: AppTestCase {
         // MUT
         let res = try Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).wait()
 
-        let result = res.results.first!
-        XCTAssertEqual(result.package?.packageId, .id0)
-        XCTAssertEqual(result.package?.repositoryName, "1")
-        XCTAssertEqual(result.package?.repositoryOwner, "foobar")
-        XCTAssertEqual(result.package?.packageName, nil)
+        let packageResult = try XCTUnwrap(res.results.first!.package)
+        XCTAssertEqual(packageResult.packageId, .id0)
+        XCTAssertEqual(packageResult.repositoryName, "1")
+        XCTAssertEqual(packageResult.repositoryOwner, "foobar")
+        XCTAssertEqual(packageResult.packageName, nil)
     }
 
     func test_sanitize() throws {
