@@ -27,7 +27,7 @@ enum BuildIndex {
         }
 
         override func pageTitle() -> String? {
-            "\(model.packageName) &ndash; Build Results"
+            "\(model.packageName ?? model.repositoryName) &ndash; Build Results"
         }
 
         override func pageDescription() -> String? {
@@ -42,7 +42,7 @@ enum BuildIndex {
                     .text(" completed \("build".pluralized(for: model.completedBuildCount)) for "),
                     .a(
                         .href(model.packageURL),
-                        .text(model.packageName)
+                        .text(model.packageName ?? model.repositoryName)
                     ),
                     .text(".")
                 ),

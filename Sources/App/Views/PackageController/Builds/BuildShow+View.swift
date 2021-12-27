@@ -27,7 +27,7 @@ enum BuildShow {
         }
 
         override func pageTitle() -> String? {
-            "\(model.packageName) &ndash; Build Information"
+            "\(model.packageName ?? model.repositoryName) &ndash; Build Information"
         }
 
         override func pageDescription() -> String? {
@@ -51,7 +51,7 @@ enum BuildShow {
                         .text(model.buildInfo.status.joiningClause),
                         .a(
                             .href(model.packageURL),
-                            .text(model.packageName)
+                            .text(model.packageName ?? model.repositoryName)
                         ),
                         .text(" with "),
                         .strong(.text(model.buildInfo.swiftVersion.longDisplayName)),
