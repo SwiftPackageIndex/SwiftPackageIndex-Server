@@ -169,6 +169,32 @@ class PackageController_ShowRouteTests: AppTestCase {
         XCTAssertEqual(res.filter(\.isLibrary).count, 2)
     }
 
+    func test_swiftVersionBuildInfo() throws {
+        // setup
+        let builds: [PackageController.BuildsRoute.BuildInfo] = [
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_3, platform: .macosSpm, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_2, platform: .ios, status: .failed)
+        ]
+
+        // MUT
+        let res = PackageController.BuildInfo.swiftVersionBuildInfo(builds: builds)
+
+        // validate
+        XCTAssertEqual(res.stable?.referenceName, "1.2.3")
+        XCTAssertEqual(res.stable?.results.v5_1,
+                       .init(parameter: .v5_1, status: .unknown))
+        XCTAssertEqual(res.stable?.results.v5_2,
+                       .init(parameter: .v5_2, status: .incompatible))
+        XCTAssertEqual(res.stable?.results.v5_3,
+                       .init(parameter: .v5_3, status: .compatible))
+        XCTAssertEqual(res.stable?.results.v5_4,
+                       .init(parameter: .v5_4, status: .unknown))
+        XCTAssertEqual(res.stable?.results.v5_5,
+                       .init(parameter: .v5_5, status: .unknown))
+        XCTAssertNil(res.beta)
+        XCTAssertNil(res.latest)
+    }
+
     func test_BuildInfo_query() throws {
         // setup
         do {

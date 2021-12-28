@@ -285,36 +285,6 @@ class PackageResultTests: AppTestCase {
         XCTAssertEqual(res?.results.watchos, .init(parameter: .watchos, status: .compatible))
     }
 
-    func test_swiftVersionBuildInfo() throws {
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
-        let v = try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        // add builds
-        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 3, 2))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .ios, status: .failed, swiftVersion: .init(5, 2, 4))
-            .save(on: app.db)
-            .wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let res = pr.swiftVersionBuildInfo()
-
-        // validate
-        XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.v5_1, .init(parameter: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_2, .init(parameter: .v5_2, status: .incompatible))
-        XCTAssertEqual(res?.stable?.results.v5_3, .init(parameter: .v5_3, status: .compatible))
-        XCTAssertEqual(res?.stable?.results.v5_4, .init(parameter: .v5_4, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_5, .init(parameter: .v5_5, status: .unknown))
-        XCTAssertNil(res?.beta)
-        XCTAssertNil(res?.latest)
-    }
-
     func test_platformBuildInfo() throws {
         // setup
         let p = try savePackage(on: app.db, "1")
