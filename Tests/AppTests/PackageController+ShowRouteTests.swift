@@ -169,6 +169,30 @@ class PackageController_ShowRouteTests: AppTestCase {
         XCTAssertEqual(res.filter(\.isLibrary).count, 2)
     }
 
+    func test_platformBuildInfo() throws {
+        // setup
+        let builds: [PackageController.BuildsRoute.BuildInfo] = [
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_2, platform: .macosSpm, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_2, platform: .tvos, status: .failed)
+        ]
+
+        // MUT
+        let res = PackageController.BuildInfo.platformBuildInfo(builds: builds)
+
+        // validate
+        XCTAssertEqual(res.stable?.referenceName, "1.2.3")
+        XCTAssertEqual(res.stable?.results.ios,
+                       .init(parameter: .ios, status: .unknown))
+        XCTAssertEqual(res.stable?.results.macos,
+                       .init(parameter: .macos, status: .compatible))
+        XCTAssertEqual(res.stable?.results.tvos,
+                       .init(parameter: .tvos, status: .incompatible))
+        XCTAssertEqual(res.stable?.results.watchos,
+                       .init(parameter: .watchos, status: .unknown))
+        XCTAssertNil(res.beta)
+        XCTAssertNil(res.latest)
+    }
+
     func test_swiftVersionBuildInfo() throws {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [

@@ -154,7 +154,6 @@ extension PackageController {
                                                kind: .defaultBranch))
         }
 
-#warning("add test")
         static func platformBuildResults(
             builds: [PackageController.BuildsRoute.BuildInfo],
             kind: Version.Kind

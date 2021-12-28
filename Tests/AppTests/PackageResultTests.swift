@@ -285,33 +285,4 @@ class PackageResultTests: AppTestCase {
         XCTAssertEqual(res?.results.watchos, .init(parameter: .watchos, status: .compatible))
     }
 
-    func test_platformBuildInfo() throws {
-        // setup
-        let p = try savePackage(on: app.db, "1")
-        try Repository(package: p, name: "bar", owner: "foo").save(on: app.db).wait()
-        try Version(package: p, latest: .defaultBranch).save(on: app.db).wait()
-        let v = try Version(package: p, latest: .release, reference: .tag(.init(1, 2, 3)))
-        try v.save(on: app.db).wait()
-        // add builds
-        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        try Build(version: v, platform: .tvos, status: .failed, swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let res = pr.platformBuildInfo()
-
-        // validate
-        XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.ios, .init(parameter: .ios, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.macos, .init(parameter: .macos, status: .compatible))
-        XCTAssertEqual(res?.stable?.results.tvos, .init(parameter: .tvos, status: .incompatible))
-        XCTAssertEqual(res?.stable?.results.watchos, .init(parameter: .watchos, status: .unknown))
-        XCTAssertNil(res?.beta)
-        XCTAssertNil(res?.latest)
-    }
-
 }
