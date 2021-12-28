@@ -36,6 +36,7 @@ extension PackageController.PackageResult {
         [defaultBranchVersion.model, releaseVersion?.model, preReleaseVersion?.model].compactMap { $0 }
     }
 
+    #warning("only load required fields (TODO below)")
     static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
         Package.query(on: database)
             .join(Repository.self,
@@ -72,9 +73,6 @@ extension PackageController.PackageResult {
 final class DefaultVersion: ModelAlias {
     static let name = "default_version"
     let model = Version()
-
-    #warning("temp. to make it compile")
-    var products: [Product] { [] }
 }
 
 final class ReleaseVersion: ModelAlias {
