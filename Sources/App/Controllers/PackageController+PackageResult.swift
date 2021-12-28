@@ -31,11 +31,6 @@ extension PackageController.PackageResult {
     var releaseVersion: ReleaseVersion? { relation3 }
     var preReleaseVersion: PreReleaseVersion? { relation4 }
 
-    @available(*, deprecated)
-    var versions: [Version] {
-        [defaultBranchVersion.model, releaseVersion?.model, preReleaseVersion?.model].compactMap { $0 }
-    }
-
     #warning("only load required fields (TODO below)")
     static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
         Package.query(on: database)

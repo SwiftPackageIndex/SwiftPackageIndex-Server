@@ -53,24 +53,6 @@ extension PackageController.PackageResult {
     typealias PlatformResults = PackageShow.Model.PlatformResults
 
     @available(*, deprecated)
-    func swiftVersionBuildInfo() -> BuildInfo<SwiftVersionResults>? {
-        .init(
-            stable: versions.latest(for: .release).flatMap(Self.buildResults),
-            beta: versions.latest(for: .preRelease).flatMap(Self.buildResults),
-            latest: versions.latest(for: .defaultBranch).flatMap(Self.buildResults))
-
-    }
-
-    @available(*, deprecated)
-    func platformBuildInfo() -> BuildInfo<PlatformResults>? {
-        .init(
-            stable: versions.latest(for: .release).flatMap(Self.buildResults),
-            beta: versions.latest(for: .preRelease).flatMap(Self.buildResults),
-            latest: versions.latest(for: .defaultBranch).flatMap(Self.buildResults)
-        )
-    }
-
-    @available(*, deprecated)
     static func buildResults(_ version: Version) -> NamedBuildResults<SwiftVersionResults>? {
         guard let builds = version.$builds.value,
               let referenceName = version.reference?.description else { return nil }

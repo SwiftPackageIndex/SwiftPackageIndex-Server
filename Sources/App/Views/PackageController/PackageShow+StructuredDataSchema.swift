@@ -69,7 +69,6 @@ extension PackageShow {
         init?(result: PackageController.PackageResult) {
             let package = result.package
             let repository = result.repository
-            let versions = result.versions
             guard
                 let repositoryOwner = repository.owner,
                 let repositoryName = repository.name
