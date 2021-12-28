@@ -131,6 +131,7 @@ extension Array where Element == Build {
 
 
 private extension Build.Platform {
+    @available(*, deprecated)
     func isCompatible(with other: PackageShow.Model.PlatformCompatibility) -> Bool {
         switch self {
             case .ios:

@@ -19,7 +19,6 @@ import Vapor
 extension API {
     
     struct PackageController {
-        typealias PackageResult = App.PackageController.PackageResult
 
         func index(req: Request) throws -> EventLoopFuture<[Package]> {
             return Package.query(on: req.db).all()
