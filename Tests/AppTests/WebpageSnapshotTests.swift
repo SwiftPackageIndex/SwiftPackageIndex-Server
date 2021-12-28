@@ -497,8 +497,8 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                 .init(
                     packageId: .id2,
                     packageName: "Package Two",
-                    packageURL: "https://example.com/package/one",
-                    repositoryName: "one",
+                    packageURL: "https://example.com/package/two",
+                    repositoryName: "two",
                     repositoryOwner: "package",
                     stars: 2222,
                     // 48 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
@@ -510,13 +510,26 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                 .init(
                     packageId: .id3,
                     packageName: "Package Three",
-                    packageURL: "https://example.com/package/one",
-                    repositoryName: "one",
+                    packageURL: "https://example.com/package/three",
+                    repositoryName: "three",
                     repositoryOwner: "package",
                     stars: 3333,
                     // 72 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
                     lastActivityAt: Calendar.current.date(byAdding: .hour, value: -76, to: Current.date()),
                     summary: "This is a package filled with threes."
+                )!
+            ),
+            .package(
+                .init(
+                    packageId: .id4,
+                    packageName: nil, // Ensure that packages with no name display correctly.
+                    packageURL: "https://example.com/package/four",
+                    repositoryName: "four",
+                    repositoryOwner: "package",
+                    stars: 4444,
+                    // 72 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
+                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -76, to: Current.date()),
+                    summary: "This is a package filled with fours."
                 )!
             )
         ]
