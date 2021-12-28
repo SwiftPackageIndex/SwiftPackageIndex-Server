@@ -25,20 +25,12 @@ class PackageShowModelTests: SnapshotTestCase {
         // Tests behaviour when we're lacking data
         // setup package without package name
         let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
-                       defaultBranch: "main",
-                       forks: 42,
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       summary: "summary").save(on: app.db).wait()
+        try Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db).wait()
         let version = try App.Version(package: pkg,
+                                      latest: .defaultBranch,
                                       packageName: nil,
                                       reference: .branch("main"))
         try version.save(on: app.db).wait()
-        try Product(version: version,
-                    type: .library(.automatic), name: "lib 1").save(on: app.db).wait()
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
 
         // MUT
