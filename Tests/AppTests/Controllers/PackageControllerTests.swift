@@ -19,10 +19,6 @@ import XCTest
 
 class PackageControllerTests: AppTestCase {
 
-    func test_ShowRoute_query() throws {
-        XCTFail("implement")
-    }
-
     func test_History_query() throws {
         // setup
         Current.date = {
@@ -233,6 +229,22 @@ class PackageControllerTests: AppTestCase {
         XCTAssertEqual(res.swiftVersion.latest?.results.v5_3.status, .unknown)
         XCTAssertEqual(res.swiftVersion.stable?.referenceName, "1.2.3")
         XCTAssertEqual(res.swiftVersion.beta?.referenceName, "2.0.0-b1")
+    }
+
+    func test_ShowRoute_query() throws {
+        // ensure ShowRoute.query is wired up correctly (detailed tests are elsewhere)
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "bar", owner: "foo")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+
+        // MUT
+        let (model, schema) = try PackageController.ShowRoute.query(on: app.db, owner: "foo", repository: "bar").wait()
+
+        // validate
+        XCTAssertEqual(model.repositoryName, "bar")
+        XCTAssertEqual(schema.name, "bar")
     }
 
     func test_show() throws {
