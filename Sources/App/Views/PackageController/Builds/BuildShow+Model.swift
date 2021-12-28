@@ -23,14 +23,13 @@ extension BuildShow {
 
         init?(result: BuildController.BuildResult, logs: String?) {
             guard
-                let packageName = result.version.packageName,
                 let repositoryOwner = result.repository.owner,
                 let repositoryName = result.repository.name,
                 let buildInfo = BuildInfo(build: result.build, logs: logs),
                 let versionId = result.version.id
             else { return nil }
             self.init(buildInfo: buildInfo,
-                      packageName: packageName,
+                      packageName: result.version.packageName ?? repositoryName,
                       repositoryOwner: repositoryOwner,
                       repositoryName: repositoryName,
                       versionId: versionId)
