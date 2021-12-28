@@ -100,12 +100,12 @@
                   </a>
                 </li>
                 <li>
-                  <a href="https://example.com/package/one">
+                  <a href="https://example.com/package/two">
                     <h4>Package Two</h4>
                     <p>This is a package filled with twos.</p>
                     <ul class="metadata">
                       <li class="identifier">
-                        <small>package/one</small>
+                        <small>package/two</small>
                       </li>
                       <li class="activity">
                         <small>Active 2 days ago</small>
@@ -117,18 +117,35 @@
                   </a>
                 </li>
                 <li>
-                  <a href="https://example.com/package/one">
+                  <a href="https://example.com/package/three">
                     <h4>Package Three</h4>
                     <p>This is a package filled with threes.</p>
                     <ul class="metadata">
                       <li class="identifier">
-                        <small>package/one</small>
+                        <small>package/three</small>
                       </li>
                       <li class="activity">
                         <small>Active 3 days ago</small>
                       </li>
                       <li class="stars">
                         <small>3,333 stars</small>
+                      </li>
+                    </ul>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://example.com/package/four">
+                    <h4>four</h4>
+                    <p>This is a package filled with fours.</p>
+                    <ul class="metadata">
+                      <li class="identifier">
+                        <small>package/four</small>
+                      </li>
+                      <li class="activity">
+                        <small>Active 3 days ago</small>
+                      </li>
+                      <li class="stars">
+                        <small>4,444 stars</small>
                       </li>
                     </ul>
                   </a>
