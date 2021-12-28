@@ -15,7 +15,7 @@
 extension BuildShow {
 
     struct Model {
-        var packageName: String?
+        var packageName: String
         var repositoryName: String
         var repositoryOwner: String
         var buildInfo: BuildInfo
@@ -29,14 +29,14 @@ extension BuildShow {
                 let versionId = result.version.id
             else { return nil }
             self.init(buildInfo: buildInfo,
-                      packageName: result.version.packageName,
+                      packageName: result.version.packageName ?? repositoryName,
                       repositoryOwner: repositoryOwner,
                       repositoryName: repositoryName,
                       versionId: versionId)
         }
 
         internal init(buildInfo: BuildInfo,
-                      packageName: String?,
+                      packageName: String,
                       repositoryOwner: String,
                       repositoryName: String,
                       versionId: Version.Id) {

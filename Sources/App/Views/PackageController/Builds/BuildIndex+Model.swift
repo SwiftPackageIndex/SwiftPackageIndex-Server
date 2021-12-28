@@ -21,13 +21,13 @@ extension BuildIndex {
     struct Model {
         var owner: String
         var repositoryName: String
-        var packageName: String?
+        var packageName: String
         var completedBuildCount: Int
         var buildMatrix: BuildMatrix
 
         internal init(owner: String,
                       repositoryName: String,
-                      packageName: String?,
+                      packageName: String,
                       buildGroups: [BuildGroup]) {
             self.owner = owner
             self.repositoryName = repositoryName
@@ -42,7 +42,7 @@ extension BuildIndex {
 
             self.init(owner: packageInfo.repositoryOwner,
                       repositoryName: packageInfo.repositoryName,
-                      packageName: packageInfo.packageName,
+                      packageName: packageInfo.packageName ?? packageInfo.repositoryName,
                       buildGroups: buildGroups)
         }
 
