@@ -67,17 +67,17 @@ extension PackageController.PackageResult {
 }
 
 
-final class DefaultVersion: ModelAlias {
+final class DefaultVersion: ModelAlias, Joinable {
     static let name = "default_version"
     let model = Version()
 }
 
-final class ReleaseVersion: ModelAlias {
+final class ReleaseVersion: ModelAlias, Joinable {
     static let name = "release_version"
     let model = Version()
 }
 
-final class PreReleaseVersion: ModelAlias {
+final class PreReleaseVersion: ModelAlias, Joinable {
     static let name = "pre_release_version"
     let model = Version()
 }

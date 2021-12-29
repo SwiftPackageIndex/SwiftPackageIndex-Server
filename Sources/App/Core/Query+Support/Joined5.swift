@@ -14,15 +14,6 @@
 
 import FluentKit
 
-// TODO: move
-protocol Joinable: Schema {}
-extension Package: Joinable {}
-extension Repository: Joinable {}
-extension Version: Joinable {}
-extension DefaultVersion: Joinable {}
-extension ReleaseVersion: Joinable {}
-extension PreReleaseVersion: Joinable {}
-
 
 struct Joined5<M: Model, R1: Joinable, R2: Joinable, R3: Joinable, R4: Joinable>: ModelInitializable {
     private(set) var model: M
