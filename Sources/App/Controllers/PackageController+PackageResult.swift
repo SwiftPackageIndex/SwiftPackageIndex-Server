@@ -31,7 +31,6 @@ extension PackageController.PackageResult {
     var releaseVersion: ReleaseVersion? { relation3 }
     var preReleaseVersion: PreReleaseVersion? { relation4 }
 
-    #warning("only load required fields (TODO below)")
     static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
         Package.query(on: database)
             .join(Repository.self,
@@ -57,7 +56,10 @@ extension PackageController.PackageResult {
             .filter(Repository.self, \.$owner, .custom("ilike"), owner)
             .filter(Repository.self, \.$name, .custom("ilike"), repository)
             .filter(DefaultVersion.self, \.$latest == .defaultBranch)
-        // TODO: only load required fields
+        // We could improve performance by only loading required fields via
+        //            .field(Package.self, \.$url)
+        // etc but it'd be a bit tedious to maintain and test for possibly
+        // only slight gains.
             .first()
             .unwrap(or: Abort(.notFound))
             .map(Self.init(model:))
