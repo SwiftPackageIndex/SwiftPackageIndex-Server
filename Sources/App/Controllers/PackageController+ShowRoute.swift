@@ -236,6 +236,22 @@ extension Array where Element == PackageController.BuildsRoute.BuildInfo {
             return anyPending ? .unknown : .incompatible
         }
     }
+
+    var noneSucceeded: Bool {
+        allSatisfy { $0.status != .ok }
+    }
+
+    var anySucceeded: Bool {
+        !noneSucceeded
+    }
+
+    var nonePending: Bool {
+        allSatisfy { $0.status.isCompleted }
+    }
+
+    var anyPending: Bool {
+        !nonePending
+    }
 }
 
 
@@ -255,24 +271,5 @@ extension Build.Platform {
             case .linux:
                 return other == .linux
         }
-    }
-}
-
-
-private extension Array where Element == PackageController.BuildsRoute.BuildInfo {
-    var noneSucceeded: Bool {
-        allSatisfy { $0.status != .ok }
-    }
-
-    var anySucceeded: Bool {
-        !noneSucceeded
-    }
-
-    var nonePending: Bool {
-        allSatisfy { $0.status.isCompleted }
-    }
-
-    var anyPending: Bool {
-        !nonePending
     }
 }

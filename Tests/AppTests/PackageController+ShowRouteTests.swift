@@ -173,14 +173,39 @@ class PackageController_ShowRouteTests: AppTestCase {
         // Test build status aggregation, in particular see
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/666
         // setup
-        func mkBuild(_ status: Build.Status) -> PackageController.BuildsRoute.BuildInfo {
-            .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v5_2, platform: .ios, status: status)
-        }
         // MUT & verification
-        XCTAssertEqual([mkBuild(.ok), mkBuild(.failed)].buildStatus, .compatible)
-        XCTAssertEqual([mkBuild(.triggered), mkBuild(.triggered)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuild(.failed), mkBuild(.triggered)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuild(.ok), mkBuild(.triggered)].buildStatus, .compatible)
+        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.failed)].buildStatus, .compatible)
+        XCTAssertEqual([mkBuildInfo(.triggered), mkBuildInfo(.triggered)].buildStatus, .unknown)
+        XCTAssertEqual([mkBuildInfo(.failed), mkBuildInfo(.triggered)].buildStatus, .unknown)
+        XCTAssertEqual([mkBuildInfo(.ok), mkBuildInfo(.triggered)].buildStatus, .compatible)
+    }
+
+    func test_noneSucceeded() throws {
+        XCTAssertTrue([mkBuildInfo(.failed), mkBuildInfo(.failed)].noneSucceeded)
+        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.failed)].noneSucceeded)
+    }
+
+    func test_anySucceeded() throws {
+        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.failed)].anySucceeded)
+        XCTAssertFalse([mkBuildInfo(.failed), mkBuildInfo(.failed)].anySucceeded)
+    }
+
+    func test_nonePending() throws {
+        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.failed)].nonePending)
+        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.triggered)].nonePending)
+        // timeouts will not be retried - therefore they are not pending
+        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.timeout)].nonePending)
+        // infrastructure errors _will_ be retried - they are pending
+        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.infrastructureError)].nonePending)
+    }
+
+    func test_anyPending() throws {
+        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.failed)].anyPending)
+        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.triggered)].anyPending)
+        // timeouts will not be retried - therefore they are not pending
+        XCTAssertTrue([mkBuildInfo(.ok), mkBuildInfo(.timeout)].nonePending)
+        // infrastructure errors _will_ be retried - they are pending
+        XCTAssertFalse([mkBuildInfo(.ok), mkBuildInfo(.infrastructureError)].nonePending)
     }
 
     func test_Platform_isCompatible() throws {
@@ -416,3 +441,9 @@ class PackageController_ShowRouteTests: AppTestCase {
     }
 
 }
+
+
+private func mkBuildInfo(_ status: Build.Status) -> PackageController.BuildsRoute.BuildInfo {
+    .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v5_5, platform: .ios, status: status)
+}
+
