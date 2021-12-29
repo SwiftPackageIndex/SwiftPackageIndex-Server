@@ -40,27 +40,3 @@ extension PackageController.PackageResult {
     }
 
 }
-
-
-// MARK: - Build info
-
-
-private extension Build.Platform {
-    @available(*, deprecated)
-    func isCompatible(with other: PackageShow.Model.PlatformCompatibility) -> Bool {
-        switch self {
-            case .ios:
-                return other == .ios
-            case .macosSpm, .macosXcodebuild:
-                return other == .macos
-            case .macosSpmArm, .macosXcodebuildArm:
-                return other == .macosArm
-            case .tvos:
-                return other == .tvos
-            case .watchos:
-                return other == .watchos
-            case .linux:
-                return other == .linux
-        }
-    }
-}

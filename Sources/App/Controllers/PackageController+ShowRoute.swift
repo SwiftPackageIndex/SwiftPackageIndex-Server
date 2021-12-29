@@ -239,7 +239,7 @@ extension Array where Element == PackageController.BuildsRoute.BuildInfo {
 }
 
 
-private extension Build.Platform {
+extension Build.Platform {
     func isCompatible(with other: PackageShow.Model.PlatformCompatibility) -> Bool {
         switch self {
             case .ios:

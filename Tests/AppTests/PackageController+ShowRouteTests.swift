@@ -183,6 +183,21 @@ class PackageController_ShowRouteTests: AppTestCase {
         XCTAssertEqual([mkBuild(.ok), mkBuild(.triggered)].buildStatus, .compatible)
     }
 
+    func test_Platform_isCompatible() throws {
+        XCTAssertTrue(Build.Platform.ios.isCompatible(with: .ios))
+        XCTAssertFalse(Build.Platform.ios.isCompatible(with: .macos))
+
+        XCTAssertTrue(Build.Platform.macosSpm.isCompatible(with: .macos))
+        XCTAssertTrue(Build.Platform.macosXcodebuild.isCompatible(with: .macos))
+        XCTAssertFalse(Build.Platform.macosSpm.isCompatible(with: .macosArm))
+        XCTAssertFalse(Build.Platform.macosXcodebuild.isCompatible(with: .macosArm))
+
+        XCTAssertTrue(Build.Platform.macosSpmArm.isCompatible(with: .macosArm))
+        XCTAssertTrue(Build.Platform.macosXcodebuildArm.isCompatible(with: .macosArm))
+        XCTAssertFalse(Build.Platform.macosSpmArm.isCompatible(with: .macos))
+        XCTAssertFalse(Build.Platform.macosXcodebuildArm.isCompatible(with: .macos))
+    }
+
     func test_platformBuildResults() throws {
         // Test build success reporting - we take any success across swift versions
         // as a success for a particular platform
