@@ -19,7 +19,6 @@ import XCTest
 
 class PackageController_routesTests: AppTestCase {
 
-
     func test_show() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -29,6 +28,45 @@ class PackageController_routesTests: AppTestCase {
 
         // MUT
         try app.test(.GET, "/owner/package", afterResponse: { response in
+            XCTAssertEqual(response.status, .ok)
+        })
+    }
+
+    func test_readme() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/readme", afterResponse: { response in
+            XCTAssertEqual(response.status, .ok)
+        })
+    }
+
+    func test_releases() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/releases", afterResponse: { response in
+            XCTAssertEqual(response.status, .ok)
+        })
+    }
+
+    func test_builds() throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/builds", afterResponse: { response in
             XCTAssertEqual(response.status, .ok)
         })
     }

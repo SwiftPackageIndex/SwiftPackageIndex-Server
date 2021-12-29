@@ -34,7 +34,6 @@ struct PackageController {
             }
     }
 
-    #warning("add test")
     func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
         guard
             let owner = req.parameters.get("owner"),
@@ -55,7 +54,6 @@ struct PackageController {
             .map { PackageReadme.View(model: $0).document() }
     }
     
-#warning("add test")
     func releases(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
         guard
             let owner = req.parameters.get("owner"),
