@@ -17,40 +17,11 @@
 import Vapor
 import XCTest
 
-class PackageControllerTests: AppTestCase {
+class PackageController_BuildsRouteTests: AppTestCase {
 
     typealias BuildDetails = (id: Build.Id, reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status)
 
-    func test_maintainerInfo() throws {
-        // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
-            .save(on: app.db).wait()
-
-        // MUT
-        try app.test(.GET, "/owner/package/information-for-package-maintainers", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-        })
-    }
-
-    func test_maintainerInfo_no_packageName() throws {
-        // Ensure we display the page even if packageName is not set
-        // setup
-        let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "package", owner: "owner")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch, packageName: nil)
-            .save(on: app.db).wait()
-
-        // MUT
-        try app.test(.GET, "/owner/package/information-for-package-maintainers", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-        })
-    }
-
-    func test_BuildsRoute_BuildInfo_query() throws {
+    func test_BuildInfo_query() throws {
         // setup
         do {
             let pkg = try savePackage(on: app.db, "1".url)
@@ -109,7 +80,7 @@ class PackageControllerTests: AppTestCase {
         )
     }
 
-    func test_BuildsRoute_query() throws {
+    func test_query() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
@@ -143,7 +114,7 @@ class PackageControllerTests: AppTestCase {
         ])
     }
 
-    func test_BuildsRoute_query_no_builds() throws {
+    func test_query_no_builds() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".url)
         try Repository(package: pkg,
