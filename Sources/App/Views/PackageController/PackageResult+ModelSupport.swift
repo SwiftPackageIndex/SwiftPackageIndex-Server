@@ -45,60 +45,6 @@ extension PackageController.PackageResult {
 // MARK: - Build info
 
 
-extension PackageController.PackageResult {
-
-    typealias BuildInfo = PackageShow.Model.BuildInfo
-    typealias NamedBuildResults = PackageShow.Model.NamedBuildResults
-    typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
-    typealias PlatformResults = PackageShow.Model.PlatformResults
-
-    @available(*, deprecated)
-    static func buildResults(_ version: Version) -> NamedBuildResults<SwiftVersionResults>? {
-        guard let builds = version.$builds.value,
-              let referenceName = version.reference?.description else { return nil }
-        // For each reported swift version pick major/minor version matches
-        let v5_1 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_1) }
-        let v5_2 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_2) }
-        let v5_3 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_3) }
-        let v5_4 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_4) }
-        let v5_5 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_5) }
-        // ... and report the status
-        return
-            .init(referenceName: referenceName,
-                  results: .init(status5_1: v5_1.buildStatus,
-                                 status5_2: v5_2.buildStatus,
-                                 status5_3: v5_3.buildStatus,
-                                 status5_4: v5_4.buildStatus,
-                                 status5_5: v5_5.buildStatus)
-            )
-    }
-
-    @available(*, deprecated)
-    static func buildResults(_ version: Version) -> NamedBuildResults<PlatformResults>? {
-        guard let builds = version.$builds.value,
-              let referenceName = version.reference?.description else { return nil }
-        // For each reported platform pick appropriate build matches
-        let ios = builds.filter { $0.platform.isCompatible(with: .ios) }
-        let linux = builds.filter { $0.platform.isCompatible(with: .linux) }
-        let macos = builds.filter { $0.platform.isCompatible(with: .macos) }
-        let macosArm = builds.filter { $0.platform.isCompatible(with: .macosArm) }
-        let tvos = builds.filter { $0.platform.isCompatible(with: .tvos) }
-        let watchos = builds.filter { $0.platform.isCompatible(with: .watchos) }
-        // ... and report the status
-        return
-            .init(referenceName: referenceName,
-                  results: .init(iosStatus: ios.buildStatus,
-                                 linuxStatus: linux.buildStatus,
-                                 macosStatus: macos.buildStatus,
-                                 macosArmStatus: macosArm.buildStatus,
-                                 tvosStatus: tvos.buildStatus,
-                                 watchosStatus: watchos.buildStatus)
-            )
-    }
-
-}
-
-
 extension Array where Element == Build {
     @available(*, deprecated)
     var buildStatus: PackageShow.Model.BuildStatus {

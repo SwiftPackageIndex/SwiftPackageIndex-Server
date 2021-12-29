@@ -169,6 +169,80 @@ class PackageController_ShowRouteTests: AppTestCase {
         XCTAssertEqual(res.filter(\.isLibrary).count, 2)
     }
 
+    func test_platformBuildResults() throws {
+        // Test build success reporting - we take any success across swift versions
+        // as a success for a particular platform
+        // setup
+        func makeBuild(_ status: Build.Status, _ platform: Build.Platform, _ version: SwiftVersion) -> PackageController.BuildsRoute.BuildInfo {
+            .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: UUID(), swiftVersion: version, platform: platform, status: status)
+        }
+
+        let builds = [
+            // ios - failed
+            makeBuild(.failed, .ios, .v5_5),
+            makeBuild(.failed, .ios, .v5_4),
+            // macos - failed
+            makeBuild(.failed, .macosSpm, .v5_5),
+            makeBuild(.failed, .macosXcodebuild, .v5_4),
+            // tvos - no data - unknown
+            // watchos - ok
+            makeBuild(.failed, .watchos, .v5_5),
+            makeBuild(.ok, .watchos, .v5_4),
+            // unrelated build
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_5, platform: .ios, status: .ok),
+        ]
+
+        // MUT
+        let res = PackageController.BuildInfo
+            .platformBuildResults(builds: builds, kind: .defaultBranch)
+
+        // validate
+        XCTAssertEqual(res?.referenceName, "main")
+        XCTAssertEqual(res?.results.ios, .init(parameter: .ios, status: .incompatible))
+        XCTAssertEqual(res?.results.macos, .init(parameter: .macos, status: .incompatible))
+        XCTAssertEqual(res?.results.tvos, .init(parameter: .tvos, status: .unknown))
+        XCTAssertEqual(res?.results.watchos, .init(parameter: .watchos, status: .compatible))
+    }
+
+    func test_swiftVersionBuildResults() throws {
+        // Test build success reporting - we take any success across platforms
+        // as a success for a particular x.y swift version (4.2, 5.0, etc, i.e.
+        // ignoring swift patch versions)
+        // setup
+        func makeBuild(_ status: Build.Status, _ platform: Build.Platform, _ version: SwiftVersion) -> PackageController.BuildsRoute.BuildInfo {
+            .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: UUID(), swiftVersion: version, platform: platform, status: status)
+        }
+
+        let builds = [
+            // 5.1 - failed
+            makeBuild(.failed, .ios, .v5_1),
+            makeBuild(.failed, .macosXcodebuild, .v5_1),
+            // 5.2 - no data - unknown
+            // 5.3 - ok
+            makeBuild(.ok, .macosXcodebuild, .v5_3),
+            // 5.4 - ok
+            makeBuild(.failed, .ios, .v5_3),
+            makeBuild(.ok, .macosXcodebuild, .v5_4),
+            // 5.5 - ok
+            makeBuild(.failed, .ios, .v5_4),
+            makeBuild(.ok, .macosXcodebuild, .v5_5),
+            // unrelated build
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_2, platform: .ios, status: .failed),
+        ]
+
+        // MUT
+        let res = PackageController.BuildInfo
+            .swiftVersionBuildResults(builds: builds, kind: .defaultBranch)
+
+        // validate
+        XCTAssertEqual(res?.referenceName, "main")
+        XCTAssertEqual(res?.results.v5_1, .init(parameter: .v5_1, status: .incompatible))
+        XCTAssertEqual(res?.results.v5_2, .init(parameter: .v5_2, status: .unknown))
+        XCTAssertEqual(res?.results.v5_3, .init(parameter: .v5_3, status: .compatible))
+        XCTAssertEqual(res?.results.v5_4, .init(parameter: .v5_4, status: .compatible))
+        XCTAssertEqual(res?.results.v5_5, .init(parameter: .v5_5, status: .compatible))
+    }
+
     func test_platformBuildInfo() throws {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [
