@@ -169,6 +169,20 @@ class PackageController_ShowRouteTests: AppTestCase {
         XCTAssertEqual(res.filter(\.isLibrary).count, 2)
     }
 
+    func test_buildStatus() throws {
+        // Test build status aggregation, in particular see
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/666
+        // setup
+        func mkBuild(_ status: Build.Status) -> PackageController.BuildsRoute.BuildInfo {
+            .init(versionKind: .defaultBranch, reference: .branch("main"), buildId: .id0, swiftVersion: .v5_2, platform: .ios, status: status)
+        }
+        // MUT & verification
+        XCTAssertEqual([mkBuild(.ok), mkBuild(.failed)].buildStatus, .compatible)
+        XCTAssertEqual([mkBuild(.triggered), mkBuild(.triggered)].buildStatus, .unknown)
+        XCTAssertEqual([mkBuild(.failed), mkBuild(.triggered)].buildStatus, .unknown)
+        XCTAssertEqual([mkBuild(.ok), mkBuild(.triggered)].buildStatus, .compatible)
+    }
+
     func test_platformBuildResults() throws {
         // Test build success reporting - we take any success across swift versions
         // as a success for a particular platform

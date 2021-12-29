@@ -282,24 +282,6 @@ class BuildTests: AppTestCase {
         XCTAssertFalse([mkBuild(.ok), mkBuild(.infrastructureError)].nonePending)
     }
 
-    func test_buildStatus() throws {
-        // Test build status aggregation, in particular see
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/666
-        // setup
-        let pkg = Package(id: UUID(), url: "1")
-        let v = try Version(id: UUID(), package: pkg)
-        let p = Build.Platform.ios
-        let sv = SwiftVersion.init(5, 2, 0)
-        func mkBuild(_ status: Build.Status) -> Build {
-            return try! Build(version: v, platform: p, status: status, swiftVersion: sv)
-        }
-        // MUT & verification
-        XCTAssertEqual([mkBuild(.ok), mkBuild(.failed)].buildStatus, .compatible)
-        XCTAssertEqual([mkBuild(.triggered), mkBuild(.triggered)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuild(.failed), mkBuild(.triggered)].buildStatus, .unknown)
-        XCTAssertEqual([mkBuild(.ok), mkBuild(.triggered)].buildStatus, .compatible)
-    }
-
     func test_delete_by_versionId() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")

@@ -45,19 +45,6 @@ extension PackageController.PackageResult {
 // MARK: - Build info
 
 
-extension Array where Element == Build {
-    @available(*, deprecated)
-    var buildStatus: PackageShow.Model.BuildStatus {
-        guard !isEmpty else { return .unknown }
-        if anySucceeded {
-            return .compatible
-        } else {
-            return anyPending ? .unknown : .incompatible
-        }
-    }
-}
-
-
 private extension Build.Platform {
     @available(*, deprecated)
     func isCompatible(with other: PackageShow.Model.PlatformCompatibility) -> Bool {

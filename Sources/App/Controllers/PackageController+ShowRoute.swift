@@ -224,7 +224,10 @@ extension PackageController {
 }
 
 
-private extension Array where Element == PackageController.BuildsRoute.BuildInfo {
+// MARK: - "private" helper extensions
+// Ideally these would be declared "private" but we need access from tests
+
+extension Array where Element == PackageController.BuildsRoute.BuildInfo {
     var buildStatus: PackageShow.Model.BuildStatus {
         guard !isEmpty else { return .unknown }
         if anySucceeded {
