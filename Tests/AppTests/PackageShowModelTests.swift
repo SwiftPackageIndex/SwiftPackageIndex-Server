@@ -251,35 +251,42 @@ class PackageShowModelTests: SnapshotTestCase {
     func test_languagePlatformInfo() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+        try Repository(package: pkg,
+                       defaultBranch: "default",
+                       name: "bar",
+                       owner: "foo").save(on: app.db).wait()
         try [
             try App.Version(package: pkg, reference: .branch("branch")),
             try App.Version(package: pkg,
                             commitDate: daysAgo(1),
+                            latest: .defaultBranch,
                             reference: .branch("default"),
                             supportedPlatforms: [.macos("10.15"), .ios("13")],
                             swiftVersions: ["5.2", "5.3"].asSwiftVersions),
             try App.Version(package: pkg, reference: .tag(.init(1, 2, 3))),
             try App.Version(package: pkg,
                             commitDate: daysAgo(3),
+                            latest: .release,
                             reference: .tag(.init(2, 1, 0)),
                             supportedPlatforms: [.macos("10.13"), .ios("10")],
                             swiftVersions: ["4", "5"].asSwiftVersions),
             try App.Version(package: pkg,
                             commitDate: daysAgo(2),
+                            latest: .preRelease,
                             reference: .tag(.init(3, 0, 0, "beta")),
                             supportedPlatforms: [.macos("10.14"), .ios("13")],
                             swiftVersions: ["5", "5.2"].asSwiftVersions),
-        ].create(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        let versions = try pkg.$versions.load(on: app.db)
-            .map { pkg.versions }
-            .wait()
+        ].save(on: app.db).wait()
+        let pr = try PackageResult.query(on: app.db,
+                                         owner: "foo",
+                                         repository: "bar").wait()
 
         // MUT
-        let lpInfo = PackageShow.Model.languagePlatformInfo(packageUrl: "1", versions: versions)
+        let lpInfo = PackageShow.Model
+            .languagePlatformInfo(packageUrl: "1",
+                                  defaultBranchVersion: pr.defaultBranchVersion,
+                                  releaseVersion: pr.releaseVersion,
+                                  preReleaseVersion: pr.preReleaseVersion)
 
         // validate
         XCTAssertEqual(lpInfo.stable?.link, .init(label: "2.1.0",

@@ -151,20 +151,6 @@ extension PackageShow.Model {
                                          platforms: version.supportedPlatforms)
     }
 
-    @available(*, deprecated)
-    static func languagePlatformInfo(packageUrl: String, versions: [App.Version]) -> LanguagePlatformInfo {
-        let versions = [App.Version.Kind.release, .preRelease, .defaultBranch]
-            .map {
-                versions.latest(for: $0)
-                    .flatMap {
-                        makeModelVersion(packageUrl: packageUrl, version: $0)
-                    }
-            }
-        return .init(stable: versions[0],
-                     beta: versions[1],
-                     latest: versions[2])
-    }
-
     static func languagePlatformInfo(packageUrl: String,
                                      defaultBranchVersion: DefaultVersion?,
                                      releaseVersion: ReleaseVersion?,
