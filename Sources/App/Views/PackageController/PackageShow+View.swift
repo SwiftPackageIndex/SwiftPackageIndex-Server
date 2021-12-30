@@ -125,8 +125,22 @@ enum PackageShow {
                 .h3("Compatibility"),
                 .div(
                     .class("matrices"),
-                    model.swiftVersionCompatibilitySection(),
-                    model.platformCompatibilitySection()
+                    .if(model.hasBuildInfo,
+                        .group(
+                            model.swiftVersionCompatibilitySection(),
+                            model.platformCompatibilitySection()
+                        ),
+                        else: .group(
+                            .p(
+                                "No builds have been queued yet. If no builds are enqueued for an extended period of time, please ",
+                                .a(
+                                    .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose"),
+                                    "raise an issue"
+                                ),
+                                "."
+                            )
+                        )
+                    )
                 )
             )
         }

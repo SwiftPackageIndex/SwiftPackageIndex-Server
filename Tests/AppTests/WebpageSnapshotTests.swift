@@ -291,6 +291,28 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         #endif
     }
 
+    func test_PackageShowView_no_builds() throws {
+        // Test display when there are no builds
+        var model = PackageShow.Model.mock
+        model.swiftVersionBuildInfo = nil
+        model.platformBuildInfo = nil
+        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+
+        assertSnapshot(matching: page, as: .html)
+
+        #if os(macOS)
+        if runImageSnapshotTests {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(precision: defaultPrecision,
+                                          size: $0.size,
+                                          baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
+
     func test_PackageReadmeView() throws {
         let model = PackageReadme.Model.mock
         let page = { PackageReadme.View(model: model).document() }

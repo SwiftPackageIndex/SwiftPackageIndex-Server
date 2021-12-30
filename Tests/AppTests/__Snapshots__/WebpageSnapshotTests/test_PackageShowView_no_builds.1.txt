@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en"><!--Version: test--><!--DB Id: db-id-->
+  <head>
+    <meta name="robots" content="noindex"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8"/>
+    <meta name="og:site_name" content="The Swift Package Index"/>
+    <link rel="canonical" href="http://localhost:8080/"/>
+    <meta name="twitter:url" content="http://localhost:8080/"/>
+    <meta name="og:url" content="http://localhost:8080/"/>
+    <title>Alamofire &ndash; Swift Package Index</title>
+    <meta name="twitter:title" content="Alamofire &ndash; Swift Package Index"/>
+    <meta name="og:title" content="Alamofire &ndash; Swift Package Index"/>
+    <meta name="description" content="Alamofire by Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. V…"/>
+    <meta name="twitter:description" content="Alamofire by Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. V…"/>
+    <meta name="og:description" content="Alamofire by Alamofire on the Swift Package Index – Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. V…"/>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
+    <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
+    <link rel="shortcut icon" href="/images/logo-small.png" type="image/png"/>
+    <link rel="stylesheet" href="/main.css?test" data-turbolinks-track="reload"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recently Added" href="http://localhost:8080/packages.rss"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Releases" href="http://localhost:8080/releases.rss"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major Releases" href="http://localhost:8080/releases.rss?major=true"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Major & Minor Releases" href="http://localhost:8080/releases.rss?major=true&minor=true"/>
+    <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
+    <script src="/main.js?test" data-turbolinks-track="reload" defer></script>
+  </head>
+  <body class="package"><!--CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE--><!--10-->
+    <div class="staging">Staging / Development</div>
+    <header>
+      <div class="inner">
+        <a href="/">
+          <h1>
+            <img alt="The Swift Package Index logo." src="/images/logo.svg"/>Swift Package Index
+          </h1>
+        </a>
+        <nav>
+          <ul>
+            <li class="menu_scta">
+              <a id="menu_scta" href="https://github.com/sponsors/SwiftPackageIndex"></a>
+              <div id="menu_scta_help">
+                <p>The Swift Package Index is an open-source project entirely funded by community donations.</p>
+                <p>Please consider sponsoring this project. 
+                  <strong>Thank you!</strong>
+                </p>
+              </div>
+            </li>
+            <li>
+              <a href="/add-a-package">Add a Package</a>
+            </li>
+            <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
+            <li>
+              <a href="/faq">FAQ</a>
+            </li>
+            <li class="search">
+              <form action="/search">
+                <input id="query" name="query" type="search" placeholder="Search" spellcheck="false" autocomplete="off" data-gramm="false" data-focus="false"/>
+                <button type="submit">
+                  <div title="Search"></div>
+                </button>
+              </form>
+              <a href="/search" title="Search"></a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="inner">
+        <h2>Alamofire</h2>
+        <small>
+          <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
+        </small>
+        <hr class="tight"/>
+        <p class="summary">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.</p>
+        <article class="details">
+          <div class="two_column">
+            <section>
+              <ul class="main_metadata">
+                <li class="history">In development for over 5 years, with 
+                  <a href="https://github.com/Alamofire/Alamofire/commits/main">1,433 commits</a> and 
+                  <a href="https://github.com/Alamofire/Alamofire/releases">79 releases</a>.
+                </li>
+                <li class="activity">There are 
+                  <a href="https://github.com/Alamofire/Alamofire/issues">27 open issues</a> and 
+                  <a href="https://github.com/Alamofire/Alamofire/pulls">5 open pull requests</a>. The last issue was closed 5 days ago and the last pull request was merged/closed 6 days ago.
+                </li>
+                <li class="dependencies">This package depends on 2 other packages.</li>
+                <li class="license"> licensed</li>
+                <li class="stars">17 stars</li>
+                <li class="libraries">3 libraries</li>
+                <li class="executables">1 executable</li>
+              </ul>
+            </section>
+            <section class="sidebar_links">
+              <ul>
+                <li class="try_in_playground">
+                  <a href="spi-playgrounds://open?dependencies=Alamo/Alamofire">Try in a Playground</a>
+                  <div id="app_download_explainer" class="hidden">
+                    <strong>Launching the SPI Playgrounds app&hellip;</strong>
+                    <p>If nothing happens, you may not have the app installed. 
+                      <a href="/try-in-a-playground?dependencies=Alamo/Alamofire">Download the Swift Package Index Playgrounds app</a> and try again.
+                    </p>
+                  </div>
+                </li>
+                <li>
+                  <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
+                </li>
+                <li>
+                  <a href="/Alamo/Alamofire/builds">Full Package Compatibility Report</a>
+                </li>
+                <li>
+                  <a href="/Alamo">More packages from this author</a>
+                </li>
+                <li>
+                  <a href="/Alamo/Alamofire/information-for-package-maintainers">Do you maintain this package?</a>
+                </li>
+              </ul>
+            </section>
+          </div>
+          <hr class="minor"/>
+          <div class="two_column">
+            <section class="main_compatibility">
+              <h3>Compatibility</h3>
+              <div class="matrices">
+                <p>No builds have been queued yet. If no builds are enqueued for an extended period of time, please 
+                  <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose">raise an issue</a>.
+                </p>
+              </div>
+            </section>
+            <section class="sidebar_versions">
+              <h3>Versions</h3>
+              <ul>
+                <li class="stable">
+                  <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.2.0">
+                    <span class="stable">5.2.0</span>
+                  </a>
+                  <strong>Latest Stable Release</strong>
+                  <small>Released 12 days ago</small>
+                </li>
+                <li class="beta">
+                  <a href="https://github.com/Alamofire/Alamofire/releases/tag/5.3.0-beta.1">
+                    <span class="beta">5.3.0-beta.1</span>
+                  </a>
+                  <strong>Latest Beta Release</strong>
+                  <small>Released 4 days ago</small>
+                </li>
+                <li class="branch">
+                  <a href="https://github.com/Alamofire/Alamofire">
+                    <span class="branch">main</span>
+                  </a>
+                  <strong>Default Branch</strong>
+                  <small>Modified 12 minutes ago</small>
+                </li>
+              </ul>
+            </section>
+          </div>
+        </article>
+        <tab-bar>
+          <ul>
+            <li id="readme" class="active" data-tab="readme">README</li>
+            <li id="releases" data-tab="releases">Release Notes</li>
+          </ul>
+        </tab-bar>
+        <turbo-frame id="readme_page" src="/Alamo/Alamofire/readme" data-tab-page="readme" class="tab_page">
+          <div class="min_height_spacer">
+            <div class="spinner">
+              <div class="rect1"></div>
+              <div class="rect2"></div>
+              <div class="rect3"></div>
+              <div class="rect4"></div>
+              <div class="rect5"></div>
+            </div>
+          </div>
+        </turbo-frame>
+        <turbo-frame id="releases_page" src="/Alamo/Alamofire/releases" data-tab-page="releases" class="tab_page hidden">
+          <div class="min_height_spacer">
+            <div class="spinner">
+              <div class="rect1"></div>
+              <div class="rect2"></div>
+              <div class="rect3"></div>
+              <div class="rect4"></div>
+              <div class="rect5"></div>
+            </div>
+          </div>
+        </turbo-frame>
+      </div>
+    </main>
+    <footer>
+      <div class="inner">
+        <nav>
+          <ul>
+            <li>
+              <a href="https://blog.swiftpackageindex.com">Blog</a>
+            </li>
+            <li>
+              <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a>
+            </li>
+            <li>
+              <a href="/privacy">Privacy and Cookies</a>
+            </li>
+            <li>
+              <a href="https://swiftpackageindex.statuspage.io">Uptime and System Status</a>
+            </li>
+            <li>
+              <a href="https://twitter.com/swiftpackages">Twitter</a>
+            </li>
+          </ul>
+          <small>Kindly hosted by
+            <a href="https://www.macstadium.com/">MacStadium</a>and
+            <a href="https://azure.microsoft.com/en-us/">Microsoft Azure</a>
+          </small>
+        </nav>
+      </div>
+    </footer>
+    <div class="staging">Staging / Development</div>
+  </body>
+</html>
