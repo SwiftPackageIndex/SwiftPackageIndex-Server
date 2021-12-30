@@ -41,7 +41,7 @@ extension ErrorPage {
                         return .p(
                             .text("If you were expecting to find a page here, please "),
                             .a(
-                                .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose"),
+                                .href(SiteURL.raiseNewIssue),
                                 "raise an issue"
                             ),
                             .text(".")

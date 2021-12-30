@@ -134,7 +134,7 @@ enum PackageShow {
                             .p(
                                 "No builds have been queued yet. If no builds are enqueued for an extended period of time, please ",
                                 .a(
-                                    .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose"),
+                                    .href(SiteURL.raiseNewIssue),
                                     "raise an issue"
                                 ),
                                 "."

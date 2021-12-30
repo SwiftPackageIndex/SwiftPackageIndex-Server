@@ -54,7 +54,7 @@ enum BuildIndex {
                     ),
                     " to see how we derive build parameters. If you still see surprising results, please ",
                     .a(
-                        .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose"),
+                        .href(SiteURL.raiseNewIssue),
                         "raise an issue"
                     ),
                     "."
