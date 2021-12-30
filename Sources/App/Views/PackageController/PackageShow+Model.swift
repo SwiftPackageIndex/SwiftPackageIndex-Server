@@ -34,7 +34,7 @@ extension PackageShow {
         var languagePlatforms: LanguagePlatformInfo
         var license: License
         var licenseUrl: String?
-        var products: ProductCounts?
+        var productCounts: ProductCounts?
         var releases: ReleaseInfo
         var dependencies: [ResolvedDependency]?
         var stars: Int?
@@ -57,7 +57,7 @@ extension PackageShow {
                       languagePlatforms: LanguagePlatformInfo,
                       license: License,
                       licenseUrl: String? = nil,
-                      products: ProductCounts? = nil,
+                      productCounts: ProductCounts? = nil,
                       releases: ReleaseInfo,
                       dependencies: [ResolvedDependency]?,
                       stars: Int? = nil,
@@ -79,7 +79,7 @@ extension PackageShow {
             self.languagePlatforms = languagePlatforms
             self.license = license
             self.licenseUrl = licenseUrl
-            self.products = products
+            self.productCounts = productCounts
             self.releases = releases
             self.dependencies = dependencies
             self.stars = stars
@@ -90,9 +90,12 @@ extension PackageShow {
             self.isArchived = isArchived
         }
         
-        init?(result: PackageController.PackageResult) {
+        init?(result: PackageController.PackageResult,
+              history: History?,
+              productCounts: ProductCounts,
+              swiftVersionBuildInfo: BuildInfo<SwiftVersionResults>?,
+              platformBuildInfo: BuildInfo<PlatformResults>?) {
             // we consider certain attributes as essential and return nil (raising .notFound)
-            let versions = result.versions
             let repository = result.repository
             guard
                 let repositoryOwner = repository.owner,
@@ -109,19 +112,26 @@ extension PackageShow {
                 activity: result.activity(),
                 authors: result.authors(),
                 keywords: repository.keywords,
-                swiftVersionBuildInfo: result.swiftVersionBuildInfo(),
-                platformBuildInfo: result.platformBuildInfo(),
-                history: result.history(),
-                languagePlatforms: Self.languagePlatformInfo(packageUrl: result.package.url, versions: versions),
+                swiftVersionBuildInfo: swiftVersionBuildInfo,
+                platformBuildInfo: platformBuildInfo,
+                history: history,
+                languagePlatforms: Self.languagePlatformInfo(
+                    packageUrl: result.package.url,
+                    defaultBranchVersion: result.defaultBranchVersion,
+                    releaseVersion: result.releaseVersion,
+                    preReleaseVersion: result.preReleaseVersion),
                 license: repository.license,
                 licenseUrl: repository.licenseUrl,
-                products: result.productCounts(),
-                releases: PackageShow.releaseInfo(packageUrl: result.package.url, versions: versions),
-                dependencies: versions
-                    .latest(for: .defaultBranch)?.resolvedDependencies,
+                productCounts: productCounts,
+                releases: PackageShow.releaseInfo(
+                    packageUrl: result.package.url,
+                    defaultBranchVersion: result.defaultBranchVersion,
+                    releaseVersion: result.releaseVersion,
+                    preReleaseVersion: result.preReleaseVersion),
+                dependencies: result.defaultBranchVersion.resolvedDependencies,
                 stars: repository.stars,
                 summary: repository.summary,
-                title: versions.packageName() ?? repositoryName,
+                title: result.defaultBranchVersion.packageName ?? repositoryName,
                 url: result.package.url,
                 score: result.package.score,
                 isArchived: repository.isArchived
@@ -141,13 +151,13 @@ extension PackageShow.Model {
                                          platforms: version.supportedPlatforms)
     }
 
-    static func languagePlatformInfo(packageUrl: String, versions: [App.Version]) -> LanguagePlatformInfo {
-        let versions = [App.Version.Kind.release, .preRelease, .defaultBranch]
-            .map {
-                versions.latest(for: $0)
-                    .flatMap {
-                        makeModelVersion(packageUrl: packageUrl, version: $0)
-                    }
+    static func languagePlatformInfo(packageUrl: String,
+                                     defaultBranchVersion: DefaultVersion?,
+                                     releaseVersion: ReleaseVersion?,
+                                     preReleaseVersion: PreReleaseVersion?) -> LanguagePlatformInfo {
+        let versions = [releaseVersion?.model, preReleaseVersion?.model, defaultBranchVersion?.model]
+            .map { version -> Version? in
+                version.flatMap { makeModelVersion(packageUrl: packageUrl, version: $0) }
             }
         return .init(stable: versions[0],
                      beta: versions[1],
@@ -228,7 +238,7 @@ extension PackageShow.Model {
 
     func starsListItem() -> Node<HTML.ListContext> {
         guard let stars = stars,
-              let str = NumberFormatter.starsFormatter.string(from: NSNumber(value: stars))
+              let str = NumberFormatter.spiDefault.string(from: stars)
         else { return .empty }
         return .li(
             .class("stars"),
@@ -338,22 +348,22 @@ extension PackageShow.Model {
     }
 
     func librariesListItem() -> Node<HTML.ListContext> {
-        guard let products = products
+        guard let productCounts = productCounts
         else { return .empty }
 
         return .li(
             .class("libraries"),
-            .text(pluralizedCount(products.libraries, singular: "library", plural: "libraries", capitalized: true))
+            .text(pluralizedCount(productCounts.libraries, singular: "library", plural: "libraries", capitalized: true))
         )
     }
 
     func executablesListItem() -> Node<HTML.ListContext> {
-        guard let products = products
+        guard let productCounts = productCounts
         else { return .empty }
 
         return .li(
             .class("executables"),
-            .text(pluralizedCount(products.executables, singular: "executable", capitalized: true))
+            .text(pluralizedCount(productCounts.executables, singular: "executable", capitalized: true))
         )
     }
 

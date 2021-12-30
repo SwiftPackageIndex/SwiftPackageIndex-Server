@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+import FluentKit
 
-extension NumberFormatter {
-    static var starsFormatter: NumberFormatter = {
-        let f = NumberFormatter()
-        f.thousandSeparator = ","
-        f.numberStyle = .decimal
-        return f
-    }()
-}
+
+protocol Joinable: Schema {}
+
+extension Package: Joinable {}
+extension Repository: Joinable {}
+extension Version: Joinable {}

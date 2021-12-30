@@ -17,8 +17,6 @@ import Plot
 
 
 extension MaintainerInfoIndex {
-    typealias PackageResult = PackageController.PackageResult
-
     struct Model {
         var packageName: String
         var repositoryOwner: String

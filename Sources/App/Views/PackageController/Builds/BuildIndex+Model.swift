@@ -16,8 +16,6 @@ import Plot
 
 
 extension BuildIndex {
-    typealias PackageResult = PackageController.PackageResult
-
     struct Model {
         var owner: String
         var repositoryName: String
@@ -45,7 +43,6 @@ extension BuildIndex {
                       packageName: packageInfo.packageName ?? packageInfo.repositoryName,
                       buildGroups: buildGroups)
         }
-
     }
 }
 

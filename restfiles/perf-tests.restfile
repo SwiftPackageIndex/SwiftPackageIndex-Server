@@ -19,3 +19,13 @@ requests:
         url: ${base_url}/Alamofire/Alamofire/information-for-package-maintainers
         validation:
             status: 200
+
+    Alamofire-package:
+        url: ${base_url}/Alamofire/Alamofire
+        validation:
+            status: 200
+
+    soto-package:
+        url: ${base_url}/soto-project/soto
+        validation:
+            status: 200

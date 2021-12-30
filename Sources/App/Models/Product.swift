@@ -89,24 +89,26 @@ enum ProductType: Codable, Equatable {
         case `dynamic`
         case `static`
     }
+
+    var isLibrary: Bool {
+        switch self {
+            case .library: return true
+            case .executable, .test: return false
+        }
+    }
+
+    var isExecutable: Bool {
+        switch self {
+            case .executable: return true
+            case .library, .test: return false
+        }
+    }
 }
 
 
 extension Product {
-    var isLibrary: Bool {
-        switch type {
-            case .library: return true
-            case .executable, .test: return false
-            case .none: return false
-        }
-    }
-    var isExecutable: Bool {
-        switch type {
-            case .executable: return true
-            case .library, .test: return false
-            case .none: return false
-        }
-    }
+    var isLibrary: Bool { type?.isLibrary ?? false }
+    var isExecutable: Bool { type?.isExecutable ?? false }
 }
 
 

@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extension Array where Element == Version {
-    func latest(for kind: Version.Kind) -> Version? {
-        first { $0.latest == kind }
-    }
+import Foundation
 
-    var releases: Self { filter { $0.reference?.isTag ?? false } }
+extension NumberFormatter {
+    static var spiDefault: NumberFormatter = {
+        let f = NumberFormatter()
+        f.thousandSeparator = ","
+        f.numberStyle = .decimal
+        return f
+    }()
 
-    func packageName(for kind: Version.Kind = .defaultBranch) -> String? {
-        latest(for: kind)?.packageName
+    func string(from value: Int) -> String? {
+        string(from: NSNumber(value: value))
     }
 }

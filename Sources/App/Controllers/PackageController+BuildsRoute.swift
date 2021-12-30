@@ -17,55 +17,6 @@ import Vapor
 
 
 extension PackageController {
-    //    (Package - Repository) -< Version
-    //                                 |
-    //                                 |-< Build
-    //                                 |
-    //                                 '-< Product
-    typealias PackageResult = Ref<Joined<Package, Repository>, Ref2<Version, Build, Product>>
-
-    enum ShowRoute {
-        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(model: PackageShow.Model, schema: PackageShow.PackageSchema)> {
-            PackageResult.query(on: database, owner: owner, repository: repository)
-                .map { result -> (model: PackageShow.Model, schema: PackageShow.PackageSchema)? in
-                    guard
-                        let model = PackageShow.Model(result: result),
-                        let schema = PackageShow.PackageSchema(result: result)
-                    else {
-                        return nil
-                    }
-
-                    return (model, schema)
-                }
-                .unwrap(or: Abort(.notFound))
-        }
-    }
-}
-
-
-extension PackageController.PackageResult {
-    var package: Package { model.package }
-    // We can safely force-unwrap model.repository because it's a relation from
-    // an INNER query.
-    var repository: Repository { model.repository! }
-    var versions: [Version] { package.versions }
-
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        Joined<Package, Repository>.query(on: database)
-            .with(\.$versions) {
-                $0.with(\.$products)
-                $0.with(\.$builds)
-            }
-            .filter(Repository.self, \.$owner, .custom("ilike"), owner)
-            .filter(Repository.self, \.$name, .custom("ilike"), repository)
-            .first()
-            .unwrap(or: Abort(.notFound))
-            .map(Self.init(model:))
-    }
-}
-
-
-extension PackageController {
     enum BuildsRoute {
         struct PackageInfo: Equatable {
             var packageName: String?

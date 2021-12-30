@@ -25,64 +25,24 @@ class PackageShowModelTests: SnapshotTestCase {
         // Tests behaviour when we're lacking data
         // setup package without package name
         let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
-                       defaultBranch: "main",
-                       forks: 42,
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       summary: "summary").save(on: app.db).wait()
+        try Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db).wait()
         let version = try App.Version(package: pkg,
+                                      latest: .defaultBranch,
                                       packageName: nil,
                                       reference: .branch("main"))
         try version.save(on: app.db).wait()
-        try Product(version: version,
-                    type: .library(.automatic), name: "lib 1").save(on: app.db).wait()
         let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-        
+
         // MUT
-        let m = PackageShow.Model(result: pr)
+        let m = PackageShow.Model(result: pr,
+                                  history: nil,
+                                  productCounts: .mock,
+                                  swiftVersionBuildInfo: nil,
+                                  platformBuildInfo: nil)
         
         // validate
         XCTAssertNotNil(m)
         XCTAssertEqual(m?.title, "bar")
-    }
-    
-    func test_query_builds() throws {
-        // Ensure the builds relationship is loaded
-        // setup
-        let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
-                       defaultBranch: "main",
-                       forks: 42,
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       summary: "summary").save(on: app.db).wait()
-        let version = try App.Version(package: pkg,
-                                      packageName: "test package",
-                                      reference: .branch("main"))
-        try version.save(on: app.db).wait()
-        try Build(version: version,
-                  platform: .macosXcodebuild,
-                  status: .ok,
-                  swiftVersion: .init(5, 2, 2))
-            .save(on: app.db)
-            .wait()
-        do {  // update versions
-            let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-            try updateLatestVersions(on: app.db, package: jpr).wait()
-        }
-        // reload via query to ensure pkg is in the same state it would normally be
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
-
-        // MUT
-        let m = PackageShow.Model(result: pr)
-        
-        // validate
-        XCTAssertNotNil(m?.swiftVersionBuildInfo?.latest)
     }
 
     func test_history() throws {
@@ -215,21 +175,21 @@ class PackageShowModelTests: SnapshotTestCase {
 
     func test_num_libraries_formatting() throws {
         var model = PackageShow.Model.mock
-        model.products?.libraries = 0
+        model.productCounts?.libraries = 0
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">No libraries</li>")
-        model.products?.libraries = 1
+        model.productCounts?.libraries = 1
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">1 library</li>")
-        model.products?.libraries = 2
+        model.productCounts?.libraries = 2
         XCTAssertEqual(model.librariesListItem().render(), "<li class=\"libraries\">2 libraries</li>")
     }
     
     func test_num_executables_formatting() throws {
         var model = PackageShow.Model.mock
-        model.products?.executables = 0
+        model.productCounts?.executables = 0
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">No executables</li>")
-        model.products?.executables = 1
+        model.productCounts?.executables = 1
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">1 executable</li>")
-        model.products?.executables = 2
+        model.productCounts?.executables = 2
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">2 executables</li>")
     }
 
@@ -291,35 +251,42 @@ class PackageShowModelTests: SnapshotTestCase {
     func test_languagePlatformInfo() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, defaultBranch: "default").create(on: app.db).wait()
+        try Repository(package: pkg,
+                       defaultBranch: "default",
+                       name: "bar",
+                       owner: "foo").save(on: app.db).wait()
         try [
             try App.Version(package: pkg, reference: .branch("branch")),
             try App.Version(package: pkg,
                             commitDate: daysAgo(1),
+                            latest: .defaultBranch,
                             reference: .branch("default"),
                             supportedPlatforms: [.macos("10.15"), .ios("13")],
                             swiftVersions: ["5.2", "5.3"].asSwiftVersions),
             try App.Version(package: pkg, reference: .tag(.init(1, 2, 3))),
             try App.Version(package: pkg,
                             commitDate: daysAgo(3),
+                            latest: .release,
                             reference: .tag(.init(2, 1, 0)),
                             supportedPlatforms: [.macos("10.13"), .ios("10")],
                             swiftVersions: ["4", "5"].asSwiftVersions),
             try App.Version(package: pkg,
                             commitDate: daysAgo(2),
+                            latest: .preRelease,
                             reference: .tag(.init(3, 0, 0, "beta")),
                             supportedPlatforms: [.macos("10.14"), .ios("13")],
                             swiftVersions: ["5", "5.2"].asSwiftVersions),
-        ].create(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
-        let versions = try pkg.$versions.load(on: app.db)
-            .map { pkg.versions }
-            .wait()
+        ].save(on: app.db).wait()
+        let pr = try PackageResult.query(on: app.db,
+                                         owner: "foo",
+                                         repository: "bar").wait()
 
         // MUT
-        let lpInfo = PackageShow.Model.languagePlatformInfo(packageUrl: "1", versions: versions)
+        let lpInfo = PackageShow.Model
+            .languagePlatformInfo(packageUrl: "1",
+                                  defaultBranchVersion: pr.defaultBranchVersion,
+                                  releaseVersion: pr.releaseVersion,
+                                  preReleaseVersion: pr.preReleaseVersion)
 
         // validate
         XCTAssertEqual(lpInfo.stable?.link, .init(label: "2.1.0",
@@ -345,3 +312,10 @@ fileprivate typealias Version = PackageShow.Model.Version
 fileprivate typealias BuildInfo = PackageShow.Model.BuildInfo
 fileprivate typealias BuildResults = PackageShow.Model.SwiftVersionResults
 fileprivate typealias BuildStatusRow = PackageShow.Model.BuildStatusRow
+
+
+private extension PackageShow.Model.ProductCounts {
+    static var mock: Self {
+        .init(libraries: 0, executables: 0)
+    }
+}

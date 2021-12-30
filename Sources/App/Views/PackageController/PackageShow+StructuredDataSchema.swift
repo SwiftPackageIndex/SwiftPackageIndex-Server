@@ -69,7 +69,6 @@ extension PackageShow {
         init?(result: PackageController.PackageResult) {
             let package = result.package
             let repository = result.repository
-            let versions = result.versions
             guard
                 let repositoryOwner = repository.owner,
                 let repositoryName = repository.name
@@ -83,7 +82,11 @@ extension PackageShow {
                 organisationName: repository.ownerName,
                 summary: repository.summary,
                 licenseUrl: repository.licenseUrl,
-                version: PackageShow.releaseInfo(packageUrl: package.url, versions: versions).stable?.link.label,
+                version: PackageShow.releaseInfo(
+                    packageUrl: package.url,
+                    defaultBranchVersion: result.defaultBranchVersion,
+                    releaseVersion: result.releaseVersion,
+                    preReleaseVersion: result.preReleaseVersion).stable?.link.label,
                 repositoryUrl: package.url.droppingGitExtension,
                 dateCreated: repository.firstCommitDate,
                 dateModified: repository.lastCommitDate,
@@ -129,18 +132,19 @@ extension PackageShow {
 
 
 extension PackageShow {
-    static func releaseInfo(packageUrl: String, versions: [Version]) -> PackageShow.Model.ReleaseInfo {
-        let versions = [Version.Kind.release, .preRelease, .defaultBranch]
-            .map {
-                versions.latest(for: $0)
-                    .flatMap {
-                        makeDatedLink(packageUrl: packageUrl,
-                                      version: $0,
-                                      keyPath: \.commitDate)
-                    }
+    static func releaseInfo(packageUrl: String,
+                            defaultBranchVersion: DefaultVersion?,
+                            releaseVersion: ReleaseVersion?,
+                            preReleaseVersion: PreReleaseVersion?) -> PackageShow.Model.ReleaseInfo {
+        let links = [releaseVersion?.model, preReleaseVersion?.model, defaultBranchVersion?.model]
+            .map { version -> DatedLink? in
+                guard let version = version else { return nil }
+                return makeDatedLink(packageUrl: packageUrl,
+                                     version: version,
+                                     keyPath: \.commitDate)
             }
-        return .init(stable: versions[0],
-                     beta: versions[1],
-                     latest: versions[2])
+        return .init(stable: links[0],
+                     beta: links[1],
+                     latest: links[2])
     }
 }

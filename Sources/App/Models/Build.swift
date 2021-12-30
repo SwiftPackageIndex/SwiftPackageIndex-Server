@@ -272,23 +272,3 @@ extension Build {
 
 }
 
-
-// MARK: - Array extension
-
-extension Array where Element == Build {
-    var noneSucceeded: Bool {
-        allSatisfy { $0.status != .ok }
-    }
-
-    var anySucceeded: Bool {
-        !noneSucceeded
-    }
-
-    var nonePending: Bool {
-        allSatisfy { $0.status.isCompleted }
-    }
-    
-    var anyPending: Bool {
-        !nonePending
-    }
-}

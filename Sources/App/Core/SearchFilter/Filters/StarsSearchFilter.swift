@@ -51,7 +51,7 @@ struct StarsSearchFilter: SearchFilter {
         .init(
             key: "stars",
             comparison: comparison,
-            value: NumberFormatter.starsFormatter.string(from: NSNumber(value: value)) ?? "\(value)"
+            value: NumberFormatter.spiDefault.string(from: value) ?? "\(value)"
         )
     }
 }
