@@ -320,13 +320,13 @@ class PublicPage {
                     .ul(
                         .li(
                             .a(
-                                .href("https://blog.swiftpackageindex.com"),
+                                .href(ExternalURL.projectBlog),
                                 "Blog"
                             )
                         ),
                         .li(
                             .a(
-                                .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
+                                .href(ExternalURL.projectGitHub),
                                 "GitHub"
                             )
                         ),

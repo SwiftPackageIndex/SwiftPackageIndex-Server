@@ -54,7 +54,7 @@ enum BuildIndex {
                     ),
                     " to see how we derive build parameters. If you still see surprising results, please ",
                     .a(
-                        .href(SiteURL.raiseNewIssue),
+                        .href(ExternalURL.raiseNewIssue),
                         "raise an issue"
                     ),
                     "."

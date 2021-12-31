@@ -72,12 +72,12 @@ enum HomeIndex {
                     .class("scta"),
                     .text("The Swift Package Index is an "),
                     .a(
-                        .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"),
+                        .href(ExternalURL.projectGitHub),
                         "open-source project"
                     ),
                     .text(" entirely funded by community donations. Please consider "),
                     .a(
-                        .href("https://github.com/sponsors/SwiftPackageIndex"),
+                        .href(ExternalURL.projectSponsorship),
                         "sponsoring the project"
                     ),
                     .text(". "),

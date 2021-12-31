@@ -28,7 +28,7 @@ enum NavMenuItem {
                     .class("menu_scta"),
                     .a(
                         .id("menu_scta"),
-                        .href("https://github.com/sponsors/SwiftPackageIndex")
+                        .href(ExternalURL.projectSponsorship)
                     ),
                     .div(
                         .id("menu_scta_help"),
@@ -49,7 +49,7 @@ enum NavMenuItem {
             case .blog:
                 return .li(
                     .a(
-                        .href("https://blog.swiftpackageindex.com"),
+                        .href(ExternalURL.projectBlog),
                         "Blog"
                     )
                 )

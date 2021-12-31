@@ -29,7 +29,7 @@ The Swift Package Index will pick up new default branch revisions and releases a
 
 <h3 id="what-revision">What revision is the default branch built for?</h3>
 
-The Swift Package Index does not currently display which revision the default branch tracks. If a default branch revision changed more than a few hours ago, everything should be up to date. If there looks to be a problem with a build not updating after several hours, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new).
+The Swift Package Index does not currently display which revision the default branch tracks. If a default branch revision changed more than a few hours ago, everything should be up to date. If there looks to be a problem with a build not updating after several hours, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose).
 
 <h3 id="built-how">How are packages built?</h3>
 
@@ -61,8 +61,8 @@ Not currently. However, by using grey rather than red for the compatibility matr
 
 As a package author, you might think that a package should be compatible with a platform or Swift version, where the Swift Package Index shows it as incompatible. First, please try to replicate the build locally with the build command that the build system uses. The build details page shows the full build command which will help reveal if there is some issue with the package set up or our way of discovering the build scheme.
 
-If you can fix the problem, great! Fix the issue, push the change, and we will re-process your builds. If the problem is more serious, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new) so we can improve the build system.
+If you can fix the problem, great! Fix the issue, push the change, and we will re-process your builds. If the problem is more serious, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose) so we can improve the build system.
 
 <h3 id="unrelated-error">If a build is showing an error that seems unrelated to the build, how can I fix it?</h3>
 
-In some cases, we may have encountered build issues unrelated to your package. Please confirm using the build command shown on the build details page that you can build your package successfully for a given Swift version and platform. If this succeeds, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new) so we can remove the faulty builds and schedule a rebuild.
+In some cases, we may have encountered build issues unrelated to your package. Please confirm using the build command shown on the build details page that you can build your package successfully for a given Swift version and platform. If this succeeds, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose) so we can remove the faulty builds and schedule a rebuild.

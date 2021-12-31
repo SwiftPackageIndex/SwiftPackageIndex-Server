@@ -270,15 +270,6 @@ enum SiteURL: Resourceable {
 }
 
 
-// MARK: - static urls
-
-extension SiteURL {
-    static var raiseNewIssue: String {
-        "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose"
-    }
-}
-
-
 // MARK: - Types for use in resource declaration
 
 
