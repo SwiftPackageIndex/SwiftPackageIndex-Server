@@ -197,6 +197,9 @@ class PackageShowModelTests: SnapshotTestCase {
         // ensure nil propagation when all version's values are nil
         // (the generic type is irrelevant, we're just using Int for simplicity)
         XCTAssertNil(BuildInfo<Int>.init(stable: nil, beta: nil, latest: nil))
+        XCTAssertNotNil(BuildInfo<Int>.init(stable: .init(referenceName: "foo", results: 1),
+                                            beta: nil,
+                                            latest: nil))
     }
 
     func test_groupBuildInfo() throws {
