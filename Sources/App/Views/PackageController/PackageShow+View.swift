@@ -132,7 +132,7 @@ enum PackageShow {
                         ),
                         else: .group(
                             .p(
-                                "No builds have been queued yet. If no builds are enqueued for an extended period of time, please ",
+                                "This package currently has no compatibility information. Builds to determine package compatibility are starting, and compatibility information will appear soon. If this message persists for more than a few minutes, please ",
                                 .a(
                                     .href(SiteURL.raiseNewIssue),
                                     "raise an issue"
