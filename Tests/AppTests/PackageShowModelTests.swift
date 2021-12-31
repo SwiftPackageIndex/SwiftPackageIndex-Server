@@ -193,6 +193,15 @@ class PackageShowModelTests: SnapshotTestCase {
         XCTAssertEqual(model.executablesListItem().render(), "<li class=\"executables\">2 executables</li>")
     }
 
+    func test_BuildInfo_init() throws {
+        // ensure nil propagation when all versions' values are nil
+        // (the generic type is irrelevant, we're just using Int for simplicity)
+        XCTAssertNil(BuildInfo<Int>.init(stable: nil, beta: nil, latest: nil))
+        XCTAssertNotNil(BuildInfo<Int>.init(stable: .init(referenceName: "foo", results: 1),
+                                            beta: nil,
+                                            latest: nil))
+    }
+
     func test_groupBuildInfo() throws {
         let result1: BuildResults = .init(status5_1: .compatible,
                                           status5_2: .compatible,
@@ -215,7 +224,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                              beta: .init(referenceName: "2.0.0-b1",
                                                          results: result2),
                                              latest: .init(referenceName: "main",
-                                                           results: result3))
+                                                           results: result3))!
             
             // MUT
             let res = PackageShow.Model.groupBuildInfo(buildInfo)
@@ -234,7 +243,7 @@ class PackageShowModelTests: SnapshotTestCase {
                                              beta: .init(referenceName: "2.0.0-b1",
                                                          results: result2),
                                              latest: .init(referenceName: "main",
-                                                           results: result1))
+                                                           results: result1))!
             
             // MUT
             let res = PackageShow.Model.groupBuildInfo(buildInfo)

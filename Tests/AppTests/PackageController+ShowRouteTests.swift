@@ -308,17 +308,17 @@ class PackageController_ShowRouteTests: AppTestCase {
         let res = PackageController.BuildInfo.platformBuildInfo(builds: builds)
 
         // validate
-        XCTAssertEqual(res.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res.stable?.results.ios,
+        XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
+        XCTAssertEqual(res?.stable?.results.ios,
                        .init(parameter: .ios, status: .unknown))
-        XCTAssertEqual(res.stable?.results.macos,
+        XCTAssertEqual(res?.stable?.results.macos,
                        .init(parameter: .macos, status: .compatible))
-        XCTAssertEqual(res.stable?.results.tvos,
+        XCTAssertEqual(res?.stable?.results.tvos,
                        .init(parameter: .tvos, status: .incompatible))
-        XCTAssertEqual(res.stable?.results.watchos,
+        XCTAssertEqual(res?.stable?.results.watchos,
                        .init(parameter: .watchos, status: .unknown))
-        XCTAssertNil(res.beta)
-        XCTAssertNil(res.latest)
+        XCTAssertNil(res?.beta)
+        XCTAssertNil(res?.latest)
     }
 
     func test_swiftVersionBuildInfo() throws {
@@ -332,19 +332,19 @@ class PackageController_ShowRouteTests: AppTestCase {
         let res = PackageController.BuildInfo.swiftVersionBuildInfo(builds: builds)
 
         // validate
-        XCTAssertEqual(res.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res.stable?.results.v5_1,
+        XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
+        XCTAssertEqual(res?.stable?.results.v5_1,
                        .init(parameter: .v5_1, status: .unknown))
-        XCTAssertEqual(res.stable?.results.v5_2,
+        XCTAssertEqual(res?.stable?.results.v5_2,
                        .init(parameter: .v5_2, status: .incompatible))
-        XCTAssertEqual(res.stable?.results.v5_3,
+        XCTAssertEqual(res?.stable?.results.v5_3,
                        .init(parameter: .v5_3, status: .compatible))
-        XCTAssertEqual(res.stable?.results.v5_4,
+        XCTAssertEqual(res?.stable?.results.v5_4,
                        .init(parameter: .v5_4, status: .unknown))
-        XCTAssertEqual(res.stable?.results.v5_5,
+        XCTAssertEqual(res?.stable?.results.v5_5,
                        .init(parameter: .v5_5, status: .unknown))
-        XCTAssertNil(res.beta)
-        XCTAssertNil(res.latest)
+        XCTAssertNil(res?.beta)
+        XCTAssertNil(res?.latest)
     }
 
     func test_BuildInfo_query() throws {
@@ -397,18 +397,18 @@ class PackageController_ShowRouteTests: AppTestCase {
         // validate
         // just test reference names and some details for `latest`
         // more detailed tests are covered in the lower level test
-        XCTAssertEqual(res.platform.latest?.referenceName, "main")
-        XCTAssertEqual(res.platform.latest?.results.ios.status, .compatible)
-        XCTAssertEqual(res.platform.latest?.results.tvos.status, .incompatible)
-        XCTAssertEqual(res.platform.latest?.results.watchos.status, .unknown)
-        XCTAssertEqual(res.platform.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res.platform.beta?.referenceName, "2.0.0-b1")
-        XCTAssertEqual(res.swiftVersion.latest?.referenceName, "main")
-        XCTAssertEqual(res.swiftVersion.latest?.results.v5_5.status, .compatible)
-        XCTAssertEqual(res.swiftVersion.latest?.results.v5_4.status, .incompatible)
-        XCTAssertEqual(res.swiftVersion.latest?.results.v5_3.status, .unknown)
-        XCTAssertEqual(res.swiftVersion.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res.swiftVersion.beta?.referenceName, "2.0.0-b1")
+        XCTAssertEqual(res.platform?.latest?.referenceName, "main")
+        XCTAssertEqual(res.platform?.latest?.results.ios.status, .compatible)
+        XCTAssertEqual(res.platform?.latest?.results.tvos.status, .incompatible)
+        XCTAssertEqual(res.platform?.latest?.results.watchos.status, .unknown)
+        XCTAssertEqual(res.platform?.stable?.referenceName, "1.2.3")
+        XCTAssertEqual(res.platform?.beta?.referenceName, "2.0.0-b1")
+        XCTAssertEqual(res.swiftVersion?.latest?.referenceName, "main")
+        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_5.status, .compatible)
+        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_4.status, .incompatible)
+        XCTAssertEqual(res.swiftVersion?.latest?.results.v5_3.status, .unknown)
+        XCTAssertEqual(res.swiftVersion?.stable?.referenceName, "1.2.3")
+        XCTAssertEqual(res.swiftVersion?.beta?.referenceName, "2.0.0-b1")
     }
 
     func test_ShowRoute_query() throws {

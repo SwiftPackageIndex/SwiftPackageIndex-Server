@@ -130,8 +130,8 @@ extension PackageController {
         typealias PlatformResults = PackageShow.Model.PlatformResults
         typealias SwiftVersionResults = PackageShow.Model.SwiftVersionResults
 
-        var platform: ModelBuildInfo<PlatformResults>
-        var swiftVersion: ModelBuildInfo<SwiftVersionResults>
+        var platform: ModelBuildInfo<PlatformResults>?
+        var swiftVersion: ModelBuildInfo<SwiftVersionResults>?
 
         static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
             BuildsRoute.BuildInfo.query(on: database, owner: owner, repository: repository)
@@ -145,7 +145,7 @@ extension PackageController {
 
         static func platformBuildInfo(
             builds: [PackageController.BuildsRoute.BuildInfo]
-        ) -> ModelBuildInfo<PlatformResults> {
+        ) -> ModelBuildInfo<PlatformResults>? {
             .init(stable: platformBuildResults(builds: builds,
                                                kind: .release),
                   beta: platformBuildResults(builds: builds,
@@ -185,7 +185,7 @@ extension PackageController {
 
         static func swiftVersionBuildInfo(
             builds: [PackageController.BuildsRoute.BuildInfo]
-        ) -> ModelBuildInfo<SwiftVersionResults> {
+        ) -> ModelBuildInfo<SwiftVersionResults>? {
             .init(stable: swiftVersionBuildResults(builds: builds,
                                                    kind: .release),
                 beta: swiftVersionBuildResults(builds: builds,

@@ -294,8 +294,8 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
     func test_PackageShowView_no_builds() throws {
         // Test display when there are no builds
         var model = PackageShow.Model.mock
-        model.swiftVersionBuildInfo = nil
-        model.platformBuildInfo = nil
+        model.swiftVersionBuildInfo = .init(stable: nil, beta: nil, latest: nil)
+        model.platformBuildInfo = .init(stable: nil, beta: nil, latest: nil)
         let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
 
         assertSnapshot(matching: page, as: .html)

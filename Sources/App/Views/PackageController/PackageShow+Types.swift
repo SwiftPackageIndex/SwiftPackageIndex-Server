@@ -58,6 +58,16 @@ extension PackageShow.Model {
         var stable: NamedBuildResults<T>?
         var beta: NamedBuildResults<T>?
         var latest: NamedBuildResults<T>?
+
+        init?(stable: PackageShow.Model.NamedBuildResults<T>? = nil,
+              beta: PackageShow.Model.NamedBuildResults<T>? = nil,
+              latest: PackageShow.Model.NamedBuildResults<T>? = nil) {
+            // require at least one result to be non-nil
+            guard stable != nil || beta != nil || latest != nil else { return nil }
+            self.stable = stable
+            self.beta = beta
+            self.latest = latest
+        }
     }
     
     enum PlatformCompatibility: BuildResultParameter {
