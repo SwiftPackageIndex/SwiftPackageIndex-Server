@@ -125,8 +125,22 @@ enum PackageShow {
                 .h3("Compatibility"),
                 .div(
                     .class("matrices"),
-                    model.swiftVersionCompatibilitySection(),
-                    model.platformCompatibilitySection()
+                    .if(model.hasBuildInfo,
+                        .group(
+                            model.swiftVersionCompatibilitySection(),
+                            model.platformCompatibilitySection()
+                        ),
+                        else: .group(
+                            .p(
+                                "This package currently has no compatibility information. Builds to determine package compatibility are starting, and compatibility information will appear soon. If this message persists for more than a few minutes, please ",
+                                .a(
+                                    .href(SiteURL.raiseNewIssue),
+                                    "raise an issue"
+                                ),
+                                "."
+                            )
+                        )
+                    )
                 )
             )
         }

@@ -448,6 +448,8 @@ extension PackageShow.Model {
         return rows
     }
 
+    var hasBuildInfo: Bool { swiftVersionBuildInfo != nil || platformBuildInfo != nil }
+
     func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
         guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
