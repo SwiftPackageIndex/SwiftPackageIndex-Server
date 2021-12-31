@@ -134,7 +134,7 @@ enum PackageShow {
                             .p(
                                 "This package currently has no compatibility information. Builds to determine package compatibility are starting, and compatibility information will appear soon. If this message persists for more than a few minutes, please ",
                                 .a(
-                                    .href(SiteURL.raiseNewIssue),
+                                    .href(ExternalURL.raiseNewIssue),
                                     "raise an issue"
                                 ),
                                 "."

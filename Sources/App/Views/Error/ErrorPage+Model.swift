@@ -41,7 +41,7 @@ extension ErrorPage {
                         return .p(
                             .text("If you were expecting to find a page here, please "),
                             .a(
-                                .href(SiteURL.raiseNewIssue),
+                                .href(ExternalURL.raiseNewIssue),
                                 "raise an issue"
                             ),
                             .text(".")
