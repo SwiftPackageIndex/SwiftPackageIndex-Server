@@ -177,7 +177,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "c0d2cf9c06bcb60987ec89a8f5791aaaae38e4f1",
+          "revision": "a08d3830539f3c719bea3fd194c97c0369e5fa11",
           "version": null
         }
       },
@@ -303,8 +303,8 @@
         "repositoryURL": "https://github.com/scinfu/SwiftSoup.git",
         "state": {
           "branch": null,
-          "revision": "3fa09f4d79e5172b14cb50e02f1d5f115a2bbaef",
-          "version": "2.3.4"
+          "revision": "ea76bfd075ccc1c52c0fefd2105f67964542f246",
+          "version": "2.3.5"
         }
       },
       {
