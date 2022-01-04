@@ -156,7 +156,7 @@ class SearchTests: AppTestCase {
     func test_query_sql() throws {
         // Test to confirm shape of rendered search SQL
         // MUT
-        let query = Search.query(app.db, ["test"], page: 1, pageSize: 20)
+        let query = try XCTUnwrap(Search.query(app.db, ["test"], page: 1, pageSize: 20))
         // validate
         _assertInlineSnapshot(matching: renderSQL(query), as: .lines, with: """
             SELECT * FROM ((SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1) UNION ALL (SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $2 LIMIT 1) UNION ALL (SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $3 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $4 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
@@ -846,7 +846,7 @@ class SearchTests: AppTestCase {
     
     func test_onlyPackageResults_whenFiltersApplied() throws {
         do { // with filter
-            let query = Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5)
+            let query = try XCTUnwrap(Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5))
             let sql = renderSQL(query)
             XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT 'keyword' AS "match_type""#))
@@ -854,7 +854,7 @@ class SearchTests: AppTestCase {
         }
         
         do { // without filter
-            let query = Search.query(app.db, ["a"], page: 1, pageSize: 5)
+            let query = try XCTUnwrap(Search.query(app.db, ["a"], page: 1, pageSize: 5))
             let sql = renderSQL(query)
             XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT 'keyword' AS "match_type""#))
