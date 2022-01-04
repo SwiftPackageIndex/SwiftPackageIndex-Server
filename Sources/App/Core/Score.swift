@@ -69,8 +69,7 @@ enum Score {
         if let lastActivityAt = candidate.lastActivityAt {
             // Note: This is not the most accurate method to calculate the number of days between
             // two dates, but is more than good enough for the purposes of this calculation.
-            let calendar = Calendar.current
-            let dateDifference = calendar.dateComponents([.day], from: lastActivityAt, to: Date())
+            let dateDifference = Calendar.current.dateComponents([.day], from: lastActivityAt, to: Date())
             switch dateDifference.day {
                 case .some(..<30) : score += 15
                 case .some(30..<180) : score += 10
