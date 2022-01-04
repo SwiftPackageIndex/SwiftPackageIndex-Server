@@ -90,6 +90,38 @@ class ScoreTests: AppTestCase {
                                            isArchived: false,
                                            numberOfDependencies: 2)),
                        82)
+        XCTAssertEqual(Score.compute(.init(supportsLatestSwiftVersion: true,
+                                           licenseKind: .compatibleWithAppStore,
+                                           releaseCount: 20,
+                                           likeCount: 20_000,
+                                           isArchived: false,
+                                           numberOfDependencies: 2,
+                                           lastActivityAt: Calendar.current.date(byAdding: .day, value: -400, to: Date()))),
+                       82)
+        XCTAssertEqual(Score.compute(.init(supportsLatestSwiftVersion: true,
+                                           licenseKind: .compatibleWithAppStore,
+                                           releaseCount: 20,
+                                           likeCount: 20_000,
+                                           isArchived: false,
+                                           numberOfDependencies: 2,
+                                           lastActivityAt: Calendar.current.date(byAdding: .day, value: -300, to: Date()))),
+                       87)
+        XCTAssertEqual(Score.compute(.init(supportsLatestSwiftVersion: true,
+                                           licenseKind: .compatibleWithAppStore,
+                                           releaseCount: 20,
+                                           likeCount: 20_000,
+                                           isArchived: false,
+                                           numberOfDependencies: 2,
+                                           lastActivityAt: Calendar.current.date(byAdding: .day, value: -100, to: Date()))),
+                       92)
+        XCTAssertEqual(Score.compute(.init(supportsLatestSwiftVersion: true,
+                                           licenseKind: .compatibleWithAppStore,
+                                           releaseCount: 20,
+                                           likeCount: 20_000,
+                                           isArchived: false,
+                                           numberOfDependencies: 2,
+                                           lastActivityAt: Calendar.current.date(byAdding: .day, value: -10, to: Date()))),
+                       97)
     }
     
     func test_compute_package_versions() throws {
