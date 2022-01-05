@@ -162,6 +162,7 @@ enum License: String, Codable, Equatable, CaseIterable {
         }
     }
     
+    @available(*, deprecated)
     static func withKind(_ predicate: (Kind) -> Bool) -> [String] {
         License.allCases.filter { predicate($0.licenseKind) }.map(\.rawValue)
     }

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import Foundation
-import SQLKit
 
 /// Filters by the number of stars the package has.
 ///
@@ -25,33 +24,19 @@ import SQLKit
 /// stars:!5 - Any number of stars except 5
 /// ```
 struct StarsSearchFilter: SearchFilter {
-    static var key: String = "stars"
-    
-    var comparison: SearchFilterComparison
-    var value: Int
-    
+    static var key: SearchFilterKey = .stars
+
+    var bindableValue: Encodable
+    var displayValue: String
+    var `operator`: SearchFilterComparison
+
     init(value: String, comparison: SearchFilterComparison) throws {
         guard let intValue = Int(value) else {
             throw SearchFilterError.invalidValueType
         }
-        
-        self.comparison = comparison
-        self.value = intValue
-    }
-    
-    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
-        builder.where(
-            SQLIdentifier("stars"),
-            comparison.binaryOperator(),
-            value
-        )
-    }
-    
-    func createViewModel() -> SearchFilterViewModel {
-        .init(
-            key: "stars",
-            comparison: comparison,
-            value: NumberFormatter.spiDefault.string(from: value) ?? "\(value)"
-        )
+
+        self.bindableValue = intValue
+        self.displayValue = NumberFormatter.spiDefault.string(from: NSNumber(value: intValue)) ?? value
+        self.operator = comparison
     }
 }

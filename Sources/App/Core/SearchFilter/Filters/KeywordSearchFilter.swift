@@ -23,33 +23,28 @@ import SQLKit
 /// keyword:!apple - The package keywords does not contain the keyword 'apple'
 /// ```
 struct KeywordSearchFilter: SearchFilter {
-    static var key: String = "keyword"
-    
-    var comparison: SearchFilterComparison
-    var value: String
-    
+    static var key: SearchFilterKey = .keyword
+
+    var bindableValue: Encodable
+    var displayValue: String
+    var `operator`: SearchFilterComparison
+
     init(value: String, comparison: SearchFilterComparison) throws {
         guard [.match, .negativeMatch].contains(comparison) else {
             throw SearchFilterError.unsupportedComparisonMethod
         }
-        
-        self.comparison = comparison
-        self.value = value
+
+        self.bindableValue = "%\(value)%"
+        self.displayValue = value
+        self.operator = comparison
     }
     
     func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
         builder.where(
-            SQLIdentifier("keyword"),
-            comparison == .match ? SQLRaw("ILIKE") : SQLRaw("NOT ILIKE"),
-            SQLBind("%\(value)%")
-        )
-    }
-    
-    func createViewModel() -> SearchFilterViewModel {
-        .init(
-            key: "keywords",
-            comparison: comparison,
-            value: value
+            Self.key.sqlIdentifier,
+            // override default operators .equal/.notEqual
+            `operator` == .match ? SQLRaw("ILIKE") : SQLRaw("NOT ILIKE"),
+            SQLBind(bindableValue)
         )
     }
 }

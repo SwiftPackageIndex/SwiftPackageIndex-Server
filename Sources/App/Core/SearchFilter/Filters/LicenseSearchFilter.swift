@@ -39,11 +39,12 @@ struct LicenseSearchFilter: SearchFilter {
         }
     }
     
-    static var key: String = "license"
-    
-    let comparison: SearchFilterComparison
-    let filterType: FilterType
-    
+    static var key: SearchFilterKey = .license
+
+    var bindableValue: Encodable
+    var displayValue: String
+    var `operator`: SearchFilterComparison
+
     init(value: String, comparison: SearchFilterComparison) throws {
         guard let filterType = FilterType(rawValue: value) else {
             throw SearchFilterError.invalidValueType
@@ -52,35 +53,26 @@ struct LicenseSearchFilter: SearchFilter {
         guard [.match, .negativeMatch].contains(comparison) else {
             throw SearchFilterError.unsupportedComparisonMethod
         }
-        
-        self.comparison = comparison
-        self.filterType = filterType
-    }
-    
-    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
+
         switch filterType {
             case .kind(let kind):
-                return builder.where(
-                    SQLIdentifier("license"),
-                    comparison.binaryOperator(isSet: true),
-                    License.withKind { $0 == kind }
-                )
-                
+                self.bindableValue = License.allCases
+                    .filter { $0.licenseKind == kind }
+                    .map(\.rawValue)
+                self.displayValue = kind.userFacingString
             case .license(let license):
-                return builder.where(
-                    SQLIdentifier("license"),
-                    comparison.binaryOperator(isSet: false),
-                    license.rawValue
-                )
+                self.bindableValue = [license.rawValue]
+                self.displayValue = license.shortName
         }
+        self.operator = comparison
     }
-    
-    func createViewModel() -> SearchFilterViewModel {
-        switch filterType {
-        case .kind(let kind):
-            return .init(key: Self.key, comparison: comparison, value: kind.userFacingString)
-        case .license(let license):
-            return .init(key: Self.key, comparison: comparison, value: license.shortName)
-        }
+
+    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
+        builder.where(
+            Self.key.sqlIdentifier,
+            // override default operators .equal/.notEqual
+            `operator` == .match ? .in : .notIn,
+            SQLBind(bindableValue)
+        )
     }
 }

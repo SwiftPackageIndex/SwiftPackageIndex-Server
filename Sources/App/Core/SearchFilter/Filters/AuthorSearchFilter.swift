@@ -23,33 +23,28 @@ import SQLKit
 /// author:!apple - The author of the package is not 'apple'
 /// ```
 struct AuthorSearchFilter: SearchFilter {
-    static var key: String = "author"
-    
-    var comparison: SearchFilterComparison
-    var value: String
-    
+    static var key: SearchFilterKey = .author
+
+    var bindableValue: Encodable
+    var displayValue: String
+    var `operator`: SearchFilterComparison
+
     init(value: String, comparison: SearchFilterComparison) throws {
         guard [.match, .negativeMatch].contains(comparison) else {
             throw SearchFilterError.unsupportedComparisonMethod
         }
         
-        self.comparison = comparison
-        self.value = value
+        self.bindableValue = value
+        self.displayValue = value
+        self.operator = comparison
     }
     
     func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
         builder.where(
-            SQLIdentifier("repo_owner"),
-            comparison == .match ? SQLRaw("ILIKE") : SQLRaw("NOT ILIKE"),
-            SQLBind(value)
-        )
-    }
-    
-    func createViewModel() -> SearchFilterViewModel {
-        .init(
-            key: "author",
-            comparison: comparison,
-            value: value
+            Self.key.sqlIdentifier,
+            // override default operators .equal/.notEqual
+            `operator` == .match ? SQLRaw("ILIKE") : SQLRaw("NOT ILIKE"),
+            SQLBind(bindableValue)
         )
     }
 }

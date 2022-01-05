@@ -22,10 +22,11 @@ import SQLKit
 /// keyword:macos,linux - The package support macOS and Linux
 /// ```
 struct PlatformSearchFilter: SearchFilter {
-    static var key: String = "platform"
+    static var key: SearchFilterKey = .platform
 
-    var comparison: SearchFilterComparison
-    var value: Set<Package.PlatformCompatibility>
+    var bindableValue: Encodable
+    var displayValue: String
+    var `operator`: SearchFilterComparison
 
     init(value: String, comparison: SearchFilterComparison = .match) throws {
         // We don't support `negativeMatch`, because it's unlikely
@@ -35,7 +36,6 @@ struct PlatformSearchFilter: SearchFilter {
             throw SearchFilterError.unsupportedComparisonMethod
         }
 
-        self.comparison = comparison
         let values = value.split(separator: ",", omittingEmptySubsequences: true)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .map { $0.lowercased() }
@@ -44,22 +44,20 @@ struct PlatformSearchFilter: SearchFilter {
 
         guard !value.isEmpty else { throw SearchFilterError.invalidValueType }
 
-        self.value = value
+        self.bindableValue = value
+        self.displayValue = value
+            .map(\.displayDescription)
+            .sorted()
+            .pluralized()
+        self.operator = comparison
     }
 
     func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
         builder.where(
-            SQLIdentifier("platform_compatibility"),
+            Self.key.sqlIdentifier,
+            // override default operator
             SQLRaw("@>"),
-            SQLBind(value)
-        )
-    }
-
-    func createViewModel() -> SearchFilterViewModel {
-        .init(
-            key: "platform compatibility",
-            comparison: comparison,
-            value: value.map(\.displayDescription).pluralized()
+            SQLBind(bindableValue)
         )
     }
 }
