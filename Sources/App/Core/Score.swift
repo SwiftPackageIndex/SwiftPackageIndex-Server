@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 enum Score {
     struct Input {
         var supportsLatestSwiftVersion: Bool
@@ -20,6 +22,7 @@ enum Score {
         var likeCount: Int
         var isArchived: Bool
         var numberOfDependencies: Int?
+        var lastActivityAt: Date?
     }
     
     static func compute(_ candidate: Input) -> Int {
@@ -61,7 +64,20 @@ enum Score {
             case .some(3..<5): score += 2
             default: break
         }
-        
+
+        // Last maintenance activity
+        if let lastActivityAt = candidate.lastActivityAt {
+            // Note: This is not the most accurate method to calculate the number of days between
+            // two dates, but is more than good enough for the purposes of this calculation.
+            let dateDifference = Calendar.current.dateComponents([.day], from: lastActivityAt, to: Current.date())
+            switch dateDifference.day {
+                case .some(..<30) : score += 15
+                case .some(30..<180) : score += 10
+                case .some(180..<360) : score += 5
+                default: break
+            }
+        }
+
         return score
     }
 
@@ -77,7 +93,8 @@ enum Score {
                   releaseCount: versions.releases.count,
                   likeCount: repo.stars,
                   isArchived: repo.isArchived,
-                  numberOfDependencies: defaultVersion.resolvedDependencies?.count)
+                  numberOfDependencies: defaultVersion.resolvedDependencies?.count,
+                  lastActivityAt: repo.lastActivityAt)
         )
     }
 }
