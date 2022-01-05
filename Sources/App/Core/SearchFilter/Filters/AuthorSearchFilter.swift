@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-import SQLKit
 
 /// Filters by ensuring the author of the package is the provided entity.
 ///
@@ -22,24 +20,21 @@ import SQLKit
 /// author:apple  - The author of the package is 'apple'
 /// author:!apple - The author of the package is not 'apple'
 /// ```
-struct AuthorSearchFilter: SearchFilter {
-    static var key: SearchFilterKey = .author
+struct AuthorSearchFilter: SearchFilterProtocol {
+    static var key: SearchFilter.Key = .author
 
-    var bindableValue: Encodable
-    var displayValue: String
-    var operatorDescription: String
-    var sqlOperator: SQLExpression
+    var predicate: SearchFilter.Predicate
 
-    init(value: String, comparison: SearchFilterComparison) throws {
-        guard [.match, .negativeMatch].contains(comparison) else {
+    init(expression: SearchFilter.Expression) throws {
+        guard [.is, .isNot].contains(expression.operator) else {
             throw SearchFilterError.unsupportedComparisonMethod
         }
         
-        self.bindableValue = value
-        self.displayValue = value
-        self.operatorDescription = comparison.description
-        self.sqlOperator = (comparison == .match)
-        ? SQLRaw("ILIKE")
-        : SQLRaw("NOT ILIKE")
+        self.predicate = .init(
+            operator: (expression.operator == .is) ?
+                .caseInsensitiveLike : .notCaseInsensitiveLike,
+            bindableValue: expression.value,
+            displayValue: expression.value
+        )
     }
 }

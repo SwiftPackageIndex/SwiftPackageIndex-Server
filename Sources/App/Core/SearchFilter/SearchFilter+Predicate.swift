@@ -12,24 +12,90 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-struct SearchFilterPredicate: Equatable {
-    var `operator`: SearchFilterComparison
-    var value: String
+import SQLKit
 
-#if DEBUG
-    // purely used in testing to instatiate an instance for comparison
-    init(operator: SearchFilterComparison, value: String) {
-        self.operator = `operator`
-        self.value = value
+
+extension SearchFilter {
+    struct Predicate {
+        /// The predicate operator, which encapsulates both the SQL and user facing representation
+        var `operator`: PredicateOperator
+
+        /// The value of the filter expression in a format that can be bound in an SQL expression.
+        var bindableValue: Encodable
+
+        /// The value of the filter expression for user facing display.
+        var displayValue: String
+
+        var sqlBind: SQLBind { SQLBind(bindableValue) }
+        var sqlOperator: SQLExpression { `operator`.sqlOperator }
     }
-#endif
+}
 
-    init?(searchTerm: String) {
-        guard let op = SearchFilterComparison(searchTerm: searchTerm) else {
-            return nil
+
+extension SearchFilter {
+
+    /// The predicate operator encapsulates the SQL and user facing representation of the search filter operator.
+    ///
+    /// It is derived from the `ExpressionOperator` which represents the operator as provided in the search
+    /// filter expression by the user. These two operators are distinct, because users can provide search filter
+    /// expressions in a shorthand that gets expanded to SQL operators on a per filter type basis.
+    enum PredicateOperator: Codable, Equatable {
+        case caseInsensitiveLike
+        case notCaseInsensitiveLike
+        case contains
+        case equal
+        case notEqual
+        case greaterThan
+        case greaterThanOrEqual
+        case `in`
+        case notIn
+        case lessThan
+        case lessThanOrEqual
+
+        var sqlOperator: SQLExpression {
+            switch self {
+                case .caseInsensitiveLike:
+                    return SQLRaw("ILIKE")
+                case .notCaseInsensitiveLike:
+                    return SQLRaw("NOT ILIKE")
+                case .contains:
+                    return SQLRaw("@>")
+                case .equal:
+                    return SQLBinaryOperator.equal
+                case .notEqual:
+                    return SQLBinaryOperator.notEqual
+                case .greaterThan:
+                    return SQLBinaryOperator.greaterThan
+                case .greaterThanOrEqual:
+                    return SQLBinaryOperator.greaterThanOrEqual
+                case .in:
+                    return SQLBinaryOperator.in
+                case .notIn:
+                    return SQLBinaryOperator.notIn
+                case .lessThan:
+                    return SQLBinaryOperator.lessThan
+                case .lessThanOrEqual:
+                    return SQLBinaryOperator.lessThanOrEqual
+            }
         }
-        self.operator = op
-        self.value = String(searchTerm.dropFirst(self.`operator`.parseLength))
-        guard !self.value.isEmpty else { return nil }
+
+        var displayString: String {
+            switch self {
+                case .caseInsensitiveLike, .contains, .equal, .in:
+                    return "is"
+                case .notCaseInsensitiveLike, .notEqual, .notIn:
+                    return "is not"
+                case .greaterThan:
+                    return "is greater than"
+                case .greaterThanOrEqual:
+                    return "is greater than or equal to"
+                case .lessThan:
+                return "is less than"
+                case .lessThanOrEqual:
+                    return "is less than or equal to"
+            }
+        }
+
     }
+
 }

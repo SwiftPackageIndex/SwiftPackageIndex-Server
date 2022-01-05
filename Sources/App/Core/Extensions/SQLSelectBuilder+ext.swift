@@ -28,14 +28,14 @@ extension SQLSelectBuilder {
         column(SQLAlias(expression, as: SQLIdentifier(alias)))
     }
 
-    func `where`(searchFilters: [SearchFilter]) -> Self {
+    func `where`(searchFilters: [SearchFilterProtocol]) -> Self {
         self.where(group: { builder in
             searchFilters
                 .prefix(20) // just to impose some form of limit
                 .forEach {
                     builder.where($0.sqlIdentifier,
                                   $0.sqlOperator,
-                                  SQLBind($0.bindableValue))
+                                  $0.sqlBind)
                 }
             return builder
         })

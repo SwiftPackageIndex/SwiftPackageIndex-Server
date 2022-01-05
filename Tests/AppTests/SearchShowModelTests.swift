@@ -27,8 +27,8 @@ class SearchShowModelTests: XCTestCase {
             response: .init(hasMoreResults: false,
                             searchTerm: "query",
                             searchFilters: [
-                                StarsSearchFilter(value: "5",
-                                                  comparison: .match).viewModel
+                                StarsSearchFilter(expression: .init(operator: .is,
+                                                                    value: "5")).viewModel
                             ],
                             results: results))
 

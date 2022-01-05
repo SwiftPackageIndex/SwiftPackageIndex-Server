@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SQLKit
 
 /// Filters by the provided platform.
 ///
@@ -21,23 +20,21 @@ import SQLKit
 /// keyword:ios  - The package supports iOS
 /// keyword:macos,linux - The package support macOS and Linux
 /// ```
-struct PlatformSearchFilter: SearchFilter {
-    static var key: SearchFilterKey = .platform
+struct PlatformSearchFilter: SearchFilterProtocol {
+    static var key: SearchFilter.Key = .platform
 
-    var bindableValue: Encodable
-    var displayValue: String
-    var operatorDescription: String
-    var sqlOperator: SQLExpression
+    var predicate: SearchFilter.Predicate
 
-    init(value: String, comparison: SearchFilterComparison = .match) throws {
-        // We don't support `negativeMatch`, because it's unlikely
+    init(expression: SearchFilter.Expression) throws {
+        // We don't support `isNot`, because it's unlikely
         // people would want to search for packages that _don't_
         // support a platform.
-        guard comparison == .match else {
+        guard expression.operator == .is else {
             throw SearchFilterError.unsupportedComparisonMethod
         }
 
-        let values = value.split(separator: ",", omittingEmptySubsequences: true)
+        let values = expression.value
+            .split(separator: ",", omittingEmptySubsequences: true)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .map { $0.lowercased() }
             .compactMap(Package.PlatformCompatibility.init(rawValue:))
@@ -45,13 +42,14 @@ struct PlatformSearchFilter: SearchFilter {
 
         guard !value.isEmpty else { throw SearchFilterError.invalidValueType }
 
-        self.bindableValue = value
-        self.displayValue = value
-            .map(\.displayDescription)
-            .sorted()
-            .pluralized()
-        self.operatorDescription = comparison.description
-        self.sqlOperator = SQLRaw("@>")
+        self.predicate = .init(
+            operator: .contains,
+            bindableValue: value,
+            displayValue: value
+                .map(\.displayDescription)
+                .sorted { $0.lowercased() < $1.lowercased() }
+                .pluralized()
+        )
     }
 }
 

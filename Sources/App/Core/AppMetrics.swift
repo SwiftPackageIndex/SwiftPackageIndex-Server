@@ -83,7 +83,7 @@ enum AppMetrics {
             var key: String = ""
 
             init() {} // protocol requirement
-            init(key: App.SearchFilterKey) { self.key = key.rawValue }
+            init(key: App.SearchFilter.Key) { self.key = key.rawValue }
         }
     }
 

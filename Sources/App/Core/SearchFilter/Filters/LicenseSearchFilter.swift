@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import SQLKit
+
 
 /// Filters by the license of the package.
 ///
@@ -23,11 +23,50 @@ import SQLKit
 /// license:!compatible - The license is unknown, none is provided, or the one provided is not compatible with the app store
 /// license:mit - The package specifically uses the MIT license (any can be used)
 /// ```
-struct LicenseSearchFilter: SearchFilter {
+struct LicenseSearchFilter: SearchFilterProtocol {
+    static var key: SearchFilter.Key = .license
+
+    var predicate: SearchFilter.Predicate
+
+    init(expression: SearchFilter.Expression) throws {
+        guard let filterType = FilterType(rawValue: expression.value) else {
+            throw SearchFilterError.invalidValueType
+        }
+        
+        let predicateOperator: SearchFilter.PredicateOperator
+        switch expression.operator {
+            case .is:
+                predicateOperator = .in
+            case .isNot:
+                predicateOperator = .notIn
+            default:
+                throw SearchFilterError.unsupportedComparisonMethod
+        }
+
+        switch filterType {
+            case .kind(let kind):
+                self.predicate = .init(
+                    operator: predicateOperator,
+                    bindableValue: License.allCases
+                        .filter { $0.licenseKind == kind }
+                        .map(\.rawValue),
+                    displayValue: kind.userFacingString)
+            case .license(let license):
+                self.predicate = .init(
+                    operator: predicateOperator,
+                    bindableValue: [license.rawValue],
+                    displayValue: license.shortName
+                )
+        }
+    }
+}
+
+
+extension LicenseSearchFilter {
     enum FilterType: Equatable {
         case kind(License.Kind)
         case license(License)
-        
+
         init?(rawValue: String) {
             if let kind = License.Kind(rawValue: rawValue) {
                 self = .kind(kind)
@@ -37,37 +76,5 @@ struct LicenseSearchFilter: SearchFilter {
                 return nil
             }
         }
-    }
-    
-    static var key: SearchFilterKey = .license
-
-    var bindableValue: Encodable
-    var displayValue: String
-    var operatorDescription: String
-    var sqlOperator: SQLExpression
-
-    init(value: String, comparison: SearchFilterComparison) throws {
-        guard let filterType = FilterType(rawValue: value) else {
-            throw SearchFilterError.invalidValueType
-        }
-        
-        guard [.match, .negativeMatch].contains(comparison) else {
-            throw SearchFilterError.unsupportedComparisonMethod
-        }
-
-        switch filterType {
-            case .kind(let kind):
-                self.bindableValue = License.allCases
-                    .filter { $0.licenseKind == kind }
-                    .map(\.rawValue)
-                self.displayValue = kind.userFacingString
-            case .license(let license):
-                self.bindableValue = [license.rawValue]
-                self.displayValue = license.shortName
-        }
-        self.operatorDescription = comparison.description
-        self.sqlOperator = (comparison == .match)
-        ? SQLBinaryOperator.in
-        : .notIn
     }
 }

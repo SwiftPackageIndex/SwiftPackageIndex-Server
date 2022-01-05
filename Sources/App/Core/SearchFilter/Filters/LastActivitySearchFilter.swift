@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import SQLKit
+
 
 /// Filters by the date this package was last updated via a commit or an issue/PR being merged/closed.
 ///
@@ -26,22 +26,20 @@ import SQLKit
 /// last_activity:>2021-10-01 - Last maintenance activity on any day more recent than November 1st 2021
 /// last_activity:<2021-10-01 - Last maintenance activity on any day older than November 1st 2021
 /// ```
-struct LastActivitySearchFilter: SearchFilter {
-    static var key: SearchFilterKey = .lastActivity
+struct LastActivitySearchFilter: SearchFilterProtocol {
+    static var key: SearchFilter.Key = .lastActivity
 
-    var bindableValue: Encodable
-    var displayValue: String
-    var operatorDescription: String
-    var sqlOperator: SQLExpression
+    var predicate: SearchFilter.Predicate
 
-    init(value: String, comparison: SearchFilterComparison) throws {
-        guard let date = DateFormatter.filterParseFormatter.date(from: value) else {
+    init(expression: SearchFilter.Expression) throws {
+        guard let date = DateFormatter.filterParseFormatter.date(from: expression.value) else {
             throw SearchFilterError.invalidValueType
         }
 
-        self.bindableValue = date
-        self.displayValue = DateFormatter.filterDisplayFormatter.string(from: date)
-        self.operatorDescription = comparison.description
-        self.sqlOperator = comparison.defaultSqlOperator
+        self.predicate = .init(
+            operator: expression.operator.defaultPredicateOperator,
+            bindableValue: date,
+            displayValue: DateFormatter.filterDisplayFormatter.string(from: date)
+        )
     }
 }

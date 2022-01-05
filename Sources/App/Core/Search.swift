@@ -65,7 +65,7 @@ enum Search {
     struct Response: Content, Equatable {
         var hasMoreResults: Bool
         var searchTerm: String
-        var searchFilters: [SearchFilterViewModel]
+        var searchFilters: [SearchFilter.ViewModel]
         var results: [Search.Result]
     }
 
@@ -124,7 +124,7 @@ enum Search {
 
     static func packageMatchQueryBuilder(on database: Database,
                                          terms: [String],
-                                         filters: [SearchFilter],
+                                         filters: [SearchFilterProtocol],
                                          offset: Int? = nil,
                                          limit: Int? = nil) -> SQLSelectBuilder {
         guard let db = database as? SQLDatabase else {
@@ -235,7 +235,7 @@ enum Search {
 
     static func query(_ database: Database,
                       _ sanitizedTerms: [String],
-                      filters: [SearchFilter] = [],
+                      filters: [SearchFilterProtocol] = [],
                       page: Int,
                       pageSize: Int) -> SQLSelectBuilder? {
         guard let db = database as? SQLDatabase else {
@@ -285,7 +285,7 @@ enum Search {
                       page: Int,
                       pageSize: Int) -> EventLoopFuture<Search.Response> {
         let page = page.clamped(to: 1...)
-        let (sanitizedTerms, filters) = SearchFilterParser().split(terms: sanitize(terms))
+        let (sanitizedTerms, filters) = SearchFilter.split(terms: sanitize(terms))
         
         // Metrics
         AppMetrics.searchTermsCount?.set(sanitizedTerms.count)
