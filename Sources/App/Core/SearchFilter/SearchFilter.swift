@@ -26,53 +26,46 @@ protocol SearchFilter {
     /// Create an instance of a search filter, using a given string value and comparison operator.
     ///
     /// An error should be thrown if the value cannot be converted to the appropriate type, or if the comparison method is not supported for that filter.
-    @available(*, deprecated)
     init(value: String, comparison: SearchFilterComparison) throws
-    
-    /// Add a SQLKit `where` clause to the "SELECT" expression, using the filter's stored value and provided comparison method for context.
-    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder
 
-//    #warning("can we drop this?")
-//    @available(*, deprecated)
-//    var rawValue: String { get }
+    var sqlIdentifier: SQLIdentifier { get }
 
+    // required
     var bindableValue: Encodable { get }
     var displayValue: String { get }
-    var `operator`: SearchFilterComparison { get }
+    var operatorDescription: String { get }
+    var sqlOperator: SQLExpression { get }
 }
 
 extension SearchFilter {
-    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
-        builder.where(Self.key.sqlIdentifier,
-                      `operator`.binaryOperator,
-                      SQLBind(bindableValue))
-    }
+    var sqlIdentifier: SQLIdentifier { Self.key.sqlIdentifier }
 }
+
 
 #warning("move to view model source file")
 struct SearchFilterViewModel: Equatable, Codable {
-    let key: SearchFilterKey
-    let comparison: SearchFilterComparison
-    let value: String
+    var key: String
+    var `operator`: String
+    var value: String
 }
 
-#warning("flip around and turn it into init(filter: SearchFilter) if possible")
+
 extension SearchFilter {
     /// Creates a simple view model representation of this active filter. This is used to pass through to the view for client-side rendering.
-    func createViewModel() -> SearchFilterViewModel {
-        .init(key: Self.key, comparison: `operator`, value: displayValue)
+    var viewModel: SearchFilterViewModel {
+        .init(key: Self.key.description, operator: operatorDescription, value: displayValue)
     }
 }
 
 
 #warning("rename to SearchFilterOperator")
-enum SearchFilterComparison: String, Codable, Equatable {
-    case greaterThan = ">"
-    case greaterThanOrEqual = ">="
-    case lessThan = "<"
-    case lessThanOrEqual = "<="
+enum SearchFilterComparison: Codable, Equatable {
+    case greaterThan
+    case greaterThanOrEqual
+    case lessThan
+    case lessThanOrEqual
     case match
-    case negativeMatch = "!"
+    case negativeMatch
 
     init?(searchTerm: String) {
         switch searchTerm {
@@ -95,15 +88,18 @@ enum SearchFilterComparison: String, Codable, Equatable {
 
     var parseLength: Int {
         switch self {
-            case .greaterThan, .greaterThanOrEqual, .lessThan, .lessThanOrEqual, .negativeMatch:
-                return rawValue.count
             case .match:
                 return 0
+            case .negativeMatch:
+                return 1
+            case .greaterThan, .lessThan:
+                return 1
+            case .greaterThanOrEqual, .lessThanOrEqual:
+                return 2
         }
     }
 
-    #warning("rename to sqlOperator")
-    var binaryOperator: SQLBinaryOperator {
+    var defaultSqlOperator: SQLBinaryOperator {
         switch self {
             case .greaterThan:
                 return .greaterThan
@@ -119,16 +115,17 @@ enum SearchFilterComparison: String, Codable, Equatable {
                 return .equal
         }
     }
-    
-    @available(*, deprecated)
-    var userFacingString: String {
+}
+
+extension SearchFilterComparison: CustomStringConvertible {
+    var description: String {
         switch self {
-        case .match: return "is"
-        case .negativeMatch: return "is not"
-        case .greaterThan: return "is greater than"
-        case .greaterThanOrEqual: return "is greater than or equal to"
-        case .lessThan: return "is less than"
-        case .lessThanOrEqual: return "is less than or equal to"
+            case .match: return "is"
+            case .negativeMatch: return "is not"
+            case .greaterThan: return "is greater than"
+            case .greaterThanOrEqual: return "is greater than or equal to"
+            case .lessThan: return "is less than"
+            case .lessThanOrEqual: return "is less than or equal to"
         }
     }
 }

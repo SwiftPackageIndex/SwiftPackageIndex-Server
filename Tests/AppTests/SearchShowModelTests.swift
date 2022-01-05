@@ -22,21 +22,24 @@ class SearchShowModelTests: XCTestCase {
         let results: [Search.Result] = .mock()
 
         // MUT
-        let model = SearchShow.Model(page: 1, query: "query key:value", response: .init(hasMoreResults: false,
-                                                                              searchTerm: "query",
-                                                                              searchFilters: [
-                                                                                .init(key: "key", comparison: .match, value: "value"),
-                                                                              ],
-                                                                              results: results))
+        let model = try SearchShow.Model(
+            page: 1, query: "query key:value",
+            response: .init(hasMoreResults: false,
+                            searchTerm: "query",
+                            searchFilters: [
+                                StarsSearchFilter(value: "5",
+                                                  comparison: .match).viewModel
+                            ],
+                            results: results))
 
         XCTAssertEqual(model.page, 1)
         XCTAssertEqual(model.query, "query key:value")
         XCTAssertEqual(model.term, "query")
 
         XCTAssertEqual(model.filters.count, 1)
-        XCTAssertEqual(model.filters[0].key, "key")
-        XCTAssertEqual(model.filters[0].comparison, .match)
-        XCTAssertEqual(model.filters[0].value, "value")
+        XCTAssertEqual(model.filters[0].key, "stars")
+        XCTAssertEqual(model.filters[0].operator, "is")
+        XCTAssertEqual(model.filters[0].value, "5")
 
         XCTAssertEqual(model.response.hasMoreResults, false)
         XCTAssertEqual(model.response.results.count, 10)

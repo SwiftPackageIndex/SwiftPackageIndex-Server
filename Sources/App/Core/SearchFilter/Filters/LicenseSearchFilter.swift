@@ -43,7 +43,8 @@ struct LicenseSearchFilter: SearchFilter {
 
     var bindableValue: Encodable
     var displayValue: String
-    var `operator`: SearchFilterComparison
+    var operatorDescription: String
+    var sqlOperator: SQLExpression
 
     init(value: String, comparison: SearchFilterComparison) throws {
         guard let filterType = FilterType(rawValue: value) else {
@@ -64,15 +65,9 @@ struct LicenseSearchFilter: SearchFilter {
                 self.bindableValue = [license.rawValue]
                 self.displayValue = license.shortName
         }
-        self.operator = comparison
-    }
-
-    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
-        builder.where(
-            Self.key.sqlIdentifier,
-            // override default operators .equal/.notEqual
-            `operator` == .match ? .in : .notIn,
-            SQLBind(bindableValue)
-        )
+        self.operatorDescription = comparison.description
+        self.sqlOperator = (comparison == .match)
+        ? SQLBinaryOperator.in
+        : .notIn
     }
 }

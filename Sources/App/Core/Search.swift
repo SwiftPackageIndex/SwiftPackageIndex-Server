@@ -311,7 +311,7 @@ enum Search {
                 : pageSize
                 return Search.Response(hasMoreResults: hasMoreResults,
                                        searchTerm: sanitizedTerms.joined(separator: " "),
-                                       searchFilters: filters.map { $0.createViewModel() },
+                                       searchFilters: filters.map { $0.viewModel },
                                        results: Array(results.prefix(keep)))
             }
     }

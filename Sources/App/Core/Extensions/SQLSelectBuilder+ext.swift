@@ -32,7 +32,12 @@ extension SQLSelectBuilder {
         self.where(group: { builder in
             searchFilters
                 .prefix(20) // just to impose some form of limit
-                .reduce(builder) { $1.where($0) }
+                .forEach {
+                    builder.where($0.sqlIdentifier,
+                                  $0.sqlOperator,
+                                  SQLBind($0.bindableValue))
+                }
+            return builder
         })
     }
 }

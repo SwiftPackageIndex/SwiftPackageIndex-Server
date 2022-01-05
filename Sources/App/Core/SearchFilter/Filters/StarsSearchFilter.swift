@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import SQLKit
 
 /// Filters by the number of stars the package has.
 ///
@@ -28,7 +29,8 @@ struct StarsSearchFilter: SearchFilter {
 
     var bindableValue: Encodable
     var displayValue: String
-    var `operator`: SearchFilterComparison
+    var operatorDescription: String
+    var sqlOperator: SQLExpression
 
     init(value: String, comparison: SearchFilterComparison) throws {
         guard let intValue = Int(value) else {
@@ -37,6 +39,7 @@ struct StarsSearchFilter: SearchFilter {
 
         self.bindableValue = intValue
         self.displayValue = NumberFormatter.spiDefault.string(from: NSNumber(value: intValue)) ?? value
-        self.operator = comparison
+        self.operatorDescription = comparison.description
+        self.sqlOperator = comparison.defaultSqlOperator
     }
 }

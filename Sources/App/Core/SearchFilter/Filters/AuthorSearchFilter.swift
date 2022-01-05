@@ -27,7 +27,8 @@ struct AuthorSearchFilter: SearchFilter {
 
     var bindableValue: Encodable
     var displayValue: String
-    var `operator`: SearchFilterComparison
+    var operatorDescription: String
+    var sqlOperator: SQLExpression
 
     init(value: String, comparison: SearchFilterComparison) throws {
         guard [.match, .negativeMatch].contains(comparison) else {
@@ -36,15 +37,9 @@ struct AuthorSearchFilter: SearchFilter {
         
         self.bindableValue = value
         self.displayValue = value
-        self.operator = comparison
-    }
-    
-    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
-        builder.where(
-            Self.key.sqlIdentifier,
-            // override default operators .equal/.notEqual
-            `operator` == .match ? SQLRaw("ILIKE") : SQLRaw("NOT ILIKE"),
-            SQLBind(bindableValue)
-        )
+        self.operatorDescription = comparison.description
+        self.sqlOperator = (comparison == .match)
+        ? SQLRaw("ILIKE")
+        : SQLRaw("NOT ILIKE")
     }
 }

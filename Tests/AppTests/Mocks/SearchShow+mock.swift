@@ -29,7 +29,7 @@ extension SearchShow.Model {
                      response: .init(hasMoreResults: true,
                                      searchTerm: "query",
                                      searchFilters: [
-                                        .init(key: .license, comparison: .match, value: "mit")
+                                        .init(key: "license", operator: "is", value: "mit")
                                      ],
                                      results: results))
     }

@@ -26,7 +26,8 @@ struct PlatformSearchFilter: SearchFilter {
 
     var bindableValue: Encodable
     var displayValue: String
-    var `operator`: SearchFilterComparison
+    var operatorDescription: String
+    var sqlOperator: SQLExpression
 
     init(value: String, comparison: SearchFilterComparison = .match) throws {
         // We don't support `negativeMatch`, because it's unlikely
@@ -49,16 +50,8 @@ struct PlatformSearchFilter: SearchFilter {
             .map(\.displayDescription)
             .sorted()
             .pluralized()
-        self.operator = comparison
-    }
-
-    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
-        builder.where(
-            Self.key.sqlIdentifier,
-            // override default operator
-            SQLRaw("@>"),
-            SQLBind(bindableValue)
-        )
+        self.operatorDescription = comparison.description
+        self.sqlOperator = SQLRaw("@>")
     }
 }
 

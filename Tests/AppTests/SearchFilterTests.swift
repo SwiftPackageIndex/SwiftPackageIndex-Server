@@ -17,28 +17,34 @@
 import SQLKit
 import XCTVapor
 import SnapshotTesting
+import XCTest
 
 class SearchFilterTests: AppTestCase {
     
-    func test_allSearchFilters() {
-        XCTAssertEqual(
-            SearchFilterParser
-                .allSearchFilters
-                .map { $0.key }
-                .sorted(),
-            ["author", "keyword", "last_activity", "last_commit", "license", "platform", "stars"]
-        )
+    func test_SearchFilterComparison_init() throws {
+        XCTAssertEqual(SearchFilterComparison(searchTerm: ">5"), .greaterThan)
+        XCTAssertEqual(SearchFilterComparison(searchTerm: ">=5"), .greaterThanOrEqual)
+        XCTAssertEqual(SearchFilterComparison(searchTerm: "<5"), .lessThan)
+        XCTAssertEqual(SearchFilterComparison(searchTerm: "<=5"), .lessThanOrEqual)
+        XCTAssertEqual(SearchFilterComparison(searchTerm: "!5"), .negativeMatch)
+        XCTAssertEqual(SearchFilterComparison(searchTerm: "5"), .match)
+        XCTAssertEqual(SearchFilterComparison(searchTerm: ""), nil)
     }
-    
+
+    func test_SearchFilterComparator() throws {
+        XCTAssertEqual(SearchFilterPredicate(searchTerm: "5"),
+                       .init(operator: .match, value: "5"))
+        XCTAssertEqual(SearchFilterPredicate(searchTerm: "!5"),
+                       .init(operator: .negativeMatch, value: "5"))
+        XCTAssertEqual(SearchFilterPredicate(searchTerm: ">=5"),
+                       .init(operator: .greaterThanOrEqual, value: "5"))
+        XCTAssertEqual(SearchFilterPredicate(searchTerm: "!with space"),
+                       .init(operator: .negativeMatch, value: "with space"))
+    }
+
     func test_parseTerm() {
         let parser = SearchFilterParser()
-        
-        func mockParse(term: String) throws -> MockSearchFilter {
-            try XCTUnwrap(parser.parse(term: term, allFilters: [
-                MockSearchFilter.self
-            ]) as? MockSearchFilter)
-        }
-        
+
         do { // No colon
             XCTAssertNil(parser.parse(term: "a"))
         }
@@ -48,24 +54,14 @@ class SearchFilterTests: AppTestCase {
         }
         
         do { // Comparison method
-            try XCTAssertEqual(mockParse(term: "mock:1").comparison, .match)
-            try XCTAssertEqual(mockParse(term: "mock:>1").comparison, .greaterThan)
-            try XCTAssertEqual(mockParse(term: "mock:<1").comparison, .lessThan)
-            try XCTAssertEqual(mockParse(term: "mock:>=1").comparison, .greaterThanOrEqual)
-            try XCTAssertEqual(mockParse(term: "mock:<=1").comparison, .lessThanOrEqual)
-            try XCTAssertEqual(mockParse(term: "mock:!1").comparison, .negativeMatch)
+            XCTAssertEqual(parser.parse(term: "stars:1")?.operator, .match)
+            XCTAssertEqual(parser.parse(term: "stars:>1")?.operator, .greaterThan)
+            XCTAssertEqual(parser.parse(term: "stars:<1")?.operator, .lessThan)
+            XCTAssertEqual(parser.parse(term: "stars:>=1")?.operator, .greaterThanOrEqual)
+            XCTAssertEqual(parser.parse(term: "stars:<=1")?.operator, .lessThanOrEqual)
+            XCTAssertEqual(parser.parse(term: "stars:!1")?.operator, .negativeMatch)
         }
-        
-        do { // Correct value
-            try XCTAssertEqual(mockParse(term: "mock:test").value, "test") // 0 char comparison
-            try XCTAssertEqual(mockParse(term: "mock:!test").value, "test") // 1 char comparison
-            try XCTAssertEqual(mockParse(term: "mock:>=test").value, "test") // 2 char comparison
-            
-            // terms are usually tokenised based on spaces meaning this should, in theory,
-            // never happen. However, the filter system does support it.
-            try XCTAssertEqual(mockParse(term: "mock:!with space").value, "with space")
-        }
-        
+
         do { // No valid filter
             XCTAssertNil(parser.parse(term: "invalid:true"))
         }
@@ -87,25 +83,18 @@ class SearchFilterTests: AppTestCase {
     }
     
     func test_binaryOperator() {
-        let matrix: [(SearchFilterComparison, Bool, SQLBinaryOperator, UInt)] = [
-            (.greaterThan, false, .greaterThan, #line),
-            (.lessThan, false, .lessThan, #line),
-            (.greaterThanOrEqual, false, .greaterThanOrEqual, #line),
-            (.lessThanOrEqual, false, .lessThanOrEqual, #line),
-            (.match, false, .equal, #line),
-            (.negativeMatch, false, .notEqual, #line),
-            
-            (.greaterThan, true, .greaterThan, #line),
-            (.lessThan, true, .lessThan, #line),
-            (.greaterThanOrEqual, true, .greaterThanOrEqual, #line),
-            (.lessThanOrEqual, true, .lessThanOrEqual, #line),
-            (.match, true, .in, #line),
-            (.negativeMatch, true, .notIn, #line),
+        let matrix: [(SearchFilterComparison, SQLBinaryOperator, UInt)] = [
+            (.greaterThan, .greaterThan, #line),
+            (.lessThan, .lessThan, #line),
+            (.greaterThanOrEqual, .greaterThanOrEqual, #line),
+            (.lessThanOrEqual, .lessThanOrEqual, #line),
+            (.match, .equal, #line),
+            (.negativeMatch, .notEqual, #line),
         ]
         
-        matrix.forEach { comparison, isSet, sqlOperator, line in
+        matrix.forEach { comparison, sqlOperator, line in
             XCTAssertEqual(
-                comparison.binaryOperator(isSet: isSet),
+                comparison.binaryOperator,
                 sqlOperator,
                 line: line
             )
@@ -115,111 +104,116 @@ class SearchFilterTests: AppTestCase {
     // MARK: Filters
     
     func test_starsFilter() throws {
-        XCTAssertEqual(StarsSearchFilter.key, "stars")
+        XCTAssertEqual(StarsSearchFilter.key, .stars)
         XCTAssertThrowsError(try StarsSearchFilter(value: "one", comparison: .match))
-        XCTAssertEqual(try StarsSearchFilter(value: "1", comparison: .match).value, 1)
+        XCTAssertEqual(try StarsSearchFilter(value: "1", comparison: .match).bindableValue as? Int, 1)
         XCTAssertEqual(
             try StarsSearchFilter(value: "1", comparison: .match).createViewModel().description,
             "stars is 1"
         )
         
         let filter = try StarsSearchFilter(value: "1", comparison: .greaterThan)
-        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
-            .where(searchFilters: [filter])
-        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
-            SELECT  WHERE ("stars" > $1)
-            """)
-        XCTAssertEqual(binds(builder), ["1"])
+        XCTFail("fix test")
+//        let s = renderSQL(filter.where(SQLSelectBuilder(on: app.db as! SQLDatabase)))
+//        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+//            .where(searchFilters: [filter])
+//        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
+//            SELECT  WHERE ("stars" > $1)
+//            """)
+//        XCTAssertEqual(binds(builder), ["1"])
     }
     
     func test_licenseFilter() throws {
-        XCTAssertEqual(LicenseSearchFilter.key, "license")
+        XCTAssertEqual(LicenseSearchFilter.key, .license)
         XCTAssertThrowsError(try LicenseSearchFilter(value: "compatible", comparison: .greaterThan))
-        XCTAssertEqual(try LicenseSearchFilter(value: "compatible", comparison: .match).filterType, .kind(.compatibleWithAppStore))
         XCTAssertEqual(
             try LicenseSearchFilter(value: "compatible", comparison: .match).createViewModel().description,
             "license is compatible with the App Store"
         )
-        
-        func createLicenseQuery(input: String, comparison: SearchFilterComparison = .match) throws -> SQLSelectBuilder {
-            let filter = try LicenseSearchFilter(value: input, comparison: comparison)
-            return SQLSelectBuilder(on: app.db as! SQLDatabase)
-                .where(searchFilters: [filter])
-        }
 
-        do {
-            let q = try createLicenseQuery(input: "compatible")
-            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
-            SELECT  WHERE ("license" IN ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24))
-            """)
-            XCTAssertEqual(binds(q), ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"])
-        }
+        #warning("rework this test into just testing the where clause")
+        XCTFail("fix test")
+//        func createLicenseQuery(input: String, comparison: SearchFilterComparison = .match) throws -> SQLSelectBuilder {
+//            let filter = try LicenseSearchFilter(value: input, comparison: comparison)
+//            return SQLSelectBuilder(on: app.db as! SQLDatabase)
+//                .where(searchFilters: [filter])
+//        }
 
-        do {
-            let q = try createLicenseQuery(input: "mit")
-            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
-                SELECT  WHERE ("license" = $1)
-                """)
-            XCTAssertEqual(binds(q), ["mit"])
-        }
-
-        do {
-            let q = try createLicenseQuery(input: "incompatible")
-            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
-            SELECT  WHERE ("license" IN ($1, $2, $3, $4, $5, $6, $7))
-            """)
-            XCTAssertEqual(binds(q), ["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"])
-        }
-
-        do {
-            let q = try createLicenseQuery(input: "none")
-            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
-                SELECT  WHERE ("license" IN ($1))
-                """)
-            XCTAssertEqual(binds(q), ["none"])
-        }
-
-        do {
-            let q = try createLicenseQuery(input: "other")
-            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
-                SELECT  WHERE ("license" IN ($1))
-                """)
-            XCTAssertEqual(binds(q), ["other"])
-        }
+//        do {
+//            let q = try createLicenseQuery(input: "compatible")
+//            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
+//            SELECT  WHERE ("license" IN ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24))
+//            """)
+//            XCTAssertEqual(binds(q), ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"])
+//        }
+//
+//        do {
+//            let q = try createLicenseQuery(input: "mit")
+//            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
+//                SELECT  WHERE ("license" = $1)
+//                """)
+//            XCTAssertEqual(binds(q), ["mit"])
+//        }
+//
+//        do {
+//            let q = try createLicenseQuery(input: "incompatible")
+//            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
+//            SELECT  WHERE ("license" IN ($1, $2, $3, $4, $5, $6, $7))
+//            """)
+//            XCTAssertEqual(binds(q), ["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"])
+//        }
+//
+//        do {
+//            let q = try createLicenseQuery(input: "none")
+//            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
+//                SELECT  WHERE ("license" IN ($1))
+//                """)
+//            XCTAssertEqual(binds(q), ["none"])
+//        }
+//
+//        do {
+//            let q = try createLicenseQuery(input: "other")
+//            _assertInlineSnapshot(matching: renderSQL(q), as: .lines, with: """
+//                SELECT  WHERE ("license" IN ($1))
+//                """)
+//            XCTAssertEqual(binds(q), ["other"])
+//        }
     }
     
     func test_lastCommitFilter() throws {
         XCTAssertThrowsError(try LastCommitSearchFilter(value: "23rd June 2021", comparison: .match))
-        XCTAssertEqual(try LastCommitSearchFilter(value: "1970-01-01", comparison: .match).date, .t0)
+        XCTAssertEqual(try LastCommitSearchFilter(value: "1970-01-01", comparison: .match).bindableValue as? Date, .t0)
         XCTAssertEqual(
             try LastCommitSearchFilter(value: "1970-01-01", comparison: .match).createViewModel().description,
             "last commit is 1 Jan 1970"
         )
 
         let filter = try LastCommitSearchFilter(value: "1970-01-01", comparison: .match)
-        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
-            .where(searchFilters: [filter])
-        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
-            SELECT  WHERE ("last_commit_date" = $1)
-            """)
-        XCTAssertEqual(binds(builder), ["1970-01-01"])
+        XCTFail("fix test")
+//        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+//            .where(searchFilters: [filter])
+//        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
+//            SELECT  WHERE ("last_commit_date" = $1)
+//            """)
+//        XCTAssertEqual(binds(builder), ["1970-01-01"])
     }
     
     func test_lastActivityFilter() throws {
         XCTAssertThrowsError(try LastActivitySearchFilter(value: "23rd June 2021", comparison: .match))
-        XCTAssertEqual(try LastActivitySearchFilter(value: "1970-01-01", comparison: .match).date, .t0)
+        XCTAssertEqual(try LastActivitySearchFilter(value: "1970-01-01", comparison: .match).bindableValue as? Date, .t0)
         XCTAssertEqual(
             try LastActivitySearchFilter(value: "1970-01-01", comparison: .match).createViewModel().description,
             "last activity is 1 Jan 1970"
         )
 
         let filter = try LastActivitySearchFilter(value: "1970-01-01", comparison: .match)
-        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
-            .where(searchFilters: [filter])
-        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
-            SELECT  WHERE ("last_activity_at" = $1)
-            """)
-        XCTAssertEqual(binds(builder), ["1970-01-01"])
+        XCTFail("fix test")
+//        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+//            .where(searchFilters: [filter])
+//        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
+//            SELECT  WHERE ("last_activity_at" = $1)
+//            """)
+//        XCTAssertEqual(binds(builder), ["1970-01-01"])
     }
     
     func test_authorFilter() throws {
@@ -230,12 +224,13 @@ class SearchFilterTests: AppTestCase {
         )
 
         let filter = try AuthorSearchFilter(value: "sherlouk", comparison: .match)
-        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
-            .where(searchFilters: [filter])
-        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
-            SELECT  WHERE ("repo_owner" ILIKE $1)
-            """)
-        XCTAssertEqual(binds(builder), ["sherlouk"])
+        XCTFail("fix test")
+//        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+//            .where(searchFilters: [filter])
+//        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
+//            SELECT  WHERE ("repo_owner" ILIKE $1)
+//            """)
+//        XCTAssertEqual(binds(builder), ["sherlouk"])
     }
     
     func test_keywordFilter() throws {
@@ -246,12 +241,13 @@ class SearchFilterTests: AppTestCase {
         )
 
         let filter = try KeywordSearchFilter(value: "cache", comparison: .match)
-        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
-            .where(searchFilters: [filter])
-        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
-            SELECT  WHERE ("keyword" ILIKE $1)
-            """)
-        XCTAssertEqual(binds(builder), ["%cache%"])
+        XCTFail("fix test")
+//        let builder = SQLSelectBuilder(on: app.db as! SQLDatabase)
+//            .where(searchFilters: [filter])
+//        _assertInlineSnapshot(matching: renderSQL(builder), as: .lines, with: """
+//            SELECT  WHERE ("keyword" ILIKE $1)
+//            """)
+//        XCTAssertEqual(binds(builder), ["%cache%"])
     }
 
     func test_platformFilter() throws {
@@ -275,34 +271,21 @@ class SearchFilterTests: AppTestCase {
 
         XCTAssertEqual(try PlatformSearchFilter(value: "iOS,macos,MacOS X").value, [.ios, .macos])
         XCTAssertEqual(try PlatformSearchFilter(value: "iOS,macos,ios").value, [.ios, .macos])
+
+        #warning("test display value")
     }
 
-    // MARK: Mock
-    
-    struct MockSearchFilter: SearchFilter {
-        static var key: String = "mock"
-        
-        let value: String
-        let comparison: SearchFilterComparison
-        
-        init(value: String, comparison: SearchFilterComparison) throws {
-            self.value = value
-            self.comparison = comparison
-        }
-        
-        func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
-            return builder
-        }
-        
-        func createViewModel() -> SearchFilterViewModel {
-            .init(key: Self.key, comparison: comparison, value: value)
-        }
-    }
-    
 }
 
 extension SearchFilterViewModel: CustomStringConvertible {
     public var description: String {
         "\(key) \(comparison.userFacingString) \(value)"
+    }
+}
+
+
+private extension PlatformSearchFilter {
+    var value: Set<Package.PlatformCompatibility>? {
+        bindableValue as? Set<Package.PlatformCompatibility>
     }
 }

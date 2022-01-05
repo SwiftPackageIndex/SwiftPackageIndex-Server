@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import SQLKit
 
 /// Filters by the date this package was last updated via a commit or an issue/PR being merged/closed.
 ///
@@ -28,9 +29,10 @@ import Foundation
 struct LastActivitySearchFilter: SearchFilter {
     static var key: SearchFilterKey = .lastActivity
 
-    let bindableValue: Encodable
-    let displayValue: String
-    let `operator`: SearchFilterComparison
+    var bindableValue: Encodable
+    var displayValue: String
+    var operatorDescription: String
+    var sqlOperator: SQLExpression
 
     init(value: String, comparison: SearchFilterComparison) throws {
         guard let date = DateFormatter.filterParseFormatter.date(from: value) else {
@@ -39,6 +41,7 @@ struct LastActivitySearchFilter: SearchFilter {
 
         self.bindableValue = date
         self.displayValue = DateFormatter.filterDisplayFormatter.string(from: date)
-        self.operator = comparison
+        self.operatorDescription = comparison.description
+        self.sqlOperator = comparison.defaultSqlOperator
     }
 }
