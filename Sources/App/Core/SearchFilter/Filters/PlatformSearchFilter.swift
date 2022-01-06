@@ -44,7 +44,7 @@ struct PlatformSearchFilter: SearchFilterProtocol {
 
         self.predicate = .init(
             operator: .contains,
-            bindableValue: value,
+            bindableValue: .value(value),
             displayValue: value
                 .map(\.displayDescription)
                 .sorted { $0.lowercased() < $1.lowercased() }

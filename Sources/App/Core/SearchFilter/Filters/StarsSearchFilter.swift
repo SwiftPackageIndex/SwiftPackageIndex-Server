@@ -36,7 +36,7 @@ struct StarsSearchFilter: SearchFilterProtocol {
 
         self.predicate = .init(
             operator: expression.operator.defaultPredicateOperator,
-            bindableValue: intValue,
+            bindableValue: .value(intValue),
             displayValue: NumberFormatter.spiDefault.string(from: NSNumber(value: intValue)) ?? expression.value
         )
     }

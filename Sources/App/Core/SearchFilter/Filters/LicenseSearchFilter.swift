@@ -47,14 +47,14 @@ struct LicenseSearchFilter: SearchFilterProtocol {
             case .kind(let kind):
                 self.predicate = .init(
                     operator: predicateOperator,
-                    bindableValue: License.allCases
+                    bindableValue: .array(License.allCases
                         .filter { $0.licenseKind == kind }
-                        .map(\.rawValue),
+                        .map(\.rawValue)),
                     displayValue: kind.userFacingString)
             case .license(let license):
                 self.predicate = .init(
                     operator: predicateOperator,
-                    bindableValue: [license.rawValue],
+                    bindableValue: .array([license.rawValue]),
                     displayValue: license.shortName
                 )
         }

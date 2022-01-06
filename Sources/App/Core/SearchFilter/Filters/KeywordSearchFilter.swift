@@ -33,7 +33,7 @@ struct KeywordSearchFilter: SearchFilterProtocol {
         self.predicate = .init(
             operator: (expression.operator == .is) ?
                 .caseInsensitiveLike : .notCaseInsensitiveLike,
-            bindableValue: "%\(expression.value)%",
+            bindableValue: .value("%\(expression.value)%"),
             displayValue: expression.value
         )
     }

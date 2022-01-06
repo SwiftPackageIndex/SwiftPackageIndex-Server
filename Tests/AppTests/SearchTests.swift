@@ -104,9 +104,9 @@ class SearchTests: AppTestCase {
         )
 
         _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
-            SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("license" IN $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+            SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("license" IN ($2)) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
             """)
-        XCTAssertEqual(binds(b), ["a", #"["mit"]"#, "a"])
+        XCTAssertEqual(binds(b), ["a", "mit", "a"])
     }
 
     func test_packageMatchQuery_PlatformSearchFilter() throws {

@@ -67,27 +67,27 @@ class SearchFilterTests: AppTestCase {
         do { // Comparison method
             XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:1")?.predicate,
                            .init(operator: .equal,
-                                 bindableValue: "1",
+                                 bindableValue: .value("1"),
                                  displayValue: "1"))
             XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:>1")?.predicate,
                            .init(operator: .greaterThan,
-                                 bindableValue: "1",
+                                 bindableValue: .value("1"),
                                  displayValue: "1"))
             XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:<1")?.predicate,
                            .init(operator: .lessThan,
-                                 bindableValue: "1",
+                                 bindableValue: .value("1"),
                                  displayValue: "1"))
             XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:>=1")?.predicate,
                            .init(operator: .greaterThanOrEqual,
-                                 bindableValue: "1",
+                                 bindableValue: .value("1"),
                                  displayValue: "1"))
             XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:<=1")?.predicate,
                            .init(operator: .lessThanOrEqual,
-                                 bindableValue: "1",
+                                 bindableValue: .value("1"),
                                  displayValue: "1"))
             XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:!1")?.predicate,
                            .init(operator: .notEqual,
-                                 bindableValue: "1",
+                                 bindableValue: .value("1"),
                                  displayValue: "1"))
         }
 
@@ -117,7 +117,7 @@ class SearchFilterTests: AppTestCase {
                                                               value: "sherlouk"))
         XCTAssertEqual(filter.key, .author)
         XCTAssertEqual(filter.predicate, .init(operator: .caseInsensitiveLike,
-                                               bindableValue: "sherlouk",
+                                               bindableValue: .value("sherlouk"),
                                                displayValue: "sherlouk"))
 
         // test view representation
@@ -140,7 +140,7 @@ class SearchFilterTests: AppTestCase {
                                                                value: "cache"))
         XCTAssertEqual(filter.key, .keyword)
         XCTAssertEqual(filter.predicate, .init(operator: .caseInsensitiveLike,
-                                               bindableValue: "%cache%",
+                                               bindableValue: .value("%cache%"),
                                                displayValue: "cache"))
 
         // test view representation
@@ -163,7 +163,7 @@ class SearchFilterTests: AppTestCase {
                                                                value: "1970-01-01"))
         XCTAssertEqual(filter.key, .lastActivity)
         XCTAssertEqual(filter.predicate, .init(operator: .equal,
-                                               bindableValue: "1970-01-01",
+                                               bindableValue: .value("1970-01-01"),
                                                displayValue: "1 Jan 1970"))
 
         // test view representation
@@ -187,7 +187,7 @@ class SearchFilterTests: AppTestCase {
                                                                value: "1970-01-01"))
         XCTAssertEqual(filter.key, .lastCommit)
         XCTAssertEqual(filter.predicate, .init(operator: .equal,
-                                               bindableValue: "1970-01-01",
+                                               bindableValue: .value("1970-01-01"),
                                                displayValue: "1 Jan 1970"))
 
         // test view representation
@@ -211,7 +211,7 @@ class SearchFilterTests: AppTestCase {
                                                                value: "compatible"))
         XCTAssertEqual(filter.key, .license)
         XCTAssertEqual(filter.predicate, .init(operator: .in,
-                                               bindableValue: ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"],
+                                               bindableValue: .array(["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"]),
                                                displayValue: "compatible with the App Store"))
 
         // test view representation
@@ -220,7 +220,7 @@ class SearchFilterTests: AppTestCase {
         // test sql representation
         XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""license""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.sqlBind), [#"["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"]"#])
+        XCTAssertEqual(binds(filter.sqlBind), ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"])
     }
 
     func test_licenseFilter_single() throws {
@@ -228,7 +228,7 @@ class SearchFilterTests: AppTestCase {
                                                                value: "mit"))
         XCTAssertEqual(filter.key, .license)
         XCTAssertEqual(filter.predicate, .init(operator: .in,
-                                               bindableValue: ["mit"],
+                                               bindableValue: .array(["mit"]),
                                                displayValue: "MIT"))
 
         // test view representation
@@ -237,26 +237,28 @@ class SearchFilterTests: AppTestCase {
         // test sql representation
         XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""license""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.sqlBind), [#"["mit"]"#])
+        XCTAssertEqual(binds(filter.sqlBind), ["mit"])
     }
+
+    typealias BoundValue = SearchFilter.Predicate.BoundValue
 
     func test_licenseFilter_case_insensitive() throws {
         XCTAssertEqual(
             try LicenseSearchFilter(
                 expression: .init(operator: .is,
-                                  value: "mit")).predicate.bindableValue as? [String],
+                                  value: "mit")).bindableValue,
             ["mit"]
         )
         XCTAssertEqual(
             try LicenseSearchFilter(
                 expression: .init(operator: .is,
-                                  value: "MIT")).predicate.bindableValue as? [String],
+                                  value: "MIT")).bindableValue,
             ["mit"]
         )
         XCTAssertEqual(
             try LicenseSearchFilter(
                 expression: .init(operator: .is,
-                                  value: "Compatible")).predicate.bindableValue as? [String],
+                                  value: "Compatible")).bindableValue,
             ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"]
         )
     }
@@ -266,7 +268,7 @@ class SearchFilterTests: AppTestCase {
                                                                value: "incompatible"))
         XCTAssertEqual(filter.key, .license)
         XCTAssertEqual(filter.predicate, .init(operator: .in,
-                                               bindableValue: ["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"],
+                                               bindableValue: .array(["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"]),
                                                displayValue: "incompatible with the App Store"))
 
         // test view representation
@@ -275,7 +277,7 @@ class SearchFilterTests: AppTestCase {
         // test sql representation
         XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""license""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.sqlBind), [#"["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"]"#])
+        XCTAssertEqual(binds(filter.sqlBind), ["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"])
     }
 
     func test_licenseFilter_none() throws {
@@ -283,7 +285,7 @@ class SearchFilterTests: AppTestCase {
                                                                value: "none"))
         XCTAssertEqual(filter.key, .license)
         XCTAssertEqual(filter.predicate, .init(operator: .in,
-                                               bindableValue: ["none"],
+                                               bindableValue: .array(["none"]),
                                                displayValue: "not defined"))
 
         // test view representation
@@ -292,7 +294,7 @@ class SearchFilterTests: AppTestCase {
         // test sql representation
         XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""license""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.sqlBind), [#"["none"]"#])
+        XCTAssertEqual(binds(filter.sqlBind), ["none"])
     }
 
     func test_licenseFilter_other() throws {
@@ -300,7 +302,7 @@ class SearchFilterTests: AppTestCase {
                                                                value: "other"))
         XCTAssertEqual(filter.key, .license)
         XCTAssertEqual(filter.predicate, .init(operator: .in,
-                                               bindableValue: ["other"],
+                                               bindableValue: .array(["other"]),
                                                displayValue: "unknown"))
 
         // test view representation
@@ -309,7 +311,7 @@ class SearchFilterTests: AppTestCase {
         // test sql representation
         XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""license""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.sqlBind), [#"["other"]"#])
+        XCTAssertEqual(binds(filter.sqlBind), ["other"])
     }
 
     func test_licenseFilter_error() throws {
@@ -327,7 +329,7 @@ class SearchFilterTests: AppTestCase {
                                                                     value: "ios"))
             XCTAssertEqual(filter.key, .platform)
             XCTAssertEqual(filter.predicate, .init(operator: .contains,
-                                                   bindableValue: "ios",
+                                                   bindableValue: .value("ios"),
                                                    displayValue: "iOS"))
 
             // test view representation
@@ -397,7 +399,7 @@ class SearchFilterTests: AppTestCase {
         let filter = try StarsSearchFilter(expression: .init(operator: .is, value: "1234"))
         XCTAssertEqual(filter.key, .stars)
         XCTAssertEqual(filter.predicate, .init(operator: .equal,
-                                               bindableValue: "1234",
+                                               bindableValue: .value("1234"),
                                                displayValue: "1,234"))
 
         // test view representation
@@ -428,7 +430,20 @@ extension SearchFilter.ViewModel: CustomStringConvertible {
 
 private extension PlatformSearchFilter {
     var bindableValue: Set<Package.PlatformCompatibility>? {
-        predicate.bindableValue as? Set<Package.PlatformCompatibility>
+        guard case let .value(value) = predicate.bindableValue else {
+            return nil
+        }
+        return value as? Set<Package.PlatformCompatibility>
+    }
+}
+
+
+private extension LicenseSearchFilter {
+    var bindableValue: [String]? {
+        guard case let .array(value) = predicate.bindableValue else {
+            return nil
+        }
+        return value as? [String]
     }
 }
 
@@ -442,9 +457,16 @@ private extension SearchFilterProtocol {
 
 extension SearchFilter.Predicate: Equatable {
     public static func == (lhs: SearchFilter.Predicate, rhs: SearchFilter.Predicate) -> Bool {
-        return lhs.operator == rhs.operator
-        && renderSQL(lhs.sqlBind) == renderSQL(rhs.sqlBind)
+        lhs.operator == rhs.operator
+        && lhs.bindableValue == rhs.bindableValue
         && lhs.displayValue == rhs.displayValue
+    }
+}
+
+
+extension SearchFilter.Predicate.BoundValue: Equatable {
+    public static func == (lhs: SearchFilter.Predicate.BoundValue, rhs: SearchFilter.Predicate.BoundValue) -> Bool {
+        renderSQL(lhs.sqlBind) == renderSQL(rhs.sqlBind)
     }
 }
 

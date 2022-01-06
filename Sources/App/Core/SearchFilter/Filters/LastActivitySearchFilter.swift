@@ -38,7 +38,7 @@ struct LastActivitySearchFilter: SearchFilterProtocol {
 
         self.predicate = .init(
             operator: expression.operator.defaultPredicateOperator,
-            bindableValue: date,
+            bindableValue: .value(date),
             displayValue: DateFormatter.filterDisplayFormatter.string(from: date)
         )
     }

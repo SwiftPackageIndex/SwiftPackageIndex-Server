@@ -21,14 +21,31 @@ extension SearchFilter {
         var `operator`: PredicateOperator
 
         /// The value of the filter expression in a format that can be bound in an SQL expression.
-        var bindableValue: Encodable
+        var bindableValue: BoundValue
 
         /// The value of the filter expression for user facing display.
         var displayValue: String
-
-        var sqlBind: SQLBind { SQLBind(bindableValue) }
-        var sqlOperator: SQLExpression { `operator`.sqlOperator }
     }
+}
+
+
+extension SearchFilter.Predicate {
+    enum BoundValue {
+        case value(Encodable)
+        case array([Encodable])
+
+        var sqlBind: SQLExpression {
+            switch self {
+                case .value(let value):
+                    return SQLBind(value)
+                case .array(let items):
+                    return SQLBind.group(items)
+            }
+        }
+    }
+
+    var sqlOperator: SQLExpression { `operator`.sqlOperator }
+    var sqlBind: SQLExpression { bindableValue.sqlBind }
 }
 
 
