@@ -29,7 +29,7 @@ struct LicenseSearchFilter: SearchFilterProtocol {
     var predicate: SearchFilter.Predicate
 
     init(expression: SearchFilter.Expression) throws {
-        guard let filterType = FilterType(rawValue: expression.value) else {
+        guard let filterType = FilterType(rawValue: expression.value.lowercased()) else {
             throw SearchFilterError.invalidValueType
         }
         

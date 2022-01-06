@@ -240,6 +240,27 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(binds(filter.sqlBind), [#"["mit"]"#])
     }
 
+    func test_licenseFilter_case_insensitive() throws {
+        XCTAssertEqual(
+            try LicenseSearchFilter(
+                expression: .init(operator: .is,
+                                  value: "mit")).predicate.bindableValue as? [String],
+            ["mit"]
+        )
+        XCTAssertEqual(
+            try LicenseSearchFilter(
+                expression: .init(operator: .is,
+                                  value: "MIT")).predicate.bindableValue as? [String],
+            ["mit"]
+        )
+        XCTAssertEqual(
+            try LicenseSearchFilter(
+                expression: .init(operator: .is,
+                                  value: "Compatible")).predicate.bindableValue as? [String],
+            ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"]
+        )
+    }
+
     func test_licenseFilter_incompatible() throws {
         let filter = try LicenseSearchFilter(expression: .init(operator: .is,
                                                                value: "incompatible"))
