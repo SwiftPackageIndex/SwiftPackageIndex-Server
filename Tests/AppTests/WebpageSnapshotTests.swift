@@ -511,7 +511,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                     repositoryOwner: "package",
                     stars: 1111,
                     // 24 hours + 4 hours to take it firmly into "one day ago" for the snapshot.
-                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -28, to: Current.date()),
+                    lastActivityAt: Current.date().addingHours(-28),
                     summary: "This is a package filled with ones."
                 )!
             ),
@@ -524,7 +524,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                     repositoryOwner: "package",
                     stars: 2222,
                     // 48 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
-                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -52, to: Current.date()),
+                    lastActivityAt: Current.date().addingHours(-52),
                     summary: "This is a package filled with twos."
                 )!
             ),
@@ -537,7 +537,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                     repositoryOwner: "package",
                     stars: 3333,
                     // 72 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
-                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -76, to: Current.date()),
+                    lastActivityAt: Current.date().addingHours(-76),
                     summary: "This is a package filled with threes."
                 )!
             ),
@@ -550,7 +550,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                     repositoryOwner: "package",
                     stars: 4444,
                     // 72 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
-                    lastActivityAt: Calendar.current.date(byAdding: .hour, value: -76, to: Current.date()),
+                    lastActivityAt: Current.date().addingHours(-76),
                     summary: "This is a package filled with fours."
                 )!
             )
