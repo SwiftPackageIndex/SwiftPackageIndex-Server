@@ -23,3 +23,14 @@ extension Date {
     static let t4 = Date(timeIntervalSince1970: 4)
     static let spiBirthday = Date.init(rfc1123: "Sat, 25 Apr 2020 10:55:00 UTC")!
 }
+
+
+extension Date {
+    func addingDays(_ value: Int) -> Date {
+        Calendar.current.date(byAdding: .day, value: value, to: self)!
+    }
+
+    func addingHours(_ value: Int) -> Date {
+        Calendar.current.date(byAdding: .hour, value: value, to: self)!
+    }
+}

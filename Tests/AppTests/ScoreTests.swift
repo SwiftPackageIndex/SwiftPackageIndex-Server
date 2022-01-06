@@ -96,7 +96,7 @@ class ScoreTests: AppTestCase {
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
-                                           lastActivityAt: Calendar.current.date(byAdding: .day, value: -400, to: Current.date()))),
+                                           lastActivityAt: Current.date().addingDays(-400))),
                        82)
         XCTAssertEqual(Score.compute(.init(supportsLatestSwiftVersion: true,
                                            licenseKind: .compatibleWithAppStore,
@@ -104,7 +104,7 @@ class ScoreTests: AppTestCase {
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
-                                           lastActivityAt: Calendar.current.date(byAdding: .day, value: -300, to: Current.date()))),
+                                           lastActivityAt: Current.date().addingDays(-300))),
                        87)
         XCTAssertEqual(Score.compute(.init(supportsLatestSwiftVersion: true,
                                            licenseKind: .compatibleWithAppStore,
@@ -112,7 +112,7 @@ class ScoreTests: AppTestCase {
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
-                                           lastActivityAt: Calendar.current.date(byAdding: .day, value: -100, to: Current.date()))),
+                                           lastActivityAt: Current.date().addingDays(-100))),
                        92)
         XCTAssertEqual(Score.compute(.init(supportsLatestSwiftVersion: true,
                                            licenseKind: .compatibleWithAppStore,
@@ -120,7 +120,7 @@ class ScoreTests: AppTestCase {
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
-                                           lastActivityAt: Calendar.current.date(byAdding: .day, value: -10, to: Current.date()))),
+                                           lastActivityAt: Current.date().addingDays(-10))),
                        97)
     }
     

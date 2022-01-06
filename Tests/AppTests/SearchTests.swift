@@ -862,6 +862,227 @@ class SearchTests: AppTestCase {
         }
     }
 
+    func test_authorSearchFilter() throws {
+        // Setup
+        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "foo",
+                       summary: "test package").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       name: "2",
+                       owner: "bar",
+                       summary: "test package").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {
+            // MUT
+            let res = try Search.fetch(app.db, ["test", "author:foo"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
+        }
+
+        do {  // double check that leaving the filter term off selects both packages
+            // MUT
+            let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(
+                res.results.compactMap(\.packageResult?.repositoryName).sorted(),
+                ["1", "2"]
+            )
+        }
+    }
+
+    func test_keywordSearchFilter() throws {
+        // Setup
+        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       keywords: ["kw1"],
+                       name: "1",
+                       owner: "foo",
+                       summary: "test package").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       keywords: ["kw2"],
+                       name: "2",
+                       owner: "bar",
+                       summary: "test package").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {
+            // MUT
+            let res = try Search.fetch(app.db, ["test", "keyword:kw1"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
+        }
+
+        do {  // double check that leaving the filter term off selects both packages
+            // MUT
+            let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(
+                res.results.compactMap(\.packageResult?.repositoryName).sorted(),
+                ["1", "2"]
+            )
+        }
+    }
+
+    func test_lastActivitySearchFilter() throws {
+        // Setup
+        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       lastCommitDate: .t0.addingDays(-1),
+                       name: "1",
+                       owner: "foo",
+                       summary: "test package").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       lastCommitDate: .t0,
+                       name: "2",
+                       owner: "bar",
+                       summary: "test package").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {
+            // MUT
+            let res = try Search.fetch(app.db, ["test", "last_activity:<1970-01-01"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
+        }
+
+        do {  // double check that leaving the filter term off selects both packages
+            // MUT
+            let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(
+                res.results.compactMap(\.packageResult?.repositoryName).sorted(),
+                ["1", "2"]
+            )
+        }
+    }
+
+    func test_lastCommitSearchFilter() throws {
+        // Setup
+        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       lastCommitDate: .t0.addingDays(-1),
+                       name: "1",
+                       owner: "foo",
+                       summary: "test package").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       lastCommitDate: .t0,
+                       name: "2",
+                       owner: "bar",
+                       summary: "test package").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {
+            // MUT
+            let res = try Search.fetch(app.db, ["test", "last_commit:<1970-01-01"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
+        }
+
+        do {  // double check that leaving the filter term off selects both packages
+            // MUT
+            let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(
+                res.results.compactMap(\.packageResult?.repositoryName).sorted(),
+                ["1", "2"]
+            )
+        }
+    }
+
+    func test_licenseSearchFilter() throws {
+        // Setup
+        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       license: .mit,
+                       name: "1",
+                       owner: "foo",
+                       summary: "test package").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       license: .none,
+                       name: "2",
+                       owner: "bar",
+                       summary: "test package").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {
+            // MUT
+            let res = try Search.fetch(app.db, ["test", "license:mit"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
+        }
+
+        do {
+            // MUT
+            let res = try Search.fetch(app.db, ["test", "license:compatible"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
+        }
+
+        do {  // double check that leaving the filter term off selects both packages
+            // MUT
+            let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(
+                res.results.compactMap(\.packageResult?.repositoryName).sorted(),
+                ["1", "2"]
+            )
+        }
+    }
+
     func test_platformSearchFilter() throws {
         // Setup
         let p1 = Package(url: "1", platformCompatibility: [.ios])
@@ -891,7 +1112,7 @@ class SearchTests: AppTestCase {
             XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
         }
 
-        do {  // double check that leaving the `platform` term off does select both packages
+        do {  // double check that leaving the filter term off selects both packages
             // MUT
             let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
 
@@ -901,6 +1122,79 @@ class SearchTests: AppTestCase {
                 ["1", "2"]
             )
         }
+    }
+
+    func test_starsSearchFilter() throws {
+        // Setup
+        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       name: "1",
+                       owner: "foo",
+                       stars: 10,
+                       summary: "test package").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       name: "2",
+                       owner: "bar",
+                       summary: "test package").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        do {
+            // MUT
+            let res = try Search.fetch(app.db, ["test", "stars:>5"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
+        }
+
+        do {  // double check that leaving the filter term off selects both packages
+            // MUT
+            let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(
+                res.results.compactMap(\.packageResult?.repositoryName).sorted(),
+                ["1", "2"]
+            )
+        }
+    }
+
+    func test_SearchFilter_error() throws {
+        // Test error handling in case of an invalid filter
+        // Setup
+        let p1 = Package(url: "1", platformCompatibility: [.ios])
+        let p2 = Package(url: "2", platformCompatibility: [.macos])
+        try [p1, p2].save(on: app.db).wait()
+        try Repository(package: p1,
+                       defaultBranch: "main",
+                       license: .mit,
+                       name: "1",
+                       owner: "foo",
+                       summary: "test package").save(on: app.db).wait()
+        try Repository(package: p2,
+                       defaultBranch: "main",
+                       license: .none,
+                       name: "2",
+                       owner: "bar",
+                       summary: "test package").save(on: app.db).wait()
+        try Version(package: p1, packageName: "p1", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Version(package: p2, packageName: "p2", reference: .branch("main"))
+            .save(on: app.db).wait()
+        try Search.refresh(on: app.db).wait()
+
+        // MUT
+        let res = try Search.fetch(app.db, ["test", "license:>mit"], page: 1, pageSize: 20).wait()
+
+        // validate
+        XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), [])
     }
 
 }
