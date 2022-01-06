@@ -26,7 +26,6 @@ protocol SearchFilterProtocol {
     /// An error should be thrown if the value cannot be converted to the appropriate type, or if the comparison method is not supported for that filter.
     init(expression: SearchFilter.Expression) throws
 
-
     /// The search filter predicate, which is derived from the search filter expression.
     ///
     /// The search filter expression represents the tokanized search expression provided by the user. The search

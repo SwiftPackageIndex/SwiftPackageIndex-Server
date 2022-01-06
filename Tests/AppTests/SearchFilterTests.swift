@@ -63,33 +63,6 @@ class SearchFilterTests: AppTestCase {
         do { // Too many colons
             XCTAssertNil(SearchFilter.parse(filterTerm: "a:b:c"))
         }
-        
-        do { // Comparison method
-            XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:1")?.predicate,
-                           .init(operator: .equal,
-                                 bindableValue: .value("1"),
-                                 displayValue: "1"))
-            XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:>1")?.predicate,
-                           .init(operator: .greaterThan,
-                                 bindableValue: .value("1"),
-                                 displayValue: "1"))
-            XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:<1")?.predicate,
-                           .init(operator: .lessThan,
-                                 bindableValue: .value("1"),
-                                 displayValue: "1"))
-            XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:>=1")?.predicate,
-                           .init(operator: .greaterThanOrEqual,
-                                 bindableValue: .value("1"),
-                                 displayValue: "1"))
-            XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:<=1")?.predicate,
-                           .init(operator: .lessThanOrEqual,
-                                 bindableValue: .value("1"),
-                                 displayValue: "1"))
-            XCTAssertEqual(SearchFilter.parse(filterTerm: "stars:!1")?.predicate,
-                           .init(operator: .notEqual,
-                                 bindableValue: .value("1"),
-                                 displayValue: "1"))
-        }
 
         do { // No valid filter
             XCTAssertNil(SearchFilter.parse(filterTerm: "invalid:true"))
@@ -239,8 +212,6 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
         XCTAssertEqual(binds(filter.sqlBind), ["mit"])
     }
-
-    typealias BoundValue = SearchFilter.Predicate.BoundValue
 
     func test_licenseFilter_case_insensitive() throws {
         XCTAssertEqual(
