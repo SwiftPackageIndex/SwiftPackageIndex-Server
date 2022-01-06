@@ -1063,6 +1063,14 @@ class SearchTests: AppTestCase {
             XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
         }
 
+        do {
+            // MUT
+            let res = try Search.fetch(app.db, ["test", "license:compatible"], page: 1, pageSize: 20).wait()
+
+            // validate
+            XCTAssertEqual(res.results.compactMap(\.packageResult?.repositoryName), ["1"])
+        }
+
         do {  // double check that leaving the filter term off selects both packages
             // MUT
             let res = try Search.fetch(app.db, ["test"], page: 1, pageSize: 20).wait()
