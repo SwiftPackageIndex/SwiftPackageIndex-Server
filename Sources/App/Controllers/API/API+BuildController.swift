@@ -33,7 +33,9 @@ extension API {
                 }
                 .flatMapThrowing { ($0, try Build(dto, $0)) }
                 .flatMap { (version, build) -> EventLoopFuture<(App.Version, Build)> in
-                    AppMetrics.apiBuildReportTotal?.inc(1, .init(build.platform, build.swiftVersion))
+                    AppMetrics.apiBuildReportTotal?.inc(1, .init(build.platform,
+                                                                 build.runnerId ?? "",
+                                                                 build.swiftVersion))
                     if build.status == .infrastructureError {
                         req.logger.critical("build infrastructure error: \(build.jobUrl)")
                     }
