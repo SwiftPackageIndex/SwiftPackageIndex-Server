@@ -16,7 +16,7 @@ import SQLKit
 
 extension SearchFilter {
     enum Key: String, Codable, CaseIterable {
-        // NB: these are the user-facing keys they need to provide in the search term,
+        // NB: these are the user-facing keys users provide in the search term,
         // e.g.: last_commit:>2020-07-01
         case author
         case keyword

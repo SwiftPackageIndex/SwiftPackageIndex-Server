@@ -14,6 +14,14 @@
 
 
 extension SearchFilter {
+
+    /// An `Expression` represents the search filter expression as provided by the
+    /// user. It is later transformed into a `SearchFilter.Predicate` by particular
+    /// search filters based on their semantic interpretation of the expression's operator.
+    ///
+    /// For instance, `.is` in `Expression` can translate to `.caseInsensitiveLike`
+    /// or `.contains` in `SearchFilter.Predicate` depending on which filter
+    /// is being selected.
     struct Expression: Equatable {
         var `operator`: ExpressionOperator
         var value: String
@@ -40,7 +48,7 @@ extension SearchFilter {
         }
 
 #if DEBUG
-        // This initializer is exposed purely to easily create instances for testing
+        // This initializer is exposed purely to create instances for testing
         init(operator: ExpressionOperator, value: String) {
             self.operator = `operator`
             self.value = value

@@ -23,7 +23,7 @@ import XCTVapor
 class SearchFilterTests: AppTestCase {
 
     func test_SearchFilterKey_searchFilter() throws {
-        // Ensure all `SearchFilter.Key` are wired correctly to their
+        // Ensure all `SearchFilter.Key`s are wired correctly to their
         // `SearchFilterProtocol.Type`s (by roundtripping through the key values)
         XCTAssertEqual(SearchFilter.Key.allCases
                         .map { $0.searchFilter.key }, [
@@ -294,63 +294,85 @@ class SearchFilterTests: AppTestCase {
         }
     }
 
-    func test_platformFilter() throws {
-        do {  // test single value happy path
-            let filter = try PlatformSearchFilter(expression: .init(operator: .is,
-                                                                    value: "ios"))
-            XCTAssertEqual(filter.key, .platform)
-            XCTAssertEqual(filter.predicate, .init(operator: .contains,
-                                                   bindableValue: .value("ios"),
-                                                   displayValue: "iOS"))
+    func test_platformFilter_single_value() throws {
+        // test single value happy path
+        let filter = try PlatformSearchFilter(expression: .init(operator: .is,
+                                                                value: "ios"))
+        XCTAssertEqual(filter.key, .platform)
+        XCTAssertEqual(filter.predicate, .init(operator: .contains,
+                                               bindableValue: .value("ios"),
+                                               displayValue: "iOS"))
 
-            // test view representation
-            XCTAssertEqual(filter.viewModel.description, "platform compatibility is iOS")
+        // test view representation
+        XCTAssertEqual(filter.viewModel.description, "platform compatibility is iOS")
 
-            // test sql representation
-            XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""platform_compatibility""#)
-            XCTAssertEqual(renderSQL(filter.sqlOperator), "@>")
-            XCTAssertEqual(binds(filter.sqlBind), ["{ios}"])
+        // test sql representation
+        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""platform_compatibility""#)
+        XCTAssertEqual(renderSQL(filter.sqlOperator), "@>")
+        XCTAssertEqual(binds(filter.sqlBind), ["{ios}"])
+    }
+
+    func test_platformFilter_case_insensitive() throws {
+        XCTAssertEqual(
+            try PlatformSearchFilter(expression: .init(operator: .is,
+                                                       value: "ios")).bindableValue,
+            [.ios]
+        )
+        XCTAssertEqual(
+            try PlatformSearchFilter(expression: .init(operator: .is,
+                                                       value: "iOS")).bindableValue,
+            [.ios]
+        )
+    }
+
+    func test_platformFilter_deduplication() throws {
+        // test de-duplication and compact-mapping of invalid terms
+        XCTAssertEqual(
+            try PlatformSearchFilter(expression: .init(operator: .is,
+                                                       value: "iOS,macos,MacOS X")).bindableValue,
+            [.ios, .macos]
+        )
+        XCTAssertEqual(
+            try PlatformSearchFilter(expression: .init(operator: .is,
+                                                       value: "iOS,macos,ios")).bindableValue,
+            [.ios, .macos]
+        )
+    }
+
+    func test_platformFilter_multiple_values() throws {
+        // test predicate with multiple values
+        do {
+            let predicate = try PlatformSearchFilter(
+                expression: .init(operator: .is, value: "iOS,macos,ios")).predicate
+            XCTAssertEqual(predicate.bindableValue.asPlatforms,
+                           [.ios, .macos])
+            XCTAssertEqual(predicate.operator, .contains)
+        }
+        do {
+            let predicate = try PlatformSearchFilter(
+                expression: .init(operator: .is,
+                                  value: "iOS,macos,linux")).predicate
+            XCTAssertEqual(predicate.bindableValue.asPlatforms,
+                           [.ios, .linux, .macos])
+            XCTAssertEqual(predicate.operator, .contains)
         }
 
-        do {  // test case-insensitivity
-            XCTAssertEqual(
-                try PlatformSearchFilter(expression: .init(operator: .is,
-                                                           value: "ios")).bindableValue,
-                [.ios]
-            )
-            XCTAssertEqual(
-                try PlatformSearchFilter(expression: .init(operator: .is,
-                                                           value: "iOS")).bindableValue,
-                [.ios]
-            )
-        }
-        do {  // test de-duplication and compact-mapping of invalid terms
-            XCTAssertEqual(
-                try PlatformSearchFilter(expression: .init(operator: .is,
-                                                           value: "iOS,macos,MacOS X")).bindableValue,
-                [.ios, .macos]
-            )
-            XCTAssertEqual(
-                try PlatformSearchFilter(expression: .init(operator: .is,
-                                                           value: "iOS,macos,ios")).bindableValue,
-                [.ios, .macos]
-            )
-        }
-        do {  // test view representation with multiple values
-            XCTAssertEqual(
-                try PlatformSearchFilter(expression: .init(operator: .is,
-                                                           value: "iOS,macos,ios"))
-                    .viewModel.description,
-                "platform compatibility is iOS and macOS"
-            )
-            XCTAssertEqual(
-                try PlatformSearchFilter(expression: .init(operator: .is,
-                                                           value: "iOS,macos,linux"))
-                    .viewModel.description,
-                "platform compatibility is iOS, Linux, and macOS"
-            )
-        }
+        // test view representation with multiple values
+        XCTAssertEqual(
+            try PlatformSearchFilter(expression: .init(operator: .is,
+                                                       value: "iOS,macos,ios"))
+                .viewModel.description,
+            "platform compatibility is iOS and macOS"
+        )
+        XCTAssertEqual(
+            try PlatformSearchFilter(expression: .init(operator: .is,
+                                                       value: "iOS,macos,linux"))
+                .viewModel.description,
+            "platform compatibility is iOS, Linux, and macOS"
+        )
+    }
 
+    func test_platformFilter_error() throws {
         // test error cases
         XCTAssertThrowsError(try PlatformSearchFilter(
             expression: .init(operator: .isNot, value: "foo"))
@@ -438,6 +460,16 @@ extension SearchFilter.Predicate: Equatable {
 extension SearchFilter.Predicate.BoundValue: Equatable {
     public static func == (lhs: SearchFilter.Predicate.BoundValue, rhs: SearchFilter.Predicate.BoundValue) -> Bool {
         renderSQL(lhs.sqlBind) == renderSQL(rhs.sqlBind)
+    }
+
+    var asPlatforms: [Package.PlatformCompatibility]? {
+        switch self {
+            case .value(let value):
+                return (value as? Set<Package.PlatformCompatibility>)?
+                    .sorted { $0.rawValue < $1.rawValue }
+            case .array:
+                return nil
+        }
     }
 }
 

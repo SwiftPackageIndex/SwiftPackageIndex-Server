@@ -16,6 +16,11 @@ import SQLKit
 
 
 extension SearchFilter {
+
+    /// A `Predicate` describes the search filter operation after parsing and association with
+    /// a particular search filter. It can generate its SQL and user facing representation.
+    ///
+    /// See Also: `SearchFilter.Expression`
     struct Predicate {
         /// The predicate operator, which encapsulates both the SQL and user facing representation
         var `operator`: PredicateOperator
@@ -30,6 +35,10 @@ extension SearchFilter {
 
 
 extension SearchFilter.Predicate {
+
+    /// `BoundValue` is a wrapper around a bindable value. Its purpose is to allow
+    /// creating a different `SQLBind` depending on whether the bindable value is
+    /// and array or not.
     enum BoundValue {
         case value(Encodable)
         case array([Encodable])
