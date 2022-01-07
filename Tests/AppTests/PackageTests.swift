@@ -266,13 +266,7 @@ final class PackageTests: AppTestCase {
                        "https://github.com/foo/bar/releases/tag/1.2.3")
     }
 
-    func test_isNew() throws {
-        runAsyncTest {
-            // Temporary while `runAsyncTest` is in place to avoid having to write
-            // self.app everywhere
-            let app = self.app!
-            // end
-
+    func test_isNew() async throws {
         // setup
         let url = "1".asGithubUrl
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
@@ -346,7 +340,6 @@ final class PackageTests: AppTestCase {
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
             XCTAssertFalse(pkg.isNew)
-        }
         }
     }
 

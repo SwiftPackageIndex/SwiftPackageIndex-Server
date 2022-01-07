@@ -85,13 +85,7 @@ class MetricsTests: AppTestCase {
                        initialDeletedTag + 1)
     }
 
-    func test_reconcileDurationSeconds() throws {
-        runAsyncTest {
-            // Temporary while `runAsyncTest` is in place to avoid having to write
-            // self.app everywhere
-            let app = self.app!
-            // end
-
+    func test_reconcileDurationSeconds() async throws {
         // setup
         Current.fetchPackageList = { _ in ["1", "2", "3"].asURLs }
 
@@ -100,8 +94,6 @@ class MetricsTests: AppTestCase {
 
         // validation
         XCTAssert((AppMetrics.reconcileDurationSeconds?.get()) ?? 0 > 0)
-        
-        }
     }
 
     func test_ingestDurationSeconds() throws {

@@ -238,13 +238,7 @@ class TwitterTests: AppTestCase {
         XCTAssertTrue(message?.contains("v2.0.0") ?? false)
     }
 
-    func test_endToEnd() throws {
-        runAsyncTest {
-            // Temporary while `runAsyncTest` is in place to avoid having to write
-            // self.app everywhere
-            let app = self.app!
-            // end
-
+    func test_endToEnd() async throws {
         // setup
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
@@ -323,7 +317,6 @@ class TwitterTests: AppTestCase {
         // validate
         let msg = try XCTUnwrap(message)
         XCTAssertTrue(msg.hasPrefix("⬆️ foo just released Mock v2.0.0"), "was: \(msg)")
-        }
     }
 
     func test_allowTwitterPosts_switch() throws {
