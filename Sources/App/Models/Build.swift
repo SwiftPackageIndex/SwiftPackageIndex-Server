@@ -51,6 +51,9 @@ final class Build: Model, Content {
 
     @Field(key: "platform")
     var platform: Platform
+
+    @Field(key: "runner_id")
+    var runnerId: String?
     
     @Field(key: "status")
     var status: Build.Status
@@ -66,6 +69,7 @@ final class Build: Model, Content {
          jobUrl: String? = nil,
          logUrl: String? = nil,
          platform: Platform,
+         runnerId: String? = nil,
          status: Status,
          swiftVersion: SwiftVersion) {
         self.id = id
@@ -74,24 +78,27 @@ final class Build: Model, Content {
         self.jobUrl = jobUrl
         self.logUrl = logUrl
         self.platform = platform
+        self.runnerId = runnerId
         self.status = status
         self.swiftVersion = swiftVersion
     }
 
     convenience init(id: Id? = nil,
-         version: Version,
-         buildCommand: String? = nil,
-         jobUrl: String? = nil,
-         logUrl: String? = nil,
-         platform: Platform,
-         status: Status,
-         swiftVersion: SwiftVersion) throws {
+                     version: Version,
+                     buildCommand: String? = nil,
+                     jobUrl: String? = nil,
+                     logUrl: String? = nil,
+                     platform: Platform,
+                     runnerId: String? = nil,
+                     status: Status,
+                     swiftVersion: SwiftVersion) throws {
         self.init(id: id,
                   versionId: try version.requireID(),
                   buildCommand: buildCommand,
                   jobUrl: jobUrl,
                   logUrl: logUrl,
                   platform: platform,
+                  runnerId: runnerId,
                   status: status,
                   swiftVersion: swiftVersion)
     }
@@ -102,6 +109,7 @@ final class Build: Model, Content {
                       jobUrl: dto.jobUrl,
                       logUrl: dto.logUrl,
                       platform: dto.platform,
+                      runnerId: dto.runnerId,
                       status: dto.status,
                       swiftVersion: dto.swiftVersion)
     }

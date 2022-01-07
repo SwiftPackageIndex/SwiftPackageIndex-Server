@@ -12,23 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import DependencyResolution
+import Fluent
 
 
-extension API {
-    struct PostBuildTriggerDTO: Codable {
-        var platform: Build.Platform
-        var swiftVersion: SwiftVersion
+struct UpdateBuildAddRunnerId: Migration {
+    func prepare(on database: Database) -> EventLoopFuture<Void> {
+        database.schema("builds")
+            .field("runner_id", .string)
+            .update()
     }
 
-    struct PostCreateBuildDTO: Codable {
-        var buildCommand: String?
-        var jobUrl: String?
-        var logUrl: String?
-        var platform: Build.Platform
-        var resolvedDependencies: [ResolvedDependency]?
-        var runnerId: String?
-        var status: Build.Status
-        var swiftVersion: SwiftVersion
+    func revert(on database: Database) -> EventLoopFuture<Void> {
+        database.schema("builds")
+            .deleteField("runner_id")
+            .update()
     }
 }

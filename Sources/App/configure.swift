@@ -207,6 +207,9 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateRecentPackages4())
         app.migrations.add(UpdateRecentReleases8())
     }
+    do {  // Migration 043 - add runner_id to builds
+        app.migrations.add(UpdateBuildAddRunnerId())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
