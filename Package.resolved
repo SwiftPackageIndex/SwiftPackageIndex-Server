@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "2f1af22f4d495bc6f35365e537c4bb5eb60c5f17",
-          "version": "1.18.0"
+          "revision": "c6cd5994f371b8e31b34f4339774cc25cf8a086a",
+          "version": "1.19.0"
         }
       },
       {
@@ -177,7 +177,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "a08d3830539f3c719bea3fd194c97c0369e5fa11",
+          "revision": "2dbc6c0a26bee42167b321d2cffa97973d75ae6e",
           "version": null
         }
       },
@@ -258,7 +258,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "main",
-          "revision": "af43c15d900d96615afe5fd502f949026cfb8714",
+          "revision": "333c9f35c2de87837f30b560f75c930007e67f0b",
           "version": null
         }
       },
@@ -303,8 +303,8 @@
         "repositoryURL": "https://github.com/scinfu/SwiftSoup.git",
         "state": {
           "branch": null,
-          "revision": "ea76bfd075ccc1c52c0fefd2105f67964542f246",
-          "version": "2.3.5"
+          "revision": "45a7566f7ec2de0b977f28e825f8df874f210327",
+          "version": "2.3.6"
         }
       },
       {
