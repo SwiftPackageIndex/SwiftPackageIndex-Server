@@ -81,6 +81,9 @@ enum AppMetrics {
 
         struct SearchFilterKey: MetricLabels {
             var key: String = ""
+
+            init() {} // protocol requirement
+            init(key: App.SearchFilter.Key) { self.key = key.rawValue }
         }
     }
 

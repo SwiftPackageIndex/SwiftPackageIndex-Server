@@ -49,7 +49,7 @@ class SearchTests: AppTestCase {
     func test_packageMatchQuery_AuthorSearchFilter() throws {
         let b = Search.packageMatchQueryBuilder(
             on: app.db, terms: ["a"],
-            filters: [try AuthorSearchFilter(value: "foo", comparison: .match)]
+            filters: [try AuthorSearchFilter(expression: .init(operator: .is, value: "foo"))]
         )
 
         _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
@@ -61,7 +61,8 @@ class SearchTests: AppTestCase {
     func test_packageMatchQuery_KeywordSearchFilter() throws {
         let b = Search.packageMatchQueryBuilder(
             on: app.db, terms: ["a"],
-            filters: [try KeywordSearchFilter(value: "foo", comparison: .match)]
+            filters: [try KeywordSearchFilter(expression: .init(operator: .is,
+                                                                value: "foo"))]
         )
 
         _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
@@ -73,8 +74,8 @@ class SearchTests: AppTestCase {
     func test_packageMatchQuery_LastActivitySearchFilter() throws {
         let b = Search.packageMatchQueryBuilder(
             on: app.db, terms: ["a"],
-            filters: [try LastActivitySearchFilter(value: "2021-12-01",
-                                                   comparison: .greaterThan)]
+            filters: [try LastActivitySearchFilter(expression: .init(operator: .greaterThan,
+                                                                     value: "2021-12-01"))]
         )
 
         _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
@@ -86,8 +87,8 @@ class SearchTests: AppTestCase {
     func test_packageMatchQuery_LastCommitSearchFilter() throws {
         let b = Search.packageMatchQueryBuilder(
             on: app.db, terms: ["a"],
-            filters: [try LastCommitSearchFilter(value: "2021-12-01",
-                                                 comparison: .greaterThan)]
+            filters: [try LastCommitSearchFilter(expression: .init(operator: .greaterThan,
+                                                                   value: "2021-12-01"))]
         )
 
         _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
@@ -99,19 +100,20 @@ class SearchTests: AppTestCase {
     func test_packageMatchQuery_LicenseSearchFilter() throws {
         let b = Search.packageMatchQueryBuilder(
             on: app.db, terms: ["a"],
-            filters: [try LicenseSearchFilter(value: "mit",
-                                              comparison: .match)]
+            filters: [try LicenseSearchFilter(expression: .init(operator: .is, value: "mit"))]
         )
 
         _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
-            SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("license" = $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+            SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("license" IN ($2)) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "mit", "a"])
     }
 
     func test_packageMatchQuery_PlatformSearchFilter() throws {
-        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"],
-            filters: [try PlatformSearchFilter(value: "ios,macos")])
+        let b = Search.packageMatchQueryBuilder(
+            on: app.db, terms: ["a"],
+            filters: [try PlatformSearchFilter(expression: .init(operator: .is, value: "ios,macos"))]
+        )
 
         _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
         SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("platform_compatibility" @> $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
@@ -120,8 +122,10 @@ class SearchTests: AppTestCase {
     }
 
     func test_packageMatchQuery_StarsSearchFilter() throws {
-        let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"],
-            filters: [try StarsSearchFilter(value: "500", comparison: .greaterThan)])
+        let b = Search.packageMatchQueryBuilder(
+            on: app.db, terms: ["a"],
+            filters: [try StarsSearchFilter(expression: .init(operator: .greaterThan,
+                                                              value: "500"))])
 
         _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
             SELECT 'package' AS "match_type", "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("stars" > $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC

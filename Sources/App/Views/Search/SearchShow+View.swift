@@ -91,12 +91,12 @@ extension SearchShow {
                                 .li(
                                     .span(
                                         .class("filter-key"),
-                                        .text($0.key)
+                                        .text($0.key.description)
                                     ),
                                     .text(" "),
                                     .span(
                                         .class("filter-comparison"),
-                                        .text($0.comparison.userFacingString)
+                                        .text($0.operator)
                                     ),
                                     .text(" "),
                                     .span(

@@ -18,7 +18,7 @@ enum SearchShow {
         var page: Int
         var query: String
         var term: String
-        var filters: [SearchFilterViewModel]
+        var filters: [SearchFilter.ViewModel]
         var response: Response
         
         internal init(page: Int, query: String, response: Search.Response) {

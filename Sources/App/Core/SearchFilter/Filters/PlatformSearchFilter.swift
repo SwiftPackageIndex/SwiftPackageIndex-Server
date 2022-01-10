@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SQLKit
 
 /// Filters by the provided platform.
 ///
@@ -21,22 +20,21 @@ import SQLKit
 /// keyword:ios  - The package supports iOS
 /// keyword:macos,linux - The package support macOS and Linux
 /// ```
-struct PlatformSearchFilter: SearchFilter {
-    static var key: String = "platform"
+struct PlatformSearchFilter: SearchFilterProtocol {
+    static var key: SearchFilter.Key = .platform
 
-    var comparison: SearchFilterComparison
-    var value: Set<Package.PlatformCompatibility>
+    var predicate: SearchFilter.Predicate
 
-    init(value: String, comparison: SearchFilterComparison = .match) throws {
-        // We don't support `negativeMatch`, because it's unlikely
+    init(expression: SearchFilter.Expression) throws {
+        // We don't support `isNot`, because it's unlikely
         // people would want to search for packages that _don't_
         // support a platform.
-        guard comparison == .match else {
+        guard expression.operator == .is else {
             throw SearchFilterError.unsupportedComparisonMethod
         }
 
-        self.comparison = comparison
-        let values = value.split(separator: ",", omittingEmptySubsequences: true)
+        let values = expression.value
+            .split(separator: ",", omittingEmptySubsequences: true)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .map { $0.lowercased() }
             .compactMap(Package.PlatformCompatibility.init(rawValue:))
@@ -44,22 +42,13 @@ struct PlatformSearchFilter: SearchFilter {
 
         guard !value.isEmpty else { throw SearchFilterError.invalidValueType }
 
-        self.value = value
-    }
-
-    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
-        builder.where(
-            SQLIdentifier("platform_compatibility"),
-            SQLRaw("@>"),
-            SQLBind(value)
-        )
-    }
-
-    func createViewModel() -> SearchFilterViewModel {
-        .init(
-            key: "platform compatibility",
-            comparison: comparison,
-            value: value.map(\.displayDescription).pluralized()
+        self.predicate = .init(
+            operator: .contains,
+            bindableValue: .value(value),
+            displayValue: value
+                .map(\.displayDescription)
+                .sorted { $0.lowercased() < $1.lowercased() }
+                .pluralized()
         )
     }
 }

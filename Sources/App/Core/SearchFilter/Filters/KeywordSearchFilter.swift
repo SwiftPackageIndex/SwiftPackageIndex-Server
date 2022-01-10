@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-import SQLKit
 
 /// Filters by ensuring the keywords of the package contain the provided keyword.
 ///
@@ -22,34 +20,21 @@ import SQLKit
 /// keyword:apple  - The package keywords contains the keyword 'apple'
 /// keyword:!apple - The package keywords does not contain the keyword 'apple'
 /// ```
-struct KeywordSearchFilter: SearchFilter {
-    static var key: String = "keyword"
-    
-    var comparison: SearchFilterComparison
-    var value: String
-    
-    init(value: String, comparison: SearchFilterComparison) throws {
-        guard [.match, .negativeMatch].contains(comparison) else {
+struct KeywordSearchFilter: SearchFilterProtocol {
+    static var key: SearchFilter.Key = .keyword
+
+    var predicate: SearchFilter.Predicate
+
+    init(expression: SearchFilter.Expression) throws {
+        guard [.is, .isNot].contains(expression.operator) else {
             throw SearchFilterError.unsupportedComparisonMethod
         }
-        
-        self.comparison = comparison
-        self.value = value
-    }
-    
-    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
-        builder.where(
-            SQLIdentifier("keyword"),
-            comparison == .match ? SQLRaw("ILIKE") : SQLRaw("NOT ILIKE"),
-            SQLBind("%\(value)%")
-        )
-    }
-    
-    func createViewModel() -> SearchFilterViewModel {
-        .init(
-            key: "keywords",
-            comparison: comparison,
-            value: value
+
+        self.predicate = .init(
+            operator: (expression.operator == .is) ?
+                .caseInsensitiveLike : .notCaseInsensitiveLike,
+            bindableValue: .value("%\(expression.value)%"),
+            displayValue: expression.value
         )
     }
 }

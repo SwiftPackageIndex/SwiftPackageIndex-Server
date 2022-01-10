@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import SQLKit
+
 
 /// Filters by the date in which the package's main branch was last updated.
 ///
@@ -26,36 +26,20 @@ import SQLKit
 /// last_commit:>2020-07-01 - Last commit made on any day more recent than July 1st 2020
 /// last_commit:<2020-07-01 - Last commit made on any day older than July 1st 2020
 /// ```
-struct LastCommitSearchFilter: SearchFilter {
-    static var key: String = "last_commit"
+struct LastCommitSearchFilter: SearchFilterProtocol {
+    static var key: SearchFilter.Key = .lastCommit
     
-    let comparison: SearchFilterComparison
-    let date: Date
-    let value: String
-    
-    init(value: String, comparison: SearchFilterComparison) throws {
-        guard let date = DateFormatter.filterParseFormatter.date(from: value) else {
+    var predicate: SearchFilter.Predicate
+
+    init(expression: SearchFilter.Expression) throws {
+        guard let date = DateFormatter.filterParseFormatter.date(from: expression.value) else {
             throw SearchFilterError.invalidValueType
         }
-        
-        self.value = value
-        self.comparison = comparison
-        self.date = date
-    }
-    
-    func `where`(_ builder: SQLPredicateGroupBuilder) -> SQLPredicateGroupBuilder {
-        builder.where(
-            SQLIdentifier("last_commit_date"),
-            comparison.binaryOperator(),
-            date
-        )
-    }
-    
-    func createViewModel() -> SearchFilterViewModel {
-        .init(
-            key: "last commit",
-            comparison: comparison,
-            value: DateFormatter.filterDisplayFormatter.string(from: date)
+
+        self.predicate = .init(
+            operator: expression.operator.defaultPredicateOperator,
+            bindableValue: .value(date),
+            displayValue: DateFormatter.filterDisplayFormatter.string(from: date)
         )
     }
 }
