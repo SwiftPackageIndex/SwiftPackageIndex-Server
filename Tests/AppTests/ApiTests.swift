@@ -102,6 +102,7 @@ class ApiTests: AppTestCase {
                 logUrl: "log url",
                 platform: .macosXcodebuild,
                 resolvedDependencies: nil,
+                runnerId: "some-runner",
                 status: .failed,
                 swiftVersion: .init(5, 2, 0)
             )
@@ -123,6 +124,7 @@ class ApiTests: AppTestCase {
                     XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
                     XCTAssertEqual(b.logUrl, "log url")
                     XCTAssertEqual(b.platform, .macosXcodebuild)
+                    XCTAssertEqual(b.runnerId, "some-runner")
                     XCTAssertEqual(b.status, .failed)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
                     XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)

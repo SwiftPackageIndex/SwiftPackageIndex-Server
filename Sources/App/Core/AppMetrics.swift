@@ -32,7 +32,21 @@ enum AppMetrics {
     // metrics
 
     enum Labels {
-        struct Build: MetricLabels {
+        struct BuildReport: MetricLabels {
+            var platform: String = ""
+            var runnerId: String = ""
+            var swiftVersion: String = ""
+
+            init() {}
+
+            init(_ platform: App.Build.Platform, _ runnerId: String, _ swiftVersion: SwiftVersion) {
+                self.platform = platform.rawValue
+                self.runnerId = runnerId
+                self.swiftVersion = "\(swiftVersion)"
+            }
+        }
+
+        struct BuildTrigger: MetricLabels {
             var platform: String = ""
             var swiftVersion: String = ""
 
@@ -98,8 +112,8 @@ enum AppMetrics {
         gauge("spi_analyze_versions_deleted_count", Labels.Version.self)
     }
 
-    static var apiBuildReportTotal: PromCounter<Int, Labels.Build>? {
-        counter("spi_api_build_report_total", Labels.Build.self)
+    static var apiBuildReportTotal: PromCounter<Int, Labels.BuildReport>? {
+        counter("spi_api_build_report_total", Labels.BuildReport.self)
     }
 
     static var apiPackageCollectionGetTotal: PromCounter<Int, EmptyLabels>? {
@@ -138,8 +152,8 @@ enum AppMetrics {
         gauge("spi_build_throttle_count", EmptyLabels.self)
     }
 
-    static var buildTriggerCount: PromGauge<Int, Labels.Build>? {
-        gauge("spi_build_trigger_count", Labels.Build.self)
+    static var buildTriggerCount: PromGauge<Int, Labels.BuildTrigger>? {
+        gauge("spi_build_trigger_count", Labels.BuildTrigger.self)
     }
 
     static var buildTriggerDurationSeconds: PromGauge<Double, EmptyLabels>? {
