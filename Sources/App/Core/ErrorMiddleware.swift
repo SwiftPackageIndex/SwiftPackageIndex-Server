@@ -19,27 +19,30 @@ import Vapor
 // based on LeafErrorMiddleware
 // https://github.com/brokenhandsio/leaf-error-middleware
 
-public final class ErrorMiddleware: Middleware {
+public final class ErrorMiddleware: AsyncMiddleware {
     
-    public func respond(to req: Request, chainingTo next: Responder) -> EventLoopFuture<Response> {
-        next.respond(to: req)
-            .flatMapError { error in
-                let abortError = error as? AbortError ?? Abort(.internalServerError)
-                let statusCode = abortError.status.code
+    public func respond(to req: Request, chainingTo next: AsyncResponder) async throws -> Response {
+        do {
+            return try await next.respond(to: req)
+        } catch {
+            let abortError = error as? AbortError ?? Abort(.internalServerError)
+            let statusCode = abortError.status.code
+            let isCritical = (statusCode >= 500)
 
-                let reportError = statusCode >= 500
-                    ? Current.reportError(req.client, .critical, error)
-                    : req.eventLoop.future()
-
-                return reportError.flatMap {
-                    statusCode >= 500
-                        ? Current.logger()?.critical("ErrorPage.View \(statusCode): \(error.localizedDescription)")
-                        : Current.logger()?.error("ErrorPage.View \(statusCode): \(error.localizedDescription)")
-                    return ErrorPage.View(path: req.url.path, error: abortError)
-                        .document()
-                        .encodeResponse(for: req, status: abortError.status)
+            if isCritical {
+                Task.detached {
+                    try await Current.reportError(req.client, .critical, error).get()
                 }
+                Current.logger()?.critical("ErrorPage.View \(statusCode): \(error.localizedDescription)")
+            } else {
+                Current.logger()?.error("ErrorPage.View \(statusCode): \(error.localizedDescription)")
             }
+
+            return try await ErrorPage.View(path: req.url.path, error: abortError)
+                .document()
+                .encodeResponse(for: req, status: abortError.status)
+                .get()
+        }
     }
 
 }
