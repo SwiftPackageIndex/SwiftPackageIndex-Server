@@ -153,7 +153,7 @@ enum Search {
         let preamble = db
             .select()
             .column(.package)
-            .column(keyword)
+            .column(null, as: keyword)
             .column(packageId)
             .column(packageName)
             .column(repoName)
