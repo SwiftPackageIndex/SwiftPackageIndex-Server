@@ -89,8 +89,7 @@ enum BuildShow {
                 .unwrap(model.buildInfo.runner, {
                     .p(
                         .strong("Build Machine:"),
-                        .text("&nbsp;"),
-                        .text($0.description)
+                        .text(" \($0)")
                     )
                 })
             )

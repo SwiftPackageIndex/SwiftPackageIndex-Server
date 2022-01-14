@@ -19,7 +19,7 @@
 // Note: If the definition of appVersion ever changes, the `gitlab-ci.yml` file also
 // needs updating as this file is re-generated during the deployment process.
 
-enum BuildRunner: String {
+enum BuildRunner: String, CustomStringConvertible {
     // Note: Runner IDs can be found under "Runners", here:
     // https://gitlab.com/finestructure/swiftpackageindex-builder/-/settings/ci_cd
 
