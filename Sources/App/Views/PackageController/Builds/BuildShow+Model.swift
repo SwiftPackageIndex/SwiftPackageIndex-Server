@@ -54,6 +54,7 @@ extension BuildShow {
         var platform: App.Build.Platform
         var status: App.Build.Status
         var swiftVersion: SwiftVersion
+        var runner: BuildRunner?
 
         init?(build: App.Build, logs: String?) {
             guard let swiftVersion = build.swiftVersion.compatibility else { return nil }
@@ -61,19 +62,22 @@ extension BuildShow {
                       logs: logs ?? build.status.logsUnavailableDescription,
                       platform: build.platform,
                       status: build.status,
-                      swiftVersion: swiftVersion)
+                      swiftVersion: swiftVersion,
+                      runner: build.runnerId.flatMap(BuildRunner.init(rawValue:)))
         }
 
         internal init(buildCommand: String,
                       logs: String,
                       platform: App.Build.Platform,
                       status: App.Build.Status,
-                      swiftVersion: SwiftVersion) {
+                      swiftVersion: SwiftVersion,
+                      runner: BuildRunner? = nil) {
             self.buildCommand = buildCommand
             self.logs = logs
             self.platform = platform
             self.status = status
             self.swiftVersion = swiftVersion
+            self.runner = runner
         }
 
         var xcodeVersion: String? {
