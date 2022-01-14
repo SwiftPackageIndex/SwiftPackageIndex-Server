@@ -153,7 +153,7 @@ enum Search {
         let preamble = db
             .select()
             .column(.package)
-            .column(keyword)
+            .column(null, as: keyword)
             .column(packageId)
             .column(packageName)
             .column(repoName)
@@ -238,6 +238,24 @@ enum Search {
                       filters: [SearchFilterProtocol] = [],
                       page: Int,
                       pageSize: Int) -> SQLSelectBuilder? {
+        //  This function assembles results from the different search types (packages,
+        //  keywords, ...) into a single query.
+        //
+        //  Each subquery type has its column where it "sends" the data it finds and
+        //  the other columns are reported back as `NULL`. I.e.
+        //  ```
+        //  match_type | keyword | package_name | ... | repo_owner
+        //  package      NULL      foo                  bar
+        //  keyword      ios       NULL                 NULL
+        //  author       NULL      NULL                 bar
+        //  ```
+        //  `package` being a slight exception in that it also needs the `repo_owner`
+        //  field (which is the author field) to report back all of the data required
+        //  for the package search result type.
+        //  What we're effectively doing is trying to create an enum in SQL such that
+        //  we can `UNION ALL` different cases together and map them onto an `enum`
+        //  case when we decode the rows into enums on the Swift side.
+
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
