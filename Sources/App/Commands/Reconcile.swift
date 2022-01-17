@@ -25,16 +25,22 @@ struct ReconcileCommand: Command {
         let group = DispatchGroup()
         group.enter()
         Task.detached {
-            let logger = Logger(component: "reconcile")
-            logger.info("Reconciling ...")
-            try? await reconcile(client: context.application.client,
-                                 database: context.application.db)
-            logger.info("done.")
+            defer { group.leave() }
 
-            try await AppMetrics.push(client: context.application.client,
-                                      logger: context.application.logger,
-                                      jobName: "reconcile")
-            group.leave()
+            let logger = Logger(component: "reconcile")
+
+            do {
+                logger.info("Reconciling ...")
+                try? await reconcile(client: context.application.client,
+                                     database: context.application.db)
+                logger.info("done.")
+
+                try await AppMetrics.push(client: context.application.client,
+                                          logger: context.application.logger,
+                                          jobName: "reconcile")
+            } catch {
+                logger.error("\(error.localizedDescription)")
+            }
         }
         group.wait()
     }
