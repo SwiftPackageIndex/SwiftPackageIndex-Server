@@ -24,7 +24,7 @@ struct ReconcileCommand: Command {
     func run(using context: CommandContext, signature: Signature) throws {
         let group = DispatchGroup()
         group.enter()
-        Task.detached {
+        Task {
             defer { group.leave() }
 
             let logger = Logger(component: "reconcile")
