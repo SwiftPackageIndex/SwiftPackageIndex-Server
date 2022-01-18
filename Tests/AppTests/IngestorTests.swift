@@ -308,23 +308,24 @@ class IngestorTests: AppTestCase {
         //   - report critical error up to Rollbar
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
+        try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
         // Return identical metadata for both packages, same as a for instance a redirected
         // package would after a rename / ownership change
-        Current.fetchMetadata = { _, _ in self.future(Github.Metadata.init(
-                                                    defaultBranch: "main",
-                                                    forks: 0,
-                                                    issuesClosedAtDates: [],
-                                                    license: .mit,
-                                                    openIssues: 0,
-                                                    openPullRequests: 0,
-                                                    owner: "owner",
-                                                    pullRequestsClosedAtDates: [],
-                                                    name: "name",
-                                                    stars: 0,
-                                                    summary: "desc",
-                                                    isInOrganization: false))
-        }
+        Current.fetchMetadata = { _, _ in self.future(
+            Github.Metadata.init(
+                defaultBranch: "main",
+                forks: 0,
+                issuesClosedAtDates: [],
+                license: .mit,
+                openIssues: 0,
+                openPullRequests: 0,
+                owner: "owner",
+                pullRequestsClosedAtDates: [],
+                name: "name",
+                stars: 0,
+                summary: "desc",
+                isInOrganization: false)
+        )}
         var reportedLevel: AppError.Level? = nil
         var reportedError: String? = nil
         Current.reportError = { _, level, error in
@@ -338,20 +339,27 @@ class IngestorTests: AppTestCase {
         // MUT
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
-        // validate repositories (single element pointing to first package)
+        // validate repositories (single element pointing to the ingested package)
         let repos = try Repository.query(on: app.db).all().wait()
-        XCTAssertEqual(repos.map(\.$package.id), [packages[0].id].compactMap{ $0 })
+        let ingested = try XCTUnwrap(
+            Package.query(on: app.db).filter(\.$processingStage == .ingestion)
+                .first().wait()
+        )
+        XCTAssertEqual(repos.map(\.$package.id), [try ingested.requireID()])
         
         // validate packages
-        let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
-        // the first package gets the update ...
-        XCTAssertEqual(pkgs[0].status, .new)
-        XCTAssertEqual(pkgs[0].processingStage, .ingestion)
-        XCTAssert(pkgs[0].updatedAt! > lastUpdate)
-        // ... the second package remains unchanged ...
-        XCTAssertEqual(pkgs[1].status, .new)
-        XCTAssertEqual(pkgs[1].processingStage, .reconciliation)
-        XCTAssert(pkgs[1].updatedAt! < lastUpdate)
+        let reconciled = try XCTUnwrap(
+            Package.query(on: app.db).filter(\.$processingStage == .reconciliation)
+                .first().wait()
+        )
+        // the ingested package has the update ...
+        XCTAssertEqual(ingested.status, .new)
+        XCTAssertEqual(ingested.processingStage, .ingestion)
+        XCTAssert(ingested.updatedAt! > lastUpdate)
+        // ... while the reconciled package remains unchanged ...
+        XCTAssertEqual(reconciled.status, .new)
+        XCTAssertEqual(reconciled.processingStage, .reconciliation)
+        XCTAssert(reconciled.updatedAt! < lastUpdate)
         // ... and an error report has been triggered
         XCTAssertEqual(reportedLevel, .critical)
         XCTAssert(reportedError?.contains("duplicate key value violates unique constraint") ?? false)
