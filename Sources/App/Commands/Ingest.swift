@@ -145,16 +145,7 @@ func fetchMetadata(
             }
         }
 
-        var results = [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]()
-        while !group.isEmpty {
-            do {
-                guard let res = try await group.next() else { continue }
-                results.append(.success(res))
-            } catch {
-                results.append(.failure(error))
-            }
-        }
-        return results
+        return await group.results()
     }
 }
 
