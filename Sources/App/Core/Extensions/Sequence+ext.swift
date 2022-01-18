@@ -13,16 +13,11 @@
 // limitations under the License.
 
 
-extension ThrowingTaskGroup {
-    mutating func results() async -> [Result<ChildTaskResult, Error>] {
-        var results = [Result<ChildTaskResult, Error>]()
-        while !isEmpty {
-            do {
-                guard let res = try await next() else { break }
-                results.append(.success(res))
-            } catch {
-                results.append(.failure(error))
-            }
+extension Sequence {
+    func mapAsync<T>(_ transform: (Element) async throws -> T) async rethrows -> [T] {
+        var results = [T]()
+        for element in self {
+            try await results.append(transform(element))
         }
         return results
     }

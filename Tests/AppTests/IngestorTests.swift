@@ -144,7 +144,7 @@ class IngestorTests: AppTestCase {
         ]
         
         // MUT
-        let res = try await updateRepositories(on: app.db, metadata: metadata)
+        let res = await updateRepositories(on: app.db, metadata: metadata)
         
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])

@@ -131,22 +131,17 @@ func ingest(client: Client,
 func fetchMetadata(
     client: Client, packages: [Joined<Package, Repository>]
 ) async -> [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>] {
-    await withThrowingTaskGroup(
-        of: (Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?).self,
-        returning: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>].self
-    ) { group in
-        for pkg in packages {
-            group.addTask {
-                // We could run these tasks concurrently via `async let`.
-                // Keeping pre-async/await behaviour of running them sequentially for now.
-                let metadata = try await Current.fetchMetadata(client, pkg.model.url).get()
-                let license = try await Current.fetchLicense(client, pkg.model.url).get()
-                let readme = try await Current.fetchReadme(client, pkg.model.url).get()
-                return (pkg, metadata, license, readme)
-            }
+    await packages.mapAsync { pkg -> Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error> in
+        do {
+            // We could run these tasks concurrently via `async let`.
+            // Keeping pre-async/await behaviour of running them sequentially for now.
+            let metadata = try await Current.fetchMetadata(client, pkg.model.url).get()
+            let license = try await Current.fetchLicense(client, pkg.model.url).get()
+            let readme = try await Current.fetchReadme(client, pkg.model.url).get()
+            return .success((pkg, metadata, license, readme))
+        } catch {
+            return .failure(error)
         }
-
-        return await group.results()
     }
 }
 
@@ -160,29 +155,21 @@ func updateRepositories(
     on database: Database,
     metadata: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]
 ) async -> [Result<Joined<Package, Repository>, Error>] {
-    await withThrowingTaskGroup(
-        of: Joined<Package, Repository>.self,
-        returning: [Result<Joined<Package, Repository>, Error>].self
-    ) { group in
-        for result in metadata {
-            group.addTask {
-                switch result {
-                    case let .success((pkg, metadata, licenseInfo, readmeInfo)):
-                        AppMetrics.ingestMetadataSuccessCount?.inc()
-                        try await insertOrUpdateRepository(on: database,
-                                                           for: pkg,
-                                                           metadata: metadata,
-                                                           licenseInfo: licenseInfo,
-                                                           readmeInfo: readmeInfo).get()
-                        return pkg
-                    case let .failure(error):
-                        AppMetrics.ingestMetadataFailureCount?.inc()
-                        throw error
-                }
-            }
+    await metadata.mapAsync { result -> Result<Joined<Package, Repository>, Error> in
+        switch result {
+            case let .success((pkg, metadata, licenseInfo, readmeInfo)):
+                AppMetrics.ingestMetadataSuccessCount?.inc()
+                return await Result {
+                    try await insertOrUpdateRepository(on: database,
+                                                       for: pkg,
+                                                       metadata: metadata,
+                                                       licenseInfo: licenseInfo,
+                                                       readmeInfo: readmeInfo).get()
+                }.map { pkg }
+            case let .failure(error):
+                AppMetrics.ingestMetadataFailureCount?.inc()
+                return .failure(error)
         }
-
-        return await group.results()
     }
 }
 
