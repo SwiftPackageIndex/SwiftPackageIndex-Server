@@ -77,26 +77,26 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(license, .init(htmlUrl: "license"))
     }
     
-    func test_insertOrUpdateRepository() throws {
+    func test_insertOrUpdateRepository() async throws {
         let pkg = try savePackage(on: app.db, "https://github.com/foo/bar")
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         do {  // test insert
-            try insertOrUpdateRepository(on: app.db,
-                                         for: jpr,
-                                         metadata: .mock(for: pkg.url),
-                                         licenseInfo: .init(htmlUrl: ""),
-                                         readmeInfo: .init(downloadUrl: "", htmlUrl: "")).wait()
+            try await insertOrUpdateRepository(on: app.db,
+                                               for: jpr,
+                                               metadata: .mock(for: pkg.url),
+                                               licenseInfo: .init(htmlUrl: ""),
+                                               readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("This is package https://github.com/foo/bar")])
         }
         do {  // test update - run the same package again, with different metadata
             var md = Github.Metadata.mock(for: pkg.url)
             md.repository?.description = "New description"
-            try insertOrUpdateRepository(on: app.db,
-                                         for: jpr,
-                                         metadata: md,
-                                         licenseInfo: .init(htmlUrl: ""),
-                                         readmeInfo: .init(downloadUrl: "", htmlUrl: "")).wait()
+            try await insertOrUpdateRepository(on: app.db,
+                                               for: jpr,
+                                               metadata: md,
+                                               licenseInfo: .init(htmlUrl: ""),
+                                               readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
             let repos = try Repository.query(on: app.db).all().wait()
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])
         }
@@ -247,21 +247,20 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(Set(repos.map(\.$package.id)), Set(packages.map(\.id)))
     }
     
-    func test_insertOrUpdateRepository_bulk() throws {
+    func test_insertOrUpdateRepository_bulk() async throws {
         // test flattening of many updates
         // Mainly a debug test for the issue described here:
         // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
         let packages = try savePackages(on: app.db, testUrls100)
-        let req = packages
+        try await packages
             .map { ($0, Github.Metadata.mock(for: $0.url)) }
-            .map { insertOrUpdateRepository(on: self.app.db,
-                                            for: .init(model: $0.0),
-                                            metadata: $0.1,
-                                            licenseInfo: .init(htmlUrl: ""),
-                                            readmeInfo: .init(downloadUrl: "", htmlUrl: "")) }
-            .flatten(on: app.db.eventLoop)
-        
-        try req.wait()
+            .forEachAsync {
+                try await insertOrUpdateRepository(on: self.app.db,
+                                                   for: .init(model: $0.0),
+                                                   metadata: $0.1,
+                                                   licenseInfo: .init(htmlUrl: ""),
+                                                   readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
+            }
         
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.count, testUrls100.count)

@@ -164,7 +164,7 @@ func updateRepositories(
                                                        for: pkg,
                                                        metadata: metadata,
                                                        licenseInfo: licenseInfo,
-                                                       readmeInfo: readmeInfo).get()
+                                                       readmeInfo: readmeInfo)
                 }.map { pkg }
             case let .failure(error):
                 AppMetrics.ingestMetadataFailureCount?.inc()
@@ -184,41 +184,38 @@ func insertOrUpdateRepository(on database: Database,
                               for package: Joined<Package, Repository>,
                               metadata: Github.Metadata,
                               licenseInfo: Github.License?,
-                              readmeInfo: Github.Readme?) -> EventLoopFuture<Void> {
+                              readmeInfo: Github.Readme?) async throws {
     guard let pkgId = try? package.model.requireID() else {
-        return database.eventLoop.future(error: AppError.genericError(nil, "package id not found"))
+        throw AppError.genericError(nil, "package id not found")
     }
 
-    return Repository.query(on: database)
+    guard let repository = metadata.repository else {
+        throw AppError.genericError(pkgId, "repository is nil for package \(package.model.url)")
+    }
+
+    let repo = try await Repository.query(on: database)
         .filter(\.$package.$id == pkgId)
-        .first()
-        .flatMap { repo -> EventLoopFuture<Void> in
-            guard let repository = metadata.repository else {
-                return database.eventLoop.future(
-                    error: AppError.genericError(pkgId, "repository is nil for package \(package.model.url)"))
-            }
-            let repo = repo ?? Repository(packageId: pkgId)
-            repo.defaultBranch = repository.defaultBranch
-            repo.forks = repository.forkCount
-            repo.isArchived = repository.isArchived
-            repo.isInOrganization = repository.isInOrganization
-            repo.keywords = Set(repository.topics.map { $0.lowercased() }).sorted()
-            repo.lastIssueClosedAt = repository.lastIssueClosedAt
-            repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
-            repo.license = .init(from: repository.licenseInfo)
-            repo.licenseUrl = licenseInfo?.htmlUrl
-            repo.name = repository.name
-            repo.openIssues = repository.openIssues.totalCount
-            repo.openPullRequests = repository.openPullRequests.totalCount
-            repo.owner = repository.owner.login
-            repo.ownerName = repository.owner.name
-            repo.ownerAvatarUrl = repository.owner.avatarUrl
-            repo.readmeUrl = readmeInfo?.downloadUrl
-            repo.readmeHtmlUrl = readmeInfo?.htmlUrl
-            repo.releases = metadata.repository?.releases.nodes
-                .map(Release.init(from:)) ?? []
-            repo.stars = repository.stargazerCount
-            repo.summary = repository.description
-            return repo.save(on: database)
-        }
+        .first() ?? Repository(packageId: pkgId)
+    repo.defaultBranch = repository.defaultBranch
+    repo.forks = repository.forkCount
+    repo.isArchived = repository.isArchived
+    repo.isInOrganization = repository.isInOrganization
+    repo.keywords = Set(repository.topics.map { $0.lowercased() }).sorted()
+    repo.lastIssueClosedAt = repository.lastIssueClosedAt
+    repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
+    repo.license = .init(from: repository.licenseInfo)
+    repo.licenseUrl = licenseInfo?.htmlUrl
+    repo.name = repository.name
+    repo.openIssues = repository.openIssues.totalCount
+    repo.openPullRequests = repository.openPullRequests.totalCount
+    repo.owner = repository.owner.login
+    repo.ownerName = repository.owner.name
+    repo.ownerAvatarUrl = repository.owner.avatarUrl
+    repo.readmeUrl = readmeInfo?.downloadUrl
+    repo.readmeHtmlUrl = readmeInfo?.htmlUrl
+    repo.releases = metadata.repository?.releases.nodes
+        .map(Release.init(from:)) ?? []
+    repo.stars = repository.stargazerCount
+    repo.summary = repository.description
+    return try await repo.save(on: database)
 }
