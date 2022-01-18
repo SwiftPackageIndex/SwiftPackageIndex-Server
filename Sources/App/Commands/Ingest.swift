@@ -112,7 +112,6 @@ func ingest(client: Client,
             packages: [Joined<Package, Repository>]) async throws {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
-    #warning("simplify metadata's type by dropping Joined<Package, Repository>")
     let metadata = await fetchMetadata(client: client, packages: packages)
     let updates = await updateRepositories(on: database, metadata: metadata)
     return try await updatePackages(client: client,
