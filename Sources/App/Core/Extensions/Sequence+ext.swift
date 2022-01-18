@@ -21,10 +21,4 @@ extension Sequence {
         }
         return results
     }
-
-    func forEachAsync(_ body: (Element) async throws -> Void) async rethrows {
-        for element in self {
-            try await body(element)
-        }
-    }
 }

@@ -252,16 +252,15 @@ class IngestorTests: AppTestCase {
         // Mainly a debug test for the issue described here:
         // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
         let packages = try savePackages(on: app.db, testUrls100)
-        try await packages
-            .map { ($0, Github.Metadata.mock(for: $0.url)) }
-            .forEachAsync {
-                try await insertOrUpdateRepository(on: self.app.db,
-                                                   for: .init(model: $0.0),
-                                                   metadata: $0.1,
-                                                   licenseInfo: .init(htmlUrl: ""),
-                                                   readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
-            }
-        
+        for pkg in packages {
+            let metadata = Github.Metadata.mock(for: pkg.url)
+            try await insertOrUpdateRepository(on: self.app.db,
+                                               for: .init(model: pkg),
+                                               metadata: metadata,
+                                               licenseInfo: .init(htmlUrl: ""),
+                                               readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
+        }
+
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.count, testUrls100.count)
         XCTAssertEqual(repos.map(\.$package.id.uuidString).sorted(),
