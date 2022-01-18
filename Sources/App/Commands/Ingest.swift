@@ -112,6 +112,15 @@ func ingest(client: Client,
             packages: [Joined<Package, Repository>]) async throws {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
+    // TODO: simply the types in this chain by running the batches "vertically" instead of "horizontally"
+    // i.e. instead of [package, data1, data2, ...] -> updatePackages(...)
+    // run
+    // let data1 = ...
+    // let data2 = ...
+    // updatePackage(...)
+    // i.e. loop through each package end-to-end instead of building a wide tuple.
+    // (I'm pretty sure none of the db queries are actually batch queries, so we wouldn't
+    // introduce any extra latency. Should check if we could make them batch, though.)
     let metadata = await fetchMetadata(client: client, packages: packages)
     let updates = await updateRepositories(on: database, metadata: metadata)
     return try await updatePackages(client: client,
