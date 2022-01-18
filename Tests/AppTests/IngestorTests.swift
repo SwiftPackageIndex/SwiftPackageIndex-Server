@@ -54,7 +54,8 @@ class IngestorTests: AppTestCase {
         }
     }
     
-    func test_fetchMetadata() throws {
+    func test_fetchMetadata() async throws {
+        // Test completion of all fetches despite early error
         // setup
         let packages = try savePackages(on: app.db, ["https://github.com/foo/1",
                                                      "https://github.com/foo/2"])
@@ -68,7 +69,7 @@ class IngestorTests: AppTestCase {
         Current.fetchLicense = { _, _ in self.future(Github.License(htmlUrl: "license")) }
 
         // MUT
-        let res = try fetchMetadata(client: app.client, packages: packages).wait()
+        let res = await fetchMetadata(client: app.client, packages: packages)
         
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
@@ -356,7 +357,7 @@ class IngestorTests: AppTestCase {
         XCTAssert(reportedError?.contains("duplicate key value violates unique constraint") ?? false)
     }
     
-    func test_issue_761_no_license() throws {
+    func test_issue_761_no_license() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
         let packages = try savePackages(on: app.db, ["https://github.com/foo/1"])
@@ -370,7 +371,7 @@ class IngestorTests: AppTestCase {
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let res = try fetchMetadata(client: client, packages: packages).wait()
+        let res = await fetchMetadata(client: client, packages: packages)
 
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [true], "future must be in success state")

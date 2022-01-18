@@ -112,7 +112,8 @@ func ingest(client: Client,
             packages: [Joined<Package, Repository>]) async throws {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
-    let metadata = try await fetchMetadata(client: client, packages: packages).get()
+    #warning("simplify metadata's type by dropping Joined<Package, Repository>")
+    let metadata = await fetchMetadata(client: client, packages: packages)
     let updates = try await updateRepositories(on: database, metadata: metadata).get()
     return try await updatePackages(client: client,
                                     database: database,
@@ -129,14 +130,32 @@ func ingest(client: Client,
 /// - Returns: results future
 func fetchMetadata(
     client: Client, packages: [Joined<Package, Repository>]
-) -> EventLoopFuture<[Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]> {
-    let ops = packages.map { pkg in
-        Current.fetchMetadata(client, pkg.model.url)
-            .and(Current.fetchLicense(client, pkg.model.url))
-            .and(Current.fetchReadme(client, pkg.model.url))
-            .map { (pkg, $0.0, $0.1, $1) }
+) async -> [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>] {
+    await withThrowingTaskGroup(
+        of: (Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?).self,
+        returning: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>].self
+    ) { group in
+        for pkg in packages {
+            group.addTask {
+                // TODO: check if ELF.and was eager, i.e. if async let is the correct translation
+                async let metadata = try await Current.fetchMetadata(client, pkg.model.url).get()
+                async let license = try await Current.fetchLicense(client, pkg.model.url).get()
+                async let readme = try await Current.fetchReadme(client, pkg.model.url).get()
+                return try await (pkg, metadata, license, readme)
+            }
+        }
+
+        var results = [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]()
+        while !group.isEmpty {
+            do {
+                guard let res = try await group.next() else { continue }
+                results.append(.success(res))
+            } catch {
+                results.append(.failure(error))
+            }
+        }
+        return results
     }
-    return EventLoopFuture.whenAllComplete(ops, on: client.eventLoop)
 }
 
 
