@@ -137,11 +137,12 @@ func fetchMetadata(
     ) { group in
         for pkg in packages {
             group.addTask {
-                // TODO: check if ELF.and was eager, i.e. if async let is the correct translation
-                async let metadata = try await Current.fetchMetadata(client, pkg.model.url).get()
-                async let license = try await Current.fetchLicense(client, pkg.model.url).get()
-                async let readme = try await Current.fetchReadme(client, pkg.model.url).get()
-                return try await (pkg, metadata, license, readme)
+                // We could run these tasks concurrently via `async let`.
+                // Keeping pre-async/await behaviour of running them sequentially for now.
+                let metadata = try await Current.fetchMetadata(client, pkg.model.url).get()
+                let license = try await Current.fetchLicense(client, pkg.model.url).get()
+                let readme = try await Current.fetchReadme(client, pkg.model.url).get()
+                return (pkg, metadata, license, readme)
             }
         }
 
