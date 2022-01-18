@@ -161,7 +161,7 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - second stage
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         do { // validate
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
@@ -201,7 +201,7 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - ingest again
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         do {  // validate - only new package moves to .ingestion stage
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
@@ -232,7 +232,7 @@ class PipelineTests: AppTestCase {
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         
         // MUT - ingest yet again
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         do {  // validate - now all three packages should have been updated
             let packages = try Package.query(on: app.db).sort(\.$url).all().wait()

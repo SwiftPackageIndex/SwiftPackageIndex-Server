@@ -16,7 +16,7 @@ import Vapor
 import Fluent
 
 
-struct IngestCommand: Command {
+struct IngestCommand: CommandAsync {
     let defaultLimit = 1
     
     struct Signature: CommandSignature {
@@ -34,7 +34,7 @@ struct IngestCommand: Command {
         case limit(Int)
     }
 
-    func run(using context: CommandContext, signature: Signature) throws {
+    func run(using context: CommandContext, signature: Signature) async {
         let limit = signature.limit ?? defaultLimit
 
         let client = context.application.client
@@ -44,11 +44,16 @@ struct IngestCommand: Command {
         Self.resetMetrics()
 
         let mode = signature.id.map(Mode.id) ?? .limit(limit)
-        try ingest(client: client, database: db, logger: logger, mode: mode)
-            .wait()
-        try AppMetrics.push(client: client,
-                            logger: logger,
-                            jobName: "ingest").wait()
+
+        do {
+            try await ingest(client: client, database: db, logger: logger, mode: mode)
+        } catch {
+            logger.error("\(error.localizedDescription)")
+        }
+
+        try? await AppMetrics.push(client: client,
+                                   logger: logger,
+                                   jobName: "ingest")
     }
 }
 
@@ -71,32 +76,25 @@ extension IngestCommand {
 func ingest(client: Client,
             database: Database,
             logger: Logger,
-            mode: IngestCommand.Mode) -> EventLoopFuture<Void> {
+            mode: IngestCommand.Mode) async throws {
     let start = DispatchTime.now().uptimeNanoseconds
+    defer { AppMetrics.ingestDurationSeconds?.time(since: start) }
+
     switch mode {
         case .id(let id):
             logger.info("Ingesting (id: \(id)) ...")
-            return Package.fetchCandidate(database, id: id)
-                .map { [$0] }
-                .flatMap { packages in
-                    ingest(client: client,
-                           database: database,
-                           logger: logger,
-                           packages: packages)
-                }
-                .map {
-                    AppMetrics.ingestDurationSeconds?.time(since: start)
-                }
+            let pkg = try await Package.fetchCandidate(database, id: id).get()
+            try await ingest(client: client,
+                             database: database,
+                             logger: logger,
+                             packages: [pkg])
         case .limit(let limit):
             logger.info("Ingesting (limit: \(limit)) ...")
-            return Package.fetchCandidates(database, for: .ingestion, limit: limit)
-                .flatMap { ingest(client: client,
-                                  database: database,
-                                  logger: logger,
-                                  packages: $0) }
-                .map {
-                    AppMetrics.ingestDurationSeconds?.time(since: start)
-                }
+            let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit).get()
+            try await ingest(client: client,
+                             database: database,
+                             logger: logger,
+                             packages: packages)
     }
 }
 
@@ -111,16 +109,16 @@ func ingest(client: Client,
 func ingest(client: Client,
             database: Database,
             logger: Logger,
-            packages: [Joined<Package, Repository>]) -> EventLoopFuture<Void> {
+            packages: [Joined<Package, Repository>]) async throws {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
-    let metadata = fetchMetadata(client: client, packages: packages)
-    let updates = metadata.flatMap { updateRepositories(on: database, metadata: $0) }
-    return updates.flatMap { updatePackages(client: client,
-                                            database: database,
-                                            logger: logger,
-                                            results: $0,
-                                            stage: .ingestion) }
+    let metadata = try await fetchMetadata(client: client, packages: packages).get()
+    let updates = try await updateRepositories(on: database, metadata: metadata).get()
+    return try await updatePackages(client: client,
+                                    database: database,
+                                    logger: logger,
+                                    results: updates,
+                                    stage: .ingestion).get()
 }
 
 

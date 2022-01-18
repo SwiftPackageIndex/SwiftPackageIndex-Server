@@ -21,7 +21,7 @@ import XCTest
 
 class IngestorTests: AppTestCase {
     
-    func test_ingest_basic() throws {
+    func test_ingest_basic() async throws {
         // setup
         let urls = ["https://github.com/finestructure/Gala",
                     "https://github.com/finestructure/Rester",
@@ -31,7 +31,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
         
         // MUT
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -231,14 +231,14 @@ class IngestorTests: AppTestCase {
         }
     }
     
-    func test_partial_save_issue() throws {
+    func test_partial_save_issue() async throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
         let packages = try savePackages(on: app.db, testUrls, processingStage: .reconciliation)
         
         // MUT
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(testUrls.count)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(testUrls.count))
         
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -268,7 +268,7 @@ class IngestorTests: AppTestCase {
                        packages.map(\.id).compactMap { $0?.uuidString }.sorted())
     }
     
-    func test_ingest_badMetadata() throws {
+    func test_ingest_badMetadata() async throws {
         // setup
         let urls = ["https://github.com/foo/1",
                     "https://github.com/foo/2",
@@ -283,7 +283,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
         
         // MUT
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
@@ -300,7 +300,7 @@ class IngestorTests: AppTestCase {
         }
     }
     
-    func test_ingest_unique_owner_name_violation() throws {
+    func test_ingest_unique_owner_name_violation() async throws {
         // Test error behaviour when two packages resolving to the same owner/name are ingested:
         //   - don't update package
         //   - don't create repository records
@@ -335,7 +335,7 @@ class IngestorTests: AppTestCase {
         let lastUpdate = Date()
         
         // MUT
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         // validate repositories (single element pointing to first package)
         let repos = try Repository.query(on: app.db).all().wait()
