@@ -26,9 +26,11 @@
   --light-blue: #bedeff;
   --very-light-blue: #e6f2ff;
 
+  --very-dark-green: #102100;
   --dark-green: #027353;
   --mid-green: #038c33;
   --light-green: #68bb13;
+  --very-light-green: #ebf9de;
 
   --yellow: #f2b94f;
   --orange: #f58e36;
@@ -84,6 +86,9 @@
   --orange-text: var(--orange);
   --red-text: var(--mid-red);
 
+  --note-text: var(--dark-green);
+  --note-background: var(--very-light-green);
+  --note-border: var(--light-green);
   --blockquote-text: var(--dark-grey);
   --blockquote-border: var(--light-grey);
   --table-header-background: var(--very-light-grey);
@@ -157,6 +162,9 @@
 
     --green-text: var(--mid-green);
 
+    --note-text: var(--mid-green);
+    --note-background: var(--very-dark-green);
+    --note-border: var(--dark-green);
     --blockquote-text: var(--light-grey);
     --blockquote-border: var(--dark-grey);
     --table-header-background: var(--very-dark-grey);
