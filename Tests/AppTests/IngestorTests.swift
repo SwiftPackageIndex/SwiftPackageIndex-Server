@@ -289,15 +289,17 @@ class IngestorTests: AppTestCase {
         // validate
         let repos = try Repository.query(on: app.db).all().wait()
         XCTAssertEqual(repos.count, 2)
-        XCTAssertEqual(repos.map(\.summary),
-                       [.some("This is package https://github.com/foo/1"), .some("This is package https://github.com/foo/3")])
-        (try Package.query(on: app.db).all().wait()).forEach {
-            if $0.url == "https://github.com/foo/2" {
-                XCTAssertEqual($0.status, .metadataRequestFailed)
-            } else {
-                XCTAssertEqual($0.status, .new)
+        XCTAssertEqual(repos.compactMap(\.summary).sorted(),
+                       ["This is package https://github.com/foo/1",
+                        "This is package https://github.com/foo/3"])
+        (try Package.query(on: app.db).all().wait()).forEach { pkg in
+            switch pkg.url {
+                case "https://github.com/foo/2":
+                    XCTAssertEqual(pkg.status, .metadataRequestFailed)
+                default:
+                    XCTAssertEqual(pkg.status, .new)
             }
-            XCTAssert($0.updatedAt! > lastUpdate)
+            XCTAssert(pkg.updatedAt! > lastUpdate)
         }
     }
     
