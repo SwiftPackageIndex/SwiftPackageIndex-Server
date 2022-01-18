@@ -102,7 +102,7 @@ class IngestorTests: AppTestCase {
         }
     }
     
-    func test_updateRepositories() throws {
+    func test_updateRepositories() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "2")
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
@@ -144,7 +144,7 @@ class IngestorTests: AppTestCase {
         ]
         
         // MUT
-        let res = try updateRepositories(on: app.db, metadata: metadata).wait()
+        let res = try await updateRepositories(on: app.db, metadata: metadata)
         
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])

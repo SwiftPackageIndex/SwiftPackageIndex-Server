@@ -114,7 +114,7 @@ func ingest(client: Client,
     AppMetrics.ingestCandidatesCount?.set(packages.count)
     #warning("simplify metadata's type by dropping Joined<Package, Repository>")
     let metadata = await fetchMetadata(client: client, packages: packages)
-    let updates = try await updateRepositories(on: database, metadata: metadata).get()
+    let updates = await updateRepositories(on: database, metadata: metadata)
     return try await updatePackages(client: client,
                                     database: database,
                                     logger: logger,
@@ -158,23 +158,31 @@ func fetchMetadata(
 func updateRepositories(
     on database: Database,
     metadata: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]
-) -> EventLoopFuture<[Result<Joined<Package, Repository>, Error>]> {
-    let ops = metadata.map { result -> EventLoopFuture<Joined<Package, Repository>> in
-        switch result {
-            case let .success((pkg, metadata, licenseInfo, readmeInfo)):
-                AppMetrics.ingestMetadataSuccessCount?.inc()
-                return insertOrUpdateRepository(on: database,
-                                                for: pkg,
-                                                metadata: metadata,
-                                                licenseInfo: licenseInfo,
-                                                readmeInfo: readmeInfo)
-                    .map { pkg }
-            case let .failure(error):
-                AppMetrics.ingestMetadataFailureCount?.inc()
-                return database.eventLoop.future(error: error)
+) async -> [Result<Joined<Package, Repository>, Error>] {
+    await withThrowingTaskGroup(
+        of: Joined<Package, Repository>.self,
+        returning: [Result<Joined<Package, Repository>, Error>].self
+    ) { group in
+        for result in metadata {
+            group.addTask {
+                switch result {
+                    case let .success((pkg, metadata, licenseInfo, readmeInfo)):
+                        AppMetrics.ingestMetadataSuccessCount?.inc()
+                        try await insertOrUpdateRepository(on: database,
+                                                           for: pkg,
+                                                           metadata: metadata,
+                                                           licenseInfo: licenseInfo,
+                                                           readmeInfo: readmeInfo).get()
+                        return pkg
+                    case let .failure(error):
+                        AppMetrics.ingestMetadataFailureCount?.inc()
+                        throw error
+                }
+            }
         }
+
+        return await group.results()
     }
-    return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
 }
 
 
