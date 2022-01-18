@@ -90,6 +90,19 @@ blockquote {
   border-left: 4px solid var(--blockquote-border);
 }
 
+.note {
+  padding: 0 20px;
+  border: 1px solid;
+  color: var(--note-text);
+  background-color: var(--note-background);
+  border-color: var(--note-border);
+
+  img {
+    margin: 0 !important;
+    display: inline-block !important;
+  }
+}
+
 hr {
   margin: 25px auto;
   border: 0;
