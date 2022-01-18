@@ -24,18 +24,20 @@ struct ReconcileCommand: CommandAsync {
     func run(using context: CommandContext, signature: Signature) async {
         let logger = Logger(component: "reconcile")
 
-        do {
-            logger.info("Reconciling ...")
-            try? await reconcile(client: context.application.client,
-                                 database: context.application.db)
-            logger.info("done.")
+        logger.info("Reconciling ...")
 
-            try await AppMetrics.push(client: context.application.client,
-                                      logger: context.application.logger,
-                                      jobName: "reconcile")
+        do {
+            try await reconcile(client: context.application.client,
+                                database: context.application.db)
         } catch {
             logger.error("\(error.localizedDescription)")
         }
+
+        logger.info("done.")
+
+        try? await AppMetrics.push(client: context.application.client,
+                                   logger: context.application.logger,
+                                   jobName: "reconcile")
     }
 }
 
