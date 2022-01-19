@@ -25,3 +25,4 @@ Public/main.css.map
 .nova/
 /.vscode/
 .env.staging
+.devcontainer/
