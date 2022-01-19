@@ -79,7 +79,7 @@ class IngestorTests: AppTestCase {
     
     func test_insertOrUpdateRepository() async throws {
         let pkg = try savePackage(on: app.db, "https://github.com/foo/bar")
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
         do {  // test insert
             try await insertOrUpdateRepository(on: app.db,
                                                for: jpr,
@@ -97,7 +97,7 @@ class IngestorTests: AppTestCase {
                                                metadata: md,
                                                licenseInfo: .init(htmlUrl: ""),
                                                readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
-            let repos = try Repository.query(on: app.db).all().wait()
+            let repos = try await Repository.query(on: app.db).all().get()
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])
         }
     }
@@ -251,7 +251,7 @@ class IngestorTests: AppTestCase {
         // test flattening of many updates
         // Mainly a debug test for the issue described here:
         // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
-        let packages = try savePackages(on: app.db, testUrls100)
+        let packages = try await savePackagesAsync(on: app.db, testUrls100)
         for pkg in packages {
             let metadata = Github.Metadata.mock(for: pkg.url)
             try await insertOrUpdateRepository(on: self.app.db,
@@ -261,7 +261,7 @@ class IngestorTests: AppTestCase {
                                                readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
         }
 
-        let repos = try Repository.query(on: app.db).all().wait()
+        let repos = try await Repository.query(on: app.db).all().get()
         XCTAssertEqual(repos.count, testUrls100.count)
         XCTAssertEqual(repos.map(\.$package.id.uuidString).sorted(),
                        packages.map(\.id).compactMap { $0?.uuidString }.sorted())

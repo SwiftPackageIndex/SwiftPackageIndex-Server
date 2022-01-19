@@ -225,5 +225,6 @@ func insertOrUpdateRepository(on database: Database,
         .map(Release.init(from:)) ?? []
     repo.stars = repository.stargazerCount
     repo.summary = repository.description
-    return try await repo.save(on: database)
+
+    try await repo.save(on: database)
 }

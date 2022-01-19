@@ -102,9 +102,25 @@ func savePackage(on db: Database, id: Package.Id = UUID(), _ url: URL,
 
 
 @discardableResult
+func savePackageAsync(on db: Database, id: Package.Id = UUID(), _ url: URL,
+                 processingStage: Package.ProcessingStage? = nil) async throws -> Package {
+    let p = Package(id: id, url: url, processingStage: processingStage)
+    try await p.save(on: db)
+    return p
+}
+
+
+@discardableResult
 func savePackages(on db: Database, _ urls: [URL],
                   processingStage: Package.ProcessingStage? = nil) throws -> [Package] {
     try urls.map { try savePackage(on: db, $0, processingStage: processingStage) }
+}
+
+
+@discardableResult
+func savePackagesAsync(on db: Database, _ urls: [URL],
+                  processingStage: Package.ProcessingStage? = nil) async throws -> [Package] {
+    try await urls.mapAsync { try await savePackageAsync(on: db, $0, processingStage: processingStage) }
 }
 
 
