@@ -247,26 +247,6 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(Set(repos.map(\.$package.id)), Set(packages.map(\.id)))
     }
     
-    func test_insertOrUpdateRepository_bulk() async throws {
-        // test flattening of many updates
-        // Mainly a debug test for the issue described here:
-        // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
-        let packages = try savePackages(on: app.db, testUrls100)
-        for pkg in packages {
-            let metadata = Github.Metadata.mock(for: pkg.url)
-            try await insertOrUpdateRepository(on: self.app.db,
-                                               for: .init(model: pkg),
-                                               metadata: metadata,
-                                               licenseInfo: .init(htmlUrl: ""),
-                                               readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
-        }
-
-        let repos = try await Repository.query(on: app.db).all().get()
-        XCTAssertEqual(repos.count, testUrls100.count)
-        XCTAssertEqual(repos.map(\.$package.id.uuidString).sorted(),
-                       packages.map(\.id).compactMap { $0?.uuidString }.sorted())
-    }
-    
     func test_ingest_badMetadata() async throws {
         // setup
         let urls = ["https://github.com/foo/1",
