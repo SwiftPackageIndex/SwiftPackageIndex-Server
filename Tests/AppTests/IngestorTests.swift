@@ -251,7 +251,7 @@ class IngestorTests: AppTestCase {
         // test flattening of many updates
         // Mainly a debug test for the issue described here:
         // https://discordapp.com/channels/431917998102675485/444249946808647699/704335749637472327
-        let packages = try await savePackagesAsync(on: app.db, testUrls100)
+        let packages = try savePackages(on: app.db, testUrls100)
         for pkg in packages {
             let metadata = Github.Metadata.mock(for: pkg.url)
             try await insertOrUpdateRepository(on: self.app.db,
