@@ -242,7 +242,7 @@ class IngestorTests: AppTestCase {
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(testUrls.count))
         
         // validate
-        let repos = try Repository.query(on: app.db).all().wait()
+        let repos = try await Repository.query(on: app.db).all()
         XCTAssertEqual(repos.count, testUrls.count)
         XCTAssertEqual(Set(repos.map(\.$package.id)), Set(packages.map(\.id)))
     }
