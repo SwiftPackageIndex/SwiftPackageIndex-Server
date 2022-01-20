@@ -235,8 +235,9 @@ class IngestorTests: AppTestCase {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
-        let packages = try savePackages(on: app.db, testUrls, processingStage: .reconciliation)
-        
+        let packages = testUrls.map { Package(url: $0, processingStage: .reconciliation) }
+        try await packages.save(on: app.db)
+
         // MUT
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(testUrls.count))
         
