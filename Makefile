@@ -36,6 +36,10 @@ test:
 	env RUN_IMAGE_SNAPSHOT_TESTS=true \
 	swift test --enable-code-coverage --disable-automatic-resolution --sanitize=thread
 
+test-without-tsan:
+	env RUN_IMAGE_SNAPSHOT_TESTS=true \
+	swift test --enable-code-coverage --disable-automatic-resolution
+
 test-fast:
 	@echo Skipping image snapshot tests
 	@echo Running without --sanitize=thread
