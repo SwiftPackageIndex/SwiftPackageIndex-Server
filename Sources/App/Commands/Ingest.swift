@@ -112,7 +112,7 @@ func ingest(client: Client,
             packages: [Joined<Package, Repository>]) async throws {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
-    // TODO: simply the types in this chain by running the batches "vertically" instead of "horizontally"
+    // TODO: simplify the types in this chain by running the batches "vertically" instead of "horizontally"
     // i.e. instead of [package, data1, data2, ...] -> updatePackages(...)
     // run
     // let data1 = ...
