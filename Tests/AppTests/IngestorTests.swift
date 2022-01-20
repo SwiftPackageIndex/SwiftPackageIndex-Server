@@ -34,7 +34,7 @@ class IngestorTests: AppTestCase {
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         // validate
-        let repos = try Repository.query(on: app.db).all().wait()
+        let repos = try await Repository.query(on: app.db).all()
         XCTAssertEqual(Set(repos.map(\.$package.id)), Set(packages.map(\.id)))
         repos.forEach {
             XCTAssertNotNil($0.id)
@@ -47,7 +47,7 @@ class IngestorTests: AppTestCase {
             XCTAssert($0.stars > 0)
         }
         // assert packages have been updated
-        (try Package.query(on: app.db).all().wait()).forEach {
+        (try await Package.query(on: app.db).all()).forEach {
             XCTAssert($0.updatedAt != nil && $0.updatedAt! > lastUpdate)
             XCTAssertEqual($0.status, .new)
             XCTAssertEqual($0.processingStage, .ingestion)
@@ -86,7 +86,7 @@ class IngestorTests: AppTestCase {
                                                metadata: .mock(for: pkg.url),
                                                licenseInfo: .init(htmlUrl: ""),
                                                readmeInfo: .init(downloadUrl: "", htmlUrl: ""))
-            let repos = try Repository.query(on: app.db).all().wait()
+            let repos = try await Repository.query(on: app.db).all()
             XCTAssertEqual(repos.map(\.summary), [.some("This is package https://github.com/foo/bar")])
         }
         do {  // test update - run the same package again, with different metadata
@@ -105,7 +105,7 @@ class IngestorTests: AppTestCase {
     func test_updateRepositories() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "2")
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
         let metadata: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?),
                               Error>] = [
             .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
@@ -148,11 +148,10 @@ class IngestorTests: AppTestCase {
         
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
-        let repo = try XCTUnwrap(
-            Repository.query(on: app.db)
+        let repo = try await Repository.query(on: app.db)
                 .filter(\.$package.$id == pkg.requireID())
-                .first().wait()
-        )
+                .first()
+                .unwrap()
         XCTAssertEqual(repo.defaultBranch, "main")
         XCTAssertEqual(repo.forks, 1)
         XCTAssertEqual(repo.isInOrganization, true)
@@ -181,7 +180,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.summary, "package desc")
     }
     
-    func test_updatePackage() throws {
+    func test_updatePackage() async throws {
         // setup
         let pkgs = try savePackages(on: app.db, ["https://github.com/foo/1",
                                                  "https://github.com/foo/2"])
@@ -192,41 +191,41 @@ class IngestorTests: AppTestCase {
         ]
         
         // MUT
-        try updatePackages(client: app.client,
-                           database: app.db,
-                           logger: app.logger,
-                           results: results,
-                           stage: .ingestion).wait()
+        try await updatePackages(client: app.client,
+                                 database: app.db,
+                                 logger: app.logger,
+                                 results: results,
+                                 stage: .ingestion).get()
         
         // validate
         do {
-            let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
+            let pkgs = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(pkgs.map(\.status), [.metadataRequestFailed, .new])
             XCTAssertEqual(pkgs.map(\.processingStage), [.ingestion, .ingestion])
         }
     }
     
-    func test_updatePackages_new() throws {
+    func test_updatePackages_new() async throws {
         // Ensure newly ingested packages are passed on with status = new to fast-track
         // them into analysis
         let pkgs = [
             Package(id: UUID(), url: "https://github.com/foo/1", status: .ok, processingStage: .reconciliation),
             Package(id: UUID(), url: "https://github.com/foo/2", status: .new, processingStage: .reconciliation)
         ]
-        try pkgs.save(on: app.db).wait()
+        try await pkgs.save(on: app.db).get()
         let results: [Result<Joined<Package, Repository>, Error>] = [ .success(.init(model: pkgs[0])),
                                               .success(.init(model: pkgs[1]))]
         
         // MUT
-        try updatePackages(client: app.client,
-                           database: app.db,
-                           logger: app.logger,
-                           results: results,
-                           stage: .ingestion).wait()
+        try await updatePackages(client: app.client,
+                                 database: app.db,
+                                 logger: app.logger,
+                                 results: results,
+                                 stage: .ingestion).get()
         
         // validate
         do {
-            let pkgs = try Package.query(on: app.db).sort(\.$url).all().wait()
+            let pkgs = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(pkgs.map(\.status), [.ok, .new])
             XCTAssertEqual(pkgs.map(\.processingStage), [.ingestion, .ingestion])
         }
@@ -265,12 +264,12 @@ class IngestorTests: AppTestCase {
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         // validate
-        let repos = try Repository.query(on: app.db).all().wait()
+        let repos = try await Repository.query(on: app.db).all()
         XCTAssertEqual(repos.count, 2)
         XCTAssertEqual(repos.compactMap(\.summary).sorted(),
                        ["This is package https://github.com/foo/1",
                         "This is package https://github.com/foo/3"])
-        (try Package.query(on: app.db).all().wait()).forEach { pkg in
+        (try await Package.query(on: app.db).all()).forEach { pkg in
             switch pkg.url {
                 case "https://github.com/foo/2":
                     XCTAssertEqual(pkg.status, .metadataRequestFailed)
@@ -320,18 +319,18 @@ class IngestorTests: AppTestCase {
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         // validate repositories (single element pointing to the ingested package)
-        let repos = try Repository.query(on: app.db).all().wait()
-        let ingested = try XCTUnwrap(
-            Package.query(on: app.db).filter(\.$processingStage == .ingestion)
-                .first().wait()
-        )
+        let repos = try await Repository.query(on: app.db).all()
+        let ingested = try await Package.query(on: app.db)
+            .filter(\.$processingStage == .ingestion)
+            .first()
+            .unwrap()
         XCTAssertEqual(repos.map(\.$package.id), [try ingested.requireID()])
         
         // validate packages
-        let reconciled = try XCTUnwrap(
-            Package.query(on: app.db).filter(\.$processingStage == .reconciliation)
-                .first().wait()
-        )
+        let reconciled = try await Package.query(on: app.db)
+            .filter(\.$processingStage == .reconciliation)
+            .first()
+            .unwrap()
         // the ingested package has the update ...
         XCTAssertEqual(ingested.status, .new)
         XCTAssertEqual(ingested.processingStage, .ingestion)
