@@ -23,11 +23,12 @@ class IngestorTests: AppTestCase {
     
     func test_ingest_basic() async throws {
         // setup
-        let urls = ["https://github.com/finestructure/Gala",
-                    "https://github.com/finestructure/Rester",
-                    "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"]
         Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
-        let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
+        let packages = ["https://github.com/finestructure/Gala",
+                        "https://github.com/finestructure/Rester",
+                        "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"]
+            .map { Package(url: $0, processingStage: .reconciliation) }
+        try await packages.save(on: app.db)
         let lastUpdate = Date()
         
         // MUT
