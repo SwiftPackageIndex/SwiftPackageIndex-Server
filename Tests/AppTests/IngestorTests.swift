@@ -58,8 +58,8 @@ class IngestorTests: AppTestCase {
     func test_fetchMetadata() async throws {
         // Test completion of all fetches despite early error
         // setup
-        let packages = try savePackages(on: app.db, ["https://github.com/foo/1",
-                                                     "https://github.com/foo/2"])
+        let packages = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1",
+                                                                 "https://github.com/foo/2"])
             .map(Joined<Package, Repository>.init(model:))
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "https://github.com/foo/1" {
@@ -79,7 +79,7 @@ class IngestorTests: AppTestCase {
     }
     
     func test_insertOrUpdateRepository() async throws {
-        let pkg = try savePackage(on: app.db, "https://github.com/foo/bar")
+        let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
         do {  // test insert
             try await insertOrUpdateRepository(on: app.db,
@@ -105,7 +105,7 @@ class IngestorTests: AppTestCase {
     
     func test_updateRepositories() async throws {
         // setup
-        let pkg = try savePackage(on: app.db, "2")
+        let pkg = try await savePackageAsync(on: app.db, "2")
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
         let metadata: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?),
                               Error>] = [
@@ -183,8 +183,8 @@ class IngestorTests: AppTestCase {
     
     func test_updatePackage() async throws {
         // setup
-        let pkgs = try savePackages(on: app.db, ["https://github.com/foo/1",
-                                                 "https://github.com/foo/2"])
+        let pkgs = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1",
+                                                             "https://github.com/foo/2"])
             .map(Joined<Package, Repository>.init(model:))
         let results: [Result<Joined<Package, Repository>, Error>] = [
             .failure(AppError.metadataRequestFailed(try pkgs[0].model.requireID(), .badRequest, "1")),
@@ -253,7 +253,8 @@ class IngestorTests: AppTestCase {
         let urls = ["https://github.com/foo/1",
                     "https://github.com/foo/2",
                     "https://github.com/foo/3"]
-        let packages = try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
+        let packages = try await savePackagesAsync(on: app.db, urls.asURLs,
+                                                   processingStage: .reconciliation)
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "https://github.com/foo/2" {
                 return self.future(error: AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2")))
@@ -288,8 +289,9 @@ class IngestorTests: AppTestCase {
         //   - don't create repository records
         //   - report critical error up to Rollbar
         // setup
-        let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
-        try savePackages(on: app.db, urls.asURLs, processingStage: .reconciliation)
+        for url in ["https://github.com/foo/1", "https://github.com/foo/2"].asURLs {
+            try await Package(url: url, processingStage: .reconciliation).save(on: app.db)
+        }
         // Return identical metadata for both packages, same as a for instance a redirected
         // package would after a rename / ownership change
         Current.fetchMetadata = { _, _ in self.future(
@@ -349,7 +351,7 @@ class IngestorTests: AppTestCase {
     func test_issue_761_no_license() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
-        let packages = try savePackages(on: app.db, ["https://github.com/foo/1"])
+        let packages = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1"])
             .map(Joined<Package, Repository>.init(model:))
         // use mock for metadata request which we're not interested in ...
         Current.fetchMetadata = { _, _ in self.future(Github.Metadata()) }
