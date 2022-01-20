@@ -59,7 +59,7 @@ class IngestorTests: AppTestCase {
         // Test completion of all fetches despite early error
         // setup
         let packages = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1",
-                                                                 "https://github.com/foo/2"])
+                                                                "https://github.com/foo/2"])
             .map(Joined<Package, Repository>.init(model:))
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "https://github.com/foo/1" {
@@ -107,42 +107,44 @@ class IngestorTests: AppTestCase {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "2")
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
-        let metadata: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?),
-                              Error>] = [
-            .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
-            .success((jpr,
-                      .init(defaultBranch: "main",
-                            forks: 1,
-                            issuesClosedAtDates: [
-                                Date(timeIntervalSince1970: 0),
-                                Date(timeIntervalSince1970: 2),
-                                Date(timeIntervalSince1970: 1),
-                            ],
-                            license: .mit,
-                            openIssues: 1,
-                            openPullRequests: 2,
-                            owner: "foo",
-                            pullRequestsClosedAtDates: [
-                                Date(timeIntervalSince1970: 1),
-                                Date(timeIntervalSince1970: 3),
-                                Date(timeIntervalSince1970: 2),
-                            ],
-                            releases: [
-                                .init(description: "a release",
-                                      descriptionHTML: "<p>a release</p>",
-                                      isDraft: false,
-                                      publishedAt: Date(timeIntervalSince1970: 5),
-                                      tagName: "1.2.3",
-                                      url: "https://example.com/1.2.3")
-                            ],
-                            repositoryTopics: ["foo", "bar", "Bar", "baz"],
-                            name: "bar",
-                            stars: 2,
-                            summary: "package desc",
-                            isInOrganization: true),
-                      licenseInfo: .init(htmlUrl: "license url"),
-                      readmeInfo: .init(downloadUrl: "readme url", htmlUrl: "readme html url")))
-        ]
+        let metadata: [Result<(Joined<Package, Repository>,
+                               Github.Metadata, Github.License?,
+                               Github.Readme?),
+                       Error>] = [
+                        .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
+                        .success((jpr,
+                                  .init(defaultBranch: "main",
+                                        forks: 1,
+                                        issuesClosedAtDates: [
+                                            Date(timeIntervalSince1970: 0),
+                                            Date(timeIntervalSince1970: 2),
+                                            Date(timeIntervalSince1970: 1),
+                                        ],
+                                        license: .mit,
+                                        openIssues: 1,
+                                        openPullRequests: 2,
+                                        owner: "foo",
+                                        pullRequestsClosedAtDates: [
+                                            Date(timeIntervalSince1970: 1),
+                                            Date(timeIntervalSince1970: 3),
+                                            Date(timeIntervalSince1970: 2),
+                                        ],
+                                        releases: [
+                                            .init(description: "a release",
+                                                  descriptionHTML: "<p>a release</p>",
+                                                  isDraft: false,
+                                                  publishedAt: Date(timeIntervalSince1970: 5),
+                                                  tagName: "1.2.3",
+                                                  url: "https://example.com/1.2.3")
+                                        ],
+                                        repositoryTopics: ["foo", "bar", "Bar", "baz"],
+                                        name: "bar",
+                                        stars: 2,
+                                        summary: "package desc",
+                                        isInOrganization: true),
+                                  licenseInfo: .init(htmlUrl: "license url"),
+                                  readmeInfo: .init(downloadUrl: "readme url", htmlUrl: "readme html url")))
+                       ]
         
         // MUT
         let res = await updateRepositories(on: app.db, metadata: metadata)
@@ -150,9 +152,9 @@ class IngestorTests: AppTestCase {
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
         let repo = try await Repository.query(on: app.db)
-                .filter(\.$package.$id == pkg.requireID())
-                .first()
-                .unwrap()
+            .filter(\.$package.$id == pkg.requireID())
+            .first()
+            .unwrap()
         XCTAssertEqual(repo.defaultBranch, "main")
         XCTAssertEqual(repo.forks, 1)
         XCTAssertEqual(repo.isInOrganization, true)
@@ -184,7 +186,7 @@ class IngestorTests: AppTestCase {
     func test_updatePackage() async throws {
         // setup
         let pkgs = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1",
-                                                             "https://github.com/foo/2"])
+                                                            "https://github.com/foo/2"])
             .map(Joined<Package, Repository>.init(model:))
         let results: [Result<Joined<Package, Repository>, Error>] = [
             .failure(AppError.metadataRequestFailed(try pkgs[0].model.requireID(), .badRequest, "1")),
@@ -215,7 +217,7 @@ class IngestorTests: AppTestCase {
         ]
         try await pkgs.save(on: app.db).get()
         let results: [Result<Joined<Package, Repository>, Error>] = [ .success(.init(model: pkgs[0])),
-                                              .success(.init(model: pkgs[1]))]
+                                                                      .success(.init(model: pkgs[1]))]
         
         // MUT
         try await updatePackages(client: app.client,
