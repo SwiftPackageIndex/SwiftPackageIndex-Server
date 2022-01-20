@@ -39,7 +39,9 @@ class ReconcilerTests: AppTestCase {
     
     func test_adds_and_deletes() async throws {
         // save intial set of packages 1, 2, 3
-        try savePackages(on: app.db, ["1", "2", "3"].asURLs)
+        for url in ["1", "2", "3"].asURLs {
+            try await Package(url: url).save(on: app.db)
+        }
         
         // new package list drops 2, 3, adds 4, 5
         let urls = ["1", "4", "5"]
@@ -49,7 +51,7 @@ class ReconcilerTests: AppTestCase {
         try await reconcile(client: app.client, database: app.db)
         
         // validate
-        let packages = try Package.query(on: app.db).all().wait()
+        let packages = try await Package.query(on: app.db).all()
         XCTAssertEqual(packages.map(\.url).sorted(), urls.sorted())
     }
 }
