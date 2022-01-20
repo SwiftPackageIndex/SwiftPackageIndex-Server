@@ -142,3 +142,22 @@ Note that this will launch several services defined in `app.yml`, including the 
 ```
 env VERSION=... docker-compose -f app.yml up -d server
 ```
+
+## Running in a Linux container
+
+Sometimes you need to run tests or even the server on the target platform, Linux. The best way to do that is to build and run in a Linux container.
+
+The trickiest part of this is to ensure the test or app container can connect to the database, which is also running in docker. To do so, requires the following setup:
+
+- in your `.env` file - `development` or `testing`, depending on whether you are running the server or the tests, st `DATABASE_HOST` to `host.docker.internal`
+- on macOS, that's all you need to to. On Linux, you need to tell your `docker run` command to make the host accessible on the network via `--add-host=host.docker.internal:host-gateway`. (This works on macOS as well but is redundant.)
+
+So, in order to run the tests in a Linux container run:
+
+```
+docker run --rm -v "$PWD":/host -w /host --add-host=host.docker.internal:host-gateway registry.gitlab.com/finestructure/spi-base:0.6.4 swift test
+```
+
+Make sure you use the most recent `spi-base` image. You can find the latest image name in the `test-docker` target, which also provides a convenient way to run all all tests in a docker container.
+
+Running the tests in a separate command like above can be useful to run tests individually, via a `--filter <test selector>` parameter.
