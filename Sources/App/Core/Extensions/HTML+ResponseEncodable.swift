@@ -21,13 +21,13 @@ protocol Renderable {
 
 extension Renderable {
     public func encodeResponse(for request: Request) -> EventLoopFuture<Response> {
-        request.eventLoop.future(encodeResponse(for: request, status: .ok))
+        encodeResponse(for: request, status: .ok)
     }
 
-    public func encodeResponse(for request: Request, status: HTTPResponseStatus) -> Response {
+    public func encodeResponse(for request: Request, status: HTTPResponseStatus) -> EventLoopFuture<Response> {
         let res = Response(status: status, body: .init(string: self.render()))
         res.headers.add(name: "Content-Type", value: "text/html; charset=utf-8")
-        return res
+        return request.eventLoop.makeSucceededFuture(res)
     }
 }
 
