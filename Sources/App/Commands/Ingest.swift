@@ -16,7 +16,7 @@ import Vapor
 import Fluent
 
 
-struct IngestCommand: CommandAsync {
+struct IngestCommand: Command {
     let defaultLimit = 1
     
     struct Signature: CommandSignature {
@@ -34,7 +34,7 @@ struct IngestCommand: CommandAsync {
         case limit(Int)
     }
 
-    func run(using context: CommandContext, signature: Signature) async {
+    func run(using context: CommandContext, signature: Signature) throws {
         let limit = signature.limit ?? defaultLimit
 
         let client = context.application.client
@@ -44,16 +44,11 @@ struct IngestCommand: CommandAsync {
         Self.resetMetrics()
 
         let mode = signature.id.map(Mode.id) ?? .limit(limit)
-
-        do {
-            try await ingest(client: client, database: db, logger: logger, mode: mode)
-        } catch {
-            logger.error("\(error.localizedDescription)")
-        }
-
-        try? await AppMetrics.push(client: client,
-                                   logger: logger,
-                                   jobName: "ingest")
+        try ingest(client: client, database: db, logger: logger, mode: mode)
+            .wait()
+        try AppMetrics.push(client: client,
+                            logger: logger,
+                            jobName: "ingest").wait()
     }
 }
 
@@ -76,25 +71,32 @@ extension IngestCommand {
 func ingest(client: Client,
             database: Database,
             logger: Logger,
-            mode: IngestCommand.Mode) async throws {
+            mode: IngestCommand.Mode) -> EventLoopFuture<Void> {
     let start = DispatchTime.now().uptimeNanoseconds
-    defer { AppMetrics.ingestDurationSeconds?.time(since: start) }
-
     switch mode {
         case .id(let id):
             logger.info("Ingesting (id: \(id)) ...")
-            let pkg = try await Package.fetchCandidate(database, id: id).get()
-            try await ingest(client: client,
-                             database: database,
-                             logger: logger,
-                             packages: [pkg])
+            return Package.fetchCandidate(database, id: id)
+                .map { [$0] }
+                .flatMap { packages in
+                    ingest(client: client,
+                           database: database,
+                           logger: logger,
+                           packages: packages)
+                }
+                .map {
+                    AppMetrics.ingestDurationSeconds?.time(since: start)
+                }
         case .limit(let limit):
             logger.info("Ingesting (limit: \(limit)) ...")
-            let packages = try await Package.fetchCandidates(database, for: .ingestion, limit: limit).get()
-            try await ingest(client: client,
-                             database: database,
-                             logger: logger,
-                             packages: packages)
+            return Package.fetchCandidates(database, for: .ingestion, limit: limit)
+                .flatMap { ingest(client: client,
+                                  database: database,
+                                  logger: logger,
+                                  packages: $0) }
+                .map {
+                    AppMetrics.ingestDurationSeconds?.time(since: start)
+                }
     }
 }
 
@@ -109,25 +111,16 @@ func ingest(client: Client,
 func ingest(client: Client,
             database: Database,
             logger: Logger,
-            packages: [Joined<Package, Repository>]) async throws {
+            packages: [Joined<Package, Repository>]) -> EventLoopFuture<Void> {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
-    // TODO: simplify the types in this chain by running the batches "vertically" instead of "horizontally"
-    // i.e. instead of [package, data1, data2, ...] -> updatePackages(...)
-    // run
-    // let data1 = ...
-    // let data2 = ...
-    // updatePackage(...)
-    // i.e. loop through each package end-to-end instead of building a wide tuple.
-    // (I'm pretty sure none of the db queries are actually batch queries, so we wouldn't
-    // introduce any extra latency. Should check if we could make them batch, though.)
-    let metadata = await fetchMetadata(client: client, packages: packages)
-    let updates = await updateRepositories(on: database, metadata: metadata)
-    return try await updatePackages(client: client,
-                                    database: database,
-                                    logger: logger,
-                                    results: updates,
-                                    stage: .ingestion).get()
+    let metadata = fetchMetadata(client: client, packages: packages)
+    let updates = metadata.flatMap { updateRepositories(on: database, metadata: $0) }
+    return updates.flatMap { updatePackages(client: client,
+                                            database: database,
+                                            logger: logger,
+                                            results: $0,
+                                            stage: .ingestion) }
 }
 
 
@@ -138,19 +131,14 @@ func ingest(client: Client,
 /// - Returns: results future
 func fetchMetadata(
     client: Client, packages: [Joined<Package, Repository>]
-) async -> [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>] {
-    await packages.mapAsync { pkg -> Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error> in
-        do {
-            // We could run these tasks concurrently via `async let`.
-            // Keeping pre-async/await behaviour of running them sequentially for now.
-            let metadata = try await Current.fetchMetadata(client, pkg.model.url).get()
-            let license = try await Current.fetchLicense(client, pkg.model.url).get()
-            let readme = try await Current.fetchReadme(client, pkg.model.url).get()
-            return .success((pkg, metadata, license, readme))
-        } catch {
-            return .failure(error)
-        }
+) -> EventLoopFuture<[Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]> {
+    let ops = packages.map { pkg in
+        Current.fetchMetadata(client, pkg.model.url)
+            .and(Current.fetchLicense(client, pkg.model.url))
+            .and(Current.fetchReadme(client, pkg.model.url))
+            .map { (pkg, $0.0, $0.1, $1) }
     }
+    return EventLoopFuture.whenAllComplete(ops, on: client.eventLoop)
 }
 
 
@@ -162,23 +150,23 @@ func fetchMetadata(
 func updateRepositories(
     on database: Database,
     metadata: [Result<(Joined<Package, Repository>, Github.Metadata, Github.License?, Github.Readme?), Error>]
-) async -> [Result<Joined<Package, Repository>, Error>] {
-    await metadata.mapAsync { result -> Result<Joined<Package, Repository>, Error> in
+) -> EventLoopFuture<[Result<Joined<Package, Repository>, Error>]> {
+    let ops = metadata.map { result -> EventLoopFuture<Joined<Package, Repository>> in
         switch result {
             case let .success((pkg, metadata, licenseInfo, readmeInfo)):
                 AppMetrics.ingestMetadataSuccessCount?.inc()
-                return await Result {
-                    try await insertOrUpdateRepository(on: database,
-                                                       for: pkg,
-                                                       metadata: metadata,
-                                                       licenseInfo: licenseInfo,
-                                                       readmeInfo: readmeInfo)
-                }.map { pkg }
+                return insertOrUpdateRepository(on: database,
+                                                for: pkg,
+                                                metadata: metadata,
+                                                licenseInfo: licenseInfo,
+                                                readmeInfo: readmeInfo)
+                    .map { pkg }
             case let .failure(error):
                 AppMetrics.ingestMetadataFailureCount?.inc()
-                return .failure(error)
+                return database.eventLoop.future(error: error)
         }
     }
+    return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
 }
 
 
@@ -192,39 +180,41 @@ func insertOrUpdateRepository(on database: Database,
                               for package: Joined<Package, Repository>,
                               metadata: Github.Metadata,
                               licenseInfo: Github.License?,
-                              readmeInfo: Github.Readme?) async throws {
+                              readmeInfo: Github.Readme?) -> EventLoopFuture<Void> {
     guard let pkgId = try? package.model.requireID() else {
-        throw AppError.genericError(nil, "package id not found")
+        return database.eventLoop.future(error: AppError.genericError(nil, "package id not found"))
     }
 
-    guard let repository = metadata.repository else {
-        throw AppError.genericError(pkgId, "repository is nil for package \(package.model.url)")
-    }
-
-    let repo = try await Repository.query(on: database)
+    return Repository.query(on: database)
         .filter(\.$package.$id == pkgId)
-        .first() ?? Repository(packageId: pkgId)
-    repo.defaultBranch = repository.defaultBranch
-    repo.forks = repository.forkCount
-    repo.isArchived = repository.isArchived
-    repo.isInOrganization = repository.isInOrganization
-    repo.keywords = Set(repository.topics.map { $0.lowercased() }).sorted()
-    repo.lastIssueClosedAt = repository.lastIssueClosedAt
-    repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
-    repo.license = .init(from: repository.licenseInfo)
-    repo.licenseUrl = licenseInfo?.htmlUrl
-    repo.name = repository.name
-    repo.openIssues = repository.openIssues.totalCount
-    repo.openPullRequests = repository.openPullRequests.totalCount
-    repo.owner = repository.owner.login
-    repo.ownerName = repository.owner.name
-    repo.ownerAvatarUrl = repository.owner.avatarUrl
-    repo.readmeUrl = readmeInfo?.downloadUrl
-    repo.readmeHtmlUrl = readmeInfo?.htmlUrl
-    repo.releases = metadata.repository?.releases.nodes
-        .map(Release.init(from:)) ?? []
-    repo.stars = repository.stargazerCount
-    repo.summary = repository.description
-
-    try await repo.save(on: database)
+        .first()
+        .flatMap { repo -> EventLoopFuture<Void> in
+            guard let repository = metadata.repository else {
+                return database.eventLoop.future(
+                    error: AppError.genericError(pkgId, "repository is nil for package \(package.model.url)"))
+            }
+            let repo = repo ?? Repository(packageId: pkgId)
+            repo.defaultBranch = repository.defaultBranch
+            repo.forks = repository.forkCount
+            repo.isArchived = repository.isArchived
+            repo.isInOrganization = repository.isInOrganization
+            repo.keywords = Set(repository.topics.map { $0.lowercased() }).sorted()
+            repo.lastIssueClosedAt = repository.lastIssueClosedAt
+            repo.lastPullRequestClosedAt = repository.lastPullRequestClosedAt
+            repo.license = .init(from: repository.licenseInfo)
+            repo.licenseUrl = licenseInfo?.htmlUrl
+            repo.name = repository.name
+            repo.openIssues = repository.openIssues.totalCount
+            repo.openPullRequests = repository.openPullRequests.totalCount
+            repo.owner = repository.owner.login
+            repo.ownerName = repository.owner.name
+            repo.ownerAvatarUrl = repository.owner.avatarUrl
+            repo.readmeUrl = readmeInfo?.downloadUrl
+            repo.readmeHtmlUrl = readmeInfo?.htmlUrl
+            repo.releases = metadata.repository?.releases.nodes
+                .map(Release.init(from:)) ?? []
+            repo.stars = repository.stargazerCount
+            repo.summary = repository.description
+            return repo.save(on: database)
+        }
 }

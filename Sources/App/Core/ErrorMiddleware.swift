@@ -38,9 +38,10 @@ public final class ErrorMiddleware: AsyncMiddleware {
                 Current.logger()?.error("ErrorPage.View \(statusCode): \(error.localizedDescription)")
             }
 
-            return ErrorPage.View(path: req.url.path, error: abortError)
+            return try await ErrorPage.View(path: req.url.path, error: abortError)
                 .document()
                 .encodeResponse(for: req, status: abortError.status)
+                .get()
         }
     }
 
