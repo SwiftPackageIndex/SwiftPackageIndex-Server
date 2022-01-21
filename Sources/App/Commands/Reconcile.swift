@@ -16,33 +16,28 @@ import Fluent
 import Vapor
 
 
-struct ReconcileCommand: Command {
+struct ReconcileCommand: CommandAsync {
     struct Signature: CommandSignature { }
     
     var help: String { "Reconcile package list with server" }
 
-    func run(using context: CommandContext, signature: Signature) throws {
-        let group = DispatchGroup()
-        group.enter()
-        Task {
-            defer { group.leave() }
+    func run(using context: CommandContext, signature: Signature) async {
+        let logger = Logger(component: "reconcile")
 
-            let logger = Logger(component: "reconcile")
+        logger.info("Reconciling ...")
 
-            do {
-                logger.info("Reconciling ...")
-                try? await reconcile(client: context.application.client,
-                                     database: context.application.db)
-                logger.info("done.")
-
-                try await AppMetrics.push(client: context.application.client,
-                                          logger: context.application.logger,
-                                          jobName: "reconcile")
-            } catch {
-                logger.error("\(error.localizedDescription)")
-            }
+        do {
+            try await reconcile(client: context.application.client,
+                                database: context.application.db)
+        } catch {
+            logger.error("\(error.localizedDescription)")
         }
-        group.wait()
+
+        logger.info("done.")
+
+        try? await AppMetrics.push(client: context.application.client,
+                                   logger: context.application.logger,
+                                   jobName: "reconcile")
     }
 }
 

@@ -80,18 +80,14 @@ extension API {
             switch cmd {
                 case .reconcile:
                     try await reconcile(client: req.client, database: req.db)
-                    return try await Package.query(on: req.db).count()
-                        .map { Command.Response.init(status: "ok", rows: $0) }
-                        .get()
+                    let rowCount = try await Package.query(on: req.db).count()
+                    return .init(status: "ok", rows: rowCount)
                 case .ingest:
-                    return try await ingest(client: req.application.client,
-                                            database: req.application.db,
-                                            logger: req.application.logger,
-                                            mode: .limit(limit))
-                        .map {
-                            Command.Response(status: "ok", rows: limit)
-                        }
-                        .get()
+                    try await ingest(client: req.application.client,
+                                     database: req.application.db,
+                                     logger: req.application.logger,
+                                     mode: .limit(limit))
+                    return .init(status: "ok", rows: limit)
                 case .analyze:
                     return try await analyze(client: req.application.client,
                                              database: req.application.db,
