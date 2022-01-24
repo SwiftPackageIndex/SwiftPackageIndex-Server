@@ -84,7 +84,9 @@ class ErrorMiddlewareTests: AppTestCase {
         
         try app.test(.GET, "500", afterResponse: { response in
             XCTAssertEqual(reportedLevel, .critical)
-            XCTAssert(reportedError?.contains("Abort.500: Internal Server Error") ?? false)
+            let errorMessage = try reportedError.unwrap()
+            XCTAssert(errorMessage.contains("Abort.500: Internal Server Error"),
+                      "error was: \(errorMessage)")
         })
     }
     

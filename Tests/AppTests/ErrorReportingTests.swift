@@ -37,7 +37,7 @@ class ErrorReportingTests: AppTestCase {
         try Rollbar.createItem(client: client, level: .critical, message: "Test critical").wait()
     }
     
-    func test_Ingestor_error_reporting() throws {
+    func test_Ingestor_error_reporting() async throws {
         // setup
         try savePackages(on: app.db, ["1", "2"], processingStage: .reconciliation)
         Current.fetchMetadata = { _, pkg in self.future(error: AppError.invalidPackageUrl(nil, "foo")) }
@@ -51,7 +51,7 @@ class ErrorReportingTests: AppTestCase {
         }
         
         // MUT
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         // validation
         XCTAssertEqual(reportedError, AppError.invalidPackageUrl(nil, "foo"))

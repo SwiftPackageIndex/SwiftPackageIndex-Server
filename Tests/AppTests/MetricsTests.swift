@@ -96,12 +96,12 @@ class MetricsTests: AppTestCase {
         XCTAssert((AppMetrics.reconcileDurationSeconds?.get()) ?? 0 > 0)
     }
 
-    func test_ingestDurationSeconds() throws {
+    func test_ingestDurationSeconds() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
 
         // MUT
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .id(pkg.id!)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .id(pkg.id!))
 
         // validation
         XCTAssert((AppMetrics.ingestDurationSeconds?.get()) ?? 0 > 0)
