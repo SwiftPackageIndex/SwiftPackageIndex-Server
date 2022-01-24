@@ -12,27 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Plot
-import Vapor
 
-protocol Renderable {
-    func render() -> String
-}
-
-extension Renderable {
-    public func encodeResponse(for request: Request) -> EventLoopFuture<Response> {
-        request.eventLoop.future(encodeResponse(for: request, status: .ok))
+extension Sequence {
+    func mapAsync<T>(_ transform: (Element) async throws -> T) async rethrows -> [T] {
+        var results = [T]()
+        for element in self {
+            try await results.append(transform(element))
+        }
+        return results
     }
-
-    public func encodeResponse(for request: Request, status: HTTPResponseStatus) -> Response {
-        let res = Response(status: status, body: .init(string: self.render()))
-        res.headers.add(name: "Content-Type", value: "text/html; charset=utf-8")
-        return res
-    }
-}
-
-extension HTML: Renderable, ResponseEncodable  {
-}
-
-extension Node: Renderable, ResponseEncodable {
 }

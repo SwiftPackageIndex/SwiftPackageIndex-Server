@@ -153,7 +153,7 @@ class PipelineTests: AppTestCase {
         try await reconcile(client: app.client, database: app.db)
         
         do {  // validate
-            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.new, .new, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.reconciliation, .reconciliation, .reconciliation])
@@ -161,10 +161,10 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - second stage
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         do { // validate
-            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.new, .new, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
@@ -172,14 +172,14 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - third stage
-        try analyze(client: app.client,
-                    database: app.db,
-                    logger: app.logger,
-                    threadPool: app.threadPool,
-                    mode: .limit(10)).wait()
+        try await analyze(client: app.client,
+                          database: app.db,
+                          logger: app.logger,
+                          threadPool: app.threadPool,
+                          mode: .limit(10)).get()
         
         do { // validate
-            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "2", "3"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
@@ -193,7 +193,7 @@ class PipelineTests: AppTestCase {
         try await reconcile(client: app.client, database: app.db)
         
         do {  // validate - only new package moves to .reconciliation stage
-            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .reconciliation])
@@ -201,10 +201,10 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - ingest again
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         do {  // validate - only new package moves to .ingestion stage
-            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .new])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .ingestion])
@@ -213,14 +213,14 @@ class PipelineTests: AppTestCase {
         
         // MUT - analyze again
         let lastAnalysis = Current.date()
-        try analyze(client: app.client,
-                    database: app.db,
-                    logger: app.logger,
-                    threadPool: app.threadPool,
-                    mode: .limit(10)).wait()
+        try await analyze(client: app.client,
+                          database: app.db,
+                          logger: app.logger,
+                          threadPool: app.threadPool,
+                          mode: .limit(10)).get()
         
         do {  // validate - only new package moves to .ingestion stage
-            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
@@ -232,10 +232,10 @@ class PipelineTests: AppTestCase {
         Current.date = { Date().addingTimeInterval(Constants.reIngestionDeadtime) }
         
         // MUT - ingest yet again
-        try ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10)).wait()
+        try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
         
         do {  // validate - now all three packages should have been updated
-            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.ingestion, .ingestion, .ingestion])
@@ -243,14 +243,14 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - re-run analysis to complete the sequence
-        try analyze(client: app.client,
-                    database: app.db,
-                    logger: app.logger,
-                    threadPool: app.threadPool,
-                    mode: .limit(10)).wait()
+        try await analyze(client: app.client,
+                          database: app.db,
+                          logger: app.logger,
+                          threadPool: app.threadPool,
+                          mode: .limit(10)).get()
         
         do {  // validate - only new package moves to .ingestion stage
-            let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+            let packages = try await Package.query(on: app.db).sort(\.$url).all()
             XCTAssertEqual(packages.map(\.url), ["1", "3", "4"].asGithubUrls)
             XCTAssertEqual(packages.map(\.status), [.ok, .ok, .ok])
             XCTAssertEqual(packages.map(\.processingStage), [.analysis, .analysis, .analysis])
