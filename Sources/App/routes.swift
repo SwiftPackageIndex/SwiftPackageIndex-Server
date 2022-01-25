@@ -83,6 +83,11 @@ func routes(_ app: Application) throws {
         app.get(SiteURL.keywords(.key).pathComponents, use: controller.show)
     }
 
+    do { // Build monitor page
+        let buildMonitorController = BuildMonitorController()
+        app.get(SiteURL.buildMonitor.pathComponents, use: buildMonitorController.index)
+    }
+
     do {  // build details page
         let buildController = BuildController()
         app.get(SiteURL.builds(.key).pathComponents, use: buildController.show)

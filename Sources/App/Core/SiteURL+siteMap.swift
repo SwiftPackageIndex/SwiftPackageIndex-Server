@@ -50,6 +50,8 @@ extension SiteURL {
                 return .weekly
             case .author:
                 return .daily
+            case .buildMonitor:
+                return .hourly
             case .builds:
                 return .daily
             case .docs:
