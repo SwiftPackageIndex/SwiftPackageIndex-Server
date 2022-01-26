@@ -19,13 +19,29 @@ import XCTest
 
 
 class ReconcilerTests: AppTestCase {
-    
+
+    func test_fetchCurrentPackageList() async throws {
+        // setup
+        for url in ["1", "2", "3"].asURLs {
+            try await Package(url: url).save(on: app.db)
+        }
+
+        // MUT
+        let urls = try await fetchCurrentPackageList(app.db)
+
+        // validate
+        XCTAssertEqual(urls.map(\.absoluteString).sorted(), ["1", "2", "3"])
+    }
+
     func test_basic_reconciliation() async throws {
+        // setup
         let urls = ["1", "2", "3"]
         Current.fetchPackageList = { _ in urls.asURLs }
-        
+
+        // MUT
         try await reconcile(client: app.client, database: app.db)
-        
+
+        // validate
         let packages = try Package.query(on: app.db).all().wait()
         XCTAssertEqual(packages.map(\.url).sorted(), urls.sorted())
         packages.forEach {

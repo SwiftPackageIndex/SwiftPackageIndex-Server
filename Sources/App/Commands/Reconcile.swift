@@ -64,6 +64,7 @@ func liveFetchPackageList(_ client: Client) async throws -> [URL] {
 
 func fetchCurrentPackageList(_ db: Database) async throws -> [URL] {
     try await Package.query(on: db)
+        .field(Package.self, \.$url)
         .all()
         .map(\.url)
         .compactMap(URL.init(string:))
