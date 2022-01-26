@@ -27,6 +27,7 @@ extension BuildMonitorIndex {
         let platform: String = "Linux"
         let swiftVersion: String = "5.5"
         let buildMachine: String = "Mac 1"
+        let status: Build.Status = .ok
 
         func buildMonitorListItem() -> Node<HTML.ListContext> {
             .li(

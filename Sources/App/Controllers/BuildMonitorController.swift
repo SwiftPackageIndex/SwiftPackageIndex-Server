@@ -19,8 +19,14 @@ import Vapor
 struct BuildMonitorController {
 
     func index(req: Request) throws -> EventLoopFuture<HTML> {
-        let models = (1...200).map({ _ in UUID() }).map(BuildMonitorIndex.Model.init(buildId:))
-        let view = BuildMonitorIndex.View(path: req.url.path, builds: models)
-        return req.eventLoop.future(view.document())
+        return Build.query(on: req.db)
+            .limit(200)
+            .all()
+            .mapEach {
+                BuildMonitorIndex.Model(buildId: $0.id!)
+            }.map {
+                BuildMonitorIndex.View(path: req.url.path, builds: $0)
+                    .document()
+            }
     }
 }
