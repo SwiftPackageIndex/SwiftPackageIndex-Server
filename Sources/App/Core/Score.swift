@@ -16,7 +16,6 @@ import Foundation
 
 enum Score {
     struct Input {
-        var supportsLatestSwiftVersion: Bool
         var licenseKind: License.Kind
         var releaseCount: Int
         var likeCount: Int
@@ -28,9 +27,6 @@ enum Score {
     static func compute(_ candidate: Input) -> Int {
         var score = 0
         
-        // Swift major version support
-        if candidate.supportsLatestSwiftVersion { score += 10 }
-		
         // Is the package archived and no longer receiving updates?
         if candidate.isArchived { score -= 10 }
         
@@ -88,8 +84,7 @@ enum Score {
         else { return 0 }
 
         return Score.compute(
-            .init(supportsLatestSwiftVersion: defaultVersion.supportsMajorSwiftVersion(SwiftVersion.latestMajor),
-                  licenseKind: repo.license.licenseKind,
+            .init(licenseKind: repo.license.licenseKind,
                   releaseCount: versions.releases.count,
                   likeCount: repo.stars,
                   isArchived: repo.isArchived,

@@ -149,21 +149,6 @@ extension Version: Equatable {
 }
 
 
-extension Version {
-    func supportsMajorSwiftVersion(_ swiftVersion: Int) -> Bool {
-        Self.supportsMajorSwiftVersion(swiftVersion, values: swiftVersions)
-    }
-    
-    static func supportsMajorSwiftVersion(_ swiftVersion: Int, value: SwiftVersion) -> Bool {
-        return value.major >= swiftVersion
-    }
-    
-    static func supportsMajorSwiftVersion(_ swiftVersion: Int, values: [SwiftVersion]) -> Bool {
-        values.first { supportsMajorSwiftVersion(swiftVersion, value: $0) } != nil
-    }
-}
-
-
 // MARK: - Branch related helpers/properties
 
 extension Version {
