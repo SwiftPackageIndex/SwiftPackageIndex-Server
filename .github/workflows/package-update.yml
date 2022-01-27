@@ -14,10 +14,11 @@
 
 name: Package Update
 
-on: [push]
-  # workflow_dispatch:
-  # schedule:
-  #   - cron: '0 8 * * *' # every day at AM 8:00
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *' # every day at AM 8:00
+
 jobs:
   dependencies:
     uses: MarcoEidinger/swift-package-dependencies-check/.github/workflows/reusableWorkflow.yml@v2
