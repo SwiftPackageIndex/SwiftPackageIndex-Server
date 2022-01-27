@@ -20,6 +20,7 @@ struct BuildMonitorController {
 
     func index(req: Request) throws -> EventLoopFuture<HTML> {
         return Build.query(on: req.db)
+            .sort(\.$createdAt, .descending)
             .limit(200)
             .all()
         //  .flatMapEach() doesn't work
