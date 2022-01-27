@@ -97,23 +97,6 @@ class VersionTests: AppTestCase {
         XCTAssertEqual(try Version.query(on: app.db).count().wait(), 0)
     }
     
-    func test_supportsMajorSwiftVersion() throws {
-        XCTAssert(Version.supportsMajorSwiftVersion(5, value: "5".asSwiftVersion))
-        XCTAssert(Version.supportsMajorSwiftVersion(5, value: "5.0".asSwiftVersion))
-        XCTAssert(Version.supportsMajorSwiftVersion(5, value: "5.1".asSwiftVersion))
-        XCTAssert(Version.supportsMajorSwiftVersion(4, value: "5".asSwiftVersion))
-        XCTAssertFalse(Version.supportsMajorSwiftVersion(5, value: "4".asSwiftVersion))
-        XCTAssertFalse(Version.supportsMajorSwiftVersion(5, value: "4.0".asSwiftVersion))
-    }
-    
-    func test_supportsMajorSwiftVersion_values() throws {
-        XCTAssert(Version.supportsMajorSwiftVersion(5, values: ["5"].asSwiftVersions))
-        XCTAssertFalse(Version.supportsMajorSwiftVersion(5, values: ["4"].asSwiftVersions))
-        XCTAssert(Version.supportsMajorSwiftVersion(5, values: ["5.2", "4", "3.0", "3.1", "2"].asSwiftVersions))
-        XCTAssertFalse(Version.supportsMajorSwiftVersion(5, values: ["4", "3.0", "3.1", "2"].asSwiftVersions))
-        XCTAssert(Version.supportsMajorSwiftVersion(4, values: ["4", "3.0", "3.1", "2"].asSwiftVersions))
-    }
-
     func test_isBranch() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
