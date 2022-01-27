@@ -19,19 +19,76 @@ extension BuildMonitorIndex {
 
     struct Model {
         var buildId: UUID
-        let createdAt: Date = Date()
-        let packageName: String = "LeftPad"
-        let repositoryOwner: String = "daveverwer"
-        let repositoryName: String = "LeftPad"
-        let branchOrVersion: String = "main"
-        let platform: String = "Linux"
-        let swiftVersion: String = "5.5"
-        let buildMachine: String = "Mac 1"
-        let status: Build.Status = .ok
+        var createdAt: Date
+        var packageName: String = "LeftPad"
+        var repositoryOwner: String = "daveverwer"
+        var repositoryName: String = "LeftPad"
+        var branchOrVersion: String = "main"
+        var platform: String = "Linux"
+        var swiftVersion: String = "5.5"
+        var status: Build.Status
+        var runnerId: String?
 
-        func buildMonitorListItem() -> Node<HTML.ListContext> {
-            .li(
-                .p(.text(packageName))
+        internal init(buildId: UUID,
+                      createdAt: Date,
+                      packageName: String = "LeftPad",
+                      repositoryOwner: String = "daveverwer",
+                      repositoryName: String = "LeftPad",
+                      branchOrVersion: String = "main",
+                      platform: String = "Linux",
+                      swiftVersion: String = "5.5",
+                      status: Build.Status,
+                      runnerId: String?) {
+            self.buildId = buildId
+            self.createdAt = createdAt
+            self.repositoryOwner = repositoryOwner
+            self.repositoryName = repositoryName
+            self.branchOrVersion = branchOrVersion
+            self.platform = platform
+            self.swiftVersion = swiftVersion
+            self.status = status
+            self.runnerId = runnerId
+        }
+
+        init(build: Build) {
+//            guard let id = build.id,
+//                  let createdAt = build.createdAt
+//            else { return nil }
+
+            let id = try! build.requireID()
+            self.init(buildId: id, createdAt: build.createdAt ?? Date(), status: build.status, runnerId: build.runnerId)
+        }
+
+        var runner: String {
+            guard let runnerId = runnerId,
+                  let runner = BuildRunner(rawValue: runnerId)
+            else { return "" }
+            return runner.description
+        }
+
+        func buildMonitorItem() -> Node<HTML.BodyContext> {
+            .group(
+                .div(
+                    .text(packageName)
+                ),
+                .div(
+                    .text(packageName)
+                ),
+                .div(
+                    .text(platform)
+                ),
+                .div(
+                    .text(swiftVersion)
+                ),
+                .div(
+                    .text(status.description)
+                ),
+                .div(
+                    .text(runner)
+                ),
+                .div(
+                    .text("\(date: createdAt, relativeTo: Current.date())")
+                )
             )
         }
     }

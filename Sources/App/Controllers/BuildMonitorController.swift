@@ -22,8 +22,9 @@ struct BuildMonitorController {
         return Build.query(on: req.db)
             .limit(200)
             .all()
+        //  .flatMapEach() doesn't work
             .mapEach {
-                BuildMonitorIndex.Model(buildId: $0.id!)
+                BuildMonitorIndex.Model(build: $0)
             }.map {
                 BuildMonitorIndex.View(path: req.url.path, builds: $0)
                     .document()

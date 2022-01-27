@@ -35,9 +35,10 @@ enum BuildMonitorIndex {
 
         override func content() -> Node<HTML.BodyContext> {
             .group(
-                .ul(
+                .div(
+                    .class("build_monitor_list"),
                     .group(
-                        builds.map { $0.buildMonitorListItem() }
+                        builds.map { $0.buildMonitorItem() }
                     )
                 )
             )
