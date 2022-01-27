@@ -24,5 +24,3 @@ jobs:
     uses: MarcoEidinger/swift-package-dependencies-check/.github/workflows/reusableWorkflow.yml@v2
     with:
       commit-message: 'Package update'
-    env:
-      GITHUB_TOKEN: ${{ secrets.PACKAGE_UPDATE_TOKEN }}
