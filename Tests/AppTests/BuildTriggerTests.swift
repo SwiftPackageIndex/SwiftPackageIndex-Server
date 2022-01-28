@@ -146,10 +146,9 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
-        let queue = DispatchQueue(label: "serial")
         var queries = [Gitlab.Builder.PostDTO]()
         let client = MockClient { req, res in
-            queue.sync {
+            DispatchQueue(label: "serial").sync {
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.append(query)
             }
@@ -199,10 +198,9 @@ class BuildTriggerTests: AppTestCase {
         // Use live dependency but replace actual client with a mock so we can
         // assert on the details being sent without actually making a request
         Current.triggerBuild = Gitlab.Builder.triggerBuild
-        let queue = DispatchQueue(label: "serial")
         var queries = [Gitlab.Builder.PostDTO]()
         let client = MockClient { req, res in
-            queue.sync {
+            DispatchQueue(label: "serial").sync {
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.append(query)
             }

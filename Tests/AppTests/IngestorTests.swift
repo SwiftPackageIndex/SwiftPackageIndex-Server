@@ -58,12 +58,15 @@ class IngestorTests: AppTestCase {
     func test_fetchMetadata() async throws {
         // Test completion of all fetches despite early error
         // setup
+        enum TestError: Error, Equatable {
+            case badRequest
+        }
         let packages = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1",
                                                                 "https://github.com/foo/2"])
             .map(Joined<Package, Repository>.init(model:))
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "https://github.com/foo/1" {
-                return self.future(error: AppError.metadataRequestFailed(nil, .badRequest, URI("1")))
+                return self.future(error: TestError.badRequest)
             }
             return self.future(.mock(for: pkg))
         }
@@ -72,10 +75,34 @@ class IngestorTests: AppTestCase {
         // MUT
         let res = await fetchMetadata(client: app.client, packages: packages)
         
-        // validate
-        XCTAssertEqual(res.map(\.isSuccess), [false, true])
-        let license = try XCTUnwrap(res.last?.get().2)
-        XCTAssertEqual(license, .init(htmlUrl: "license"))
+        // validate success
+        // validate package
+        XCTAssertEqual(
+            try res.filter(\.isSuccess).map { try $0.get().0.package.url },
+            ["https://github.com/foo/2"]
+        )
+        // validate metadata
+        XCTAssertEqual(
+            try res
+                .filter(\.isSuccess)
+                .map { try $0.get().1.repository?.name },
+            ["2"]
+        )
+        // validate license
+        XCTAssertEqual(
+            try res
+                .filter(\.isSuccess)
+                .map { try $0.get().2?.htmlUrl },
+            ["license"]
+        )
+        // validate error
+        XCTAssertEqual(res.filter(\.isFailure).count, 1)
+        switch res.filter(\.isFailure).first {
+            case let .some(.failure(error)):
+                XCTAssertEqual(error as? TestError, .badRequest)
+            case .success, .none:
+                XCTFail("expected error")
+        }
     }
     
     func test_insertOrUpdateRepository() async throws {
