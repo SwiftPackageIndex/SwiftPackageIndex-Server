@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+SHELL=bash
 DOCKER_IMAGE=registry.gitlab.com/finestructure/swiftpackageindex
 
 ifndef VERSION
@@ -32,18 +33,28 @@ build:
 run:
 	swift run
 
-test:
-	env RUN_IMAGE_SNAPSHOT_TESTS=true \
-	swift test --enable-code-coverage --disable-automatic-resolution --sanitize=thread
+test: xcbeautify
+	set -o pipefail \
+	&& env RUN_IMAGE_SNAPSHOT_TESTS=true \
+	   swift test --enable-code-coverage --disable-automatic-resolution --sanitize=thread \
+	2>&1 | ./xcbeautify
 
-test-without-tsan:
-	env RUN_IMAGE_SNAPSHOT_TESTS=true \
-	swift test --enable-code-coverage --disable-automatic-resolution
+test-without-tsan: xcbeautify
+	set -o pipefail \
+	&& env RUN_IMAGE_SNAPSHOT_TESTS=true \
+	   swift test --enable-code-coverage --disable-automatic-resolution \
+	2>&1 | ./xcbeautify
 
 test-fast:
 	@echo Skipping image snapshot tests
 	@echo Running without --sanitize=thread
 	swift test --disable-automatic-resolution
+
+xcbeautify:
+	rm -rf .build/checkouts/xcbeautify
+	git clone --depth=1 https://github.com/thii/xcbeautify.git .build/checkouts/xcbeautify
+	cd .build/checkouts/xcbeautify && make build
+	binpath=`cd .build/checkouts/xcbeautify && swift build -c release --show-bin-path` && ln -sf $$binpath/xcbeautify
 
 docker-build: version
 	docker build -t $(DOCKER_IMAGE):$(VERSION) .
