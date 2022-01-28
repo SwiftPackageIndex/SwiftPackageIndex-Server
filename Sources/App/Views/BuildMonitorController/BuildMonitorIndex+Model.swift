@@ -20,12 +20,13 @@ extension BuildMonitorIndex {
     struct Model {
         var buildId: UUID
         var createdAt: Date
-        var packageName: String = "LeftPad"
-        var repositoryOwner: String = "daveverwer"
-        var repositoryName: String = "LeftPad"
-        var branchOrVersion: String = "main"
-        var platform: String = "Linux"
-        var swiftVersion: String = "5.5"
+        var packageName: String
+        var repositoryOwner: String
+        var repositoryName: String
+        var branchName: String?
+        var taggedVersion: String?
+        var platform: String
+        var swiftVersion: String
         var status: Build.Status
         var runnerId: String?
 
@@ -34,7 +35,8 @@ extension BuildMonitorIndex {
                       packageName: String = "LeftPad",
                       repositoryOwner: String = "daveverwer",
                       repositoryName: String = "LeftPad",
-                      branchOrVersion: String = "main",
+                      branchName: String? = "main",
+                      taggedVersion: String? = nil,
                       platform: String = "Linux",
                       swiftVersion: String = "5.5",
                       status: Build.Status,
@@ -43,7 +45,8 @@ extension BuildMonitorIndex {
             self.createdAt = createdAt
             self.repositoryOwner = repositoryOwner
             self.repositoryName = repositoryName
-            self.branchOrVersion = branchOrVersion
+            self.branchName = branchName
+            self.taggedVersion = taggedVersion
             self.platform = platform
             self.swiftVersion = swiftVersion
             self.status = status
@@ -67,12 +70,18 @@ extension BuildMonitorIndex {
         }
 
         func buildMonitorItem() -> Node<HTML.BodyContext> {
-            .group(
+            .div(
+                .class("row"),
                 .div(
+                    .span(
+                        .class("building"),
+                        "Building"
+                    ),
+                    .text("&nbsp;"),
                     .text(packageName)
                 ),
                 .div(
-                    .text(packageName)
+                    .text(branchOrVersion)
                 ),
                 .div(
                     .text(platform)
