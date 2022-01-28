@@ -61,10 +61,9 @@ class AnalyzerTests: AppTestCase {
         }
         Current.fileManager.createDirectory = { path, _, _ in checkoutDir = path }
         Current.git = .live
-        let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            try queue.sync {
+            try DispatchQueue(label: "serial").sync {
                 let trimmedPath = path.replacingOccurrences(of: checkoutDir!,
                                                             with: ".")
                 commands.append(try XCTUnwrap(.init(command: cmd, path: trimmedPath)))
@@ -360,10 +359,9 @@ class AnalyzerTests: AppTestCase {
             mockResults[.gitRevisionInfo(reference: ref)] = "sha-\(idx)"
         }
 
-        let queue = DispatchQueue(label: "serial")
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            try queue.sync {
+            try DispatchQueue(label: "serial").sync {
                 commands.append(try XCTUnwrap(.init(command: cmd, path: path)))
             }
 
@@ -393,11 +391,10 @@ class AnalyzerTests: AppTestCase {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        let queue = DispatchQueue(label: "serial")
         Current.fileManager.fileExists = { _ in true }
         var commands = [String]()
         Current.shell.run = { cmd, path in
-            queue.sync {
+            DispatchQueue(label: "serial").sync {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
                 commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
@@ -610,10 +607,9 @@ class AnalyzerTests: AppTestCase {
     func test_getPackageInfo_package_version() throws {
         // Tests getPackageInfo(package:version:)
         // setup
-        let queue = DispatchQueue(label: "serial")
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            queue.sync {
+            DispatchQueue(label: "serial").sync {
                 commands.append(cmd.string)
             }
             if cmd == .swiftDumpPackage {
@@ -658,10 +654,9 @@ class AnalyzerTests: AppTestCase {
     func test_getPackageInfo_packageAndVersionsl() throws {
         // Tests getPackageInfo(packageAndVersions:)
         // setup
-        let queue = DispatchQueue(label: "serial")
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            queue.sync {
+            DispatchQueue(label: "serial").sync {
                 commands.append(cmd.string)
             }
             if cmd == .swiftDumpPackage {
@@ -912,10 +907,9 @@ class AnalyzerTests: AppTestCase {
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { path in true }
         
-        let queue = DispatchQueue(label: "serial")
         var commands = [String]()
         Current.shell.run = { cmd, path in
-            queue.sync {
+            DispatchQueue(label: "serial").sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "...")
                 commands.append(c)
             }
@@ -945,10 +939,9 @@ class AnalyzerTests: AppTestCase {
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { path in true }
 
-        let queue = DispatchQueue(label: "serial")
         var commands = [String]()
         Current.shell.run = { cmd, path in
-            queue.sync {
+            DispatchQueue(label: "serial").sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
                 commands.append(c)
             }
@@ -1042,11 +1035,10 @@ class AnalyzerTests: AppTestCase {
             try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
         }
         let pkg = try Package.fetchCandidate(app.db, id: .id0).wait()
-        let queue = DispatchQueue(label: "serial")
         Current.fileManager.fileExists = { _ in true }
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            queue.sync {
+            DispatchQueue(label: "serial").sync {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
                 commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
