@@ -77,8 +77,10 @@ class ErrorMiddlewareTests: AppTestCase {
         var reportedLevel: AppError.Level? = nil
         var reportedError: String? = nil
         Current.reportError = { _, level, error in
-            reportedLevel = level
-            reportedError = error.localizedDescription
+            DispatchQueue(label: "serial").sync {
+                reportedLevel = level
+                reportedError = error.localizedDescription
+            }
             return self.future(())
         }
         
