@@ -49,7 +49,6 @@ test-fast:
 	@echo Running without --sanitize=thread
 	swift test --disable-automatic-resolution
 
-.PHONY: xcbeautify
 xcbeautify:
 	rm -rf .build/checkouts/xcbeautify
 	git clone --depth=1 https://github.com/thii/xcbeautify.git .build/checkouts/xcbeautify
