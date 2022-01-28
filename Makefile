@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+SHELL=bash
 DOCKER_IMAGE=registry.gitlab.com/finestructure/swiftpackageindex
 
 ifndef VERSION
