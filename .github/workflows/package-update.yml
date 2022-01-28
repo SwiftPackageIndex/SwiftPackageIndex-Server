@@ -17,7 +17,7 @@ name: Package Update
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 8 * * *' # every day at AM 8:00
+    - cron: '0 8 * * 1' # Monday at 08:00
 
 jobs:
   dependencies:
