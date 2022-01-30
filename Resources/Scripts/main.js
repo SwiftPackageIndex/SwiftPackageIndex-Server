@@ -20,6 +20,7 @@ import { ExternalLinkRetargeter } from './external_link_retargeter.js'
 import { SPIWindowMonitor } from './window_monitor.js'
 import { SPIPackageListNavigation } from './package_list_navigation.js'
 import { SPICopyPackageURLButton } from './copy_buttons.js'
+import { SPICopyPackageDependencyButton } from './copy_buttons.js'
 import { SPICopyableInput } from './copy_buttons.js'
 import { SPIBuildLogNavigation } from './build_log_navigation.js'
 import { SPIAutofocus } from './autofocus.js'
@@ -34,6 +35,7 @@ new SPIWindowMonitor()
 new SPIPackageListNavigation()
 new SPIBuildLogNavigation()
 new SPICopyPackageURLButton()
+new SPICopyPackageDependencyButton()
 new SPICopyableInput()
 new SPIAutofocus()
 new SPIPlaygroundsAppLinkFallback()

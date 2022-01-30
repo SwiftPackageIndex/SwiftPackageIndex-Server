@@ -414,8 +414,28 @@ extension PackageShow.Model {
                 )
             ),
             .strong(.text(title)),
-            .small(.text([datePrefix, datedLink.date].joined(separator: " ")))
+            .small(.text([datePrefix, datedLink.date].joined(separator: " "))),
+            .small(
+                .a(
+                    .id("package_dependency"),
+                    .href(Self.makePackageDependency(ref: datedLink.link.label, url: datedLink.link.url)),
+                    .text(Self.makePackageDependency(ref: datedLink.link.label, url: datedLink.link.url))
+                )
+            )
         )
+    }
+
+    static func makePackageDependency(ref: String, url: String) -> String {
+        let isSemVer = ref.contains(".")
+        if isSemVer {
+            // url: "https://github.com/Alamofire/Alamofire/releases/tag/5.5.0"
+            //  .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.5.0"),
+            let url = url.split(separator: "/").dropLast(3).joined(separator: "/") + ".git"
+            return #".package(url: "\#(url)", from: "\#(ref)")"#
+        } else {
+            // url: "https://github.com/Alamofire/Alamofire.git"
+            return #".package(url: "\#(url)", branch: "\#(ref)")"#
+        }
     }
 
     static func groupBuildInfo<T>(_ buildInfo: BuildInfo<T>) -> [BuildStatusRow<T>] {
