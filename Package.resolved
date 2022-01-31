@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/swift-server/async-http-client.git",
         "state": {
           "branch": null,
-          "revision": "70826d038d5bdc3142a386b735792d87ef7a5dfc",
-          "version": "1.8.1"
+          "revision": "cbf533073d9a5edfb16c266d14151f69137ba7c9",
+          "version": "1.8.2"
         }
       },
       {
@@ -96,8 +96,8 @@
         "repositoryURL": "https://github.com/vapor/postgres-kit.git",
         "state": {
           "branch": null,
-          "revision": "70ce73449fc559028aaa7da52096288974ebb5e0",
-          "version": "2.5.0"
+          "revision": "ea152d694198a7fd2b6b5b1beff0838373976006",
+          "version": "2.5.1"
         }
       },
       {
@@ -177,7 +177,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "6b348db0f3905ce5da7a09f8e5bd3e7c1fa4580c",
+          "revision": "d1c5147fc9aeb0ea379a6735b22f2223d5f577e8",
           "version": null
         }
       },
@@ -186,7 +186,7 @@
         "repositoryURL": "https://github.com/apple/swift-llbuild.git",
         "state": {
           "branch": "main",
-          "revision": "10f0e1821c0b93bf6773513873f68e6424dc3558",
+          "revision": "4d031d83c3c07ffe69be77f467268fe8de9dcf74",
           "version": null
         }
       },
@@ -258,7 +258,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "main",
-          "revision": "3d10c7c96c972fbb443be4caf735fe67fedee8f2",
+          "revision": "9e882abcd243aa62731af872c74fa5f5cc7683c0",
           "version": null
         }
       },
@@ -285,7 +285,7 @@
         "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
           "branch": "main",
-          "revision": "4afd18e40eb028cd9fbe7342e3f98020ea9fdf1a",
+          "revision": "6017b4842dc828fd2dd69cfaf16c1867ce867d4d",
           "version": null
         }
       },
@@ -312,8 +312,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "572aba071e93662d6fb1d6fb82ec79e9741d72ca",
-          "version": "4.54.2"
+          "revision": "18e9419cae5049e43ca1e8002ca3cf0449f2c8ed",
+          "version": "4.55.0"
         }
       },
       {
