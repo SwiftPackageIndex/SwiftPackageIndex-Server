@@ -51,9 +51,14 @@ struct IngestCommand: CommandAsync {
             logger.error("\(error.localizedDescription)")
         }
 
-        try? await AppMetrics.push(client: client,
-                                   logger: logger,
-                                   jobName: "ingest")
+        do {
+            try await AppMetrics.push(client: client,
+                                      logger: logger,
+                                      jobName: "ingest")
+        } catch {
+            logger.error("\(error.localizedDescription)")
+        }
+
     }
 }
 
