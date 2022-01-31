@@ -14,7 +14,9 @@
 
 name: Continuous Integration
 
-on: [push]
+on:
+  workflow_dispatch:
+  push:
 
 jobs:
   test-linux:
