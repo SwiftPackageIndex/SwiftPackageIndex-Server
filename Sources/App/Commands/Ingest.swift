@@ -56,7 +56,7 @@ struct IngestCommand: CommandAsync {
                                       logger: logger,
                                       jobName: "ingest")
         } catch {
-            logger.error("\(error.localizedDescription)")
+            logger.warning("\(error.localizedDescription)")
         }
 
     }
