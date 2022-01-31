@@ -17,7 +17,80 @@
   Individual build log page.
 ---------------------------------------------------------------------------- */
 
-#build_monitor_list {
+.build_monitor {
   display: grid;
-  grid-template-columns: 2fr 2fr 2fr 2fr 2fr 1fr 2fr;
+  gap: 10px;
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    background-color: var(--grid-default-background);
+
+    &:hover {
+      background-color: var(--grid-failed-background);
+    }
+
+    > div {
+      padding: 5px;
+      color: var(--page-text);
+    }
+
+    .package_name {
+      padding-bottom: 0px;
+      grid-column: 1 / span 4;
+
+      h3 {
+        margin: 0;
+      }
+    }
+
+    .status {
+      display: flex;
+      grid-column: 5;
+      grid-row: 1 / span 2;
+      align-items: center;
+      justify-content: center;
+
+      > span {
+        background-size: 18px;
+        background-position: left center;
+        background-repeat: no-repeat;
+      }
+
+      &.ok {
+        background-color: var(--grid-succeeded-background);
+
+        > span {
+          padding-left: 25px;
+          background-image: var(--image-succeeded);
+        }
+      }
+
+      &.failed {
+        background-color: var(--grid-failed-background);
+
+        > span {
+          padding-left: 25px;
+          background-image: var(--image-failed);
+        }
+      }
+    }
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      grid-template-columns: repeat(4, 1fr);
+
+      > div {
+        grid-column: span 2;
+      }
+
+      .package_name {
+        grid-column: 1 / span 3;
+      }
+
+      .status {
+        grid-column: auto;
+        grid-row: auto;
+      }
+    }
+  }
 }

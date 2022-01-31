@@ -32,7 +32,7 @@ extension BuildMonitorIndex {
 
         internal init(buildId: UUID,
                       createdAt: Date,
-                      packageName: String = "LeftPad",
+                      packageName: String = "LeftPad LongPackage",
                       repositoryOwner: String = "daveverwer",
                       repositoryName: String = "LeftPad",
                       branchName: String? = "main",
@@ -43,6 +43,7 @@ extension BuildMonitorIndex {
                       runnerId: String?) {
             self.buildId = buildId
             self.createdAt = createdAt
+            self.packageName = packageName
             self.repositoryOwner = repositoryOwner
             self.repositoryName = repositoryName
             self.branchName = branchName
@@ -70,35 +71,60 @@ extension BuildMonitorIndex {
         }
 
         func buildMonitorItem() -> Node<HTML.BodyContext> {
-            .div(
-                .class("row"),
+            .a(
+                .href(SiteURL.builds(.value(buildId)).relativeURL()),
                 .div(
-                    .span(
-                        .class("building"),
-                        "Building"
+                    .class("row"),
+                    .div(
+                        .class("package_name"),
+                        .h3(.text(packageName))
                     ),
-                    .text("&nbsp;"),
-                    .text(packageName)
-                ),
-                .div(
-                    .text(branchOrVersion)
-                ),
-                .div(
-                    .text(platform)
-                ),
-                .div(
-                    .text(swiftVersion)
-                ),
-                .div(
-                    .text(status.description)
-                ),
-                .div(
-                    .text(runner)
-                ),
-                .div(
-                    .text("\(date: createdAt, relativeTo: Current.date())")
+                    .div(
+                        .class("status \(status.cssClass)"),
+                        .span(.text(status.description))
+                    ),
+                    .div(
+                        .unwrap(branchName, { branchNameNode(branchName: $0) }),
+                        .unwrap(taggedVersion, { taggedVersionNode(taggedVersion: $0) })
+                    ),
+                    .div(
+                        .text("Swift "),
+                        .text(swiftVersion),
+                        .text(" on "),
+                        .text(platform)
+                    ),
+                    .div(
+                        .text("\(date: createdAt, relativeTo: Current.date())")
+                    ),
+                    .div(
+                        .text(runner)
+                    )
                 )
             )
+        }
+
+        func branchNameNode(branchName: String) -> Node<HTML.BodyContext> {
+            .span(
+                .class("branch"),
+                .text(branchName)
+            )
+        }
+
+        func taggedVersionNode(taggedVersion: String) -> Node<HTML.BodyContext> {
+            .span(
+                .class("version"),
+                .text(taggedVersion)
+            )
+        }
+    }
+}
+
+private extension Build.Status {
+    var cssClass: String {
+        switch self {
+            case .ok: return "ok"
+            case .failed: return "failed"
+            case .infrastructureError, .triggered, .timeout: return "other"
         }
     }
 }
