@@ -58,7 +58,6 @@ struct IngestCommand: CommandAsync {
         } catch {
             logger.warning("\(error.localizedDescription)")
         }
-
     }
 }
 
