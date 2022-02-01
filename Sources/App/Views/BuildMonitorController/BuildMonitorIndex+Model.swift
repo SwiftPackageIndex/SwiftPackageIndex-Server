@@ -23,6 +23,7 @@ extension BuildMonitorIndex {
         var packageName: String
         var repositoryOwnerName: String?
         var reference: Reference?
+        var referenceKind: Version.Kind?
         var platform: Build.Platform
         var swiftVersion: SwiftVersion
         var status: Build.Status
@@ -35,6 +36,7 @@ extension BuildMonitorIndex {
                       platform: Build.Platform,
                       swiftVersion: SwiftVersion,
                       reference: Reference?,
+                      referenceKind: Version.Kind?,
                       status: Build.Status,
                       runnerId: String?) {
             self.buildId = buildId
@@ -44,6 +46,7 @@ extension BuildMonitorIndex {
             self.platform = platform
             self.swiftVersion = swiftVersion
             self.reference = reference
+            self.referenceKind = referenceKind
             self.status = status
             self.runnerId = runnerId
         }
@@ -60,6 +63,7 @@ extension BuildMonitorIndex {
                       platform: buildResult.build.platform,
                       swiftVersion: buildResult.build.swiftVersion,
                       reference: buildResult.version.reference,
+                      referenceKind: buildResult.version.latest,
                       status: buildResult.build.status,
                       runnerId: buildResult.build.runnerId)
         }
@@ -88,7 +92,7 @@ extension BuildMonitorIndex {
                         .span(.text(status.description))
                     ),
                     .div(
-                        .unwrap(reference, { $0.node })
+                        .unwrap(reference, { $0.referenceNode(kind: referenceKind) })
                     ),
                     .div(
                         .text("Swift \(swiftVersion)")
@@ -109,16 +113,16 @@ extension BuildMonitorIndex {
 }
 
 private extension Reference {
-    var node: Node<HTML.BodyContext> {
+    func referenceNode(kind: Version.Kind?) -> Node<HTML.BodyContext> {
         switch self {
             case let .branch(branchName):
                 return .span(
-                    .class("branch"),
+                    .unwrap(kind, { .class($0.cssClass) }),
                     .text(branchName)
                 )
             case let .tag(_, taggedVersion):
                 return .span(
-                    .class("version"),
+                    .unwrap(kind, { .class($0.cssClass) }),
                     .text(taggedVersion)
                 )
         }

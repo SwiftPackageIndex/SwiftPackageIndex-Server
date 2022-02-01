@@ -27,6 +27,7 @@ struct BuildMonitorController {
             .field(Build.self, \.$runnerId)
             .field(Version.self, \.$packageName)
             .field(Version.self, \.$reference)
+            .field(Version.self, \.$latest)
             .field(Repository.self, \.$name)
             .field(Repository.self, \.$owner)
             .field(Repository.self, \.$ownerName)
