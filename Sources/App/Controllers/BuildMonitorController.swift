@@ -17,7 +17,6 @@ import Plot
 import Vapor
 
 struct BuildMonitorController {
-
     func index(req: Request) throws -> EventLoopFuture<HTML> {
         Build.query(on: req.db)
             .sort(\.$createdAt, .descending)

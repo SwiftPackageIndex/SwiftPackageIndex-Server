@@ -21,7 +21,7 @@ extension BuildShow {
         var buildInfo: BuildInfo
         var versionId: Version.Id
 
-        init?(result: BuildController.BuildResult, logs: String?) {
+        init?(result: BuildResult, logs: String?) {
             guard
                 let repositoryOwner = result.repository.owner,
                 let repositoryName = result.repository.name,

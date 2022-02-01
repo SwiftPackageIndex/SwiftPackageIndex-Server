@@ -45,7 +45,7 @@ class BuildShowModelTests: AppTestCase {
         let buildId = UUID()
         try Build(id: buildId, version: version, platform: .ios, status: .ok, swiftVersion: .init(5, 3, 0))
             .save(on: app.db).wait()
-        let result = try BuildController.BuildResult
+        let result = try BuildResult
             .query(on: app.db, buildId: buildId)
             .wait()
 
