@@ -21,8 +21,7 @@ extension BuildMonitorIndex {
         var buildId: UUID
         var createdAt: Date
         var packageName: String
-        var repositoryOwner: String
-        var repositoryName: String
+        var repositoryOwnerName: String?
         var reference: Reference?
         var platform: Build.Platform
         var swiftVersion: SwiftVersion
@@ -31,34 +30,38 @@ extension BuildMonitorIndex {
 
         internal init(buildId: UUID,
                       createdAt: Date,
-                      packageName: String?,
-                      repositoryOwner: String,
-                      repositoryName: String,
-                      reference: Reference?,
+                      packageName: String,
+                      repositoryOwnerName: String?,
                       platform: Build.Platform,
                       swiftVersion: SwiftVersion,
+                      reference: Reference?,
                       status: Build.Status,
                       runnerId: String?) {
             self.buildId = buildId
             self.createdAt = createdAt
-            self.packageName = packageName ?? repositoryName
-            self.repositoryOwner = repositoryOwner
-            self.repositoryName = repositoryName
-            self.reference = reference
+            self.packageName = packageName
+            self.repositoryOwnerName = repositoryOwnerName
             self.platform = platform
             self.swiftVersion = swiftVersion
+            self.reference = reference
             self.status = status
             self.runnerId = runnerId
         }
 
         init?(buildResult: BuildResult) {
             guard let id = buildResult.build.id,
-                  let createdAt = buildResult.build.createdAt,
-                  let owner = buildResult.repository.owner,
-                  let name = buildResult.repository.name
+                  let createdAt = buildResult.build.createdAt
             else { return nil }
 
-            self.init(buildId: id, createdAt: createdAt, packageName: buildResult.version.packageName, repositoryOwner: owner, repositoryName: name, reference: buildResult.version.reference, platform: buildResult.build.platform, swiftVersion: buildResult.build.swiftVersion, status: buildResult.build.status, runnerId: buildResult.build.runnerId)
+            self.init(buildId: id,
+                      createdAt: createdAt,
+                      packageName: buildResult.version.packageName ?? buildResult.repository.name ?? "Unknown Package",
+                      repositoryOwnerName: buildResult.repository.ownerName ?? buildResult.repository.ownerName,
+                      platform: buildResult.build.platform,
+                      swiftVersion: buildResult.build.swiftVersion,
+                      reference: buildResult.version.reference,
+                      status: buildResult.build.status,
+                      runnerId: buildResult.build.runnerId)
         }
 
         var runner: String {
@@ -103,7 +106,6 @@ extension BuildMonitorIndex {
 }
 
 private extension Reference {
-
     var node: Node<HTML.BodyContext> {
         switch self {
             case let .branch(branchName):
@@ -118,7 +120,6 @@ private extension Reference {
                 )
         }
     }
-
 }
 
 private extension Build.Status {
