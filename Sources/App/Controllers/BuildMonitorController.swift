@@ -19,12 +19,11 @@ import Vapor
 struct BuildMonitorController {
 
     func index(req: Request) throws -> EventLoopFuture<HTML> {
-        return Build.query(on: req.db)
+        Build.query(on: req.db)
             .sort(\.$createdAt, .descending)
             .limit(200)
             .all()
-        //  .flatMapEach() doesn't work
-            .mapEach {
+            .mapEachCompact {
                 BuildMonitorIndex.Model(build: $0)
             }.map {
                 BuildMonitorIndex.View(path: req.url.path, builds: $0)

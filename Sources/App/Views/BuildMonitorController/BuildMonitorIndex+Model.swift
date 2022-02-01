@@ -54,13 +54,12 @@ extension BuildMonitorIndex {
             self.runnerId = runnerId
         }
 
-        init(build: Build) {
-//            guard let id = build.id,
-//                  let createdAt = build.createdAt
-//            else { return nil }
+        init?(build: Build) {
+            guard let id = build.id,
+                  let createdAt = build.createdAt
+            else { return nil }
 
-            let id = try! build.requireID()
-            self.init(buildId: id, createdAt: build.createdAt ?? Date(), status: build.status, runnerId: build.runnerId)
+            self.init(buildId: id, createdAt: createdAt, status: build.status, runnerId: build.runnerId)
         }
 
         var runner: String {
