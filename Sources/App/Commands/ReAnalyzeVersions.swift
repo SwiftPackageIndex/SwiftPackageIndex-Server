@@ -72,10 +72,14 @@ struct ReAnalyzeVersionsCommand: Command {
                 processed += currentBatchSize
             }
         }
-        try AppMetrics.push(client: client,
-                            logger: logger,
-                            jobName: "re-analyze-versions")
-            .wait()
+        do {
+            try AppMetrics.push(client: client,
+                                logger: logger,
+                                jobName: "re-analyze-versions")
+                .wait()
+        } catch {
+            logger.warning("\(error.localizedDescription)")
+        }
 
         logger.info("done.")
     }
