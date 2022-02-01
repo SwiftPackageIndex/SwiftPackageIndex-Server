@@ -106,6 +106,14 @@
       }
     }
 
+    .runner {
+      padding-left: 22px;
+      background-size: 15px;
+      background-position: left center;
+      background-repeat: no-repeat;
+      background-image: var(--image-servers);
+    }
+
     @media screen and (max-width: $mobile-breakpoint) {
       grid-template-columns: repeat(4, 1fr);
 

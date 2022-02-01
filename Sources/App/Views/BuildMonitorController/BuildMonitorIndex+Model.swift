@@ -68,13 +68,6 @@ extension BuildMonitorIndex {
                       runnerId: buildResult.build.runnerId)
         }
 
-        var runner: String {
-            guard let runnerId = runnerId,
-                  let runner = BuildRunner(rawValue: runnerId)
-            else { return "" }
-            return runner.description
-        }
-
         func buildMonitorItem() -> Node<HTML.BodyContext> {
             .a(
                 .href(SiteURL.builds(.value(buildId)).relativeURL()),
@@ -102,12 +95,22 @@ extension BuildMonitorIndex {
                         .text(platform.displayName)
                     ),
                     .div(
-                        .text(runner)
+                        runnerNode
                     ),
                     .div(
                         .text("\(date: createdAt, relativeTo: Current.date())")
                     )
                 )
+            )
+        }
+
+        var runnerNode: Node<HTML.BodyContext> {
+            guard let runnerId = runnerId,
+                  let runner = BuildRunner(rawValue: runnerId)
+            else { return .empty }
+            return .span(
+                .class("runner"),
+                .text(runner.description)
             )
         }
     }
