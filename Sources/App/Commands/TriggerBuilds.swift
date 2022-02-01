@@ -53,9 +53,13 @@ struct TriggerBuildsCommand: Command {
                           client: context.application.client,
                           logger: logger,
                           mode: mode).wait()
-        try AppMetrics.push(client: context.application.client,
-                            logger: context.application.logger,
-                            jobName: "trigger-builds").wait()
+        do {
+            try AppMetrics.push(client: context.application.client,
+                                logger: context.application.logger,
+                                jobName: "trigger-builds").wait()
+        } catch {
+            logger.warning("\(error.localizedDescription)")
+        }
     }
 }
 

@@ -55,10 +55,14 @@ struct AnalyzeCommand: Command {
 
         try Self.trimCheckouts()
 
-        try AppMetrics.push(client: client,
-                            logger: logger,
-                            jobName: "analyze")
-            .wait()
+        do {
+            try AppMetrics.push(client: client,
+                                logger: logger,
+                                jobName: "analyze")
+                .wait()
+        } catch {
+            logger.warning("\(error.localizedDescription)")
+        }
     }
 }
 
