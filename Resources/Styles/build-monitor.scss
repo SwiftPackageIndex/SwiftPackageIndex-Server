@@ -23,7 +23,7 @@
 
   .row {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: 3fr 2fr 3fr repeat(3, 2fr);
     background-color: var(--grid-default-background);
 
     &:hover {
@@ -37,16 +37,21 @@
 
     .package_name {
       padding-bottom: 0px;
-      grid-column: 1 / span 4;
+      grid-column: 1 / span 5;
 
       h3 {
         margin: 0;
+
+        span {
+          color: var(--page-dimmed-text);
+          font-size: 16px;
+        }
       }
     }
 
     .status {
       display: flex;
-      grid-column: 5;
+      grid-column: 6;
       grid-row: 1 / span 2;
       align-items: center;
       justify-content: center;

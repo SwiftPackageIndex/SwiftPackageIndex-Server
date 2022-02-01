@@ -78,7 +78,10 @@ extension BuildMonitorIndex {
                     .class("row"),
                     .div(
                         .class("package_name"),
-                        .h3(.text(packageName))
+                        .h3(
+                            .text(packageName),
+                            .unwrap(repositoryOwnerName, { .span(" by \($0)") })
+                        )
                     ),
                     .div(
                         .class("status \(status.cssClass)"),
@@ -88,16 +91,16 @@ extension BuildMonitorIndex {
                         .unwrap(reference, { $0.node })
                     ),
                     .div(
-                        .text("Swift "),
-                        .text("\(swiftVersion)"),
-                        .text(" on "),
-                        .text("\(platform)")
+                        .text("Swift \(swiftVersion)")
                     ),
                     .div(
-                        .text("\(date: createdAt, relativeTo: Current.date())")
+                        .text(platform.displayName)
                     ),
                     .div(
                         .text(runner)
+                    ),
+                    .div(
+                        .text("\(date: createdAt, relativeTo: Current.date())")
                     )
                 )
             )
