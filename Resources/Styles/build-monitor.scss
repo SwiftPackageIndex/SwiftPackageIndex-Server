@@ -55,12 +55,11 @@
     }
 
     .package_name {
-      padding-bottom: 0px;
+      padding: 7px 0 0 10px;
       grid-column: 1 / span 5;
 
       h3 {
         margin: 0;
-        padding: 7px 0 0 7px;
 
         span {
           font-size: 16px;
@@ -71,7 +70,7 @@
     }
 
     .reference {
-      padding: 0 0 7px 13px;
+      padding: 0 0 7px 10px;
     }
 
     .status {
