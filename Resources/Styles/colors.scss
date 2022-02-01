@@ -126,6 +126,7 @@
   --branch-text: var(--dark-green);
 
   --grid-default-background: var(--very-very-light-grey);
+  --grid-default-border: var(--very-light-grey);
   --grid-compatible-background: var(--light-green);
   --grid-incompatible-background: var(--light-grey);
   --grid-succeeded-background: var(--very-light-grey);
@@ -195,6 +196,7 @@
     --rule-thin-background: var(--dark-grey);
 
     --grid-default-background: var(--very-very-dark-grey);
+    --grid-default-border: var(--very-dark-grey);
     --grid-compatible-background: var(--mid-green);
     --grid-incompatible-background: var(--very-dark-grey);
     --grid-succeeded-background: var(--very-dark-grey);

@@ -25,9 +25,28 @@
     display: grid;
     grid-template-columns: 3fr 2fr 3fr repeat(3, 2fr);
     background-color: var(--grid-default-background);
+    border-left: 3px var(--grid-default-border) solid;
 
     &:hover {
-      background-color: var(--grid-failed-background);
+      .status {
+        background-color: var(--grid-failed-background);
+
+        &.ok {
+          background-color: var(--mid-green);
+
+          > span {
+            filter: brightness(100);
+          }
+        }
+
+        &.failed {
+          background-color: var(--mid-red);
+
+          > span {
+            filter: brightness(100);
+          }
+        }
+      }
     }
 
     > div {
@@ -41,12 +60,18 @@
 
       h3 {
         margin: 0;
+        padding: 7px 0 0 7px;
 
         span {
-          color: var(--page-dimmed-text);
           font-size: 16px;
+          font-weight: normal;
+          color: var(--page-dimmed-text);
         }
       }
+    }
+
+    .reference {
+      padding: 0 0 7px 13px;
     }
 
     .status {
