@@ -23,43 +23,42 @@ extension BuildMonitorIndex {
         var packageName: String
         var repositoryOwner: String
         var repositoryName: String
-        var branchName: String?
-        var taggedVersion: String?
-        var platform: String
-        var swiftVersion: String
+        var reference: Reference?
+        var platform: Build.Platform
+        var swiftVersion: SwiftVersion
         var status: Build.Status
         var runnerId: String?
 
         internal init(buildId: UUID,
                       createdAt: Date,
-                      packageName: String = "LeftPad LongPackage",
-                      repositoryOwner: String = "daveverwer",
-                      repositoryName: String = "LeftPad",
-                      branchName: String? = "main",
-                      taggedVersion: String? = nil,
-                      platform: String = "Linux",
-                      swiftVersion: String = "5.5",
+                      packageName: String?,
+                      repositoryOwner: String,
+                      repositoryName: String,
+                      reference: Reference?,
+                      platform: Build.Platform,
+                      swiftVersion: SwiftVersion,
                       status: Build.Status,
                       runnerId: String?) {
             self.buildId = buildId
             self.createdAt = createdAt
-            self.packageName = packageName
+            self.packageName = packageName ?? repositoryName
             self.repositoryOwner = repositoryOwner
             self.repositoryName = repositoryName
-            self.branchName = branchName
-            self.taggedVersion = taggedVersion
+            self.reference = reference
             self.platform = platform
             self.swiftVersion = swiftVersion
             self.status = status
             self.runnerId = runnerId
         }
 
-        init?(build: Build) {
-            guard let id = build.id,
-                  let createdAt = build.createdAt
+        init?(buildResult: BuildResult) {
+            guard let id = buildResult.build.id,
+                  let createdAt = buildResult.build.createdAt,
+                  let owner = buildResult.repository.owner,
+                  let name = buildResult.repository.name
             else { return nil }
 
-            self.init(buildId: id, createdAt: createdAt, status: build.status, runnerId: build.runnerId)
+            self.init(buildId: id, createdAt: createdAt, packageName: buildResult.version.packageName, repositoryOwner: owner, repositoryName: name, reference: buildResult.version.reference, platform: buildResult.build.platform, swiftVersion: buildResult.build.swiftVersion, status: buildResult.build.status, runnerId: buildResult.build.runnerId)
         }
 
         var runner: String {
@@ -83,14 +82,13 @@ extension BuildMonitorIndex {
                         .span(.text(status.description))
                     ),
                     .div(
-                        .unwrap(branchName, { branchNameNode(branchName: $0) }),
-                        .unwrap(taggedVersion, { taggedVersionNode(taggedVersion: $0) })
+                        .unwrap(reference, { $0.node })
                     ),
                     .div(
                         .text("Swift "),
-                        .text(swiftVersion),
+                        .text("\(swiftVersion)"),
                         .text(" on "),
-                        .text(platform)
+                        .text("\(platform)")
                     ),
                     .div(
                         .text("\(date: createdAt, relativeTo: Current.date())")
@@ -101,21 +99,26 @@ extension BuildMonitorIndex {
                 )
             )
         }
+    }
+}
 
-        func branchNameNode(branchName: String) -> Node<HTML.BodyContext> {
-            .span(
-                .class("branch"),
-                .text(branchName)
-            )
-        }
+private extension Reference {
 
-        func taggedVersionNode(taggedVersion: String) -> Node<HTML.BodyContext> {
-            .span(
-                .class("version"),
-                .text(taggedVersion)
-            )
+    var node: Node<HTML.BodyContext> {
+        switch self {
+            case let .branch(branchName):
+                return .span(
+                    .class("branch"),
+                    .text(branchName)
+                )
+            case let .tag(_, taggedVersion):
+                return .span(
+                    .class("version"),
+                    .text(taggedVersion)
+                )
         }
     }
+
 }
 
 private extension Build.Status {

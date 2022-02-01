@@ -18,12 +18,23 @@ import Vapor
 
 struct BuildMonitorController {
     func index(req: Request) throws -> EventLoopFuture<HTML> {
-        Build.query(on: req.db)
+        BuildResult.query(on: req.db)
             .sort(\.$createdAt, .descending)
+            .field(Build.self, \.$id)
+            .field(Build.self, \.$createdAt)
+            .field(Build.self, \.$platform)
+            .field(Build.self, \.$swiftVersion)
+            .field(Build.self, \.$runnerId)
+            .field(Build.self, \.$status)
+            .field(Version.self, \.$packageName)
+            .field(Version.self, \.$reference)
+            .field(Repository.self, \.$name)
+            .field(Repository.self, \.$owner)
+            .field(Repository.self, \.$ownerName)
             .limit(200)
             .all()
             .mapEachCompact {
-                BuildMonitorIndex.Model(build: $0)
+                BuildMonitorIndex.Model(buildResult: $0)
             }.map {
                 BuildMonitorIndex.View(path: req.url.path, builds: $0)
                     .document()
