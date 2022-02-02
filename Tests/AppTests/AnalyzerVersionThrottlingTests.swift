@@ -345,7 +345,5 @@ private func makeVersion(_ package: Package,
 
 
 extension Version: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        commit ?? "nil"
-    }
+    public var debugDescription: String { commit }
 }

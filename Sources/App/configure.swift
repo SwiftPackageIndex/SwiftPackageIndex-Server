@@ -210,6 +210,11 @@ public func configure(_ app: Application) throws {
     do {  // Migration 043 - add runner_id to builds
         app.migrations.add(UpdateBuildAddRunnerId())
     }
+    do {  // Migration 044 - make version fields required
+        app.migrations.add(UpdateVersionCommitNotNullable())
+        app.migrations.add(UpdateVersionCommitDateNotNullable())
+        app.migrations.add(UpdateVersionReferenceNotNullable())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

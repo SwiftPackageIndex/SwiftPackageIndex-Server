@@ -164,12 +164,12 @@ class VersionDiffTests: AppTestCase {
         ])
         
         // validate
-        XCTAssertEqual(res.toAdd.compactMap(\.immutableReference),
+        XCTAssertEqual(res.toAdd.map(\.immutableReference),
                        [.init(reference: .branch("main"), commit: "hash3"),
                         .init(reference: .tag(2, 0, 0), commit: "hash4")])
-        XCTAssertEqual(res.toDelete.compactMap(\.immutableReference),
+        XCTAssertEqual(res.toDelete.map(\.immutableReference),
                        [.init(reference: .branch("main"), commit: "hash1")])
-        XCTAssertEqual(res.toKeep.compactMap(\.immutableReference),
+        XCTAssertEqual(res.toKeep.map(\.immutableReference),
                        [.init(reference: .tag(1, 2, 3), commit: "hash2")])
         XCTAssertEqual(res.toKeep.map(\.id), [keptId])
     }

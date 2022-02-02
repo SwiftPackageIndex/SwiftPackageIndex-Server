@@ -77,13 +77,6 @@ class ViewUtilsDBTests: AppTestCase {
         let version = try Version(package: pkg)
         try version.save(on: app.db).wait()
 
-        do {  // no reference
-            XCTAssertEqual(
-                makeLink(packageUrl: "url", version: version),
-                nil
-            )
-        }
-
         do {  // branch reference
             version.reference = .branch("main")
             XCTAssertEqual(

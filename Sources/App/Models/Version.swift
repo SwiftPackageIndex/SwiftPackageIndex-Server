@@ -44,10 +44,10 @@ final class Version: Model, Content {
     // data fields
     
     @Field(key: "commit")
-    var commit: CommitHash?
+    var commit: CommitHash
     
     @Field(key: "commit_date")
-    var commitDate: Date?
+    var commitDate: Date
 
     @Field(key: "latest")
     var latest: Kind?
@@ -59,7 +59,7 @@ final class Version: Model, Content {
     var publishedAt: Date?
 
     @Field(key: "reference")
-    var reference: Reference?
+    var reference: Reference
 
     @Field(key: "release_notes")
     var releaseNotes: String?
@@ -98,12 +98,12 @@ final class Version: Model, Content {
     
     init(id: Id? = nil,
          package: Package,
-         commit: CommitHash? = nil,
-         commitDate: Date? = nil,
+         commit: CommitHash,
+         commitDate: Date,
          latest: Kind? = nil,
          packageName: String? = nil,
          publishedAt: Date? = nil,
-         reference: Reference? = nil,
+         reference: Reference,
          releaseNotes: String? = nil,
          releaseNotesHTML: String? = nil,
          resolvedDependencies: [ResolvedDependency] = [],
@@ -153,7 +153,7 @@ extension Version: Equatable {
 
 extension Version {
     var isBranch: Bool {
-        reference?.isBranch ?? false
+        reference.isBranch
     }
 }
 
@@ -174,9 +174,8 @@ extension Version {
         var commit: CommitHash
     }
     
-    var immutableReference: ImmutableReference? {
-        guard let ref = reference, let commit = commit else { return nil }
-        return .init(reference: ref, commit: commit)
+    var immutableReference: ImmutableReference {
+        return .init(reference: reference, commit: commit)
     }
     
     static func diff(local: [Version.ImmutableReference],
@@ -191,12 +190,12 @@ extension Version {
     }
     
     static func diff(local: [Version], incoming: [Version]) -> VersionDelta {
-        let delta = diff(local: local.compactMap(\.immutableReference),
-                         incoming: incoming.compactMap(\.immutableReference))
+        let delta = diff(local: local.map(\.immutableReference),
+                         incoming: incoming.map(\.immutableReference))
         return .init(
-            toAdd: incoming.filter { $0.immutableReference.map({delta.toAdd.contains($0)}) ?? false },
-            toDelete: local.filter { $0.immutableReference.map({delta.toDelete.contains($0)}) ?? false },
-            toKeep: local.filter { $0.immutableReference.map({delta.toKeep.contains($0)}) ?? false }
+            toAdd: incoming.filter { delta.toAdd.contains($0.immutableReference) },
+            toDelete: local.filter { delta.toDelete.contains($0.immutableReference) },
+            toKeep: local.filter { delta.toKeep.contains($0.immutableReference) }
         )
     }
 }
@@ -206,8 +205,7 @@ extension Array where Element == Version {
     // Helper to determine latest branch version in a batch
     var latestBranchVersion: Version? {
         filter(\.isBranch)
-            .filter { $0.commitDate != nil }
-            .sorted { $0.commitDate! < $1.commitDate! }
+            .sorted { $0.commitDate < $1.commitDate }
             .last
     }
 }

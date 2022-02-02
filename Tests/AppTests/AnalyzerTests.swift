@@ -63,7 +63,7 @@ class AnalyzerTests: AppTestCase {
         Current.git = .live
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            try DispatchQueue(label: "serial").sync {
+            try self.testQueue.sync {
                 let trimmedPath = path.replacingOccurrences(of: checkoutDir!,
                                                             with: ".")
                 commands.append(try XCTUnwrap(.init(command: cmd, path: trimmedPath)))
@@ -156,7 +156,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg1.processingStage, .analysis)
         XCTAssertEqual(pkg1.versions.map(\.packageName), ["foo-1", "foo-1", "foo-1"])
         let sortedVersions1 = pkg1.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-        XCTAssertEqual(sortedVersions1.map(\.reference?.description), ["main", "1.0.0", "1.1.1"])
+        XCTAssertEqual(sortedVersions1.map(\.reference.description), ["main", "1.0.0", "1.1.1"])
         XCTAssertEqual(sortedVersions1.map(\.latest), [.defaultBranch, nil, .release])
         XCTAssertEqual(sortedVersions1.map(\.releaseNotes), [nil, "rel 1.0.0", nil])
         XCTAssertEqual(sortedVersions1
@@ -169,7 +169,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg2.processingStage, .analysis)
         XCTAssertEqual(pkg2.versions.map(\.packageName), ["foo-2", "foo-2", "foo-2"])
         let sortedVersions2 = pkg2.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-        XCTAssertEqual(sortedVersions2.map(\.reference?.description), ["main", "2.0.0", "2.1.0"])
+        XCTAssertEqual(sortedVersions2.map(\.reference.description), ["main", "2.0.0", "2.1.0"])
         XCTAssertEqual(sortedVersions2.map(\.latest), [.defaultBranch, nil, .release])
         XCTAssertEqual(sortedVersions2
                         .flatMap { $0.resolvedDependencies ?? [] }
@@ -280,9 +280,9 @@ class AnalyzerTests: AppTestCase {
         // validate versions
         let p = try XCTUnwrap(Package.find(pkgId, on: app.db).wait())
         try p.$versions.load(on: app.db).wait()
-        let versions = p.versions.sorted(by: { $0.commitDate! < $1.commitDate! })
+        let versions = p.versions.sorted(by: { $0.commitDate < $1.commitDate })
         XCTAssertEqual(versions.map(\.commitDate), [.t1, .t2, .t3])
-        XCTAssertEqual(versions.map(\.reference?.description), ["1.0.0", "1.1.1", "main"])
+        XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "1.1.1", "main"])
         XCTAssertEqual(versions.map(\.latest), [nil, .release, .defaultBranch])
         XCTAssertEqual(versions.map(\.commit), ["commit1", "commit2", "commit3"])
     }
@@ -361,7 +361,7 @@ class AnalyzerTests: AppTestCase {
 
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            try DispatchQueue(label: "serial").sync {
+            try self.testQueue.sync {
                 commands.append(try XCTUnwrap(.init(command: cmd, path: path)))
             }
 
@@ -394,7 +394,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { _ in true }
         var commands = [String]()
         Current.shell.run = { cmd, path in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
                 commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
@@ -550,7 +550,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(results.count, 2)
         XCTAssertEqual(results.map(\.isSuccess), [false, true])
         let (_, delta) = try XCTUnwrap(results.last).get()
-        assertEquals(delta.toAdd, \.reference?.description, ["main", "1.2.3"])
+        assertEquals(delta.toAdd, \.reference.description, ["main", "1.2.3"])
         XCTAssertEqual(delta.toDelete, [])
     }
 
@@ -591,7 +591,7 @@ class AnalyzerTests: AppTestCase {
             .wait()
 
         // validate
-        let sortedResults = res.sorted { $0.commitDate! < $1.commitDate! }
+        let sortedResults = res.sorted { $0.commitDate < $1.commitDate }
         XCTAssertEqual(sortedResults.map(\.releaseNotes),
                        ["rel 1.2.3", "rel 2.0.0", nil, nil, "rel 2.3.0", nil, nil])
         XCTAssertEqual(sortedResults.map(\.url),
@@ -609,7 +609,7 @@ class AnalyzerTests: AppTestCase {
         // setup
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 commands.append(cmd.string)
             }
             if cmd == .swiftDumpPackage {
@@ -656,7 +656,7 @@ class AnalyzerTests: AppTestCase {
         // setup
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 commands.append(cmd.string)
             }
             if cmd == .swiftDumpPackage {
@@ -909,7 +909,7 @@ class AnalyzerTests: AppTestCase {
         
         var commands = [String]()
         Current.shell.run = { cmd, path in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "...")
                 commands.append(c)
             }
@@ -941,7 +941,7 @@ class AnalyzerTests: AppTestCase {
 
         var commands = [String]()
         Current.shell.run = { cmd, path in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
                 commands.append(c)
             }
@@ -1021,7 +1021,7 @@ class AnalyzerTests: AppTestCase {
             let pkg = try XCTUnwrap(Package.find(pkgId, on: app.db).wait())
             try pkg.$versions.load(on: app.db).wait()
             let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-            XCTAssertEqual(versions.map(\.reference?.description), ["1.2.3", "1.3.0"])
+            XCTAssertEqual(versions.map(\.reference.description), ["1.2.3", "1.3.0"])
             XCTAssertEqual(versions.map(\.latest), [nil, .release])
         }
     }
@@ -1038,7 +1038,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { _ in true }
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
                 commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
@@ -1077,7 +1077,7 @@ class AnalyzerTests: AppTestCase {
         // validate
         try pkg.$versions.load(on: app.db).wait()
         let versions = pkg.versions.sorted(by: { $0.createdAt! < $1.createdAt! })
-        XCTAssertEqual(versions.map(\.reference?.description), ["main", "1.2.3", "2.0.0-rc1"])
+        XCTAssertEqual(versions.map(\.reference.description), ["main", "1.2.3", "2.0.0-rc1"])
         XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, .preRelease])
     }
 
@@ -1113,7 +1113,7 @@ class AnalyzerTests: AppTestCase {
         // validate
         let versions = try Version.query(on: app.db)
             .sort(\.$createdAt).all().wait()
-        XCTAssertEqual(versions.map(\.reference?.description), ["main", "2.0.0", "2.0.0-rc1"])
+        XCTAssertEqual(versions.map(\.reference.description), ["main", "2.0.0", "2.0.0-rc1"])
         XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, nil])
     }
 

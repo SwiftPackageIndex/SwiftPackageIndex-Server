@@ -137,21 +137,20 @@ extension Package {
 
     static func findRelease(_ versions: [Version]) -> Version? {
         versions
-            .filter { $0.reference?.semVer != nil }
-            .sorted { $0.reference!.semVer! > $1.reference!.semVer! }
-            .first { $0.reference?.semVer?.isStable ?? false }
+            .filter { $0.reference.semVer != nil }
+            .sorted { $0.reference.semVer! > $1.reference.semVer! }
+            .first { $0.reference.semVer?.isStable ?? false }
     }
 
     static func findPreRelease(_ versions: [Version], after release: Reference?) -> Version? {
         versions
-            .filter { $0.reference?.semVer != nil }
-            .filter { $0.commitDate != nil }
-            .sorted { $0.commitDate! > $1.commitDate! }
+            .filter { $0.reference.semVer != nil }
+            .sorted { $0.commitDate > $1.commitDate }
             .first {
                 // pick first version that is a prerelease *and* no older (in terms of SemVer)
                 // than the latest release
-                ($0.reference?.semVer?.isPreRelease ?? false)
-                    && ($0.reference?.semVer ?? SemanticVersion(0, 0, 0)
+                ($0.reference.semVer?.isPreRelease ?? false)
+                    && ($0.reference.semVer ?? SemanticVersion(0, 0, 0)
                             >= release?.semVer ?? SemanticVersion(0, 0, 0))
             }
     }
@@ -171,8 +170,7 @@ extension Package {
     static func findBranchVersion(versions: [Version], branch: String?) -> Version? {
         guard let branch = branch else { return nil }
         return versions.first(where: { v in
-            guard let ref = v.reference else { return false }
-            switch ref {
+            switch v.reference {
                 case .branch(let b) where b == branch:
                     return true
                 default:

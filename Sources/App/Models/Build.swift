@@ -165,13 +165,10 @@ extension Build {
             .first()
             .unwrap(or: Abort(.notFound))
         return version.flatMap {
-            guard let reference = $0.reference else {
-                return database.eventLoop.future(error: Abort(.internalServerError))
-            }
             return Current.triggerBuild(client,
                                         $0.package.url,
                                         platform,
-                                        reference,
+                                        $0.reference,
                                         swiftVersion,
                                         versionId)
         }

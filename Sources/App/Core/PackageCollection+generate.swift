@@ -178,7 +178,7 @@ extension PackageCollection.Package.Version {
         let products = version.products
             .compactMap(PackageCollection.Product.init(product:))
         guard
-            let semVer = version.reference?.semVer,
+            let semVer = version.reference.semVer,
             let packageName = version.packageName,
             let toolsVersion = version.toolsVersion,
             !products.isEmpty

@@ -71,12 +71,11 @@ extension PackageController {
                             .compactMap { res -> BuildInfo? in
                                 let build = res.build
                                 let version = res.version
-                                guard let kind = version.latest,
-                                      let reference = version.reference else {
+                                guard let kind = version.latest else {
                                           return nil
                                       }
                                 return try BuildInfo(versionKind: kind,
-                                                     reference: reference,
+                                                     reference: version.reference,
                                                      buildId: build.requireID(),
                                                      swiftVersion: build.swiftVersion,
                                                      platform: build.platform,
