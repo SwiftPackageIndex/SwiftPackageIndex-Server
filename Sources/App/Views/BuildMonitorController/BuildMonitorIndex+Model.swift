@@ -91,6 +91,7 @@ extension BuildMonitorIndex {
                         .span(.text(status.description))
                     ),
                     .div(
+                        .class("reference"),
                         .unwrap(reference, { $0.referenceNode(kind: referenceKind) })
                     ),
                     .div(

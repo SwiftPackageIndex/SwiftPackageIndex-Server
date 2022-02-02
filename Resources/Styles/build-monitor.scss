@@ -23,6 +23,7 @@
 
   .row {
     display: grid;
+    gap: 5px;
     padding: 10px;
     grid-template-columns: 3fr 2fr 3fr repeat(3, 2fr);
     background-color: var(--grid-default-background);
@@ -117,17 +118,16 @@
         grid-column: span 2;
       }
 
-      .package_name {
+      .package_name,
+      .reference {
         grid-column: 1 / span 4;
       }
 
-      .reference {
-        grid-column: 1 / span 2;
-      }
-
       .status {
-        grid-column: 3 / span 2;
-        grid-row: 2;
+        margin: 0;
+        padding: 5px;
+        grid-column: 1 / span 4;
+        grid-row: 5;
       }
     }
   }
