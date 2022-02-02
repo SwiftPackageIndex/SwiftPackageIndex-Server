@@ -56,11 +56,7 @@ extension BuildMonitorIndex {
                   let createdAt = buildResult.build.createdAt
             else { return nil }
 
-            let runner: BuildRunner? = {
-                guard let runnerId = buildResult.build.runnerId
-                else { return nil }
-                return BuildRunner(rawValue: runnerId)
-            }()
+            let runner = buildResult.build.runnerId.flatMap(BuildRunner.init(rawValue:))
 
             self.init(buildId: id,
                       createdAt: createdAt,
