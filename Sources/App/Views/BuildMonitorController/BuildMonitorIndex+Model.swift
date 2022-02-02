@@ -65,7 +65,7 @@ extension BuildMonitorIndex {
             self.init(buildId: id,
                       createdAt: createdAt,
                       packageName: buildResult.version.packageName ?? buildResult.repository.name ?? "Unknown Package",
-                      repositoryOwnerName: buildResult.repository.ownerName ?? buildResult.repository.ownerName,
+                      repositoryOwnerName: buildResult.repository.ownerName ?? buildResult.repository.owner,
                       platform: buildResult.build.platform,
                       swiftVersion: buildResult.build.swiftVersion,
                       reference: buildResult.version.reference,
