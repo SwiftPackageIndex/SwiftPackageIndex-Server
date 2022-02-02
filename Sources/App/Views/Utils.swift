@@ -87,11 +87,9 @@ func makeLink(packageUrl: String, version: Version) -> Link? {
 }
 
 func makeDatedLink(packageUrl: String, version: Version,
-                   keyPath: KeyPath<Version, Date?>) -> DatedLink? {
-    guard
-        let date = version[keyPath: keyPath],
-        let link = makeLink(packageUrl: packageUrl, version: version)
+                   keyPath: KeyPath<Version, Date>) -> DatedLink? {
+    guard let link = makeLink(packageUrl: packageUrl, version: version)
     else { return nil }
-    return .init(date: "\(date: date, relativeTo: Current.date())",
+    return .init(date: "\(date: version[keyPath: keyPath], relativeTo: Current.date())",
                  link: link)
 }

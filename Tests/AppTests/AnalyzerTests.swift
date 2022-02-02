@@ -280,7 +280,7 @@ class AnalyzerTests: AppTestCase {
         // validate versions
         let p = try XCTUnwrap(Package.find(pkgId, on: app.db).wait())
         try p.$versions.load(on: app.db).wait()
-        let versions = p.versions.sorted(by: { $0.commitDate! < $1.commitDate! })
+        let versions = p.versions.sorted(by: { $0.commitDate < $1.commitDate })
         XCTAssertEqual(versions.map(\.commitDate), [.t1, .t2, .t3])
         XCTAssertEqual(versions.map(\.reference.description), ["1.0.0", "1.1.1", "main"])
         XCTAssertEqual(versions.map(\.latest), [nil, .release, .defaultBranch])
@@ -591,7 +591,7 @@ class AnalyzerTests: AppTestCase {
             .wait()
 
         // validate
-        let sortedResults = res.sorted { $0.commitDate! < $1.commitDate! }
+        let sortedResults = res.sorted { $0.commitDate < $1.commitDate }
         XCTAssertEqual(sortedResults.map(\.releaseNotes),
                        ["rel 1.2.3", "rel 2.0.0", nil, nil, "rel 2.3.0", nil, nil])
         XCTAssertEqual(sortedResults.map(\.url),

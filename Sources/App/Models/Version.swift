@@ -47,7 +47,7 @@ final class Version: Model, Content {
     var commit: CommitHash
     
     @Field(key: "commit_date")
-    var commitDate: Date?
+    var commitDate: Date
 
     @Field(key: "latest")
     var latest: Kind?
@@ -99,7 +99,7 @@ final class Version: Model, Content {
     init(id: Id? = nil,
          package: Package,
          commit: CommitHash = "",
-         commitDate: Date? = nil,
+         commitDate: Date = .distantPast,
          latest: Kind? = nil,
          packageName: String? = nil,
          publishedAt: Date? = nil,
@@ -205,8 +205,7 @@ extension Array where Element == Version {
     // Helper to determine latest branch version in a batch
     var latestBranchVersion: Version? {
         filter(\.isBranch)
-            .filter { $0.commitDate != nil }
-            .sorted { $0.commitDate! < $1.commitDate! }
+            .sorted { $0.commitDate < $1.commitDate }
             .last
     }
 }

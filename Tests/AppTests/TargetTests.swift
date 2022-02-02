@@ -25,6 +25,7 @@ final class TargetTests: AppTestCase {
         // setup
         let v = Version()
         v.commit = "" // required field
+        v.commitDate = .distantPast // required field
         v.reference = .branch("main")  // required field
         try v.save(on: app.db).wait()
         let t = try Target(version: v, name: "target")
@@ -45,6 +46,7 @@ final class TargetTests: AppTestCase {
         // setup
         let v = Version()
         v.commit = "" // required field
+        v.commitDate = .distantPast // required field
         v.reference = .branch("main")  // required field
         try v.save(on: app.db).wait()
         let t = try Target(version: v, name: "target")

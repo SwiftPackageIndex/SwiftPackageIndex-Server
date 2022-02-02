@@ -62,19 +62,9 @@ class VersionTests: AppTestCase {
     }
 
     func test_save_not_null_constraints() async throws {
-        do {  // reference unset
-            let v = Version()
-            v.commit = ""
-            try await v.save(on: app.db)
-            XCTFail("save must fail")
-        } catch {
-            // validation
-            XCTAssertEqual(error.localizedDescription,
-                           #"server: null value in column "reference" of relation "versions" violates not-null constraint (ExecConstraints)"#)
-        }
-
         do {  // commit unset
             let v = Version()
+            v.commitDate = .distantPast
             v.reference = .branch("main")
             try await v.save(on: app.db)
             XCTFail("save must fail")
@@ -82,6 +72,30 @@ class VersionTests: AppTestCase {
             // validation
             XCTAssertEqual(error.localizedDescription,
                            #"server: null value in column "commit" of relation "versions" violates not-null constraint (ExecConstraints)"#)
+        }
+
+        do {  // commitDate unset
+            let v = Version()
+            v.commit = ""
+            v.reference = .branch("main")
+            try await v.save(on: app.db)
+            XCTFail("save must fail")
+        } catch {
+            // validation
+            XCTAssertEqual(error.localizedDescription,
+                           #"server: null value in column "commit_date" of relation "versions" violates not-null constraint (ExecConstraints)"#)
+        }
+
+        do {  // reference unset
+            let v = Version()
+            v.commit = ""
+            v.commitDate = .distantPast
+            try await v.save(on: app.db)
+            XCTFail("save must fail")
+        } catch {
+            // validation
+            XCTAssertEqual(error.localizedDescription,
+                           #"server: null value in column "reference" of relation "versions" violates not-null constraint (ExecConstraints)"#)
         }
     }
     
@@ -138,25 +152,21 @@ class VersionTests: AppTestCase {
         let vid = UUID()
         let v1 = try Version(id: UUID(),
                              package: pkg,
-                             commitDate: .init(timeIntervalSince1970: 0),
+                             commitDate: .t0,
                              reference: .branch("main"))
         let v2 = try Version(id: UUID(),
                              package: pkg,
-                             commitDate: .init(timeIntervalSince1970: 1),
+                             commitDate: .t1,
                              reference: .branch("main"))
         let v3 = try Version(id: vid,
                              package: pkg,
-                             commitDate: .init(timeIntervalSince1970: 2),
+                             commitDate: .t2,
                              reference: .branch("main"))
-        let v4 = try Version(id: UUID(),
-                             package: pkg,
-                             commitDate: nil,
-                             reference: .branch("main"))
-        let v5 = try Version(id: UUID(), package: pkg, reference: .tag(1, 2, 3))
-        let v6 = try Version(id: UUID(), package: pkg, reference: .branch("main"))
+        let v4 = try Version(id: UUID(), package: pkg, reference: .tag(1, 2, 3))
+        let v5 = try Version(id: UUID(), package: pkg, reference: .branch("main"))
 
         // MUT
-        let latest = [v1, v2, v3, v4, v5, v6].shuffled().latestBranchVersion
+        let latest = [v1, v2, v3, v4, v5].shuffled().latestBranchVersion
 
         // validate
         XCTAssertEqual(latest?.id, vid)

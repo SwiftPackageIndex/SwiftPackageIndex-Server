@@ -498,8 +498,7 @@ func getIncomingVersions(client: Client,
 
 
 func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version] {
-    guard let existingVersion = lastestExistingVersion,
-          let latestExisting = existingVersion.commitDate else {
+    guard let existingVersion = lastestExistingVersion else {
         // there's no existing branch version -> leave incoming alone (which will lead to addition)
         return incoming
     }
@@ -509,7 +508,7 @@ func throttle(lastestExistingVersion: Version?, incoming: [Version]) -> [Version
         return incoming
     }
 
-    let ageOfExistingVersion = Current.date().timeIntervalSinceReferenceDate - latestExisting.timeIntervalSinceReferenceDate
+    let ageOfExistingVersion = Current.date().timeIntervalSinceReferenceDate - existingVersion.commitDate.timeIntervalSinceReferenceDate
 
     // if existing version isn't older than our "window", keep it - otherwise
     // use the latest incoming version
