@@ -46,7 +46,7 @@ enum BuildShow {
                     .p(
                         .strong(
                             .class(model.buildInfo.status.cssClass),
-                            .text(model.buildInfo.status.text)
+                            .text(model.buildInfo.status.description)
                         ),
                         .text(model.buildInfo.status.joiningClause),
                         .a(
@@ -102,14 +102,6 @@ enum BuildShow {
 private extension Build.Status {
 
     // There should only be "ok" or "failed" builds visible on this page (others don't have any details to display) so these other cases are only covered for completeness.
-
-    var text: String {
-        switch self {
-            case .ok: return "Successful"
-            case .failed: return "Failed"
-            case .infrastructureError, .triggered, .timeout: return ""
-        }
-    }
 
     var joiningClause: String {
         switch self {

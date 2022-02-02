@@ -30,7 +30,7 @@ class BuildResultTests: AppTestCase {
         try build.save(on: app.db).wait()
 
         // MUT
-        let res = try BuildController.BuildResult
+        let res = try BuildResult
             .query(on: app.db, buildId: build.id!)
             .wait()
 

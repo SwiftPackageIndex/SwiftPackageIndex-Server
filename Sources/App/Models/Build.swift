@@ -118,7 +118,7 @@ final class Build: Model, Content {
 
 
 extension Build {
-    enum Status: String, Codable {
+    enum Status: String, Codable, CustomStringConvertible {
         case ok
         case failed
         case infrastructureError
@@ -131,6 +131,16 @@ extension Build {
                     return true
                 case .infrastructureError, .triggered:
                     return false
+            }
+        }
+
+        var description: String {
+            switch self {
+                case .ok: return "Successful"
+                case .failed: return "Failed"
+                case .infrastructureError: return "Infrastructure Error"
+                case .triggered: return "Triggered"
+                case .timeout: return "Timed Out"
             }
         }
     }

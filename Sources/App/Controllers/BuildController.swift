@@ -18,8 +18,6 @@ import Vapor
 
 
 struct BuildController {
-    typealias BuildResult = Joined4<Build, Version, Package, Repository>
-
     func show(req: Request) throws -> EventLoopFuture<HTML> {
         guard let id = req.parameters.get("id"),
               let buildId = UUID.init(uuidString: id)

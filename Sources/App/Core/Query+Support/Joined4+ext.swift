@@ -15,33 +15,6 @@
 import Fluent
 import Vapor
 
-
-extension Joined4 where M == Build, R1 == Version, R2 == Package, R3 == Repository {
-    var build: Build { model }
-    // It's ok to force unwrap all joined relations, because they
-    // are INNER joins, i.e. the relation will exist for every result.
-    var version: Version { relation1! }
-    var package: Package { relation2! }
-    var repository: Repository { relation3! }
-
-    static func query(on database: Database) -> JoinedQueryBuilder<Self> {
-        query(
-            on: database,
-            join: \Version.$id == \Build.$version.$id, method: .inner,
-            join: \Package.$id == \Version.$package.$id, method: .inner,
-            join: \Repository.$package.$id == \Package.$id, method: .inner
-        )
-    }
-
-    static func query(on database: Database, buildId: Build.Id) -> EventLoopFuture<Self> {
-        query(on: database)
-            .filter(\.$id == buildId)
-            .first()
-            .unwrap(or: Abort(.notFound))
-    }
-}
-
-
 extension Joined4 where M == Package, R1 == Repository, R2 == Version, R3 == Product {
     var package: Package { model }
     // Safe to force unwrap all relationshipts due to inner joins

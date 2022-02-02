@@ -74,6 +74,7 @@
 
 :root {
   --page-text: var(--black);
+  --page-dimmed-text: var(--grey);
   --page-background: var(--white);
   --link-text: var(--mid-blue);
   --link-highlight: var(--mid-red);
@@ -124,11 +125,12 @@
   --beta-text: var(--mid-green);
   --branch-text: var(--dark-green);
 
-  --matrix-result-default-background: var(--very-very-light-grey);
-  --matrix-result-compatible-background: var(--light-green);
-  --matrix-result-incompatible-background: var(--light-grey);
-  --matrix-result-succeeded-background: var(--very-light-grey);
-  --matrix-result-failed-background: var(--very-light-grey);
+  --grid-default-background: var(--very-very-light-grey);
+  --grid-default-border: var(--very-light-grey);
+  --grid-compatible-background: var(--light-green);
+  --grid-incompatible-background: var(--light-grey);
+  --grid-succeeded-background: var(--very-light-grey);
+  --grid-failed-background: var(--very-light-grey);
 
   --package-list-border: var(--very-light-grey);
   --package-list-background: var(--very-very-light-grey);
@@ -193,11 +195,12 @@
     --rule-background: var(--dark-blue);
     --rule-thin-background: var(--dark-grey);
 
-    --matrix-result-default-background: var(--very-very-dark-grey);
-    --matrix-result-compatible-background: var(--mid-green);
-    --matrix-result-incompatible-background: var(--very-dark-grey);
-    --matrix-result-succeeded-background: var(--very-dark-grey);
-    --matrix-result-failed-background: var(--very-dark-grey);
+    --grid-default-background: var(--very-very-dark-grey);
+    --grid-default-border: var(--very-dark-grey);
+    --grid-compatible-background: var(--mid-green);
+    --grid-incompatible-background: var(--very-dark-grey);
+    --grid-succeeded-background: var(--very-dark-grey);
+    --grid-failed-background: var(--very-dark-grey);
 
     --package-list-border: var(--very-dark-grey);
     --package-list-background: var(--very-very-dark-grey);

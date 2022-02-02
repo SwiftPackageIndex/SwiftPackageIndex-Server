@@ -141,17 +141,17 @@
       & > .unknown {
         background-size: 12px;
         background-image: var(--image-unknown);
-        background-color: var(--matrix-result-default-background);
+        background-color: var(--grid-default-background);
       }
 
       & > .compatible {
         background-image: var(--image-compatible);
-        background-color: var(--matrix-result-compatible-background);
+        background-color: var(--grid-compatible-background);
       }
 
       & > .incompatible {
         background-image: var(--image-incompatible);
-        background-color: var(--matrix-result-incompatible-background);
+        background-color: var(--grid-incompatible-background);
       }
     }
   }
@@ -163,7 +163,7 @@
     }
 
     .result > div {
-      background-color: var(--matrix-result-default-background);
+      background-color: var(--grid-default-background);
 
       &.succeeded > a,
       &.failed > a {
@@ -174,7 +174,7 @@
       }
 
       &.succeeded {
-        background-color: var(--matrix-result-succeeded-background);
+        background-color: var(--grid-succeeded-background);
 
         a {
           background-image: var(--image-succeeded);
@@ -182,7 +182,7 @@
       }
 
       &.failed {
-        background-color: var(--matrix-result-failed-background);
+        background-color: var(--grid-failed-background);
 
         a {
           background-image: var(--image-failed);

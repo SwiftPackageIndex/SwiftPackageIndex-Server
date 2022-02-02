@@ -195,17 +195,14 @@ extension BuildIndex.Model {
     struct ColumnIndex: Equatable {
         var label: String
         var kind: App.Version.Kind
+
         var node: Node<HTML.BodyContext> {
-            let cssClass: String
-            switch kind {
-                case .preRelease:
-                    cssClass = "beta"
-                case .defaultBranch:
-                    cssClass = "branch"
-                case .release:
-                    cssClass = "stable"
-            }
-            return .div(.span(.class(cssClass), .text(label)))
+            return .div(
+                .span(
+                    .class(kind.cssClass),
+                    .text(label)
+                )
+            )
         }
     }
 

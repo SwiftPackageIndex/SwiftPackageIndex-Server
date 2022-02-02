@@ -94,6 +94,7 @@ enum SiteURL: Resourceable {
     case addAPackage
     case api(Api)
     case author(_ owner: Parameter<String>)
+    case buildMonitor
     case builds(_ id: Parameter<UUID>)
     case docs(Docs)
     case faq
@@ -128,6 +129,9 @@ enum SiteURL: Resourceable {
 
             case let .builds(.value(id)):
                 return "builds/\(id.uuidString)"
+
+            case .buildMonitor:
+                return "build-monitor"
 
             case .builds(.key):
                 fatalError("invalid path: \(self)")
@@ -199,7 +203,7 @@ enum SiteURL: Resourceable {
     var pathComponents: [PathComponent] {
         switch self {
             case .addAPackage, .faq, .home, .packageCollections, .privacy, .rssPackages, .rssReleases,
-                 .search, .siteMap, .tryInPlayground:
+                    .search, .siteMap, .tryInPlayground, .buildMonitor:
                 return [.init(stringLiteral: path)]
                 
             case let .api(next):

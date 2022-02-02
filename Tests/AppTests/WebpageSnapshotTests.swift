@@ -464,6 +464,24 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         #endif
     }
 
+    func test_BuildMonitorIndex() throws {
+        let page = { BuildMonitorIndex.View(path: "", builds: .mock).document() }
+
+        assertSnapshot(matching: page, as: .html)
+
+        #if os(macOS)
+        if runImageSnapshotTests {
+            configs.forEach {
+                assertSnapshot(matching: page,
+                               as: .image(precision: defaultPrecision,
+                                          size: $0.size,
+                                          baseURL: TempWebRoot.baseURL),
+                               named: $0.name)
+            }
+        }
+        #endif
+    }
+
     func test_MaintainerInfoIndex() throws {
         let page = { MaintainerInfoIndex.View(path: "", model: .mock).document() }
 
