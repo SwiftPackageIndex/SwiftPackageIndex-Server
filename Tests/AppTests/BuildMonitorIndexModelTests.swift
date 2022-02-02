@@ -57,9 +57,8 @@ class BuildMonitorIndexModelTests: AppTestCase {
     func test_init_from_Build_without_repository_name() throws {
         do {
             let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
-            let version = try Version(package: package
-                                      // Deliberately missing a `packageName`
-            )
+            let version = try Version(package: package,
+                                      packageName: nil) // Deliberately missing a `packageName`
             try version.save(on: app.db).wait()
             try Build(version: version,
                       platform: .macosXcodebuild,
@@ -81,17 +80,16 @@ class BuildMonitorIndexModelTests: AppTestCase {
     func test_init_from_Build_with_no_package_name() throws {
         do {
             let package = try savePackage(on: app.db, "https://github.com/daveverwer/LeftPad")
-            let version = try Version(package: package
-                                      // Deliberately missing a `packageName`
-            )
+            let version = try Version(package: package,
+                                      packageName: nil) // Deliberately missing a `packageName`
             try version.save(on: app.db).wait()
             try Build(version: version,
                       platform: .macosXcodebuild,
                       status: .ok,
                       swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
-            try Repository(package: package
-                           // Deliberately missing a `name`
-            ).save(on: app.db).wait()
+            try Repository(package: package,
+                           name: nil) // Deliberately missing a `name`
+                .save(on: app.db).wait()
         }
 
         // Query results back through the Joined4
@@ -113,9 +111,9 @@ class BuildMonitorIndexModelTests: AppTestCase {
                       status: .ok,
                       swiftVersion: .init(5, 6, 0)).save(on: app.db).wait()
             try Repository(package: package,
-                           owner: "daveverwer from Repository.owner"
-                           // Deliberately missing an `ownerName`
-            ).save(on: app.db).wait()
+                           owner: "daveverwer from Repository.owner",
+                           ownerName: nil) // Deliberately missing an `ownerName`
+                .save(on: app.db).wait()
         }
 
         // Query results back through the Joined4
