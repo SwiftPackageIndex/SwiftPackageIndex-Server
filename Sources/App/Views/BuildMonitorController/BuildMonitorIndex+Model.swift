@@ -27,7 +27,7 @@ extension BuildMonitorIndex {
         var platform: Build.Platform
         var swiftVersion: SwiftVersion
         var status: Build.Status
-        var runnerId: String?
+        var runner: BuildRunner?
 
         internal init(buildId: UUID,
                       createdAt: Date,
@@ -38,7 +38,7 @@ extension BuildMonitorIndex {
                       reference: Reference?,
                       referenceKind: Version.Kind?,
                       status: Build.Status,
-                      runnerId: String?) {
+                      runner: BuildRunner?) {
             self.buildId = buildId
             self.createdAt = createdAt
             self.packageName = packageName
@@ -48,13 +48,19 @@ extension BuildMonitorIndex {
             self.reference = reference
             self.referenceKind = referenceKind
             self.status = status
-            self.runnerId = runnerId
+            self.runner = runner
         }
 
         init?(buildResult: BuildResult) {
             guard let id = buildResult.build.id,
                   let createdAt = buildResult.build.createdAt
             else { return nil }
+
+            let runner: BuildRunner? = {
+                guard let runnerId = buildResult.build.runnerId
+                else { return nil }
+                return BuildRunner(rawValue: runnerId)
+            }()
 
             self.init(buildId: id,
                       createdAt: createdAt,
@@ -65,7 +71,7 @@ extension BuildMonitorIndex {
                       reference: buildResult.version.reference,
                       referenceKind: buildResult.version.latest,
                       status: buildResult.build.status,
-                      runnerId: buildResult.build.runnerId)
+                      runner: runner)
         }
 
         func buildMonitorItem() -> Node<HTML.BodyContext> {
@@ -95,22 +101,17 @@ extension BuildMonitorIndex {
                         .text(platform.displayName)
                     ),
                     .div(
-                        runnerNode
+                        .unwrap(runner, {
+                            .span(
+                                .class("runner"),
+                                .text($0.description)
+                            )
+                        })
                     ),
                     .div(
                         .text("\(date: createdAt, relativeTo: Current.date())")
                     )
                 )
-            )
-        }
-
-        var runnerNode: Node<HTML.BodyContext> {
-            guard let runnerId = runnerId,
-                  let runner = BuildRunner(rawValue: runnerId)
-            else { return .empty }
-            return .span(
-                .class("runner"),
-                .text(runner.description)
             )
         }
     }
