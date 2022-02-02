@@ -132,14 +132,6 @@ final class Version: Model, Content {
         case defaultBranch = "default_branch"
         case preRelease = "pre_release"
         case release
-
-        var cssClass: String {
-            switch self {
-                case .preRelease: return "beta"
-                case .defaultBranch: return "branch"
-                case .release: return "stable"
-            }
-        }
     }
 }
 
