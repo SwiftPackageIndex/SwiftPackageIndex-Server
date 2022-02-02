@@ -112,7 +112,7 @@ extension Twitter {
               let repoName = package.repository?.name,
               let owner = package.repository?.owner,
               let ownerName = package.repository?.ownerDisplayName,
-              let semVer = version.reference?.semVer
+              let semVer = version.reference.semVer
         else { return nil }
         let url = SiteURL.package(.value(owner), .value(repoName), .none).absoluteURL()
         return package.model.isNew
@@ -154,8 +154,7 @@ extension Twitter {
         let idsLatest = [release, preRelease, defaultBranch].compactMap { $0?.id }
         // filter on versions with a tag and which are in the "latest" triple
         let versions = versions.filter { version in
-            guard let reference = version.reference,
-                  reference.isTag,
+            guard version.reference.isTag,
                   let id = version.id else { return false }
             return idsLatest.contains(id)
         }

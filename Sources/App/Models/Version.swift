@@ -59,7 +59,7 @@ final class Version: Model, Content {
     var publishedAt: Date?
 
     @Field(key: "reference")
-    var reference: Reference?
+    var reference: Reference
 
     @Field(key: "release_notes")
     var releaseNotes: String?
@@ -103,7 +103,7 @@ final class Version: Model, Content {
          latest: Kind? = nil,
          packageName: String? = nil,
          publishedAt: Date? = nil,
-         reference: Reference? = nil,
+         reference: Reference = .branch("main"),
          releaseNotes: String? = nil,
          releaseNotesHTML: String? = nil,
          resolvedDependencies: [ResolvedDependency] = [],
@@ -153,7 +153,7 @@ extension Version: Equatable {
 
 extension Version {
     var isBranch: Bool {
-        reference?.isBranch ?? false
+        reference.isBranch
     }
 }
 
@@ -175,8 +175,8 @@ extension Version {
     }
     
     var immutableReference: ImmutableReference? {
-        guard let ref = reference, let commit = commit else { return nil }
-        return .init(reference: ref, commit: commit)
+        guard let commit = commit else { return nil }
+        return .init(reference: reference, commit: commit)
     }
     
     static func diff(local: [Version.ImmutableReference],

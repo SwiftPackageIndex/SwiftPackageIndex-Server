@@ -100,6 +100,6 @@ private extension Array where Element == Version {
         first { $0.latest == kind }
     }
 
-    var releases: Self { filter { $0.reference?.isTag ?? false } }
+    var releases: Self { filter { $0.reference.isTag } }
 }
 

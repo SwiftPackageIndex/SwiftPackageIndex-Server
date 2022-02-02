@@ -556,7 +556,7 @@ func mergeReleaseInfo(on transaction: Database,
                                     .map { ($0.tagName, $0) },
                                   uniquingKeysWith: { $1 })
     versions.forEach { version in
-        guard let tagName = version.reference?.tagName,
+        guard let tagName = version.reference.tagName,
               let rel = tagToRelease[tagName] else {
             return
         }
@@ -649,11 +649,7 @@ func getPackageInfo(package: Joined<Package, Repository>, version: Version) -> R
             throw AppError.invalidPackageCachePath(package.model.id,
                                                    package.model.url)
         }
-        guard let reference = version.reference else {
-            throw AppError.invalidRevision(version.id, nil)
-        }
-
-        try Current.shell.run(command: .gitCheckout(branch: reference.description), at: cacheDir)
+        try Current.shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
 
         do {
             let manifest = try dumpPackage(at: cacheDir)

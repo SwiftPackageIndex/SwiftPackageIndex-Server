@@ -40,7 +40,7 @@ class VersionTests: AppTestCase {
                                         repositoryURL: "http://foo") ]
         v.supportedPlatforms = [.ios("13"), .macos("10.15")]
         v.swiftVersions = ["4.0", "5.2"].asSwiftVersions
-        v.url = pkg.versionUrl(for: v.reference!)
+        v.url = pkg.versionUrl(for: v.reference)
         
         // MUT - save to update
         try v.save(on: app.db).wait()
@@ -58,6 +58,19 @@ class VersionTests: AppTestCase {
             XCTAssertEqual(v.supportedPlatforms, [.ios("13"), .macos("10.15")])
             XCTAssertEqual(v.swiftVersions, ["4.0", "5.2"].asSwiftVersions)
             XCTAssertEqual(v.url, "https://github.com/foo/1/tree/branch")
+        }
+    }
+
+    func test_save_not_null_constraint() async throws {
+        let v = Version()  // reference unset
+
+        // MUT
+        do {
+            try await v.save(on: app.db)
+        } catch {
+            // validation
+            XCTAssertEqual(error.localizedDescription,
+                           #"server: null value in column "reference" of relation "versions" violates not-null constraint (ExecConstraints)"#)
         }
     }
     
@@ -102,12 +115,10 @@ class VersionTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
         let v1 = try Version(package: pkg, reference: .branch("main"))
         let v2 = try Version(package: pkg, reference: .tag(1, 2, 3))
-        let v3 = try Version(package: pkg, reference: nil)
 
         // MUT & validate
         XCTAssertTrue(v1.isBranch)
         XCTAssertFalse(v2.isBranch)
-        XCTAssertFalse(v3.isBranch)
     }
 
     func test_latestBranchVersion() throws {
@@ -131,7 +142,7 @@ class VersionTests: AppTestCase {
                              commitDate: nil,
                              reference: .branch("main"))
         let v5 = try Version(id: UUID(), package: pkg, reference: .tag(1, 2, 3))
-        let v6 = try Version(id: UUID(), package: pkg, reference: nil)
+        let v6 = try Version(id: UUID(), package: pkg, reference: .branch("main"))
 
         // MUT
         let latest = [v1, v2, v3, v4, v5, v6].shuffled().latestBranchVersion
