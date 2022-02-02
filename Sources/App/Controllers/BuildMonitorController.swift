@@ -17,8 +17,8 @@ import Plot
 import Vapor
 
 struct BuildMonitorController {
-    func index(req: Request) throws -> EventLoopFuture<HTML> {
-        BuildResult.query(on: req.db)
+    func index(req: Request) async throws -> HTML {
+        let builds = try await BuildResult.query(on: req.db)
             .field(Build.self, \.$id)
             .field(Build.self, \.$createdAt)
             .field(Build.self, \.$platform)
@@ -34,11 +34,9 @@ struct BuildMonitorController {
             .sort(\.$createdAt, .descending)
             .limit(200)
             .all()
-            .mapEachCompact {
-                BuildMonitorIndex.Model(buildResult: $0)
-            }.map {
-                BuildMonitorIndex.View(path: req.url.path, builds: $0)
+            .compactMap(BuildMonitorIndex.Model.init(buildResult:))
+
+        return BuildMonitorIndex.View(path: req.url.path, builds: builds)
                     .document()
-            }
     }
 }
