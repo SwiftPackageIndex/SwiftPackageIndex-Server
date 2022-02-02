@@ -148,7 +148,7 @@ class BuildTriggerTests: AppTestCase {
         Current.triggerBuild = Gitlab.Builder.triggerBuild
         var queries = [Gitlab.Builder.PostDTO]()
         let client = MockClient { req, res in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.append(query)
             }
@@ -200,7 +200,7 @@ class BuildTriggerTests: AppTestCase {
         Current.triggerBuild = Gitlab.Builder.triggerBuild
         var queries = [Gitlab.Builder.PostDTO]()
         let client = MockClient { req, res in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 guard let query = try? req.query.decode(Gitlab.Builder.PostDTO.self) else { return }
                 queries.append(query)
             }

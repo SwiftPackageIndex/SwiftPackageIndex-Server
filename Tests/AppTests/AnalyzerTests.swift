@@ -63,7 +63,7 @@ class AnalyzerTests: AppTestCase {
         Current.git = .live
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            try DispatchQueue(label: "serial").sync {
+            try self.testQueue.sync {
                 let trimmedPath = path.replacingOccurrences(of: checkoutDir!,
                                                             with: ".")
                 commands.append(try XCTUnwrap(.init(command: cmd, path: trimmedPath)))
@@ -361,7 +361,7 @@ class AnalyzerTests: AppTestCase {
 
         var commands = [Command]()
         Current.shell.run = { cmd, path in
-            try DispatchQueue(label: "serial").sync {
+            try self.testQueue.sync {
                 commands.append(try XCTUnwrap(.init(command: cmd, path: path)))
             }
 
@@ -394,7 +394,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { _ in true }
         var commands = [String]()
         Current.shell.run = { cmd, path in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
                 commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
@@ -609,7 +609,7 @@ class AnalyzerTests: AppTestCase {
         // setup
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 commands.append(cmd.string)
             }
             if cmd == .swiftDumpPackage {
@@ -656,7 +656,7 @@ class AnalyzerTests: AppTestCase {
         // setup
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 commands.append(cmd.string)
             }
             if cmd == .swiftDumpPackage {
@@ -909,7 +909,7 @@ class AnalyzerTests: AppTestCase {
         
         var commands = [String]()
         Current.shell.run = { cmd, path in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "...")
                 commands.append(c)
             }
@@ -941,7 +941,7 @@ class AnalyzerTests: AppTestCase {
 
         var commands = [String]()
         Current.shell.run = { cmd, path in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
                 commands.append(c)
             }
@@ -1038,7 +1038,7 @@ class AnalyzerTests: AppTestCase {
         Current.fileManager.fileExists = { _ in true }
         var commands = [String]()
         Current.shell.run = { cmd, _ in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
                 commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))

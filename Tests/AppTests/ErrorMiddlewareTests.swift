@@ -77,7 +77,7 @@ class ErrorMiddlewareTests: AppTestCase {
         var reportedLevel: AppError.Level? = nil
         var reportedError: String? = nil
         Current.reportError = { _, level, error in
-            DispatchQueue(label: "serial").sync {
+            self.testQueue.sync {
                 reportedLevel = level
                 reportedError = error.localizedDescription
             }
@@ -85,10 +85,12 @@ class ErrorMiddlewareTests: AppTestCase {
         }
         
         try app.test(.GET, "500", afterResponse: { response in
-            XCTAssertEqual(reportedLevel, .critical)
-            let errorMessage = try reportedError.unwrap()
-            XCTAssert(errorMessage.contains("Abort.500: Internal Server Error"),
-                      "error was: \(errorMessage)")
+            try testQueue.sync {
+                XCTAssertEqual(reportedLevel, .critical)
+                let errorMessage = try reportedError.unwrap()
+                XCTAssert(errorMessage.contains("Abort.500: Internal Server Error"),
+                          "error was: \(errorMessage)")
+            }
         })
     }
     
