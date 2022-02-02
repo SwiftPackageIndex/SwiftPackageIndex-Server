@@ -23,45 +23,23 @@
 
   .row {
     display: grid;
+    padding: 10px;
     grid-template-columns: 3fr 2fr 3fr repeat(3, 2fr);
     background-color: var(--grid-default-background);
     border-left: 3px var(--grid-default-border) solid;
 
-    &:hover {
-      .status {
-        background-color: var(--grid-failed-background);
-
-        &.ok {
-          background-color: var(--mid-green);
-
-          > span {
-            filter: brightness(100);
-          }
-        }
-
-        &.failed {
-          background-color: var(--mid-red);
-
-          > span {
-            filter: brightness(100);
-          }
-        }
-      }
-    }
-
     > div {
-      padding: 5px;
       color: var(--page-text);
     }
 
     .package_name {
-      padding: 7px 0 0 10px;
       grid-column: 1 / span 5;
 
       h3 {
         margin: 0;
 
         span {
+          margin-left: 5px;
           font-size: 16px;
           font-weight: normal;
           color: var(--page-dimmed-text);
@@ -69,16 +47,13 @@
       }
     }
 
-    .reference {
-      padding: 0 0 7px 10px;
-    }
-
     .status {
-      display: flex;
       grid-column: 6;
       grid-row: 1 / span 2;
+      display: flex;
       align-items: center;
       justify-content: center;
+      margin: -10px;
 
       > span {
         background-size: 18px;
@@ -111,6 +86,28 @@
       background-position: left center;
       background-repeat: no-repeat;
       background-image: var(--image-servers);
+    }
+
+    &:hover {
+      .status {
+        background-color: var(--grid-failed-background);
+
+        &.ok {
+          background-color: var(--mid-green);
+
+          > span {
+            filter: brightness(100);
+          }
+        }
+
+        &.failed {
+          background-color: var(--mid-red);
+
+          > span {
+            filter: brightness(100);
+          }
+        }
+      }
     }
 
     @media screen and (max-width: $mobile-breakpoint) {
