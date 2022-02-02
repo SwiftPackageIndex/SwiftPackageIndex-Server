@@ -24,6 +24,7 @@ final class TargetTests: AppTestCase {
     func test_save() throws {
         // setup
         let v = Version()
+        v.commit = "" // required field
         v.reference = .branch("main")  // required field
         try v.save(on: app.db).wait()
         let t = try Target(version: v, name: "target")
@@ -43,6 +44,7 @@ final class TargetTests: AppTestCase {
     func test_delete_cascade() throws {
         // setup
         let v = Version()
+        v.commit = "" // required field
         v.reference = .branch("main")  // required field
         try v.save(on: app.db).wait()
         let t = try Target(version: v, name: "target")
