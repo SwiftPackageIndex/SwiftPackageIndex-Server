@@ -44,7 +44,7 @@ final class Version: Model, Content {
     // data fields
     
     @Field(key: "commit")
-    var commit: CommitHash?
+    var commit: CommitHash
     
     @Field(key: "commit_date")
     var commitDate: Date?
@@ -98,7 +98,7 @@ final class Version: Model, Content {
     
     init(id: Id? = nil,
          package: Package,
-         commit: CommitHash? = nil,
+         commit: CommitHash = "",
          commitDate: Date? = nil,
          latest: Kind? = nil,
          packageName: String? = nil,
@@ -174,8 +174,7 @@ extension Version {
         var commit: CommitHash
     }
     
-    var immutableReference: ImmutableReference? {
-        guard let commit = commit else { return nil }
+    var immutableReference: ImmutableReference {
         return .init(reference: reference, commit: commit)
     }
     
@@ -191,12 +190,12 @@ extension Version {
     }
     
     static func diff(local: [Version], incoming: [Version]) -> VersionDelta {
-        let delta = diff(local: local.compactMap(\.immutableReference),
-                         incoming: incoming.compactMap(\.immutableReference))
+        let delta = diff(local: local.map(\.immutableReference),
+                         incoming: incoming.map(\.immutableReference))
         return .init(
-            toAdd: incoming.filter { $0.immutableReference.map({delta.toAdd.contains($0)}) ?? false },
-            toDelete: local.filter { $0.immutableReference.map({delta.toDelete.contains($0)}) ?? false },
-            toKeep: local.filter { $0.immutableReference.map({delta.toKeep.contains($0)}) ?? false }
+            toAdd: incoming.filter { delta.toAdd.contains($0.immutableReference) },
+            toDelete: local.filter { delta.toDelete.contains($0.immutableReference) },
+            toKeep: local.filter { delta.toKeep.contains($0.immutableReference) }
         )
     }
 }

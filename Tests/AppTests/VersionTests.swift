@@ -61,16 +61,27 @@ class VersionTests: AppTestCase {
         }
     }
 
-    func test_save_not_null_constraint() async throws {
-        let v = Version()  // reference unset
-
-        // MUT
-        do {
+    func test_save_not_null_constraints() async throws {
+        do {  // reference unset
+            let v = Version()
+            v.commit = ""
             try await v.save(on: app.db)
+            XCTFail("save must fail")
         } catch {
             // validation
             XCTAssertEqual(error.localizedDescription,
                            #"server: null value in column "reference" of relation "versions" violates not-null constraint (ExecConstraints)"#)
+        }
+
+        do {  // commit unset
+            let v = Version()
+            v.reference = .branch("main")
+            try await v.save(on: app.db)
+            XCTFail("save must fail")
+        } catch {
+            // validation
+            XCTAssertEqual(error.localizedDescription,
+                           #"server: null value in column "commit" of relation "versions" violates not-null constraint (ExecConstraints)"#)
         }
     }
     

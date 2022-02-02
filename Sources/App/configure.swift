@@ -211,6 +211,7 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateBuildAddRunnerId())
     }
     do {  // Migration 044 - make version fields required
+        app.migrations.add(UpdateVersionCommitNotNullable())
         app.migrations.add(UpdateVersionReferenceNotNullable())
     }
 
