@@ -22,7 +22,7 @@ extension BuildMonitorIndex {
         var createdAt: Date
         var packageName: String
         var repositoryOwnerName: String?
-        var reference: Reference?
+        var reference: Reference
         var referenceKind: Version.Kind?
         var platform: Build.Platform
         var swiftVersion: SwiftVersion
@@ -35,7 +35,7 @@ extension BuildMonitorIndex {
                       repositoryOwnerName: String?,
                       platform: Build.Platform,
                       swiftVersion: SwiftVersion,
-                      reference: Reference?,
+                      reference: Reference,
                       referenceKind: Version.Kind?,
                       status: Build.Status,
                       runner: BuildRunner?) {
@@ -92,7 +92,7 @@ extension BuildMonitorIndex {
                     ),
                     .div(
                         .class("reference"),
-                        .unwrap(reference, { $0.referenceNode(kind: referenceKind) })
+                        reference.referenceNode(kind: referenceKind)
                     ),
                     .div(
                         .text("Swift \(swiftVersion)")
