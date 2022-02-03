@@ -47,12 +47,12 @@ enum HomeIndex {
             .group(
                 .p(
                     .class("announcement"),
-                    .text("Did you know we build every release of every package with a range of Swift versions and platforms to"),
-                    .br(),
-                    .text("determine real-world compatibility results? "),
+                    .text("Follow along as we determine real-world compatibility results with our "),
+                    .em(.text("new")),
+                    .text(" "),
                     .a(
                         .href(SiteURL.buildMonitor.relativeURL()),
-                        "Well, we just launched a real-time build system monitor"
+                        "real-time build system monitor"
                     ),
                     .text("! 📦")
                 ),
