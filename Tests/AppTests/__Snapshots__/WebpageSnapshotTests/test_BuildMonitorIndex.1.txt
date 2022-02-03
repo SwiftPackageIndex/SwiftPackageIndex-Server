@@ -82,16 +82,16 @@
               </div>
               <div class="status ok">
                 <span>Successful</span>
+                <small>1 hour ago</small>
               </div>
               <div class="reference">
                 <span class="stable">1.0.0</span>
               </div>
               <div>Swift 5.6</div>
               <div>macOS (Xcode)</div>
-              <div>
-                <span class="runner">Mac 0</span>
+              <div class="runner">
+                <span>Mac 0</span>
               </div>
-              <div>1 hour ago</div>
             </div>
           </a>
           <a href="/builds/E879173A-DC19-4949-8014-F7B6DAFBF0CE">
@@ -103,16 +103,16 @@
               </div>
               <div class="status failed">
                 <span>Failed</span>
+                <small>2 hours ago</small>
               </div>
               <div class="reference">
                 <span class="beta">1.0.0-beta1</span>
               </div>
               <div>Swift 5.6</div>
               <div>Linux</div>
-              <div>
-                <span class="runner">Linux 1</span>
+              <div class="runner">
+                <span>Linux 1</span>
               </div>
-              <div>2 hours ago</div>
             </div>
           </a>
           <a href="/builds/85B10001-0F52-4560-BDA6-A4B11D910675">
@@ -124,14 +124,14 @@
               </div>
               <div class="status other">
                 <span>Triggered</span>
+                <small>3 hours ago</small>
               </div>
               <div class="reference">
                 <span class="branch">main</span>
               </div>
               <div>Swift 5.5</div>
               <div>Linux</div>
-              <div></div>
-              <div>3 hours ago</div>
+              <div class="runner"></div>
             </div>
           </a>
         </div>
