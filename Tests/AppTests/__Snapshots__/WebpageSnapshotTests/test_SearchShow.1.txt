@@ -214,6 +214,9 @@
               <a href="https://swiftpackageindex.statuspage.io">Uptime and System Status</a>
             </li>
             <li>
+              <a href="/build-monitor">Build System Monitor</a>
+            </li>
+            <li>
               <a href="https://twitter.com/swiftpackages">Twitter</a>
             </li>
           </ul>

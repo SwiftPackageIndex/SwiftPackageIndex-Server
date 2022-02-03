@@ -53,8 +53,9 @@
     <noscript>
       <p>The search function of this site requires JavaScript.</p>
     </noscript>
-    <p class="announcement">Package collections are new in Swift 5.5 and Xcode 13 and 
-      <a href="/package-collections">the Swift Package Index supports them</a>! 🚀
+    <p class="announcement">Follow along as we determine real-world compatibility results with our 
+      <em>new</em> 
+      <a href="/build-monitor">real-time build system monitor</a>! 📦
     </p>
     <section class="search home">
       <div class="inner">
@@ -164,6 +165,9 @@
             </li>
             <li>
               <a href="https://swiftpackageindex.statuspage.io">Uptime and System Status</a>
+            </li>
+            <li>
+              <a href="/build-monitor">Build System Monitor</a>
             </li>
             <li>
               <a href="https://twitter.com/swiftpackages">Twitter</a>

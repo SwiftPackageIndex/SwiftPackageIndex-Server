@@ -344,6 +344,12 @@ class PublicPage {
                         ),
                         .li(
                             .a(
+                                .href(SiteURL.buildMonitor.relativeURL()),
+                                "Build System Monitor"
+                            )
+                        ),
+                        .li(
+                            .a(
                                 .href("https://twitter.com/swiftpackages"),
                                 "Twitter"
                             )

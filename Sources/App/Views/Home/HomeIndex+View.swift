@@ -47,12 +47,14 @@ enum HomeIndex {
             .group(
                 .p(
                     .class("announcement"),
-                    .text("Package collections are new in Swift 5.5 and Xcode 13 and "),
+                    .text("Follow along as we determine real-world compatibility results with our "),
+                    .em(.text("new")),
+                    .text(" "),
                     .a(
-                        .href(SiteURL.packageCollections.relativeURL()),
-                        "the Swift Package Index supports them"
+                        .href(SiteURL.buildMonitor.relativeURL()),
+                        "real-time build system monitor"
                     ),
-                    .text("! 🚀")
+                    .text("! 📦")
                 ),
                 .section(
                     .class("search home"),
