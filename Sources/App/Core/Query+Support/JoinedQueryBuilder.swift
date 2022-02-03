@@ -113,6 +113,11 @@ struct JoinedQueryBuilder<J: ModelInitializable> {
         queryBuilder.limit(count)
         return self
     }
+    
+    func all() async throws -> [J] {
+        try await queryBuilder.all()
+            .map(J.init(model:))
+    }
 
     func all() -> EventLoopFuture<[J]> {
         queryBuilder.all()

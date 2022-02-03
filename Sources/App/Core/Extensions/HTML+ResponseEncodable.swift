@@ -20,6 +20,10 @@ protocol Renderable {
 }
 
 extension Renderable {
+    public func encodeResponse(for request: Request) async throws -> Response {
+        encodeResponse(for: request, status: .ok)
+    }
+
     public func encodeResponse(for request: Request) -> EventLoopFuture<Response> {
         request.eventLoop.future(encodeResponse(for: request, status: .ok))
     }
@@ -31,8 +35,8 @@ extension Renderable {
     }
 }
 
-extension HTML: Renderable, ResponseEncodable  {
+extension HTML: Renderable, ResponseEncodable, AsyncResponseEncodable  {
 }
 
-extension Node: Renderable, ResponseEncodable {
+extension Node: Renderable, ResponseEncodable, AsyncResponseEncodable {
 }
