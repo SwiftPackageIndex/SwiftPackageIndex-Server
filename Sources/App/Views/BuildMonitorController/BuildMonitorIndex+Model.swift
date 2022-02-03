@@ -84,7 +84,12 @@ extension BuildMonitorIndex {
                     ),
                     .div(
                         .class("status \(status.cssClass)"),
-                        .span(.text(status.description))
+                        .span(
+                            .text(status.description)
+                        ),
+                        .small(
+                            .text("\(date: createdAt, relativeTo: Current.date())")
+                        )
                     ),
                     .div(
                         .class("reference"),
@@ -97,15 +102,12 @@ extension BuildMonitorIndex {
                         .text(platform.displayName)
                     ),
                     .div(
+                        .class("runner"),
                         .unwrap(runner, {
                             .span(
-                                .class("runner"),
                                 .text($0.description)
                             )
                         })
-                    ),
-                    .div(
-                        .text("\(date: createdAt, relativeTo: Current.date())")
                     )
                 )
             )
