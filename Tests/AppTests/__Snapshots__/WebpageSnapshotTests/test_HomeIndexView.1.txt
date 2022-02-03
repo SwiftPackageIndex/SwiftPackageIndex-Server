@@ -53,9 +53,9 @@
     <noscript>
       <p>The search function of this site requires JavaScript.</p>
     </noscript>
-    <p class="announcement">Did you know we build every release of every package with a range of Swift versions and platforms to
-      <br/>determine real-world compatibility results? 
-      <a href="/build-monitor">Well, we just launched a real-time build system monitor</a>! 📦
+    <p class="announcement">Follow along as we determine real-world compatibility results with our 
+      <em>new</em> 
+      <a href="/build-monitor">real-time build system monitor</a>! 📦
     </p>
     <section class="search home">
       <div class="inner">
