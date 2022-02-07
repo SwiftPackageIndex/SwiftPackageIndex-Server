@@ -21,6 +21,6 @@ on:
 
 jobs:
   dependencies:
-    uses: MarcoEidinger/swift-package-dependencies-check/.github/workflows/reusableWorkflow.yml@v2.1.1
+    uses: MarcoEidinger/swift-package-dependencies-check/.github/workflows/reusableWorkflow.yml@2.1.1
     with:
       commit-message: 'Package update'
