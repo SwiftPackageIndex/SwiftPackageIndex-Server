@@ -22,7 +22,7 @@ on:
 
 jobs:
   test-linux:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event.ref = 'updatePackageDepedencies' && github.event.review.state == 'approved')
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event.ref == 'updatePackageDepedencies' && github.event.review.state == 'approved')
     name: Test
     runs-on: ubuntu-latest
     container:
