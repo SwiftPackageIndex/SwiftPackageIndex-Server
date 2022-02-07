@@ -17,9 +17,12 @@ name: Continuous Integration
 on:
   workflow_dispatch:
   push:
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   test-linux:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event.ref == 'updatePackageDepedencies' && github.event.review.state == 'approved')
     name: Test
     runs-on: ubuntu-latest
     container:
