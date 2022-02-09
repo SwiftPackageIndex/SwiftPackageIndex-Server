@@ -66,9 +66,9 @@
     width: 300px;
     left: calc(-150px + 15px); // Half the div's width - half the heart's width.
     color: var(--page-text);
-    background-color: var(--popover-background);
+    background-color: var(--panel-background);
     border-top: 3px var(--pink) solid;
-    box-shadow: var(--popover-shadow);
+    box-shadow: var(--panel-shadow);
     font-size: 14px;
 
     &:before {
@@ -90,7 +90,7 @@
   margin: 10px auto;
   padding: 15px 15px 15px 60px;
   max-width: 650px;
-  background-color: var(--popover-background);
+  background-color: var(--panel-background);
   border-top: 3px var(--pink) solid;
   background-image: var(--image-heart);
   background-size: 30px;

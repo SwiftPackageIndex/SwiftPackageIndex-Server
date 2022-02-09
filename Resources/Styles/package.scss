@@ -219,9 +219,9 @@
       width: 150%;
       left: -25%;
       color: var(--page-text);
-      background-color: var(--popover-background);
-      border-top: 3px var(--popover-border) solid;
-      box-shadow: var(--popover-shadow);
+      background-color: var(--panel-background);
+      border-top: 3px var(--panel-border) solid;
+      box-shadow: var(--panel-shadow);
       font-size: 14px;
 
       &:before {
@@ -234,7 +234,7 @@
         height: 0;
         border-style: solid;
         border-width: 0 10px 10px 10px;
-        border-color: transparent transparent var(--popover-border) transparent;
+        border-color: transparent transparent var(--panel-border) transparent;
       }
     }
 
