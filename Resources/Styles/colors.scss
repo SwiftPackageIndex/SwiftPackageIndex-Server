@@ -112,7 +112,8 @@
   --input-text: var(--black);
   --input-border: var(--light-grey);
   --input-placeholder: var(--light-grey);
-  --badge-input-background: var(--very-light-grey);
+
+  --copyable-input-background: var(--very-very-light-grey);
 
   --button-background: var(--very-light-blue);
   --button-text: var(--mid-blue);
@@ -186,7 +187,8 @@
     --input-text: var(--white);
     --input-border: var(--dark-grey);
     --input-placeholder: var(--grey);
-    --badge-input-background: var(--very-dark-grey);
+
+    --copyable-input-background: var(--very-very-dark-grey);
 
     --button-background: var(--dark-blue);
     --button-text: var(--mid-blue);
