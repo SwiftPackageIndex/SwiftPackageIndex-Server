@@ -205,9 +205,7 @@ a.download {
 }
 
 .hidden {
-  opacity: 0;
-  visibility: hidden;
-  transition: visibility 0s 0.2s, opacity 0.2s linear;
+  display: none;
 }
 
 .trimmed {
