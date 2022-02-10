@@ -28,11 +28,7 @@ export class SPIPanel {
         closeButtonElement.innerHTML = '&times;'
         closeButtonElement.classList.add('close')
         closeButtonElement.addEventListener('click', (event) => {
-          // Hide the panel and completely remove the dimmed underlay.
-          panelElement.classList.add('hidden')
-          const panelUnderlayElement = document.getElementById('panel_underlay')
-          if (panelUnderlayElement) panelUnderlayElement.remove()
-          event.preventDefault()
+          this.hidePanelElement(panelElement)
         })
       })
 
@@ -49,8 +45,18 @@ export class SPIPanel {
           const panelUnderlayElement = document.createElement('div')
           document.body.appendChild(panelUnderlayElement)
           panelUnderlayElement.id = 'panel_underlay'
+          panelUnderlayElement.addEventListener('click', (event) => {
+            this.hidePanelElement(panelElement)
+          })
         })
       })
     })
+  }
+
+  hidePanelElement(panelElement) {
+    panelElement.classList.add('hidden')
+    const panelUnderlayElement = document.getElementById('panel_underlay')
+    if (panelUnderlayElement) panelUnderlayElement.remove()
+    event.preventDefault()
   }
 }
