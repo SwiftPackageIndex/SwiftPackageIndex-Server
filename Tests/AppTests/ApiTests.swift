@@ -110,7 +110,7 @@ class ApiTests: AppTestCase {
             try app.test(
                 .POST,
                 "api/versions/\(versionId)/builds",
-                headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+                headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
                     // validation
@@ -148,7 +148,7 @@ class ApiTests: AppTestCase {
             try app.test(
                 .POST,
                 "api/versions/\(versionId)/builds",
-                headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+                headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
                     // validation
@@ -184,7 +184,7 @@ class ApiTests: AppTestCase {
             try app.test(
                 .POST,
                 "api/versions/\(versionId)/builds",
-                headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+                headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
                     // validation
@@ -214,7 +214,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+            headers: .bearerApplicationJSON("secr3t"),
             body: body,
             afterResponse: { res in
                 // validation
@@ -245,7 +245,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json")]),
+            headers: .applicationJSON,
             body: body,
             afterResponse: { res in
                 // validation
@@ -257,7 +257,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer wrong")]),
+            headers: .bearerApplicationJSON("wrong"),
             body: body,
             afterResponse: { res in
                 // validation
@@ -283,7 +283,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json")]),
+            headers: .applicationJSON,
             body: body,
             afterResponse: { res in
                 // validation
@@ -295,7 +295,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer token")]),
+            headers: .bearerApplicationJSON("token"),
             body: body,
             afterResponse: { res in
                 // validation
@@ -330,7 +330,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/trigger-build",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+            headers: .bearerApplicationJSON("secr3t"),
             body: body,
             afterResponse: { res in
                 // validation
@@ -353,7 +353,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/trigger-build",
-            headers: .init([("Content-Type", "application/json")]),
+            headers: .applicationJSON,
             body: body,
             afterResponse: { res in
                 // validation
@@ -364,7 +364,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/trigger-build",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer wrong")]),
+            headers: .bearerApplicationJSON("wrong"),
             body: body,
             afterResponse: { res in
                 // validation
@@ -441,7 +441,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/packages/\(owner)/\(repo)/trigger-builds",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+            headers: .bearerApplicationJSON("secr3t"),
             body: body,
             afterResponse: { res in
                 // validation
@@ -472,7 +472,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/packages/\(owner)/\(repo)/trigger-builds",
-            headers: .init([("Content-Type", "application/json")]),
+            headers: .applicationJSON,
             body: body,
             afterResponse: { res in
                 // validation
@@ -622,7 +622,7 @@ class ApiTests: AppTestCase {
 
             try app.test(.POST,
                          "api/package-collections",
-                         headers: .init([("Content-Type", "application/json")]),
+                         headers: .applicationJSON,
                          body: body,
                          afterResponse: { res in
                 // validation
@@ -696,7 +696,7 @@ class ApiTests: AppTestCase {
 
             try app.test(.POST,
                          "api/package-collections",
-                         headers: .init([("Content-Type", "application/json")]),
+                         headers: .applicationJSON,
                          body: body,
                          afterResponse: { res in
                             // validation
@@ -716,7 +716,7 @@ class ApiTests: AppTestCase {
 
         try app.test(.POST,
                      "api/package-collections",
-                     headers: .init([("Content-Type", "application/json")]),
+                     headers: .applicationJSON,
                      body: body,
                      afterResponse: { res in
                         // validation
@@ -724,4 +724,15 @@ class ApiTests: AppTestCase {
                      })
     }
 
+}
+
+
+private extension HTTPHeaders {
+    static var applicationJSON: Self {
+        .init([("Content-Type", "application/json")])
+    }
+
+    static func bearerApplicationJSON(_ token: String) -> Self {
+        .init([("Content-Type", "application/json"), ("Authorization", "Bearer \(token)")])
+    }
 }
