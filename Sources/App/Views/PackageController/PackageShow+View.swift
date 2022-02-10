@@ -60,12 +60,13 @@ enum PackageShow {
         
         override func content() -> Node<HTML.BodyContext> {
             .group(
-                .h2(.text(model.title)),
-                .small(
-                    .a(
-                        .id("package_url"),
-                        .href(model.url),
-                        .text(model.url)
+                .div(
+                    .class("two_column"),
+                    .h2(.text(model.title)),
+                    .div(
+                        .button(
+                            .text("Use this Package")
+                        )
                     )
                 ),
                 useThisPackagePanel(),
