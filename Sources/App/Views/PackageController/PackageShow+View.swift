@@ -65,6 +65,7 @@ enum PackageShow {
                     .h2(.text(model.title)),
                     .div(
                         .button(
+                            .data(named: "toggle-panel", value: "use_this_package"),
                             .text("Use this Package")
                         )
                     )
@@ -86,7 +87,8 @@ enum PackageShow {
 
         func useThisPackagePanel() -> Node<HTML.BodyContext> {
             .section(
-                .class("panel use_this_package hidden"),
+                .id("use_this_package"),
+                .class("panel hidden"),
                 .p(
                     .text("How you add this package to your project depends on what kind of project you're developing.")
                 ),
