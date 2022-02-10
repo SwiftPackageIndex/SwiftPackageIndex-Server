@@ -420,7 +420,7 @@ extension PackageShow.Model {
 
     func xcodeprojDependencyForm(packageUrl: String) -> Node<HTML.BodyContext> {
         .copyableInputForm(buttonName: "Copy Package URL",
-                           eventName: "Copy Xcodeproj Package URL",
+                           eventName: "Copy Xcodeproj Package URL Button",
                            valueToCopy: packageUrl)
     }
 
@@ -433,7 +433,7 @@ extension PackageShow.Model {
                 )
             ),
             .copyableInputForm(buttonName: "Copy Code Snippet",
-                               eventName: "Copy SPM Manifest Code Snippet",
+                               eventName: "Copy SPM Manifest Code Snippet Button",
                                valueToCopy: Self.packageDependencyCodeSnippet(ref: releaseLink.label, url: releaseLink.url))
         )
     }
