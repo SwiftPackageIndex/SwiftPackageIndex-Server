@@ -120,6 +120,8 @@ func routes(_ app: Application) throws {
                          use: buildController.create)
             protected.post(SiteURL.api(.versions(.key, .triggerBuild)).pathComponents,
                            use: buildController.trigger)
+            protected.put(SiteURL.api(.builds(.key)).pathComponents,
+                          use: buildController.updateBuild)
             let packageController = API.PackageController()
             protected.post(SiteURL.api(.packages(.key, .key, .triggerBuilds)).pathComponents,
                            use: packageController.triggerBuilds)

@@ -86,7 +86,62 @@ class ApiTests: AppTestCase {
             )
         })
     }
-    
+
+    func test_put_build() async throws {
+        // Normal build report flow:
+        // - Build stub is already in place, created by trigger
+        // - build report updates this Build record
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch)
+        try v.save(on: app.db).wait()
+        let versionId = try v.id.unwrap()
+        let b = Build.init(versionId: versionId,
+                           platform: .ios,
+                           status: .triggered,
+                           swiftVersion: .v5_5)
+        try await b.save(on: app.db)
+        let buildId = try b.id.unwrap()
+        let dto: API.PostCreateBuildDTO = .init(
+            buildCommand: "xcodebuild -scheme Foo",
+            jobUrl: "https://example.com/jobs/1",
+            logUrl: "log url",
+            platform: .ios,
+            resolvedDependencies: [.init(packageName: "foo",
+                                         repositoryURL: "http://foo/bar")],
+            runnerId: "some-runner",
+            status: .ok,
+            swiftVersion: .v5_5,
+            versionId: versionId
+        )
+
+        // MUT
+        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+        try app.test(.PUT,
+                     "api/builds/\(buildId)",
+                     headers: .bearerApplicationJSON("secr3t"),
+                     body: body,
+                     afterResponse: { res in
+            XCTAssertEqual(res.status, .noContent)
+            // test changes to Build are reflected
+            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+            let b = try Build.find(buildId, on: app.db).wait().unwrap()
+            XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
+            XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
+            XCTAssertEqual(b.logUrl, "log url")
+            XCTAssertEqual(b.runnerId, "some-runner")
+            XCTAssertEqual(b.status, .ok)
+            // test changes to Version are reflected
+            let v = try Version.find(versionId, on: app.db).wait().unwrap(or: Abort(.notFound))
+            XCTAssertEqual(v.resolvedDependencies, [.init(packageName: "foo",
+                                                          repositoryURL: "http://foo/bar")])
+            // test changes to Package are reflected
+            let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
+            XCTAssertEqual(p.platformCompatibility, [.ios])
+        })
+    }
+
     func test_post_build() throws {
         // setup
         Current.builderToken = { "secr3t" }

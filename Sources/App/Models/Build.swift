@@ -103,6 +103,7 @@ final class Build: Model, Content {
                   swiftVersion: swiftVersion)
     }
 
+    @available(*, deprecated)
     convenience init(_ dto: API.PostCreateBuildDTO, _ version: Version) throws {
         try self.init(version: version,
                       buildCommand: dto.buildCommand,
@@ -188,6 +189,7 @@ extension Build {
 
 
 extension Build {
+    @available(*, deprecated)
     func upsert(on database: Database) -> EventLoopFuture<Void> {
         save(on: database)
             .flatMapError {

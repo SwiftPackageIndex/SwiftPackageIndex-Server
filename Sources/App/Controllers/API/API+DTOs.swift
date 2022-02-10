@@ -30,5 +30,7 @@ extension API {
         var runnerId: String?
         var status: Build.Status
         var swiftVersion: SwiftVersion
+        #warning("make non-optional")
+        var versionId: App.Version.Id?
     }
 }

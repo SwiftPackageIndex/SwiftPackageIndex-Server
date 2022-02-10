@@ -65,6 +65,46 @@ extension API {
                                  swiftVersion: dto.swiftVersion,
                                  versionId: versionId)
         }
+
+        func updateBuild(req: Request) async throws -> HTTPStatus {
+            let dto = try req.content.decode(PostCreateBuildDTO.self)
+            guard let buildId = req.parameters.get("id").map(UUID.init(uuidString:)),
+                  let versionId = dto.versionId else {
+                      throw Abort(.badRequest)
+                  }
+
+            do {  // update build
+                let build = try await Build.find(buildId, on: req.db)
+                ?? Build(id: buildId,
+                         versionId: versionId,
+                         platform: dto.platform,
+                         status: dto.status,
+                         swiftVersion: dto.swiftVersion)
+                build.buildCommand = dto.buildCommand
+                build.jobUrl = dto.jobUrl
+                build.logUrl = dto.logUrl
+                build.platform = dto.platform
+                build.runnerId = dto.runnerId
+                build.status = dto.status
+                build.swiftVersion = dto.swiftVersion
+                try await build.save(on: req.db)
+            }
+
+            do {  // update version and package
+                let version = try await App.Version
+                    .find(dto.versionId, on: req.db)
+                    .unwrap(or: Abort(.notFound))
+                if let dependencies = dto.resolvedDependencies {
+                    version.resolvedDependencies = dependencies
+                    try await version.save(on: req.db)
+                }
+
+                try await Package
+                    .updatePlatformCompatibility(for: version.$package.id, on: req.db)
+            }
+
+            return .noContent
+        }
     }
-    
+
 }
