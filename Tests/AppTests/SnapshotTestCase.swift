@@ -20,7 +20,7 @@ class SnapshotTestCase: AppTestCase {
     override class func setUp() {
         super.setUp()
 
-        SnapshotTesting.isRecording = true
+        SnapshotTesting.isRecording = false
         SnapshotTesting.diffTool = "ksdiff"
     }
 }
