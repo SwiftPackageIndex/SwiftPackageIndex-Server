@@ -50,16 +50,9 @@ enum AuthorShow {
                     ),
                     .text(".")
                 ),
-                .form(
-                    .class("copyable_input"),
-                    .input(
-                        .type(.text),
-                        .data(named: "button-name", value: "Copy Package Collection URL"),
-                        .data(named: "event-name", value: "Copy Package Collection URL Button"),
-                        .value(SiteURL.packageCollection(.value(model.owner)).absoluteURL()),
-                        .readonly(true)
-                    )
-                ),
+                .copyableInputForm(buttonName: "Copy Package Collection URL",
+                                   eventName: "Copy Package Collection URL Button",
+                                   valueToCopy: SiteURL.packageCollection(.value(model.owner)).absoluteURL()),
                 .hr(.class("minor")),
                 .ul(
                     .id("package_list"),

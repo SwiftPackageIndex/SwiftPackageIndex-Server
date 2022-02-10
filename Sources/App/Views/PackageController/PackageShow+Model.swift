@@ -419,16 +419,9 @@ extension PackageShow.Model {
     }
 
     func xcodeprojDependencyForm(packageUrl: String) -> Node<HTML.BodyContext> {
-        .form(
-            .class("copyable_input"),
-            .input(
-                .type(.text),
-                .data(named: "button-name", value: "Copy Package URL"),
-                .data(named: "event-name", value: "Copy Xcodeproj Package URL"),
-                .value(packageUrl),
-                .readonly(true)
-            )
-        )
+        .copyableInputForm(buttonName: "Copy Package URL",
+                           eventName: "Copy Xcodeproj Package URL",
+                           valueToCopy: packageUrl)
     }
 
     func spmDependencyForm(releaseLink: Link, cssClass: String) -> Node<HTML.BodyContext> {
@@ -439,16 +432,9 @@ extension PackageShow.Model {
                     .text(releaseLink.label)
                 )
             ),
-            .form(
-                .class("copyable_input"),
-                .input(
-                    .type(.text),
-                    .data(named: "button-name", value: "Copy Code Snippet"),
-                    .data(named: "event-name", value: "Copy SPM Manifest Code Snippet"),
-                    .value(Self.packageDependencyCodeSnippet(ref: releaseLink.label, url: releaseLink.url)),
-                    .readonly(true)
-                )
-            )
+            .copyableInputForm(buttonName: "Copy Code Snippet",
+                               eventName: "Copy SPM Manifest Code Snippet",
+                               valueToCopy: Self.packageDependencyCodeSnippet(ref: releaseLink.label, url: releaseLink.url))
         )
     }
 
