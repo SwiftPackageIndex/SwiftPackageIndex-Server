@@ -32,20 +32,16 @@
     font-family: monospace;
     font-size: 12px;
     flex-grow: 1;
-  }
 
-  input:focus {
-    outline: none;
+    &:focus {
+      outline: none;
+    }
   }
 
   button {
-    margin: 0;
     padding: 0 8px;
-    color: var(--button-background); // Flipped standard colours.
-    background-color: var(--button-text);
-    border: none;
     border-radius: 0 4px 4px 0;
-    font-size: 13px;
     flex-shrink: 0;
+    font-size: 13px;
   }
 }
