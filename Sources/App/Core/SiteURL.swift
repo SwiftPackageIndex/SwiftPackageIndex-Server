@@ -29,6 +29,7 @@ import Vapor
 
 
 enum Api: Resourceable {
+    case builds(_ id: Parameter<UUID>)
     case packages(_ owner: Parameter<String>, _ repository: Parameter<String>, PackagesPathComponents)
     case packageCollections
     case search
@@ -37,10 +38,14 @@ enum Api: Resourceable {
     
     var path: String {
         switch self {
+            case let .builds(.value(id)):
+                return "builds/\(id)"
+            case .builds(.key):
+                fatalError("path must be called with a value parameter")
             case let .packages(.value(owner), .value(repo), next):
                 return "packages/\(owner)/\(repo)/\(next.path)"
             case .packages:
-                fatalError("path must not be called with a name parameter")
+                fatalError("path must be called with a value parameter")
             case .packageCollections:
                 return "package-collections"
             case .version:
@@ -48,7 +53,7 @@ enum Api: Resourceable {
             case let .versions(.value(id), next):
                 return "versions/\(id.uuidString)/\(next.path)"
             case .versions(.key, _):
-                fatalError("path must not be called with a name parameter")
+                fatalError("path must be called with a value parameter")
             case .search:
                 return "search"
         }
@@ -56,10 +61,14 @@ enum Api: Resourceable {
     
     var pathComponents: [PathComponent] {
         switch self {
+            case .builds(.key):
+                return ["builds", ":id"]
+            case .builds(.value):
+                fatalError("pathComponents must be called with a key parameter")
             case let .packages(.key, .key, remainder):
                 return ["packages", ":owner", ":repository"] + remainder.pathComponents
             case .packages:
-                fatalError("pathComponents must not be called with a value parameter")
+                fatalError("pathComponents must be called with a key parameter")
             case .packageCollections:
                 return ["package-collections"]
             case .search, .version:
@@ -67,7 +76,7 @@ enum Api: Resourceable {
             case let .versions(.key, remainder):
                 return ["versions", ":id"] + remainder.pathComponents
             case .versions(.value, _):
-                fatalError("pathComponents must not be called with a value parameter")
+                fatalError("pathComponents must be called with a key parameter")
         }
     }
     

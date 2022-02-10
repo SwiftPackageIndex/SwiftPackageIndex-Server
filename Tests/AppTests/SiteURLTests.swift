@@ -111,6 +111,7 @@ class SiteURLTests: XCTestCase {
     }
     
     func test_api_pathComponents() throws {
+        XCTAssertEqual(SiteURL.api(.builds(.key)).pathComponents.map(\.description), ["api", "builds", ":id"])
         XCTAssertEqual(SiteURL.api(.search).pathComponents.map(\.description), ["api", "search"])
         XCTAssertEqual(SiteURL.api(.version).pathComponents.map(\.description), ["api", "version"])
         XCTAssertEqual(SiteURL.api(.versions(.key, .builds)).pathComponents.map(\.description),
