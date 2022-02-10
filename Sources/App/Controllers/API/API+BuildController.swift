@@ -67,9 +67,8 @@ extension API {
         }
 
         func updateBuild(req: Request) async throws -> HTTPStatus {
-            let dto = try req.content.decode(PostCreateBuildDTO.self)
-            guard let buildId = req.parameters.get("id").map(UUID.init(uuidString:)),
-                  let versionId = dto.versionId else {
+            let dto = try req.content.decode(PutBuildDTO.self)
+            guard let buildId = req.parameters.get("id").map(UUID.init(uuidString:)) else {
                       throw Abort(.badRequest)
                   }
 
@@ -78,7 +77,7 @@ extension API {
                 // is present.
                 let build = try await Build.find(buildId, on: req.db)
                 ?? Build(id: buildId,
-                         versionId: versionId,
+                         versionId: dto.versionId,
                          platform: dto.platform,
                          status: dto.status,
                          swiftVersion: dto.swiftVersion)

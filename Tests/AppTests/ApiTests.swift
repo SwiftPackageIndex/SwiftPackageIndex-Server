@@ -109,7 +109,7 @@ class ApiTests: AppTestCase {
         let buildId1 = try b.id.unwrap()
 
         do  {  // MUT
-            let dto: API.PostCreateBuildDTO = .init(
+            let dto: API.PutBuildDTO = .init(
                 buildCommand: "xcodebuild -scheme Foo",
                 jobUrl: "https://example.com/jobs/1",
                 logUrl: "log url",
@@ -150,7 +150,7 @@ class ApiTests: AppTestCase {
         let buildId2: Build.Id = UUID()
 
         do {  // MUT - second build report for different platform
-            let dto: API.PostCreateBuildDTO = .init(
+            let dto: API.PutBuildDTO = .init(
                 buildCommand: "xcodebuild -scheme Foo",
                 jobUrl: "https://example.com/jobs/1",
                 logUrl: "log url",
@@ -194,7 +194,7 @@ class ApiTests: AppTestCase {
         let versionId = try XCTUnwrap(v.id)
         let buildId: Build.Id = UUID()
 
-        let dto: API.PostCreateBuildDTO = .init(
+        let dto: API.PutBuildDTO = .init(
             buildCommand: "xcodebuild -scheme Foo",
             jobUrl: "https://example.com/jobs/1",
             logUrl: "log url",
@@ -225,7 +225,7 @@ class ApiTests: AppTestCase {
         try v.save(on: app.db).wait()
         let versionId = try v.id.unwrap()
         let buildId: Build.Id = UUID()
-        let dto: API.PostCreateBuildDTO = .init(platform: .macosXcodebuild,
+        let dto: API.PutBuildDTO = .init(platform: .macosXcodebuild,
                                                 status: .ok,
                                                 swiftVersion: .v5_5,
                                                 versionId: versionId)
@@ -265,7 +265,7 @@ class ApiTests: AppTestCase {
         try v.save(on: app.db).wait()
         let versionId = try v.id.unwrap()
         let buildId: Build.Id = UUID()
-        let dto: API.PostCreateBuildDTO = .init(platform: .macosXcodebuild,
+        let dto: API.PutBuildDTO = .init(platform: .macosXcodebuild,
                                                 status: .ok,
                                                 swiftVersion: .v5_5,
                                                 versionId: versionId)

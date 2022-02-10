@@ -21,6 +21,7 @@ extension API {
         var swiftVersion: SwiftVersion
     }
 
+    @available(*, deprecated)
     struct PostCreateBuildDTO: Codable {
         var buildCommand: String?
         var jobUrl: String?
@@ -30,7 +31,17 @@ extension API {
         var runnerId: String?
         var status: Build.Status
         var swiftVersion: SwiftVersion
-        #warning("make non-optional")
-        var versionId: App.Version.Id?
+    }
+
+    struct PutBuildDTO: Codable {
+        var buildCommand: String?
+        var jobUrl: String?
+        var logUrl: String?
+        var platform: Build.Platform
+        var resolvedDependencies: [ResolvedDependency]?
+        var runnerId: String?
+        var status: Build.Status
+        var swiftVersion: SwiftVersion
+        var versionId: App.Version.Id
     }
 }
