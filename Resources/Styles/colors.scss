@@ -114,6 +114,7 @@
   --input-placeholder: var(--light-grey);
 
   --copyable-input-background: var(--very-very-light-grey);
+  --copyable-input-border: var(--light-grey);
 
   --button-background: var(--mid-blue);
   --button-text: var(--very-light-blue);
@@ -188,10 +189,10 @@
     --input-placeholder: var(--grey);
 
     --copyable-input-background: var(--very-very-dark-grey);
+    --copyable-input-border: var(--dark-grey);
 
-    --button-background: var(--dark-blue);
-    --button-text: var(--mid-blue);
-    --button-border: var(--mid-blue);
+    --button-background: var(--mid-blue);
+    --button-text: var(--very-dark-blue);
 
     --rule-background: var(--dark-blue);
     --rule-thin-background: var(--dark-grey);
