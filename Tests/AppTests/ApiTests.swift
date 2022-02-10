@@ -404,7 +404,6 @@ class ApiTests: AppTestCase {
         }
 
     }
-
     func test_post_build_infrastructureError() throws {
         // setup
         Current.builderToken = { "secr3t" }
@@ -450,7 +449,7 @@ class ApiTests: AppTestCase {
                                                 status: .ok,
                                                 swiftVersion: .init(5, 2, 0))
         let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
-
+        
         // MUT - no auth header
         try app.test(
             .POST,
@@ -475,7 +474,7 @@ class ApiTests: AppTestCase {
                 XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
             })
     }
-
+    
     func test_post_build_unauthenticated_without_server_token() throws {
         // Ensure we don't allow API requests when no token is configured server-side
         // setup
