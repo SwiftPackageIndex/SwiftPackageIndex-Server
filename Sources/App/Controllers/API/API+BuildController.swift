@@ -74,6 +74,8 @@ extension API {
                   }
 
             do {  // update build
+                // We look up by default, because the common case is that a build stub
+                // is present.
                 let build = try await Build.find(buildId, on: req.db)
                 ?? Build(id: buildId,
                          versionId: versionId,
@@ -99,6 +101,8 @@ extension API {
                     try await version.save(on: req.db)
                 }
 
+                // it's ok to reach through $package to get its id, because `$package.id`
+                // is actually `versions.package_id` and therefore loaded
                 try await Package
                     .updatePlatformCompatibility(for: version.$package.id, on: req.db)
             }
