@@ -68,7 +68,7 @@ enum PackageShow {
                         .text(model.url)
                     )
                 ),
-                useThisPackageSection(),
+                useThisPackagePanel(),
                 .hr(.class("tight")),
                 .p(
                     .class("summary"),
@@ -83,7 +83,7 @@ enum PackageShow {
             )
         }
 
-        func useThisPackageSection() -> Node<HTML.BodyContext> {
+        func useThisPackagePanel() -> Node<HTML.BodyContext> {
             .section(
                 .class("panel use_this_package hidden"),
                 .p(
