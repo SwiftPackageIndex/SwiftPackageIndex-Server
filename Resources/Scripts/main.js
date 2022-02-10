@@ -29,6 +29,7 @@ import { SPIReadmeElement } from './readme_element.js'
 import { SPITabBarElement } from './tab_bar_element.js'
 import { SPIShowMoreKeywords } from './show_more_keywords.js'
 import { SPISearchFilterSuggestions } from './search_filter_suggestions.js'
+import { SPIPanel } from './panel.js'
 
 new ExternalLinkRetargeter()
 new SPIWindowMonitor()
@@ -41,6 +42,7 @@ new SPIAutofocus()
 new SPIPlaygroundsAppLinkFallback()
 new SPIShowMoreKeywords()
 new SPISearchFilterSuggestions()
+new SPIPanel()
 
 customElements.define('spi-readme', SPIReadmeElement)
 customElements.define('tab-bar', SPITabBarElement)

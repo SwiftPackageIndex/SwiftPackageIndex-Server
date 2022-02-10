@@ -68,6 +68,7 @@ enum PackageShow {
                         .text(model.url)
                     )
                 ),
+                useThisPackageSection(),
                 .hr(.class("tight")),
                 .p(
                     .class("summary"),
@@ -79,6 +80,21 @@ enum PackageShow {
                 tabBar(),
                 readmeSection(),
                 releaseSection()
+            )
+        }
+
+        func useThisPackageSection() -> Node<HTML.BodyContext> {
+            .section(
+                .class("panel use_this_package"),
+                .p(
+                    .text("How you add this package to your project depends on what kind of project you're developing.")
+                ),
+                .h4("When working with an Xcode project:"),
+                model.xcodeprojDependencyForm(packageUrl: model.url),
+                .h4("When working with a Swift Package Manager manifest:"),
+                .unwrap(model.releases.stable, { model.spmDependencyForm(releaseLink: $0.link, cssClass: "stable") }),
+                .unwrap(model.releases.beta, { model.spmDependencyForm(releaseLink: $0.link, cssClass: "beta") }),
+                .unwrap(model.releases.latest, { model.spmDependencyForm(releaseLink: $0.link, cssClass: "branch") })
             )
         }
 

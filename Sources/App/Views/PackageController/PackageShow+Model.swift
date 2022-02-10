@@ -414,27 +414,54 @@ extension PackageShow.Model {
                 )
             ),
             .strong(.text(title)),
-            .small(.text([datePrefix, datedLink.date].joined(separator: " "))),
-            .small(
-                .a(
-                    .id("package_dependency"),
-                    .href(Self.makePackageDependency(ref: datedLink.link.label, url: datedLink.link.url)),
-                    .text(Self.makePackageDependency(ref: datedLink.link.label, url: datedLink.link.url))
+            .small(.text([datePrefix, datedLink.date].joined(separator: " ")))
+        )
+    }
+
+    func xcodeprojDependencyForm(packageUrl: String) -> Node<HTML.BodyContext> {
+        .form(
+            .class("copyable_input"),
+            .input(
+                .type(.text),
+                .data(named: "button-name", value: "Copy Package URL"),
+                .data(named: "event-name", value: "Copy Xcodeproj Package URL"),
+                .value(packageUrl),
+                .readonly(true)
+            )
+        )
+    }
+
+    func spmDependencyForm(releaseLink: Link, cssClass: String) -> Node<HTML.BodyContext> {
+        .group(
+            .p(
+                .span(
+                    .class(cssClass),
+                    .text(releaseLink.label)
+                )
+            ),
+            .form(
+                .class("copyable_input"),
+                .input(
+                    .type(.text),
+                    .data(named: "button-name", value: "Copy Code Snippet"),
+                    .data(named: "event-name", value: "Copy SPM Manifest Code Snippet"),
+                    .value(Self.packageDependencyCodeSnippet(ref: releaseLink.label, url: releaseLink.url)),
+                    .readonly(true)
                 )
             )
         )
     }
 
-    static func makePackageDependency(ref: String, url: String) -> String {
+    static func packageDependencyCodeSnippet(ref: String, url: String) -> String {
         let isSemVer = ref.contains(".")
         if isSemVer {
             // url: "https://github.com/Alamofire/Alamofire/releases/tag/5.5.0"
             //  .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.5.0"),
             let url = url.split(separator: "/").dropLast(3).joined(separator: "/") + ".git"
-            return #".package(url: "\#(url)", from: "\#(ref)")"#
+            return ".package(url: &quot;\(url)&quot;, from: &quot;\(ref)&quot;)"
         } else {
             // url: "https://github.com/Alamofire/Alamofire.git"
-            return #".package(url: "\#(url)", branch: "\#(ref)")"#
+            return ".package(url: &quot;\(url)&quot;, branch: &quot;\(ref)&quot;)"
         }
     }
 
