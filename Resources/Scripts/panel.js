@@ -28,7 +28,10 @@ export class SPIPanel {
         closeButtonElement.innerHTML = '&times;'
         closeButtonElement.classList.add('close')
         closeButtonElement.addEventListener('click', (event) => {
+          // Hide the panel and completely remove the dimmed underlay.
           panelElement.classList.add('hidden')
+          const panelUnderlayElement = document.getElementById('panel_underlay')
+          if (panelUnderlayElement) panelUnderlayElement.remove()
           event.preventDefault()
         })
       })
@@ -37,10 +40,15 @@ export class SPIPanel {
       const togglePanelButtonElements = document.querySelectorAll('button[data-toggle-panel]')
       togglePanelButtonElements.forEach((buttonElement) => {
         buttonElement.addEventListener('click', (event) => {
+          // Show the panel and dim the background with an underlay.
           const panelElementId = buttonElement.dataset.togglePanel
           const panelElement = document.getElementById(panelElementId)
           panelElement.classList.remove('hidden')
           event.preventDefault()
+
+          const panelUnderlayElement = document.createElement('div')
+          document.body.appendChild(panelUnderlayElement)
+          panelUnderlayElement.id = 'panel_underlay'
         })
       })
     })
