@@ -85,7 +85,7 @@ enum PackageShow {
 
         func useThisPackageSection() -> Node<HTML.BodyContext> {
             .section(
-                .class("panel use_this_package"),
+                .class("panel use_this_package hidden"),
                 .p(
                     .text("How you add this package to your project depends on what kind of project you're developing.")
                 ),
