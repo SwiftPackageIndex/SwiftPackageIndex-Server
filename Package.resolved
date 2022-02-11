@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/swift-server/async-http-client.git",
         "state": {
           "branch": null,
-          "revision": "cbf533073d9a5edfb16c266d14151f69137ba7c9",
-          "version": "1.8.2"
+          "revision": "7a4dfe026f6ee0f8ad741b58df74c60af296365d",
+          "version": "1.9.0"
         }
       },
       {
@@ -186,7 +186,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "a034b0bc0cc1366e289e25e00b3e0b21089c98fe",
+          "revision": "3cc208bfe646b7248cc8e4ec63f93a15724b85ff",
           "version": null
         }
       },
@@ -195,7 +195,7 @@
         "repositoryURL": "https://github.com/apple/swift-llbuild.git",
         "state": {
           "branch": "main",
-          "revision": "4d031d83c3c07ffe69be77f467268fe8de9dcf74",
+          "revision": "25333daca549aed69004c9b3d4c6b69d3f32d1d0",
           "version": null
         }
       },
@@ -222,8 +222,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio.git",
         "state": {
           "branch": null,
-          "revision": "51c3fc2e4a0fcdf4a25089b288dd65b73df1b0ef",
-          "version": "2.37.0"
+          "revision": "154f1d32366449dcccf6375a173adf4ed2a74429",
+          "version": "2.38.0"
         }
       },
       {
@@ -240,8 +240,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-http2.git",
         "state": {
           "branch": null,
-          "revision": "6e94a7be32891d1b303a3fcfde8b5bf64d162e74",
-          "version": "1.19.1"
+          "revision": "000ca94f9de92c95b9ac85d44600b7b0fe25a3e5",
+          "version": "1.19.2"
         }
       },
       {
@@ -267,7 +267,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "main",
-          "revision": "658654765f5a7dfb3456c37dafd3ed8cd8b363b4",
+          "revision": "aa566b5a1db9b9479e68277c559e1461e6ecde9d",
           "version": null
         }
       },
