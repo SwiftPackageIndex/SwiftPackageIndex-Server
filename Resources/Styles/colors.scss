@@ -79,9 +79,11 @@
   --link-text: var(--mid-blue);
   --link-highlight: var(--mid-red);
 
-  --popover-background: var(--very-light-grey);
-  --popover-border: var(--light-grey);
-  --popover-shadow: 0 3px 6px 3px rgba(0, 0, 0, 0.1);
+  --panel-background: var(--very-light-grey);
+  --panel-border: var(--light-grey);
+  --panel-shadow: 0 6px 10px 5px rgba(0, 0, 0, 0.1);
+  --panel-underlay-background: var(--black);
+  --panel-underlay-opacity: 0.5;
 
   --green-text: var(--light-green);
   --orange-text: var(--orange);
@@ -112,11 +114,12 @@
   --input-text: var(--black);
   --input-border: var(--light-grey);
   --input-placeholder: var(--light-grey);
-  --badge-input-background: var(--very-light-grey);
 
-  --button-background: var(--very-light-blue);
-  --button-text: var(--mid-blue);
-  --button-border: var(--light-blue);
+  --copyable-input-background: var(--very-very-light-grey);
+  --copyable-input-border: var(--light-grey);
+
+  --button-background: var(--mid-blue);
+  --button-text: var(--very-light-blue);
 
   --rule-background: var(--light-blue);
   --rule-thin-background: var(--light-grey);
@@ -159,8 +162,9 @@
     --page-text: var(--white);
     --page-background: var(--black);
 
-    --popover-background: var(--very-dark-grey);
-    --popover-border: var(--dark-grey);
+    --panel-background: var(--very-dark-grey);
+    --panel-border: var(--dark-grey);
+    --panel-underlay-opacity: 0.8;
 
     --green-text: var(--mid-green);
 
@@ -186,11 +190,12 @@
     --input-text: var(--white);
     --input-border: var(--dark-grey);
     --input-placeholder: var(--grey);
-    --badge-input-background: var(--very-dark-grey);
 
-    --button-background: var(--dark-blue);
-    --button-text: var(--mid-blue);
-    --button-border: var(--mid-blue);
+    --copyable-input-background: var(--very-very-dark-grey);
+    --copyable-input-border: var(--dark-grey);
+
+    --button-background: var(--mid-blue);
+    --button-text: var(--very-dark-blue);
 
     --rule-background: var(--dark-blue);
     --rule-thin-background: var(--dark-grey);

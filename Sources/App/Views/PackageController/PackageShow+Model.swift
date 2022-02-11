@@ -418,6 +418,39 @@ extension PackageShow.Model {
         )
     }
 
+    func xcodeprojDependencyForm(packageUrl: String) -> Node<HTML.BodyContext> {
+        .copyableInputForm(buttonName: "Copy Package URL",
+                           eventName: "Copy Xcodeproj Package URL Button",
+                           valueToCopy: packageUrl)
+    }
+
+    func spmDependencyForm(releaseLink: Link, cssClass: String) -> Node<HTML.BodyContext> {
+        .group(
+            .p(
+                .span(
+                    .class(cssClass),
+                    .text(releaseLink.label)
+                )
+            ),
+            .copyableInputForm(buttonName: "Copy Code Snippet",
+                               eventName: "Copy SPM Manifest Code Snippet Button",
+                               valueToCopy: Self.packageDependencyCodeSnippet(ref: releaseLink.label, url: releaseLink.url))
+        )
+    }
+
+    static func packageDependencyCodeSnippet(ref: String, url: String) -> String {
+        let isSemVer = ref.contains(".")
+        if isSemVer {
+            // url: "https://github.com/Alamofire/Alamofire/releases/tag/5.5.0"
+            //  .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.5.0"),
+            let url = url.split(separator: "/").dropLast(3).joined(separator: "/") + ".git"
+            return ".package(url: &quot;\(url)&quot;, from: &quot;\(ref)&quot;)"
+        } else {
+            // url: "https://github.com/Alamofire/Alamofire.git"
+            return ".package(url: &quot;\(url)&quot;, branch: &quot;\(ref)&quot;)"
+        }
+    }
+
     static func groupBuildInfo<T>(_ buildInfo: BuildInfo<T>) -> [BuildStatusRow<T>] {
         let allKeyPaths: [KeyPath<BuildInfo<T>, NamedBuildResults<T>?>] = [\.stable, \.beta, \.latest]
         var availableKeyPaths = allKeyPaths

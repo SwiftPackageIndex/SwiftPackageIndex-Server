@@ -34,14 +34,10 @@ extension MaintainerInfoIndex {
             return "[![](\(badgeURL(for: type)))](\(spiPackageURL))"
         }
 
-        func badgeMarkdowDisplay(for type: BadgeType) -> Node<HTML.FormContext> {
-            .input(
-                .type(.text),
-                .value(badgeMarkdown(for: type)),
-                .data(named: "button-name", value: "Copy Markdown"),
-                .data(named: "event-name", value: "Copy Markdown Button"),
-                .readonly(true)
-            )
+        func badgeMarkdowDisplay(for type: BadgeType) -> Node<HTML.BodyContext> {
+            .copyableInputForm(buttonName: "Copy Markdown",
+                               eventName: "Copy Markdown Button",
+                               valueToCopy: badgeMarkdown(for: type))
         }
     }
 }

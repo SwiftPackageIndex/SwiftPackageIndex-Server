@@ -82,14 +82,14 @@
           <strong>Swift Version Compatibility Badge</strong>
           <div class="markdown_badges">
             <form class="copyable_input">
-              <input type="text" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions)](http://localhost:8080/example/package)" data-button-name="Copy Markdown" data-event-name="Copy Markdown Button" readonly/>
+              <input type="text" data-button-name="Copy Markdown" data-event-name="Copy Markdown Button" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions)](http://localhost:8080/example/package)" readonly/>
             </form>
             <img alt="Swift Version Compatibility for Example Package" src="https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dswift-versions"/>
           </div>
           <strong>Platform Compatibility Badge</strong>
           <div class="markdown_badges">
             <form class="copyable_input">
-              <input type="text" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms)](http://localhost:8080/example/package)" data-button-name="Copy Markdown" data-event-name="Copy Markdown Button" readonly/>
+              <input type="text" data-button-name="Copy Markdown" data-event-name="Copy Markdown Button" value="[![](https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms)](http://localhost:8080/example/package)" readonly/>
             </form>
             <img alt="Platform Compatibility for Example Package" src="https://img.shields.io/endpoint?url=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fpackages%2Fexample%2Fpackage%2Fbadge%3Ftype%3Dplatforms"/>
           </div>

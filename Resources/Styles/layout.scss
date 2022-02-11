@@ -24,37 +24,28 @@
 }
 
 .two_column {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
   gap: 60px;
 
-  > :first-child {
-    flex-basis: 75%;
-  }
-
   > :last-child {
-    flex-basis: 25%;
+    justify-self: end;
   }
 
   &.even {
-    > :first-child {
-      flex-basis: 50%;
-    }
-
-    > :last-child {
-      flex-basis: 50%;
-    }
+    grid-template-columns: 1fr 1fr;
   }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
   .two_column {
+    display: flex;
     flex-direction: column;
     width: 100%;
     gap: 10px;
 
     > * {
-      flex-basis: 100%;
+      width: 100%;
     }
 
     &.mobile_reversed {

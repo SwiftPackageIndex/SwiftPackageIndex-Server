@@ -60,14 +60,17 @@ enum PackageShow {
         
         override func content() -> Node<HTML.BodyContext> {
             .group(
-                .h2(.text(model.title)),
-                .small(
-                    .a(
-                        .id("package_url"),
-                        .href(model.url),
-                        .text(model.url)
+                .div(
+                    .class("two_column"),
+                    .h2(.text(model.title)),
+                    .div(
+                        .button(
+                            .data(named: "toggle-panel", value: "use_this_package"),
+                            .text("Use this Package")
+                        )
                     )
                 ),
+                useThisPackagePanel(),
                 .hr(.class("tight")),
                 .p(
                     .class("summary"),
@@ -79,6 +82,22 @@ enum PackageShow {
                 tabBar(),
                 readmeSection(),
                 releaseSection()
+            )
+        }
+
+        func useThisPackagePanel() -> Node<HTML.BodyContext> {
+            .section(
+                .id("use_this_package"),
+                .class("panel hidden"),
+                .p(
+                    .text("How you add this package to your project depends on what kind of project you're developing.")
+                ),
+                .h4("When working with an Xcode project:"),
+                model.xcodeprojDependencyForm(packageUrl: model.url),
+                .h4("When working with a Swift Package Manager manifest:"),
+                .unwrap(model.releases.stable, { model.spmDependencyForm(releaseLink: $0.link, cssClass: "stable") }),
+                .unwrap(model.releases.beta, { model.spmDependencyForm(releaseLink: $0.link, cssClass: "beta") }),
+                .unwrap(model.releases.latest, { model.spmDependencyForm(releaseLink: $0.link, cssClass: "branch") })
             )
         }
 

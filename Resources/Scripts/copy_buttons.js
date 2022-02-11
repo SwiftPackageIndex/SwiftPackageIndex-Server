@@ -50,29 +50,6 @@ class SPICopyButton {
   }
 }
 
-export class SPICopyPackageURLButton extends SPICopyButton {
-  constructor() {
-    super()
-
-    document.addEventListener('turbo:load', () => {
-      // Create the "Copy Package URL" button immediately after the URL element.
-      const packageURLElement = document.getElementById('package_url')
-      if (!packageURLElement) return
-
-      // Remove any old buttons from the Turbo restored page.
-      const parentElement = packageURLElement.parentElement
-      const oldButtonElement = parentElement.querySelector('button')
-      if (oldButtonElement) oldButtonElement.remove()
-
-      // Given that the button will only work with JavaScript available, we should use JavaScript to create it!
-      const buttonElement = document.createElement('button')
-      buttonElement.textContent = 'Copy'
-      parentElement.appendChild(buttonElement)
-      this.installCopyEvent(buttonElement, packageURLElement, 'Copy Package URL Button')
-    })
-  }
-}
-
 export class SPICopyableInput extends SPICopyButton {
   constructor() {
     super()

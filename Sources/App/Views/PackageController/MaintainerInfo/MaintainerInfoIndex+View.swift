@@ -56,10 +56,7 @@ enum MaintainerInfoIndex {
                 .strong("Swift Version Compatibility Badge"),
                 .div(
                     .class("markdown_badges"),
-                    .form(
-                        .class("copyable_input"),
-                        model.badgeMarkdowDisplay(for: .swiftVersions)
-                    ),
+                    model.badgeMarkdowDisplay(for: .swiftVersions),
                     .img(
                         .alt("Swift Version Compatibility for \(model.packageName)"),
                         .src(model.badgeURL(for: .swiftVersions))
@@ -68,10 +65,7 @@ enum MaintainerInfoIndex {
                 .strong("Platform Compatibility Badge"),
                 .div(
                     .class("markdown_badges"),
-                    .form(
-                        .class("copyable_input"),
-                         model.badgeMarkdowDisplay(for: .platforms)
-                    ),
+                    model.badgeMarkdowDisplay(for: .platforms),
                     .img(
                         .alt("Platform Compatibility for \(model.packageName)"),
                         .src(model.badgeURL(for: .platforms))

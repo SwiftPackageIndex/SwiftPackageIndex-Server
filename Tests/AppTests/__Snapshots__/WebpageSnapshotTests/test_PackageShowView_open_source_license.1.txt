@@ -70,10 +70,38 @@
     </header>
     <main>
       <div class="inner">
-        <h2>Alamofire</h2>
-        <small>
-          <a id="package_url" href="https://github.com/Alamofire/Alamofire.git">https://github.com/Alamofire/Alamofire.git</a>
-        </small>
+        <div class="two_column">
+          <h2>Alamofire</h2>
+          <div>
+            <button data-toggle-panel="use_this_package">Use this Package</button>
+          </div>
+        </div>
+        <section id="use_this_package" class="panel hidden">
+          <p>How you add this package to your project depends on what kind of project you're developing.</p>
+          <h4>When working with an Xcode project:</h4>
+          <form class="copyable_input">
+            <input type="text" data-button-name="Copy Package URL" data-event-name="Copy Xcodeproj Package URL Button" value="https://github.com/Alamofire/Alamofire.git" readonly/>
+          </form>
+          <h4>When working with a Swift Package Manager manifest:</h4>
+          <p>
+            <span class="stable">5.2.0</span>
+          </p>
+          <form class="copyable_input">
+            <input type="text" data-button-name="Copy Code Snippet" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https:/github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.2.0&quot;)" readonly/>
+          </form>
+          <p>
+            <span class="beta">5.3.0-beta.1</span>
+          </p>
+          <form class="copyable_input">
+            <input type="text" data-button-name="Copy Code Snippet" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https:/github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.3.0-beta.1&quot;)" readonly/>
+          </form>
+          <p>
+            <span class="branch">main</span>
+          </p>
+          <form class="copyable_input">
+            <input type="text" data-button-name="Copy Code Snippet" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https://github.com/Alamofire/Alamofire&quot;, branch: &quot;main&quot;)" readonly/>
+          </form>
+        </section>
         <hr class="tight"/>
         <p class="summary">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.</p>
         <article class="details">
