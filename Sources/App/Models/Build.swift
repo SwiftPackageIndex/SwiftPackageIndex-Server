@@ -154,6 +154,7 @@ extension Build {
 
     static func trigger(database: Database,
                         client: Client,
+                        buildId: Build.Id,
                         platform: Build.Platform,
                         swiftVersion: SwiftVersion,
                         versionId: Version.Id) -> EventLoopFuture<TriggerResponse> {
@@ -165,6 +166,7 @@ extension Build {
             .unwrap(or: Abort(.notFound))
         return version.flatMap {
             return Current.triggerBuild(client,
+                                        buildId,
                                         $0.package.url,
                                         platform,
                                         $0.reference,
