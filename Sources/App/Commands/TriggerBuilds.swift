@@ -198,13 +198,16 @@ func triggerBuildsUnchecked(on database: Database,
         logger.info("Triggering \(trigger.pairs.count) builds for package name: \(trigger.packageName), ref: \(trigger.reference)")
         return trigger.pairs.map { pair in
             AppMetrics.buildTriggerCount?.inc(1, .init(pair.platform, pair.swiftVersion))
+            let buildId: Build.Id = .init()
             return Build.trigger(database: database,
                           client: client,
+                          buildId: buildId,
                           platform: pair.platform,
                           swiftVersion: pair.swiftVersion,
                           versionId: trigger.versionId)
                 .flatMap { response in
-                    Build(versionId: trigger.versionId,
+                    Build(id: buildId,
+                          versionId: trigger.versionId,
                           jobUrl: response.webUrl,
                           platform: pair.platform,
                           status: .triggered,

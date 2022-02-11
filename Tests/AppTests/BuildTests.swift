@@ -123,6 +123,7 @@ class BuildTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .branch("main"))
         try v.save(on: app.db).wait()
+        let buildId = UUID()
         let versionID = try XCTUnwrap(v.id)
 
         // Use live dependency but replace actual client with a mock so we can
@@ -142,6 +143,7 @@ class BuildTests: AppTestCase {
                             ref: "main",
                             variables: [
                                 "API_BASEURL": "http://example.com/api",
+                                "BUILD_ID": buildId.uuidString,
                                 "BUILD_PLATFORM": "macos-xcodebuild",
                                 "BUILDER_TOKEN": "builder token",
                                 "CLONE_URL": "1",
@@ -154,6 +156,7 @@ class BuildTests: AppTestCase {
         // MUT
         let res = try Build.trigger(database: app.db,
                                     client: client,
+                                    buildId: buildId,
                                     platform: .macosXcodebuild,
                                     swiftVersion: .init(5, 2, 4),
                                     versionId: versionID).wait()

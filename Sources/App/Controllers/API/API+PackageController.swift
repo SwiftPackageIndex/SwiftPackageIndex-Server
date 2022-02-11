@@ -62,6 +62,7 @@ extension API {
                 .flatMapEach(on: req.eventLoop) { versionId -> EventLoopFuture<HTTPStatus> in
                     Build.trigger(database: req.db,
                                   client: req.client,
+                                  buildId: .init(),
                                   platform: dto.platform,
                                   swiftVersion: dto.swiftVersion,
                                   versionId: versionId)

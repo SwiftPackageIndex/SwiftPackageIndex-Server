@@ -61,6 +61,7 @@ extension API {
             let dto = try req.content.decode(PostBuildTriggerDTO.self)
             return Build.trigger(database: req.db,
                                  client: req.client,
+                                 buildId: .init(),
                                  platform: dto.platform,
                                  swiftVersion: dto.swiftVersion,
                                  versionId: versionId)

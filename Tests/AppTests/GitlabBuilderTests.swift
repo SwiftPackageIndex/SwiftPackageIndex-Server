@@ -42,6 +42,7 @@ class GitlabBuilderTests: XCTestCase {
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
+        let buildId = UUID()
         let versionID = UUID()
         
         var called = false
@@ -57,6 +58,7 @@ class GitlabBuilderTests: XCTestCase {
                             ref: "main",
                             variables: [
                                 "API_BASEURL": "http://example.com/api",
+                                "BUILD_ID": buildId.uuidString,
                                 "BUILD_PLATFORM": "macos-spm",
                                 "BUILDER_TOKEN": "builder token",
                                 "CLONE_URL": "https://github.com/daveverwer/LeftPad.git",
@@ -68,6 +70,7 @@ class GitlabBuilderTests: XCTestCase {
         
         // MUT
         _ = try Gitlab.Builder.triggerBuild(client: client,
+                                            buildId: buildId,
                                             cloneURL: "https://github.com/daveverwer/LeftPad.git",
                                             platform: .macosSpm,
                                             reference: .tag(.init(1, 2, 3)),

@@ -560,7 +560,7 @@ class ApiTests: AppTestCase {
         // we're testing the exact Gitlab trigger post request in detail in
         // GitlabBuilderTests - so here we just ensure a request is being made
         var requestSent = false
-        Current.triggerBuild = { _, _, _, _, _, _ in
+        Current.triggerBuild = { _, _, _, _, _, _, _ in
             requestSent = true
             return self.app.eventLoopGroup.future(
                 .init(status: .ok, webUrl: "http://web_url")
@@ -671,7 +671,7 @@ class ApiTests: AppTestCase {
         // GitlabBuilderTests - so here we just ensure two requests are being
         // made (one for each version to build)
         var requestsSent = 0
-        Current.triggerBuild = { _, _, _, _, _, _ in
+        Current.triggerBuild = { _, _, _, _, _, _, _ in
             requestsSent += 1
             return self.app.eventLoopGroup.future(
                 .init(status: .ok, webUrl: "http://web_url")
