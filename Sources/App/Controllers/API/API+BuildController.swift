@@ -71,6 +71,9 @@ extension API {
             guard let buildId = req.parameters.get("id").map(UUID.init(uuidString:)) else {
                       throw Abort(.badRequest)
                   }
+            let version = try await App.Version
+                .find(dto.versionId, on: req.db)
+                .unwrap(or: Abort(.notFound))
 
             do {  // update build
                 // We look up by default, because the common case is that a build stub
@@ -92,9 +95,6 @@ extension API {
             }
 
             do {  // update version and package
-                let version = try await App.Version
-                    .find(dto.versionId, on: req.db)
-                    .unwrap(or: Abort(.notFound))
                 if let dependencies = dto.resolvedDependencies {
                     version.resolvedDependencies = dependencies
                     try await version.save(on: req.db)

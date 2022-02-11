@@ -185,6 +185,38 @@ class ApiTests: AppTestCase {
         }
     }
 
+    func test_put_build_no_version() async throws {
+        // Test edge case flow:
+        // - by the time the build report come in, there is no build stub
+        //   because it has been garbage collected by build trimming
+        // - the associated version has also been garbage collected
+        //   because there was a new release in the meantime
+        // - the build report should be discarded in this case, because
+        //   there is no version to attach it to
+        // setup
+        Current.builderToken = { "secr3t" }
+        let buildId = UUID()
+        let versionId = UUID()
+
+        // MUT
+        let dto: API.PutBuildDTO = .init(
+            platform: .ios,
+            status: .ok,
+            swiftVersion: .v5_5,
+            versionId: versionId
+        )
+        let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+        try app.test(.PUT,
+                     "api/builds/\(buildId)",
+                     headers: .bearerApplicationJSON("secr3t"),
+                     body: body,
+                     afterResponse: { res in
+            XCTAssertEqual(res.status, .notFound)
+            // ensure no build is recorded
+            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 0)
+        })
+    }
+
     func test_put_build_infrastructureError() throws {
         // setup
         Current.builderToken = { "secr3t" }
