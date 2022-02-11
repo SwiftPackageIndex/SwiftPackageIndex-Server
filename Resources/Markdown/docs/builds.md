@@ -14,6 +14,7 @@ description: Frequently Asked Questions about the Swift Package Index Build Syst
 - [Is it possible to hide failing builds for unsupported platforms?](#hide-failing-builds)
 - [If a build is showing failed incorrectly, how can I fix it?](#fix-false-negative)
 - [If a build is showing an error that seems unrelated to the build, how can I fix it?](#unrelated-error)
+- [How can I diagnose problems where dependencies can't be resolved?](#dependency-resolving-error)
 
 <h3 id="build-system">What is the Swift Package Index Build System?</h3>
 
@@ -66,3 +67,26 @@ If you can fix the problem, great! Fix the issue, push the change, and we will r
 <h3 id="unrelated-error">If a build is showing an error that seems unrelated to the build, how can I fix it?</h3>
 
 In some cases, we may have encountered build issues unrelated to your package. Please confirm using the build command shown on the build details page that you can build your package successfully for a given Swift version and platform. If this succeeds, please [raise an issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose) so we can remove the faulty builds and schedule a rebuild.
+
+<h3 id="dependency-resolving-error">How can I diagnose problems where dependencies can't be resolved?</h3>
+
+If you encounter the following error on the build details page:
+
+```
+xcodebuild: error: Could not resolve package dependencies:
+unknown package 'foo' in dependencies of target 'Bar'; valid packages are: 'baz', 'baq'
+```
+
+The likely cause a local package dependency (for instance, an example project that imports the package) with the package dependency declared as:
+
+```
+.package(path: "../../")
+```
+
+In cases like this, Xcode cannot resolve package dependencies because of how it guesses package names. To fix this, specify the package name in your dependency clause, like so:
+
+```
+.package(name: "foo", path: "../../")
+```
+
+You can [find more details in this issue](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1532).
