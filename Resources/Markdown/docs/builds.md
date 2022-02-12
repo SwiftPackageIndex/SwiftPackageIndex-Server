@@ -77,7 +77,7 @@ xcodebuild: error: Could not resolve package dependencies:
 unknown package 'foo' in dependencies of target 'Bar'; valid packages are: 'baz', 'baq'
 ```
 
-The likely cause a local package dependency (for instance, an example project that imports the package) with the package dependency declared as:
+The likely cause is a local package dependency (for instance, an example project that imports the package) with the package dependency declared as:
 
 ```
 .package(path: "../../")
