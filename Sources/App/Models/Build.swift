@@ -102,18 +102,6 @@ final class Build: Model, Content {
                   status: status,
                   swiftVersion: swiftVersion)
     }
-
-    @available(*, deprecated)
-    convenience init(_ dto: API.PostCreateBuildDTO, _ version: Version) throws {
-        try self.init(version: version,
-                      buildCommand: dto.buildCommand,
-                      jobUrl: dto.jobUrl,
-                      logUrl: dto.logUrl,
-                      platform: dto.platform,
-                      runnerId: dto.runnerId,
-                      status: dto.status,
-                      swiftVersion: dto.swiftVersion)
-    }
     
 }
 
@@ -187,38 +175,6 @@ extension Build {
         }
     }
     
-}
-
-
-extension Build {
-    @available(*, deprecated)
-    func upsert(on database: Database) -> EventLoopFuture<Void> {
-        save(on: database)
-            .flatMapError {
-                // if we run into a unique key violation ...
-                guard let error = $0 as? PostgresError,
-                      error.code == .uniqueViolation else {
-                    return database.eventLoop.future(error: $0)
-                }
-                // We can't avoid the "duplicate key" error message leaking out to the console
-                // so what we do is also log an explainer that it's not a real error.
-                // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/737
-                // Use print so it's not affected by log levels (just like the underlying Postgres
-                // error isn't)
-                print(#"DISREGARD the above error message about duplicate key violation of constraint "uq:builds.version_id+builds.platform+builds.swift_version+v2" - it is being handled and the error is logged over-eagerly by a subsystem"#)
-                // ... find the existing build
-                return Build.query(on: database)
-                    .filter(\.$platform == self.platform)
-                    .filter(.sql(raw: "(swift_version->'major')::int = \(self.swiftVersion.major)"))
-                    .filter(.sql(raw: "(swift_version->'minor')::int = \(self.swiftVersion.minor)"))
-                    .filter(\.$version.$id == self.$version.id)
-                    .all()
-                    // ... delete it
-                    .flatMap { $0.delete(on: database) }
-                    // ... and insert the new build instead
-                    .flatMap { self.save(on: database) }
-            }
-    }
 }
 
 

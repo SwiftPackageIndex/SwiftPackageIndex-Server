@@ -257,33 +257,6 @@ extension Package {
             """#
         ).run()
     }
-
-    @available(*, deprecated)
-    func updatePlatformCompatibility(on database: Database) -> EventLoopFuture<Void> {
-        guard let db = database as? SQLDatabase else {
-            return database.eventLoop.future(error: AppError.genericError(id, "Database must be an SQLDatabase ('as? SQLDatabase' must succeed)"))
-        }
-        return db.raw(
-            #"""
-            UPDATE packages p SET platform_compatibility = ARRAY(
-                SELECT
-                    CASE
-                        WHEN b.platform LIKE 'macos-%' THEN 'macos'
-                        ELSE b.platform
-                    END
-                FROM versions v
-                JOIN builds b ON b.version_id = v.id
-                WHERE v.package_id = p.id
-                AND v.latest IS NOT NULL
-                AND b.status = 'ok'
-                GROUP BY b.platform
-                HAVING count(*) > 0
-            ),
-            updated_at = NOW()
-            WHERE p.id = \#(bind: id)
-            """#
-        ).run()
-    }
 }
 
 

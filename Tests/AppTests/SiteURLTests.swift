@@ -103,8 +103,6 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.api(.version).path, "api/version")
         do {
             let uuid = UUID()
-            XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .builds)).path,
-                           "api/versions/\(uuid.uuidString)/builds")
             XCTAssertEqual(SiteURL.api(.versions(.value(uuid), .triggerBuild)).path,
                            "api/versions/\(uuid.uuidString)/trigger-build")
         }
@@ -114,8 +112,6 @@ class SiteURLTests: XCTestCase {
         XCTAssertEqual(SiteURL.api(.builds(.key)).pathComponents.map(\.description), ["api", "builds", ":id"])
         XCTAssertEqual(SiteURL.api(.search).pathComponents.map(\.description), ["api", "search"])
         XCTAssertEqual(SiteURL.api(.version).pathComponents.map(\.description), ["api", "version"])
-        XCTAssertEqual(SiteURL.api(.versions(.key, .builds)).pathComponents.map(\.description),
-                       ["api", "versions", ":id", "builds"])
         XCTAssertEqual(SiteURL.api(.versions(.key, .triggerBuild)).pathComponents.map(\.description),
                        ["api", "versions", ":id", "trigger-build"])
         XCTAssertEqual(SiteURL.api(.packages(.key, .key, .triggerBuilds))

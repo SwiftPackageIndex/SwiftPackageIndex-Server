@@ -19,40 +19,7 @@ import Vapor
 extension API {
     
     struct BuildController {
-        func create(req: Request) throws -> EventLoopFuture<Build> {
-            let dto = try req.content.decode(PostCreateBuildDTO.self)
-            return App.Version.find(req.parameters.get("id"), on: req.db)
-                .unwrap(or: Abort(.notFound))
-                .flatMap { version in
-                    guard let dependencies = dto.resolvedDependencies else {
-                        return req.eventLoop.future(version)
-                    }
-                    version.resolvedDependencies = dependencies
-                    return version.save(on: req.db)
-                        .transform(to: version)
-                }
-                .flatMapThrowing { ($0, try Build(dto, $0)) }
-                .flatMap { (version, build) -> EventLoopFuture<(App.Version, Build)> in
-                    AppMetrics.apiBuildReportTotal?.inc(1, .init(build.platform,
-                                                                 build.runnerId ?? "",
-                                                                 build.swiftVersion))
-                    if build.status == .infrastructureError {
-                        req.logger.critical("build infrastructure error: \(build.jobUrl)")
-                    }
-                    return build.upsert(on: req.db).transform(to: (version, build))
-                }
-                .flatMap { (version, build) in
-                    Package.find(version.$package.id, on: req.db)
-                        .flatMap { package -> EventLoopFuture<Void> in
-                            guard let package = package else {
-                                return req.eventLoop.future()
-                            }
-                            return package.updatePlatformCompatibility(on: req.db)
-                        }
-                        .transform(to: build)
-                }
-        }
-        
+
         func trigger(req: Request) throws -> EventLoopFuture<Build.TriggerResponse> {
             guard let id = req.parameters.get("id"),
                   let versionId = UUID(uuidString: id) else {
@@ -109,6 +76,7 @@ extension API {
 
             return .noContent
         }
+        
     }
 
 }
