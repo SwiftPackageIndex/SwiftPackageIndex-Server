@@ -186,7 +186,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "3cc208bfe646b7248cc8e4ec63f93a15724b85ff",
+          "revision": "834c34f9728d7b36587a7952d7866b856083de06",
           "version": null
         }
       },
@@ -267,7 +267,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "main",
-          "revision": "aa566b5a1db9b9479e68277c559e1461e6ecde9d",
+          "revision": "3cb4c9ad89cccaf9e731f1d75c5a3381fd381b2d",
           "version": null
         }
       },
