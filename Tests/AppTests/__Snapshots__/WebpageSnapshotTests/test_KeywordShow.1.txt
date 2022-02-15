@@ -11,9 +11,9 @@
     <title>Packages for keyword networking &ndash; Swift Package Index</title>
     <meta name="twitter:title" content="Packages for keyword networking &ndash; Swift Package Index"/>
     <meta name="og:title" content="Packages for keyword networking &ndash; Swift Package Index"/>
-    <meta name="description" content="The Swift Package Index is indexing 1 package for networking."/>
-    <meta name="twitter:description" content="The Swift Package Index is indexing 1 package for networking."/>
-    <meta name="og:description" content="The Swift Package Index is indexing 1 package for networking."/>
+    <meta name="description" content="The Swift Package Index is indexing 10 packages for networking."/>
+    <meta name="twitter:description" content="The Swift Package Index is indexing 10 packages for networking."/>
+    <meta name="og:description" content="The Swift Package Index is indexing 10 packages for networking."/>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
