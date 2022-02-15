@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Fluent
+import PostgresKit
 import Vapor
 
 
@@ -91,7 +92,16 @@ extension API {
                 build.runnerId = dto.runnerId
                 build.status = dto.status
                 build.swiftVersion = dto.swiftVersion
-                try await build.save(on: req.db)
+                do {
+                    try await build.save(on: req.db)
+                } catch {
+                    if let error = error as? PostgresError,
+                       error.code == .uniqueViolation {
+                        return .conflict
+                    } else {
+                        throw error
+                    }
+                }
             }
 
             do {  // update version and package

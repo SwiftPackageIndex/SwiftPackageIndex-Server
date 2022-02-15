@@ -217,6 +217,63 @@ class ApiTests: AppTestCase {
         })
     }
 
+    func test_put_build_unique_key_constraint() async throws {
+        // Ensure the (platform, swift_version, version_id) UK constraint
+        // is in effect
+        // setup
+        Current.builderToken = { "secr3t" }
+        let p = try savePackage(on: app.db, "1")
+        let v = try Version(package: p, latest: .defaultBranch)
+        try v.save(on: app.db).wait()
+        let versionId = try v.id.unwrap()
+        let b = Build.init(versionId: versionId,
+                           platform: .ios,
+                           status: .triggered,
+                           swiftVersion: .v5_5)
+        try await b.save(on: app.db)
+        let buildId = UUID()
+
+        do {  // MUT - attempt to create a build report with matching build parameters
+              // but a new build id
+            let dto: API.PutBuildDTO = .init(
+                platform: .ios,
+                status: .ok,
+                //            swiftVersion: .init(5, 5, 99),
+                swiftVersion: .v5_5,
+                versionId: versionId
+            )
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try app.test(.PUT,
+                         "api/builds/\(buildId)",
+                         headers: .bearerApplicationJSON("secr3t"),
+                         body: body,
+                         afterResponse: { res in
+                XCTAssertEqual(res.status, .conflict)
+                // ensure no additional build is recorded
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+            })
+        }
+
+        do {  // MUT - as above but with different Swift patch version
+            let dto: API.PutBuildDTO = .init(
+                platform: .ios,
+                status: .ok,
+                swiftVersion: .init(5, 5, 99),
+                versionId: versionId
+            )
+            let body: ByteBuffer = .init(data: try JSONEncoder().encode(dto))
+            try app.test(.PUT,
+                         "api/builds/\(buildId)",
+                         headers: .bearerApplicationJSON("secr3t"),
+                         body: body,
+                         afterResponse: { res in
+                XCTAssertEqual(res.status, .conflict)
+                // ensure no additional build is recorded
+                XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
+            })
+        }
+    }
+
     func test_put_build_infrastructureError() throws {
         // setup
         Current.builderToken = { "secr3t" }
