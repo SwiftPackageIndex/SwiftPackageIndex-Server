@@ -37,12 +37,6 @@ enum HomeIndex {
             .structuredData(IndexSchema())
         }
         
-        override func noScript() -> Node<HTML.BodyContext> {
-            .noscript(
-                .p("The search function of this site requires JavaScript.")
-            )
-        }
-        
         override func preMain() -> Node<HTML.BodyContext> {
             .group(
                 .p(

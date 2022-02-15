@@ -200,7 +200,6 @@ class PublicPage {
             bodyComments(),
             stagingBanner(),
             header(),
-            noScript(),
             preMain(),
             main(),
             postMain(),
@@ -260,13 +259,7 @@ class PublicPage {
     func navMenuItems() -> [NavMenuItem] {
         [.sponsorCTA, .addPackage, .blog, .faq, .search]
     }
-    
-    /// A <noscript> element that will only be shown to people with JavaScript disabled.
-    /// - Returns: A <noscript> element.
-    func noScript() -> Node<HTML.BodyContext> {
-        .empty
-    }
-    
+
     /// Optional content that will be inserted in between the page header and the main content for the page.
     /// - Returns: An optional element, or group of elements.
     func preMain() -> Node<HTML.BodyContext> {

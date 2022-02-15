@@ -80,6 +80,9 @@ enum PackageShow {
                 ),
                 detailsSection(),
                 tabBar(),
+                .noscript(
+                    .text("JavaScript must be enabled to load the README and Release Notes tabs.")
+                ),
                 readmeSection(),
                 releaseSection()
             )

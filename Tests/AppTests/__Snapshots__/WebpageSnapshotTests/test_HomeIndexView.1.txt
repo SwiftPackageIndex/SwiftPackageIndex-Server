@@ -50,9 +50,6 @@
         </nav>
       </div>
     </header>
-    <noscript>
-      <p>The search function of this site requires JavaScript.</p>
-    </noscript>
     <p class="announcement">Follow along as we determine real-world compatibility results with our 
       <em>new</em> 
       <a href="/build-monitor">real-time build system monitor</a>! 📦
