@@ -341,6 +341,7 @@
             <li id="releases" data-tab="releases">Release Notes</li>
           </ul>
         </tab-bar>
+        <noscript>JavaScript must be enabled to load the README and Release Notes tabs.</noscript>
         <turbo-frame id="readme_page" src="/Alamo/Alamofire/readme" data-tab-page="readme" class="tab_page">
           <div class="min_height_spacer">
             <div class="spinner">
