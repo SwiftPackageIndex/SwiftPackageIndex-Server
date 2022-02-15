@@ -31,7 +31,7 @@ enum KeywordShow {
         }
 
         override func pageDescription() -> String? {
-            let packagesClause = model.packages.count > 1 ? "1 package" : "\(model.packages.count) packages"
+            let packagesClause = model.packages.count > 1 ? "\(model.packages.count) packages" : "1 package"
             return "The Swift Package Index is indexing \(packagesClause) for \(model.keyword)."
         }
 

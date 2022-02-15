@@ -11,9 +11,9 @@
     <title>Packages by Test Author &ndash; Swift Package Index</title>
     <meta name="twitter:title" content="Packages by Test Author &ndash; Swift Package Index"/>
     <meta name="og:title" content="Packages by Test Author &ndash; Swift Package Index"/>
-    <meta name="description" content="The Swift Package Index is indexing 1 package authored by Test Author."/>
-    <meta name="twitter:description" content="The Swift Package Index is indexing 1 package authored by Test Author."/>
-    <meta name="og:description" content="The Swift Package Index is indexing 1 package authored by Test Author."/>
+    <meta name="description" content="The Swift Package Index is indexing 10 packages authored by Test Author."/>
+    <meta name="twitter:description" content="The Swift Package Index is indexing 10 packages authored by Test Author."/>
+    <meta name="og:description" content="The Swift Package Index is indexing 10 packages authored by Test Author."/>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
