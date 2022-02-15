@@ -93,7 +93,7 @@ class ApiTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try v.save(on: app.db).wait()
-        let versionId = try XCTUnwrap(v.id)
+        let versionId = try v.requireID()
         
         do {  // MUT - initial insert
             let dto: API.PostCreateBuildDTO = .init(
@@ -114,12 +114,10 @@ class ApiTests: AppTestCase {
                 body: body,
                 afterResponse: { res in
                     // validation
-                    XCTAssertEqual(res.status, .ok)
-                    struct DTO: Decodable {
-                        var id: Build.Id?
-                    }
-                    let dto = try JSONDecoder().decode(DTO.self, from: res.body)
-                    let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                    XCTAssertEqual(res.status, .noContent)
+                    let builds = try Build.query(on: app.db).all().wait()
+                    XCTAssertEqual(builds.count, 1)
+                    let b = try builds.first.unwrap()
                     XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
                     XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
                     XCTAssertEqual(b.logUrl, "log url")
@@ -136,7 +134,7 @@ class ApiTests: AppTestCase {
                 })
         }
         
-        do {  // MUT - update (upsert)
+        do {  // MUT - update of the same record
             let dto: API.PostCreateBuildDTO = .init(
                 platform: .macosXcodebuild,
                 resolvedDependencies: [.init(packageName: "foo",
@@ -152,12 +150,10 @@ class ApiTests: AppTestCase {
                 body: body,
                 afterResponse: { res in
                     // validation
-                    XCTAssertEqual(res.status, .ok)
-                    struct DTO: Decodable {
-                        var id: Build.Id?
-                    }
-                    let dto = try JSONDecoder().decode(DTO.self, from: res.body)
-                    let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                    XCTAssertEqual(res.status, .noContent)
+                    let builds = try Build.query(on: app.db).all().wait()
+                    XCTAssertEqual(builds.count, 1)
+                    let b = try builds.first.unwrap()
                     XCTAssertEqual(b.platform, .macosXcodebuild)
                     XCTAssertEqual(b.status, .ok)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
@@ -188,6 +184,8 @@ class ApiTests: AppTestCase {
                 body: body,
                 afterResponse: { res in
                     // validation
+                    let builds = try Build.query(on: app.db).all().wait()
+                    XCTAssertEqual(builds.count, 2)
                     // additional ios build ok -> package is also ios compatible
                     let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
                     XCTAssertEqual(p.platformCompatibility, [.ios, .macos])
@@ -218,12 +216,10 @@ class ApiTests: AppTestCase {
             body: body,
             afterResponse: { res in
                 // validation
-                XCTAssertEqual(res.status, .ok)
-                struct DTO: Decodable {
-                    var id: Build.Id?
-                }
-                let dto = try JSONDecoder().decode(DTO.self, from: res.body)
-                let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                XCTAssertEqual(res.status, .noContent)
+                let builds = try Build.query(on: app.db).all().wait()
+                XCTAssertEqual(builds.count, 1)
+                let b = try builds.first.unwrap()
                 XCTAssertEqual(b.status, .infrastructureError)
             })
     }
