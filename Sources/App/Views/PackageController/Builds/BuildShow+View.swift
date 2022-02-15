@@ -101,13 +101,12 @@ enum BuildShow {
 
 private extension Build.Status {
 
-    // There should only be "ok" or "failed" builds visible on this page (others don't have any details to display) so these other cases are only covered for completeness.
-
     var joiningClause: String {
         switch self {
             case .ok: return " build of "
             case .failed: return " to build "
-            case .infrastructureError, .triggered, .timeout: return ""
+            case .triggered: return " a build of "
+            case .infrastructureError, .timeout: return " while building "
         }
     }
 
