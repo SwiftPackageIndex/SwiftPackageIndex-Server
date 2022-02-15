@@ -304,6 +304,11 @@ struct BuildTriggerInfo: Equatable {
 }
 
 
+func missingPairs(existing: [BuildPair]) -> Set<BuildPair> {
+    Set(BuildPair.all).subtracting(Set(existing))
+}
+
+
 func findMissingBuilds(_ database: Database,
                        packageId: Package.Id) -> EventLoopFuture<[BuildTriggerInfo]> {
     let versions = Version.query(on: database)
@@ -315,9 +320,8 @@ func findMissingBuilds(_ database: Database,
     return versions.mapEachCompact { v in
         guard let versionId = v.id else { return nil }
         let existing = v.builds.map { BuildPair($0.platform, $0.swiftVersion) }
-        let pairs = Set(BuildPair.all).subtracting(Set(existing))
         return BuildTriggerInfo(versionId: versionId,
-                                pairs: pairs,
+                                pairs: missingPairs(existing: existing),
                                 packageName: v.packageName,
                                 reference: v.reference)
     }
