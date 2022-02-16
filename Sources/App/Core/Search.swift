@@ -181,11 +181,13 @@ enum Search {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
-        // FIXME: bookend with `%`
+        let mergedTerms = SQLBind(
+            "%\(terms.joined(separator: " ").lowercased())%"
+        )
 
         return db
             .select()
+            .distinct()
             .column(.keyword)
             .column(keyword)
             .column(null, as: packageId)
@@ -200,9 +202,8 @@ enum Search {
             .column(nullTimestamp, as: lastActivityAt)
             .from(searchView)
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
-            .where(keyword, .equal, mergedTerms)
-            .limit(1)
-        // TODO: increase limit when we do % matching
+            .where(keyword, ilike, mergedTerms)
+            .limit(10)
     }
 
     static func authorMatchQueryBuilder(on database: Database,

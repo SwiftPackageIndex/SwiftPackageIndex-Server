@@ -135,14 +135,14 @@ class SearchTests: AppTestCase {
 
     func test_keywordMatchQuery_single_term() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
-        XCTAssertEqual(binds(b), ["a"])
+        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $1 LIMIT 10"#)
+        XCTAssertEqual(binds(b), ["%a%"])
     }
 
     func test_keywordMatchQuery_multiple_terms() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
-        XCTAssertEqual(binds(b), ["a b"])
+        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $1 LIMIT 10"#)
+        XCTAssertEqual(binds(b), ["%a b%"])
     }
 
     func test_authorMatchQuery_single_term() throws {
@@ -163,9 +163,9 @@ class SearchTests: AppTestCase {
         let query = try XCTUnwrap(Search.query(app.db, ["test"], page: 1, pageSize: 20))
         // validate
         _assertInlineSnapshot(matching: renderSQL(query), as: .lines, with: """
-            SELECT * FROM ((SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1) UNION ALL (SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $2 LIMIT 1) UNION ALL (SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $3 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $4 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
+            SELECT * FROM ((SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1) UNION ALL (SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $2 LIMIT 10) UNION ALL (SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $3 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $4 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
             """)
-        XCTAssertEqual(binds(query), ["test", "test", "test", "test"])
+        XCTAssertEqual(binds(query), ["test", "%test%", "test", "test"])
     }
 
     func test_fetch_single() throws {
