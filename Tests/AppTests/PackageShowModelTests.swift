@@ -313,6 +313,24 @@ class PackageShowModelTests: SnapshotTestCase {
         XCTAssertEqual(lpInfo.latest?.platforms, [.macos("10.15"), .ios("13")])
     }
 
+    func test_packageDependencyCodeSnippet() {
+        XCTAssertEqual(
+            PackageShow.Model.packageDependencyCodeSnippet(
+                ref: "6.0.0-b1",
+                url: "https://github.com/Alamofire/Alamofire/releases/tag/6.0.0-b1"),
+            ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;6.0.0-b1&quot;)")
+        XCTAssertEqual(
+            PackageShow.Model.packageDependencyCodeSnippet(
+                ref: "5.5.0",
+                url: "https://github.com/Alamofire/Alamofire/releases/tag/5.5.0"),
+            ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.5.0&quot;)")
+        XCTAssertEqual(
+            PackageShow.Model.packageDependencyCodeSnippet(
+                ref: "master",
+                url: "https://github.com/Alamofire/Alamofire.git"),
+            ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, branch: &quot;master&quot;)")
+    }
+
 }
 
 

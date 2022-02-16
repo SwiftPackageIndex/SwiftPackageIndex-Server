@@ -443,7 +443,8 @@ extension PackageShow.Model {
         if isSemVer {
             // url: "https://github.com/Alamofire/Alamofire/releases/tag/5.5.0"
             //  .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.5.0"),
-            let url = url.split(separator: "/").dropLast(3).joined(separator: "/") + ".git"
+            let url = url.split(separator: "/", omittingEmptySubsequences: false)
+                .dropLast(3).joined(separator: "/") + ".git"
             return ".package(url: &quot;\(url)&quot;, from: &quot;\(ref)&quot;)"
         } else {
             // url: "https://github.com/Alamofire/Alamofire.git"
