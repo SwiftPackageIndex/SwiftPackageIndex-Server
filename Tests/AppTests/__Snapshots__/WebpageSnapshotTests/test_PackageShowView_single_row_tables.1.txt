@@ -87,13 +87,13 @@
             <span class="stable">5.2.0</span>
           </p>
           <form class="copyable_input">
-            <input type="text" data-button-name="Copy Code Snippet" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https:/github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.2.0&quot;)" readonly/>
+            <input type="text" data-button-name="Copy Code Snippet" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.2.0&quot;)" readonly/>
           </form>
           <p>
             <span class="beta">5.3.0-beta.1</span>
           </p>
           <form class="copyable_input">
-            <input type="text" data-button-name="Copy Code Snippet" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https:/github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.3.0-beta.1&quot;)" readonly/>
+            <input type="text" data-button-name="Copy Code Snippet" data-event-name="Copy SPM Manifest Code Snippet Button" value=".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.3.0-beta.1&quot;)" readonly/>
           </form>
           <p>
             <span class="branch">main</span>
