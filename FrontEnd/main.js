@@ -14,20 +14,20 @@
 
 import '@hotwired/turbo'
 
-import './dom_helpers.js'
+import './scripts/dom_helpers.js'
 
-import { ExternalLinkRetargeter } from './external_link_retargeter.js'
-import { SPIWindowMonitor } from './window_monitor.js'
-import { SPIPackageListNavigation } from './package_list_navigation.js'
-import { SPICopyableInput } from './copy_buttons.js'
-import { SPIBuildLogNavigation } from './build_log_navigation.js'
-import { SPIAutofocus } from './autofocus.js'
-import { SPIPlaygroundsAppLinkFallback } from './playgrounds_app_link.js'
-import { SPIReadmeElement } from './readme_element.js'
-import { SPITabBarElement } from './tab_bar_element.js'
-import { SPIShowMoreKeywords } from './show_more_keywords.js'
-import { SPISearchFilterSuggestions } from './search_filter_suggestions.js'
-import { SPIPanel } from './panel.js'
+import { ExternalLinkRetargeter } from './scripts/external_link_retargeter.js'
+import { SPIWindowMonitor } from './scripts/window_monitor.js'
+import { SPIPackageListNavigation } from './scripts/package_list_navigation.js'
+import { SPICopyableInput } from './scripts/copy_buttons.js'
+import { SPIBuildLogNavigation } from './scripts/build_log_navigation.js'
+import { SPIAutofocus } from './scripts/autofocus.js'
+import { SPIPlaygroundsAppLinkFallback } from './scripts/playgrounds_app_link.js'
+import { SPIReadmeElement } from './scripts/readme_element.js'
+import { SPITabBarElement } from './scripts/tab_bar_element.js'
+import { SPIShowMoreKeywords } from './scripts/show_more_keywords.js'
+import { SPISearchFilterSuggestions } from './scripts/search_filter_suggestions.js'
+import { SPIPanel } from './scripts/panel.js'
 
 new ExternalLinkRetargeter()
 new SPIWindowMonitor()
@@ -42,8 +42,5 @@ new SPIPanel()
 
 customElements.define('spi-readme', SPIReadmeElement)
 customElements.define('tab-bar', SPITabBarElement)
-
-import 'normalize.css'
-import '../Styles/main.scss'
 
 //# sourceMappingURL=main.js.map

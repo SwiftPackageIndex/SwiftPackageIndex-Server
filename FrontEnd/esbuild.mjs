@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +14,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { nodeResolve } from '@rollup/plugin-node-resolve'
-import commonjs from '@rollup/plugin-commonjs'
-import styles from 'rollup-plugin-styles'
+import esbuild from 'esbuild'
+import { sassPlugin } from 'esbuild-sass-plugin'
 
-export default {
-  input: 'Resources/Scripts/main.js',
-  output: {
-    file: 'Public/main.js',
-    assetFileNames: 'main.css',
-  },
-  plugins: [
-    nodeResolve(),
-    commonjs(),
-    styles({
-      mode: ['extract'],
-    }),
-  ],
+try {
+  await esbuild.build({
+    entryPoints: ['FrontEnd/main.js', 'FrontEnd/main.scss'],
+    outdir: 'Public',
+    bundle: true,
+    sourcemap: true,
+    watch: process.argv.includes('--watch'),
+    plugins: [sassPlugin()],
+  })
+} catch {
+  process.exit(1)
 }

@@ -1,0 +1,43 @@
+/* Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@use 'normalize.css/normalize.css';
+
+$mobile-breakpoint: 767px;
+
+@import 'styles/colors.scss';
+@import 'styles/images.scss';
+@import 'styles/base.scss';
+@import 'styles/scta.scss';
+@import 'styles/layout.scss';
+@import 'styles/panel.scss';
+@import 'styles/header_footer.scss';
+@import 'styles/home.scss';
+@import 'styles/markdown.scss';
+@import 'styles/search.scss';
+@import 'styles/search_results.scss';
+@import 'styles/package.scss';
+@import 'styles/package_list.scss';
+@import 'styles/maintainer_info.scss';
+@import 'styles/copyable_input.scss';
+@import 'styles/matrix.scss';
+@import 'styles/build_logs.scss';
+@import 'styles/error.scss';
+@import 'styles/readme.scss';
+@import 'styles/spinner.scss';
+@import 'styles/github-highlighting.scss';
+@import 'styles/tab-bar.scss';
+@import 'styles/keywords.scss';
+@import 'styles/build-monitor.scss';
