@@ -42,7 +42,7 @@ Close the scheme editor, ensure that the "Run" scheme is selected in the Xcode t
 
 Once the back end is set up and the server is running, the next step is to set up the front end to serve the CSS and JavaScript.
 
-We use [yarn](https://yarnpkg.com) and [rollup.js](https://rollupjs.org) to build our front end files. However, you do not need to install `node` or `yarn` locally as the front end build scripts run through Docker. If you want to run a one-time build of the front end, so the site has valid CSS and JavaScript, run:
+We use [yarn](https://yarnpkg.com) and [esbuild](https://esbuild.github.io) to build our front end files. However, you do not need to install `node` or `yarn` locally as the front end build scripts run through Docker. If you want to run a one-time build of the front end, so the site has valid CSS and JavaScript, run:
 
 ```
 make build-front-end
