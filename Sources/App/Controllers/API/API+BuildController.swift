@@ -27,9 +27,9 @@ extension API {
                 .unwrap(or: Abort(.notFound))
 
             do {  // update build
-                // Find or create build for updating.
-                // We look up by default, because the common case is that a build stub
-                // is present.
+                  // Find or create build for updating.
+                  // We look up by default, because the common case is that a build stub
+                  // is present.
                 let build = try await Build.query(on: req.db,
                                                   platform: dto.platform,
                                                   swiftVersion: dto.swiftVersion,
@@ -70,23 +70,23 @@ extension API {
 
             do {  // update version and package
                 if let dependencies = dto.resolvedDependencies {
-                     version.resolvedDependencies = dependencies
-                     try await version.save(on: req.db)
-                 }
+                    version.resolvedDependencies = dependencies
+                    try await version.save(on: req.db)
+                }
 
-                 // it's ok to reach through $package to get its id, because `$package.id`
-                 // is actually `versions.package_id` and therefore loaded
-                 try await Package
-                     .updatePlatformCompatibility(for: version.$package.id, on: req.db)
-             }
-
+                // it's ok to reach through $package to get its id, because `$package.id`
+                // is actually `versions.package_id` and therefore loaded
+                try await Package
+                    .updatePlatformCompatibility(for: version.$package.id, on: req.db)
+            }
 
             return .noContent
         }
 
         func trigger(req: Request) throws -> EventLoopFuture<Build.TriggerResponse> {
             guard let id = req.parameters.get("id"),
-                  let versionId = UUID(uuidString: id) else {
+                  let versionId = UUID(uuidString: id)
+            else {
                 return req.eventLoop.future(error: Abort(.badRequest))
             }
             let dto = try req.content.decode(PostBuildTriggerDTO.self)

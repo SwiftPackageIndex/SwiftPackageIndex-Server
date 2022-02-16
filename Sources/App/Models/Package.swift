@@ -232,31 +232,31 @@ extension Package {
 
 extension Package {
     static func updatePlatformCompatibility(for packageId: Package.Id,
-                                             on database: Database) async throws {
-         guard let db = database as? SQLDatabase else {
-             throw AppError.genericError(packageId, "Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
-         }
-         return try await db.raw(
-             #"""
-             UPDATE packages p SET platform_compatibility = ARRAY(
-                 SELECT
-                     CASE
-                         WHEN b.platform LIKE 'macos-%' THEN 'macos'
-                         ELSE b.platform
-                     END
-                 FROM versions v
-                 JOIN builds b ON b.version_id = v.id
-                 WHERE v.package_id = p.id
-                 AND v.latest IS NOT NULL
-                 AND b.status = 'ok'
-                 GROUP BY b.platform
-                 HAVING count(*) > 0
-             ),
-             updated_at = NOW()
-             WHERE p.id = \#(bind: packageId)
-             """#
-         ).run()
-     }
+                                            on database: Database) async throws {
+        guard let db = database as? SQLDatabase else {
+            throw AppError.genericError(packageId, "Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
+        return try await db.raw(
+            #"""
+            UPDATE packages p SET platform_compatibility = ARRAY(
+                SELECT
+                    CASE
+                        WHEN b.platform LIKE 'macos-%' THEN 'macos'
+                        ELSE b.platform
+                    END
+                FROM versions v
+                JOIN builds b ON b.version_id = v.id
+                WHERE v.package_id = p.id
+                AND v.latest IS NOT NULL
+                AND b.status = 'ok'
+                GROUP BY b.platform
+                HAVING count(*) > 0
+            ),
+            updated_at = NOW()
+            WHERE p.id = \#(bind: packageId)
+            """#
+        ).run()
+    }
 }
 
 
