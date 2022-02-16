@@ -231,11 +231,12 @@ extension Package {
 
 
 extension Package {
-    func updatePlatformCompatibility(on database: Database) -> EventLoopFuture<Void> {
+    static func updatePlatformCompatibility(for packageId: Package.Id,
+                                            on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
-            return database.eventLoop.future(error: AppError.genericError(id, "Database must be an SQLDatabase ('as? SQLDatabase' must succeed)"))
+            throw AppError.genericError(packageId, "Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw(
+        return try await db.raw(
             #"""
             UPDATE packages p SET platform_compatibility = ARRAY(
                 SELECT
@@ -252,7 +253,7 @@ extension Package {
                 HAVING count(*) > 0
             ),
             updated_at = NOW()
-            WHERE p.id = \#(bind: id)
+            WHERE p.id = \#(bind: packageId)
             """#
         ).run()
     }

@@ -102,6 +102,19 @@ class BuildTriggerTests: AppTestCase {
         XCTAssertEqual(ids, [pkgId])
     }
 
+    func test_missingPairs() throws {
+         // Ensure we find missing builds purely via x.y Swift version,
+         // i.e. ignoring patch version
+         let allExceptFirst = Array(BuildPair.all.dropFirst())
+         // just assert what the first one actually is so we test the right thing
+         XCTAssertEqual(BuildPair.all.first, .init(.ios, .init(5, 1, 5)))
+         // substitute in a 5.1 build with a different patch version
+         let existing = allExceptFirst + [.init(.ios, .init(5, 1, 4))]
+
+         // MUT & validate 5.1.4 is matched as an existing 5.1 build
+         XCTAssertEqual(missingPairs(existing: existing), Set())
+     }
+
     func test_findMissingBuilds() throws {
         // setup
         let pkgId = UUID()

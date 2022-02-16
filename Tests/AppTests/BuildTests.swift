@@ -123,6 +123,7 @@ class BuildTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, reference: .branch("main"))
         try v.save(on: app.db).wait()
+        let buildId = UUID()
         let versionID = try XCTUnwrap(v.id)
 
         // Use live dependency but replace actual client with a mock so we can
@@ -142,6 +143,7 @@ class BuildTests: AppTestCase {
                             ref: "main",
                             variables: [
                                 "API_BASEURL": "http://example.com/api",
+                                "BUILD_ID": buildId.uuidString,
                                 "BUILD_PLATFORM": "macos-xcodebuild",
                                 "BUILDER_TOKEN": "builder token",
                                 "CLONE_URL": "1",
@@ -154,6 +156,7 @@ class BuildTests: AppTestCase {
         // MUT
         let res = try Build.trigger(database: app.db,
                                     client: client,
+                                    buildId: buildId,
                                     platform: .macosXcodebuild,
                                     swiftVersion: .init(5, 2, 4),
                                     versionId: versionID).wait()
@@ -163,63 +166,67 @@ class BuildTests: AppTestCase {
         XCTAssertEqual(res.status, .created)
     }
     
-    func test_upsert() throws {
-        // Test "upsert" (insert or update)
+    func test_query() async throws {
+        // Test querying by (platform/swiftVersion/versionId)
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        let v = try Version(package: pkg)
-        try v.save(on: app.db).wait()
-        
-        // MUT
-        // initial save - ok
-        try Build(version: v,
-                  platform: .linux,
-                  status: .ok,
-                  swiftVersion: .init(5, 2, 0))
-            .upsert(on: app.db).wait()
-        
-        // validate
-        do {
-            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
-            let b = try XCTUnwrap(try Build.query(on: app.db).first().wait())
-            XCTAssertEqual(b.platform, .linux)
-            XCTAssertEqual(b.status, .ok)
-            XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+        let v1 = try Version(package: pkg)
+        try v1.save(on: app.db).wait()
+        do { // decoy version and build
+            let v2 = try Version(package: pkg)
+            try v2.save(on: app.db).wait()
+            try await Build(version: v2,
+                            platform: .linux,
+                            status: .ok,
+                            swiftVersion: .init(5, 2, 0))
+                .save(on: app.db)
+        }
+        let b1 = try Build(version: v1,
+                           platform: .linux,
+                           status: .ok,
+                           swiftVersion: .init(5, 2, 0))
+        try await b1.save(on: app.db)
+
+        do {  // MUT - find via exactly matching Swift version
+            let b = try await Build.query(on: app.db,
+                                          platform: .linux,
+                                          swiftVersion: .init(5, 2, 0),
+                                          versionId: v1.requireID())
+            XCTAssertEqual(b?.id, b1.id)
         }
 
-        // MUT
-        // next insert is update
-        try Build(version: v,
-                  platform: .linux,
-                  status: .failed,
-                  swiftVersion: .init(5, 2, 0))
-            .upsert(on: app.db).wait()
-        
-        // validate
-        do {
-            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
-            let b = try XCTUnwrap(try Build.query(on: app.db).first().wait())
-            XCTAssertEqual(b.platform, .linux)
-            XCTAssertEqual(b.status, .failed)
-            XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
+        do {  // MUT - find via Swift version differing in patch revision
+            let b = try await Build.query(on: app.db,
+                                          platform: .linux,
+                                          swiftVersion: .init(5, 2, 4),
+                                          versionId: v1.requireID())
+            XCTAssertEqual(b?.id, b1.id)
         }
 
-        // MUT
-        // insert with different patch version updates as well
-        try Build(version: v,
-                  platform: .linux,
-                  status: .failed,
-                  swiftVersion: .init(5, 2, 4))
-            .upsert(on: app.db).wait()
-
-        // validate
-        do {
-            XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
-            let b = try XCTUnwrap(try Build.query(on: app.db).first().wait())
-            XCTAssertEqual(b.platform, .linux)
-            XCTAssertEqual(b.status, .failed)
-            XCTAssertEqual(b.swiftVersion, .init(5, 2, 4))
+        do {  // MUT - negative test: platform mismatch
+            let b = try await Build.query(on: app.db,
+                                          platform: .ios,
+                                          swiftVersion: .init(5, 2, 4),
+                                          versionId: v1.requireID())
+            XCTAssertNil(b)
         }
+
+        do {  // MUT - negative test: Swift version mismatch
+            let b = try await Build.query(on: app.db,
+                                          platform: .linux,
+                                          swiftVersion: .v5_5,
+                                          versionId: v1.requireID())
+            XCTAssertNil(b)
+        }
+
+        do {  // MUT - negative test: versionId mismatch
+            let b = try await Build.query(on: app.db,
+                                          platform: .linux,
+                                          swiftVersion: .init(5, 2, 4),
+                                          versionId: UUID())
+            XCTAssertNil(b)
+        }
+
     }
 
     func test_delete_by_versionId() throws {

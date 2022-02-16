@@ -64,6 +64,7 @@ extension Gitlab.Builder {
     }
 
     static func triggerBuild(client: Client,
+                             buildId: Build.Id,
                              cloneURL: String,
                              platform: Build.Platform,
                              reference: Reference,
@@ -81,6 +82,7 @@ extension Gitlab.Builder {
                     ref: branch,
                     variables: [
                         "API_BASEURL": SiteURL.apiBaseURL,
+                        "BUILD_ID": buildId.uuidString,
                         "BUILD_PLATFORM": platform.rawValue,
                         "BUILDER_TOKEN": builderToken,
                         "CLONE_URL": cloneURL,

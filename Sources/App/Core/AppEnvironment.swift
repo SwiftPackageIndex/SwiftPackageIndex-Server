@@ -49,6 +49,7 @@ struct AppEnvironment {
     var shell: Shell
     var siteURL: () -> String
     var triggerBuild: (_ client: Client,
+                       _ buildId: Build.Id,
                        _ cloneURL: String,
                        _ platform: Build.Platform,
                        _ reference: Reference,

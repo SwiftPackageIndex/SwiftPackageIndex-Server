@@ -69,7 +69,7 @@ extension AppEnvironment {
             setLogger: { _ in },
             shell: .mock,
             siteURL: { Environment.get("SITE_URL") ?? "http://localhost:8080" },
-            triggerBuild: { _, _, _, _, _, _ in
+            triggerBuild: { _, _, _, _, _, _, _ in
                 eventLoop.future(.init(status: .ok, webUrl: "http://web_url"))
             },
             twitterCredentials: { nil },

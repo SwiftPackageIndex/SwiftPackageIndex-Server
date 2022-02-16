@@ -93,7 +93,7 @@ class ApiTests: AppTestCase {
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
         try v.save(on: app.db).wait()
-        let versionId = try XCTUnwrap(v.id)
+        let versionId = try v.requireID()
         
         do {  // MUT - initial insert
             let dto: API.PostCreateBuildDTO = .init(
@@ -110,16 +110,14 @@ class ApiTests: AppTestCase {
             try app.test(
                 .POST,
                 "api/versions/\(versionId)/builds",
-                headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+                headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
                     // validation
-                    XCTAssertEqual(res.status, .ok)
-                    struct DTO: Decodable {
-                        var id: Build.Id?
-                    }
-                    let dto = try JSONDecoder().decode(DTO.self, from: res.body)
-                    let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                    XCTAssertEqual(res.status, .noContent)
+                    let builds = try Build.query(on: app.db).all().wait()
+                    XCTAssertEqual(builds.count, 1)
+                    let b = try builds.first.unwrap()
                     XCTAssertEqual(b.buildCommand, "xcodebuild -scheme Foo")
                     XCTAssertEqual(b.jobUrl, "https://example.com/jobs/1")
                     XCTAssertEqual(b.logUrl, "log url")
@@ -136,7 +134,7 @@ class ApiTests: AppTestCase {
                 })
         }
         
-        do {  // MUT - update (upsert)
+        do {  // MUT - update of the same record
             let dto: API.PostCreateBuildDTO = .init(
                 platform: .macosXcodebuild,
                 resolvedDependencies: [.init(packageName: "foo",
@@ -148,16 +146,14 @@ class ApiTests: AppTestCase {
             try app.test(
                 .POST,
                 "api/versions/\(versionId)/builds",
-                headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+                headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
                     // validation
-                    XCTAssertEqual(res.status, .ok)
-                    struct DTO: Decodable {
-                        var id: Build.Id?
-                    }
-                    let dto = try JSONDecoder().decode(DTO.self, from: res.body)
-                    let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                    XCTAssertEqual(res.status, .noContent)
+                    let builds = try Build.query(on: app.db).all().wait()
+                    XCTAssertEqual(builds.count, 1)
+                    let b = try builds.first.unwrap()
                     XCTAssertEqual(b.platform, .macosXcodebuild)
                     XCTAssertEqual(b.status, .ok)
                     XCTAssertEqual(b.swiftVersion, .init(5, 2, 0))
@@ -184,10 +180,12 @@ class ApiTests: AppTestCase {
             try app.test(
                 .POST,
                 "api/versions/\(versionId)/builds",
-                headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+                headers: .bearerApplicationJSON("secr3t"),
                 body: body,
                 afterResponse: { res in
                     // validation
+                    let builds = try Build.query(on: app.db).all().wait()
+                    XCTAssertEqual(builds.count, 2)
                     // additional ios build ok -> package is also ios compatible
                     let p = try XCTUnwrap(Package.find(p.id, on: app.db).wait())
                     XCTAssertEqual(p.platformCompatibility, [.ios, .macos])
@@ -214,16 +212,14 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+            headers: .bearerApplicationJSON("secr3t"),
             body: body,
             afterResponse: { res in
                 // validation
-                XCTAssertEqual(res.status, .ok)
-                struct DTO: Decodable {
-                    var id: Build.Id?
-                }
-                let dto = try JSONDecoder().decode(DTO.self, from: res.body)
-                let b = try XCTUnwrap(Build.find(dto.id, on: app.db).wait())
+                XCTAssertEqual(res.status, .noContent)
+                let builds = try Build.query(on: app.db).all().wait()
+                XCTAssertEqual(builds.count, 1)
+                let b = try builds.first.unwrap()
                 XCTAssertEqual(b.status, .infrastructureError)
             })
     }
@@ -245,7 +241,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json")]),
+            headers: .applicationJSON,
             body: body,
             afterResponse: { res in
                 // validation
@@ -257,7 +253,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer wrong")]),
+            headers: .bearerApplicationJSON("wrong"),
             body: body,
             afterResponse: { res in
                 // validation
@@ -283,7 +279,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json")]),
+            headers: .applicationJSON,
             body: body,
             afterResponse: { res in
                 // validation
@@ -295,7 +291,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/builds",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer token")]),
+            headers: .bearerApplicationJSON("token"),
             body: body,
             afterResponse: { res in
                 // validation
@@ -319,7 +315,7 @@ class ApiTests: AppTestCase {
         // we're testing the exact Gitlab trigger post request in detail in
         // GitlabBuilderTests - so here we just ensure a request is being made
         var requestSent = false
-        Current.triggerBuild = { _, _, _, _, _, _ in
+        Current.triggerBuild = { _, _, _, _, _, _, _ in
             requestSent = true
             return self.app.eventLoopGroup.future(
                 .init(status: .ok, webUrl: "http://web_url")
@@ -330,7 +326,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/trigger-build",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+            headers: .bearerApplicationJSON("secr3t"),
             body: body,
             afterResponse: { res in
                 // validation
@@ -353,7 +349,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/trigger-build",
-            headers: .init([("Content-Type", "application/json")]),
+            headers: .applicationJSON,
             body: body,
             afterResponse: { res in
                 // validation
@@ -364,7 +360,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/versions/\(versionId)/trigger-build",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer wrong")]),
+            headers: .bearerApplicationJSON("wrong"),
             body: body,
             afterResponse: { res in
                 // validation
@@ -430,7 +426,7 @@ class ApiTests: AppTestCase {
         // GitlabBuilderTests - so here we just ensure two requests are being
         // made (one for each version to build)
         var requestsSent = 0
-        Current.triggerBuild = { _, _, _, _, _, _ in
+        Current.triggerBuild = { _, _, _, _, _, _, _ in
             requestsSent += 1
             return self.app.eventLoopGroup.future(
                 .init(status: .ok, webUrl: "http://web_url")
@@ -441,7 +437,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/packages/\(owner)/\(repo)/trigger-builds",
-            headers: .init([("Content-Type", "application/json"), ("Authorization", "Bearer secr3t")]),
+            headers: .bearerApplicationJSON("secr3t"),
             body: body,
             afterResponse: { res in
                 // validation
@@ -472,7 +468,7 @@ class ApiTests: AppTestCase {
         try app.test(
             .POST,
             "api/packages/\(owner)/\(repo)/trigger-builds",
-            headers: .init([("Content-Type", "application/json")]),
+            headers: .applicationJSON,
             body: body,
             afterResponse: { res in
                 // validation
@@ -622,7 +618,7 @@ class ApiTests: AppTestCase {
 
             try app.test(.POST,
                          "api/package-collections",
-                         headers: .init([("Content-Type", "application/json")]),
+                         headers: .applicationJSON,
                          body: body,
                          afterResponse: { res in
                 // validation
@@ -696,7 +692,7 @@ class ApiTests: AppTestCase {
 
             try app.test(.POST,
                          "api/package-collections",
-                         headers: .init([("Content-Type", "application/json")]),
+                         headers: .applicationJSON,
                          body: body,
                          afterResponse: { res in
                             // validation
@@ -716,7 +712,7 @@ class ApiTests: AppTestCase {
 
         try app.test(.POST,
                      "api/package-collections",
-                     headers: .init([("Content-Type", "application/json")]),
+                     headers: .applicationJSON,
                      body: body,
                      afterResponse: { res in
                         // validation
@@ -724,4 +720,15 @@ class ApiTests: AppTestCase {
                      })
     }
 
+}
+
+
+private extension HTTPHeaders {
+    static var applicationJSON: Self {
+        .init([("Content-Type", "application/json")])
+    }
+
+    static func bearerApplicationJSON(_ token: String) -> Self {
+        .init([("Content-Type", "application/json"), ("Authorization", "Bearer \(token)")])
+    }
 }

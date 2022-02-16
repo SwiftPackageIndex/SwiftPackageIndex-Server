@@ -370,12 +370,12 @@ final class PackageTests: AppTestCase {
         XCTAssertEqual(readBack.platformCompatibility, [.ios])
     }
 
-    func test_updatePlatformCompatibility() throws {
+    func test_updatePlatformCompatibility() async throws {
         // setup
         let p = try savePackage(on: app.db, "1")
         let v = try Version(package: p, latest: .defaultBranch)
-        try v.save(on: app.db).wait()
-        try Build.Platform.allCases.forEach {
+        try await v.save(on: app.db)
+        for platform in Build.Platform.allCases {
             // Create a build record for each platform to ensure we can read back
             // any mapped build correctly.
             // For instance, if macos-spm wasn't mapped to macos in the update statement,
@@ -393,13 +393,13 @@ final class PackageTests: AppTestCase {
             // (which is a bit obscure but means that the content of
             // platform_compatibility cannot be de-serialised into
             // PlatformCompatibility)
-            try Build(version: v, platform: $0, status: .ok, swiftVersion: .v5_5)
-                .save(on: app.db).wait()
+            try await Build(version: v, platform: platform, status: .ok, swiftVersion: .v5_5)
+                .save(on: app.db)
         }
         try savePackage(on: app.db, "2")
 
         // MUT
-        try p.updatePlatformCompatibility(on: app.db).wait()
+        try await Package.updatePlatformCompatibility(for: p.requireID(), on: app.db)
 
         // validate
         let p1 = try XCTUnwrap(
