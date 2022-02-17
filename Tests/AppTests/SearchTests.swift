@@ -721,6 +721,42 @@ class SearchTests: AppTestCase {
         ])
     }
 
+    func test_search_keyword_multiple_results() async throws {
+        // Test searching for a keyword with multiple results
+        // setup
+        // p1: decoy
+        // p2: match
+        let pkgs = await (0..<4).mapAsync { Package(id: UUID(), url: "\($0)".url) }
+        try await pkgs.save(on: app.db)
+        let keywords = [
+            [],
+            ["topic"],
+            ["atopicb"],
+            ["topicb"],
+        ]
+        try await (0..<4).mapAsync {
+            try Repository(package: pkgs[$0],
+                           defaultBranch: "main",
+                           keywords: keywords[$0],
+                           name: "\($0)",
+                           owner: "foo")
+        }.save(on: app.db)
+        try await (0..<4).mapAsync {
+            try Version(package: pkgs[$0], packageName: "p\($0)", reference: .branch("main"))
+        }.save(on: app.db)
+        try await Search.refresh(on: app.db).get()
+
+        // MUT
+        let res = try await Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).get()
+
+        // validate results returning order by levenshtein distance
+        XCTAssertEqual(res.results, [
+            .keyword(.init(keyword: "topic")),
+            .keyword(.init(keyword: "topicb")),
+            .keyword(.init(keyword: "atopicb")),
+        ])
+    }
+
     func test_search_author() throws {
         // Test searching for an author
         // setup
