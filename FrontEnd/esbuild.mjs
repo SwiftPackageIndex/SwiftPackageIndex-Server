@@ -23,6 +23,7 @@ try {
     outdir: 'Public',
     bundle: true,
     sourcemap: true,
+    minify: true,
     watch: process.argv.includes('--watch'),
     plugins: [sassPlugin()],
   })
