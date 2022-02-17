@@ -12,28 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 image: docker:stable
-
 
 variables:
   REGISTRY_IMAGE: registry.gitlab.com/finestructure/swiftpackageindex
-  DOCKER_TLS_CERTDIR: "/certs"
-
+  DOCKER_TLS_CERTDIR: '/certs'
 
 services:
   - docker:stable-dind
 
-
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-
 
 stages:
   - build
   - deploy
   - smoke-test
-
 
 # We build only on the PROD project's pipeline, because we can read the image
 # for dev deployment. There is no need to build the images twice in parallel.
@@ -48,8 +42,8 @@ build:
     VERSION=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}
     echo 'let appVersion: String? = "'${VERSION}'"' > ./Sources/App/Core/AppVersion.swift
 
-    docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:15.8-alpine yarn
-    docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:15.8-alpine yarn build
+    docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:16-alpine yarn
+    docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:16-alpine yarn build
     docker build -t $REGISTRY_IMAGE:$VERSION .
 
     retries=3
@@ -60,7 +54,6 @@ build:
       docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
       echo $((retries--)) retries left
     done
-
 
 .deploy-common: &deploy-common
   stage: deploy
@@ -85,7 +78,7 @@ build:
     }
     post_annotation() {
       msg=$1
-      # we create this weird one-off service command in order to post a 
+      # we create this weird one-off service command in order to post a
       # notification that our monitoring can pick up for a release annotation
       # in Grafana
       docker service rm deploy > /dev/null 2>&1 || true
@@ -163,16 +156,14 @@ build:
       exit 1
     fi
 
-
-deploy prod:  # PROD: auto-deploy tags
+deploy prod: # PROD: auto-deploy tags
   rules:
     - if: '$ENV == "prod" && $CI_COMMIT_TAG != null'
   tags:
     - spi-p1
   <<: *deploy-common
 
-
-deploy dev:  # DEV: auto-deploy main
+deploy dev: # DEV: auto-deploy main
   rules:
     - if: '$ENV == "dev" && $CI_COMMIT_BRANCH == "main"'
     - if: '$ENV == "dev" && $CI_COMMIT_TAG != null'
@@ -180,15 +171,13 @@ deploy dev:  # DEV: auto-deploy main
     - spi-d1
   <<: *deploy-common
 
-
-deploy dev (ad hoc):  # DEV: deploy any revision manually
+deploy dev (ad hoc): # DEV: deploy any revision manually
   rules:
     - if: '$ENV == "dev"'
       when: manual
   tags:
     - spi-d1
   <<: *deploy-common
-
 
 smoke-test:
   rules:

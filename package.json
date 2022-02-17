@@ -3,9 +3,8 @@
   "license": "Apache-2.0",
   "repository": "git@github.com:SwiftPackageIndex/SwiftPackageIndex-Server.git",
   "scripts": {
-    "clean": "rm -f Public/main.css Public/main.css.map Public/main.js Public/main.js.map",
-    "build": "yarn clean && rollup -c Resources/rollup-prod.js",
-    "serve": "yarn clean && rollup -c Resources/rollup-dev.js --watch"
+    "build": "./FrontEnd/esbuild.mjs",
+    "serve": "./FrontEnd/esbuild.mjs --watch"
   },
   "dependencies": {
     "@hotwired/turbo": "^7.1.0",
@@ -13,11 +12,7 @@
     "normalize.css": "^8.0.1"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^21.0.1",
-    "@rollup/plugin-node-resolve": "^13.0.6",
-    "rollup": "^2.60.2",
-    "rollup-plugin-styles": "^3.14.1",
-    "rollup-plugin-terser": "^7.0.2",
-    "sass": "^1.44.0"
+    "esbuild": "^0.14.21",
+    "esbuild-sass-plugin": "^2.2.3"
   }
 }
