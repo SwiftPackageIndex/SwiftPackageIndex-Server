@@ -853,7 +853,7 @@ class SearchTests: AppTestCase {
             let query = try XCTUnwrap(Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5))
             let sql = renderSQL(query)
             XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
-            XCTAssertTrue(sql.contains(#"SELECT 'keyword' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT DISTINCT 'keyword' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
         }
         
@@ -861,7 +861,7 @@ class SearchTests: AppTestCase {
             let query = try XCTUnwrap(Search.query(app.db, ["a"], page: 1, pageSize: 5))
             let sql = renderSQL(query)
             XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
-            XCTAssertTrue(sql.contains(#"SELECT 'keyword' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT DISTINCT 'keyword' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
         }
     }
