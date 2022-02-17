@@ -682,33 +682,32 @@ class SearchTests: AppTestCase {
         }
     }
 
-    func test_search_keyword() throws {
+    func test_search_keyword() async throws {
         // Test searching for a keyword
         // setup
         // p1: decoy
         // p2: match
-        let p1 = Package(id: .id1, url: "1", score: 10)
-        let p2 = Package(id: .id2, url: "2", score: 20)
-        try [p1, p2].save(on: app.db).wait()
-        try Repository(package: p1,
+        let pkgs = await (0..<2).mapAsync { Package(id: UUID(), url: "\($0)".url) }
+        try await pkgs.save(on: app.db)
+        try await [
+            Repository(package: pkgs[0],
                        defaultBranch: "main",
-                       name: "1",
-                       owner: "foo",
-                       summary: "").save(on: app.db).wait()
-        try Repository(package: p2,
+                       name: "0",
+                       owner: "foo"),
+            Repository(package: pkgs[1],
                        defaultBranch: "main",
                        keywords: ["topic"],
-                       name: "2",
-                       owner: "foo",
-                       summary: "").save(on: app.db).wait()
-        try Version(package: p1, packageName: "p1", reference: .branch("main"))
-            .save(on: app.db).wait()
-        try Version(package: p2, packageName: "p2", reference: .branch("main"))
-            .save(on: app.db).wait()
-        try Search.refresh(on: app.db).wait()
+                       name: "1",
+                       owner: "foo")
+        ].save(on: app.db)
+        try await [
+            Version(package: pkgs[0], packageName: "p0", reference: .branch("main")),
+            Version(package: pkgs[1], packageName: "p1", reference: .branch("main"))
+        ].save(on: app.db)
+        try await Search.refresh(on: app.db).get()
 
         // MUT
-        let res = try Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).wait()
+        let res = try await Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).get()
 
         XCTAssertEqual(res.results, [
             .keyword(.init(keyword: "topic")),
