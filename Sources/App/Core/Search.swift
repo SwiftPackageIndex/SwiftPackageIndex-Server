@@ -31,6 +31,7 @@ enum Search {
     static let score = SQLIdentifier("score")
     static let stars = SQLIdentifier("stars")
     static let lastActivityAt = SQLIdentifier("last_activity_at")
+    static let levenshteinDist = SQLIdentifier("levenshtein_dist")
     static let license = SQLIdentifier("license")
     static let lastCommitDate = SQLIdentifier("last_commit_date")
     static let searchView = SQLIdentifier("search")
@@ -164,6 +165,7 @@ enum Search {
             .column(license)
             .column(lastCommitDate)
             .column(lastActivityAt)
+            .column(null, as: levenshteinDist)
             .from(searchView)
             .from(SQLFunction("CONCAT", args: keywords), as: keyword)
 
@@ -181,28 +183,31 @@ enum Search {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
-        // FIXME: bookend with `%`
+        let mergedTerms = terms.joined(separator: " ").lowercased()
+        let searchPattern = mergedTerms.isEmpty ? "" : "%" + mergedTerms + "%"
 
         return db
             .select()
+            .distinct()
             .column(.keyword)
             .column(keyword)
-            .column(null, as: packageId)
+            .column(nullUUID, as: packageId)
             .column(null, as: packageName)
             .column(null, as: repoName)
             .column(null, as: repoOwner)
-            .column(null, as: score)
+            .column(nullInt, as: score)
             .column(null, as: summary)
-            .column(null, as: stars)
+            .column(nullInt, as: stars)
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
             .column(nullTimestamp, as: lastActivityAt)
+            .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
+                    as: levenshteinDist)
             .from(searchView)
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
-            .where(keyword, .equal, mergedTerms)
-            .limit(1)
-        // TODO: increase limit when we do % matching
+            .where(keyword, ilike, SQLBind(searchPattern))
+            .orderBy(levenshteinDist)
+            .limit(10)
     }
 
     static func authorMatchQueryBuilder(on database: Database,
@@ -227,6 +232,7 @@ enum Search {
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
             .column(nullTimestamp, as: lastActivityAt)
+            .column(null, as: levenshteinDist)
             .from(searchView)
             .where(repoOwner, ilike, mergedTerms)
             .limit(1)

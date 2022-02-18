@@ -215,6 +215,9 @@ public func configure(_ app: Application) throws {
         app.migrations.add(UpdateVersionCommitDateNotNullable())
         app.migrations.add(UpdateVersionReferenceNotNullable())
     }
+    do {  // Migration 045 - create fuzzystrmatch extension for search
+        app.migrations.add(CreateExtensionFuzzyStrMatch())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

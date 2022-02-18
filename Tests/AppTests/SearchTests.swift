@@ -36,13 +36,13 @@ class SearchTests: AppTestCase {
 
     func test_packageMatchQuery_single_term() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $2 DESC, "score" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(b), ["a", "a"])
     }
 
     func test_packageMatchQuery_multiple_terms() throws {
         let b = Search.packageMatchQueryBuilder(on: app.db, terms: ["a", "b"], filters: [])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $2 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC"#)
         XCTAssertEqual(binds(b), ["a", "b", "a b"])
     }
 
@@ -52,8 +52,8 @@ class SearchTests: AppTestCase {
             filters: [try AuthorSearchFilter(expression: .init(operator: .is, value: "foo"))]
         )
 
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
-              SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("repo_owner" ILIKE $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+        XCTAssertEqual(renderSQL(b), """
+              SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("repo_owner" ILIKE $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
               """)
         XCTAssertEqual(binds(b), ["a", "foo", "a"])
     }
@@ -65,8 +65,8 @@ class SearchTests: AppTestCase {
                                                                 value: "foo"))]
         )
 
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("keyword" ILIKE $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+        XCTAssertEqual(renderSQL(b), """
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("keyword" ILIKE $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "%foo%", "a"])
     }
@@ -78,8 +78,8 @@ class SearchTests: AppTestCase {
                                                                      value: "2021-12-01"))]
         )
 
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("last_activity_at" > $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+        XCTAssertEqual(renderSQL(b), """
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("last_activity_at" > $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "2021-12-01", "a"])
     }
@@ -91,8 +91,8 @@ class SearchTests: AppTestCase {
                                                                    value: "2021-12-01"))]
         )
 
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("last_commit_date" > $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+        XCTAssertEqual(renderSQL(b), """
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("last_commit_date" > $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "2021-12-01", "a"])
     }
@@ -103,8 +103,8 @@ class SearchTests: AppTestCase {
             filters: [try LicenseSearchFilter(expression: .init(operator: .is, value: "mit"))]
         )
 
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("license" IN ($2)) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+        XCTAssertEqual(renderSQL(b), """
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("license" IN ($2)) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "mit", "a"])
     }
@@ -115,8 +115,8 @@ class SearchTests: AppTestCase {
             filters: [try PlatformSearchFilter(expression: .init(operator: .is, value: "ios,macos"))]
         )
 
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
-        SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("platform_compatibility" @> $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+        XCTAssertEqual(renderSQL(b), """
+        SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("platform_compatibility" @> $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
         """)
         XCTAssertEqual(binds(b), ["a", "{ios,macos}", "a"])
     }
@@ -127,33 +127,33 @@ class SearchTests: AppTestCase {
             filters: [try StarsSearchFilter(expression: .init(operator: .greaterThan,
                                                               value: "500"))])
 
-        _assertInlineSnapshot(matching: renderSQL(b), as: .lines, with: """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("stars" > $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+        XCTAssertEqual(renderSQL(b), """
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("stars" > $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "500", "a"])
     }
 
     func test_keywordMatchQuery_single_term() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
-        XCTAssertEqual(binds(b), ["a"])
+        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("keyword", $1) AS "levenshtein_dist" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 10"#)
+        XCTAssertEqual(binds(b), ["a", "%a%"])
     }
 
     func test_keywordMatchQuery_multiple_terms() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $1 LIMIT 1"#)
-        XCTAssertEqual(binds(b), ["a b"])
+        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("keyword", $1) AS "levenshtein_dist" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 10"#)
+        XCTAssertEqual(binds(b), ["a b", "%a b%"])
     }
 
     func test_authorMatchQuery_single_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL AS "levenshtein_dist" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a"])
     }
 
     func test_authorMatchQuery_multiple_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL AS "levenshtein_dist" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
         XCTAssertEqual(binds(b), ["a b"])
     }
 
@@ -162,10 +162,10 @@ class SearchTests: AppTestCase {
         // MUT
         let query = try XCTUnwrap(Search.query(app.db, ["test"], page: 1, pageSize: 20))
         // validate
-        _assertInlineSnapshot(matching: renderSQL(query), as: .lines, with: """
-            SELECT * FROM ((SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1) UNION ALL (SELECT 'keyword' AS "match_type", "keyword", NULL AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL AS "score", NULL AS "summary", NULL AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" = $2 LIMIT 1) UNION ALL (SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $3 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $4 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
+        XCTAssertEqual(renderSQL(query), """
+            SELECT * FROM ((SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL AS "levenshtein_dist" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1) UNION ALL (SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("keyword", $2) AS "levenshtein_dist" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $3 ORDER BY "levenshtein_dist" LIMIT 10) UNION ALL (SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $4 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $5 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
             """)
-        XCTAssertEqual(binds(query), ["test", "test", "test", "test"])
+        XCTAssertEqual(binds(query), ["test", "test", "%test%", "test", "test"])
     }
 
     func test_fetch_single() throws {
@@ -682,33 +682,32 @@ class SearchTests: AppTestCase {
         }
     }
 
-    func test_search_keyword() throws {
+    func test_search_keyword() async throws {
         // Test searching for a keyword
         // setup
         // p1: decoy
         // p2: match
-        let p1 = Package(id: .id1, url: "1", score: 10)
-        let p2 = Package(id: .id2, url: "2", score: 20)
-        try [p1, p2].save(on: app.db).wait()
-        try Repository(package: p1,
+        let pkgs = await (0..<2).mapAsync { Package(id: UUID(), url: "\($0)".url) }
+        try await pkgs.save(on: app.db)
+        try await [
+            Repository(package: pkgs[0],
                        defaultBranch: "main",
-                       name: "1",
-                       owner: "foo",
-                       summary: "").save(on: app.db).wait()
-        try Repository(package: p2,
+                       name: "0",
+                       owner: "foo"),
+            Repository(package: pkgs[1],
                        defaultBranch: "main",
                        keywords: ["topic"],
-                       name: "2",
-                       owner: "foo",
-                       summary: "").save(on: app.db).wait()
-        try Version(package: p1, packageName: "p1", reference: .branch("main"))
-            .save(on: app.db).wait()
-        try Version(package: p2, packageName: "p2", reference: .branch("main"))
-            .save(on: app.db).wait()
-        try Search.refresh(on: app.db).wait()
+                       name: "1",
+                       owner: "foo")
+        ].save(on: app.db)
+        try await [
+            Version(package: pkgs[0], packageName: "p0", reference: .branch("main")),
+            Version(package: pkgs[1], packageName: "p1", reference: .branch("main"))
+        ].save(on: app.db)
+        try await Search.refresh(on: app.db).get()
 
         // MUT
-        let res = try Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).wait()
+        let res = try await Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).get()
 
         XCTAssertEqual(res.results, [
             .keyword(.init(keyword: "topic")),
@@ -719,6 +718,42 @@ class SearchTests: AppTestCase {
             //                           repositoryName: "2",
             //                           repositoryOwner: "foo",
             //                           summary: ""))
+        ])
+    }
+
+    func test_search_keyword_multiple_results() async throws {
+        // Test searching for a keyword with multiple results
+        // setup
+        // p1: decoy
+        // p2: match
+        let pkgs = await (0..<4).mapAsync { Package(id: UUID(), url: "\($0)".url) }
+        try await pkgs.save(on: app.db)
+        let keywords = [
+            [],
+            ["topic"],
+            ["atopicb"],
+            ["topicb"],
+        ]
+        try await (0..<4).mapAsync {
+            try Repository(package: pkgs[$0],
+                           defaultBranch: "main",
+                           keywords: keywords[$0],
+                           name: "\($0)",
+                           owner: "foo")
+        }.save(on: app.db)
+        try await (0..<4).mapAsync {
+            try Version(package: pkgs[$0], packageName: "p\($0)", reference: .branch("main"))
+        }.save(on: app.db)
+        try await Search.refresh(on: app.db).get()
+
+        // MUT
+        let res = try await Search.fetch(app.db, ["topic"], page: 1, pageSize: 20).get()
+
+        // validate results returning order by levenshtein distance
+        XCTAssertEqual(res.results, [
+            .keyword(.init(keyword: "topic")),
+            .keyword(.init(keyword: "topicb")),
+            .keyword(.init(keyword: "atopicb")),
         ])
     }
 
@@ -772,12 +807,14 @@ class SearchTests: AppTestCase {
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
+                       keywords: ["a"],
                        name: "1",
                        owner: "bar",
                        stars: 50,
                        summary: "test package").save(on: app.db).wait()
         try Repository(package: p2,
                        defaultBranch: "main",
+                       keywords: ["b"],
                        name: "2",
                        owner: "foo",
                        stars: 10,
@@ -853,7 +890,7 @@ class SearchTests: AppTestCase {
             let query = try XCTUnwrap(Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5))
             let sql = renderSQL(query)
             XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
-            XCTAssertTrue(sql.contains(#"SELECT 'keyword' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT DISTINCT 'keyword' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
         }
         
@@ -861,7 +898,7 @@ class SearchTests: AppTestCase {
             let query = try XCTUnwrap(Search.query(app.db, ["a"], page: 1, pageSize: 5))
             let sql = renderSQL(query)
             XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
-            XCTAssertTrue(sql.contains(#"SELECT 'keyword' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT DISTINCT 'keyword' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
         }
     }
