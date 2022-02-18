@@ -677,7 +677,7 @@ class SearchTests: AppTestCase {
     }
 
     func test_search_keyword_multiple_results() async throws {
-        // Test searching for a keyword with multiple results
+        // Test searching with multiple keyword results
         // setup
         // p1: decoy
         // p2: match
@@ -710,6 +710,41 @@ class SearchTests: AppTestCase {
             .keyword(.init(keyword: "topicb")),
             .keyword(.init(keyword: "atopicb")),
         ])
+    }
+
+    func test_search_author_multiple_results() async throws {
+        // Test searching with multiple authors results
+        // setup
+        // p1: decoy
+        // p2: match
+        let pkgs = await (0..<4).mapAsync {
+            Package(id: UUID(), url: "\($0)".url, score: $0)
+        }
+        try await pkgs.save(on: app.db)
+        let authors = [
+            "some-other",
+            "another-author",
+            "author",
+            "author-2",
+        ]
+        try await (0..<4).mapAsync {
+            try Repository(package: pkgs[$0],
+                           defaultBranch: "main",
+                           name: "\($0)",
+                           owner: authors[$0])
+        }.save(on: app.db)
+        try await (0..<4).mapAsync {
+            try Version(package: pkgs[$0], packageName: "p\($0)", reference: .branch("main"))
+        }.save(on: app.db)
+        try await Search.refresh(on: app.db).get()
+
+        // MUT
+        let res = try await Search.fetch(app.db, ["author"], page: 1, pageSize: 20).get()
+
+        // validate that keyword results are ordered by levenshtein distance
+        // (packages are also matched via their keywords)
+        XCTAssertEqual(res.results.map(\.testDescription),
+                       ["a:author", "a:author-2", "a:another-author", "p:p3", "p:p2", "p:p1"])
     }
 
     func test_search_author() throws {
