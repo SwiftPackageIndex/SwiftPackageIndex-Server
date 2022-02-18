@@ -207,7 +207,7 @@ enum Search {
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
             .where(keyword, ilike, SQLBind(searchPattern))
             .orderBy(levenshteinDist)
-            .limit(10)
+            .limit(15)
     }
 
     static func authorMatchQueryBuilder(on database: Database,
@@ -215,11 +215,12 @@ enum Search {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
-        // FIXME: bookend with `%`
+        let mergedTerms = terms.joined(separator: " ").lowercased()
+        let searchPattern = mergedTerms.isEmpty ? "" : "%" + mergedTerms + "%"
 
         return db
             .select()
+            .distinct()
             .column(.author)
             .column(null, as: keyword)
             .column(nullUUID, as: packageId)
@@ -232,11 +233,12 @@ enum Search {
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
             .column(nullTimestamp, as: lastActivityAt)
-            .column(null, as: levenshteinDist)
+            .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
+                    as: levenshteinDist)
             .from(searchView)
-            .where(repoOwner, ilike, mergedTerms)
-            .limit(1)
-        // TODO: increase limit when we do % matching
+            .where(repoOwner, ilike, SQLBind(searchPattern))
+            .orderBy(levenshteinDist)
+            .limit(15)
     }
 
     static func query(_ database: Database,

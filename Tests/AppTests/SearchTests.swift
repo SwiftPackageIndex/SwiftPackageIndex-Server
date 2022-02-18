@@ -135,26 +135,26 @@ class SearchTests: AppTestCase {
 
     func test_keywordMatchQuery_single_term() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("keyword", $1) AS "levenshtein_dist" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 10"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("keyword", $1) AS "levenshtein_dist" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 15"#)
         XCTAssertEqual(binds(b), ["a", "%a%"])
     }
 
     func test_keywordMatchQuery_multiple_terms() throws {
         let b = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("keyword", $1) AS "levenshtein_dist" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 10"#)
+        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("keyword", $1) AS "levenshtein_dist" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 15"#)
         XCTAssertEqual(binds(b), ["a b", "%a b%"])
     }
 
     func test_authorMatchQuery_single_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL AS "levenshtein_dist" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
-        XCTAssertEqual(binds(b), ["a"])
+        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("repo_owner", $1) AS "levenshtein_dist" FROM "search" WHERE "repo_owner" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 15"#)
+        XCTAssertEqual(binds(b), ["a", "%a%"])
     }
 
     func test_authorMatchQuery_multiple_term() throws {
         let b = Search.authorMatchQueryBuilder(on: app.db, terms: ["a", "b"])
-        XCTAssertEqual(renderSQL(b), #"SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL AS "levenshtein_dist" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1"#)
-        XCTAssertEqual(binds(b), ["a b"])
+        XCTAssertEqual(renderSQL(b), #"SELECT DISTINCT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("repo_owner", $1) AS "levenshtein_dist" FROM "search" WHERE "repo_owner" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 15"#)
+        XCTAssertEqual(binds(b), ["a b", "%a b%"])
     }
 
     func test_query_sql() throws {
@@ -163,9 +163,9 @@ class SearchTests: AppTestCase {
         let query = try XCTUnwrap(Search.query(app.db, ["test"], page: 1, pageSize: 20))
         // validate
         XCTAssertEqual(renderSQL(query), """
-            SELECT * FROM ((SELECT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", NULL AS "levenshtein_dist" FROM "search" WHERE "repo_owner" ILIKE $1 LIMIT 1) UNION ALL (SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("keyword", $2) AS "levenshtein_dist" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $3 ORDER BY "levenshtein_dist" LIMIT 10) UNION ALL (SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $4 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $5 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
+            SELECT * FROM ((SELECT DISTINCT 'author' AS "match_type", NULL AS "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("repo_owner", $1) AS "levenshtein_dist" FROM "search" WHERE "repo_owner" ILIKE $2 ORDER BY "levenshtein_dist" LIMIT 15) UNION ALL (SELECT DISTINCT 'keyword' AS "match_type", "keyword", NULL::UUID AS "package_id", NULL AS "package_name", NULL AS "repo_name", NULL AS "repo_owner", NULL::INT AS "score", NULL AS "summary", NULL::INT AS "stars", NULL AS "license", NULL::TIMESTAMP AS "last_commit_date", NULL::TIMESTAMP AS "last_activity_at", LEVENSHTEIN("keyword", $3) AS "levenshtein_dist" FROM "search", UNNEST("keywords") AS "keyword" WHERE "keyword" ILIKE $4 ORDER BY "levenshtein_dist" LIMIT 15) UNION ALL (SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner") ~* $5 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL ORDER BY LOWER("package_name") = $6 DESC, "score" DESC, "package_name" ASC LIMIT 21 OFFSET 0)) AS "t"
             """)
-        XCTAssertEqual(binds(query), ["test", "test", "%test%", "test", "test"])
+        XCTAssertEqual(binds(query), ["test", "%test%", "test", "%test%", "test", "test"])
     }
 
     func test_fetch_single() throws {
@@ -324,7 +324,7 @@ class SearchTests: AppTestCase {
             // validate
             XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["p:0", "p:1", "p:2"])
+                           ["a:foobar", "p:0", "p:1", "p:2"])
         }
 
         do {  // second page
@@ -354,7 +354,7 @@ class SearchTests: AppTestCase {
         }
     }
 
-    func test_search_pagination_with_keyword_results() throws {
+    func test_search_pagination_with_author_keyword_results() throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1198
         // setup
         let packages = (0..<9).map { idx in
@@ -383,53 +383,7 @@ class SearchTests: AppTestCase {
             // validate
             XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["k:foo", "p:0", "p:1", "p:2"])
-        }
-
-        do {  // second page
-            // MUT
-            let res = try API.search(database: app.db,
-                                     query: "foo",
-                                     page: 2,
-                                     pageSize: 3).wait()
-
-            // validate
-            XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.testDescription),
-                           ["p:3", "p:4", "p:5"])
-        }
-    }
-
-    func test_search_pagination_with_author_results() throws {
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1198
-        // setup
-        let packages = (0..<9).map { idx in
-            Package(url: "\(idx)".url, score: 15 - idx)
-        }
-        try packages.save(on: app.db).wait()
-        try packages.map { try Repository(package: $0,
-                                          defaultBranch: "default",
-                                          keywords: ["foo"],
-                                          name: $0.url,
-                                          owner: "foo") }
-            .save(on: app.db)
-            .wait()
-        try packages.map { try Version(package: $0, packageName: $0.url, reference: .branch("default")) }
-            .save(on: app.db)
-            .wait()
-        try Search.refresh(on: app.db).wait()
-
-        do {  // first page
-            // MUT
-            let res = try API.search(database: app.db,
-                                     query: "foo",
-                                     page: 1,
-                                     pageSize: 3).wait()
-
-            // validate
-            XCTAssertTrue(res.hasMoreResults)
-            XCTAssertEqual(res.results.map(\.testDescription),
-                           ["a:foo", "k:foo", "p:0", "p:1", "p:2"])
+                           ["a:foobar", "k:foo", "p:0", "p:1", "p:2"])
         }
 
         do {  // second page
@@ -483,7 +437,7 @@ class SearchTests: AppTestCase {
                                      pageSize: 3).wait()
             XCTAssertTrue(res.hasMoreResults)
             XCTAssertEqual(res.results.map(\.testDescription),
-                           ["p:0", "p:1", "p:2"])
+                           ["a:foobar", "p:0", "p:1", "p:2"])
         }
     }
 
@@ -505,9 +459,9 @@ class SearchTests: AppTestCase {
         let res = try Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).wait()
         
         // validation
-        XCTAssertEqual(res.results.count, 10)
+        XCTAssertEqual(res.results.count, 11)
         XCTAssertEqual(res.results.map(\.testDescription),
-                       ["p:9", "p:8", "p:7", "p:6", "p:5", "p:4", "p:3", "p:2", "p:1", "p:0"])
+                       ["a:foobar", "p:9", "p:8", "p:7", "p:6", "p:5", "p:4", "p:3", "p:2", "p:1", "p:0"])
     }
     
     func test_exact_name_match() throws {
@@ -617,8 +571,9 @@ class SearchTests: AppTestCase {
         
         // MUT
         let res = try Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).wait()
-        
-        XCTAssertEqual(res.results, [])
+
+        // ensure only the author result is coming through, not the packages
+        XCTAssertEqual(res.results.map(\.testDescription), ["a:foobar"])
     }
 
     func test_include_null_package_name() throws {
@@ -629,7 +584,7 @@ class SearchTests: AppTestCase {
         try Repository(package: p1,
                        defaultBranch: "main",
                        name: "1",
-                       owner: "foobar",
+                       owner: "bar",
                        summary: "foo and bar").save(on: app.db).wait()
 
         // Version record with a missing package name.
@@ -644,7 +599,7 @@ class SearchTests: AppTestCase {
         let packageResult = try XCTUnwrap(res.results.first!.package)
         XCTAssertEqual(packageResult.packageId, .id0)
         XCTAssertEqual(packageResult.repositoryName, "1")
-        XCTAssertEqual(packageResult.repositoryOwner, "foobar")
+        XCTAssertEqual(packageResult.repositoryOwner, "bar")
         XCTAssertEqual(packageResult.packageName, nil)
     }
 
@@ -889,7 +844,7 @@ class SearchTests: AppTestCase {
         do { // with filter
             let query = try XCTUnwrap(Search.query(app.db, ["a", "stars:500"], page: 1, pageSize: 5))
             let sql = renderSQL(query)
-            XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT DISTINCT 'author' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT DISTINCT 'keyword' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
         }
@@ -897,7 +852,7 @@ class SearchTests: AppTestCase {
         do { // without filter
             let query = try XCTUnwrap(Search.query(app.db, ["a"], page: 1, pageSize: 5))
             let sql = renderSQL(query)
-            XCTAssertTrue(sql.contains(#"SELECT 'author' AS "match_type""#))
+            XCTAssertTrue(sql.contains(#"SELECT DISTINCT 'author' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT DISTINCT 'keyword' AS "match_type""#))
             XCTAssertTrue(sql.contains(#"SELECT 'package' AS "match_type""#))
         }
