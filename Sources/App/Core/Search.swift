@@ -144,7 +144,7 @@ enum Search {
 
         let haystack = concat(
             with: " ",
-            packageName, coalesce(summary, empty), repoName, repoOwner
+            packageName, coalesce(summary, empty), repoName, repoOwner, arrayToString(keywords, delimiter: " ")
         )
         let sortOrder = SQLOrderBy(eq(lower(packageName), mergedTerms),
                                    .descending)
