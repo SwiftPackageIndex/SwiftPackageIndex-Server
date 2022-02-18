@@ -184,7 +184,7 @@ enum Search {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
         let mergedTerms = terms.joined(separator: " ").lowercased()
-        let searchPattern = "%" + mergedTerms + "%"
+        let searchPattern = mergedTerms.isEmpty ? "" : "%" + mergedTerms + "%"
 
         return db
             .select()
