@@ -50,11 +50,29 @@ jobs:
         # temporarily run without TSAN due to false positives on Linux
         # https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/1496
         # Review with Swift 5.6
-        run: cp .env.testing.template .env.testing && make test-without-tsan
+        run: |
+          # setup environments
+          echo "
+          DATABASE_HOST=postgres
+          DATABASE_NAME=spi_test
+          DATABASE_PASSWORD=xxx
+          DATABASE_PORT=5432
+          DATABASE_USERNAME=spi_test
+          " >> .env.testing
+
+          echo "
+          DATABASE_HOST=${{ secrets.STAGING_DATABASE_HOST }}
+          DATABASE_NAME=spi_dev
+          DATABASE_PASSWORD=${{ secrets.STAGING_DATABASE_PASSWORD }}
+          DATABASE_PORT=5432
+          DATABASE_USE_TLS=true
+          DATABASE_USERNAME=spi_dev
+          " >> .env.staging
+
+          make test-without-tsan
+          make test-query-performance
         env:
           COLLECTION_SIGNING_PRIVATE_KEY: ${{ secrets.COLLECTION_SIGNING_PRIVATE_KEY }}
-          DATABASE_HOST: postgres
-          DATABASE_PORT: '5432'
 
   # test-macos:
   #   name: Test macOS

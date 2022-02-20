@@ -33,6 +33,7 @@ let package = Package(
         .package(url: "https://github.com/JohnSundell/Plot.git", from: "0.10.0"),
         .package(url: "https://github.com/JohnSundell/ShellOut.git", from: "2.0.0"),
         .package(url: "https://github.com/MrLotU/SwiftPrometheus.git", from: "1.0.0-alpha"),
+        .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.7.1"),
         .package(name: "SnapshotTesting",
                  url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
@@ -63,6 +64,7 @@ let package = Package(
             dependencies: [
                 .target(name: "App"),
                 .product(name: "XCTVapor", package: "vapor"),
+                .product(name: "Parsing", package: "swift-parsing"),
                 "SnapshotTesting"
             ],
             exclude: ["__Snapshots__", "Fixtures"]

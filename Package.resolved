@@ -272,6 +272,15 @@
         }
       },
       {
+        "package": "swift-parsing",
+        "repositoryURL": "https://github.com/pointfreeco/swift-parsing.git",
+        "state": {
+          "branch": null,
+          "revision": "85e1c50d03999a2b53d30ddae4d0f2a3d872b335",
+          "version": "0.7.1"
+        }
+      },
+      {
         "package": "SnapshotTesting",
         "repositoryURL": "https://github.com/pointfreeco/swift-snapshot-testing.git",
         "state": {
