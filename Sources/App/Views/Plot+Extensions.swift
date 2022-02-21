@@ -120,12 +120,24 @@ extension Node where Context == HTML.ListContext {
         }
     }
 
-    static func packageListItem(linkUrl: String, packageName: String, summary: String?, repositoryOwner: String, repositoryName: String, stars: Int?, lastActivityAt: Date?) -> Self {
+    static func packageListItem(linkUrl: String,
+                                packageName: String,
+                                summary: String?,
+                                matchingKeywords: [String]? = nil,
+                                repositoryOwner: String,
+                                repositoryName: String,
+                                stars: Int?,
+                                lastActivityAt: Date?) -> Self {
         .li(
             .a(
                 .href(linkUrl),
                 .h4(.text(packageName)),
                 .unwrap(summary) { .p(.text($0)) },
+                .unwrap(matchingKeywords) { keywords in
+                .ul(
+                    .class("keywords")
+                )
+                },
                 .ul(
                     .class("metadata"),
                     .li(
@@ -146,6 +158,19 @@ extension Node where Context == HTML.ListContext {
                         .starsListItem(numberOfStars: $0)
                     }
                 )
+            )
+        )
+    }
+
+    private static func packageListItemKeywordList(keywords: [String]) -> Node<HTML.BodyContext> {
+        .ul(
+            .class("keywords"),
+            .group(
+                keywords.map { keyword in
+                    .li(
+                        .text(keyword)
+                    )
+                }
             )
         )
     }
