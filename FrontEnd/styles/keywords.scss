@@ -31,9 +31,15 @@ ul.keywords {
       margin-left: 0;
     }
 
-    & > a {
+    & > a,
+    & > span {
       display: block;
       padding: 2px 6px;
+    }
+
+    & > span {
+      color: var(--page-text);
+      background-color: var(--bordered-button-hover);
     }
   }
 }
