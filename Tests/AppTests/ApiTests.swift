@@ -80,7 +80,8 @@ class ApiTests: AppTestCase {
                                   repositoryOwner: "owner 2",
                                   stars: 1234,
                                   lastActivityAt: .t0,
-                                  summary: "foo bar package")!
+                                  summary: "foo bar package",
+                                  keywords: nil)!
                         )
                       ])
             )

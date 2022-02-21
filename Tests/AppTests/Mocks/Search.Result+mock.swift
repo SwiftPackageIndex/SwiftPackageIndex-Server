@@ -26,7 +26,8 @@ extension Array where Element == Search.Result {
                 repositoryOwner: "package",
                 stars: 1111,
                 lastActivityAt: .t0,
-                summary: "This is a package filled with ones."
+                summary: "This is a package filled with ones.",
+                keywords: ["one", "1"]
             )!
         ),
         .package(
@@ -38,7 +39,8 @@ extension Array where Element == Search.Result {
                 repositoryOwner: "package",
                 stars: 2222,
                 lastActivityAt: .t0,
-                summary: "This is a package filled with twos."
+                summary: "This is a package filled with twos.",
+                keywords: ["two", "2"]
             )!
         ),
         .package(
@@ -50,7 +52,8 @@ extension Array where Element == Search.Result {
                 repositoryOwner: "package",
                 stars: 3333,
                 lastActivityAt: .t0,
-                summary: "This is a package filled with threes."
+                summary: "This is a package filled with threes.",
+                keywords: ["three", "3"]
             )!
         )
     ]
