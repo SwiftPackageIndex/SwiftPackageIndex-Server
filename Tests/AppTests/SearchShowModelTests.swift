@@ -87,4 +87,17 @@ class SearchShowModelTests: XCTestCase {
         XCTAssertEqual(packageResult.repositoryOwner, "package")
         XCTAssertEqual(packageResult.summary, "This is a package filled with ones.")
     }
+
+    func test_SearchShow_Model_matchingKeywords() throws {
+        let results: [Search.Result] = .mock()
+        let model = SearchShow.Model(page: 1, query: "query", response: .init(hasMoreResults: false,
+                                                                              searchTerm: "query",
+                                                                              searchFilters: [],
+                                                                              results: results))
+
+        // MUT
+        let matchingKeywords = model.matchingKeywords(packageKeywords: ["keyword2", "keyword4", "keyword5"])
+
+        XCTAssertEqual(matchingKeywords, ["keyword2", "keyword4"])
+    }
 }
