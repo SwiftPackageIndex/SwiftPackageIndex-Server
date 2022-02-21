@@ -578,7 +578,14 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
             )
         ]
 
-        let mockResults: [Search.Result] = .mock(packageResults)
+        let keywordResults: [Search.Result] = [
+            .keyword(.init(keyword: "keyword1")),
+            .keyword(.init(keyword: "keyword2")),
+            .keyword(.init(keyword: "keyword3")),
+            .keyword(.init(keyword: "four"))
+        ]
+
+        let mockResults: [Search.Result] = .mock(packageResults: packageResults, keywordResults: keywordResults)
         let page = { SearchShow.View(path: "", model: .mock(results: mockResults)).document() }
 
         assertSnapshot(matching: page, as: .html)
