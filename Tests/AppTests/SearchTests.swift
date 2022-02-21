@@ -296,7 +296,7 @@ class SearchTests: AppTestCase {
                                           stars: 1234,
                                           lastActivityAt: .t0,
                                           summary: "some 'package'",
-                                          keywords: nil)!
+                                          keywords: [])!
                                     )
                              ])
         )
@@ -781,7 +781,7 @@ class SearchTests: AppTestCase {
                            stars: 1234,
                            lastActivityAt: .t0,
                            summary: "",
-                           keywords: nil)!)
+                           keywords: [])!)
         ])
     }
     
