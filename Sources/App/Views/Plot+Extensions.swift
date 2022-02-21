@@ -139,7 +139,9 @@ extension Node where Context == HTML.ListContext {
                         .group(
                             keywords.map { keyword in
                                     .li(
-                                        .text(keyword)
+                                        .span(
+                                            .text(keyword)
+                                        )
                                     )
                             }
                         )
