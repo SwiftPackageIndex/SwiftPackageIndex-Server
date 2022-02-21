@@ -17,11 +17,11 @@
   All styling related to the fields that initiate searches.
 ---------------------------------------------------------------------------- */
 
-/* Search section of the home page. */
+/* Common search styles affecting both the home page/search page and
+   the nav bar search. */
 
-section.search {
-  margin: 0;
-
+section.search,
+nav > ul > li.search {
   form {
     display: grid;
     grid-template-columns: auto 50px;
@@ -57,6 +57,7 @@ section.search {
 
     button {
       margin: 0;
+      padding: 0;
       border: none;
       background-color: var(--input-background);
       background-image: var(--image-magnifying-glass);
@@ -65,6 +66,12 @@ section.search {
       background-position: center center;
     }
   }
+}
+
+/* Search styles specific to the home page/search page form. */
+
+section.search {
+  margin: 0;
 
   .filter_suggestions {
     margin-top: 5px;
@@ -103,71 +110,47 @@ section.search {
   }
 }
 
-/* Search field in the navigation bar. */
+/* Search styles specific to the nav bar search form. */
 
-nav {
-  li.search {
-    & > a {
-      display: none;
+nav > ul > li.search {
+  & > a {
+    display: none;
+  }
+
+  & > form {
+    grid-template-columns: auto 30px;
+    max-width: 160px;
+
+    input[type='search'] {
+      padding: 5px;
+      font-size: 15px;
+
+      &::-webkit-search-cancel-button {
+        display: none;
+      }
     }
 
-    & > form {
-      display: grid;
-      grid-template-columns: auto 30px;
-      background-color: var(--input-background);
-      border: 1px var(--input-border) solid;
-      max-width: 160px;
-
-      input[type='search'] {
-        width: 100%;
-        padding: 5px;
-        font-weight: 600;
-        line-height: 1.2;
-        font-size: 15px;
-        color: var(--input-text);
-        background-color: var(--input-background);
-        border: none;
-
-        &:focus {
-          outline: none;
-        }
-
-        &::-webkit-search-cancel-button {
-          display: none;
-        }
-      }
-
-      button {
-        margin: 0;
-        padding: 0;
-        border: none;
-        background-color: var(--input-background);
-        background-image: var(--image-magnifying-glass);
-        background-size: 14px;
-        background-repeat: no-repeat;
-        background-position: center center;
-      }
+    button {
+      background-size: 14px;
     }
   }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {
-  nav {
-    li.search {
-      & > a {
-        display: block;
-        width: 25px;
-        height: 25px;
-        background-image: var(--image-magnifying-glass);
-        background-size: 20px;
-        background-repeat: no-repeat;
-        background-position: center center;
-        border: none;
-      }
+  nav > ul > li.search {
+    > a {
+      display: block;
+      width: 25px;
+      height: 25px;
+      background-image: var(--image-magnifying-glass);
+      background-size: 20px;
+      background-repeat: no-repeat;
+      background-position: center center;
+      border: none;
+    }
 
-      & > form {
-        display: none;
-      }
+    > form {
+      display: none;
     }
   }
 }
