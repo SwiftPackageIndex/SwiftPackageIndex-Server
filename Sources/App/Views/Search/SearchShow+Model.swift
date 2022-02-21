@@ -53,7 +53,7 @@ enum SearchShow {
 
         func matchingKeywords(packageKeywords: [String]?) -> [String] {
             let keywordResults = keywordResults.map { $0.keyword }
-            return Array(Set(packageKeywords ?? []).intersection(Set(keywordResults)))
+            return Array(Set(packageKeywords ?? []).intersection(Set(keywordResults))).sorted()
         }
     }
 
