@@ -81,7 +81,7 @@ class ApiTests: AppTestCase {
                                   stars: 1234,
                                   lastActivityAt: .t0,
                                   summary: "foo bar package",
-                                  keywords: nil)!
+                                  keywords: [])!
                         )
                       ])
             )
