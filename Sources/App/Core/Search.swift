@@ -42,6 +42,7 @@ enum Search {
     static let nullInt = SQLRaw("NULL::INT")
     static let nullUUID = SQLRaw("NULL::UUID")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
+    static let nullTextArray = SQLRaw("NULL::TEXT[]")
 
     enum MatchType: String, Codable, Equatable {
         case author
@@ -80,6 +81,7 @@ enum Search {
         var stars: Int?
         var lastActivityAt: Date?
         var summary: String?
+        var keywords: [String]?
         
         enum CodingKeys: String, CodingKey {
             case matchType = "match_type"
@@ -91,6 +93,7 @@ enum Search {
             case stars
             case lastActivityAt = "last_activity_at"
             case summary
+            case keywords
         }
         
         var packageURL: String? {
@@ -165,6 +168,7 @@ enum Search {
             .column(license)
             .column(lastCommitDate)
             .column(lastActivityAt)
+            .column(keywords)
             .column(null, as: levenshteinDist)
             .from(searchView)
             .from(SQLFunction("CONCAT", args: keywords), as: keyword)
@@ -201,6 +205,7 @@ enum Search {
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
             .column(nullTimestamp, as: lastActivityAt)
+            .column(nullTextArray, as: keywords)
             .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
                     as: levenshteinDist)
             .from(searchView)
@@ -233,6 +238,7 @@ enum Search {
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
             .column(nullTimestamp, as: lastActivityAt)
+            .column(nullTextArray, as: keywords)
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
             .from(searchView)
