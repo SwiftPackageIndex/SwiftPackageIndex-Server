@@ -93,6 +93,7 @@
                   <a href="https://example.com/package/one">
                     <h4>Package One</h4>
                     <p>This is a package filled with ones.</p>
+                    <ul class="keywords"></ul>
                     <ul class="metadata">
                       <li class="identifier">
                         <small>package/one</small>
@@ -110,6 +111,7 @@
                   <a href="https://example.com/package/one">
                     <h4>Package Two</h4>
                     <p>This is a package filled with twos.</p>
+                    <ul class="keywords"></ul>
                     <ul class="metadata">
                       <li class="identifier">
                         <small>package/one</small>
@@ -127,6 +129,7 @@
                   <a href="https://example.com/package/one">
                     <h4>Package Three</h4>
                     <p>This is a package filled with threes.</p>
+                    <ul class="keywords"></ul>
                     <ul class="metadata">
                       <li class="identifier">
                         <small>package/one</small>
