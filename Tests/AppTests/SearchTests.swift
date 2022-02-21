@@ -205,7 +205,7 @@ class SearchTests: AppTestCase {
                                           stars: 1234,
                                           lastActivityAt: .t0,
                                           summary: "bar package",
-                                          keywords: nil)!
+                                          keywords: [])!
                                 )
                              ])
         )
@@ -250,7 +250,7 @@ class SearchTests: AppTestCase {
                                           stars: 1234,
                                           lastActivityAt: .t0,
                                           summary: "package 2 description",
-                                          keywords: nil)!
+                                          keywords: [])!
                                 )
                              ])
         )
