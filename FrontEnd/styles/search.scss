@@ -127,6 +127,7 @@ nav {
         color: var(--input-text);
         background-color: var(--input-background);
         border: none;
+        -webkit-appearance: none;
 
         &:focus {
           outline: none;
