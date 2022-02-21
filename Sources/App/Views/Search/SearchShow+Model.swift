@@ -50,6 +50,10 @@ enum SearchShow {
         var packageResults: [Search.PackageResult] {
             response.results.compactMap(\.packageResult)
         }
+
+        func matchingKeywords(packageKeywords: [String]?, searchResultKeywords: [String]?) -> [String] {
+            Array(Set(packageKeywords ?? []).intersection(Set(searchResultKeywords ?? [])))
+        }
     }
 
 }
