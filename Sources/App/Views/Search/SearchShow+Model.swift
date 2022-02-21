@@ -51,8 +51,9 @@ enum SearchShow {
             response.results.compactMap(\.packageResult)
         }
 
-        func matchingKeywords(packageKeywords: [String]?, searchResultKeywords: [String]?) -> [String] {
-            Array(Set(packageKeywords ?? []).intersection(Set(searchResultKeywords ?? [])))
+        func matchingKeywords(packageKeywords: [String]?) -> [String] {
+            let keywordResults = keywordResults.map { $0.keyword }
+            return Array(Set(packageKeywords ?? []).intersection(Set(keywordResults)))
         }
     }
 
