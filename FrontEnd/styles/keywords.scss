@@ -42,4 +42,15 @@ ul.keywords {
       background-color: var(--bordered-button-hover);
     }
   }
+
+  &.matching li:first-child {
+    border: none;
+    background-color: inherit;
+
+    & > span {
+      padding: 0;
+      color: var(--page-dimmed-text);
+      background-color: inherit;
+    }
+  }
 }
