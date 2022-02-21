@@ -134,16 +134,23 @@ extension Node where Context == HTML.ListContext {
                 .h4(.text(packageName)),
                 .unwrap(summary) { .p(.text($0)) },
                 .unwrap(matchingKeywords) { keywords in
-                    .ul(
-                        .class("keywords"),
-                        .group(
-                            keywords.map { keyword in
-                                    .li(
-                                        .span(
-                                            .text(keyword)
+                    .if(keywords.count > 0,
+                        .ul(
+                            .class("keywords matching"),
+                            .li(
+                                .span(
+                                    .text("Matching keywords: ")
+                                )
+                            ),
+                            .group(
+                                keywords.map { keyword in
+                                        .li(
+                                            .span(
+                                                .text(keyword)
+                                            )
                                         )
-                                    )
-                            }
+                                }
+                            )
                         )
                     )
                 },
