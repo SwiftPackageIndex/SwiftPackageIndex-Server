@@ -204,7 +204,8 @@ class SearchTests: AppTestCase {
                                           repositoryOwner: "owner 2",
                                           stars: 1234,
                                           lastActivityAt: .t0,
-                                          summary: "bar package")!
+                                          summary: "bar package",
+                                          keywords: nil)!
                                 )
                              ])
         )
@@ -248,7 +249,8 @@ class SearchTests: AppTestCase {
                                           repositoryOwner: "owner",
                                           stars: 1234,
                                           lastActivityAt: .t0,
-                                          summary: "package 2 description")!
+                                          summary: "package 2 description",
+                                          keywords: nil)!
                                 )
                              ])
         )
@@ -293,7 +295,8 @@ class SearchTests: AppTestCase {
                                           repositoryOwner: "owner 1",
                                           stars: 1234,
                                           lastActivityAt: .t0,
-                                          summary: "some 'package'")!
+                                          summary: "some 'package'",
+                                          keywords: nil)!
                                     )
                              ])
         )
@@ -777,7 +780,8 @@ class SearchTests: AppTestCase {
                            repositoryOwner: "foo",
                            stars: 1234,
                            lastActivityAt: .t0,
-                           summary: "")!)
+                           summary: "",
+                           keywords: nil)!)
         ])
     }
     
