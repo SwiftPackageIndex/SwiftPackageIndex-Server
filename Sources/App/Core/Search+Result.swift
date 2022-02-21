@@ -40,7 +40,7 @@ extension Search {
                                                      stars: record.stars,
                                                      lastActivityAt: record.lastActivityAt,
                                                      summary: record.summary?.replaceShorthandEmojis(),
-                                                     keywords: nil) // TODO: Pull the keywords through in the search query.
+                                                     keywords: record.keywords)
                     else { return nil }
                     self = .package(result)
             }
