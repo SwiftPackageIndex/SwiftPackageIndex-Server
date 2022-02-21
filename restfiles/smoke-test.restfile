@@ -33,6 +33,6 @@ requests:
             json:
                 results:
                     0:
-                        package:
+                        author:
                             _0:
-                                packageName: Alamofire
+                                name: Alamofire
