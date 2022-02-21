@@ -150,9 +150,16 @@ extension Node where Context == HTML.ListContext {
                 .h4(.text(packageName)),
                 .unwrap(summary) { .p(.text($0)) },
                 .unwrap(matchingKeywords) { keywords in
-                .ul(
-                    .class("keywords")
-                )
+                    .ul(
+                        .class("keywords"),
+                        .group(
+                            keywords.map { keyword in
+                                    .li(
+                                        .text(keyword)
+                                    )
+                            }
+                        )
+                    )
                 },
                 .ul(
                     .class("metadata"),
@@ -174,19 +181,6 @@ extension Node where Context == HTML.ListContext {
                         .starsListItem(numberOfStars: $0)
                     }
                 )
-            )
-        )
-    }
-
-    private static func packageListItemKeywordList(keywords: [String]) -> Node<HTML.BodyContext> {
-        .ul(
-            .class("keywords"),
-            .group(
-                keywords.map { keyword in
-                    .li(
-                        .text(keyword)
-                    )
-                }
             )
         )
     }
