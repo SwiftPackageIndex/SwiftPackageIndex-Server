@@ -22,11 +22,6 @@ extension Search {
         case package(PackageResult)
 
         init?(_ record: DBRecord) {
-            // don't show non-package results on production yet
-            if Environment.current == .production && !record.isPackage {
-                return nil
-            }
-            // -- end --
             switch (record.matchType, record.repositoryOwner, record.keyword) {
                 case let (.author, .some(repoOwner), _):
                     self = .author(.init(name: repoOwner))
