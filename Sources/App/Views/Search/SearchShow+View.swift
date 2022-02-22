@@ -135,7 +135,7 @@ extension SearchShow {
             return .section(
                 .class("author_results"),
                 .h4("Matching authors"),
-                .spiOverflowingList(overflowMessage: "Show more authors…", overflowHeight: 132,
+                .spiOverflowingList(overflowMessage: "Show more authors…", overflowHeight: 129,
                                     .forEach(model.authorResults) { authorResultListItem($0) })
             )
         }
