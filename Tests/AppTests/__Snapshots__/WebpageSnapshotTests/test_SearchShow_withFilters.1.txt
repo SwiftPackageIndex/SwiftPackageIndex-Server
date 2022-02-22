@@ -153,34 +153,38 @@
             <div>
               <section class="author_results">
                 <h4>Matching authors</h4>
-                <ul>
-                  <li>
-                    <a href="/Apple">Apple</a>
-                  </li>
-                  <li>
-                    <a href="/Orange">Orange</a>
-                  </li>
-                  <li>
-                    <a href="/Pear">Pear</a>
-                  </li>
-                </ul>
+                <spi-overflowing-list data-overflow-message="Show more authors…" data-overflow-height="129px" aria-expanded="false">
+                  <ul>
+                    <li>
+                      <a href="/Apple">Apple</a>
+                    </li>
+                    <li>
+                      <a href="/Orange">Orange</a>
+                    </li>
+                    <li>
+                      <a href="/Pear">Pear</a>
+                    </li>
+                  </ul>
+                </spi-overflowing-list>
               </section>
               <section class="keyword_results">
                 <h4>Matching keywords</h4>
-                <ul class="keywords">
-                  <li>
-                    <a href="/keywords/keyword1">keyword1</a>
-                  </li>
-                  <li>
-                    <a href="/keywords/keyword2">keyword2</a>
-                  </li>
-                  <li>
-                    <a href="/keywords/keyword3">keyword3</a>
-                  </li>
-                  <li>
-                    <a href="/keywords/keyword4">keyword4</a>
-                  </li>
-                </ul>
+                <spi-overflowing-list data-overflow-message="Show more keywords…" data-overflow-height="260px" aria-expanded="false">
+                  <ul class="keywords">
+                    <li>
+                      <a href="/keywords/keyword1">keyword1</a>
+                    </li>
+                    <li>
+                      <a href="/keywords/keyword2">keyword2</a>
+                    </li>
+                    <li>
+                      <a href="/keywords/keyword3">keyword3</a>
+                    </li>
+                    <li>
+                      <a href="/keywords/keyword4">keyword4</a>
+                    </li>
+                  </ul>
+                </spi-overflowing-list>
               </section>
             </div>
           </div>
