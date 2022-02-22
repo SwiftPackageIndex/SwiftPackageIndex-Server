@@ -36,11 +36,11 @@ new SPIBuildLogNavigation()
 new SPICopyableInput()
 new SPIAutofocus()
 new SPIPlaygroundsAppLinkFallback()
-new SPIShowMoreKeywords()
 new SPISearchFilterSuggestions()
 new SPIPanel()
 
 customElements.define('spi-readme', SPIReadmeElement)
 customElements.define('tab-bar', SPITabBarElement)
+customElements.define('spi-overflowing-list', SPIOverflowingList)
 
 //# sourceMappingURL=main.js.map

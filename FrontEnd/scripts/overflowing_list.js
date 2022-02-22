@@ -12,33 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export class SPIOverflowingList {
+export class SPIOverflowingList extends HTMLElement {
   constructor() {
-    document.addEventListener('turbo:load', () => {
-      const keywordsListElement = document.querySelector('article.details ul.keywords')
-      if (keywordsListElement) {
-        // Immediately collapse a potentially overflowing keyword list.
-        keywordsListElement.classList.add('collapsed')
+    super()
 
-        // If the collapsing hid any content, add a "show more" that expands it.
-        if (this.isOverflowing(keywordsListElement)) {
-          const totalKeywords = keywordsListElement.children.length
-          const showMoreElement = document.createElement('a')
-          showMoreElement.innerHTML = `Show all ${totalKeywords} tags&hellip;`
-          showMoreElement.href = '#' // Needed to turn the cursor into a hand.
-          showMoreElement.classList.add('show_more')
+    // The list should be the immediate child of the custom element.
+    const listElement = this.querySelector(':scope > ul')
+    if (!listElement) return
 
-          showMoreElement.addEventListener('click', (event) => {
-            keywordsListElement.classList.remove('collapsed')
-            showMoreElement.remove()
-            event.preventDefault()
-          })
+    // Immediately collapse a potentially overflowing keyword list.
+    listElement.classList.add('collapsed')
 
-          const keywordsListParentElement = keywordsListElement.parentElement
-          keywordsListParentElement.appendChild(showMoreElement)
-        }
-      }
-    })
+    // If the collapsing hid any content, add a "show more" that expands it.
+    if (this.isOverflowing(listElement)) {
+      const showMoreElement = document.createElement('a')
+      showMoreElement.innerHTML = `Show all ${listElement.children.length} tags&hellip;`
+      showMoreElement.href = '#' // Needed to turn the cursor into a hand.
+      showMoreElement.classList.add('show_more')
+
+      showMoreElement.addEventListener('click', (event) => {
+        listElement.classList.remove('collapsed')
+        showMoreElement.remove()
+        event.preventDefault()
+      })
+
+      // Insert the new link adjacent to the list.
+      // console.log(this)
+      this.appendChild(showMoreElement)
+      // console.log(this.children)
+    }
   }
 
   // Adapted from https://stackoverflow.com/a/143889
