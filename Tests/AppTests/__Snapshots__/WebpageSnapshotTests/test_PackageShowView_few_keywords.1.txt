@@ -122,38 +122,40 @@
                 <li class="libraries">3 libraries</li>
                 <li class="executables">1 executable</li>
                 <li class="keywords">
-                  <ul class="keywords">
-                    <li>
-                      <a href="/keywords/tag1">tag1</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag2">tag2</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag3">tag3</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag4">tag4</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag5">tag5</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag6">tag6</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag7">tag7</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag8">tag8</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag9">tag9</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag10">tag10</a>
-                    </li>
-                  </ul>
+                  <spi-overflowing-list data-overflow-message="Show all 10 tags…" data-overflow-height="52px">
+                    <ul class="keywords">
+                      <li>
+                        <a href="/keywords/tag1">tag1</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag2">tag2</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag3">tag3</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag4">tag4</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag5">tag5</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag6">tag6</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag7">tag7</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag8">tag8</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag9">tag9</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag10">tag10</a>
+                      </li>
+                    </ul>
+                  </spi-overflowing-list>
                 </li>
               </ul>
             </section>

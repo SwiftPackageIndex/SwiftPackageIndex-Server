@@ -122,128 +122,130 @@
                 <li class="libraries">3 libraries</li>
                 <li class="executables">1 executable</li>
                 <li class="keywords">
-                  <ul class="keywords">
-                    <li>
-                      <a href="/keywords/tag1">tag1</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag2">tag2</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag3">tag3</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag4">tag4</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag5">tag5</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag6">tag6</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag7">tag7</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag8">tag8</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag9">tag9</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag10">tag10</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag11">tag11</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag12">tag12</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag13">tag13</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag14">tag14</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag15">tag15</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag16">tag16</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag17">tag17</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag18">tag18</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag19">tag19</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag20">tag20</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag21">tag21</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag22">tag22</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag23">tag23</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag24">tag24</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag25">tag25</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag26">tag26</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag27">tag27</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag28">tag28</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag29">tag29</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag30">tag30</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag31">tag31</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag32">tag32</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag33">tag33</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag34">tag34</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag35">tag35</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag36">tag36</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag37">tag37</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag38">tag38</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag39">tag39</a>
-                    </li>
-                    <li>
-                      <a href="/keywords/tag40">tag40</a>
-                    </li>
-                  </ul>
+                  <spi-overflowing-list data-overflow-message="Show all 40 tags…" data-overflow-height="52px">
+                    <ul class="keywords">
+                      <li>
+                        <a href="/keywords/tag1">tag1</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag2">tag2</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag3">tag3</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag4">tag4</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag5">tag5</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag6">tag6</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag7">tag7</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag8">tag8</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag9">tag9</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag10">tag10</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag11">tag11</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag12">tag12</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag13">tag13</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag14">tag14</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag15">tag15</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag16">tag16</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag17">tag17</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag18">tag18</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag19">tag19</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag20">tag20</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag21">tag21</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag22">tag22</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag23">tag23</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag24">tag24</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag25">tag25</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag26">tag26</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag27">tag27</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag28">tag28</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag29">tag29</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag30">tag30</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag31">tag31</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag32">tag32</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag33">tag33</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag34">tag34</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag35">tag35</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag36">tag36</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag37">tag37</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag38">tag38</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag39">tag39</a>
+                      </li>
+                      <li>
+                        <a href="/keywords/tag40">tag40</a>
+                      </li>
+                    </ul>
+                  </spi-overflowing-list>
                 </li>
               </ul>
             </section>
