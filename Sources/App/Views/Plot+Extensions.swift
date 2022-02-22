@@ -53,6 +53,7 @@ extension Node where Context: HTML.BodyContext {
 
     static func spiOverflowingList(overflowMessage: String,
                                    overflowHeight: Int,
+                                   listClass: String? = nil,
                                    _ nodes: Node<HTML.ListContext>...) -> Self {
         // Note: The `overflowHeight` is a magic number that needs some experimentation each
         // time this tag is used. It's the exact size in pixels of the collapsed element. If
@@ -62,6 +63,7 @@ extension Node where Context: HTML.BodyContext {
             .data(named: "overflow-message", value: overflowMessage),
             .data(named: "overflow-height", value: "\(overflowHeight)px"),
             .ul(
+                .unwrap(listClass) { .class($0) },
                 .group(nodes)
             )
         ])
