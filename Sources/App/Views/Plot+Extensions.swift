@@ -51,6 +51,10 @@ extension Node where Context: HTML.BodyContext {
         .element(named: "tab-bar", nodes: nodes)
     }
 
+    static func spiOverflowingList(_ nodes: Node<HTML.ListContext>...) -> Self {
+        .element(named: "spi-overflowing-ul", nodes: nodes)
+    }
+
     static func spinner() -> Self {
         .div(
             .class("spinner"),
