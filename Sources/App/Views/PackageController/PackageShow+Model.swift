@@ -371,7 +371,7 @@ extension PackageShow.Model {
         if let keywords = keywords {
             return .li(
                 .class("keywords"),
-                .ul(
+                .spiOverflowingList(
                     .class("keywords"),
                     .forEach(keywords, { keyword in
                         .li(
