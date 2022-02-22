@@ -372,6 +372,7 @@ extension PackageShow.Model {
             return .li(
                 .class("keywords"),
                 .spiOverflowingList(overflowMessage: "Show all \(keywords.count) tags…",
+                                    overflowHeight: 52,
                     .class("keywords"),
                     .forEach(keywords, { keyword in
                         .li(

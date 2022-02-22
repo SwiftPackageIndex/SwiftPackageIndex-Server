@@ -21,7 +21,7 @@ export class SPIOverflowingList extends HTMLElement {
     if (!listElement) return
 
     // Immediately collapse a potentially overflowing keyword list.
-    listElement.classList.add('collapsed')
+    listElement.style.setProperty('max-height', this.dataset.overflowHeight)
 
     // If the collapsing hid any content, add a "show more" that expands it.
     if (this.isOverflowing(listElement)) {
@@ -31,15 +31,13 @@ export class SPIOverflowingList extends HTMLElement {
       showMoreElement.classList.add('show_more')
 
       showMoreElement.addEventListener('click', (event) => {
-        listElement.classList.remove('collapsed')
+        listElement.style.removeProperty('max-height')
         showMoreElement.remove()
         event.preventDefault()
       })
 
       // Insert the new link adjacent to the list.
-      // console.log(this)
       this.appendChild(showMoreElement)
-      // console.log(this.children)
     }
   }
 
