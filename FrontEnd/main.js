@@ -25,7 +25,7 @@ import { SPIAutofocus } from './scripts/autofocus.js'
 import { SPIPlaygroundsAppLinkFallback } from './scripts/playgrounds_app_link.js'
 import { SPIReadmeElement } from './scripts/readme_element.js'
 import { SPITabBarElement } from './scripts/tab_bar_element.js'
-import { SPIShowMoreKeywords } from './scripts/show_more_keywords.js'
+import { SPIOverflowingList } from './scripts/overflowing_list.js'
 import { SPISearchFilterSuggestions } from './scripts/search_filter_suggestions.js'
 import { SPIPanel } from './scripts/panel.js'
 

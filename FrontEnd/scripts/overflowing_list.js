@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export class SPIShowMoreKeywords {
+export class SPIOverflowingList {
   constructor() {
     document.addEventListener('turbo:load', () => {
       const keywordsListElement = document.querySelector('article.details ul.keywords')
