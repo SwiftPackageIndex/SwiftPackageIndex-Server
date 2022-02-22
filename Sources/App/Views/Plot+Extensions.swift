@@ -52,7 +52,7 @@ extension Node where Context: HTML.BodyContext {
     }
 
     static func spiOverflowingList(_ nodes: Node<HTML.ListContext>...) -> Self {
-        .element(named: "spi-overflowing-ul", nodes:[ .ul(.group(nodes)) ])
+        .element(named: "spi-overflowing-list", nodes:[ .ul(.group(nodes)) ])
     }
 
     static func spinner() -> Self {
