@@ -26,7 +26,7 @@ export class SPIOverflowingList extends HTMLElement {
     // If the collapsing hid any content, add a "show more" that expands it.
     if (this.isOverflowing(listElement)) {
       const showMoreElement = document.createElement('a')
-      showMoreElement.innerHTML = `Show all ${listElement.children.length} tags&hellip;`
+      showMoreElement.innerText = this.dataset.overflowMessage
       showMoreElement.href = '#' // Needed to turn the cursor into a hand.
       showMoreElement.classList.add('show_more')
 

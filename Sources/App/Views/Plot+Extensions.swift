@@ -51,8 +51,13 @@ extension Node where Context: HTML.BodyContext {
         .element(named: "tab-bar", nodes: nodes)
     }
 
-    static func spiOverflowingList(_ nodes: Node<HTML.ListContext>...) -> Self {
-        .element(named: "spi-overflowing-list", nodes:[ .ul(.group(nodes)) ])
+    static func spiOverflowingList(overflowMessage: String, _ nodes: Node<HTML.ListContext>...) -> Self {
+        .element(named: "spi-overflowing-list", nodes:[
+            .data(named: "overflow-message", value: overflowMessage),
+            .ul(
+                .group(nodes)
+            )
+        ])
     }
 
     static func spinner() -> Self {
