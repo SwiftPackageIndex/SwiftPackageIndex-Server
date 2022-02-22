@@ -20,24 +20,30 @@ export class SPIOverflowingList extends HTMLElement {
     const listElement = this.querySelector(':scope > ul')
     if (!listElement) return
 
-    // Immediately collapse a potentially overflowing keyword list.
-    listElement.style.setProperty('max-height', this.dataset.overflowHeight)
+    if (this.getAttribute('aria-expanded') == 'false') {
+      // Immediately collapse a potentially overflowing keyword list.
+      listElement.style.setProperty('max-height', this.dataset.overflowHeight)
 
-    // If the collapsing hid any content, add a "show more" that expands it.
-    if (this.isOverflowing(listElement)) {
-      const showMoreElement = document.createElement('a')
-      showMoreElement.innerText = this.dataset.overflowMessage
-      showMoreElement.href = '#' // Needed to turn the cursor into a hand.
-      showMoreElement.classList.add('show_more')
+      if (this.isOverflowing(listElement)) {
+        // If the collapsing hid any content, add a "show more" that expands it.
+        const showMoreElement = document.createElement('a')
+        showMoreElement.innerText = this.dataset.overflowMessage
+        showMoreElement.href = '#' // Needed to turn the cursor into a hand.
+        showMoreElement.classList.add('show_more')
+        this.appendChild(showMoreElement)
+      }
+    }
 
+    // Note: It's important to bind to the event separately to inserting the link
+    // element as the event will not be re-bound when navigating back to this page.
+    const showMoreElement = this.querySelector('.show_more')
+    if (showMoreElement) {
       showMoreElement.addEventListener('click', (event) => {
+        this.setAttribute('aria-expanded', 'true')
         listElement.style.removeProperty('max-height')
         showMoreElement.remove()
         event.preventDefault()
       })
-
-      // Insert the new link adjacent to the list.
-      this.appendChild(showMoreElement)
     }
   }
 

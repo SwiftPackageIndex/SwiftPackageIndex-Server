@@ -62,6 +62,7 @@ extension Node where Context: HTML.BodyContext {
         .element(named: "spi-overflowing-list", nodes:[
             .data(named: "overflow-message", value: overflowMessage),
             .data(named: "overflow-height", value: "\(overflowHeight)px"),
+            .ariaExpanded(false),
             .ul(
                 .unwrap(listClass) { .class($0) },
                 .group(nodes)
