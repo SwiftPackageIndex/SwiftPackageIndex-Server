@@ -39,8 +39,15 @@ new SPIPlaygroundsAppLinkFallback()
 new SPISearchFilterSuggestions()
 new SPIPanel()
 
-customElements.define('spi-readme', SPIReadmeElement)
-customElements.define('tab-bar', SPITabBarElement)
-customElements.define('spi-overflowing-list', SPIOverflowingList)
+document.addEventListener('turbo:load', () => {
+  defineCustomElement('spi-readme', SPIReadmeElement)
+  defineCustomElement('tab-bar', SPITabBarElement)
+  defineCustomElement('spi-overflowing-list', SPIOverflowingList)
+})
+
+function defineCustomElement(elementName, klass) {
+  if (customElements.get(elementName)) return
+  customElements.define(elementName, klass)
+}
 
 //# sourceMappingURL=main.js.map
