@@ -212,7 +212,7 @@ enum Search {
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
             .where(keyword, ilike, SQLBind(searchPattern))
             .orderBy(levenshteinDist)
-            .limit(15)
+            .limit(50)
     }
 
     static func authorMatchQueryBuilder(on database: Database,
@@ -244,7 +244,7 @@ enum Search {
             .from(searchView)
             .where(repoOwner, ilike, SQLBind(searchPattern))
             .orderBy(levenshteinDist)
-            .limit(15)
+            .limit(50)
     }
 
     static func query(_ database: Database,
