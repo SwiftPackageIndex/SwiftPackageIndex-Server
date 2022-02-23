@@ -17,7 +17,6 @@ import '@hotwired/turbo'
 import './scripts/dom_helpers.js'
 import './scripts/controllers'
 
-import { ExternalLinkRetargeter } from './scripts/external_link_retargeter.js'
 import { SPIWindowMonitor } from './scripts/window_monitor.js'
 import { SPIPackageListNavigation } from './scripts/package_list_navigation.js'
 import { SPICopyableInput } from './scripts/copy_buttons.js'
@@ -29,7 +28,6 @@ import { SPITabBarElement } from './scripts/tab_bar_element.js'
 import { SPISearchFilterSuggestions } from './scripts/search_filter_suggestions.js'
 import { SPIPanel } from './scripts/panel.js'
 
-new ExternalLinkRetargeter()
 new SPIWindowMonitor()
 new SPIPackageListNavigation()
 new SPIBuildLogNavigation()

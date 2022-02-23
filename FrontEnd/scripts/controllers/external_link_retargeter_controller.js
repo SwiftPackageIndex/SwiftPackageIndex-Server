@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export class ExternalLinkRetargeter {
-  constructor() {
-    document.addEventListener('click', (event) => {
-      const externalLinkElement = event.target.findParentMatching((element) => {
-        return element.nodeName.toLowerCase() == 'a' && element.hostname != window.location.hostname
-      })
+import { Controller } from '@hotwired/stimulus'
 
-      if (externalLinkElement) externalLinkElement.setAttribute('target', '_blank')
+export class ExternalLinkRetargeterController extends Controller {
+  retarget(event) {
+    const externalLinkElement = event.target.findParentMatching((element) => {
+      return element.nodeName.toLowerCase() == 'a' && element.hostname != window.location.hostname
     })
+
+    if (externalLinkElement) externalLinkElement.setAttribute('target', '_blank')
   }
 }

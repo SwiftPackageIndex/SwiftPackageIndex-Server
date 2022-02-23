@@ -14,6 +14,8 @@
 
 import { Application } from '@hotwired/stimulus'
 import { OverflowingListController } from './overflowing_list_controller.js'
+import { ExternalLinkRetargeterController } from './external_link_retargeter_controller.js'
 
 const application = Application.start()
 application.register('overflowing-list', OverflowingListController)
+application.register('external-link-retargeter', ExternalLinkRetargeterController)

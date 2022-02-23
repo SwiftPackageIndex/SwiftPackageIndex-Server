@@ -195,6 +195,8 @@ class PublicPage {
     /// - Returns: A <body> element.
     final func body() -> Node<HTML.DocumentContext> {
         .body(
+            .data(named: "controller", value: "external-link-retargeter"),
+            .data(named: "action", value: "click->external-link-retargeter#retarget"),
             .class(bodyClass() ?? ""),
             preBody(),
             bodyComments(),
