@@ -36,9 +36,73 @@ class QueryPerformanceTests: XCTestCase {
         XCTAssert(host.hasSuffix("postgres.database.azure.com"), "was: \(host)")
     }
 
-    func test_packageMatchQuery() async throws {
-        let query = Search.packageMatchQueryBuilder(on: app.db, terms: ["test"], filters: [])
-        try await assertQueryPerformance(query, expectedCost: 270, variation: 50)
+    func test_Search_packageMatchQuery() async throws {
+        let query = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
+    }
+
+    func test_Search_keywordMatchQuery() async throws {
+        let query = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
+    }
+
+    func test_Search_authorMatchQuery() async throws {
+        let query = Search.authorMatchQueryBuilder(on: app.db, terms: ["a"])
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
+    }
+
+    func test_Search_query_noFilter() async throws {
+        let query = try Search.query(app.db, ["a"], page: 1, pageSize: Constants.resultsPageSize)
+            .unwrap()
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
+    }
+
+    func test_Search_query_authorFilter() async throws {
+        let filter = try AuthorSearchFilter(expression: .init(operator: .is, value: "apple"))
+        let query = try Search.query(app.db, ["a"], filters: [filter],
+                                     page: 1, pageSize: Constants.resultsPageSize)
+            .unwrap()
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
+    }
+
+    func test_Search_query_keywordFilter() async throws {
+        let filter = try KeywordSearchFilter(expression: .init(operator: .is, value: "apple"))
+        let query = try Search.query(app.db, ["a"], filters: [filter],
+                                     page: 1, pageSize: Constants.resultsPageSize)
+            .unwrap()
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
+    }
+
+    func test_Search_query_lastActicityFilter() async throws {
+        let filter = try LastActivitySearchFilter(expression: .init(operator: .greaterThan, value: "2000-01-01"))
+        let query = try Search.query(app.db, ["a"], filters: [filter],
+                                     page: 1, pageSize: Constants.resultsPageSize)
+            .unwrap()
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
+    }
+
+    func test_Search_query_licenseFilter() async throws {
+        let filter = try LicenseSearchFilter(expression: .init(operator: .is, value: "mit"))
+        let query = try Search.query(app.db, ["a"], filters: [filter],
+                                     page: 1, pageSize: Constants.resultsPageSize)
+            .unwrap()
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
+    }
+
+    func test_Search_query_platformFilter() async throws {
+        let filter = try PlatformSearchFilter(expression: .init(operator: .is, value: "macos,ios"))
+        let query = try Search.query(app.db, ["a"], filters: [filter],
+                                     page: 1, pageSize: Constants.resultsPageSize)
+            .unwrap()
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
+    }
+
+    func test_Search_query_starsFilter() async throws {
+        let filter = try PlatformSearchFilter(expression: .init(operator: .greaterThan, value: "5"))
+        let query = try Search.query(app.db, ["a"], filters: [filter],
+                                     page: 1, pageSize: Constants.resultsPageSize)
+            .unwrap()
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 0)
     }
 
 }
