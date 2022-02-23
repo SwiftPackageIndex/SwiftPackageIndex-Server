@@ -122,7 +122,7 @@
                 <li class="libraries">3 libraries</li>
                 <li class="executables">1 executable</li>
                 <li class="keywords">
-                  <spi-overflowing-list data-overflow-message="Show all 40 tags…" data-overflow-height="52px">
+                  <spi-overflowing-list data-overflow-message="Show all 40 tags…" data-overflow-height="52px" aria-expanded="false">
                     <ul class="keywords">
                       <li>
                         <a href="/keywords/tag1">tag1</a>
