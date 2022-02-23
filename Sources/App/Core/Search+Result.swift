@@ -39,7 +39,8 @@ extension Search {
                                                      repositoryOwner: record.repositoryOwner,
                                                      stars: record.stars,
                                                      lastActivityAt: record.lastActivityAt,
-                                                     summary: record.summary?.replaceShorthandEmojis())
+                                                     summary: record.summary?.replaceShorthandEmojis(),
+                                                     keywords: record.keywords)
                     else { return nil }
                     self = .package(result)
             }
@@ -99,8 +100,17 @@ extension Search {
         var stars: Int?
         var lastActivityAt: Date?
         var summary: String?
+        var keywords: [String]?
 
-        init?(packageId: Package.Id?, packageName: String?, packageURL: String?, repositoryName: String?, repositoryOwner: String?, stars: Int?, lastActivityAt: Date?, summary: String?) {
+        init?(packageId: Package.Id?,
+              packageName: String?,
+              packageURL: String?,
+              repositoryName: String?,
+              repositoryOwner: String?,
+              stars: Int?,
+              lastActivityAt: Date?,
+              summary: String?,
+              keywords: [String]?) {
             guard let packageId = packageId,
                   let packageURL = packageURL,
                   let repositoryName = repositoryName,
@@ -115,6 +125,7 @@ extension Search {
             self.stars = stars
             self.lastActivityAt = lastActivityAt
             self.summary = summary
+            self.keywords = keywords
         }
     }
 }

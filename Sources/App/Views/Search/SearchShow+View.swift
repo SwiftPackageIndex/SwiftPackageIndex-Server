@@ -117,7 +117,7 @@ extension SearchShow {
                     // also include navigation into and out of the query field.
                     .data(named: "focus-query-field", value: String(true)),
                     .group(
-                        model.packageResults.map { .packageListItem(linkUrl: $0.packageURL, packageName: $0.packageName ?? $0.repositoryName, summary: $0.summary, repositoryOwner: $0.repositoryOwner, repositoryName: $0.repositoryName, stars: $0.stars, lastActivityAt: $0.lastActivityAt) }
+                        model.packageResults.map { .packageListItem(linkUrl: $0.packageURL, packageName: $0.packageName ?? $0.repositoryName, summary: $0.summary, matchingKeywords: model.matchingKeywords(packageKeywords: $0.keywords), repositoryOwner: $0.repositoryOwner, repositoryName: $0.repositoryName, stars: $0.stars, lastActivityAt: $0.lastActivityAt) }
                     )
                 ),
                 .ul(
@@ -135,17 +135,16 @@ extension SearchShow {
             return .section(
                 .class("author_results"),
                 .h4("Matching authors"),
-                .ul(
-                    .group(
-                        model.authorResults.map { result in
-                            .li(
-                                .a(
-                                    .href(SiteURL.author(.value(result.name)).relativeURL()),
-                                    .text(result.name)
-                                )
-                            )
-                        }
-                    )
+                .spiOverflowingList(overflowMessage: "Show more authors…", overflowHeight: 129,
+                                    .forEach(model.authorResults) { authorResultListItem($0) })
+            )
+        }
+
+        private func authorResultListItem(_ author: Search.AuthorResult) -> Node<HTML.ListContext> {
+            .li(
+                .a(
+                    .href(SiteURL.author(.value(author.name)).relativeURL()),
+                    .text(author.name)
                 )
             )
         }
@@ -157,18 +156,16 @@ extension SearchShow {
             return .section(
                 .class("keyword_results"),
                 .h4("Matching keywords"),
-                .ul(
-                    .class("keywords"),
-                    .group(
-                        model.keywordResults.map { result in
-                            .li(
-                                .a(
-                                    .href(SiteURL.keywords(.value(result.keyword)).relativeURL()),
-                                    .text(result.keyword)
-                                )
-                            )
-                        }
-                    )
+                .spiOverflowingList(overflowMessage: "Show more keywords…", overflowHeight: 260, listClass: "keywords",
+                                    .forEach(model.keywordResults) { keywordResultListItem($0) })
+            )
+        }
+
+        private func keywordResultListItem(_ keyword: Search.KeywordResult) -> Node<HTML.ListContext> {
+            .li(
+                .a(
+                    .href(SiteURL.keywords(.value(keyword.keyword)).relativeURL()),
+                    .text(keyword.keyword)
                 )
             )
         }

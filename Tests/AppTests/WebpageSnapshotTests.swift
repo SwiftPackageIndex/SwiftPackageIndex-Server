@@ -530,7 +530,8 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                     stars: 1111,
                     // 24 hours + 4 hours to take it firmly into "one day ago" for the snapshot.
                     lastActivityAt: Current.date().addingHours(-28),
-                    summary: "This is a package filled with ones."
+                    summary: "This is a package filled with ones.",
+                    keywords: ["one", "1"]
                 )!
             ),
             .package(
@@ -543,7 +544,8 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                     stars: 2222,
                     // 48 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
                     lastActivityAt: Current.date().addingHours(-52),
-                    summary: "This is a package filled with twos."
+                    summary: "This is a package filled with twos.",
+                    keywords: ["two", "2"]
                 )!
             ),
             .package(
@@ -556,7 +558,8 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                     stars: 3333,
                     // 72 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
                     lastActivityAt: Current.date().addingHours(-76),
-                    summary: "This is a package filled with threes."
+                    summary: "This is a package filled with threes.",
+                    keywords: ["three", "3"]
                 )!
             ),
             .package(
@@ -569,12 +572,20 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                     stars: 4444,
                     // 72 hours + 4 hours to take it firmly into "two days ago" for the snapshot.
                     lastActivityAt: Current.date().addingHours(-76),
-                    summary: "This is a package filled with fours."
+                    summary: "This is a package filled with fours.",
+                    keywords: ["four", "4"]
                 )!
             )
         ]
 
-        let mockResults: [Search.Result] = .mock(packageResults)
+        let keywordResults: [Search.Result] = [
+            .keyword(.init(keyword: "keyword1")),
+            .keyword(.init(keyword: "keyword2")),
+            .keyword(.init(keyword: "keyword3")),
+            .keyword(.init(keyword: "four"))
+        ]
+
+        let mockResults: [Search.Result] = .mock(packageResults: packageResults, keywordResults: keywordResults)
         let page = { SearchShow.View(path: "", model: .mock(results: mockResults)).document() }
 
         assertSnapshot(matching: page, as: .html)

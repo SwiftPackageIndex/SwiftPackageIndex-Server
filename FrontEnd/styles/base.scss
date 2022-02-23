@@ -218,6 +218,12 @@ spi-overflowing-list {
     // This CSS is augmented with a `max-height` declaration defined via
     // the custom element in overflowing_list.js.
     overflow: hidden;
+
+    a {
+      // Measuring the height of these elements was inconsistent with inline
+      // display. Forcing a block display gets measured correctly.
+      display: inline-block;
+    }
   }
 
   .show_more {

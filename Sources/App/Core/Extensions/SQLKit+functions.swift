@@ -15,6 +15,10 @@
 import SQLKit
 
 
+func arrayToString(_ array: SQLExpression, delimiter: String) -> SQLFunction {
+    SQLFunction("ARRAY_TO_STRING", args: array, SQLLiteral.string(delimiter))
+}
+
 func concat(_ args: SQLExpression...) -> SQLFunction {
     SQLFunction("CONCAT", args: args)
 }

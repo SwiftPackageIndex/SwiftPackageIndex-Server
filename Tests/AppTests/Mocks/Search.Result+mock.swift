@@ -26,7 +26,8 @@ extension Array where Element == Search.Result {
                 repositoryOwner: "package",
                 stars: 1111,
                 lastActivityAt: .t0,
-                summary: "This is a package filled with ones."
+                summary: "This is a package filled with ones.",
+                keywords: ["one", "1"]
             )!
         ),
         .package(
@@ -38,7 +39,8 @@ extension Array where Element == Search.Result {
                 repositoryOwner: "package",
                 stars: 2222,
                 lastActivityAt: .t0,
-                summary: "This is a package filled with twos."
+                summary: "This is a package filled with twos.",
+                keywords: ["two", "2"]
             )!
         ),
         .package(
@@ -50,21 +52,28 @@ extension Array where Element == Search.Result {
                 repositoryOwner: "package",
                 stars: 3333,
                 lastActivityAt: .t0,
-                summary: "This is a package filled with threes."
+                summary: "This is a package filled with threes.",
+                keywords: ["three", "3"]
             )!
         )
     ]
 
-    static func mock(_ packageResults: [Search.Result] = .defaultPackageResults) -> Self {
-        [
-            .author(.init(name: "Apple")),
-            .author(.init(name: "Orange")),
-            .author(.init(name: "Pear")),
-            .keyword(.init(keyword: "keyword1")),
-            .keyword(.init(keyword: "keyword2")),
-            .keyword(.init(keyword: "keyword3")),
-            .keyword(.init(keyword: "keyword4")),
-        ]
-        + packageResults
+    static var defaultAuthorResults: [Search.Result] = [
+        .author(.init(name: "Apple")),
+        .author(.init(name: "Orange")),
+        .author(.init(name: "Pear"))
+    ]
+
+    static var defaultKeywordResults: [Search.Result] = [
+        .keyword(.init(keyword: "keyword1")),
+        .keyword(.init(keyword: "keyword2")),
+        .keyword(.init(keyword: "keyword3")),
+        .keyword(.init(keyword: "keyword4"))
+    ]
+
+    static func mock(packageResults: [Search.Result] = .defaultPackageResults,
+                     authorResults: [Search.Result] = .defaultAuthorResults,
+                     keywordResults: [Search.Result] = .defaultKeywordResults) -> Self {
+        packageResults + authorResults + keywordResults
     }
 }

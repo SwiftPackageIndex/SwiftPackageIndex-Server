@@ -42,6 +42,7 @@ enum Search {
     static let nullInt = SQLRaw("NULL::INT")
     static let nullUUID = SQLRaw("NULL::UUID")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
+    static let nullTextArray = SQLRaw("NULL::TEXT[]")
 
     enum MatchType: String, Codable, Equatable {
         case author
@@ -80,6 +81,7 @@ enum Search {
         var stars: Int?
         var lastActivityAt: Date?
         var summary: String?
+        var keywords: [String]?
         
         enum CodingKeys: String, CodingKey {
             case matchType = "match_type"
@@ -91,6 +93,7 @@ enum Search {
             case stars
             case lastActivityAt = "last_activity_at"
             case summary
+            case keywords
         }
         
         var packageURL: String? {
@@ -144,7 +147,7 @@ enum Search {
 
         let haystack = concat(
             with: " ",
-            packageName, coalesce(summary, empty), repoName, repoOwner
+            packageName, coalesce(summary, empty), repoName, repoOwner, arrayToString(keywords, delimiter: " ")
         )
         let sortOrder = SQLOrderBy(eq(lower(packageName), mergedTerms),
                                    .descending)
@@ -165,6 +168,7 @@ enum Search {
             .column(license)
             .column(lastCommitDate)
             .column(lastActivityAt)
+            .column(keywords)
             .column(null, as: levenshteinDist)
             .from(searchView)
             .from(SQLFunction("CONCAT", args: keywords), as: keyword)
@@ -201,13 +205,14 @@ enum Search {
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
             .column(nullTimestamp, as: lastActivityAt)
+            .column(nullTextArray, as: keywords)
             .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
                     as: levenshteinDist)
             .from(searchView)
             .from(SQLFunction("UNNEST", args: keywords), as: keyword)
             .where(keyword, ilike, SQLBind(searchPattern))
             .orderBy(levenshteinDist)
-            .limit(15)
+            .limit(50)
     }
 
     static func authorMatchQueryBuilder(on database: Database,
@@ -233,12 +238,13 @@ enum Search {
             .column(null, as: license)
             .column(nullTimestamp, as: lastCommitDate)
             .column(nullTimestamp, as: lastActivityAt)
+            .column(nullTextArray, as: keywords)
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
             .from(searchView)
             .where(repoOwner, ilike, SQLBind(searchPattern))
             .orderBy(levenshteinDist)
-            .limit(15)
+            .limit(50)
     }
 
     static func query(_ database: Database,

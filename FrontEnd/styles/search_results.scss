@@ -32,6 +32,15 @@ section.search_results {
     flex-direction: column;
   }
 
+  .author_results,
+  .keyword_results {
+    margin-bottom: 20px;
+
+    ul {
+      margin-bottom: 5px;
+    }
+  }
+
   h4 {
     margin: 0;
   }
