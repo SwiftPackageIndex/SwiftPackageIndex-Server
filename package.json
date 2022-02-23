@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "@hotwired/turbo": "^7.1.0",
-    "lodash": "^4.17.21",
     "normalize.css": "^8.0.1"
   },
   "devDependencies": {
