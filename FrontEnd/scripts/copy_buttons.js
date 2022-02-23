@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { delay } from 'lodash'
 import { measurePlausibleEvent } from './plausible_analytics.js'
 
 class SPICopyButton {
@@ -39,7 +38,7 @@ class SPICopyButton {
         button.textContent = 'Copied!'
 
         // Then change it back after a short delay.
-        delay(() => {
+        setTimeout(() => {
           button.textContent = oldButtonText
         }, 1000)
 
