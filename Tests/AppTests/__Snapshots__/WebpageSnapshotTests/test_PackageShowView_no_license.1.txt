@@ -26,7 +26,7 @@
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
     <script src="/main.js?test" data-turbolinks-track="reload" defer></script>
   </head>
-  <body class="package"><!--CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE--><!--10-->
+  <body data-controller="external-link-retargeter" data-action="click->external-link-retargeter#retarget" class="package"><!--CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE--><!--10-->
     <div class="staging">Staging / Development</div>
     <header>
       <div class="inner">

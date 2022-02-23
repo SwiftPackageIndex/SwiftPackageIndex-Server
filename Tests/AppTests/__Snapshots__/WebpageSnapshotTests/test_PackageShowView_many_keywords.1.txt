@@ -26,7 +26,7 @@
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
     <script src="/main.js?test" data-turbolinks-track="reload" defer></script>
   </head>
-  <body class="package"><!--CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE--><!--10-->
+  <body data-controller="external-link-retargeter" data-action="click->external-link-retargeter#retarget" class="package"><!--CAFECAFE-CAFE-CAFE-CAFE-CAFECAFECAFE--><!--10-->
     <div class="staging">Staging / Development</div>
     <header>
       <div class="inner">
@@ -122,8 +122,8 @@
                 <li class="libraries">3 libraries</li>
                 <li class="executables">1 executable</li>
                 <li class="keywords">
-                  <spi-overflowing-list data-overflow-message="Show all 40 tags…" data-overflow-height="52px" aria-expanded="false">
-                    <ul class="keywords">
+                  <div data-controller="overflowing-list" data-overflowing-list-overflow-message-value="Show all 40 tags…" data-overflowing-list-overflow-height-value="52" data-overflowing-list-collapsed-value="true">
+                    <ul data-overflowing-list-target="list" class="keywords">
                       <li>
                         <a href="/keywords/tag1">tag1</a>
                       </li>
@@ -245,7 +245,7 @@
                         <a href="/keywords/tag40">tag40</a>
                       </li>
                     </ul>
-                  </spi-overflowing-list>
+                  </div>
                 </li>
               </ul>
             </section>
