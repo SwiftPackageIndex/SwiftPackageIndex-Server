@@ -65,7 +65,7 @@ class QueryPerformanceTests: XCTestCase {
 
     func test_Search_keywordMatchQuery() async throws {
         let query = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        try await assertQueryPerformance(query, expectedCost: 2900, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 2990, variation: 100)
     }
 
     func test_Search_authorMatchQuery() async throws {
@@ -77,7 +77,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3800, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3910, variation: 100)
     }
 
     func test_Search_query_authorFilter() async throws {
@@ -85,7 +85,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3600, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3680, variation: 100)
     }
 
     func test_Search_query_keywordFilter() async throws {
@@ -93,7 +93,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3800, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3920, variation: 100)
     }
 
     func test_Search_query_lastActicityFilter() async throws {
@@ -101,7 +101,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3800, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3920, variation: 100)
     }
 
     func test_Search_query_licenseFilter() async throws {
@@ -117,7 +117,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3700, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3840, variation: 100)
     }
 
     func test_Search_query_starsFilter() async throws {
@@ -125,7 +125,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3700, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3830, variation: 100)
     }
 
 }
