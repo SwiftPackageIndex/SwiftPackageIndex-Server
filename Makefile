@@ -52,7 +52,7 @@ test-query-performance: xcbeautify
 	   --filter QueryPerformanceTests \
 	2>&1 | tee test.log
 	grep "COST\|ACTUAL" test.log
-	xcbeautify < test.log
+	./xcbeautify < test.log
 
 test-fast:
 	@echo Skipping image snapshot tests
