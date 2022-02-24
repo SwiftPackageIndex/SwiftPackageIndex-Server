@@ -36,6 +36,28 @@ class QueryPerformanceTests: XCTestCase {
         XCTAssert(host.hasSuffix("postgres.database.azure.com"), "was: \(host)")
     }
 
+    func test_QueryPlan_cost_parse() throws {
+        var input = "cost=1.05..12.06 rows=1 width=205"[...]
+        XCTAssertEqual(try QueryPlan.cost.parse(&input),
+                       .init(firstRow: 1.05, total: 12.06))
+        XCTAssertEqual(input, "")
+    }
+
+    func test_QueryPlan_actualTime_parse() throws {
+        var input = "actual time=8.340..44.485 rows=121 loops=1"[...]
+        XCTAssertEqual(try QueryPlan.actualTime.parse(&input),
+                       .init(firstRow: 8.34, total: 44.485))
+        XCTAssertEqual(input, "")
+    }
+
+    func test_QueryPlan_parser() throws {
+        var input = "Append  (cost=412.37..3826.71 rows=81 width=308) (actual time=8.340..44.485 rows=121 loops=1)"[...]
+        XCTAssertEqual(try QueryPlan.parser.parse(&input),
+                       .init(cost: .init(firstRow: 412.37, total: 3826.71),
+                             actualTime: .init(firstRow: 8.34, total: 44.485)))
+        XCTAssertEqual(input, "")
+    }
+
     func test_Search_packageMatchQuery() async throws {
         let query = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
         try await assertQueryPerformance(query, expectedCost: 660, variation: 50)
@@ -123,7 +145,7 @@ public struct SQLExplain: SQLExpression {
         self.select = select
     }
     public func serialize(to serializer: inout SQLSerializer) {
-        serializer.write("EXPLAIN ")
+        serializer.write("EXPLAIN ANALYZE ")
         select.select.serialize(to: &serializer)
     }
 }
@@ -144,12 +166,14 @@ private extension QueryPerformanceTests {
         }
         let queryPlan = result.joined(separator: "\n")
 
-        let (cost, _) = try queryPlanParser.parse(queryPlan)
+        let parsedPlan = try QueryPlan(queryPlan)
+        print("COST: \(parsedPlan.cost)")
+        print("ACTUAL TIME: \(parsedPlan.actualTime)")
 
-        switch cost.total {
+        switch parsedPlan.cost.total {
             case ..<10.0:
                 XCTFail("""
-                        Cost very low \(cost.total) - did you run the query against an empty database?
+                        Cost very low \(parsedPlan.cost.total) - did you run the query against an empty database?
 
                         \(queryPlan)
                         """,
@@ -159,7 +183,7 @@ private extension QueryPerformanceTests {
                 break
             default:
                 XCTFail("""
-                        Total cost of \(cost.total) above threshold of \(expectedCost + variation) (incl variation)
+                        Total cost of \(parsedPlan.cost.total) above threshold of \(expectedCost + variation) (incl variation)
 
                         Query plan:
 
@@ -185,33 +209,77 @@ private struct Details {
 }
 
 
-private let queryPlanParser = Parse {
-    // "Sort  (cost=1.05..1.06 rows=1 width=205)\n"
-    Skip {
-        OneOf {
-            "Append"
-            "Limit"
-            "Sort"
-        }
-        Whitespace()
-        "("
+struct QueryPlan: Equatable {
+    var cost: Cost
+    var actualTime: ActualTime
+
+    struct Cost: Equatable {
+        var firstRow: Double
+        var total: Double
     }
 
-    Parse {
+    // Parsing: cost=1.05..1.06 rows=1 width=205
+    static let cost = Parse {
         "cost="
         Double.parser()
         ".."
         Double.parser()
+        Skip { Whitespace() }
+        Skip {
+            "rows="
+            Int.parser()
+            Skip { Whitespace() }
+            "width="
+            Int.parser()
+        }
     }.map(Cost.init)
 
-    Skip { Whitespace() }
+    struct ActualTime: Equatable {
+        var firstRow: Double
+        var total: Double
+    }
 
-    Parse {
-        "rows="
-        Int.parser()
+    // Parsing: actual time=8.340..44.485 rows=121 loops=1
+    static let actualTime = Parse {
+        "actual time="
+        Double.parser()
+        ".."
+        Double.parser()
         Skip { Whitespace() }
-        "width="
-        Int.parser()
-    }.map(Details.init)
-    ")"
+        Skip {
+            "rows="
+            Int.parser()
+            Skip { Whitespace() }
+            "loops="
+            Int.parser()
+        }
+    }.map(ActualTime.init)
+
+    // Parsing: Append  (cost=412.37..3826.71 rows=81 width=308) (actual time=8.340..44.485 rows=121 loops=1)
+    static let parser = Parse {
+        Skip {
+            OneOf {
+                "Append"
+                "Limit"
+                "Sort"
+            }
+            Whitespace()
+            "("
+        }
+        cost
+        Skip {
+            ")"
+            Whitespace()
+            "("
+        }
+        actualTime
+        Skip { ")" }
+    }.map(Self.init)
+}
+
+
+extension QueryPlan {
+    init(_ queryPlan: String) throws {
+        self = try Self.parser.parse(queryPlan)
+    }
 }
