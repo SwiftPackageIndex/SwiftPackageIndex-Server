@@ -57,11 +57,10 @@ test-fast:
 	swift test --disable-automatic-resolution
 
 xcbeautify:
-	if [[ ! -f ./xcbeautify ]]; then
-		git clone --depth=1 https://github.com/thii/xcbeautify.git .build/checkouts/xcbeautify
-		cd .build/checkouts/xcbeautify && make build
-		binpath=`cd .build/checkouts/xcbeautify && swift build -c release --show-bin-path` && ln -sf $$binpath/xcbeautify
-	fi
+	rm -rf .build/checkouts/xcbeautify
+	git clone --depth=1 https://github.com/thii/xcbeautify.git .build/checkouts/xcbeautify
+	cd .build/checkouts/xcbeautify && make build
+	binpath=`cd .build/checkouts/xcbeautify && swift build -c release --show-bin-path` && ln -sf $$binpath/xcbeautify
 
 docker-build: version
 	docker build -t $(DOCKER_IMAGE):$(VERSION) .
