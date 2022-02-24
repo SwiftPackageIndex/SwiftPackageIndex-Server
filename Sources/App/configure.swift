@@ -16,8 +16,8 @@ import Fluent
 import FluentPostgresDriver
 import Vapor
 
-
-public func configure(_ app: Application) throws {
+@discardableResult
+public func configure(_ app: Application) throws -> String {
     app.logger.component = "server"
     Current.setLogger(app.logger)
 
@@ -232,4 +232,6 @@ public func configure(_ app: Application) throws {
 
     // bootstrap app metrics
     AppMetrics.bootstrap()
+
+    return host
 }

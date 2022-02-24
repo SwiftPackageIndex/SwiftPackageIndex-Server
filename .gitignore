@@ -27,3 +27,4 @@ Public/main.css.map
 .env.staging
 .devcontainer/
 xcbeautify
+test.log

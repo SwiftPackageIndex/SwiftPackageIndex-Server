@@ -45,6 +45,15 @@ test-without-tsan: xcbeautify
 	   swift test --enable-code-coverage --disable-automatic-resolution \
 	2>&1 | ./xcbeautify
 
+test-query-performance: xcbeautify
+	set -o pipefail \
+	&& env NSUnbufferedIO=YES RUN_QUERY_PERFORMANCE_TESTS=true \
+	   swift test --enable-code-coverage --disable-automatic-resolution \
+	   --filter QueryPerformanceTests \
+	2>&1 | tee test.log
+	grep "COST\|ACTUAL" test.log
+	./xcbeautify < test.log
+
 test-fast:
 	@echo Skipping image snapshot tests
 	@echo Running without --sanitize=thread

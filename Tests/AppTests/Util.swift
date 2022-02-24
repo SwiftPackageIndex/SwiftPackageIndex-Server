@@ -26,8 +26,13 @@ private var _schemaCreated = false
 
 func setup(_ environment: Environment, resetDb: Bool = true) throws -> Application {
     let app = Application(.testing)
+    let host = try configure(app)
+
+    // Ensure `.testing` refers to "postgres" or "localhost"
+    precondition(host == "localhost" || host == "postgres", ".testing must be a local db, was: \(host)")
+
     app.logger.logLevel = Environment.get("LOG_LEVEL").flatMap(Logger.Level.init(rawValue:)) ?? .warning
-    try configure(app)
+
     if !_schemaCreated {
         // ensure we create the schema when running the first test
         try app.autoMigrate().wait()
