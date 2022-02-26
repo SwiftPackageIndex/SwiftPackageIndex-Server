@@ -41,14 +41,12 @@ enum HomeIndex {
             .group(
                 .p(
                     .class("announcement"),
-                    .text("Follow along as we determine real-world compatibility results with our "),
-                    .em(.text("new")),
-                    .text(" "),
+                    .text("Russia’s invasion of Ukraine is appalling. "),
                     .a(
-                        .href(SiteURL.buildMonitor.relativeURL()),
-                        "real-time build system monitor"
+                        .href("https://blog.swiftpackageindex.com/posts/we-support-ukraine/"),
+                        "We support Ukraine"
                     ),
-                    .text("! 📦")
+                    .text(". 🇺🇦")
                 ),
                 .section(
                     .class("search home"),
