@@ -50,9 +50,8 @@
         </nav>
       </div>
     </header>
-    <p class="announcement">Follow along as we determine real-world compatibility results with our 
-      <em>new</em> 
-      <a href="/build-monitor">real-time build system monitor</a>! 📦
+    <p class="announcement">Russia’s invasion of Ukraine is appalling. 
+      <a href="https://blog.swiftpackageindex.com/posts/we-support-ukraine/">We support Ukraine</a>. 🇺🇦
     </p>
     <section class="search home">
       <div class="inner">
