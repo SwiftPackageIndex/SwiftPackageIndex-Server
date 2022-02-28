@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "88aeed408834eaa69cfa1ad713276e89fd429736",
-          "version": "1.21.0"
+          "revision": "9c7fbdc931ef6afa2dcd45edf253d25cadbbd5fc",
+          "version": "1.22.0"
         }
       },
       {
@@ -177,8 +177,8 @@
         "repositoryURL": "https://github.com/apple/swift-crypto.git",
         "state": {
           "branch": null,
-          "revision": "3bea268b223651c4ab7b7b9ad62ef9b2d4143eb6",
-          "version": "1.1.6"
+          "revision": "ddb07e896a2a8af79512543b1c7eb9797f8898a5",
+          "version": "1.1.7"
         }
       },
       {
@@ -186,7 +186,7 @@
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
           "branch": "main",
-          "revision": "46d90b18e679430922bdcd948e01fb0a0f7f7139",
+          "revision": "30ade40aca629ce40714aebd97966763f783aeb7",
           "version": null
         }
       },
@@ -267,7 +267,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "main",
-          "revision": "d03213a6e2d60bd2eaad0ffee59bef8909bbcf82",
+          "revision": "a783689cd4b09cd5983c6e9901b308b86a6d32fc",
           "version": null
         }
       },
@@ -303,7 +303,7 @@
         "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
           "branch": "main",
-          "revision": "e9309c9ad353bc46e93b966d330e561069ada0ea",
+          "revision": "9a23d5caf7164f2bb2cc2d9c0a3d1bb9b4c6ffae",
           "version": null
         }
       },
