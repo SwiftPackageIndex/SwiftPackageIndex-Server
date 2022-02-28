@@ -18,13 +18,13 @@ There are a few requirements for inclusion in the index, but they aren't onerous
 - The package URLs must include the protocol (usually `https`) and the `.git` extension.
 - The packages must all compile without errors.
 
-Then, you can [add packages with this GitHub workflow](https://github.com/SwiftPackageIndex/PackageList/issues/new/choose).
+<a href="https://github.com/SwiftPackageIndex/PackageList/issues/new/choose" class="big_green_button">Add Package(s)</a>
 
 <div class="note">
 <p><strong>Note:</strong> If submitting your own packages, don't forget to add shields.io badges to your package's README to always have up to date swift version and platform compatibility information readily available. Once your package appears in the index, use the "Do you maintain this package?" link in the right-hand sidebar of your package page and use the provided markdown.</p>
 <p>For example:<br/><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdaveverwer%2FLeftPad%2Fbadge%3Ftype%3Dplatforms"> <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fdaveverwer%2FLeftPad%2Fbadge%3Ftype%3Dswift-versions"></p>
 </div>
 
-### Removing Packages
+### Removing a Package
 
 You can request to have a package removed from the index with [this GitHub workflow](https://github.com/SwiftPackageIndex/PackageList/issues/new/choose).
