@@ -39,8 +39,8 @@ let package = Package(
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
-        .package(name: "SwiftPM",
-                 url: "https://github.com/apple/swift-package-manager.git", .branch("main"))
+        .package(name: "SwiftPM", url: "https://github.com/apple/swift-package-manager.git",
+                 .branch("swift-5.5.3-RELEASE"))
     ],
     targets: [
         .target(name: "App", dependencies: [
