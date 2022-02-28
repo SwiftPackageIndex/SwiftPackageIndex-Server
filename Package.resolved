@@ -150,8 +150,8 @@
         "repositoryURL": "https://github.com/apple/swift-argument-parser.git",
         "state": {
           "branch": null,
-          "revision": "83b23d940471b313427da226196661856f6ba3e0",
-          "version": "0.4.4"
+          "revision": "e394bf350e38cb100b6bc4172834770ede1b7232",
+          "version": "1.0.3"
         }
       },
       {
@@ -176,8 +176,8 @@
         "package": "swift-driver",
         "repositoryURL": "https://github.com/apple/swift-driver.git",
         "state": {
-          "branch": "release/5.5",
-          "revision": "86c54dacd270e0c43374c0cb9b2ceb2924c9ea72",
+          "branch": "release/5.6",
+          "revision": "9982f32f96a2e0e597d1b4a0af4a7e997dc471be",
           "version": null
         }
       },
@@ -185,8 +185,8 @@
         "package": "llbuild",
         "repositoryURL": "https://github.com/apple/swift-llbuild.git",
         "state": {
-          "branch": "release/5.5",
-          "revision": "83c4bcb8dfca48cc065325287b55d08ff7b26428",
+          "branch": "release/5.6",
+          "revision": "acd686530e56122d916acd49a166beb9198e9b87",
           "version": null
         }
       },
@@ -257,8 +257,8 @@
         "package": "SwiftPM",
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
-          "branch": "swift-5.5.3-RELEASE",
-          "revision": "a29154a4137747bdbfe83ca26db4b24f8c4fcd31",
+          "branch": "release/5.6",
+          "revision": "6647fa09d6042b29cbb115eecf6f292beb7f6837",
           "version": null
         }
       },
@@ -284,8 +284,8 @@
         "package": "swift-tools-support-core",
         "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
-          "branch": "release/5.5",
-          "revision": "3b586ce12865db205081acdcea79fe5509b28152",
+          "branch": "release/5.6",
+          "revision": "107e570e3565920174d5a25bc3a0340b32d16042",
           "version": null
         }
       },
