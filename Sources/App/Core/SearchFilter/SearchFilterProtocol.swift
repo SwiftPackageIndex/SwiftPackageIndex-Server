@@ -36,18 +36,18 @@ protocol SearchFilterProtocol {
     var predicate: SearchFilter.Predicate { get }
 
     /// The left-hand-side of the where clause expression. Optional, has default implementation.
-    var sqlIdentifier: SQLExpression { get }
+    var leftHandSide: SQLExpression { get }
 
     /// The comparison operator of the where clause expression. Optional, has default implementation.
     var sqlOperator: SQLExpression { get }
 
     /// The right-hand-side of the where clause expression. Optional, has default implementation.
-    var sqlBind: SQLExpression { get }
+    var rightHandSide: SQLExpression { get }
 }
 
 
 extension SearchFilterProtocol {
-    var sqlIdentifier: SQLExpression { Self.key.sqlIdentifier }
+    var leftHandSide: SQLExpression { Self.key.sqlIdentifier }
     var sqlOperator: SQLExpression { predicate.sqlOperator }
-    var sqlBind: SQLExpression { predicate.sqlBind }
+    var rightHandSide: SQLExpression { predicate.sqlBind }
 }

@@ -33,9 +33,9 @@ extension SQLSelectBuilder {
             searchFilters
                 .prefix(20) // just to impose some form of limit
                 .forEach {
-                    builder.where($0.sqlIdentifier,
+                    builder.where($0.leftHandSide,
                                   $0.sqlOperator,
-                                  $0.sqlBind)
+                                  $0.rightHandSide)
                 }
             return builder
         })

@@ -97,9 +97,9 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "author is sherlouk")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""repo_owner""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""repo_owner""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "ILIKE")
-        XCTAssertEqual(binds(filter.sqlBind), ["sherlouk"])
+        XCTAssertEqual(binds(filter.rightHandSide), ["sherlouk"])
 
         // test error case
         XCTAssertThrowsError(try AuthorSearchFilter(expression: .init(operator: .greaterThan,
@@ -120,10 +120,10 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "keywords is cache")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), "$1")
-        XCTAssertEqual(binds(filter.sqlIdentifier), ["cache"])
+        XCTAssertEqual(renderSQL(filter.leftHandSide), "$1")
+        XCTAssertEqual(binds(filter.leftHandSide), ["cache"])
         XCTAssertEqual(renderSQL(filter.sqlOperator), "ILIKE")
-        XCTAssertEqual(renderSQL(filter.sqlBind), #"ANY("keywords")"#)
+        XCTAssertEqual(renderSQL(filter.rightHandSide), #"ANY("keywords")"#)
 
         // test error case
         XCTAssertThrowsError(try KeywordSearchFilter(expression: .init(operator: .greaterThan,
@@ -144,9 +144,9 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "last activity is 1 Jan 1970")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""last_activity_at""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""last_activity_at""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "=")
-        XCTAssertEqual(binds(filter.sqlBind), ["1970-01-01"])
+        XCTAssertEqual(binds(filter.rightHandSide), ["1970-01-01"])
 
         // test error case
         XCTAssertThrowsError(try LastActivitySearchFilter(
@@ -168,9 +168,9 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "last commit is 1 Jan 1970")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""last_commit_date""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""last_commit_date""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "=")
-        XCTAssertEqual(binds(filter.sqlBind), ["1970-01-01"])
+        XCTAssertEqual(binds(filter.rightHandSide), ["1970-01-01"])
 
         // test error case
         XCTAssertThrowsError(try LastCommitSearchFilter(
@@ -192,9 +192,9 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "license is compatible with the App Store")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""license""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""license""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.sqlBind), ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"])
+        XCTAssertEqual(binds(filter.rightHandSide), ["afl-3.0", "apache-2.0", "artistic-2.0", "bsd-2-clause", "bsd-3-clause", "bsd-3-clause-clear", "bsl-1.0", "cc", "cc0-1.0", "cc-by-4.0", "cc-by-sa-4.0", "wtfpl", "ecl-2.0", "epl-1.0", "eupl-1.1", "isc", "ms-pl", "mit", "mpl-2.0", "osl-3.0", "postgresql", "ncsa", "unlicense", "zlib"])
     }
 
     func test_licenseFilter_single() throws {
@@ -209,9 +209,9 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "license is MIT")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""license""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""license""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.sqlBind), ["mit"])
+        XCTAssertEqual(binds(filter.rightHandSide), ["mit"])
     }
 
     func test_licenseFilter_case_insensitive() throws {
@@ -247,9 +247,9 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "license is incompatible with the App Store")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""license""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""license""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.sqlBind), ["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"])
+        XCTAssertEqual(binds(filter.rightHandSide), ["agpl-3.0", "gpl", "gpl-2.0", "gpl-3.0", "lgpl", "lgpl-2.1", "lgpl-3.0"])
     }
 
     func test_licenseFilter_none() throws {
@@ -264,9 +264,9 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "license is not defined")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""license""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""license""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.sqlBind), ["none"])
+        XCTAssertEqual(binds(filter.rightHandSide), ["none"])
     }
 
     func test_licenseFilter_other() throws {
@@ -281,9 +281,9 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "license is unknown")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""license""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""license""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "IN")
-        XCTAssertEqual(binds(filter.sqlBind), ["other"])
+        XCTAssertEqual(binds(filter.rightHandSide), ["other"])
     }
 
     func test_licenseFilter_error() throws {
@@ -308,9 +308,9 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "platform compatibility is iOS")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""platform_compatibility""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""platform_compatibility""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "@>")
-        XCTAssertEqual(binds(filter.sqlBind), ["{ios}"])
+        XCTAssertEqual(binds(filter.rightHandSide), ["{ios}"])
     }
 
     func test_platformFilter_case_insensitive() throws {
@@ -400,9 +400,9 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "stars is 1,234")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""stars""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""stars""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "=")
-        XCTAssertEqual(binds(filter.sqlBind), ["1234"])
+        XCTAssertEqual(binds(filter.rightHandSide), ["1234"])
 
         // test error case
         XCTAssertThrowsError(try StarsSearchFilter(
