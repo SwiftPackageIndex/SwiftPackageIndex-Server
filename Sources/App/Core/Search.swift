@@ -208,7 +208,7 @@ enum Search {
             .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
                     as: levenshteinDist)
             .from(searchView)
-            .from(SQLFunction("UNNEST", args: keywords), as: keyword)
+            .from(unnest(keywords), as: keyword)
             .where(keyword, ilike, SQLBind(searchPattern))
             .orderBy(levenshteinDist)
             .limit(50)

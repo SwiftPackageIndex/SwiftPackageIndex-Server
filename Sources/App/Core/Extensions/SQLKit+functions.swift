@@ -46,11 +46,6 @@ func lower(_ arg: SQLExpression) -> SQLFunction {
 }
 
 
-func nullif(_ value1: SQLExpression, _ value2: SQLExpression) -> SQLFunction {
-    SQLFunction("NULLIF", args: value1, value2)
-}
-
-
 func unnest(_ array: SQLExpression) -> SQLFunction {
     SQLFunction("UNNEST", args: array)
 }
