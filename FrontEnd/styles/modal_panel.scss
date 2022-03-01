@@ -17,12 +17,12 @@
   Modal panels
 ---------------------------------------------------------------------------- */
 
-[data-controller='panel'] {
+[data-controller='modal-panel'] {
   > button:not(.visible) {
     display: none;
   }
 
-  > [data-panel-target='underlay'] {
+  > [data-modal-panel-target='underlay'] {
     position: fixed;
     top: 0px;
     left: 0px;

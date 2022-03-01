@@ -14,7 +14,7 @@
 
 import { Controller } from '@hotwired/stimulus'
 
-export class PanelController extends Controller {
+export class ModalPanelController extends Controller {
   static targets = ['button', 'underlay', 'panel']
 
   connect() {
@@ -30,8 +30,8 @@ export class PanelController extends Controller {
     // Dim the background with an underlay.
     const underlayElement = document.createElement('div')
     this.element.insertBefore(underlayElement, this.panelTarget)
-    underlayElement.dataset.panelTarget = 'underlay'
-    underlayElement.dataset.action = 'click->panel#hide'
+    underlayElement.dataset.modalPanelTarget = 'underlay'
+    underlayElement.dataset.action = 'click->modal-panel#hide'
 
     event.preventDefault()
   }
