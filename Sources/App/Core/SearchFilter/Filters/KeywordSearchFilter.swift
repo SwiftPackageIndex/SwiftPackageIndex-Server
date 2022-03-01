@@ -40,11 +40,11 @@ struct KeywordSearchFilter: SearchFilterProtocol {
         )
     }
 
-    var sqlIdentifier: SQLExpression {
+    var leftHandSide: SQLExpression {
         predicate.sqlBind
     }
 
-    var sqlBind: SQLExpression {
+    var rightHandSide: SQLExpression {
         any(Search.keywords)
     }
 }
