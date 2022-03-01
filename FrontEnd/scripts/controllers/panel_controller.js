@@ -18,8 +18,8 @@ export class PanelController extends Controller {
   static targets = ['button', 'underlay', 'panel']
 
   connect() {
-    // All buttons that toggle the panel are hidden by default as they only
-    // have functionality when JavaScript is enabled, so make them visible.
+    // The button that toggles the panel is hidden by default as it only
+    // has functionality when JavaScript is enabled, so make it visible.
     this.buttonTarget.classList.add('visible')
   }
 
