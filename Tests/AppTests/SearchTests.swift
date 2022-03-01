@@ -66,9 +66,9 @@ class SearchTests: AppTestCase {
         )
 
         XCTAssertEqual(renderSQL(b), """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", NULL AS "levenshtein_dist" FROM "search", CONCAT("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("keyword" ILIKE $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", NULL AS "levenshtein_dist" FROM "search", UNNEST("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("keyword" ILIKE $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
             """)
-        XCTAssertEqual(binds(b), ["a", "%foo%", "a"])
+        XCTAssertEqual(binds(b), ["a", "foo", "a"])
     }
 
     func test_packageMatchQuery_LastActivitySearchFilter() throws {
@@ -942,7 +942,7 @@ class SearchTests: AppTestCase {
                        summary: "test package").save(on: app.db).wait()
         try Repository(package: p2,
                        defaultBranch: "main",
-                       keywords: ["kw2"],
+                       keywords: ["kw1-2"],
                        name: "2",
                        owner: "bar",
                        summary: "test package").save(on: app.db).wait()

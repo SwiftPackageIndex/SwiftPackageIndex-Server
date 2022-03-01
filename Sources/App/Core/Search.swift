@@ -171,7 +171,7 @@ enum Search {
             .column(keywords)
             .column(null, as: levenshteinDist)
             .from(searchView)
-            .from(SQLFunction("CONCAT", args: keywords), as: keyword)
+            .from(SQLFunction("UNNEST", args: keywords), as: keyword)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(repoOwner))

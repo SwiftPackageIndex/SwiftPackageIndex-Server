@@ -17,8 +17,8 @@
 ///
 /// Examples:
 /// ```
-/// keyword:apple  - The package keywords contains the keyword 'apple'
-/// keyword:!apple - The package keywords does not contain the keyword 'apple'
+/// keyword:apple  - The package keywords contain 'apple'
+/// keyword:!apple - The package keywords do not contain 'apple'
 /// ```
 struct KeywordSearchFilter: SearchFilterProtocol {
     static var key: SearchFilter.Key = .keyword
@@ -33,7 +33,7 @@ struct KeywordSearchFilter: SearchFilterProtocol {
         self.predicate = .init(
             operator: (expression.operator == .is) ?
                 .caseInsensitiveLike : .notCaseInsensitiveLike,
-            bindableValue: .value("%\(expression.value)%"),
+            bindableValue: .value(expression.value),
             displayValue: expression.value
         )
     }
