@@ -72,10 +72,10 @@
       <div class="inner">
         <div class="two_column">
           <h2>Alamofire</h2>
-          <div data-controller="panel">
-            <button data-panel-target="button" data-action="click->panel#show">Use this Package</button>
-            <section data-panel-target="panel">
-              <button class="close" data-action="click->panel#hide">&times;</button>
+          <div data-controller="modal-panel">
+            <button data-modal-panel-target="button" data-action="click->modal-panel#show">Use this Package</button>
+            <section data-modal-panel-target="panel">
+              <button class="close" data-action="click->modal-panel#hide">&times;</button>
               <p>How you add this package to your project depends on what kind of project you're developing.</p>
               <h4>When working with an Xcode project:</h4>
               <form class="copyable_input">
