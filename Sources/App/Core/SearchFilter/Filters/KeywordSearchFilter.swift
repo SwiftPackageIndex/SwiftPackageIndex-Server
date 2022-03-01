@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import SQLKit
+
 
 /// Filters by ensuring the keywords of the package contain the provided keyword.
 ///
@@ -36,5 +38,10 @@ struct KeywordSearchFilter: SearchFilterProtocol {
             bindableValue: .value(expression.value),
             displayValue: expression.value
         )
+    }
+
+    var sqlIdentifier: SQLExpression {
+        // override default identifier
+        arrayToString(Search.keywords, delimiter: " ")
     }
 }

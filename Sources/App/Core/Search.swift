@@ -143,8 +143,6 @@ enum Search {
 
         // constants
         let emptyString = SQLLiteral.string("")
-        let emptyArray = SQLLiteral.string("{}")
-        let emptyStringArray = SQLLiteral.string(#"{""}"#)
         let contains = SQLRaw("~*")
 
         let haystack = concat(
@@ -173,11 +171,6 @@ enum Search {
             .column(keywords)
             .column(null, as: levenshteinDist)
             .from(searchView)
-        // This next .from is a hack to avoid the search collapsing when there are no keywords
-        // see https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1585
-        // for details.
-            .from(unnest(coalesce(nullif(keywords, emptyArray), emptyStringArray)),
-                  as: keyword)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(repoOwner))
