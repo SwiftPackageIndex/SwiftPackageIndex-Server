@@ -66,7 +66,7 @@ class SearchTests: AppTestCase {
         )
 
         XCTAssertEqual(renderSQL(b), """
-            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", NULL AS "levenshtein_dist" FROM "search", UNNEST("keywords") AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("keyword" ILIKE $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", NULL AS "levenshtein_dist" FROM "search", UNNEST(COALESCE(NULLIF("keywords", '{}'), '{""}')) AS "keyword" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("keyword" ILIKE $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
             """)
         XCTAssertEqual(binds(b), ["a", "foo", "a"])
     }
@@ -599,7 +599,7 @@ class SearchTests: AppTestCase {
         // MUT
         let res = try Search.fetch(app.db, ["foo"], page: 1, pageSize: 20).wait()
 
-        let packageResult = try XCTUnwrap(res.results.first!.package)
+        let packageResult = try res.results.first.unwrap().package.unwrap()
         XCTAssertEqual(packageResult.packageId, .id0)
         XCTAssertEqual(packageResult.repositoryName, "1")
         XCTAssertEqual(packageResult.repositoryOwner, "bar")
@@ -848,25 +848,25 @@ class SearchTests: AppTestCase {
         do { // Greater Than
             let res = try Search.fetch(app.db, ["test", "stars:>25"], page: 1, pageSize: 20).wait()
             XCTAssertEqual(res.results.count, 1)
-            XCTAssertEqual(res.results[0].package?.packageName, "p1")
+            XCTAssertEqual(res.results.first?.package?.packageName, "p1")
         }
         
         do { // Less Than
             let res = try Search.fetch(app.db, ["test", "stars:<25"], page: 1, pageSize: 20).wait()
             XCTAssertEqual(res.results.count, 1)
-            XCTAssertEqual(res.results[0].package?.packageName, "p2")
+            XCTAssertEqual(res.results.first?.package?.packageName, "p2")
         }
         
         do { // Equal
             let res = try Search.fetch(app.db, ["test", "stars:50"], page: 1, pageSize: 20).wait()
             XCTAssertEqual(res.results.count, 1)
-            XCTAssertEqual(res.results[0].package?.packageName, "p1")
+            XCTAssertEqual(res.results.first?.package?.packageName, "p1")
         }
         
         do { // Not Equals
             let res = try Search.fetch(app.db, ["test", "stars:!50"], page: 1, pageSize: 20).wait()
             XCTAssertEqual(res.results.count, 1)
-            XCTAssertEqual(res.results[0].package?.packageName, "p2")
+            XCTAssertEqual(res.results.first?.package?.packageName, "p2")
         }
     }
     

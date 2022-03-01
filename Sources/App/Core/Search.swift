@@ -142,12 +142,14 @@ enum Search {
         let mergedTerms = SQLBind(terms.joined(separator: " ").lowercased())
 
         // constants
-        let empty = SQLLiteral.string("")
+        let emptyString = SQLLiteral.string("")
+        let emptyArray = SQLLiteral.string("{}")
+        let emptyStringArray = SQLLiteral.string(#"{""}"#)
         let contains = SQLRaw("~*")
 
         let haystack = concat(
             with: " ",
-            packageName, coalesce(summary, empty), repoName, repoOwner, arrayToString(keywords, delimiter: " ")
+            packageName, coalesce(summary, emptyString), repoName, repoOwner, arrayToString(keywords, delimiter: " ")
         )
         let sortOrder = SQLOrderBy(eq(lower(packageName), mergedTerms),
                                    .descending)
@@ -171,7 +173,11 @@ enum Search {
             .column(keywords)
             .column(null, as: levenshteinDist)
             .from(searchView)
-            .from(SQLFunction("UNNEST", args: keywords), as: keyword)
+        // This next .from is a hack to avoid the search collapsing when there are no keywords
+        // see https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1585
+        // for details.
+            .from(unnest(coalesce(nullif(keywords, emptyArray), emptyStringArray)),
+                  as: keyword)
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(repoOwner))

@@ -15,6 +15,8 @@
 import SQLKit
 
 
+// MARK: - SQL Functions
+
 func arrayToString(_ array: SQLExpression, delimiter: String) -> SQLFunction {
     SQLFunction("ARRAY_TO_STRING", args: array, SQLLiteral.string(delimiter))
 }
@@ -43,6 +45,18 @@ func lower(_ arg: SQLExpression) -> SQLFunction {
     SQLFunction("LOWER", args: arg)
 }
 
+
+func nullif(_ value1: SQLExpression, _ value2: SQLExpression) -> SQLFunction {
+    SQLFunction("NULLIF", args: value1, value2)
+}
+
+
+func unnest(_ array: SQLExpression) -> SQLFunction {
+    SQLFunction("UNNEST", args: array)
+}
+
+
+// MARK: - SQL Binary Expressions
 
 func isNotNull(_ column: SQLIdentifier) -> SQLBinaryExpression {
     SQLBinaryExpression(left: column, op: SQLBinaryOperator.isNot, right: SQLRaw("NULL"))
