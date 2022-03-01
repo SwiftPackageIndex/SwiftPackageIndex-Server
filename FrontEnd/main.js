@@ -27,7 +27,6 @@ import { SPIPlaygroundsAppLinkFallback } from './scripts/playgrounds_app_link.js
 import { SPIReadmeElement } from './scripts/readme_element.js'
 import { SPITabBarElement } from './scripts/tab_bar_element.js'
 import { SPISearchFilterSuggestions } from './scripts/search_filter_suggestions.js'
-import { SPIPanel } from './scripts/panel.js'
 
 new SPIWindowMonitor()
 new SPIPackageListNavigation()
@@ -36,7 +35,6 @@ new SPICopyableInput()
 new SPIAutofocus()
 new SPIPlaygroundsAppLinkFallback()
 new SPISearchFilterSuggestions()
-new SPIPanel()
 
 document.addEventListener('turbo:load', () => {
   defineCustomElement('spi-readme', SPIReadmeElement)

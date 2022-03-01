@@ -71,6 +71,26 @@ extension Node where Context: HTML.BodyContext {
             )
         )
     }
+    static func spiPanel(buttonText: String,
+                         _ nodes: Node<HTML.BodyContext>...) -> Node<HTML.BodyContext> {
+        .div(
+            .data(named: "controller", value: "panel"),
+            .button(
+                .data(named: "panel-target", value: "button"),
+                .data(named: "action", value: "click->panel#show"),
+                .text(buttonText)
+            ),
+            .section(
+                .data(named: "panel-target", value: "panel"),
+                .button(
+                    .class("close"),
+                    .text("&times;"),
+                    .data(named: "action", value: "click->panel#hide")
+                ),
+                .group(nodes)
+            )
+        )
+    }
 
     static func spinner() -> Self {
         .div(

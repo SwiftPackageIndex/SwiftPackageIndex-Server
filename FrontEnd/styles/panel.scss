@@ -14,47 +14,53 @@
  */
 
 /* -------------------------------------------------------------------------
-  Drop down panels
+  Modal panels
 ---------------------------------------------------------------------------- */
 
-// Code specifically for positioning the panel centrally
-.panel {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  margin-right: -50%;
-  transform: translate(-50%, -70%); // Slightly above centre looks best
-}
-
-.panel {
-  padding: 20px;
-  padding-top: 0;
-  background-color: var(--panel-background);
-  border-top: 3px var(--panel-border) solid;
-  box-shadow: var(--panel-shadow);
-  z-index: 1000;
-
-  button.close {
-    // Using float is unusual these days but it's the easiest way to make the close
-    // button stay as part of the layout flow so the intro text wraps around it.
-    float: right;
-    margin: 0 -20px 0 0;
-    padding: 10px 15px;
-    font-size: 20px;
-    cursor: pointer;
-    border: none;
-    background: none;
-    color: var(--page-text);
+[data-controller='panel'] {
+  > button:not(.visible) {
+    display: none;
   }
-}
 
-#panel_underlay {
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  opacity: var(--panel-underlay-opacity);
-  background-color: var(--panel-underlay-background);
-  z-index: 999;
+  > [data-panel-target='underlay'] {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    opacity: var(--panel-underlay-opacity);
+    background-color: var(--panel-underlay-background);
+    z-index: 999;
+  }
+
+  > section {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -70%); // Slightly above centre looks best
+    z-index: 1000;
+    padding: 20px;
+    padding-top: 0;
+    background-color: var(--panel-background);
+    border-top: 3px var(--panel-border) solid;
+    box-shadow: var(--panel-shadow);
+
+    &:not(.visible) {
+      display: none;
+    }
+
+    button.close {
+      // Using float is unusual these days but it's the easiest way to make the close
+      // button stay as part of the layout flow so the intro text wraps around it.
+      float: right;
+      margin: 0 -20px 0 0;
+      padding: 10px 15px;
+      font-size: 20px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--page-text);
+    }
+  }
 }
