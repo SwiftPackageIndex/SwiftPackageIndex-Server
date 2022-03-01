@@ -168,6 +168,7 @@ private extension QueryPerformanceTests {
 
         let parsedPlan = try QueryPlan(queryPlan)
         print("COST: \(parsedPlan.cost)")
+        print("EXPECTED: \(expectedCost) ± \(variation)")
         print("ACTUAL TIME: \(parsedPlan.actualTime)")
 
         switch parsedPlan.cost.total {
