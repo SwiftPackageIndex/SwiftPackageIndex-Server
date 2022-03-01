@@ -120,7 +120,7 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "keywords is cache")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""keyword""#)
+        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #"ARRAY_TO_STRING("keywords", ' ')"#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "ILIKE")
         XCTAssertEqual(binds(filter.sqlBind), ["cache"])
 
