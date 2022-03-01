@@ -35,8 +35,14 @@ protocol SearchFilterProtocol {
     /// or an `.equal` depending on the semantics of the particular filter.
     var predicate: SearchFilter.Predicate { get }
 
-    /// The left-hand-side of the where clause expression.
+    /// The left-hand-side of the where clause expression. Optional, has default implementation.
     var sqlIdentifier: SQLExpression { get }
+
+    /// The comparison operator of the where clause expression. Optional, has default implementation.
+    var sqlOperator: SQLExpression { get }
+
+    /// The right-hand-side of the where clause expression. Optional, has default implementation.
+    var sqlBind: SQLExpression { get }
 }
 
 

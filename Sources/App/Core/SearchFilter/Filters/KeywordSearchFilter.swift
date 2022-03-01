@@ -41,7 +41,10 @@ struct KeywordSearchFilter: SearchFilterProtocol {
     }
 
     var sqlIdentifier: SQLExpression {
-        // override default identifier
-        arrayToString(Search.keywords, delimiter: " ")
+        predicate.sqlBind
+    }
+
+    var sqlBind: SQLExpression {
+        any(Search.keywords)
     }
 }

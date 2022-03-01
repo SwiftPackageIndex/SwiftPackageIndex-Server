@@ -120,9 +120,10 @@ class SearchFilterTests: AppTestCase {
         XCTAssertEqual(filter.viewModel.description, "keywords is cache")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #"ARRAY_TO_STRING("keywords", ' ')"#)
+        XCTAssertEqual(renderSQL(filter.sqlIdentifier), "$1")
+        XCTAssertEqual(binds(filter.sqlIdentifier), ["cache"])
         XCTAssertEqual(renderSQL(filter.sqlOperator), "ILIKE")
-        XCTAssertEqual(binds(filter.sqlBind), ["cache"])
+        XCTAssertEqual(renderSQL(filter.sqlBind), #"ANY("keywords")"#)
 
         // test error case
         XCTAssertThrowsError(try KeywordSearchFilter(expression: .init(operator: .greaterThan,
