@@ -936,7 +936,7 @@ class SearchTests: AppTestCase {
         try [p1, p2].save(on: app.db).wait()
         try Repository(package: p1,
                        defaultBranch: "main",
-                       keywords: ["kw1"],
+                       keywords: ["kw1", "kw2"],
                        name: "1",
                        owner: "foo",
                        summary: "test package").save(on: app.db).wait()
