@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-document.addEventListener('click', (event) => {
-  const externalLinkElement = event.target.findParentMatching((element) => {
-    return element.nodeName.toLowerCase() == 'a' && element.hostname != window.location.hostname
-  })
+import { Application } from '@hotwired/stimulus'
+import { OverflowingListController } from './overflowing_list_controller.js'
 
-  if (externalLinkElement) externalLinkElement.setAttribute('target', '_blank')
-})
+const application = Application.start()
+application.register('overflowing-list', OverflowingListController)

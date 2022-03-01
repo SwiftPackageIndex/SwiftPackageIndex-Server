@@ -59,15 +59,17 @@ extension Node where Context: HTML.BodyContext {
         // time this tag is used. It's the exact size in pixels of the collapsed element. If
         // incorrect, the "show more" button will show up unnecessarily as it may overflow by
         // just a single invisible pixel.
-        .element(named: "spi-overflowing-list", nodes:[
-            .data(named: "overflow-message", value: overflowMessage),
-            .data(named: "overflow-height", value: "\(overflowHeight)px"),
-            .ariaExpanded(false),
+        .div(
+            .data(named: "controller", value: "overflowing-list"),
+            .data(named: "overflowing-list-overflow-message-value", value: overflowMessage),
+            .data(named: "overflowing-list-overflow-height-value", value: String(overflowHeight)),
+            .data(named: "overflowing-list-collapsed-value", value: String(true)),
             .ul(
+                .data(named: "overflowing-list-target", value: "list"),
                 .unwrap(listClass) { .class($0) },
                 .group(nodes)
             )
-        ])
+        )
     }
 
     static func spinner() -> Self {

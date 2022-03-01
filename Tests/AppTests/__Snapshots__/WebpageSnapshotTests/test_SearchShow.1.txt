@@ -171,8 +171,8 @@
             <div>
               <section class="author_results">
                 <h4>Matching authors</h4>
-                <spi-overflowing-list data-overflow-message="Show more authors…" data-overflow-height="129px" aria-expanded="false">
-                  <ul>
+                <div data-controller="overflowing-list" data-overflowing-list-overflow-message-value="Show more authors…" data-overflowing-list-overflow-height-value="129" data-overflowing-list-collapsed-value="true">
+                  <ul data-overflowing-list-target="list">
                     <li>
                       <a href="/Apple">Apple</a>
                     </li>
@@ -183,12 +183,12 @@
                       <a href="/Pear">Pear</a>
                     </li>
                   </ul>
-                </spi-overflowing-list>
+                </div>
               </section>
               <section class="keyword_results">
                 <h4>Matching keywords</h4>
-                <spi-overflowing-list data-overflow-message="Show more keywords…" data-overflow-height="260px" aria-expanded="false">
-                  <ul class="keywords">
+                <div data-controller="overflowing-list" data-overflowing-list-overflow-message-value="Show more keywords…" data-overflowing-list-overflow-height-value="260" data-overflowing-list-collapsed-value="true">
+                  <ul data-overflowing-list-target="list" class="keywords">
                     <li>
                       <a href="/keywords/keyword1">keyword1</a>
                     </li>
@@ -202,7 +202,7 @@
                       <a href="/keywords/four">four</a>
                     </li>
                   </ul>
-                </spi-overflowing-list>
+                </div>
               </section>
             </div>
           </div>

@@ -15,8 +15,9 @@
 import '@hotwired/turbo'
 
 import './scripts/dom_helpers.js'
+import './scripts/external_link_retargeter.js'
+import './scripts/controllers'
 
-import { ExternalLinkRetargeter } from './scripts/external_link_retargeter.js'
 import { SPIWindowMonitor } from './scripts/window_monitor.js'
 import { SPIPackageListNavigation } from './scripts/package_list_navigation.js'
 import { SPICopyableInput } from './scripts/copy_buttons.js'
@@ -25,11 +26,9 @@ import { SPIAutofocus } from './scripts/autofocus.js'
 import { SPIPlaygroundsAppLinkFallback } from './scripts/playgrounds_app_link.js'
 import { SPIReadmeElement } from './scripts/readme_element.js'
 import { SPITabBarElement } from './scripts/tab_bar_element.js'
-import { SPIOverflowingList } from './scripts/overflowing_list.js'
 import { SPISearchFilterSuggestions } from './scripts/search_filter_suggestions.js'
 import { SPIPanel } from './scripts/panel.js'
 
-new ExternalLinkRetargeter()
 new SPIWindowMonitor()
 new SPIPackageListNavigation()
 new SPIBuildLogNavigation()
@@ -42,7 +41,6 @@ new SPIPanel()
 document.addEventListener('turbo:load', () => {
   defineCustomElement('spi-readme', SPIReadmeElement)
   defineCustomElement('tab-bar', SPITabBarElement)
-  defineCustomElement('spi-overflowing-list', SPIOverflowingList)
 })
 
 function defineCustomElement(elementName, klass) {
