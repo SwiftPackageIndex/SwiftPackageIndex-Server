@@ -15,6 +15,7 @@
 import '@hotwired/turbo'
 
 import './scripts/dom_helpers.js'
+import './scripts/external_link_retargeter.js'
 import './scripts/controllers'
 
 import { SPIWindowMonitor } from './scripts/window_monitor.js'

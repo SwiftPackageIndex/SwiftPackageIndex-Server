@@ -12,14 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Controller } from '@hotwired/stimulus'
+document.addEventListener('click', (event) => {
+  const externalLinkElement = event.target.findParentMatching((element) => {
+    return element.nodeName.toLowerCase() == 'a' && element.hostname != window.location.hostname
+  })
 
-export class ExternalLinkRetargeterController extends Controller {
-  retarget(event) {
-    const externalLinkElement = event.target.findParentMatching((element) => {
-      return element.nodeName.toLowerCase() == 'a' && element.hostname != window.location.hostname
-    })
-
-    if (externalLinkElement) externalLinkElement.setAttribute('target', '_blank')
-  }
-}
+  if (externalLinkElement) externalLinkElement.setAttribute('target', '_blank')
+})
