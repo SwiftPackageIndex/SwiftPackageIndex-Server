@@ -157,7 +157,8 @@ private extension QueryPerformanceTests {
                                 expectedCost: Double,
                                 variation: Double = 0,
                                 filePath: StaticString = #filePath,
-                                lineNumber: UInt = #line) async throws {
+                                lineNumber: UInt = #line,
+                                testName: String = #function) async throws {
         let explain = SQLExplain(query)
         var result = [String]()
         try await (app.db as! SQLDatabase).execute(sql: explain) { row in
@@ -167,9 +168,10 @@ private extension QueryPerformanceTests {
         let queryPlan = result.joined(separator: "\n")
 
         let parsedPlan = try QueryPlan(queryPlan)
-        print("COST: \(parsedPlan.cost)")
-        print("EXPECTED: \(expectedCost) ± \(variation)")
-        print("ACTUAL TIME: \(parsedPlan.actualTime)")
+        print("ℹ️ TEST:        \(testName)")
+        print("ℹ️ COST:        \(parsedPlan.cost.total)")
+        print("ℹ️ EXPECTED:    \(expectedCost) ± \(variation)")
+        print("ℹ️ ACTUAL TIME: \(parsedPlan.actualTime.total)ms")
 
         switch parsedPlan.cost.total {
             case ..<10.0:
