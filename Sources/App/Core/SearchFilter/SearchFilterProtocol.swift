@@ -34,11 +34,20 @@ protocol SearchFilterProtocol {
     /// For instance, a search expression's `.is` operator can be transformed into an `.caseInsensitiveLike`
     /// or an `.equal` depending on the semantics of the particular filter.
     var predicate: SearchFilter.Predicate { get }
+
+    /// The left-hand-side of the where clause expression. Optional, has default implementation.
+    var sqlIdentifier: SQLExpression { get }
+
+    /// The comparison operator of the where clause expression. Optional, has default implementation.
+    var sqlOperator: SQLExpression { get }
+
+    /// The right-hand-side of the where clause expression. Optional, has default implementation.
+    var sqlBind: SQLExpression { get }
 }
 
 
 extension SearchFilterProtocol {
-    var sqlIdentifier: SQLIdentifier { Self.key.sqlIdentifier }
+    var sqlIdentifier: SQLExpression { Self.key.sqlIdentifier }
     var sqlOperator: SQLExpression { predicate.sqlOperator }
     var sqlBind: SQLExpression { predicate.sqlBind }
 }

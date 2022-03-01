@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import SQLKit
+
 
 /// Filters by ensuring the keywords of the package contain the provided keyword.
 ///
 /// Examples:
 /// ```
-/// keyword:apple  - The package keywords contains the keyword 'apple'
-/// keyword:!apple - The package keywords does not contain the keyword 'apple'
+/// keyword:apple  - The package keywords contain 'apple'
+/// keyword:!apple - The package keywords do not contain 'apple'
 /// ```
 struct KeywordSearchFilter: SearchFilterProtocol {
     static var key: SearchFilter.Key = .keyword
@@ -33,8 +35,16 @@ struct KeywordSearchFilter: SearchFilterProtocol {
         self.predicate = .init(
             operator: (expression.operator == .is) ?
                 .caseInsensitiveLike : .notCaseInsensitiveLike,
-            bindableValue: .value("%\(expression.value)%"),
+            bindableValue: .value(expression.value),
             displayValue: expression.value
         )
+    }
+
+    var sqlIdentifier: SQLExpression {
+        predicate.sqlBind
+    }
+
+    var sqlBind: SQLExpression {
+        any(Search.keywords)
     }
 }

@@ -51,8 +51,8 @@ test-query-performance: xcbeautify
 	   swift test --enable-code-coverage --disable-automatic-resolution \
 	   --filter QueryPerformanceTests \
 	2>&1 | tee test.log
-	grep "COST\|ACTUAL" test.log
-	./xcbeautify < test.log
+	grep "ℹ️" test.log
+	grep -v "\] Compiling" test.log | ./xcbeautify
 
 test-fast:
 	@echo Skipping image snapshot tests

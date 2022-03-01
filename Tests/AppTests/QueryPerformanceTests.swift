@@ -60,12 +60,12 @@ class QueryPerformanceTests: XCTestCase {
 
     func test_Search_packageMatchQuery() async throws {
         let query = Search.packageMatchQueryBuilder(on: app.db, terms: ["a"], filters: [])
-        try await assertQueryPerformance(query, expectedCost: 660, variation: 50)
+        try await assertQueryPerformance(query, expectedCost: 590, variation: 60)
     }
 
     func test_Search_keywordMatchQuery() async throws {
         let query = Search.keywordMatchQueryBuilder(on: app.db, terms: ["a"])
-        try await assertQueryPerformance(query, expectedCost: 2990, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3010, variation: 100)
     }
 
     func test_Search_authorMatchQuery() async throws {
@@ -77,7 +77,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3910, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3850, variation: 100)
     }
 
     func test_Search_query_authorFilter() async throws {
@@ -85,7 +85,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3680, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3700, variation: 100)
     }
 
     func test_Search_query_keywordFilter() async throws {
@@ -93,7 +93,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3920, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3750, variation: 100)
     }
 
     func test_Search_query_lastActicityFilter() async throws {
@@ -101,7 +101,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3920, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3850, variation: 100)
     }
 
     func test_Search_query_licenseFilter() async throws {
@@ -117,7 +117,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3840, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3770, variation: 100)
     }
 
     func test_Search_query_starsFilter() async throws {
@@ -125,7 +125,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        try await assertQueryPerformance(query, expectedCost: 3830, variation: 100)
+        try await assertQueryPerformance(query, expectedCost: 3790, variation: 100)
     }
 
 }
@@ -157,7 +157,8 @@ private extension QueryPerformanceTests {
                                 expectedCost: Double,
                                 variation: Double = 0,
                                 filePath: StaticString = #filePath,
-                                lineNumber: UInt = #line) async throws {
+                                lineNumber: UInt = #line,
+                                testName: String = #function) async throws {
         let explain = SQLExplain(query)
         var result = [String]()
         try await (app.db as! SQLDatabase).execute(sql: explain) { row in
@@ -167,8 +168,10 @@ private extension QueryPerformanceTests {
         let queryPlan = result.joined(separator: "\n")
 
         let parsedPlan = try QueryPlan(queryPlan)
-        print("COST: \(parsedPlan.cost)")
-        print("ACTUAL TIME: \(parsedPlan.actualTime)")
+        print("ℹ️ TEST:        \(testName)")
+        print("ℹ️ COST:        \(parsedPlan.cost.total)")
+        print("ℹ️ EXPECTED:    \(expectedCost) ± \(variation)")
+        print("ℹ️ ACTUAL TIME: \(parsedPlan.actualTime.total)ms")
 
         switch parsedPlan.cost.total {
             case ..<10.0:

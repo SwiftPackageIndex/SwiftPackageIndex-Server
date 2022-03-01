@@ -113,16 +113,17 @@ class SearchFilterTests: AppTestCase {
                                                                value: "cache"))
         XCTAssertEqual(filter.key, .keyword)
         XCTAssertEqual(filter.predicate, .init(operator: .caseInsensitiveLike,
-                                               bindableValue: .value("%cache%"),
+                                               bindableValue: .value("cache"),
                                                displayValue: "cache"))
 
         // test view representation
         XCTAssertEqual(filter.viewModel.description, "keywords is cache")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.sqlIdentifier), #""keyword""#)
+        XCTAssertEqual(renderSQL(filter.sqlIdentifier), "$1")
+        XCTAssertEqual(binds(filter.sqlIdentifier), ["cache"])
         XCTAssertEqual(renderSQL(filter.sqlOperator), "ILIKE")
-        XCTAssertEqual(binds(filter.sqlBind), ["%cache%"])
+        XCTAssertEqual(renderSQL(filter.sqlBind), #"ANY("keywords")"#)
 
         // test error case
         XCTAssertThrowsError(try KeywordSearchFilter(expression: .init(operator: .greaterThan,
