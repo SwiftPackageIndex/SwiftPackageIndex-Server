@@ -19,7 +19,7 @@ import Vapor
 
 enum Search {
     static let schema = "search"
-    
+
     // identifiers
     static let author = SQLIdentifier("author")
     static let keyword = SQLIdentifier("keyword")
@@ -189,29 +189,51 @@ enum Search {
         let mergedTerms = terms.joined(separator: " ").lowercased()
         let searchPattern = mergedTerms.isEmpty ? "" : "%" + mergedTerms + "%"
 
-        return db
-            .select()
+        // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1602 on
+        // why this select query is split up like this
+        var select = db.select()
+        select = select
             .distinct()
+        select = select
             .column(.keyword)
+        select = select
             .column(keyword)
+        select = select
             .column(nullUUID, as: packageId)
+        select = select
             .column(null, as: packageName)
+        select = select
             .column(null, as: repoName)
+        select = select
             .column(null, as: repoOwner)
+        select = select
             .column(nullInt, as: score)
+        select = select
             .column(null, as: summary)
+        select = select
             .column(nullInt, as: stars)
+        select = select
             .column(null, as: license)
+        select = select
             .column(nullTimestamp, as: lastCommitDate)
+        select = select
             .column(nullTimestamp, as: lastActivityAt)
+        select = select
             .column(nullTextArray, as: keywords)
+        select = select
             .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
                     as: levenshteinDist)
+        select = select
             .from(searchView)
+        select = select
             .from(unnest(keywords), as: keyword)
+        select = select
             .where(keyword, ilike, SQLBind(searchPattern))
+        select = select
             .orderBy(levenshteinDist)
+        select = select
             .limit(50)
+        return select
     }
 
     static func authorMatchQueryBuilder(on database: Database,
@@ -222,28 +244,48 @@ enum Search {
         let mergedTerms = terms.joined(separator: " ").lowercased()
         let searchPattern = mergedTerms.isEmpty ? "" : "%" + mergedTerms + "%"
 
-        return db
-            .select()
+        // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1602 on
+        // why this select query is split up like this
+        var select = db.select()
             .distinct()
+        select = select
             .column(.author)
+        select = select
             .column(null, as: keyword)
+        select = select
             .column(nullUUID, as: packageId)
+        select = select
             .column(null, as: packageName)
+        select = select
             .column(null, as: repoName)
+        select = select
             .column(repoOwner)
+        select = select
             .column(nullInt, as: score)
+        select = select
             .column(null, as: summary)
+        select = select
             .column(nullInt, as: stars)
+        select = select
             .column(null, as: license)
+        select = select
             .column(nullTimestamp, as: lastCommitDate)
+        select = select
             .column(nullTimestamp, as: lastActivityAt)
+        select = select
             .column(nullTextArray, as: keywords)
+        select = select
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
+        select = select
             .from(searchView)
+        select = select
             .where(repoOwner, ilike, SQLBind(searchPattern))
+        select = select
             .orderBy(levenshteinDist)
+        select = select
             .limit(50)
+        return select
     }
 
     static func query(_ database: Database,
