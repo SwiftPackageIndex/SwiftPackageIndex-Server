@@ -185,21 +185,6 @@ class BuildIndexModelTests: AppTestCase {
                                     .init("2.0.0-b1", .preRelease),
                                     .init("develop", .defaultBranch, id, .failed)])
 
-        // MUT
-        let columnLabels = bi.columnLabels
-
-        // validate
-        XCTAssertEqual(columnLabels.render(), """
-            <div class="column_label"><div><span class="stable">1.2.3</span></div><div><span class="beta">2.0.0-b1</span></div><div><span class="branch">develop</span></div></div>
-            """)
-
-        // MUT
-        let cells = bi.cells
-
-        XCTAssertEqual(cells.render(), """
-            <div class="result"><div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div><div><span>Build Pending</span></div><div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div></div>
-            """)
-
         // MUT - altogether now
         let node = bi.node
 
