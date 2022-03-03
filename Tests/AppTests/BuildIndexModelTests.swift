@@ -191,23 +191,20 @@ class BuildIndexModelTests: AppTestCase {
         let expectation: Node<HTML.ListContext> = .li(
             .class("row"),
             .div(
-                .class("row_label"),
-                .div(.div(.strong("iOS")))
+                .class("row_labels"),
+                .strong("iOS")
             ),
             .div(
-                .class("row_values"),
-                .div(
-                    .class("column_label"),
-                    .div(.span(.class("stable"), .text("1.2.3"))),
-                    .div(.span(.class("beta"), .text("2.0.0-b1"))),
-                    .div(.span(.class("branch"), .text("develop")))
-                ),
-                .div(
-                    .class("result"),
-                    .div(.class("succeeded"), .a(.href("/builds/\(id.uuidString)"), .text("Build Succeeded"))),
-                    .div(.span(.text("Build Pending"))),
-                    .div(.class("failed"), .a(.href("/builds/\(id.uuidString)"), .text("Build Failed")))
-                )
+                .class("column_labels"),
+                .div(.span(.class("stable"), .text("1.2.3"))),
+                .div(.span(.class("beta"), .text("2.0.0-b1"))),
+                .div(.span(.class("branch"), .text("develop")))
+            ),
+            .div(
+                .class("results"),
+                .div(.class("succeeded"), .a(.href("/builds/\(id.uuidString)"), .text("Build Succeeded"))),
+                .div(.span(.text("Build Pending"))),
+                .div(.class("failed"), .a(.href("/builds/\(id.uuidString)"), .text("Build Failed")))
             )
         )
         XCTAssertEqual(node.render(), expectation.render())
