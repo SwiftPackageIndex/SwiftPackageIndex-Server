@@ -29,81 +29,66 @@
 
   li {
     margin: 5px 0;
-  }
 
-  @media screen and (max-width: $mobile-breakpoint) {
-    li {
-      margin: 30px 0;
+    @media screen and (max-width: $mobile-breakpoint) {
+      margin: 20px 0;
     }
   }
 
   .row {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 3fr 7fr;
 
-    &:first-child .row_values > div:first-child {
-      display: flex;
-    }
-
-    .row_label {
+    .row_labels {
+      grid-row: 2;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
-      flex-basis: 0;
-      flex-grow: 3;
+      justify-content: center;
 
-      > div {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 35px;
+      p {
+        margin: 0;
       }
     }
 
-    @media screen and (max-width: $mobile-breakpoint) {
-      .row_label {
-        /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
-        flex-basis: auto;
-      }
-    }
-
-    .row_values {
+    .column_labels {
+      grid-column: 2;
       display: flex;
-      flex-direction: column;
-      flex-basis: 0;
-      flex-grow: 7;
+      flex-direction: row;
+    }
 
-      > div {
-        display: flex;
-        flex-direction: row;
-      }
+    .results {
+      grid-column: 2;
+      display: flex;
+      flex-direction: row;
+    }
 
-      > div:first-child {
-        display: none;
-      }
+    // Show the column labels only for the first row on desktop.
+    // Note: This is a *desktop only* media query.
+    @media not all and (max-width: $mobile-breakpoint) {
+      &:not(:first-child) {
+        .row_labels {
+          grid-row: unset;
+        }
 
-      @media screen and (max-width: $mobile-breakpoint) {
-        > div:first-child {
-          display: flex;
+        .column_labels {
+          display: none;
         }
       }
     }
 
-    @media screen and (max-width: $mobile-breakpoint) {
-      .row_values {
-        /* This fixes a nasty bug in Safari 13.1 where inheriting flex-basis:0 causes the height of the entire row to collapse to zero */
-        flex-basis: auto;
+    @media (max-width: $mobile-breakpoint) {
+      grid-template-columns: 1fr;
+
+      .row_labels,
+      .column_labels,
+      .results {
+        grid-row: unset;
+        grid-column: unset;
       }
     }
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
-    .row {
-      flex-direction: column;
-    }
-  }
-
-  .column_label > div {
+  .column_labels > div {
     padding: 5px 0;
     display: flex;
     flex-direction: column;
@@ -119,7 +104,7 @@
     }
   }
 
-  .result > div {
+  .results > div {
     margin: 0 3px;
     height: 35px;
     display: flex;
@@ -130,7 +115,7 @@
   }
 
   &.compatibility {
-    .result {
+    .results {
       & > div {
         background-size: 20px;
         background-repeat: no-repeat;
@@ -157,12 +142,12 @@
   }
 
   &.builds {
-    .column_label > div > span {
+    .column_labels > div > span {
       font-size: 16px;
       background-position: top 4px right;
     }
 
-    .result > div {
+    .results > div {
       background-color: var(--grid-default-background);
 
       &.succeeded > a,
