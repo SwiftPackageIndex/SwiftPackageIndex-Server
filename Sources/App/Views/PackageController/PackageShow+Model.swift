@@ -490,7 +490,7 @@ extension PackageShow.Model {
         let rows = Self.groupBuildInfo(buildInfo)
         return .ul(
             .class("matrix compatibility"),
-            .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
+            .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.cells) }
         )
     }
 
@@ -499,26 +499,26 @@ extension PackageShow.Model {
         let rows = Self.groupBuildInfo(buildInfo)
         return .ul(
             .class("matrix compatibility"),
-            .forEach(rows) { compatibilityListItem(label: $0.label, cells: $0.results.cells) }
+            .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.cells) }
         )
     }
 
-    func compatibilityListItem<T>(label: Node<HTML.BodyContext>,
+    func compatibilityListItem<T>(_ labelParagraphNode: Node<HTML.BodyContext>,
                                   cells: [BuildResult<T>]) -> Node<HTML.ListContext> {
         return .li(
             .class("row"),
-            label,
             .div(
-                // Matrix CSS should include *both* the column labels, and the column values status boxes in *every* row.
-                .class("row_values"),
-                .div(
-                    .class("column_label"),
-                    .forEach(cells) { $0.headerNode }
-                ),
-                .div(
-                    .class("result"),
-                    .forEach(cells) { $0.cellNode }
-                )
+                .class("row_labels"),
+                labelParagraphNode
+            ),
+            // Matrix CSS should include *both* the column labels, and the column values status boxes in *every* row.
+            .div(
+                .class("column_labels"),
+                .forEach(cells) { $0.headerNode }
+            ),
+            .div(
+                .class("results"),
+                .forEach(cells) { $0.cellNode }
             )
         )
     }
