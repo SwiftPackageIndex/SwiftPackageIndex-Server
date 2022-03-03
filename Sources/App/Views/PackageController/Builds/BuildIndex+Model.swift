@@ -239,30 +239,17 @@ extension BuildIndex.Model {
             .li(
                 .class("row"),
                 .div(
-                    .class("row_label"),
-                    .div(
-                        .div(.strong(.text(index.platform.displayName)))
-                    )
+                    .class("row_labels"),
+                    .strong(.text(index.platform.displayName))
                 ),
                 .div(
-                    .class("row_values"),
-                    columnLabels,
-                    cells
+                    .class("column_labels"),
+                    .group(values.map(\.column.node))
+                ),
+                .div(
+                    .class("results"),
+                    .group(values.map(\.node))
                 )
-            )
-        }
-
-        var columnLabels: Node<HTML.BodyContext> {
-            .div(
-                .class("column_label"),
-                .group(values.map(\.column.node))
-            )
-        }
-
-        var cells: Node<HTML.BodyContext> {
-            .div(
-                .class("result"),
-                .group(values.map(\.node))
             )
         }
     }

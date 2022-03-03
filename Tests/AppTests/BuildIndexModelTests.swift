@@ -185,44 +185,26 @@ class BuildIndexModelTests: AppTestCase {
                                     .init("2.0.0-b1", .preRelease),
                                     .init("develop", .defaultBranch, id, .failed)])
 
-        // MUT
-        let columnLabels = bi.columnLabels
-
-        // validate
-        XCTAssertEqual(columnLabels.render(), """
-            <div class="column_label"><div><span class="stable">1.2.3</span></div><div><span class="beta">2.0.0-b1</span></div><div><span class="branch">develop</span></div></div>
-            """)
-
-        // MUT
-        let cells = bi.cells
-
-        XCTAssertEqual(cells.render(), """
-            <div class="result"><div class="succeeded"><a href="/builds/\(id.uuidString)">Build Succeeded</a></div><div><span>Build Pending</span></div><div class="failed"><a href="/builds/\(id.uuidString)">Build Failed</a></div></div>
-            """)
-
         // MUT - altogether now
         let node = bi.node
 
         let expectation: Node<HTML.ListContext> = .li(
             .class("row"),
             .div(
-                .class("row_label"),
-                .div(.div(.strong("iOS")))
+                .class("row_labels"),
+                .strong("iOS")
             ),
             .div(
-                .class("row_values"),
-                .div(
-                    .class("column_label"),
-                    .div(.span(.class("stable"), .text("1.2.3"))),
-                    .div(.span(.class("beta"), .text("2.0.0-b1"))),
-                    .div(.span(.class("branch"), .text("develop")))
-                ),
-                .div(
-                    .class("result"),
-                    .div(.class("succeeded"), .a(.href("/builds/\(id.uuidString)"), .text("Build Succeeded"))),
-                    .div(.span(.text("Build Pending"))),
-                    .div(.class("failed"), .a(.href("/builds/\(id.uuidString)"), .text("Build Failed")))
-                )
+                .class("column_labels"),
+                .div(.span(.class("stable"), .text("1.2.3"))),
+                .div(.span(.class("beta"), .text("2.0.0-b1"))),
+                .div(.span(.class("branch"), .text("develop")))
+            ),
+            .div(
+                .class("results"),
+                .div(.class("succeeded"), .a(.href("/builds/\(id.uuidString)"), .text("Build Succeeded"))),
+                .div(.span(.text("Build Pending"))),
+                .div(.class("failed"), .a(.href("/builds/\(id.uuidString)"), .text("Build Failed")))
             )
         )
         XCTAssertEqual(node.render(), expectation.render())

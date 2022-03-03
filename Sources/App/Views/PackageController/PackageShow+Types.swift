@@ -152,16 +152,11 @@ extension PackageShow.Model {
             self.results = namedResult.results
         }
         
-        var label: Node<HTML.BodyContext> {
+        var labelParagraphNode: Node<HTML.BodyContext> {
             guard !references.isEmpty else { return .empty }
-            return .div(
-                .class("row_label"),
-                .div( // Note: It may look like there is a completely useless div here, but it's needed. I promise.
-                    .div(
-                        .group(
-                            listPhrase(nodes: references.map(\.node))
-                        )
-                    )
+            return .p(
+                .group(
+                    listPhrase(nodes: references.map(\.node))
                 )
             )
         }
