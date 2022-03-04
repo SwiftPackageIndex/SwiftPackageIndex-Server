@@ -18,20 +18,33 @@ import Vapor
 
 struct PackageController {
     
-    func show(req: Request) throws -> EventLoopFuture<HTML> {
+    func show(req: Request) async throws -> HTML {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
         else {
-            return req.eventLoop.future(error: Abort(.notFound))
+            throw Abort(.notFound)
         }
-        return ShowRoute
-            .query(on: req.db, owner: owner, repository: repository)
-            .map {
-                PackageShow.View(path: req.url.path,
-                                 model: $0.model, packageSchema: $0.schema)
-                    .document()
-            }
+
+        if repository.lowercased().hasSuffix(".git") {
+            throw Abort.redirect(to: SiteURL.package(.value(owner),
+                                                     .value(repository.droppingGitExtension),
+                                                     .none).absoluteURL(),
+                                 type: .permanent)
+        }
+
+        do {
+            return try await ShowRoute
+                .query(on: req.db, owner: owner, repository: repository)
+                .map {
+                    PackageShow.View(path: req.url.path,
+                                     model: $0.model, packageSchema: $0.schema)
+                        .document()
+                }.get()
+        } catch let error as AbortError where error.status == .notFound {
+            throw Abort.redirect(to: "https://github.com/\(owner)/\(repository)",
+                                 type: .permanent)
+        }
     }
 
     func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
