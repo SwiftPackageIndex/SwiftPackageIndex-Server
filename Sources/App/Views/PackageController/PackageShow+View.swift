@@ -185,6 +185,12 @@ enum PackageShow {
                 .class("sidebar_links"),
                 .ul(
                     .li(
+                        .a(
+                            .href(model.url),
+                            "View on GitHub"
+                        )
+                    ),
+                    .li(
                         .class("try_in_playground"),
                         .a(
                             .href("spi-playgrounds://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
@@ -202,12 +208,6 @@ enum PackageShow {
                                 ),
                                 .text(" and try again.")
                             )
-                        )
-                    ),
-                    .li(
-                        .a(
-                            .href(model.url),
-                            "View on GitHub"
                         )
                     ),
                     .li(
