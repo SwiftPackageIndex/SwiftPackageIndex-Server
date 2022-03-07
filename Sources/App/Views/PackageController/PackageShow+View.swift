@@ -124,7 +124,11 @@ enum PackageShow {
                     .hr(
                         .class("minor")
                     ),
-                    sidebarVersions()
+                    sidebarVersions(),
+                    .hr(
+                        .class("minor")
+                    ),
+                    sidebarInfoForPackageAuthors()
                 )
             )
         }
@@ -209,12 +213,6 @@ enum PackageShow {
                                 .text(" and try again.")
                             )
                         )
-                    ),
-                    .li(
-                        .a(
-                            .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .maintainerInfo).relativeURL()),
-                            "Do you maintain this package?"
-                        )
                     )
                 )
             )
@@ -228,6 +226,17 @@ enum PackageShow {
                     model.stableReleaseMetadata(),
                     model.betaReleaseMetadata(),
                     model.defaultBranchMetadata()
+                )
+            )
+        }
+
+        func sidebarInfoForPackageAuthors() -> Node<HTML.BodyContext> {
+            .section(
+                .p(
+                    .a(
+                        .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .maintainerInfo).relativeURL()),
+                        "Do you maintain this package?"
+                    )
                 )
             )
         }
