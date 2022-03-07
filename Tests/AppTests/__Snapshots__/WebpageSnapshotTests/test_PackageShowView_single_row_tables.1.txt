@@ -139,9 +139,6 @@
                   <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
                 </li>
                 <li>
-                  <a href="/Alamo/Alamofire/builds">Full Package Compatibility Report</a>
-                </li>
-                <li>
                   <a href="/Alamo">More packages from this author</a>
                 </li>
                 <li>
@@ -153,64 +150,71 @@
           <hr class="minor"/>
           <div class="two_column">
             <section class="main_compatibility">
-              <h3>Compatibility</h3>
+              <div class="two_column v_end">
+                <h3>Compatibility</h3>
+                <a href="/Alamo/Alamofire/builds">Full Build Reports</a>
+              </div>
               <div class="matrices">
-                <ul class="matrix compatibility">
-                  <li class="row">
-                    <div class="row_labels">
-                      <p>
-                        <span class="stable">5.2.5</span>, 
-                        <span class="beta">6.0.0-b1</span>, and 
-                        <span class="branch">main</span>
-                      </p>
-                    </div>
-                    <div class="column_labels">
-                      <div>5.5</div>
-                      <div>5.4</div>
-                      <div>5.3</div>
-                      <div>5.2</div>
-                      <div>5.1</div>
-                    </div>
-                    <div class="results">
-                      <div class="compatible" title="Built successfully with Swift 5.5"></div>
-                      <div class="compatible" title="Built successfully with Swift 5.4"></div>
-                      <div class="compatible" title="Built successfully with Swift 5.3"></div>
-                      <div class="compatible" title="Built successfully with Swift 5.2"></div>
-                      <div class="compatible" title="Built successfully with Swift 5.1"></div>
-                    </div>
-                  </li>
-                </ul>
-                <ul class="matrix compatibility">
-                  <li class="row">
-                    <div class="row_labels">
-                      <p>
-                        <span class="stable">5.2.5</span>, 
-                        <span class="beta">6.0.0-b1</span>, and 
-                        <span class="branch">main</span>
-                      </p>
-                    </div>
-                    <div class="column_labels">
-                      <div>iOS</div>
-                      <div>macOS
-                        <small>(Intel)</small>
+                <a href="/Alamo/Alamofire/builds">
+                  <ul class="matrix compatibility">
+                    <li class="row">
+                      <div class="row_labels">
+                        <p>
+                          <span class="stable">5.2.5</span>, 
+                          <span class="beta">6.0.0-b1</span>, and 
+                          <span class="branch">main</span>
+                        </p>
                       </div>
-                      <div>macOS
-                        <small>(ARM)</small>
+                      <div class="column_labels">
+                        <div>5.5</div>
+                        <div>5.4</div>
+                        <div>5.3</div>
+                        <div>5.2</div>
+                        <div>5.1</div>
                       </div>
-                      <div>Linux</div>
-                      <div>tvOS</div>
-                      <div>watchOS</div>
-                    </div>
-                    <div class="results">
-                      <div class="compatible" title="Built successfully with iOS"></div>
-                      <div class="compatible" title="Built successfully with macOS (Intel)"></div>
-                      <div class="compatible" title="Built successfully with macOS (ARM)"></div>
-                      <div class="compatible" title="Built successfully with Linux"></div>
-                      <div class="compatible" title="Built successfully with tvOS"></div>
-                      <div class="compatible" title="Built successfully with watchOS"></div>
-                    </div>
-                  </li>
-                </ul>
+                      <div class="results">
+                        <div class="compatible" title="Built successfully with Swift 5.5"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.4"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.3"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.2"></div>
+                        <div class="compatible" title="Built successfully with Swift 5.1"></div>
+                      </div>
+                    </li>
+                  </ul>
+                </a>
+                <a href="/Alamo/Alamofire/builds">
+                  <ul class="matrix compatibility">
+                    <li class="row">
+                      <div class="row_labels">
+                        <p>
+                          <span class="stable">5.2.5</span>, 
+                          <span class="beta">6.0.0-b1</span>, and 
+                          <span class="branch">main</span>
+                        </p>
+                      </div>
+                      <div class="column_labels">
+                        <div>iOS</div>
+                        <div>macOS
+                          <small>(Intel)</small>
+                        </div>
+                        <div>macOS
+                          <small>(ARM)</small>
+                        </div>
+                        <div>Linux</div>
+                        <div>tvOS</div>
+                        <div>watchOS</div>
+                      </div>
+                      <div class="results">
+                        <div class="compatible" title="Built successfully with iOS"></div>
+                        <div class="compatible" title="Built successfully with macOS (Intel)"></div>
+                        <div class="compatible" title="Built successfully with macOS (ARM)"></div>
+                        <div class="compatible" title="Built successfully with Linux"></div>
+                        <div class="compatible" title="Built successfully with tvOS"></div>
+                        <div class="compatible" title="Built successfully with watchOS"></div>
+                      </div>
+                    </li>
+                  </ul>
+                </a>
               </div>
             </section>
             <section class="sidebar_versions">
