@@ -111,18 +111,19 @@ enum PackageShow {
 
         func detailsSection() -> Node<HTML.BodyContext> {
             .article(
-                .class("details"),
-                .div(
-                    .class("two_column"),
+                .class("details two_column"),
+                .section(
                     mainColumnMetadata(),
-                    sidebarLinks()
+                    .hr(
+                        .class("minor")
+                    ),
+                    mainColumnCompatibility()
                 ),
-                .hr(
-                    .class("minor")
-                ),
-                .div(
-                    .class("two_column"),
-                    mainColumnCompatibility(),
+                .section(
+                    sidebarLinks(),
+                    .hr(
+                        .class("minor")
+                    ),
                     sidebarVersions()
                 )
             )
