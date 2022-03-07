@@ -139,7 +139,14 @@ enum PackageShow {
         func mainColumnCompatibility() -> Node<HTML.BodyContext> {
             .section(
                 .class("main_compatibility"),
-                .h3("Compatibility"),
+                .div(
+                    .class("two_column v_end"),
+                    .h3("Compatibility"),
+                    .a(
+                        .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
+                        .text("Full Build Reports")
+                    )
+                ),
                 .div(
                     .class("matrices"),
                     .if(model.hasBuildInfo,
