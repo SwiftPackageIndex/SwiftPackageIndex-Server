@@ -485,21 +485,27 @@ extension PackageShow.Model {
 
     var hasBuildInfo: Bool { swiftVersionBuildInfo != nil || platformBuildInfo != nil }
 
-    func swiftVersionCompatibilitySection() -> Node<HTML.BodyContext> {
+    func swiftVersionCompatibilityList() -> Node<HTML.BodyContext> {
         guard let buildInfo = swiftVersionBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
-        return .ul(
-            .class("matrix compatibility"),
-            .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.cells) }
+        return .a(
+            .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
+            .ul(
+                .class("matrix compatibility"),
+                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.cells) }
+            )
         )
     }
 
-    func platformCompatibilitySection() -> Node<HTML.BodyContext> {
+    func platformCompatibilityList() -> Node<HTML.BodyContext> {
         guard let buildInfo = platformBuildInfo else { return .empty }
         let rows = Self.groupBuildInfo(buildInfo)
-        return .ul(
-            .class("matrix compatibility"),
-            .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.cells) }
+        return                         .a(
+            .href(SiteURL.package(.value(repositoryOwner), .value(repositoryName), .builds).relativeURL()),
+            .ul(
+                .class("matrix compatibility"),
+                .forEach(rows) { compatibilityListItem($0.labelParagraphNode, cells: $0.results.cells) }
+            )
         )
     }
 

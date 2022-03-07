@@ -144,8 +144,8 @@ enum PackageShow {
                     .class("matrices"),
                     .if(model.hasBuildInfo,
                         .group(
-                            model.swiftVersionCompatibilitySection(),
-                            model.platformCompatibilitySection()
+                            model.swiftVersionCompatibilityList(),
+                            model.platformCompatibilityList()
                         ),
                         else: .group(
                             .p(
