@@ -71,12 +71,16 @@
     <main>
       <div class="inner">
         <div class="two_column v_end">
+<<<<<<< HEAD
           <div class="package_title">
             <h2>Alamofire</h2>
             <p>by 
               <a href="/Alamo">Alamofire</a>
             </p>
           </div>
+=======
+          <h2>Alamofire</h2>
+>>>>>>> 83897eff (Snapshots.)
           <div data-controller="modal-panel">
             <button data-modal-panel-target="button" data-action="click->modal-panel#show">Use this Package</button>
             <section data-modal-panel-target="panel">
