@@ -140,11 +140,11 @@ enum PackageShow {
             .section(
                 .class("main_compatibility"),
                 .div(
-                    .class("two_column even v_end"),
+                    .class("two_column v_end"),
                     .h3("Compatibility"),
                     .a(
                         .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
-                        .text("Full Build Reports")
+                        .text("Full Build Results")
                     )
                 ),
                 .div(
