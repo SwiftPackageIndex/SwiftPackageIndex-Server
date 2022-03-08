@@ -70,7 +70,7 @@
     </header>
     <main>
       <div class="inner">
-        <div class="two_column">
+        <div class="two_column v_end">
           <h2>Alamofire</h2>
           <div data-controller="modal-panel">
             <button data-modal-panel-target="button" data-action="click->modal-panel#show">Use this Package</button>
