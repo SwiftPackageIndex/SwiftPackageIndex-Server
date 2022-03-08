@@ -71,22 +71,12 @@
     <main>
       <div class="inner">
         <div class="two_column v_end">
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> cc7a1a20 (Snapshots.)
           <div class="package_title">
             <h2>Alamofire</h2>
             <p>by 
               <a href="/Alamo">Alamofire</a>
             </p>
           </div>
-<<<<<<< HEAD
-=======
-          <h2>Alamofire</h2>
->>>>>>> 83897eff (Snapshots.)
-=======
->>>>>>> cc7a1a20 (Snapshots.)
           <div data-controller="modal-panel">
             <button data-modal-panel-target="button" data-action="click->modal-panel#show">Use this Package</button>
             <section data-modal-panel-target="panel">
@@ -120,8 +110,8 @@
         </div>
         <hr class="tight"/>
         <p class="summary">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque quis porttitor erat. Vivamus porttitor mi odio, quis imperdiet velit blandit id. Vivamus vehicula urna eget ipsum laoreet, sed porttitor sapien malesuada. Mauris faucibus tellus at augue vehicula, vitae aliquet felis ullamcorper. Praesent vitae leo rhoncus, egestas elit id, porttitor lacus. Cras ac bibendum mauris. Praesent luctus quis nulla sit amet tempus. Ut pharetra non augue sed pellentesque.</p>
-        <article class="details">
-          <div class="two_column">
+        <article class="details two_column">
+          <section>
             <section>
               <ul class="main_metadata">
                 <li class="history">In development for over 5 years, with 
@@ -175,28 +165,7 @@
                 </li>
               </ul>
             </section>
-            <section class="sidebar_links">
-              <ul>
-                <li class="try_in_playground">
-                  <a href="spi-playgrounds://open?dependencies=Alamo/Alamofire">Try in a Playground</a>
-                  <div id="app_download_explainer" class="hidden">
-                    <strong>Launching the SPI Playgrounds app&hellip;</strong>
-                    <p>If nothing happens, you may not have the app installed. 
-                      <a href="/try-in-a-playground?dependencies=Alamo/Alamofire">Download the Swift Package Index Playgrounds app</a> and try again.
-                    </p>
-                  </div>
-                </li>
-                <li>
-                  <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
-                </li>
-                <li>
-                  <a href="/Alamo/Alamofire/information-for-package-maintainers">Do you maintain this package?</a>
-                </li>
-              </ul>
-            </section>
-          </div>
-          <hr class="minor"/>
-          <div class="two_column">
+            <hr class="minor"/>
             <section class="main_compatibility">
               <div class="two_column v_end">
                 <h3>Compatibility</h3>
@@ -337,6 +306,25 @@
                 </a>
               </div>
             </section>
+          </section>
+          <section>
+            <section class="sidebar_links">
+              <ul>
+                <li>
+                  <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
+                </li>
+                <li class="try_in_playground">
+                  <a href="spi-playgrounds://open?dependencies=Alamo/Alamofire">Try in a Playground</a>
+                  <div id="app_download_explainer" class="hidden">
+                    <strong>Launching the SPI Playgrounds app&hellip;</strong>
+                    <p>If nothing happens, you may not have the app installed. 
+                      <a href="/try-in-a-playground?dependencies=Alamo/Alamofire">Download the Swift Package Index Playgrounds app</a> and try again.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </section>
+            <hr class="minor"/>
             <section class="sidebar_versions">
               <h3>Versions</h3>
               <ul>
@@ -363,7 +351,13 @@
                 </li>
               </ul>
             </section>
-          </div>
+            <hr class="minor"/>
+            <section>
+              <p>
+                <a href="/Alamo/Alamofire/information-for-package-maintainers">Do you maintain this package?</a>
+              </p>
+            </section>
+          </section>
         </article>
         <tab-bar>
           <ul>
