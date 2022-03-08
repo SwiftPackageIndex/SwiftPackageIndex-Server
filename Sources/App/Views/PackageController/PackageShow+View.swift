@@ -61,7 +61,7 @@ enum PackageShow {
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .div(
-                    .class("two_column"),
+                    .class("two_column v_end"),
                     .h2(.text(model.title)),
                     .spiPanel(
                         buttonText: "Use this Package",
