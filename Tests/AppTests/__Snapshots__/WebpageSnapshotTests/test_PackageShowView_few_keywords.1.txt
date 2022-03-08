@@ -71,7 +71,12 @@
     <main>
       <div class="inner">
         <div class="two_column v_end">
-          <h2>Alamofire</h2>
+          <div class="package_title">
+            <h2>Alamofire</h2>
+            <p>by 
+              <a href="/Alamo">Alamofire</a>
+            </p>
+          </div>
           <div data-controller="modal-panel">
             <button data-modal-panel-target="button" data-action="click->modal-panel#show">Use this Package</button>
             <section data-modal-panel-target="panel">
@@ -173,9 +178,6 @@
                 </li>
                 <li>
                   <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
-                </li>
-                <li>
-                  <a href="/Alamo">More packages from this author</a>
                 </li>
                 <li>
                   <a href="/Alamo/Alamofire/information-for-package-maintainers">Do you maintain this package?</a>

@@ -62,7 +62,17 @@ enum PackageShow {
             .group(
                 .div(
                     .class("two_column v_end"),
-                    .h2(.text(model.title)),
+                    .div(
+                        .class("package_title"),
+                        .h2(.text(model.title)),
+                        .p(
+                            .text("by "),
+                            .a(
+                                .href(SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
+                                .text(model.repositoryOwnerName)
+                            )
+                        )
+                    ),
                     .spiPanel(
                         buttonText: "Use this Package",
                         .p(
@@ -197,12 +207,6 @@ enum PackageShow {
                         .a(
                             .href(model.url),
                             "View on GitHub"
-                        )
-                    ),
-                    .li(
-                        .a(
-                            .href(SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
-                            "More packages from this author"
                         )
                     ),
                     .li(
