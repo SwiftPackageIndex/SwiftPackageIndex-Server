@@ -150,7 +150,7 @@
           <hr class="minor"/>
           <div class="two_column">
             <section class="main_compatibility">
-              <div class="two_column v_end">
+              <div class="two_column even v_end">
                 <h3>Compatibility</h3>
                 <a href="/Alamo/Alamofire/builds">Full Build Reports</a>
               </div>
