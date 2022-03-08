@@ -42,8 +42,8 @@ struct PackageController {
                         .document()
                 }.get()
         } catch let error as AbortError where error.status == .notFound {
-            throw Abort.redirect(to: "https://github.com/\(owner)/\(repository)",
-                                 type: .permanent)
+            let model = MissingPackage.Model(owner: owner, repository: repository)
+            return MissingPackage.View(path: req.url.path, model: model).document()
         }
     }
 
