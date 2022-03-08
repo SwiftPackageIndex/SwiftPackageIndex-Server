@@ -35,6 +35,14 @@
   &.even {
     grid-template-columns: 1fr 1fr;
   }
+
+  &.v_center {
+    align-items: center;
+  }
+
+  &.v_end {
+    align-items: end;
+  }
 }
 
 @media screen and (max-width: $mobile-breakpoint) {

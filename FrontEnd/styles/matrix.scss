@@ -21,6 +21,10 @@
 .matrices {
   display: grid;
   gap: 20px;
+
+  a {
+    color: var(--page-text);
+  }
 }
 
 .matrix {

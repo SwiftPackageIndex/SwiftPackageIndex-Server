@@ -139,9 +139,6 @@
                   <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
                 </li>
                 <li>
-                  <a href="/Alamo/Alamofire/builds">Full Package Compatibility Report</a>
-                </li>
-                <li>
                   <a href="/Alamo">More packages from this author</a>
                 </li>
                 <li>
@@ -153,7 +150,10 @@
           <hr class="minor"/>
           <div class="two_column">
             <section class="main_compatibility">
-              <h3>Compatibility</h3>
+              <div class="two_column v_end">
+                <h3>Compatibility</h3>
+                <a href="/Alamo/Alamofire/builds">Full Build Results</a>
+              </div>
               <div class="matrices">
                 <p>This package currently has no compatibility information. Builds to determine package compatibility are starting, and compatibility information will appear soon. If this message persists for more than a few minutes, please 
                   <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose">raise an issue</a>.

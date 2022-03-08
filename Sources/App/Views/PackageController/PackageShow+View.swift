@@ -139,13 +139,20 @@ enum PackageShow {
         func mainColumnCompatibility() -> Node<HTML.BodyContext> {
             .section(
                 .class("main_compatibility"),
-                .h3("Compatibility"),
+                .div(
+                    .class("two_column v_end"),
+                    .h3("Compatibility"),
+                    .a(
+                        .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
+                        .text("Full Build Results")
+                    )
+                ),
                 .div(
                     .class("matrices"),
                     .if(model.hasBuildInfo,
                         .group(
-                            model.swiftVersionCompatibilitySection(),
-                            model.platformCompatibilitySection()
+                            model.swiftVersionCompatibilityList(),
+                            model.platformCompatibilityList()
                         ),
                         else: .group(
                             .p(
@@ -190,12 +197,6 @@ enum PackageShow {
                         .a(
                             .href(model.url),
                             "View on GitHub"
-                        )
-                    ),
-                    .li(
-                        .a(
-                            .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
-                            "Full Package Compatibility Report"
                         )
                     ),
                     .li(
