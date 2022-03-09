@@ -111,19 +111,24 @@ enum PackageShow {
 
         func detailsSection() -> Node<HTML.BodyContext> {
             .article(
-                .class("details"),
-                .div(
-                    .class("two_column"),
+                .class("details two_column"),
+                .section(
                     mainColumnMetadata(),
-                    sidebarLinks()
+                    .hr(
+                        .class("minor")
+                    ),
+                    mainColumnCompatibility()
                 ),
-                .hr(
-                    .class("minor")
-                ),
-                .div(
-                    .class("two_column"),
-                    mainColumnCompatibility(),
-                    sidebarVersions()
+                .section(
+                    sidebarLinks(),
+                    .hr(
+                        .class("minor")
+                    ),
+                    sidebarVersions(),
+                    .hr(
+                        .class("minor")
+                    ),
+                    sidebarInfoForPackageAuthors()
                 )
             )
         }
@@ -184,6 +189,12 @@ enum PackageShow {
                 .class("sidebar_links"),
                 .ul(
                     .li(
+                        .a(
+                            .href(model.url),
+                            "View on GitHub"
+                        )
+                    ),
+                    .li(
                         .class("try_in_playground"),
                         .a(
                             .href("spi-playgrounds://open?dependencies=\(model.repositoryOwner)/\(model.repositoryName)"),
@@ -202,18 +213,6 @@ enum PackageShow {
                                 .text(" and try again.")
                             )
                         )
-                    ),
-                    .li(
-                        .a(
-                            .href(model.url),
-                            "View on GitHub"
-                        )
-                    ),
-                    .li(
-                        .a(
-                            .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .maintainerInfo).relativeURL()),
-                            "Do you maintain this package?"
-                        )
                     )
                 )
             )
@@ -227,6 +226,21 @@ enum PackageShow {
                     model.stableReleaseMetadata(),
                     model.betaReleaseMetadata(),
                     model.defaultBranchMetadata()
+                )
+            )
+        }
+
+        func sidebarInfoForPackageAuthors() -> Node<HTML.BodyContext> {
+            .section(
+                .class("sidebar_package_authors"),
+                .small(
+                    .strong("Do you maintain this package?"),
+                    .text(" Get shields.io compatibility badges and learn how to control our build system. "),
+                    .a(
+                        .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .maintainerInfo).relativeURL()),
+                        "Learn more"
+                    ),
+                    .text(".")
                 )
             )
         }

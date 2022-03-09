@@ -133,6 +133,15 @@
           &:hover {
             background-color: var(--bordered-button-hover);
           }
+
+          &[href^='https://github.com/' i]
+          {
+            padding-left: 33px;
+            background-size: 18px;
+            background-repeat: no-repeat;
+            background-position: center left 8px;
+            background-image: var(--image-github);
+          }
         }
       }
     }
@@ -169,6 +178,17 @@
             border-left-color: var(--branch-text);
           }
         }
+      }
+    }
+
+    section.sidebar_package_authors {
+      small {
+        display: block;
+        padding-left: 22px;
+        background-size: 16px;
+        background-repeat: no-repeat;
+        background-position: top 3px left;
+        background-image: var(--image-question);
       }
     }
   }
