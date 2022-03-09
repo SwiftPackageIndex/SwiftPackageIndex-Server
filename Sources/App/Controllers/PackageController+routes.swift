@@ -18,7 +18,7 @@ import Vapor
 
 struct PackageController {
     
-    func show(req: Request) async throws -> HTML {
+    func show(req: Request) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -40,10 +40,16 @@ struct PackageController {
                     PackageShow.View(path: req.url.path,
                                      model: $0.model, packageSchema: $0.schema)
                         .document()
-                }.get()
+                }
+                .get()
+                .encodeResponse(for: req)
         } catch let error as AbortError where error.status == .notFound {
             let model = MissingPackage.Model(owner: owner, repository: repository)
-            return MissingPackage.View(path: req.url.path, model: model).document()
+            // This is technically a 404 page with a different template, so it's important
+            // to return a 404 so that it doesn't look like we have every possible package
+            return MissingPackage.View(path: req.url.path, model: model)
+                .document()
+                .encodeResponse(for: req, status: .notFound)
         }
     }
 
