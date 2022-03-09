@@ -442,10 +442,11 @@
               </ul>
             </section>
             <hr class="minor"/>
-            <section>
-              <p>
-                <a href="/Alamo/Alamofire/information-for-package-maintainers">Do you maintain this package?</a>
-              </p>
+            <section class="sidebar_package_authors">
+              <small>
+                <strong>Do you maintain this package?</strong> Get shields.io compatibility badges and learn how to control our build system. 
+                <a href="/Alamo/Alamofire/information-for-package-maintainers">Learn more</a>.
+              </small>
             </section>
           </section>
         </article>
