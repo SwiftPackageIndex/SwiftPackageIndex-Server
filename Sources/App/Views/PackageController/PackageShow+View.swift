@@ -232,11 +232,15 @@ enum PackageShow {
 
         func sidebarInfoForPackageAuthors() -> Node<HTML.BodyContext> {
             .section(
-                .p(
+                .class("sidebar_package_authors"),
+                .small(
+                    .strong("Do you maintain this package?"),
+                    .text(" Get shields.io compatibility badges and learn how to control our build system. "),
                     .a(
                         .href(SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .maintainerInfo).relativeURL()),
-                        "Do you maintain this package?"
-                    )
+                        "Learn more"
+                    ),
+                    .text(".")
                 )
             )
         }

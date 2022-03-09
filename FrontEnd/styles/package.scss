@@ -180,6 +180,17 @@
         }
       }
     }
+
+    section.sidebar_package_authors {
+      small {
+        display: block;
+        padding-left: 22px;
+        background-size: 16px;
+        background-repeat: no-repeat;
+        background-position: top 3px left;
+        background-image: var(--image-question);
+      }
+    }
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
