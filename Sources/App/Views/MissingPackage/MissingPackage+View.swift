@@ -37,11 +37,10 @@ enum MissingPackage {
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .h2(
-                    .class("trimmed"),
-                    .text("Package not yet indexed")
+                    .text("Package not found")
                 ),
                 .p(
-                    .text("This package has not been indexed yet: ")
+                    .text("Oh no! It looks like this package either doesn't exist or hasn't yet been added to the index. If this package exists but is not yet in the index, please add it.")
                 ),
                 .p(
                     .a(.href(model.url), "\(model.url)")
