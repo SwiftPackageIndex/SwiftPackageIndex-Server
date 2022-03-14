@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "9c7fbdc931ef6afa2dcd45edf253d25cadbbd5fc",
-          "version": "1.22.0"
+          "revision": "19da0d91d0fa9a0cf93958d67823c0e94ef666f1",
+          "version": "1.23.0"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-postgres-driver.git",
         "state": {
           "branch": null,
-          "revision": "d27e8b194270e9d9f01a956f699a71184c4978a3",
-          "version": "2.2.3"
+          "revision": "f4769c5a5db8f3bd87e4d8d885128751ad970716",
+          "version": "2.2.4"
         }
       },
       {
@@ -105,8 +105,8 @@
         "repositoryURL": "https://github.com/vapor/postgres-nio.git",
         "state": {
           "branch": null,
-          "revision": "780a510863bfc00b2239b649df4f403080c4bc9c",
-          "version": "1.7.2"
+          "revision": "57fda42d42176ee5309e7163f3a36dc20f626685",
+          "version": "1.8.0"
         }
       },
       {
@@ -267,8 +267,8 @@
         "repositoryURL": "https://github.com/pointfreeco/swift-parsing.git",
         "state": {
           "branch": null,
-          "revision": "85e1c50d03999a2b53d30ddae4d0f2a3d872b335",
-          "version": "0.7.1"
+          "revision": "1d3aa2f359388b67c16000556830645382cd5c4f",
+          "version": "0.8.0"
         }
       },
       {
@@ -312,8 +312,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "e0fd4f3d76469dd6a0efb2be5c0b2f96b7581187",
-          "version": "4.55.1"
+          "revision": "5861bf9e2cff2c4cb0dcfb0c15ecfaa8bc5630e0",
+          "version": "4.55.3"
         }
       },
       {

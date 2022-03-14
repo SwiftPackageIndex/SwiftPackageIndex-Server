@@ -794,6 +794,9 @@ class PackageCollectionTests: AppTestCase {
     }
 
     func test_sign_collection_revoked_key() throws {
+        // Skipping until https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1066592057
+        // is resolved
+        throw XCTSkip()
         // setup
         let collection: PackageCollection = .mock
         // get cert and key and make sure the inputs are valid (apart from being revoked)
@@ -815,9 +818,14 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         do {
-            _ = try SignedCollection.sign(eventLoop: app.eventLoopGroup.next(),
-                                          collection: collection).wait()
-            XCTFail("signing with a revoked certificate must fail")
+            let signedCollection = try SignedCollection.sign(eventLoop: app.eventLoopGroup.next(),
+                                                             collection: collection).wait()
+            // NB: signing _can_ succeed in case of reachability issues to verify the cert
+            // in this case we need to check the signature
+            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1048408400
+            let validated = try SignedCollection.validate(eventLoop: app.eventLoopGroup.next(),
+                                                          signedCollection: signedCollection).wait()
+            XCTAssertFalse(validated)
         } catch PackageCollectionSigningError.invalidCertChain {
             // ok
         } catch {

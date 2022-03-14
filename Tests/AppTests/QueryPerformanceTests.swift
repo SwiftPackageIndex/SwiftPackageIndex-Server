@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 
 @testable import App
 
-import Parsing
 import SQLKit
 import Vapor
 import XCTest
@@ -34,28 +33,6 @@ class QueryPerformanceTests: XCTestCase {
         let host = try configure(app)
 
         XCTAssert(host.hasSuffix("postgres.database.azure.com"), "was: \(host)")
-    }
-
-    func test_QueryPlan_cost_parse() throws {
-        var input = "cost=1.05..12.06 rows=1 width=205"[...]
-        XCTAssertEqual(try QueryPlan.cost.parse(&input),
-                       .init(firstRow: 1.05, total: 12.06))
-        XCTAssertEqual(input, "")
-    }
-
-    func test_QueryPlan_actualTime_parse() throws {
-        var input = "actual time=8.340..44.485 rows=121 loops=1"[...]
-        XCTAssertEqual(try QueryPlan.actualTime.parse(&input),
-                       .init(firstRow: 8.34, total: 44.485))
-        XCTAssertEqual(input, "")
-    }
-
-    func test_QueryPlan_parser() throws {
-        var input = "Append  (cost=412.37..3826.71 rows=81 width=308) (actual time=8.340..44.485 rows=121 loops=1)"[...]
-        XCTAssertEqual(try QueryPlan.parser.parse(&input),
-                       .init(cost: .init(firstRow: 412.37, total: 3826.71),
-                             actualTime: .init(firstRow: 8.34, total: 44.485)))
-        XCTAssertEqual(input, "")
     }
 
     func test_Search_packageMatchQuery() async throws {
@@ -197,92 +174,4 @@ private extension QueryPerformanceTests {
         }
     }
 
-}
-
-
-private struct Cost {
-    var firstRow: Double
-    var total: Double
-}
-
-
-private struct Details {
-    var rows: Int
-    var width: Int
-}
-
-
-struct QueryPlan: Equatable {
-    var cost: Cost
-    var actualTime: ActualTime
-
-    struct Cost: Equatable {
-        var firstRow: Double
-        var total: Double
-    }
-
-    // Parsing: cost=1.05..1.06 rows=1 width=205
-    static let cost = Parse {
-        "cost="
-        Double.parser()
-        ".."
-        Double.parser()
-        Skip { Whitespace() }
-        Skip {
-            "rows="
-            Int.parser()
-            Skip { Whitespace() }
-            "width="
-            Int.parser()
-        }
-    }.map(Cost.init)
-
-    struct ActualTime: Equatable {
-        var firstRow: Double
-        var total: Double
-    }
-
-    // Parsing: actual time=8.340..44.485 rows=121 loops=1
-    static let actualTime = Parse {
-        "actual time="
-        Double.parser()
-        ".."
-        Double.parser()
-        Skip { Whitespace() }
-        Skip {
-            "rows="
-            Int.parser()
-            Skip { Whitespace() }
-            "loops="
-            Int.parser()
-        }
-    }.map(ActualTime.init)
-
-    // Parsing: Append  (cost=412.37..3826.71 rows=81 width=308) (actual time=8.340..44.485 rows=121 loops=1)
-    static let parser = Parse {
-        Skip {
-            OneOf {
-                "Append"
-                "Limit"
-                "Sort"
-            }
-            Whitespace()
-            "("
-        }
-        cost
-        Skip {
-            ")"
-            Whitespace()
-            "("
-        }
-        actualTime
-        Skip { ")" }
-    }.map(Self.init)
-}
-
-
-extension QueryPlan {
-    init(_ queryPlan: String) throws {
-        self = try Self.parser.parse(queryPlan)
-    }
 }
