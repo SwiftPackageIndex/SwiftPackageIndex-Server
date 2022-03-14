@@ -29,7 +29,8 @@ func setup(_ environment: Environment, resetDb: Bool = true) throws -> Applicati
     let host = try configure(app)
 
     // Ensure `.testing` refers to "postgres" or "localhost"
-    precondition(host == "localhost" || host == "postgres", ".testing must be a local db, was: \(host)")
+    precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
+                 ".testing must be a local db, was: \(host)")
 
     app.logger.logLevel = Environment.get("LOG_LEVEL").flatMap(Logger.Level.init(rawValue:)) ?? .warning
 
