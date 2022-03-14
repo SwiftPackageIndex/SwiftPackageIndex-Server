@@ -794,6 +794,9 @@ class PackageCollectionTests: AppTestCase {
     }
 
     func test_sign_collection_revoked_key() throws {
+        // Skipping until https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1066592057
+        // is resolved
+        throw XCTSkip()
         // setup
         let collection: PackageCollection = .mock
         // get cert and key and make sure the inputs are valid (apart from being revoked)
