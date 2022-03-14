@@ -815,9 +815,14 @@ class PackageCollectionTests: AppTestCase {
 
         // MUT
         do {
-            _ = try SignedCollection.sign(eventLoop: app.eventLoopGroup.next(),
-                                          collection: collection).wait()
-            XCTFail("signing with a revoked certificate must fail")
+            let signedCollection = try SignedCollection.sign(eventLoop: app.eventLoopGroup.next(),
+                                                             collection: collection).wait()
+            // NB: signing _can_ succeed in case of reachability issues to verify the cert
+            // in this case we need to check the signature
+            // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1583#issuecomment-1048408400
+            let validated = try SignedCollection.validate(eventLoop: app.eventLoopGroup.next(),
+                                                          signedCollection: signedCollection).wait()
+            XCTAssertFalse(validated)
         } catch PackageCollectionSigningError.invalidCertChain {
             // ok
         } catch {
