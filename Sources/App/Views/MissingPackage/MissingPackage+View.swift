@@ -43,7 +43,17 @@ enum MissingPackage {
                     .text("Oh no! It looks like this package either doesn't exist or hasn't yet been added to the index. If this package exists but is not yet in the index, please add it.")
                 ),
                 .p(
-                    .a(.href(model.url), "\(model.url)")
+                    .class("right"),
+                    .a(
+                        .class("big_button green"),
+                        .href(ExternalURL.raiseNewPackageListIssue),
+                        "Add this Package"
+                    ),
+                    .a(
+                        .class("big_button blue"),
+                        .href(model.url),
+                        "View on GitHub"
+                    )
                 )
             )
         }

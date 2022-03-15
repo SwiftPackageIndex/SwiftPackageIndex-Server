@@ -19,6 +19,7 @@ enum ExternalURL: URLRepresentable {
     case projectGitHub
     case projectSponsorship
     case raiseNewIssue
+    case raiseNewPackageListIssue
 
     var description: String {
         switch(self) {
@@ -26,6 +27,7 @@ enum ExternalURL: URLRepresentable {
             case .projectGitHub: return "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"
             case .projectSponsorship: return "https://github.com/sponsors/SwiftPackageIndex"
             case .raiseNewIssue: return "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose"
+            case .raiseNewPackageListIssue: return "https://github.com/SwiftPackageIndex/PackageList/issues/new/choose"
         }
     }
 }
