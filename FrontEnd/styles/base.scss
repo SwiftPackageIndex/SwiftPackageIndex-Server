@@ -210,6 +210,11 @@ a.big_button {
     background-color: var(--big-button-green-background);
     border-color: var(--big-button-green-border);
   }
+
+  &.blue {
+    background-color: var(--big-button-blue-background);
+    border-color: var(--big-button-blue-border);
+  }
 }
 
 .announcement {
