@@ -197,15 +197,19 @@ a.download {
   }
 }
 
-a.big_green_button {
+a.big_button {
   display: inline-block;
   padding: 10px 20px;
   margin: 20px;
   text-align: center;
-  background-color: var(--mid-green);
   color: var(--white);
   font-size: 18px;
-  border-left: 3px var(--light-green) solid;
+  border-left: 3px solid;
+
+  &.green {
+    background-color: var(--big-button-green-background);
+    border-color: var(--big-button-green-border);
+  }
 }
 
 .announcement {
