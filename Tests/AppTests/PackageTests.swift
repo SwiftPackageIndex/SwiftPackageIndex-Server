@@ -267,6 +267,9 @@ final class PackageTests: AppTestCase {
     }
 
     func test_isNew() async throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
+        try XCTSkipIf(isRunningOnMacOS)
+
         // setup
         let url = "1".asGithubUrl
         Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
