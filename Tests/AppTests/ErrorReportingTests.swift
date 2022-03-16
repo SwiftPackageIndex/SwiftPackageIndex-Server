@@ -40,7 +40,7 @@ class ErrorReportingTests: AppTestCase {
     func test_Ingestor_error_reporting() async throws {
         // setup
         try savePackages(on: app.db, ["1", "2"], processingStage: .reconciliation)
-        Current.fetchMetadata = { _, pkg in self.future(error: AppError.invalidPackageUrl(nil, "foo")) }
+        Current.fetchMetadata = { _, _ in throw AppError.invalidPackageUrl(nil, "foo") }
         
         var reportedLevel: AppError.Level? = nil
         var reportedError: AppError? = nil

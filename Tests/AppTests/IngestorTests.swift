@@ -23,7 +23,7 @@ class IngestorTests: AppTestCase {
     
     func test_ingest_basic() async throws {
         // setup
-        Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
+        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
         let packages = ["https://github.com/finestructure/Gala",
                         "https://github.com/finestructure/Rester",
                         "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"]
@@ -66,9 +66,9 @@ class IngestorTests: AppTestCase {
             .map(Joined<Package, Repository>.init(model:))
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "https://github.com/foo/1" {
-                return self.future(error: TestError.badRequest)
+                throw TestError.badRequest
             }
-            return self.future(.mock(for: pkg))
+            return .mock(for: pkg)
         }
         Current.fetchLicense = { _, _ in self.future(Github.License(htmlUrl: "license")) }
 
@@ -264,7 +264,7 @@ class IngestorTests: AppTestCase {
     func test_partial_save_issue() async throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
-        Current.fetchMetadata = { _, pkg in self.future(.mock(for: pkg)) }
+        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
         let packages = testUrls.map { Package(url: $0, processingStage: .reconciliation) }
         try await packages.save(on: app.db)
 
@@ -286,9 +286,9 @@ class IngestorTests: AppTestCase {
                                                    processingStage: .reconciliation)
         Current.fetchMetadata = { _, pkg in
             if pkg.url == "https://github.com/foo/2" {
-                return self.future(error: AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2")))
+                throw AppError.metadataRequestFailed(packages[1].id, .badRequest, URI("2"))
             }
-            return self.future(.mock(for: pkg))
+            return .mock(for: pkg)
         }
         let lastUpdate = Date()
         
@@ -323,7 +323,7 @@ class IngestorTests: AppTestCase {
         }
         // Return identical metadata for both packages, same as a for instance a redirected
         // package would after a rename / ownership change
-        Current.fetchMetadata = { _, _ in self.future(
+        Current.fetchMetadata = { _, _ in
             Github.Metadata.init(
                 defaultBranch: "main",
                 forks: 0,
@@ -337,7 +337,7 @@ class IngestorTests: AppTestCase {
                 stars: 0,
                 summary: "desc",
                 isInOrganization: false)
-        )}
+        }
         var reportedLevel: AppError.Level? = nil
         var reportedError: String? = nil
         Current.reportError = { _, level, error in
@@ -383,7 +383,7 @@ class IngestorTests: AppTestCase {
         let packages = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1"])
             .map(Joined<Package, Repository>.init(model:))
         // use mock for metadata request which we're not interested in ...
-        Current.fetchMetadata = { _, _ in self.future(Github.Metadata()) }
+        Current.fetchMetadata = { _, _ in Github.Metadata() }
         // and live fetch request for fetchLicense, whose behaviour we want to test ...
         Current.fetchLicense = Github.fetchLicense(client:packageUrl:)
         // and simulate its underlying request returning a 404 (by making all requests
