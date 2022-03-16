@@ -29,7 +29,7 @@ struct AppEnvironment {
     var fetchPackageList: (_ client: Client) async throws -> [URL]
     var fetchLicense: (_ client: Client, _ packageUrl: String) async throws -> Github.License?
     var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
-    var fetchReadme: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.Readme?>
+    var fetchReadme: (_ client: Client, _ packageUrl: String) async throws -> Github.Readme?
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>

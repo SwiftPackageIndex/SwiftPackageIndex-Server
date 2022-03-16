@@ -48,10 +48,10 @@ extension AppEnvironment {
             },
             fetchLicense: { _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },
             fetchMetadata: { _, _ in .mock },
-            fetchReadme: { _, _ in eventLoop.future(
+            fetchReadme: { _, _ in
                 .init(downloadUrl: "https://raw.githubusercontent.com/foo/bar/main/README.md",
                       htmlUrl: "https://github.com/foo/bar/blob/main/README.md")
-            )},
+            },
             fileManager: .mock,
             getStatusCount: { _, _ in eventLoop.future(100) },
             git: .mock,

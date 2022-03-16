@@ -309,7 +309,7 @@ class GithubTests: AppTestCase {
         XCTAssertEqual(res, nil)
     }
 
-    func test_fetchReadme() throws {
+    func test_fetchReadme() async throws {
         // setup
         Current.githubToken = { "secr3t" }
         let pkg = Package(url: "https://github.com/daveverwer/leftpad")
@@ -320,20 +320,20 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        let res = try Github.fetchReadme(client: client, packageUrl: pkg.url).wait()
+        let res = try await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
         XCTAssertEqual(res?.downloadUrl, "https://raw.githubusercontent.com/daveverwer/LeftPad/master/README.md")
     }
 
-    func test_fetchReadme_notFound() throws {
+    func test_fetchReadme_notFound() async throws {
         // setup
         Current.githubToken = { "secr3t" }
         let pkg = Package(url: "https://github.com/daveverwer/leftpad")
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let res = try Github.fetchReadme(client: client, packageUrl: pkg.url).wait()
+        let res = try await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
         XCTAssertEqual(res?.downloadUrl, nil)
