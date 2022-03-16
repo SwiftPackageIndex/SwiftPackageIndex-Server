@@ -70,7 +70,7 @@ class IngestorTests: AppTestCase {
             }
             return .mock(for: pkg)
         }
-        Current.fetchLicense = { _, _ in self.future(Github.License(htmlUrl: "license")) }
+        Current.fetchLicense = { _, _ in Github.License(htmlUrl: "license") }
 
         // MUT
         let res = await fetchMetadata(client: app.client, packages: packages)

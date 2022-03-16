@@ -27,7 +27,7 @@ struct AppEnvironment {
     var date: () -> Date
     var dbId: () -> String?
     var fetchPackageList: (_ client: Client) async throws -> [URL]
-    var fetchLicense: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.License?>
+    var fetchLicense: (_ client: Client, _ packageUrl: String) async throws -> Github.License?
     var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
     var fetchReadme: (_ client: Client, _ packageUrl: String) -> EventLoopFuture<Github.Readme?>
     var fileManager: FileManager

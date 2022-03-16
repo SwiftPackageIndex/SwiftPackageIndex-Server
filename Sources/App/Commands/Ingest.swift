@@ -150,7 +150,7 @@ func fetchMetadata(
         for pkg in packages {
             group.addTask {
                 async let metadata = try await Current.fetchMetadata(client, pkg.model.url)
-                async let license = try await Current.fetchLicense(client, pkg.model.url).get()
+                async let license = try await Current.fetchLicense(client, pkg.model.url)
                 async let readme = try await Current.fetchReadme(client, pkg.model.url).get()
                 return try await (pkg, metadata, license, readme)
             }

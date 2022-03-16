@@ -126,15 +126,13 @@ extension Github {
         return request
     }
 
-    static func fetchLicense(client: Client, packageUrl: String) -> EventLoopFuture<License?> {
-        do {
-            let uri = try Github.apiUri(for: packageUrl, resource: .license)
-            return Github.fetchResource(Github.License.self, client: client, uri: uri)
-                .map { license -> License? in license }
-                .recover { _ in nil }
-        } catch {
-            return client.eventLoop.future(error: error)
-        }
+    static func fetchLicense(client: Client, packageUrl: String) async throws -> License? {
+        let uri = try Github.apiUri(for: packageUrl, resource: .license)
+        #warning("drop .get()")
+        return try await Github.fetchResource(Github.License.self, client: client, uri: uri)
+            .map { license -> License? in license }
+            .recover { _ in nil }
+            .get()
     }
 
     static func fetchReadme(client: Client, packageUrl: String) -> EventLoopFuture<Readme?> {
