@@ -22,6 +22,9 @@ import XCTest
 class IngestorTests: AppTestCase {
     
     func test_ingest_basic() async throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
+        try XCTSkipIf(isRunningOnMacOS)
+
         // setup
         Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
         let packages = ["https://github.com/finestructure/Gala",
@@ -56,6 +59,9 @@ class IngestorTests: AppTestCase {
     }
     
     func test_fetchMetadata() async throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
+        try XCTSkipIf(isRunningOnMacOS)
+
         // Test completion of all fetches despite early error
         // setup
         enum TestError: Error, Equatable {
@@ -262,6 +268,9 @@ class IngestorTests: AppTestCase {
     }
     
     func test_partial_save_issue() async throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
+        try XCTSkipIf(isRunningOnMacOS)
+
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
         Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
@@ -278,6 +287,9 @@ class IngestorTests: AppTestCase {
     }
     
     func test_ingest_badMetadata() async throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
+        try XCTSkipIf(isRunningOnMacOS)
+
         // setup
         let urls = ["https://github.com/foo/1",
                     "https://github.com/foo/2",
@@ -313,6 +325,9 @@ class IngestorTests: AppTestCase {
     }
     
     func test_ingest_unique_owner_name_violation() async throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
+        try XCTSkipIf(isRunningOnMacOS)
+
         // Test error behaviour when two packages resolving to the same owner/name are ingested:
         //   - don't update package
         //   - don't create repository records
@@ -378,6 +393,9 @@ class IngestorTests: AppTestCase {
     }
     
     func test_issue_761_no_license() async throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
+        try XCTSkipIf(isRunningOnMacOS)
+
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
         let packages = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1"])

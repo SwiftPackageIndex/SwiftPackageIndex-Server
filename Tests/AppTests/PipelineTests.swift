@@ -130,6 +130,9 @@ class PipelineTests: AppTestCase {
     }
     
     func test_processing_pipeline() async throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
+        try XCTSkipIf(isRunningOnMacOS)
+
         // Test pipeline pick-up end to end
         // setup
         let urls = ["1", "2", "3"].asGithubUrls

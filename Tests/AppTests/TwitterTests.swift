@@ -239,6 +239,9 @@ class TwitterTests: AppTestCase {
     }
 
     func test_endToEnd() async throws {
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
+        try XCTSkipIf(isRunningOnMacOS)
+
         // setup
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
