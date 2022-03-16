@@ -58,7 +58,7 @@ class GithubTests: AppTestCase {
         }
     }
 
-    func test_fetchResource() throws {
+    func test_fetchResource() async throws {
         Current.githubToken = { "secr3t" }
         let client = MockClient { _, resp in
             resp.status = .ok
@@ -74,11 +74,11 @@ class GithubTests: AppTestCase {
             }
         }
         let q = Github.GraphQLQuery(query: "query { viewer { login } }")
-        let res = try Github.fetchResource(Response.self, client: client, query: q).wait()
+        let res = try await Github.fetchResource(Response.self, client: client, query: q)
         XCTAssertEqual(res, Response(data: .init(viewer: .init(login: "finestructure"))))
     }
 
-    func test_fetchMetadata() throws {
+    func test_fetchMetadata() async throws {
         Current.githubToken = { "secr3t" }
         let data = try XCTUnwrap(try fixtureData(for: "github-graphql-resource.json"))
         let client = MockClient { _, resp in
@@ -88,9 +88,9 @@ class GithubTests: AppTestCase {
         let iso8601 = ISO8601DateFormatter()
 
         // MUT
-        let res = try Github.fetchMetadata(client: client,
-                                           owner: "alamofire",
-                                           repository: "alamofire").wait()
+        let res = try await Github.fetchMetadata(client: client,
+                                                 owner: "alamofire",
+                                                 repository: "alamofire")
 
         // validation
         XCTAssertEqual(res.repository?.closedIssues.nodes.first!.closedAt,
@@ -128,38 +128,42 @@ class GithubTests: AppTestCase {
                        iso8601.date(from: "2021-06-07T22:47:01Z"))
     }
 
-    func test_fetchMetadata_badRequest() throws {
+    func test_fetchMetadata_badRequest() async throws {
         Current.githubToken = { "secr3t" }
         let client = MockClient { _, resp in
             resp.status = .badRequest
         }
 
-        XCTAssertThrowsError(
-            try Github.fetchMetadata(client: client,
-                                     owner: "alamofire",
-                                     repository: "alamofire").wait()
-        ) {
-            guard case Github.Error.requestFailed(.badRequest) = $0 else {
-                XCTFail("unexpected error: \($0.localizedDescription)")
+        do {
+            _ = try await Github.fetchMetadata(client: client,
+                                               owner: "alamofire",
+                                               repository: "alamofire")
+            XCTFail("expected error to be thrown")
+        } catch {
+            guard case Github.Error.requestFailed(.badRequest) = error else {
+                XCTFail("unexpected error: \(error.localizedDescription)")
                 return
             }
         }
     }
 
-    func test_fetchMetadata_badUrl() throws {
+    func test_fetchMetadata_badUrl() async throws {
         let pkg = Package(url: "https://foo/bar")
         let client = MockClient { _, resp in
             resp.status = .ok
         }
-        XCTAssertThrowsError(try Github.fetchMetadata(client: client, packageUrl: pkg.url).wait()) {
-            guard case Github.Error.invalidURI = $0 else {
-                XCTFail("unexpected error: \($0.localizedDescription)")
+        do {
+            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
+            XCTFail("expected error to be thrown")
+        } catch {
+            guard case Github.Error.invalidURI = error else {
+                XCTFail("unexpected error: \(error.localizedDescription)")
                 return
             }
         }
     }
     
-    func test_fetchMetadata_badData() throws {
+    func test_fetchMetadata_badData() async throws {
         // setup
         Current.githubToken = { "secr3t" }
         let pkg = Package(url: "https://github.com/foo/bar")
@@ -169,16 +173,19 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        XCTAssertThrowsError(try Github.fetchMetadata(client: client, packageUrl: pkg.url).wait()) {
+        do {
+            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
+            XCTFail("expected error to be thrown")
+        } catch {
             // validation
-            guard case DecodingError.dataCorrupted = $0 else {
-                XCTFail("unexpected error: \($0.localizedDescription)")
+            guard case DecodingError.dataCorrupted = error else {
+                XCTFail("unexpected error: \(error.localizedDescription)")
                 return
             }
         }
     }
     
-    func test_fetchMetadata_rateLimiting_429() throws {
+    func test_fetchMetadata_rateLimiting_429() async throws {
         // Github doesn't actually send a 429 when you hit the rate limit
         // setup
         Current.githubToken = { "secr3t" }
@@ -188,10 +195,13 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        XCTAssertThrowsError(try Github.fetchMetadata(client: client, packageUrl: pkg.url).wait()) {
+        do {
+            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
+            XCTFail("expected error to be thrown")
+        } catch {
             // validation
-            guard case Github.Error.requestFailed(.tooManyRequests) = $0 else {
-                XCTFail("unexpected error: \($0.localizedDescription)")
+            guard case Github.Error.requestFailed(.tooManyRequests) = error else {
+                XCTFail("unexpected error: \(error.localizedDescription)")
                 return
             }
         }
@@ -225,7 +235,7 @@ class GithubTests: AppTestCase {
         }
     }
     
-    func test_fetchMetadata_rateLimiting_403() throws {
+    func test_fetchMetadata_rateLimiting_403() async throws {
         // Github sends a 403 and a rate limit remaining header
         //   X-RateLimit-Limit: 60
         //   X-RateLimit-Remaining: 56
@@ -246,12 +256,15 @@ class GithubTests: AppTestCase {
         }
         
         // MUT
-        XCTAssertThrowsError(try Github.fetchMetadata(client: client, packageUrl: pkg.url).wait()) {
+        do {
+            _ = try await Github.fetchMetadata(client: client, packageUrl: pkg.url)
+            XCTFail("expected error to be thrown")
+        } catch {
             // validation
             XCTAssertNotNil(reportedError)
             XCTAssertEqual(reportedLevel, .critical)
-            guard case Github.Error.requestFailed(.tooManyRequests) = $0 else {
-                XCTFail("unexpected error: \($0.localizedDescription)")
+            guard case Github.Error.requestFailed(.tooManyRequests) = error else {
+                XCTFail("unexpected error: \(error.localizedDescription)")
                 return
             }
         }
@@ -265,7 +278,7 @@ class GithubTests: AppTestCase {
                        "https://api.github.com/repos/foo/bar/readme")
     }
 
-    func test_fetchLicense() throws {
+    func test_fetchLicense() async throws {
         // setup
         Current.githubToken = { "secr3t" }
         let pkg = Package(url: "https://github.com/PSPDFKit/PSPDFKit-SP")
@@ -276,13 +289,13 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        let res = try Github.fetchLicense(client: client, packageUrl: pkg.url).wait()
+        let res = await Github.fetchLicense(client: client, packageUrl: pkg.url)
 
         // validate
         XCTAssertEqual(res?.htmlUrl, "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE")
     }
 
-    func test_fetchLicense_notFound() throws {
+    func test_fetchLicense_notFound() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup
         Current.githubToken = { "secr3t" }
@@ -290,13 +303,13 @@ class GithubTests: AppTestCase {
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let res = try Github.fetchLicense(client: client, packageUrl: pkg.url).wait()
+        let res = await Github.fetchLicense(client: client, packageUrl: pkg.url)
 
         // validate
         XCTAssertEqual(res, nil)
     }
 
-    func test_fetchReadme() throws {
+    func test_fetchReadme() async throws {
         // setup
         Current.githubToken = { "secr3t" }
         let pkg = Package(url: "https://github.com/daveverwer/leftpad")
@@ -307,20 +320,20 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        let res = try Github.fetchReadme(client: client, packageUrl: pkg.url).wait()
+        let res = await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
         XCTAssertEqual(res?.downloadUrl, "https://raw.githubusercontent.com/daveverwer/LeftPad/master/README.md")
     }
 
-    func test_fetchReadme_notFound() throws {
+    func test_fetchReadme_notFound() async throws {
         // setup
         Current.githubToken = { "secr3t" }
         let pkg = Package(url: "https://github.com/daveverwer/leftpad")
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let res = try Github.fetchReadme(client: client, packageUrl: pkg.url).wait()
+        let res = await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
         XCTAssertEqual(res?.downloadUrl, nil)

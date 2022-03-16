@@ -97,55 +97,40 @@ extension Github {
         }
     }
 
-    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) -> EventLoopFuture<T> {
+    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, uri: URI) async throws -> T {
         guard let token = Current.githubToken() else {
-            return client.eventLoop.future(error: Error.missingToken)
+            throw Error.missingToken
         }
-        let request = client
-            .get(uri, headers: headers(with: token))
-            .flatMap { response -> EventLoopFuture<T> in
-                guard !isRateLimited(response) else {
-                    return Current
-                        .reportError(client,
-                                     .critical,
-                                     AppError.metadataRequestFailed(nil, .tooManyRequests, uri))
-                        .flatMap {
-                            client.eventLoop.future(error: Error.requestFailed(.tooManyRequests))
-                        }
-                }
-                guard response.status == .ok else {
-                    return client.eventLoop.future(error: Error.requestFailed(response.status))
-                }
-                do {
-                    let res = try response.content.decode(T.self, using: decoder)
-                    return client.eventLoop.future(res)
-                } catch {
-                    return client.eventLoop.future(error: error)
-                }
-            }
-        return request
+
+        let response = try await client.get(uri, headers: headers(with: token))
+
+        guard !isRateLimited(response) else {
+            return try await Current
+                .reportError(client,
+                             .critical,
+                             AppError.metadataRequestFailed(nil, .tooManyRequests, uri))
+                .flatMap {
+                    client.eventLoop.future(error: Error.requestFailed(.tooManyRequests))
+                }.get()
+        }
+
+        guard response.status == .ok else {
+            throw Error.requestFailed(response.status)
+        }
+
+        return try response.content.decode(T.self, using: decoder)
     }
 
-    static func fetchLicense(client: Client, packageUrl: String) -> EventLoopFuture<License?> {
-        do {
-            let uri = try Github.apiUri(for: packageUrl, resource: .license)
-            return Github.fetchResource(Github.License.self, client: client, uri: uri)
-                .map { license -> License? in license }
-                .recover { _ in nil }
-        } catch {
-            return client.eventLoop.future(error: error)
-        }
+    static func fetchLicense(client: Client, packageUrl: String) async -> License? {
+        guard let uri = try? Github.apiUri(for: packageUrl, resource: .license)
+        else { return nil }
+        return try? await Github.fetchResource(Github.License.self, client: client, uri: uri)
     }
 
-    static func fetchReadme(client: Client, packageUrl: String) -> EventLoopFuture<Readme?> {
-        do {
-            let uri = try Github.apiUri(for: packageUrl, resource: .readme)
-            return Github.fetchResource(Github.Readme.self, client: client, uri: uri)
-                .map { readme -> Readme? in readme }
-                .recover { _ in nil }
-        } catch {
-            return client.eventLoop.future(error: error)
-        }
+    static func fetchReadme(client: Client, packageUrl: String) async -> Readme? {
+        guard let uri = try? Github.apiUri(for: packageUrl, resource: .readme)
+        else { return nil }
+        return try? await Github.fetchResource(Github.Readme.self, client: client, uri: uri)
     }
 
 }
@@ -161,52 +146,47 @@ extension Github {
         var query: String
     }
 
-    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, query: GraphQLQuery) -> EventLoopFuture<T> {
+    static func fetchResource<T: Decodable>(_ type: T.Type, client: Client, query: GraphQLQuery) async throws -> T {
         guard let token = Current.githubToken() else {
-            return client.eventLoop.future(error: Error.missingToken)
+            throw Error.missingToken
         }
-        return client.post(Self.graphQLApiUri, headers: headers(with: token)) { req in
-            try req.content.encode(query)
+
+        let response = try await client.post(Self.graphQLApiUri, headers: headers(with: token)) {
+            try $0.content.encode(query)
         }
-        .flatMap { response -> EventLoopFuture<ClientResponse> in
-            guard !isRateLimited(response) else {
-                return Current
-                    .reportError(client,
-                                 .critical,
-                                 AppError.metadataRequestFailed(nil,
-                                                                .tooManyRequests,
-                                                                Self.graphQLApiUri))
-                    .flatMap {
-                        client.eventLoop.future(error: Error.requestFailed(.tooManyRequests))
-                    }
-            }
-            return client.eventLoop.future(response)
+
+        guard !isRateLimited(response) else {
+            return try await Current
+                .reportError(client,
+                             .critical,
+                             AppError.metadataRequestFailed(nil,
+                                                            .tooManyRequests,
+                                                            Self.graphQLApiUri))
+                .flatMap {
+                    client.eventLoop.future(error: Error.requestFailed(.tooManyRequests))
+                }.get()
         }
-        .flatMapThrowing { response in
-            guard response.status == .ok else {
-                throw Error.requestFailed(response.status)
-            }
-            return try response.content.decode(T.self, using: decoder)
+
+        guard response.status == .ok else {
+            throw Error.requestFailed(response.status)
         }
+
+        return try response.content.decode(T.self, using: decoder)
     }
 
-    static func fetchMetadata(client: Client, owner: String, repository: String) -> EventLoopFuture<Metadata> {
+    static func fetchMetadata(client: Client, owner: String, repository: String) async throws -> Metadata {
         struct Response: Decodable, Equatable {
             var data: Metadata
         }
-        return fetchResource(Response.self,
-                             client: client,
-                             query: Metadata.query(owner: owner, repository: repository))
-            .map(\.data)
+        return try await fetchResource(Response.self,
+                                       client: client,
+                                       query: Metadata.query(owner: owner, repository: repository))
+        .data
     }
 
-    static func fetchMetadata(client: Client, packageUrl: String) -> EventLoopFuture<Metadata> {
-        do {
-            let (owner, name) = try parseOwnerName(url: packageUrl)
-            return fetchMetadata(client: client, owner: owner, repository: name)
-        } catch {
-            return client.eventLoop.future(error: error)
-        }
+    static func fetchMetadata(client: Client, packageUrl: String) async throws -> Metadata {
+        let (owner, name) = try parseOwnerName(url: packageUrl)
+        return try await fetchMetadata(client: client, owner: owner, repository: name)
     }
 
 }

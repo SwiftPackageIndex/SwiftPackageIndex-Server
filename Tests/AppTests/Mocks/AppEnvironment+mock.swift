@@ -46,12 +46,12 @@ extension AppEnvironment {
                 ["https://github.com/finestructure/Gala",
                  "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"].asURLs
             },
-            fetchLicense: { _, _ in eventLoop.future(.init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE")) },
-            fetchMetadata: { _, _ in eventLoop.future(.mock) },
-            fetchReadme: { _, _ in eventLoop.future(
+            fetchLicense: { _, _ in .init(htmlUrl: "https://github.com/foo/bar/blob/main/LICENSE") },
+            fetchMetadata: { _, _ in .mock },
+            fetchReadme: { _, _ in
                 .init(downloadUrl: "https://raw.githubusercontent.com/foo/bar/main/README.md",
                       htmlUrl: "https://github.com/foo/bar/blob/main/README.md")
-            )},
+            },
             fileManager: .mock,
             getStatusCount: { _, _ in eventLoop.future(100) },
             git: .mock,
