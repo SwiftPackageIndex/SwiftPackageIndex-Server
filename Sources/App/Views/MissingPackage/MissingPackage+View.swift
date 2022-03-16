@@ -40,7 +40,7 @@ enum MissingPackage {
                     .text("Package not found")
                 ),
                 .p(
-                    .text("Oh no! It looks like this package either doesn't exist or hasn't yet been added to the index. If this package exists but is not yet in the index, please add it.")
+                    .text("Oh no! It looks like this is a valid GitHub repository but isn't yet a package in the index. If this repository contains a Swift package, please add it.")
                 ),
                 .p(
                     .class("right"),
