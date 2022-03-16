@@ -46,7 +46,7 @@ enum MissingPackage {
                     .class("right"),
                     .a(
                         .class("big_button green"),
-                        .href(ExternalURL.raiseNewPackageListIssue),
+                        .href(ExternalURL.addNewPackage(model.owner, model.repository)),
                         "Add this Package"
                     ),
                     .a(
