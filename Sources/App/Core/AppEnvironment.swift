@@ -14,6 +14,9 @@
 
 import ShellOut
 import Vapor
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 
 struct AppEnvironment {
@@ -26,6 +29,7 @@ struct AppEnvironment {
     var collectionSigningPrivateKey: () -> Data?
     var date: () -> Date
     var dbId: () -> String?
+    var fetchHTTPStatusCode: (_ url: String) async throws -> HTTPStatus
     var fetchPackageList: (_ client: Client) async throws -> [URL]
     var fetchLicense: (_ client: Client, _ packageUrl: String) async -> Github.License?
     var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
@@ -96,6 +100,17 @@ extension AppEnvironment {
         },
         date: Date.init,
         dbId: { Environment.get("DATABASE_ID") },
+        fetchHTTPStatusCode: { url in
+            guard let url = URL(string: url) else { throw AppError.genericError(nil, "Invalid URL \(url)") }
+            var request = URLRequest(url: url)
+            request.httpMethod = "HEAD"
+            let (_, response) = try await URLSession.shared.data(for: request)
+            if let response = response as? HTTPURLResponse {
+                return HTTPStatus(statusCode: response.statusCode)
+            } else {
+                throw AppError.genericError(nil, "Expected a valid HTTPURLResponse")
+            }
+        },
         fetchPackageList: liveFetchPackageList,
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),
