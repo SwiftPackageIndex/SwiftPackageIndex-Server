@@ -121,14 +121,16 @@ extension Github {
         return try response.content.decode(T.self, using: decoder)
     }
 
-    static func fetchLicense(client: Client, packageUrl: String) async throws -> License? {
-        let uri = try Github.apiUri(for: packageUrl, resource: .license)
-        return try await Github.fetchResource(Github.License.self, client: client, uri: uri)
+    static func fetchLicense(client: Client, packageUrl: String) async -> License? {
+        guard let uri = try? Github.apiUri(for: packageUrl, resource: .license)
+        else { return nil }
+        return try? await Github.fetchResource(Github.License.self, client: client, uri: uri)
     }
 
-    static func fetchReadme(client: Client, packageUrl: String) async throws -> Readme? {
-        let uri = try Github.apiUri(for: packageUrl, resource: .readme)
-        return try await Github.fetchResource(Github.Readme.self, client: client, uri: uri)
+    static func fetchReadme(client: Client, packageUrl: String) async -> Readme? {
+        guard let uri = try? Github.apiUri(for: packageUrl, resource: .readme)
+        else { return nil }
+        return try? await Github.fetchResource(Github.Readme.self, client: client, uri: uri)
     }
 
 }

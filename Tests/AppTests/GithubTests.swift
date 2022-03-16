@@ -289,7 +289,7 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        let res = try await Github.fetchLicense(client: client, packageUrl: pkg.url)
+        let res = await Github.fetchLicense(client: client, packageUrl: pkg.url)
 
         // validate
         XCTAssertEqual(res?.htmlUrl, "https://github.com/PSPDFKit/PSPDFKit-SP/blob/master/LICENSE")
@@ -303,7 +303,7 @@ class GithubTests: AppTestCase {
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let res = try await Github.fetchLicense(client: client, packageUrl: pkg.url)
+        let res = await Github.fetchLicense(client: client, packageUrl: pkg.url)
 
         // validate
         XCTAssertEqual(res, nil)
@@ -320,7 +320,7 @@ class GithubTests: AppTestCase {
         }
 
         // MUT
-        let res = try await Github.fetchReadme(client: client, packageUrl: pkg.url)
+        let res = await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
         XCTAssertEqual(res?.downloadUrl, "https://raw.githubusercontent.com/daveverwer/LeftPad/master/README.md")
@@ -333,7 +333,7 @@ class GithubTests: AppTestCase {
         let client = MockClient { _, resp in resp.status = .notFound }
 
         // MUT
-        let res = try await Github.fetchReadme(client: client, packageUrl: pkg.url)
+        let res = await Github.fetchReadme(client: client, packageUrl: pkg.url)
 
         // validate
         XCTAssertEqual(res?.downloadUrl, nil)
