@@ -44,6 +44,13 @@ struct PackageController {
                 .get()
                 .encodeResponse(for: req)
         } catch let error as AbortError where error.status == .notFound {
+            let headers = HTTPHeaders([("User-Agent", "SPI-Server")])
+            // Returns a 400 Bad Request
+            let response1 = try await req.client.send(.HEAD, headers: headers, to: "https://github.com/unknown/package")
+            // Throws with:
+            // StreamClosed(streamID: HTTP2StreamID(1), errorCode: HTTP2ErrorCode<0x1 ProtocolError>
+            let response2 = try await req.client.send(.HEAD, headers: headers, to: "https://swiftpackageindex.com/unknown/package")
+
             let model = MissingPackage.Model(owner: owner, repository: repository)
             // This is technically a 404 page with a different template, so it's important
             // to return a 404 so that it doesn't look like we have every possible package
