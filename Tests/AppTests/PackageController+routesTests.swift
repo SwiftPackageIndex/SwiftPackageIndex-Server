@@ -32,6 +32,24 @@ class PackageController_routesTests: AppTestCase {
         })
     }
 
+    func test_show_checkingGitHubRepository_notFound() throws {
+        Current.fetchHTTPStatusCode = { _ in .notFound }
+
+        // MUT
+        try app.test(.GET, "/unknown/package", afterResponse: { response in
+            XCTAssertEqual(response.status, .notFound)
+        })
+    }
+
+    func test_show_checkingGitHubRepository_found() throws {
+        Current.fetchHTTPStatusCode = { _ in .ok }
+
+        // MUT
+        try app.test(.GET, "/unknown/package", afterResponse: { response in
+            XCTAssertEqual(response.status, .notFound)
+        })
+    }
+
     func test_readme() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
