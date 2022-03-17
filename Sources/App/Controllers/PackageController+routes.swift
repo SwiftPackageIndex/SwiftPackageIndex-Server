@@ -46,6 +46,9 @@ struct PackageController {
                 return MissingPackage.View(path: req.url.path, model: model)
                     .document()
                     .encodeResponse(for: req, status: .notFound)
+            case .packageDoesNotExist:
+                // If GitHub 404s, we throw notFound, which will render our standard 404 page.
+                throw Abort(.notFound)
         }
     }
 
@@ -130,10 +133,11 @@ struct PackageController {
 
 
 extension PackageController {
-    
+
     enum ShowModel {
         case packageAvailable(PackageShow.Model, PackageShow.PackageSchema)
         case packageMissing(MissingPackage.Model)
+        case packageDoesNotExist
 
         init(db: Database, owner: String, repository: String) async throws {
             do {
@@ -146,8 +150,7 @@ extension PackageController {
             } catch let error as AbortError where error.status == .notFound {
                 // The package is not in the index, does it match a valid GitHub repository?
                 if try await Current.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)") == .notFound {
-                    // If GitHub 404s, we throw notFound, which will render our standard 404 page.
-                    throw Abort(.notFound)
+                    self = .packageDoesNotExist
                 } else {
                     // Otherwise, return a model to drive our "missing package" page.
                     self = .packageMissing(.init(owner: owner, repository: repository))
