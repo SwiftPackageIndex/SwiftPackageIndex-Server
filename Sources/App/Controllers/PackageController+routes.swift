@@ -18,6 +18,33 @@ import Vapor
 
 
 struct PackageController {
+
+    enum ShowModel {
+        case packageAvailable(PackageShow.Model, PackageShow.PackageSchema)
+        case packageMissing(MissingPackage.Model)
+
+        static func model(db: Database,
+                          owner: String,
+                          repository: String) async throws -> ShowModel {
+            do {
+                return try await ShowRoute
+                    .query(on: db, owner: owner, repository: repository)
+                    .map {
+                        .packageAvailable($0.model, $0.schema)
+                    }
+                    .get()
+            } catch let error as AbortError where error.status == .notFound {
+                // The package is not in the index, does it match a valid GitHub repository?
+                if try await Current.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)") == .notFound {
+                    // If GitHub 404s, we throw notFound, which will render our standard 404 page.
+                    throw Abort(.notFound)
+                } else {
+                    // Otherwise, return a model to drive our "missing package" page.
+                    return .packageMissing(.init(owner: owner, repository: repository))
+                }
+            }
+        }
+    }
     
     func show(req: Request) async throws -> Response {
         guard
@@ -34,30 +61,18 @@ struct PackageController {
                                  type: .permanent)
         }
 
-        do {
-            return try await ShowRoute
-                .query(on: req.db, owner: owner, repository: repository)
-                .map {
-                    PackageShow.View(path: req.url.path,
-                                     model: $0.model, packageSchema: $0.schema)
-                        .document()
-                }
-                .get()
+        switch try await ShowModel.model(db: req.db, owner: owner, repository: repository) {
+            case let .packageAvailable(model, schema):
+                return try await PackageShow.View(path: req.url.path,
+                                                  model: model, packageSchema: schema)
+                .document()
                 .encodeResponse(for: req)
-        } catch let error as AbortError where error.status == .notFound {
-            // The package is not in the index, does it match a valid GitHub repository?
-            if try await Current.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)") == .notFound {
-                // If GitHub 404s, we should show our standard 404.
-                throw Abort(.notFound)
-            } else {
-                // Otherwise, show the page urging people to add the package.
-                let model = MissingPackage.Model(owner: owner, repository: repository)
+            case let .packageMissing(model):
                 // This is technically a 404 page with a different template, so it's important
                 // to return a 404 so that it doesn't look like we have every possible package
                 return MissingPackage.View(path: req.url.path, model: model)
                     .document()
                     .encodeResponse(for: req, status: .notFound)
-            }
         }
     }
 
