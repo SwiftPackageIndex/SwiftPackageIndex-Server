@@ -100,17 +100,7 @@ extension AppEnvironment {
         },
         date: Date.init,
         dbId: { Environment.get("DATABASE_ID") },
-        fetchHTTPStatusCode: { url in
-            guard let url = URL(string: url) else { throw AppError.genericError(nil, "Invalid URL \(url)") }
-            var request = URLRequest(url: url)
-            request.httpMethod = "HEAD"
-            let (_, response) = try await URLSession.shared.data(for: request)
-            if let response = response as? HTTPURLResponse {
-                return HTTPStatus(statusCode: response.statusCode)
-            } else {
-                throw AppError.genericError(nil, "Expected a valid HTTPURLResponse")
-            }
-        },
+        fetchHTTPStatusCode: Networking.fetchHTTPStatusCode,
         fetchPackageList: liveFetchPackageList,
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),
@@ -161,6 +151,29 @@ extension AppEnvironment {
         twitterPostTweet: Twitter.post(client:tweet:)
     )
 }
+
+
+private enum Networking {
+    static func fetchHTTPStatusCode(_ url: String) async throws -> HTTPStatus {
+        guard let url = URL(string: url)
+        else { throw AppError.genericError(nil, "Invalid URL \(url)") }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "HEAD"
+
+        // Work-around lack of a/a support in FoundationNetworking
+        return try await withCheckedThrowingContinuation { cont in
+            URLSession.shared.dataTask(with: request) { _, response, error in
+                if let response = response as? HTTPURLResponse {
+                    cont.resume(returning: .init(statusCode: response.statusCode))
+                } else {
+                    cont.resume(throwing: AppError.genericError(nil, "Expected a valid HTTPURLResponse"))
+                }
+            }.resume()
+        }
+    }
+}
+
 
 struct FileManager {
     var attributesOfItem: (_ path: String) throws -> [FileAttributeKey : Any]
