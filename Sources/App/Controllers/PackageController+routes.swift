@@ -23,11 +23,9 @@ struct PackageController {
         case packageAvailable(PackageShow.Model, PackageShow.PackageSchema)
         case packageMissing(MissingPackage.Model)
 
-        static func model(db: Database,
-                          owner: String,
-                          repository: String) async throws -> ShowModel {
+        init(db: Database, owner: String, repository: String) async throws {
             do {
-                return try await ShowRoute
+                self = try await ShowRoute
                     .query(on: db, owner: owner, repository: repository)
                     .map {
                         .packageAvailable($0.model, $0.schema)
@@ -40,7 +38,7 @@ struct PackageController {
                     throw Abort(.notFound)
                 } else {
                     // Otherwise, return a model to drive our "missing package" page.
-                    return .packageMissing(.init(owner: owner, repository: repository))
+                    self = .packageMissing(.init(owner: owner, repository: repository))
                 }
             }
         }
@@ -61,7 +59,7 @@ struct PackageController {
                                  type: .permanent)
         }
 
-        switch try await ShowModel.model(db: req.db, owner: owner, repository: repository) {
+        switch try await ShowModel(db: req.db, owner: owner, repository: repository) {
             case let .packageAvailable(model, schema):
                 return try await PackageShow.View(path: req.url.path,
                                                   model: model, packageSchema: schema)
