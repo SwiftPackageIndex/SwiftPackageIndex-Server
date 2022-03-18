@@ -141,18 +141,15 @@ extension PackageController {
 
         init(db: Database, owner: String, repository: String) async throws {
             do {
-                self = try await ShowRoute
-                    .query(on: db, owner: owner, repository: repository)
-                    .map {
-                        .packageAvailable($0.model, $0.schema)
-                    }
-                    .get()
+                let (model, schema) = try await ShowRoute
+                    .query(on: db, owner: owner, repository: repository).get()
+                self = .packageAvailable(model, schema)
             } catch let error as AbortError where error.status == .notFound {
                 // The package is not in the index, does it match a valid GitHub repository?
                 if try await Current.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)") == .notFound {
                     self = .packageDoesNotExist
                 } else {
-                    // Otherwise, return a model to drive our "missing package" page.
+                    // Otherwise, it's a missing package.
                     self = .packageMissing(.init(owner: owner, repository: repository))
                 }
             }
