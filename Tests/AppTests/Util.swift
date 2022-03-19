@@ -24,8 +24,8 @@ import XCTest
 
 private var _schemaCreated = false
 
-func setup(_ environment: Environment, resetDb: Bool = true) throws -> Application {
-    let app = Application(.testing)
+func setup(_ environment: Environment, resetDb: Bool = true) async throws -> Application {
+    let app = Application(environment)
     let host = try configure(app)
 
     // Ensure `.testing` refers to "postgres" or "localhost"
