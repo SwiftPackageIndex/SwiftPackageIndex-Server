@@ -36,10 +36,10 @@ func setup(_ environment: Environment, resetDb: Bool = true) async throws -> App
 
     if !_schemaCreated {
         // ensure we create the schema when running the first test
-        try app.autoMigrate().wait()
+        try await app.autoMigrate()
         _schemaCreated = true
     }
-    if resetDb { try _resetDb(app) }
+    if resetDb { try await _resetDb(app) }
 
     // Always start with a baseline mock environment to avoid hitting live resources
     Current = .mock(eventLoop: app.eventLoopGroup.next())
@@ -48,16 +48,16 @@ func setup(_ environment: Environment, resetDb: Bool = true) async throws -> App
 }
 
 
-private var _tables: [String]?
+private var tableNamesCache: [String]?
 
-func _resetDb(_ app: Application) throws {
+func _resetDb(_ app: Application) async throws {
     guard let db = app.db as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
     }
     
-    guard let tables = _tables else {
+    guard let tables = tableNamesCache else {
         struct Row: Decodable { var table_name: String }
-        _tables = try db.raw("""
+        tableNamesCache = try await db.raw("""
                 SELECT table_name FROM
                 information_schema.tables
                 WHERE
@@ -66,14 +66,15 @@ func _resetDb(_ app: Application) throws {
                   AND table_name NOT LIKE '_fluent_%'
                 """)
             .all(decoding: Row.self)
-            .wait()
             .map(\.table_name)
-        if _tables != nil { try _resetDb(app) }
+        if tableNamesCache != nil {
+            try await _resetDb(app)
+        }
         return
     }
     
     for table in tables {
-        try db.raw("TRUNCATE TABLE \(raw: table) CASCADE").run().wait()
+        try await db.raw("TRUNCATE TABLE \(raw: table) CASCADE").run()
     }
 }
 
