@@ -46,12 +46,13 @@ struct PackageController {
             .query(on: req.db, owner: owner, repository: repository)
             .flatMap { result in
                 guard let url = result.repository?.readmeHtmlUrl
-                else { return req.eventLoop.future(nil) }
+                else { return req.eventLoop.future((url: nil, readme: nil)) }
                 return req.client.get(URI(string: url))
-                    .map { $0.body?.asString() }
+                    .map { (url: url, readme: $0.body?.asString()) }
             }
-            .map(PackageReadme.Model.init(readme:))
-            .map { PackageReadme.View(model: $0).document() }
+            .map(PackageReadme.Model.init(url:readme:))
+            .map(PackageReadme.View.init(model:))
+            .map { $0.document() }
     }
     
     func releases(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {

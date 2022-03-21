@@ -21,7 +21,7 @@ extension PackageReadme {
     struct Model: Equatable {
         private var readmeElement: Element?
 
-        internal init(readme: String?) {
+        internal init(url: String?, readme: String?) {
             self.readmeElement = processReadme(readme)
         }
 
