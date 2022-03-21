@@ -36,18 +36,18 @@ class PackageController_routesTests: AppTestCase {
         Current.fetchHTTPStatusCode = { _ in .notFound }
 
         // MUT
-        try app.test(.GET, "/unknown/package", afterResponse: { response in
-            XCTAssertEqual(response.status, .notFound)
-        })
+        try app.test(.GET, "/unknown/package") {
+            XCTAssertEqual($0.status, .notFound)
+        }
     }
 
     func test_show_checkingGitHubRepository_found() throws {
         Current.fetchHTTPStatusCode = { _ in .ok }
 
         // MUT
-        try app.test(.GET, "/unknown/package", afterResponse: { response in
-            XCTAssertEqual(response.status, .notFound)
-        })
+        try app.test(.GET, "/unknown/package") {
+            XCTAssertEqual($0.status, .notFound)
+        }
     }
 
     func test_readme() throws {
