@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "19da0d91d0fa9a0cf93958d67823c0e94ef666f1",
-          "version": "1.23.0"
+          "revision": "3c06388997a1ee72e97bcd752aff47d5b64722f5",
+          "version": "1.23.2"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-postgres-driver.git",
         "state": {
           "branch": null,
-          "revision": "f4769c5a5db8f3bd87e4d8d885128751ad970716",
-          "version": "2.2.4"
+          "revision": "7c266b539f71331ad6e53ea8fae587ccdaf972f2",
+          "version": "2.2.6"
         }
       },
       {
@@ -96,8 +96,8 @@
         "repositoryURL": "https://github.com/vapor/postgres-kit.git",
         "state": {
           "branch": null,
-          "revision": "ea152d694198a7fd2b6b5b1beff0838373976006",
-          "version": "2.5.1"
+          "revision": "221e3e39e9c7d9b4999f38038c6b5f3122f4d438",
+          "version": "2.6.0"
         }
       },
       {
@@ -105,8 +105,8 @@
         "repositoryURL": "https://github.com/vapor/postgres-nio.git",
         "state": {
           "branch": null,
-          "revision": "57fda42d42176ee5309e7163f3a36dc20f626685",
-          "version": "1.8.0"
+          "revision": "def4fe8c8b4f58ce394771f27910dca107e9d8c3",
+          "version": "1.9.0"
         }
       },
       {
@@ -204,8 +204,8 @@
         "repositoryURL": "https://github.com/apple/swift-metrics.git",
         "state": {
           "branch": null,
-          "revision": "3edd2f57afc4e68e23c3e4956bc8b65ca6b5b2ff",
-          "version": "2.2.0"
+          "revision": "eadb828f878fed144387e3845866225bb7082c56",
+          "version": "2.3.0"
         }
       },
       {
