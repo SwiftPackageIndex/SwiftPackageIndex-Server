@@ -19,9 +19,11 @@ import SwiftSoup
 extension PackageReadme {
     
     struct Model: Equatable {
+        var url: String?
         private var readmeElement: Element?
 
         internal init(url: String?, readme: String?) {
+            self.url = url
             self.readmeElement = processReadme(readme)
         }
 
