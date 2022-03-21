@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <turbo-frame id="readme_page">
+      <p>This package's README file couldn't be loaded. Try 
+        <a href="https://example.com/owner/repo/README">viewing it on GitHub</a>.
+      </p>
+    </turbo-frame>
+  </body>
+</html>
