@@ -27,9 +27,9 @@ class PackageController_routesTests: AppTestCase {
         try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
 
         // MUT
-        try app.test(.GET, "/owner/package", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-        })
+        try app.test(.GET, "/owner/package") {
+            XCTAssertEqual($0.status, .ok)
+        }
     }
 
     func test_show_checkingGitHubRepository_notFound() throws {
@@ -58,9 +58,9 @@ class PackageController_routesTests: AppTestCase {
         try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
 
         // MUT
-        try app.test(.GET, "/owner/package/readme", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-        })
+        try app.test(.GET, "/owner/package/readme") {
+            XCTAssertEqual($0.status, .ok)
+        }
     }
 
     func test_releases() throws {
@@ -71,9 +71,9 @@ class PackageController_routesTests: AppTestCase {
         try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
 
         // MUT
-        try app.test(.GET, "/owner/package/releases", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-        })
+        try app.test(.GET, "/owner/package/releases") {
+            XCTAssertEqual($0.status, .ok)
+        }
     }
 
     func test_builds() throws {
@@ -84,9 +84,9 @@ class PackageController_routesTests: AppTestCase {
         try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
 
         // MUT
-        try app.test(.GET, "/owner/package/builds", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-        })
+        try app.test(.GET, "/owner/package/builds") {
+            XCTAssertEqual($0.status, .ok)
+        }
     }
 
     func test_maintainerInfo() throws {
@@ -98,9 +98,9 @@ class PackageController_routesTests: AppTestCase {
             .save(on: app.db).wait()
 
         // MUT
-        try app.test(.GET, "/owner/package/information-for-package-maintainers", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-        })
+        try app.test(.GET, "/owner/package/information-for-package-maintainers") {
+            XCTAssertEqual($0.status, .ok)
+        }
     }
 
     func test_maintainerInfo_no_packageName() throws {
@@ -113,9 +113,9 @@ class PackageController_routesTests: AppTestCase {
             .save(on: app.db).wait()
 
         // MUT
-        try app.test(.GET, "/owner/package/information-for-package-maintainers", afterResponse: { response in
-            XCTAssertEqual(response.status, .ok)
-        })
+        try app.test(.GET, "/owner/package/information-for-package-maintainers") {
+            XCTAssertEqual($0.status, .ok)
+        }
     }
 
 }
