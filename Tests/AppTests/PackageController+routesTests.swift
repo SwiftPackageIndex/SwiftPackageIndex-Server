@@ -33,7 +33,7 @@ class PackageController_routesTests: AppTestCase {
     }
 
     func test_show_checkingGitHubRepository_notFound() throws {
-        Current.fetchHTTPStatusCode = { _, _ in .mock(.notFound) }
+        Current.fetchHTTPStatusCode = { _ in .mock(.notFound) }
 
         // MUT
         try app.test(.GET, "/unknown/package") {
@@ -42,7 +42,7 @@ class PackageController_routesTests: AppTestCase {
     }
 
     func test_show_checkingGitHubRepository_found() throws {
-        Current.fetchHTTPStatusCode = { _, _ in .mock(.ok) }
+        Current.fetchHTTPStatusCode = { _ in .mock(.ok) }
 
         // MUT
         try app.test(.GET, "/unknown/package") {

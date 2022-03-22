@@ -42,7 +42,7 @@ extension AppEnvironment {
             },
             date: Date.init,
             dbId: { "db-id" },
-            fetchHTTPStatusCode: { _, _ in .ok },
+            fetchHTTPStatusCode: { _ in .ok },
             fetchPackageList: { _ in
                 ["https://github.com/finestructure/Gala",
                  "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"].asURLs
