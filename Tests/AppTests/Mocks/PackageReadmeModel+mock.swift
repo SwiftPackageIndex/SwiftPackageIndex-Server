@@ -19,7 +19,9 @@ import Foundation
 
 extension PackageReadme.Model {
     static var mock: PackageReadme.Model {
-        .init(readme: """
+        .init(
+            url: "https://example.com/owner/repo/README",
+            readme: """
             <div id="readme">
                 <article>
                     <p>This is README content.</p>

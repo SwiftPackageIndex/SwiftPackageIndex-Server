@@ -32,12 +32,26 @@ enum PackageReadme {
 
         override func frameContent() -> Node<HTML.BodyContext> {
             guard let readme = model.readme
-            else { return .empty }
+            else { return blankReadmePlaceholder() }
 
             return .group(
                 .spiReadme(
                     .raw(readme)
                 )
+            )
+        }
+
+        func blankReadmePlaceholder() -> Node<HTML.BodyContext> {
+            guard let url = model.url
+            else { return .p("This package does not have a README file.") }
+
+            return .p(
+                .text("This package's README file couldn't be loaded. Try "),
+                .a(
+                    .href(url),
+                    .text("viewing it on GitHub")
+                ),
+                .text(".")
             )
         }
     }

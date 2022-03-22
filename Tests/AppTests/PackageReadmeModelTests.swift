@@ -21,7 +21,9 @@ import SnapshotTesting
 class PackageReadmeModelTests: SnapshotTestCase {
 
     func test_processReadme_extractReadmeElement() throws {
-        let model = PackageReadme.Model(readme: """
+        let model = PackageReadme.Model(
+            url: "https://example.com/owner/repo/README",
+            readme: """
             <html>
                 <head>
                     <title>README file</title>
@@ -42,7 +44,9 @@ class PackageReadmeModelTests: SnapshotTestCase {
     }
 
     func test_processReadme_processRelativeImages() throws {
-        let model = PackageReadme.Model(readme: """
+        let model = PackageReadme.Model(
+            url: "https://example.com/owner/repo/README",
+            readme: """
             <html>
                 <head>
                     <title>README file</title>
@@ -67,7 +71,9 @@ class PackageReadmeModelTests: SnapshotTestCase {
     }
 
     func test_processReadme_processRelativeLinks() throws {
-        let model = PackageReadme.Model(readme: """
+        let model = PackageReadme.Model(
+            url: "https://example.com/owner/repo/README",
+            readme: """
             <html>
                 <head>
                     <title>README file</title>

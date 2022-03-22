@@ -332,6 +332,24 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         #endif
     }
 
+    func test_PackageReadmeView_unparseableReadme() throws {
+        let model = PackageReadme.Model(url: "https://example.com/owner/repo/README", readme: nil)
+        let page = { PackageReadme.View(model: model).document() }
+
+        assertSnapshot(matching: page, as: .html)
+
+        // Note: This snapshot test deliberately omits an image snapshot as the HTML being tested has no explicit styling.
+    }
+
+    func test_PackageReadmeView_noReadme() throws {
+        let model = PackageReadme.Model(url: nil, readme: nil)
+        let page = { PackageReadme.View(model: model).document() }
+
+        assertSnapshot(matching: page, as: .html)
+
+        // Note: This snapshot test deliberately omits an image snapshot as the HTML being tested has no explicit styling.
+    }
+
     func test_PackageReleasesView() throws {
         let model = PackageReleases.Model.mock
         let page = { PackageReleases.View(model: model).document() }
