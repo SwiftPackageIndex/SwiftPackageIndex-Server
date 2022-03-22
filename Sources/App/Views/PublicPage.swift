@@ -215,7 +215,7 @@ class PublicPage {
         .empty
     }
     
-    /// A stagig banner, which only appears on the staging/development server.
+    /// A staging banner, which only appears on the staging/development server.
     /// - Returns: Either a <div> element, or nothing.
     final func stagingBanner() -> Node<HTML.BodyContext> {
         guard !Current.hideStagingBanner() else { return .empty }
