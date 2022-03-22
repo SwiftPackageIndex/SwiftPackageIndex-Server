@@ -33,7 +33,7 @@ class PackageController_routesTests: AppTestCase {
     }
 
     func test_show_checkingGitHubRepository_notFound() throws {
-        Current.fetchHTTPStatusCode = { _, _ in .notFound }
+        Current.fetchHTTPStatusCode = { _, _ in .mock(.notFound) }
 
         // MUT
         try app.test(.GET, "/unknown/package") {
@@ -42,7 +42,7 @@ class PackageController_routesTests: AppTestCase {
     }
 
     func test_show_checkingGitHubRepository_found() throws {
-        Current.fetchHTTPStatusCode = { _, _ in .ok }
+        Current.fetchHTTPStatusCode = { _, _ in .mock(.ok) }
 
         // MUT
         try app.test(.GET, "/unknown/package") {
@@ -118,4 +118,20 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+}
+
+
+private extension HTTPStatus {
+    static func mock(_ status: Self) -> Self {
+        // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/1606#issuecomment-1075391125 as to why we're adding this delay
+        usleep(.milliseconds(100))
+        return status
+    }
+}
+
+
+private extension useconds_t {
+    static func milliseconds(_ count: Int) -> Self {
+        useconds_t(count * 1_000)
+    }
 }
