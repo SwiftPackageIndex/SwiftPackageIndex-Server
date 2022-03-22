@@ -162,6 +162,7 @@ private enum Networking {
         request.httpMethod = "HEAD"
 
         // Work-around lack of a/a support in FoundationNetworking
+        // We need to use URLSession, because HEAD requests with Client are broken
         return try await withCheckedThrowingContinuation { cont in
             URLSession.shared.dataTask(with: request) { _, response, error in
                 if let response = response as? HTTPURLResponse {
