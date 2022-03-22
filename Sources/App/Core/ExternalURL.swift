@@ -33,7 +33,6 @@ enum ExternalURL: URLRepresentable {
             case .raiseNewIssue:
                 return "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose"
             case let .addNewPackage(owner, repository):
-                print(owner, repository)
                 return "https://github.com/SwiftPackageIndex/PackageList/issues/new?labels=Add+Package&template=add_package.yml&title=Add+\(repository)&list=https%3A%2F%2Fgithub.com%2F\(owner)%2F\(repository).git"
         }
     }
