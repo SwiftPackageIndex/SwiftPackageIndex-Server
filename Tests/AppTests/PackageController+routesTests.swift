@@ -72,7 +72,7 @@ class PackageController_routesTests: AppTestCase {
 
     func test_ShowModel_packageMissing() async throws {
         // setup
-        Current.fetchHTTPStatusCode = { _ in .mock(.ok) }
+        Current.fetchHTTPStatusCode = { _ in .ok }
 
         // MUT
         let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
@@ -88,7 +88,7 @@ class PackageController_routesTests: AppTestCase {
 
     func test_ShowModel_packageDoesNotExist() async throws {
         // setup
-        Current.fetchHTTPStatusCode = { _ in .mock(.notFound) }
+        Current.fetchHTTPStatusCode = { _ in .notFound }
 
         // MUT
         let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
