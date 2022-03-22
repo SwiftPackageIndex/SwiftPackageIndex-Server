@@ -29,7 +29,7 @@ struct AppEnvironment {
     var collectionSigningPrivateKey: () -> Data?
     var date: () -> Date
     var dbId: () -> String?
-    var fetchHTTPStatusCode: (_ url: String) async throws -> HTTPStatus
+    var fetchHTTPStatusCode: (_ client: Client, _ url: String) async throws -> HTTPStatus
     var fetchPackageList: (_ client: Client) async throws -> [URL]
     var fetchLicense: (_ client: Client, _ packageUrl: String) async -> Github.License?
     var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
@@ -100,7 +100,12 @@ extension AppEnvironment {
         },
         date: Date.init,
         dbId: { Environment.get("DATABASE_ID") },
-        fetchHTTPStatusCode: Networking.fetchHTTPStatusCode,
+        fetchHTTPStatusCode: { client, url in
+            try await client.send(.GET,
+                                  headers: .init([("User-Agent", "SPI-Server")]),
+                                  to: URI(string: url))
+            .status
+        },
         fetchPackageList: liveFetchPackageList,
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),
@@ -152,27 +157,6 @@ extension AppEnvironment {
     )
 }
 
-
-private enum Networking {
-    static func fetchHTTPStatusCode(_ url: String) async throws -> HTTPStatus {
-        guard let url = URL(string: url)
-        else { throw AppError.genericError(nil, "Invalid URL \(url)") }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "HEAD"
-
-        // Work-around lack of a/a support in FoundationNetworking
-        return try await withCheckedThrowingContinuation { cont in
-            URLSession.shared.dataTask(with: request) { _, response, error in
-                if let response = response as? HTTPURLResponse {
-                    cont.resume(returning: .init(statusCode: response.statusCode))
-                } else {
-                    cont.resume(throwing: AppError.genericError(nil, "Expected a valid HTTPURLResponse"))
-                }
-            }.resume()
-        }
-    }
-}
 
 
 struct FileManager {

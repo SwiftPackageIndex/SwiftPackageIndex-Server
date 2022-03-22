@@ -46,7 +46,7 @@ struct PackageController {
                 .encodeResponse(for: req)
         } catch let error as AbortError where error.status == .notFound {
             // The package is not in the index, does it match a valid GitHub repository?
-            if try await Current.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)") == .notFound {
+            if try await Current.fetchHTTPStatusCode(req.client, "https://github.com/\(owner)/\(repository)") == .notFound {
                 // If GitHub 404s, we should show our standard 404.
                 throw Abort(.notFound)
             } else {
