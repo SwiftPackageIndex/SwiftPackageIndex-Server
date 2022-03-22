@@ -52,6 +52,13 @@ enum PackageShow {
             )
         }
         
+        override func breadcrumbs() -> [Breadcrumb] {
+            [
+                Breadcrumb(title: model.repositoryOwnerName, url: SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
+                Breadcrumb(title: model.title)
+            ]
+        }
+
         override func postBody() -> Node<HTML.BodyContext> {
             .unwrap(packageSchema) {
                 .structuredData($0)

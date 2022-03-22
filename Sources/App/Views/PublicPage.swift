@@ -201,6 +201,7 @@ class PublicPage {
             stagingBanner(),
             header(),
             preMain(),
+            breadcrumbNode(),
             main(),
             postMain(),
             footer(),
@@ -266,6 +267,24 @@ class PublicPage {
         .empty
     }
     
+    /// The breadcrumb bar for overall site navigation.
+    /// - Returns: An optional element, or group of elements.
+    func breadcrumbs() -> [Breadcrumb] {
+        []
+    }
+
+    private func breadcrumbNode() -> Node<HTML.BodyContext> {
+        let breadcrumbs = breadcrumbs()
+        guard breadcrumbs.count > 0 else { return .empty }
+
+        return .nav(
+            .ul(
+                .class("breadcrumbs"),
+                .group(breadcrumbs.map { $0.listNode() })
+            )
+        )
+    }
+
     /// The <main> element that will contain the primary content for the page.
     /// - Returns: A <main> element.
     final func main() -> Node<HTML.BodyContext> {
