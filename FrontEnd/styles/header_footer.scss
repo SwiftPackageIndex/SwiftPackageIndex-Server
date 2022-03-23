@@ -60,6 +60,7 @@ header {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    padding: 20px 10px;
   }
 
   @media screen and (max-width: $mobile-breakpoint) {
@@ -97,6 +98,10 @@ header {
 /* Footer specific */
 
 footer {
+  .inner {
+    padding: 20px 10px;
+  }
+
   nav {
     display: flex;
     flex-direction: column;

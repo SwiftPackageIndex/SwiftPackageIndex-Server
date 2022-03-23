@@ -19,8 +19,11 @@
 
 .inner {
   margin: 0 auto;
-  padding: 20px 10px;
   max-width: 850px;
+}
+
+main > .inner {
+  padding: 20px 10px;
 }
 
 .two_column {
