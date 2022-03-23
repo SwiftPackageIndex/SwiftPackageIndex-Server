@@ -28,14 +28,14 @@ class AppTestCase: XCTestCase {
         app.eventLoopGroup.next().future(error: error)
     }
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        app = try setup(.testing)
+    override func setUp() async throws {
+        try await super.setUp()
+        app = try await setup(.testing)
     }
     
-    override func tearDownWithError() throws {
+    override func tearDown() async throws {
         app.shutdown()
-        try super.tearDownWithError()
+        try await super.tearDown()
     }
 }
 

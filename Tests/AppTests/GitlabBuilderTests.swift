@@ -20,10 +20,10 @@ import XCTest
 
 class GitlabBuilderTests: XCTestCase {
 
-    func test_variables_encoding() throws {
+    func test_variables_encoding() async throws {
         // Ensure the POST variables are encoded correctly
         // setup
-        let app = try setup(.testing)
+        let app = try await setup(.testing)
         defer { app.shutdown() }
         let req = Request(application: app, on: app.eventLoopGroup.next())
         let dto = Gitlab.Builder.PostDTO(token: "token",
