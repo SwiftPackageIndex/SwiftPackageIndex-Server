@@ -55,7 +55,7 @@ enum PackageShow {
         override func breadcrumbs() -> [Breadcrumb] {
             [
                 Breadcrumb(title: model.repositoryOwnerName, url: SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
-                Breadcrumb(title: model.title)
+                Breadcrumb(title: model.title, url: SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .none).relativeURL())
             ]
         }
 
