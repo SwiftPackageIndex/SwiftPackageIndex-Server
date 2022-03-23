@@ -57,7 +57,7 @@
     --very-very-dark-grey: #0e0e19;
     --very-dark-grey: #191923;
 
-    --mid-blue: #55b7ff;
+    --mid-blue: #1694f1;
     --orange: #ec8329;
     --mid-red: #ff4343;
     --dark-red: #250201;
@@ -153,6 +153,11 @@
 
   --search-filter-background: var(--very-light-grey);
   --search-filter-ampersand-color: var(--dark-grey);
+
+  --big-button-green-background: var(--mid-green);
+  --big-button-green-border: var(--light-green);
+  --big-button-blue-background: var(--mid-blue);
+  --big-button-blue-border: var(--light-blue);
 }
 
 /* Dark mode semantic color overrides */
@@ -194,9 +199,6 @@
     --copyable-input-background: var(--very-very-dark-grey);
     --copyable-input-border: var(--dark-grey);
 
-    --button-background: var(--mid-blue);
-    --button-text: var(--very-dark-blue);
-
     --rule-background: var(--dark-blue);
     --rule-thin-background: var(--dark-grey);
 
@@ -224,5 +226,8 @@
 
     --search-filter-background: var(--dark-grey);
     --search-filter-ampersand-color: var(--light-grey);
+
+    --big-button-blue-background: var(--mid-blue);
+    --big-button-blue-border: var(--light-blue);
   }
 }

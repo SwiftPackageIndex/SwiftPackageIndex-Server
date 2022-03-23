@@ -16,22 +16,43 @@ import Fluent
 import Plot
 import Vapor
 
+
 struct PackageController {
-    
-    func show(req: Request) throws -> EventLoopFuture<HTML> {
+
+    func show(req: Request) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
         else {
-            return req.eventLoop.future(error: Abort(.notFound))
+            throw Abort(.notFound)
         }
-        return ShowRoute
-            .query(on: req.db, owner: owner, repository: repository)
-            .map {
-                PackageShow.View(path: req.url.path,
-                                 model: $0.model, packageSchema: $0.schema)
+
+        if repository.lowercased().hasSuffix(".git") {
+            throw Abort.redirect(to: SiteURL.package(.value(owner),
+                                                     .value(repository.droppingGitExtension),
+                                                     .none).absoluteURL(),
+                                 type: .permanent)
+        }
+
+        switch try await ShowModel(db: req.db, owner: owner, repository: repository) {
+            case let .packageAvailable(model, schema):
+                AppMetrics.packageShowAvailableTotal?.inc()
+                return try await PackageShow.View(path: req.url.path,
+                                                  model: model, packageSchema: schema)
+                .document()
+                .encodeResponse(for: req)
+            case let .packageMissing(model):
+                // This is technically a 404 page with a different template, so it's important
+                // to return a 404 so that it doesn't look like we have every possible package
+                AppMetrics.packageShowMissingTotal?.inc()
+                return MissingPackage.View(path: req.url.path, model: model)
                     .document()
-            }
+                    .encodeResponse(for: req, status: .notFound)
+            case .packageDoesNotExist:
+                // If GitHub 404s, we throw notFound, which will render our standard 404 page.
+                AppMetrics.packageShowNonexistentTotal?.inc()
+                throw Abort(.notFound)
+        }
     }
 
     func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
@@ -111,4 +132,31 @@ struct PackageController {
             }
             .map { MaintainerInfoIndex.View(path: req.url.path, model: $0).document() }
     }
+}
+
+
+extension PackageController {
+
+    enum ShowModel {
+        case packageAvailable(PackageShow.Model, PackageShow.PackageSchema)
+        case packageMissing(MissingPackage.Model)
+        case packageDoesNotExist
+
+        init(db: Database, owner: String, repository: String) async throws {
+            do {
+                let (model, schema) = try await ShowRoute
+                    .query(on: db, owner: owner, repository: repository).get()
+                self = .packageAvailable(model, schema)
+            } catch let error as AbortError where error.status == .notFound {
+                // The package is not in the index, does it match a valid GitHub repository?
+                if try await Current.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)") == .notFound {
+                    self = .packageDoesNotExist
+                } else {
+                    // Otherwise, it's a missing package.
+                    self = .packageMissing(.init(owner: owner, repository: repository))
+                }
+            }
+        }
+    }
+
 }

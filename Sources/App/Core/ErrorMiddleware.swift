@@ -24,9 +24,8 @@ public final class ErrorMiddleware: AsyncMiddleware {
     public func respond(to req: Request, chainingTo next: AsyncResponder) async throws -> Response {
         do {
             return try await next.respond(to: req)
-        } catch {
-            let abortError = error as? AbortError ?? Abort(.internalServerError)
-            let statusCode = abortError.status.code
+        } catch let error as AbortError where error.status.code >= 400 {
+            let statusCode = error.status.code
             let isCritical = (statusCode >= 500)
 
             if isCritical {
@@ -38,9 +37,9 @@ public final class ErrorMiddleware: AsyncMiddleware {
                 Current.logger()?.error("ErrorPage.View \(statusCode): \(error.localizedDescription)")
             }
 
-            return ErrorPage.View(path: req.url.path, error: abortError)
+            return ErrorPage.View(path: req.url.path, error: error)
                 .document()
-                .encodeResponse(for: req, status: abortError.status)
+                .encodeResponse(for: req, status: error.status)
         }
     }
 
