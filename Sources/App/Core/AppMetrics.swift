@@ -191,6 +191,18 @@ enum AppMetrics {
         counter("spi_package_collection_get_total", EmptyLabels.self)
     }
 
+    static var packageShowAvailableTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_package_show_available_total", EmptyLabels.self)
+    }
+
+    static var packageShowMissingTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_package_show_missing_total", EmptyLabels.self)
+    }
+
+    static var packageShowNonexistentTotal: PromCounter<Int, EmptyLabels>? {
+        counter("spi_package_show_nonexistent_total", EmptyLabels.self)
+    }
+
     static var reconcileDurationSeconds: PromGauge<Double, EmptyLabels>? {
         gauge("spi_reconcile_duration_seconds", EmptyLabels.self)
     }

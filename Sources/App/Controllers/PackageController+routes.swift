@@ -36,6 +36,7 @@ struct PackageController {
 
         switch try await ShowModel(db: req.db, owner: owner, repository: repository) {
             case let .packageAvailable(model, schema):
+                AppMetrics.packageShowAvailableTotal?.inc()
                 return try await PackageShow.View(path: req.url.path,
                                                   model: model, packageSchema: schema)
                 .document()
@@ -43,11 +44,13 @@ struct PackageController {
             case let .packageMissing(model):
                 // This is technically a 404 page with a different template, so it's important
                 // to return a 404 so that it doesn't look like we have every possible package
+                AppMetrics.packageShowMissingTotal?.inc()
                 return MissingPackage.View(path: req.url.path, model: model)
                     .document()
                     .encodeResponse(for: req, status: .notFound)
             case .packageDoesNotExist:
                 // If GitHub 404s, we throw notFound, which will render our standard 404 page.
+                AppMetrics.packageShowNonexistentTotal?.inc()
                 throw Abort(.notFound)
         }
     }
