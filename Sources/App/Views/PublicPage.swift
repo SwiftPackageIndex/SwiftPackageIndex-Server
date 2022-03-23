@@ -278,10 +278,10 @@ class PublicPage {
         guard breadcrumbs.count > 0 else { return .empty }
 
         return .nav(
+            .class("breadcrumbs"),
             .div(
                 .class("inner"),
                 .ul(
-                    .class("breadcrumbs"),
                     .group(breadcrumbs.map { $0.listNode() })
                 )
             )
