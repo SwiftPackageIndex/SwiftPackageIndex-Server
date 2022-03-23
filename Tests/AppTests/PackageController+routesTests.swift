@@ -50,6 +50,58 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+    func test_ShowModel_packageAvailable() async throws {
+        // setup
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+
+        // MUT
+        let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
+
+        // validate
+        switch model {
+            case .packageAvailable:
+                // don't check model details, we simply want to assert the flow logic
+                break
+            case .packageMissing, .packageDoesNotExist:
+                XCTFail("expected package to be available")
+        }
+    }
+
+    func test_ShowModel_packageMissing() async throws {
+        // setup
+        Current.fetchHTTPStatusCode = { _ in .mock(.ok) }
+
+        // MUT
+        let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
+
+        // validate
+        switch model {
+            case .packageAvailable, .packageDoesNotExist:
+                XCTFail("expected package to be missing")
+            case .packageMissing:
+                break
+        }
+    }
+
+    func test_ShowModel_packageDoesNotExist() async throws {
+        // setup
+        Current.fetchHTTPStatusCode = { _ in .mock(.notFound) }
+
+        // MUT
+        let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
+
+        // validate
+        switch model {
+            case .packageAvailable, .packageMissing:
+                XCTFail("expected package not to exist")
+            case .packageDoesNotExist:
+                break
+        }
+    }
+
     func test_readme() throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
