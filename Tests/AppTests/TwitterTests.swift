@@ -240,7 +240,7 @@ class TwitterTests: AppTestCase {
 
     func test_endToEnd() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
-        try XCTSkipIf(isRunningOnMacOS)
+        try XCTSkipIf(true)
 
         // setup
         Current.twitterCredentials = {
