@@ -270,9 +270,10 @@ class PublicPage {
     /// - Returns: A <main> element.
     final func main() -> Node<HTML.BodyContext> {
         .main(
-            .div(.class("inner"),
-                 content()
-                )
+            .div(
+                .class("inner"),
+                content()
+            )
         )
     }
     
@@ -308,8 +309,9 @@ class PublicPage {
     /// - Returns: A <footer> element.
     final func footer() -> Node<HTML.BodyContext> {
         .footer(
-            .div(.class("inner"),
-                 .nav(
+            .div(
+                .class("inner"),
+                .nav(
                     .ul(
                         .li(
                             .a(
@@ -360,8 +362,8 @@ class PublicPage {
                             "Microsoft Azure"
                         )
                     )
-                 )
                 )
+            )
         )
     }
     
