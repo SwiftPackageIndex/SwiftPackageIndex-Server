@@ -94,6 +94,8 @@ extension SiteURL {
                 return .hourly
             case .search:
                 return .hourly
+            case .spiManifest:
+                return .monthly
             case .siteMap:
                 return .weekly
             case .supporters:
