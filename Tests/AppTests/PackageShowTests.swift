@@ -23,6 +23,7 @@ class PackageShowTests: AppTestCase {
 
     func test_releaseInfo() throws {
         // setup
+        Current.date = { .t0 }
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg,
                        defaultBranch: "default",
@@ -69,6 +70,7 @@ class PackageShowTests: AppTestCase {
     func test_releaseInfo_exclude_non_latest() throws {
         // Test to ensure that we don't include versions with `latest IS NULL`
         // setup
+        Current.date = { .t0 }
         let pkg = try savePackage(on: app.db, "1")
         try Repository(package: pkg,
                        defaultBranch: "default",
