@@ -419,7 +419,7 @@ final class PackageTests: AppTestCase {
 
 
 func daysAgo(_ days: Int) -> Date {
-    Calendar.current.date(byAdding: .init(day: -days), to: Date())!
+    Calendar.current.date(byAdding: .init(day: -days), to: Current.date())!
 }
 
 
