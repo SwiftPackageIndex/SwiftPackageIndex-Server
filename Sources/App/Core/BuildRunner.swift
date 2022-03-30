@@ -28,6 +28,8 @@ enum BuildRunner: String, CustomStringConvertible {
     case mac0 = "pMpxem39"
     case mac1 = "DVohN7oe"
     case mac2 = "eFGZxpyH"
+    case mac3 = "DMJah_V-"
+    case mac4 = "1hFCVExo"
 
     var description: String {
         switch self {
@@ -36,6 +38,8 @@ enum BuildRunner: String, CustomStringConvertible {
             case .mac0: return "Mac 0"
             case .mac1: return "Mac 1"
             case .mac2: return "Mac 2"
+            case .mac3: return "Mac 3"
+            case .mac4: return "Mac 4"
         }
     }
 }
