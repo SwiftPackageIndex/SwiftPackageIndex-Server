@@ -251,7 +251,8 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                 status5_2: .compatible,
                 status5_3: .compatible,
                 status5_4: .compatible,
-                status5_5: .compatible
+                status5_5: .compatible,
+                status5_6: .compatible
             )
             model.swiftVersionBuildInfo = .init(
                 stable: .init(referenceName: "5.2.5", results: compatible),

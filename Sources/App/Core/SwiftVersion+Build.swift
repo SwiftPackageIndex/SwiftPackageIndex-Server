@@ -20,11 +20,12 @@ extension SwiftVersion {
     static let v5_2: Self = .init(5, 2, 4)
     static let v5_3: Self = .init(5, 3, 3)
     static let v5_4: Self = .init(5, 4, 0)
-    static let v5_5: Self = .init(5, 5, 0)
+    static let v5_5: Self = .init(5, 5, 2)
+    static let v5_6: Self = .init(5, 6, 0)
 
     /// Currently supported swift versions for building
     static var allActive: [Self] {
-        [v5_1, v5_2, v5_3, v5_4, v5_5]
+        [.v5_1, .v5_2, .v5_3, .v5_4, .v5_5, .v5_6]
     }
 
     var xcodeVersion: String? {

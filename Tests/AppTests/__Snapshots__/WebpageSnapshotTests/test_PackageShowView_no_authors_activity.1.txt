@@ -142,6 +142,7 @@
                         </p>
                       </div>
                       <div class="column_labels">
+                        <div>5.6</div>
                         <div>5.5</div>
                         <div>5.4</div>
                         <div>5.3</div>
@@ -149,6 +150,7 @@
                         <div>5.1</div>
                       </div>
                       <div class="results">
+                        <div class="compatible" title="Built successfully with Swift 5.6"></div>
                         <div class="compatible" title="Built successfully with Swift 5.5"></div>
                         <div class="compatible" title="Built successfully with Swift 5.4"></div>
                         <div class="unknown" title="No build information available for Swift 5.3"></div>
@@ -163,6 +165,7 @@
                         </p>
                       </div>
                       <div class="column_labels">
+                        <div>5.6</div>
                         <div>5.5</div>
                         <div>5.4</div>
                         <div>5.3</div>
@@ -170,6 +173,7 @@
                         <div>5.1</div>
                       </div>
                       <div class="results">
+                        <div class="compatible" title="Built successfully with Swift 5.6"></div>
                         <div class="compatible" title="Built successfully with Swift 5.5"></div>
                         <div class="compatible" title="Built successfully with Swift 5.4"></div>
                         <div class="compatible" title="Built successfully with Swift 5.3"></div>
