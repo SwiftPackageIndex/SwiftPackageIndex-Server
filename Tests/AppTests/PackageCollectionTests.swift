@@ -203,15 +203,15 @@ class PackageCollectionTests: AppTestCase {
                 try Build(version: v,
                           platform: .ios,
                           status: .ok,
-                          swiftVersion: .v5_2).save(on: app.db).wait()
+                          swiftVersion: .v5_5).save(on: app.db).wait()
                 try Build(version: v,
                           platform: .macosXcodebuild,
                           status: .ok,
-                          swiftVersion: .v5_3).save(on: app.db).wait()
+                          swiftVersion: .v5_6).save(on: app.db).wait()
                 try Build(version: v,
                           platform: .macosXcodebuildArm,
                           status: .ok,
-                          swiftVersion: .v5_3).save(on: app.db).wait()
+                          swiftVersion: .v5_6).save(on: app.db).wait()
             }
         }
         let v = try XCTUnwrap(VersionResult.query(on: app.db,
@@ -231,8 +231,8 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.version, "1.2.3")
         XCTAssertEqual(res.summary, "Bar")
         XCTAssertEqual(res.verifiedCompatibility, [
-            .init(platform: .init(name: "ios"), swiftVersion: .init("5.2")),
-            .init(platform: .init(name: "macos"), swiftVersion: .init("5.3")),
+            .init(platform: .init(name: "ios"), swiftVersion: .init("5.5")),
+            .init(platform: .init(name: "macos"), swiftVersion: .init("5.6")),
         ])
         XCTAssertEqual(res.license, .init(name: "MIT", url: URL(string: "https://foo/mit")!))
         XCTAssertEqual(res.createdAt, Date(timeIntervalSince1970: 0))
@@ -432,7 +432,7 @@ class PackageCollectionTests: AppTestCase {
             try Build(version: v,
                       platform: .ios,
                       status: .ok,
-                      swiftVersion: .v5_2).save(on: app.db).wait()
+                      swiftVersion: .v5_6).save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()
         }
         // second package
@@ -693,7 +693,7 @@ class PackageCollectionTests: AppTestCase {
             try Build(version: v,
                       platform: .ios,
                       status: .ok,
-                      swiftVersion: .v5_2).save(on: app.db).wait()
+                      swiftVersion: .v5_6).save(on: app.db).wait()
             try Target(version: v, name: "t1").save(on: app.db).wait()
         }
         // unrelated package
@@ -731,9 +731,9 @@ class PackageCollectionTests: AppTestCase {
         }
         // ...then append three successful ones
         builds.append(contentsOf: [
+            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_6),
+            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_5),
             .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_4),
-            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_3),
-            .init(versionId: .id0, platform: .ios, status: .ok, swiftVersion: .v5_2),
         ])
         // MUT
         let res = [PackageCollection.Compatibility].init(builds: builds)
@@ -742,7 +742,7 @@ class PackageCollectionTests: AppTestCase {
         XCTAssertEqual(res.map(\.platform).sorted(),
                        [.init(name: "ios"), .init(name: "ios"), .init(name: "ios")])
         XCTAssertEqual(res.map(\.swiftVersion).sorted(),
-                       ["5.2", "5.3", "5.4"])
+                       ["5.4", "5.5", "5.6"])
     }
 
     func test_authorLabel() throws {

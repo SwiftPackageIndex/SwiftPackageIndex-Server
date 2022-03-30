@@ -268,20 +268,17 @@ class PackageController_ShowRouteTests: AppTestCase {
         }
 
         let builds = [
-            // 5.1 - failed
-            makeBuild(.failed, .ios, .v5_1),
-            makeBuild(.failed, .macosXcodebuild, .v5_1),
-            // 5.2 - no data - unknown
-            // 5.3 - ok
-            makeBuild(.ok, .macosXcodebuild, .v5_3),
-            // 5.4 - ok
+            // 5.3 - failed
             makeBuild(.failed, .ios, .v5_3),
-            makeBuild(.ok, .macosXcodebuild, .v5_4),
+            makeBuild(.failed, .macosXcodebuild, .v5_3),
+            // 5.4 - no data - unknown
             // 5.5 - ok
-            makeBuild(.failed, .ios, .v5_4),
             makeBuild(.ok, .macosXcodebuild, .v5_5),
-            // unrelated build
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_2, platform: .ios, status: .failed),
+            // 5.6 - ok
+            makeBuild(.failed, .ios, .v5_6),
+            makeBuild(.ok, .macosXcodebuild, .v5_6),
+            // unrelated release version build (we're testing defaultBranch builds)
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_6, platform: .ios, status: .failed),
         ]
 
         // MUT
@@ -290,18 +287,17 @@ class PackageController_ShowRouteTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.referenceName, "main")
-        XCTAssertEqual(res?.results.v5_1, .init(parameter: .v5_1, status: .incompatible))
-        XCTAssertEqual(res?.results.v5_2, .init(parameter: .v5_2, status: .unknown))
-        XCTAssertEqual(res?.results.v5_3, .init(parameter: .v5_3, status: .compatible))
-        XCTAssertEqual(res?.results.v5_4, .init(parameter: .v5_4, status: .compatible))
+        XCTAssertEqual(res?.results.v5_3, .init(parameter: .v5_3, status: .incompatible))
+        XCTAssertEqual(res?.results.v5_4, .init(parameter: .v5_4, status: .unknown))
         XCTAssertEqual(res?.results.v5_5, .init(parameter: .v5_5, status: .compatible))
+        XCTAssertEqual(res?.results.v5_6, .init(parameter: .v5_6, status: .compatible))
     }
 
     func test_platformBuildInfo() throws {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_2, platform: .macosSpm, status: .ok),
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_2, platform: .tvos, status: .failed)
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_6, platform: .macosSpm, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_6, platform: .tvos, status: .failed)
         ]
 
         // MUT
@@ -324,8 +320,8 @@ class PackageController_ShowRouteTests: AppTestCase {
     func test_swiftVersionBuildInfo() throws {
         // setup
         let builds: [PackageController.BuildsRoute.BuildInfo] = [
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_3, platform: .macosSpm, status: .ok),
-            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_2, platform: .ios, status: .failed)
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id0, swiftVersion: .v5_5, platform: .macosSpm, status: .ok),
+            .init(versionKind: .release, reference: .tag(1, 2, 3), buildId: .id1, swiftVersion: .v5_4, platform: .ios, status: .failed)
         ]
 
         // MUT
@@ -333,16 +329,14 @@ class PackageController_ShowRouteTests: AppTestCase {
 
         // validate
         XCTAssertEqual(res?.stable?.referenceName, "1.2.3")
-        XCTAssertEqual(res?.stable?.results.v5_1,
-                       .init(parameter: .v5_1, status: .unknown))
-        XCTAssertEqual(res?.stable?.results.v5_2,
-                       .init(parameter: .v5_2, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.v5_3,
-                       .init(parameter: .v5_3, status: .compatible))
+                       .init(parameter: .v5_3, status: .unknown))
         XCTAssertEqual(res?.stable?.results.v5_4,
-                       .init(parameter: .v5_4, status: .unknown))
+                       .init(parameter: .v5_4, status: .incompatible))
         XCTAssertEqual(res?.stable?.results.v5_5,
-                       .init(parameter: .v5_5, status: .unknown))
+                       .init(parameter: .v5_5, status: .compatible))
+        XCTAssertEqual(res?.stable?.results.v5_6,
+                       .init(parameter: .v5_6, status: .unknown))
         XCTAssertNil(res?.beta)
         XCTAssertNil(res?.latest)
     }

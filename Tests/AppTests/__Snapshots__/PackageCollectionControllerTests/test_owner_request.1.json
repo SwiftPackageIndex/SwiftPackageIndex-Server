@@ -54,7 +54,7 @@
               "platform" : {
                 "name" : "ios"
               },
-              "swiftVersion" : "5.2"
+              "swiftVersion" : "5.6"
             }
           ],
           "version" : "1.2.3"

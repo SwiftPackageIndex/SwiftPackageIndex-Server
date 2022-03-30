@@ -247,8 +247,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         var model = PackageShow.Model.mock
         do {
             let compatible = PackageShow.Model.SwiftVersionResults(
-                status5_1: .compatible,
-                status5_2: .compatible,
                 status5_3: .compatible,
                 status5_4: .compatible,
                 status5_5: .compatible,
