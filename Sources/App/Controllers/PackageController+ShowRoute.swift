@@ -210,6 +210,7 @@ extension PackageController {
             let v5_3 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_3) }
             let v5_4 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_4) }
             let v5_5 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_5) }
+            let v5_6 = builds.filter { $0.swiftVersion.isCompatible(with: .v5_6) }
             // ... and report the status
             return
                 .init(referenceName: referenceName,
@@ -217,7 +218,8 @@ extension PackageController {
                                      status5_2: v5_2.buildStatus,
                                      status5_3: v5_3.buildStatus,
                                      status5_4: v5_4.buildStatus,
-                                     status5_5: v5_5.buildStatus)
+                                     status5_5: v5_5.buildStatus,
+                                     status5_6: v5_6.buildStatus)
                 )
         }
     }
