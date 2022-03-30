@@ -11,9 +11,9 @@
     <title>Bar &ndash; Build Information &ndash; Swift Package Index</title>
     <meta name="twitter:title" content="Bar &ndash; Build Information &ndash; Swift Package Index"/>
     <meta name="og:title" content="Bar &ndash; Build Information &ndash; Swift Package Index"/>
-    <meta name="description" content="Compatibility information for Bar. Check compatibility with Swift 5.2 on iOS with full build logs."/>
-    <meta name="twitter:description" content="Compatibility information for Bar. Check compatibility with Swift 5.2 on iOS with full build logs."/>
-    <meta name="og:description" content="Compatibility information for Bar. Check compatibility with Swift 5.2 on iOS with full build logs."/>
+    <meta name="description" content="Compatibility information for Bar. Check compatibility with Swift 5.6 on iOS with full build logs."/>
+    <meta name="twitter:description" content="Compatibility information for Bar. Check compatibility with Swift 5.6 on iOS with full build logs."/>
+    <meta name="og:description" content="Compatibility information for Bar. Check compatibility with Swift 5.6 on iOS with full build logs."/>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
@@ -76,9 +76,9 @@
             <p>
               <strong class="green">Successful</strong> build of 
               <a href="/foo/bar">Bar</a> with 
-              <strong>Swift 5.2</strong> for 
+              <strong>Swift 5.6</strong> for 
               <strong>iOS</strong> using 
-              <strong>Xcode 11.6</strong>.
+              <strong>Xcode 13.3.0</strong>.
             </p>
             <p class="right">
               <a href="/foo/bar/builds">View all builds</a>

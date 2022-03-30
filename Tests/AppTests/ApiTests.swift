@@ -532,10 +532,10 @@ class ApiTests: AppTestCase {
                        name: repo,
                        owner: owner).save(on: app.db).wait()
         // add builds
-        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 3, 0))
+        try Build(version: v, platform: .linux, status: .ok, swiftVersion: .init(5, 6, 0))
             .save(on: app.db)
             .wait()
-        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 2, 2))
+        try Build(version: v, platform: .macosXcodebuild, status: .ok, swiftVersion: .init(5, 5, 2))
             .save(on: app.db)
             .wait()
         try p.$versions.load(on: app.db).wait()
@@ -554,7 +554,7 @@ class ApiTests: AppTestCase {
                 let badge = try res.content.decode(Badge.self)
                 XCTAssertEqual(badge.schemaVersion, 1)
                 XCTAssertEqual(badge.label, "Swift Compatibility")
-                XCTAssertEqual(badge.message, "5.3 | 5.2")
+                XCTAssertEqual(badge.message, "5.6 | 5.5")
                 XCTAssertEqual(badge.isError, false)
                 XCTAssertEqual(badge.color, "F05138")
                 XCTAssertEqual(badge.cacheSeconds, 6*3600)

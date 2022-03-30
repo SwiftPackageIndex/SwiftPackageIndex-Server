@@ -69,13 +69,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let stable: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 3, 0), platform: .ios, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 2, 0), platform: .macosXcodebuild, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 1, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
         ]
         let latest: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 2, 0), platform: .macosSpm, status: .failed),
-            .init(id: id, swiftVersion: .init(5, 1, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           repositoryName: "bar",
@@ -90,26 +90,26 @@ class BuildIndexModelTests: AppTestCase {
         let matrix = model.buildMatrix
 
         // validate
-        XCTAssertEqual(matrix.values.keys.count, 44)
+        XCTAssertEqual(matrix.values.keys.count, 32)
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.column.label),
+            matrix.values[.init(swiftVersion: .v5_6, platform: .ios)]?.map(\.column.label),
             ["1.2.3", "2.0.0-b1", "main"]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v5_6, platform: .ios)]?.map(\.value?.status),
             .some([.ok, nil, nil])
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_2,
+            matrix.values[.init(swiftVersion: .v5_5,
                                 platform: .macosXcodebuild)]?.map(\.value?.status),
             [.ok, nil, nil]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_2, platform: .macosSpm)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v5_5, platform: .macosSpm)]?.map(\.value?.status),
             [nil, nil, .failed]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_1, platform: .tvos)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v5_4, platform: .tvos)]?.map(\.value?.status),
             [.ok, nil, .ok]
         )
     }
@@ -119,13 +119,13 @@ class BuildIndexModelTests: AppTestCase {
         // setup
         let id = UUID()
         let stable: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 3, 0), platform: .ios, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 2, 0), platform: .macosXcodebuild, status: .ok),
-            .init(id: id, swiftVersion: .init(5, 1, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 6, 0), platform: .ios, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosXcodebuild, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
         ]
         let latest: [BuildInfo] = [
-            .init(id: id, swiftVersion: .init(5, 2, 0), platform: .macosSpm, status: .failed),
-            .init(id: id, swiftVersion: .init(5, 1, 0), platform: .tvos, status: .ok),
+            .init(id: id, swiftVersion: .init(5, 5, 0), platform: .macosSpm, status: .failed),
+            .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
                                           repositoryName: "bar",
@@ -139,27 +139,27 @@ class BuildIndexModelTests: AppTestCase {
         let matrix = model.buildMatrix
 
         // validate
-        XCTAssertEqual(matrix.values.keys.count, 44)
+        XCTAssertEqual(matrix.values.keys.count, 32)
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.column.label),
+            matrix.values[.init(swiftVersion: .v5_6, platform: .ios)]?.map(\.column.label),
             ["1.2.3", "main"]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_3, platform: .ios)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v5_6, platform: .ios)]?.map(\.value?.status),
             [.ok, nil]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_2,
+            matrix.values[.init(swiftVersion: .v5_5,
                                 platform: .macosXcodebuild)]?.map(\.value?.status),
             [.ok, nil]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_2,
+            matrix.values[.init(swiftVersion: .v5_5,
                                 platform: .macosSpm)]?.map(\.value?.status),
             [nil, .failed]
         )
         XCTAssertEqual(
-            matrix.values[.init(swiftVersion: .v5_1, platform: .tvos)]?.map(\.value?.status),
+            matrix.values[.init(swiftVersion: .v5_4, platform: .tvos)]?.map(\.value?.status),
             [.ok, .ok]
         )
     }

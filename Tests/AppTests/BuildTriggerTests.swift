@@ -107,9 +107,9 @@ class BuildTriggerTests: AppTestCase {
          // i.e. ignoring patch version
          let allExceptFirst = Array(BuildPair.all.dropFirst())
          // just assert what the first one actually is so we test the right thing
-         XCTAssertEqual(BuildPair.all.first, .init(.ios, .init(5, 1, 5)))
-         // substitute in a 5.1 build with a different patch version
-         let existing = allExceptFirst + [.init(.ios, .init(5, 1, 4))]
+         XCTAssertEqual(BuildPair.all.first, .init(.ios, .init(5, 3, 3)))
+         // substitute in a 5.3 build with a different patch version
+         let existing = allExceptFirst + [.init(.ios, .init(5, 3, 0))]
 
          // MUT & validate 5.1.4 is matched as an existing 5.1 build
          XCTAssertEqual(missingPairs(existing: existing), Set())
@@ -240,26 +240,24 @@ class BuildTriggerTests: AppTestCase {
 
         // validate
         // ensure Gitlab requests go out
-        XCTAssertEqual(queries.count, 44)
+        XCTAssertEqual(queries.count, 32)
         XCTAssertEqual(queries.map { $0.variables["VERSION_ID"] },
-                       Array(repeating: versionId.uuidString, count: 44))
+                       Array(repeating: versionId.uuidString, count: 32))
         let buildPlatforms = queries.compactMap { $0.variables["BUILD_PLATFORM"] }
         XCTAssertEqual(Dictionary(grouping: buildPlatforms, by: { $0 })
                         .mapValues(\.count),
-                       ["ios": 6,
-                        "macos-spm": 6,
+                       ["ios": 4,
+                        "macos-spm": 4,
                         "macos-spm-arm": 4,
-                        "macos-xcodebuild": 6,
+                        "macos-xcodebuild": 4,
                         "macos-xcodebuild-arm": 4,
-                        "linux": 6,
-                        "watchos": 6,
-                        "tvos": 6])
+                        "linux": 4,
+                        "watchos": 4,
+                        "tvos": 4])
         let swiftVersions = queries.compactMap { $0.variables["SWIFT_VERSION"] }
         XCTAssertEqual(Dictionary(grouping: swiftVersions, by: { $0 })
                         .mapValues(\.count),
-                       ["5.1": 6,
-                        "5.2": 6,
-                        "5.3": 8,
+                       ["5.3": 8,
                         "5.4": 8,
                         "5.5": 8,
                         "5.6": 8])
@@ -267,7 +265,7 @@ class BuildTriggerTests: AppTestCase {
         // ensure the Build stubs are created to prevent re-selection
         let v = try Version.find(versionId, on: app.db).wait()
         try v?.$builds.load(on: app.db).wait()
-        XCTAssertEqual(v?.builds.count, 44)
+        XCTAssertEqual(v?.builds.count, 32)
 
         // ensure re-selection is empty
         XCTAssertEqual(try fetchBuildCandidates(app.db).wait(), [])
@@ -334,11 +332,11 @@ class BuildTriggerTests: AppTestCase {
                               mode: .packageId(pkgId, force: false)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 44)
+            XCTAssertEqual(triggerCount, 32)
             // ensure builds are now in progress
             let v = try Version.find(versionId, on: app.db).wait()
             try v?.$builds.load(on: app.db).wait()
-            XCTAssertEqual(v?.builds.count, 44)
+            XCTAssertEqual(v?.builds.count, 32)
         }
 
         do {  // third run: we are at capacity and using the `force` flag
@@ -366,11 +364,11 @@ class BuildTriggerTests: AppTestCase {
                               mode: .packageId(pkgId, force: true)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 44)
+            XCTAssertEqual(triggerCount, 32)
             // ensure builds are now in progress
             let v = try Version.find(versionId, on: app.db).wait()
             try v?.$builds.load(on: app.db).wait()
-            XCTAssertEqual(v?.builds.count, 44)
+            XCTAssertEqual(v?.builds.count, 32)
         }
 
     }
@@ -409,7 +407,7 @@ class BuildTriggerTests: AppTestCase {
                           mode: .limit(4)).wait()
 
         // validate - only the first batch must be allowed to trigger
-        XCTAssertEqual(triggerCount, 44)
+        XCTAssertEqual(triggerCount, 32)
     }
 
     func test_triggerBuilds_trimming() throws {
@@ -428,7 +426,7 @@ class BuildTriggerTests: AppTestCase {
         try p.save(on: app.db).wait()
         let v = try Version(id: versionId, package: p, latest: nil, reference: .branch("main"))
         try v.save(on: app.db).wait()
-        try Build(id: UUID(), version: v, platform: .ios, status: .triggered, swiftVersion: .v5_1)
+        try Build(id: UUID(), version: v, platform: .ios, status: .triggered, swiftVersion: .v5_6)
             .save(on: app.db).wait()
         XCTAssertEqual(try Build.query(on: app.db).count().wait(), 1)
 
@@ -499,7 +497,7 @@ class BuildTriggerTests: AppTestCase {
                               mode: .packageId(pkgId, force: false)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 44)
+            XCTAssertEqual(triggerCount, 32)
         }
     }
 
@@ -560,7 +558,7 @@ class BuildTriggerTests: AppTestCase {
                               mode: .packageId(pkgId, force: false)).wait()
 
             // validate
-            XCTAssertEqual(triggerCount, 44)
+            XCTAssertEqual(triggerCount, 32)
         }
 
     }
@@ -584,15 +582,15 @@ class BuildTriggerTests: AppTestCase {
         do {  // v1 builds
             // old triggered build (delete)
             try Build(id: deleteId1,
-                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_1)
+                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_5)
                 .save(on: app.db).wait()
             // new triggered build (keep)
             try Build(id: keepBuildId1,
-                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_2)
+                      version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_6)
                 .save(on: app.db).wait()
             // old non-triggered build (keep)
             try Build(id: keepBuildId2,
-                      version: v1, platform: .ios, status: .ok, swiftVersion: .v5_3)
+                      version: v1, platform: .ios, status: .ok, swiftVersion: .v5_4)
                 .save(on: app.db).wait()
 
             // make old builds "old" by resetting "created_at"
@@ -605,15 +603,15 @@ class BuildTriggerTests: AppTestCase {
         do {  // v2 builds (should all be deleted)
             // old triggered build
             try Build(id: UUID(),
-                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v5_1)
+                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v5_5)
                 .save(on: app.db).wait()
             // new triggered build
             try Build(id: UUID(),
-                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v5_2)
+                      version: v2, platform: .ios, status: .triggered, swiftVersion: .v5_6)
                 .save(on: app.db).wait()
             // old non-triggered build
             try Build(id: UUID(),
-                      version: v2, platform: .ios, status: .ok, swiftVersion: .v5_3)
+                      version: v2, platform: .ios, status: .ok, swiftVersion: .v5_4)
                 .save(on: app.db).wait()
         }
 
@@ -638,7 +636,7 @@ class BuildTriggerTests: AppTestCase {
         try p.save(on: app.db).wait()
         let v1 = try Version(package: p, latest: .defaultBranch)
         try v1.save(on: app.db).wait()
-        try Build(version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_1)
+        try Build(version: v1, platform: .ios, status: .triggered, swiftVersion: .v5_6)
             .save(on: app.db).wait()
 
         let db = try XCTUnwrap(app.db as? SQLDatabase)
@@ -771,7 +769,7 @@ class BuildTriggerTests: AppTestCase {
         let res = try findMissingBuilds(app.db, packageId: pkgId).wait()
         XCTAssertEqual(res.count, 1)
         let triggerInfo = try XCTUnwrap(res.first)
-        XCTAssertEqual(triggerInfo.pairs.count, 43)
+        XCTAssertEqual(triggerInfo.pairs.count, 31)
         XCTAssertTrue(!triggerInfo.pairs.contains(.init(.ios, .v5_3)))
     }
 }
