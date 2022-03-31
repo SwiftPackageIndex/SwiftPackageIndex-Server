@@ -218,6 +218,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 045 - create fuzzystrmatch extension for search
         app.migrations.add(CreateExtensionFuzzyStrMatch())
     }
+    do {  // Migration 046 - add missing build package count to stats
+        app.migrations.add(UpdateStats1())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

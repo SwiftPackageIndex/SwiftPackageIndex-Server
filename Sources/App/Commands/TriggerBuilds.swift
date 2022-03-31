@@ -220,6 +220,24 @@ func triggerBuildsUnchecked(on database: Database,
 }
 
 
+func pendingPackagesQuery() -> SQLQueryString {
+    let expectedBuildCount = BuildPair.all.count
+
+    return """
+            SELECT package_id, min(created_at) FROM (
+                SELECT v.package_id, v.latest, MIN(v.created_at) created_at
+                FROM versions v
+                LEFT JOIN builds b ON b.version_id = v.id
+                WHERE v.latest IS NOT NULL
+                GROUP BY v.package_id, v.latest
+                HAVING COUNT(*) < \(bind: expectedBuildCount)
+            ) AS t
+            GROUP BY package_id
+            ORDER BY MIN(created_at)
+            """
+}
+
+
 func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]> {
     guard let db = database as? SQLDatabase else {
         fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
@@ -233,20 +251,7 @@ func fetchBuildCandidates(_ database: Database) -> EventLoopFuture<[Package.Id]>
         }
     }
 
-    let expectedBuildCount = BuildPair.all.count
-
-    return db.raw("""
-            SELECT package_id, min(created_at) FROM (
-                SELECT v.package_id, v.latest, MIN(v.created_at) created_at
-                FROM versions v
-                LEFT JOIN builds b ON b.version_id = v.id
-                WHERE v.latest IS NOT NULL
-                GROUP BY v.package_id, v.latest
-                HAVING COUNT(*) < \(bind: expectedBuildCount)
-            ) AS t
-            GROUP BY package_id
-            ORDER BY MIN(created_at)
-            """)
+    return db.raw(pendingPackagesQuery())
         .all(decoding: Row.self)
         .mapEach(\.packageId)
 }
