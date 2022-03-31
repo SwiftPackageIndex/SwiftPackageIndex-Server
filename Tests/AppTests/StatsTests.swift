@@ -25,15 +25,15 @@ class StatsTests: AppTestCase {
         do {
             let pkg = Package(id: UUID(), url: "1")
             try pkg.save(on: app.db).wait()
-            try Version(package: pkg).create(on: app.db).wait()
-            try Version(package: pkg).create(on: app.db).wait()
+            try Version(package: pkg, latest: .defaultBranch).create(on: app.db).wait()
+            try Version(package: pkg, latest: .release).create(on: app.db).wait()
         }
         do {
             let pkg = Package(id: UUID(), url: "2")
             try pkg.save(on: app.db).wait()
-            try Version(package: pkg).create(on: app.db).wait()
-            try Version(package: pkg).create(on: app.db).wait()
-            try Version(package: pkg).create(on: app.db).wait()
+            try Version(package: pkg, latest: .defaultBranch).create(on: app.db).wait()
+            try Version(package: pkg, latest: .release).create(on: app.db).wait()
+            try Version(package: pkg, latest: .preRelease).create(on: app.db).wait()
         }
         try Stats.refresh(on: app.db).wait()
         
@@ -41,7 +41,9 @@ class StatsTests: AppTestCase {
         let res = try Stats.fetch(on: app.db).wait()
         
         // validate
-        XCTAssertEqual(res, .some(.init(packageCount: 2, versionCount: 5)))
+        XCTAssertEqual(res, .some(.init(packageCount: 2,
+                                        versionCount: 5,
+                                        missingBuildPackageCount: 2)))
     }
     
 }

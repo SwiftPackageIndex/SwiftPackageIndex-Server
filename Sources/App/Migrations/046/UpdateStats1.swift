@@ -32,7 +32,7 @@ struct UpdateStats1: AsyncMigration {
             NOW() AS date,
             (SELECT COUNT(*) FROM packages) AS package_count,
             (SELECT COUNT(*) FROM versions) AS version_count,
-            (SELECT COUNT(*) FROM (\(pendingPackagesQuery())) AS missing_build_package_count
+            (SELECT COUNT(*) FROM (\(pendingPackagesQuery())) as t) AS missing_build_package_count
             """
         ).run()
     }

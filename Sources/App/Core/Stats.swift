@@ -22,10 +22,12 @@ struct Stats: Decodable, Equatable {
     
     var packageCount: Int
     var versionCount: Int
+    var missingBuildPackageCount: Int
     
     enum CodingKeys: String, CodingKey {
         case packageCount = "package_count"
         case versionCount = "version_count"
+        case missingBuildPackageCount = "missing_build_package_count"
     }
 }
 

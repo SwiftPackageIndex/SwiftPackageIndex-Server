@@ -230,7 +230,9 @@ func pendingPackagesQuery() -> SQLQueryString {
                 LEFT JOIN builds b ON b.version_id = v.id
                 WHERE v.latest IS NOT NULL
                 GROUP BY v.package_id, v.latest
-                HAVING COUNT(*) < \(bind: expectedBuildCount)
+                -- NB: we can't use bind: here, because this query is used in a
+                -- materialized view, which does not support bind variables
+                HAVING COUNT(*) < \(raw: String(expectedBuildCount))
             ) AS t
             GROUP BY package_id
             ORDER BY MIN(created_at)
