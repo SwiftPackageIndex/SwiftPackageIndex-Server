@@ -25,9 +25,9 @@ enum BuildRunner: String, CustomStringConvertible {
 
     case linux1 = "WmqMUs6e"
     case linux2 = "iE4SRjQi"
-    case mac0 = "pMpxem39"
-    case mac1 = "DVohN7oe"
-    case mac2 = "eFGZxpyH"
+    case mac0 = "pMpxem39" // Retired on 30th March 2022
+    case mac1 = "DVohN7oe" // Retired on 30th March 2022
+    case mac2 = "eFGZxpyH" // Retired on 30th March 2022
     case mac3 = "DMJah_V-"
     case mac4 = "1hFCVExo"
     case mac5 = "ogLoW6xX"
