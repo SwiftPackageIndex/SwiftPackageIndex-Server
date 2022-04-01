@@ -44,6 +44,9 @@ build:
 
     docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:16-alpine yarn
     docker run --rm -v $PWD:/host -w /host --user $(id -u):$(id -g) node:16-alpine yarn build
+
+    # Login in again in case the previous steps were slow and made the token time out
+    docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     docker build -t $REGISTRY_IMAGE:$VERSION .
 
     retries=3
