@@ -21,6 +21,10 @@ public func configure(_ app: Application) throws -> String {
     app.logger.component = "server"
     Current.setLogger(app.logger)
 
+    // Enable GZIP (de-)compression on all requests and responses
+    app.http.server.configuration.responseCompression = .enabled
+    app.http.server.configuration.requestDecompression = .enabled
+    
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.middleware.use(ErrorMiddleware())
 
