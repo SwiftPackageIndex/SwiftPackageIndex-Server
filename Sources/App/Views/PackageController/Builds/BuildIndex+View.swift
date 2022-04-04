@@ -34,6 +34,15 @@ enum BuildIndex {
             "The latest compatibility build results for \(model.packageName), showing compatibility across \(Build.Platform.allActive.count) platforms with \(SwiftVersion.allActive.count) versions of Swift."
         }
 
+        override func breadcrumbs() -> [Breadcrumb] {
+            [
+                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: model.ownerName, url: SiteURL.author(.value(model.owner)).relativeURL()),
+                Breadcrumb(title: model.packageName, url: SiteURL.package(.value(model.owner), .value(model.repositoryName), .none).relativeURL()),
+                Breadcrumb(title: "Build Results", url: SiteURL.package(.value(model.owner), .value(model.repositoryName), .builds).relativeURL())
+            ]
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .h2("Build Results"),

@@ -23,6 +23,7 @@ extension BuildIndex.Model {
     static var mock: Self {
         .init(
             owner: "foo",
+            ownerName: "Foo",
             repositoryName: "foobar",
             packageName: "foobar",
             //            stable: .init(name: "1.2.3", builds: []),
