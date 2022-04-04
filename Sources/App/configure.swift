@@ -21,9 +21,13 @@ public func configure(_ app: Application) throws -> String {
     app.logger.component = "server"
     Current.setLogger(app.logger)
 
-    // Enable GZIP (de-)compression on all requests and responses
-    app.http.server.configuration.responseCompression = .enabled
-    app.http.server.configuration.requestDecompression = .enabled
+    // It will be tempting to uncomment/re-add these lines in the future. We should not enable
+    // server-side compression as long as we pass requests through Cloudflare, which compresses
+    // *all* response data before it hits client browsers. If we compress first, then Cloudflare
+    // must decompress our response before recompressing using a different algorithm.
+    // ---
+    // app.http.server.configuration.responseCompression = .enabled
+    // app.http.server.configuration.requestDecompression = .enabled
     
     app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     app.middleware.use(ErrorMiddleware())
