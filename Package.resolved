@@ -321,8 +321,8 @@
         "repositoryURL": "https://github.com/vapor/websocket-kit.git",
         "state": {
           "branch": null,
-          "revision": "ff8fbce837ef01a93d49c6fb49a72be0f150dac7",
-          "version": "2.3.0"
+          "revision": "e32033ad3c68ebec1b761bc961be7bd56bad02f8",
+          "version": "2.3.1"
         }
       },
       {
