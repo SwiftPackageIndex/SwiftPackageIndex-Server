@@ -51,37 +51,27 @@ enum BuildShow {
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .h2("Build Information"),
-                .div(
-                    .class("two_column"),
-                    .p(
-                        .strong(
-                            .class(model.buildInfo.status.cssClass),
-                            .text(model.buildInfo.status.description)
-                        ),
-                        .text(model.buildInfo.status.joiningClause),
-                        .a(
-                            .href(model.packageURL),
-                            .text(model.packageName)
-                        ),
-                        .text(" with "),
-                        .strong(.text(model.buildInfo.swiftVersion.longDisplayName)),
-                        .text(" for "),
-                        .strong(.text(model.buildInfo.platform.displayName)),
-                        .unwrap(model.buildInfo.xcodeVersion) {
-                            .group(
-                                .text(" using "),
-                                .strong(.text($0))
-                            )
-                        },
-                        .text(".")
+                .p(
+                    .strong(
+                        .class(model.buildInfo.status.cssClass),
+                        .text(model.buildInfo.status.description)
                     ),
-                    .p(
-                        .class("right"),
-                        .a(
-                            .href(model.buildsURL),
-                            "View all builds"
+                    .text(model.buildInfo.status.joiningClause),
+                    .a(
+                        .href(model.packageURL),
+                        .text(model.packageName)
+                    ),
+                    .text(" with "),
+                    .strong(.text(model.buildInfo.swiftVersion.longDisplayName)),
+                    .text(" for "),
+                    .strong(.text(model.buildInfo.platform.displayName)),
+                    .unwrap(model.buildInfo.xcodeVersion) {
+                        .group(
+                            .text(" using "),
+                            .strong(.text($0))
                         )
-                    )
+                    },
+                    .text(".")
                 ),
                 .h3("Build Command"),
                 .pre(
