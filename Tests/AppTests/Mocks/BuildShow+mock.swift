@@ -20,6 +20,7 @@ extension BuildShow.Model {
 
     static var mock: Self {
         .init(
+            buildId: .id0,
             buildInfo: .init(buildCommand: "env DEVELOPER_DIR=\"/Applications/Xcode_11_6.app\" xcrun xcodebuild -IDEClonedSourcePackagesDirPathOverride=\"$PWD/.derivedData\" build -scheme \"Bar\" -destination \"generic/platform=ios\"",
                              logs: buildLog,
                              platform: .ios,
@@ -28,6 +29,7 @@ extension BuildShow.Model {
                              runner: .mac0),
             packageName: "Bar",
             repositoryOwner: "foo",
+            repositoryOwnerName: "Foo",
             repositoryName: "bar",
             versionId: UUID("cafecafe-cafe-cafe-cafe-cafecafecafe")!
         )
