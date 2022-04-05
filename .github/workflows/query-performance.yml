@@ -22,6 +22,7 @@ jobs:
   test-linux:
     name: Query Performance Test
     runs-on: ubuntu-latest
+    continue-on-error: true
     container:
       image: registry.gitlab.com/finestructure/spi-base:0.7.0
     steps:
