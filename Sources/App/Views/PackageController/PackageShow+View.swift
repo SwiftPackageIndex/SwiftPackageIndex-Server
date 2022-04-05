@@ -73,12 +73,10 @@ enum PackageShow {
                     .div(
                         .class("package_title"),
                         .h2(.text(model.title)),
-                        .p(
-                            .text("by "),
-                            .a(
-                                .href(SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
-                                .text(model.repositoryOwnerName)
-                            )
+                        .small(
+                            .span(.text(model.repositoryOwner)),
+                            .text("/"),
+                            .span(.text(model.repositoryName))
                         )
                     ),
                     .spiPanel(
