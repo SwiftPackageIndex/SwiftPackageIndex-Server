@@ -11,9 +11,9 @@
     <title>foobar &ndash; Build Results &ndash; Swift Package Index</title>
     <meta name="twitter:title" content="foobar &ndash; Build Results &ndash; Swift Package Index"/>
     <meta name="og:title" content="foobar &ndash; Build Results &ndash; Swift Package Index"/>
-    <meta name="description" content="The latest compatibility build results for foobar, showing compatibility across 8 platforms with 4 versions of Swift."/>
-    <meta name="twitter:description" content="The latest compatibility build results for foobar, showing compatibility across 8 platforms with 4 versions of Swift."/>
-    <meta name="og:description" content="The latest compatibility build results for foobar, showing compatibility across 8 platforms with 4 versions of Swift."/>
+    <meta name="description" content="The latest compatibility build results for foobar, showing compatibility across 6 platforms with 4 versions of Swift."/>
+    <meta name="twitter:description" content="The latest compatibility build results for foobar, showing compatibility across 6 platforms with 4 versions of Swift."/>
+    <meta name="og:description" content="The latest compatibility build results for foobar, showing compatibility across 6 platforms with 4 versions of Swift."/>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
@@ -89,7 +89,7 @@
         <div>
           <h2>Build Results</h2>
           <p>
-            <strong>53</strong> completed builds for 
+            <strong>43</strong> completed builds for 
             <a href="/foo/foobar">foobar</a>.
           </p>
           <p>If you are the author of this package and see unexpected build failures, please check the 
@@ -156,60 +156,6 @@
             <li class="row">
               <div class="row_labels">
                 <strong>macOS (Xcode)</strong>
-              </div>
-              <div class="column_labels">
-                <div>
-                  <span class="stable">1.2.3</span>
-                </div>
-                <div>
-                  <span class="branch">main</span>
-                </div>
-                <div>
-                  <span class="beta">2.0.0-b1</span>
-                </div>
-              </div>
-              <div class="results">
-                <div>
-                  <span>Build Pending</span>
-                </div>
-                <div>
-                  <span>Build Pending</span>
-                </div>
-                <div>
-                  <span>Build Pending</span>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_labels">
-                <strong>macOS (SPM, ARM)</strong>
-              </div>
-              <div class="column_labels">
-                <div>
-                  <span class="stable">1.2.3</span>
-                </div>
-                <div>
-                  <span class="branch">main</span>
-                </div>
-                <div>
-                  <span class="beta">2.0.0-b1</span>
-                </div>
-              </div>
-              <div class="results">
-                <div>
-                  <span>Build Pending</span>
-                </div>
-                <div>
-                  <span>Build Pending</span>
-                </div>
-                <div>
-                  <span>Build Pending</span>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_labels">
-                <strong>macOS (Xcode, ARM)</strong>
               </div>
               <div class="column_labels">
                 <div>
@@ -402,60 +348,6 @@
             </li>
             <li class="row">
               <div class="row_labels">
-                <strong>macOS (SPM, ARM)</strong>
-              </div>
-              <div class="column_labels">
-                <div>
-                  <span class="stable">1.2.3</span>
-                </div>
-                <div>
-                  <span class="branch">main</span>
-                </div>
-                <div>
-                  <span class="beta">2.0.0-b1</span>
-                </div>
-              </div>
-              <div class="results">
-                <div>
-                  <span>Build Timed Out</span>
-                </div>
-                <div>
-                  <span>Build Timed Out</span>
-                </div>
-                <div>
-                  <span>Build Timed Out</span>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_labels">
-                <strong>macOS (Xcode, ARM)</strong>
-              </div>
-              <div class="column_labels">
-                <div>
-                  <span class="stable">1.2.3</span>
-                </div>
-                <div>
-                  <span class="branch">main</span>
-                </div>
-                <div>
-                  <span class="beta">2.0.0-b1</span>
-                </div>
-              </div>
-              <div class="results">
-                <div>
-                  <span>Build Errored</span>
-                </div>
-                <div>
-                  <span>Build Errored</span>
-                </div>
-                <div>
-                  <span>Build Errored</span>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_labels">
                 <strong>Linux</strong>
               </div>
               <div class="column_labels">
@@ -497,8 +389,8 @@
                 </div>
               </div>
               <div class="results">
-                <div class="succeeded">
-                  <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                <div>
+                  <span>Build Timed Out</span>
                 </div>
                 <div class="succeeded">
                   <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
@@ -524,8 +416,8 @@
                 </div>
               </div>
               <div class="results">
-                <div class="succeeded">
-                  <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
+                <div>
+                  <span>Build Errored</span>
                 </div>
                 <div class="succeeded">
                   <a href="/builds/2F16F873-1EBF-4987-B4CE-A9F22269D13A">Build Succeeded</a>
@@ -617,60 +509,6 @@
                 </div>
                 <div>
                   <span>Build Queued</span>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_labels">
-                <strong>macOS (SPM, ARM)</strong>
-              </div>
-              <div class="column_labels">
-                <div>
-                  <span class="stable">1.2.3</span>
-                </div>
-                <div>
-                  <span class="branch">main</span>
-                </div>
-                <div>
-                  <span class="beta">2.0.0-b1</span>
-                </div>
-              </div>
-              <div class="results">
-                <div>
-                  <span>Build Timed Out</span>
-                </div>
-                <div>
-                  <span>Build Timed Out</span>
-                </div>
-                <div>
-                  <span>Build Timed Out</span>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_labels">
-                <strong>macOS (Xcode, ARM)</strong>
-              </div>
-              <div class="column_labels">
-                <div>
-                  <span class="stable">1.2.3</span>
-                </div>
-                <div>
-                  <span class="branch">main</span>
-                </div>
-                <div>
-                  <span class="beta">2.0.0-b1</span>
-                </div>
-              </div>
-              <div class="results">
-                <div>
-                  <span>Build Errored</span>
-                </div>
-                <div>
-                  <span>Build Errored</span>
-                </div>
-                <div>
-                  <span>Build Errored</span>
                 </div>
               </div>
             </li>
@@ -837,60 +675,6 @@
                 </div>
                 <div>
                   <span>Build Queued</span>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_labels">
-                <strong>macOS (SPM, ARM)</strong>
-              </div>
-              <div class="column_labels">
-                <div>
-                  <span class="stable">1.2.3</span>
-                </div>
-                <div>
-                  <span class="branch">main</span>
-                </div>
-                <div>
-                  <span class="beta">2.0.0-b1</span>
-                </div>
-              </div>
-              <div class="results">
-                <div>
-                  <span>Build Timed Out</span>
-                </div>
-                <div>
-                  <span>Build Timed Out</span>
-                </div>
-                <div>
-                  <span>Build Timed Out</span>
-                </div>
-              </div>
-            </li>
-            <li class="row">
-              <div class="row_labels">
-                <strong>macOS (Xcode, ARM)</strong>
-              </div>
-              <div class="column_labels">
-                <div>
-                  <span class="stable">1.2.3</span>
-                </div>
-                <div>
-                  <span class="branch">main</span>
-                </div>
-                <div>
-                  <span class="beta">2.0.0-b1</span>
-                </div>
-              </div>
-              <div class="results">
-                <div>
-                  <span>Build Errored</span>
-                </div>
-                <div>
-                  <span>Build Errored</span>
-                </div>
-                <div>
-                  <span>Build Errored</span>
                 </div>
               </div>
             </li>
