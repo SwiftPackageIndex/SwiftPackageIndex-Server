@@ -38,7 +38,7 @@ enum MaintainerInfoIndex {
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
                 Breadcrumb(title: model.repositoryOwnerName, url: SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
                 Breadcrumb(title: model.packageName, url: SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .none).relativeURL()),
-                Breadcrumb(title: "Information for Maintainers", url: SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .maintainerInfo).relativeURL()),
+                Breadcrumb(title: "Information for Maintainers"),
             ]
         }
 

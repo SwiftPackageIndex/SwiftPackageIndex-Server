@@ -63,7 +63,7 @@ class MarkdownPage: PublicPage {
 
         return [
             Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
-            Breadcrumb(title: pageTitle, url: nil),
+            Breadcrumb(title: pageTitle),
         ]
     }
 

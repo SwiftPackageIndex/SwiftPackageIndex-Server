@@ -38,7 +38,7 @@ enum KeywordShow {
         override func breadcrumbs() -> [Breadcrumb] {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
-                Breadcrumb(title: model.keyword, url: nil)
+                Breadcrumb(title: model.keyword)
             ]
         }
 

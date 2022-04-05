@@ -39,7 +39,7 @@ enum AuthorShow {
         override func breadcrumbs() -> [Breadcrumb] {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
-                Breadcrumb(title: model.ownerName, url: SiteURL.author(.value(model.owner)).relativeURL())
+                Breadcrumb(title: model.ownerName)
             ]
         }
 

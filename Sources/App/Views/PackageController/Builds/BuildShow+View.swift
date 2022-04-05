@@ -44,7 +44,7 @@ enum BuildShow {
                 Breadcrumb(title: model.repositoryOwnerName, url: SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
                 Breadcrumb(title: model.packageName, url: SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .none).relativeURL()),
                 Breadcrumb(title: "Build Results", url: SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
-                Breadcrumb(title: "\(model.buildInfo.swiftVersion.longDisplayName) on \(model.buildInfo.platform.displayName)", url: SiteURL.builds(.value(model.buildId)).relativeURL()),
+                Breadcrumb(title: "\(model.buildInfo.swiftVersion.longDisplayName) on \(model.buildInfo.platform.displayName)"),
             ]
         }
 

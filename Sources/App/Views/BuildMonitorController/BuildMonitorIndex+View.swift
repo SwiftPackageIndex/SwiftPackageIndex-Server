@@ -36,7 +36,7 @@ enum BuildMonitorIndex {
         override func breadcrumbs() -> [Breadcrumb] {
             [
                 Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
-                Breadcrumb(title: "Build System Monitor", url: nil)
+                Breadcrumb(title: "Build System Monitor")
             ]
         }
 
