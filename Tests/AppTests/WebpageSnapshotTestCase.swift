@@ -25,6 +25,8 @@ class WebpageSnapshotTestCase: SnapshotTestCase {
         try super.setUpWithError()
 
         SnapshotTesting.diffTool = "ksdiff"
+        // Uncomment the following line to record all snapshot tests at once
+        //        SnapshotTesting.isRecording = true
 
         try XCTSkipIf((Environment.get("SKIP_SNAPSHOTS") ?? "false") == "true")
         Current.date = { Date(timeIntervalSince1970: 0) }

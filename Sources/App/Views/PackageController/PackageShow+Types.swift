@@ -74,7 +74,6 @@ extension PackageShow.Model {
         case ios
         case linux
         case macos
-        case macosArm
         case tvos
         case watchos
 
@@ -86,8 +85,6 @@ extension PackageShow.Model {
                     return "Linux"
                 case .macos:
                     return "macOS"
-                case .macosArm:
-                    return "macOS"
                 case .tvos:
                     return "tvOS"
                 case .watchos:
@@ -97,22 +94,15 @@ extension PackageShow.Model {
 
         var longDisplayName: String {
             switch self {
-                case .macos:
-                    return "\(displayName) (Intel)"
-                case .macosArm:
-                    return "\(displayName) (ARM)"
-                case .ios, .linux, .tvos, .watchos:
+                case .macos, .ios, .linux, .tvos, .watchos:
                     return displayName
             }
         }
 
+        @available(*, deprecated)
         var note: String? {
             switch self {
-                case .macos:
-                    return "Intel"
-                case .macosArm:
-                    return "ARM"
-                case .ios, .linux, .tvos, .watchos:
+                case .macos, .ios, .linux, .tvos, .watchos:
                     return nil
             }
         }
@@ -190,25 +180,22 @@ extension PackageShow.Model {
         var ios: BuildResult<PlatformCompatibility>
         var linux: BuildResult<PlatformCompatibility>
         var macos: BuildResult<PlatformCompatibility>
-        var macosArm: BuildResult<PlatformCompatibility>
         var tvos: BuildResult<PlatformCompatibility>
         var watchos: BuildResult<PlatformCompatibility>
 
         init(iosStatus: BuildStatus,
              linuxStatus: BuildStatus,
              macosStatus: BuildStatus,
-             macosArmStatus: BuildStatus,
              tvosStatus: BuildStatus,
              watchosStatus: BuildStatus) {
             self.ios = .init(parameter: .ios, status: iosStatus)
             self.linux = .init(parameter: .linux, status: linuxStatus)
             self.macos = .init(parameter: .macos, status: macosStatus)
-            self.macosArm = .init(parameter: .macosArm, status: macosArmStatus)
             self.tvos = .init(parameter: .tvos, status: tvosStatus)
             self.watchos = .init(parameter: .watchos, status: watchosStatus)
         }
 
-        var cells: [BuildResult<PlatformCompatibility>] { [ios, macos, macosArm, linux, tvos, watchos] }
+        var cells: [BuildResult<PlatformCompatibility>] { [ios, macos, linux, tvos, watchos] }
     }
 
     enum BuildStatus: String, Equatable {

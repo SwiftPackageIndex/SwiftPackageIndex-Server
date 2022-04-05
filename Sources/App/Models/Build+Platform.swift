@@ -15,8 +15,6 @@
 extension Build {
     enum Platform: String, Codable, Equatable, CaseIterable {
         case ios
-        case macosSpmArm        = "macos-spm-arm"
-        case macosXcodebuildArm = "macos-xcodebuild-arm"
         case macosSpm           = "macos-spm"
         case macosXcodebuild    = "macos-xcodebuild"
         case tvos
@@ -27,10 +25,6 @@ extension Build {
             switch self {
                 case .ios:
                     return "iOS"
-                case .macosSpmArm:
-                    return "macOS - SPM - ARM"
-                case .macosXcodebuildArm:
-                    return "macOS - xcodebuild - ARM"
                 case .macosSpm:
                     return "macOS - SPM"
                 case .macosXcodebuild:
@@ -48,10 +42,6 @@ extension Build {
             switch self {
                 case .ios:
                     return "iOS"
-                case .macosSpmArm:
-                    return "macOS (SPM, ARM)"
-                case .macosXcodebuildArm:
-                    return "macOS (Xcode, ARM)"
                 case .macosSpm:
                     return "macOS (SPM)"
                 case .macosXcodebuild:
@@ -67,16 +57,7 @@ extension Build {
 
         /// Currently supported build platforms
         static var allActive: [Self] {
-            [.ios, .macosSpm, .macosXcodebuild, .macosSpmArm, .macosXcodebuildArm, .linux, .tvos, .watchos]
-        }
-
-        var isArm: Bool {
-            switch self {
-                case .macosSpmArm, .macosXcodebuildArm:
-                    return true
-                case .ios, .linux, .macosSpm, .macosXcodebuild, .tvos, .watchos:
-                    return false
-            }
+            [.ios, .macosSpm, .macosXcodebuild, .linux, .tvos, .watchos]
         }
     }
 }

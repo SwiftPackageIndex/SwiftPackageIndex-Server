@@ -288,7 +288,7 @@ private extension PackageCollection.Platform {
         switch platform {
             case .ios, .tvos, .watchos, .linux:
                 self.init(name: platform.rawValue)
-            case .macosSpmArm, .macosXcodebuildArm, .macosSpm, .macosXcodebuild:
+            case .macosSpm, .macosXcodebuild:
                 self.init(name: "macos")
         }
     }

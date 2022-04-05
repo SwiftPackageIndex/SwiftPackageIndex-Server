@@ -263,7 +263,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
                 iosStatus: .compatible,
                 linuxStatus: .compatible,
                 macosStatus: .compatible,
-                macosArmStatus: .compatible,
                 tvosStatus: .compatible,
                 watchosStatus: .compatible
             )

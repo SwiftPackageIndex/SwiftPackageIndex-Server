@@ -88,11 +88,10 @@ extension BuildShow {
             switch (platform, swiftVersion) {
                 case (.ios, let swift),
                      (.macosXcodebuild, let swift),
-                     (.macosXcodebuildArm, let swift),
                      (.tvos, let swift),
                      (.watchos, let swift):
                     return swift.xcodeVersion
-                case (.macosSpm, _), (.macosSpmArm, _), (.linux, _):
+                case (.macosSpm, _), (.linux, _):
                     return nil
             }
         }

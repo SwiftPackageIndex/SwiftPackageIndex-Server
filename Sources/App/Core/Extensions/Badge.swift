@@ -110,7 +110,7 @@ extension Badge {
                         switch p {
                             case .ios:
                                 return .init(left: 0, right: "iOS")
-                            case .macosSpm, .macosXcodebuild, .macosSpmArm, .macosXcodebuildArm:
+                            case .macosSpm, .macosXcodebuild:
                                 return .init(left: 1, right: "macOS")
                             case .linux:
                                 return .init(left: 2, right: "Linux")

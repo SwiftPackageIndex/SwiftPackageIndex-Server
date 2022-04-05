@@ -168,7 +168,6 @@ extension PackageController {
             let ios = builds.filter { $0.platform.isCompatible(with: .ios) }
             let linux = builds.filter { $0.platform.isCompatible(with: .linux) }
             let macos = builds.filter { $0.platform.isCompatible(with: .macos) }
-            let macosArm = builds.filter { $0.platform.isCompatible(with: .macosArm) }
             let tvos = builds.filter { $0.platform.isCompatible(with: .tvos) }
             let watchos = builds.filter { $0.platform.isCompatible(with: .watchos) }
             // ... and report the status
@@ -177,7 +176,6 @@ extension PackageController {
                       results: .init(iosStatus: ios.buildStatus,
                                      linuxStatus: linux.buildStatus,
                                      macosStatus: macos.buildStatus,
-                                     macosArmStatus: macosArm.buildStatus,
                                      tvosStatus: tvos.buildStatus,
                                      watchosStatus: watchos.buildStatus)
                 )
@@ -260,8 +258,6 @@ extension Build.Platform {
                 return other == .ios
             case .macosSpm, .macosXcodebuild:
                 return other == .macos
-            case .macosSpmArm, .macosXcodebuildArm:
-                return other == .macosArm
             case .tvos:
                 return other == .tvos
             case .watchos:

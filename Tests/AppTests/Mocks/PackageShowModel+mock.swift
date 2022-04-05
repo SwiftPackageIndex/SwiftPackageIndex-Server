@@ -66,7 +66,6 @@ extension PackageShow.Model {
                     results: .init(iosStatus: .compatible,
                                    linuxStatus: .unknown,
                                    macosStatus: .unknown,
-                                   macosArmStatus: .unknown,
                                    tvosStatus: .unknown,
                                    watchosStatus: .unknown)),
                 beta: NamedBuildResults(
@@ -74,7 +73,6 @@ extension PackageShow.Model {
                     results: .init(iosStatus: .compatible,
                                    linuxStatus: .compatible,
                                    macosStatus: .compatible,
-                                   macosArmStatus: .compatible,
                                    tvosStatus: .compatible,
                                    watchosStatus: .unknown)),
                 latest: NamedBuildResults(
@@ -82,7 +80,6 @@ extension PackageShow.Model {
                     results: .init(iosStatus: .compatible,
                                    linuxStatus: .compatible,
                                    macosStatus: .compatible,
-                                   macosArmStatus: .compatible,
                                    tvosStatus: .compatible,
                                    watchosStatus: .compatible))),
             history: .init(
