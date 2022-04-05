@@ -15,7 +15,6 @@
 extension BuildShow {
 
     struct Model {
-        var buildId: Build.Id
         var packageName: String
         var repositoryName: String
         var repositoryOwner: String
@@ -25,14 +24,12 @@ extension BuildShow {
 
         init?(result: BuildResult, logs: String?) {
             guard
-                let buildId = result.build.id,
                 let repositoryOwner = result.repository.owner,
                 let repositoryName = result.repository.name,
                 let buildInfo = BuildInfo(build: result.build, logs: logs),
                 let versionId = result.version.id
             else { return nil }
-            self.init(buildId: buildId,
-                      buildInfo: buildInfo,
+            self.init(buildInfo: buildInfo,
                       packageName: result.version.packageName ?? repositoryName,
                       repositoryOwner: repositoryOwner,
                       repositoryOwnerName: result.repository.ownerName ?? repositoryOwner,
@@ -40,14 +37,12 @@ extension BuildShow {
                       versionId: versionId)
         }
 
-        internal init(buildId: Build.Id,
-                      buildInfo: BuildInfo,
+        internal init(buildInfo: BuildInfo,
                       packageName: String,
                       repositoryOwner: String,
                       repositoryOwnerName: String,
                       repositoryName: String,
                       versionId: Version.Id) {
-            self.buildId = buildId
             self.buildInfo = buildInfo
             self.packageName = packageName
             self.repositoryOwner = repositoryOwner
