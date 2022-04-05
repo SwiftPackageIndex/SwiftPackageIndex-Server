@@ -58,6 +58,8 @@
   }
 }
 
+// This style isn't in use with the current site, but copes with the situation
+// where a page has no breadcrumb, which we allow.
 .breadcrumbs + main .inner {
   padding-top: 0;
   padding-bottom: 0;
