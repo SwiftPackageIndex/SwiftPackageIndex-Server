@@ -16,14 +16,16 @@ import Plot
 
 struct Breadcrumb {
     var title: String
-    var url: String
-    
+    var url: String? = nil
+
     func listNode() -> Node<HTML.ListContext> {
         .li(
-            .a(
-                .href(url),
-                .text(title)
-            )
+            .unwrap(url, {
+                .a(
+                    .href($0),
+                    .text(title)
+                )
+            }, else: .text(title))
         )
     }
 }
