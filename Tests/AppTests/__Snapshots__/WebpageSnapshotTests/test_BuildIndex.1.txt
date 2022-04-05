@@ -68,6 +68,22 @@
         </nav>
       </div>
     </header>
+    <nav class="breadcrumbs">
+      <div class="inner">
+        <ul>
+          <li>
+            <a href="/">Home</a>
+          </li>
+          <li>
+            <a href="/foo">Foo</a>
+          </li>
+          <li>
+            <a href="/foo/foobar">foobar</a>
+          </li>
+          <li>Build Results</li>
+        </ul>
+      </div>
+    </nav>
     <main>
       <div class="inner">
         <div>

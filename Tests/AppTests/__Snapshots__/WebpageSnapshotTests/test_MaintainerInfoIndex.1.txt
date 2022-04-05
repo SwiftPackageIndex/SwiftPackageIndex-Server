@@ -68,6 +68,22 @@
         </nav>
       </div>
     </header>
+    <nav class="breadcrumbs">
+      <div class="inner">
+        <ul>
+          <li>
+            <a href="/">Home</a>
+          </li>
+          <li>
+            <a href="/example">Example Owner</a>
+          </li>
+          <li>
+            <a href="/example/package">Example Package</a>
+          </li>
+          <li>Information for Maintainers</li>
+        </ul>
+      </div>
+    </nav>
     <main>
       <div class="inner">
         <div>

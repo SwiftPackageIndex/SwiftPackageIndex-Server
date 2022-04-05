@@ -59,6 +59,16 @@
         </nav>
       </div>
     </header>
+    <nav class="breadcrumbs">
+      <div class="inner">
+        <ul>
+          <li>
+            <a href="/">Home</a>
+          </li>
+          <li>Search Results for &ldquo;query&rdquo;</li>
+        </ul>
+      </div>
+    </nav>
     <main>
       <div class="inner">
         <section class="search">

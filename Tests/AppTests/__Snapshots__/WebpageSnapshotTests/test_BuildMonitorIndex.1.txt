@@ -68,6 +68,16 @@
         </nav>
       </div>
     </header>
+    <nav class="breadcrumbs">
+      <div class="inner">
+        <ul>
+          <li>
+            <a href="/">Home</a>
+          </li>
+          <li>Build System Monitor</li>
+        </ul>
+      </div>
+    </nav>
     <main>
       <div class="inner">
         <h2>Recent Builds</h2>

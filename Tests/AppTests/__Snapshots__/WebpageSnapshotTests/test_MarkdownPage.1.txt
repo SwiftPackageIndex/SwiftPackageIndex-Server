@@ -68,6 +68,16 @@
         </nav>
       </div>
     </header>
+    <nav class="breadcrumbs">
+      <div class="inner">
+        <ul>
+          <li>
+            <a href="/">Home</a>
+          </li>
+          <li>Privacy &amp; Cookies</li>
+        </ul>
+      </div>
+    </nav>
     <main>
       <div class="inner"><h3>Your Personal Information</h3><p>This site has no user accounts and does not ask you to identify yourself.</p><h3>Data Sources and Storage</h3><p>The source of all data indexed by this site is <a href="https://github.com/SwiftPackageIndex/PackageList/blob/main/packages.json">this packages.json</a> file. Any information gathered is from either the repository itself or the repository’s hosting platform. This site gathers information only from publicly accessible source repositories. If you are the owner of a Swift package indexed by this site and would like it removed from this index, please let us know by <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/new/choose">creating a new GitHub issue</a>.</p><h3>Cookies and Analytics</h3><p>This site uses <a href="https://plausible.io/">Plausible Analytics</a> to gather anonymous usage data. We do not track visitors in any way and do not store a cookie or use local storage. You can read more about how Plausible analytics works in their <a href="https://plausible.io/data-policy">data policy</a>.</p><p>This site routes all traffic through the Cloudflare CDN. For more information, see the <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare privacy policy</a>.</p></div>
     </main>
