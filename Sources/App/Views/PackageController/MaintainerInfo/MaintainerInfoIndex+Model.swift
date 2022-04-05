@@ -20,6 +20,7 @@ extension MaintainerInfoIndex {
     struct Model {
         var packageName: String
         var repositoryOwner: String
+        var repositoryOwnerName: String
         var repositoryName: String
 
         func badgeURL(for type: BadgeType) -> String {

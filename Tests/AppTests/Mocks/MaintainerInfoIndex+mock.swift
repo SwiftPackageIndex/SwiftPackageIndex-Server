@@ -19,6 +19,9 @@ import Foundation
 extension MaintainerInfoIndex.Model {
 
     static var mock: MaintainerInfoIndex.Model {
-        .init(packageName: "Example Package", repositoryOwner: "example", repositoryName: "package")
+        .init(packageName: "Example Package",
+              repositoryOwner: "example",
+              repositoryOwnerName: "Example Owner",
+              repositoryName: "package")
     }
 }
