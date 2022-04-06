@@ -46,18 +46,19 @@ class BuildIndexModelTests: AppTestCase {
     func test_completedBuildCount() throws {
         let m = BuildIndex.Model.mock
         // mock contains build for three Swift versions, 5.3, 5.4, 5.5
-        // each is set up the same:
+        // each has the same default setup:
         // - 4 x .ok
         // - 1 x .failed
         // - 1 x .triggered
-        // - 1 x .timeout
-        // - 1 x .infrastructureError
-        // -> 6 completed per Swift version (4 x .ok + .failed + .timeout)
-        // -> 18 completed per package version
+        // -> 5 completed per Swift version (4 x .ok + .failed)
+        // -> 15 completed per package version
         //    (there are 3 versions, default branch, release, and beta)
-        // -> 54 minus the Linux/5.5 build to test the .none scenario
-        // -> 53 completed in total
-        XCTAssertEqual(m.completedBuildCount, 53)
+        // -> 45 completed overall
+        // -> 44 minus the linux/5.5 build to test .none
+        // -> 44 the tvos/5.5 build to test .timeout does not change the completed tally
+        // -> 43 minus the watchos/5.5 build to test .infrastructureError
+        // -> 43 completed in total
+        XCTAssertEqual(m.completedBuildCount, 43)
     }
 
     func test_packageURL() throws {
@@ -91,7 +92,7 @@ class BuildIndexModelTests: AppTestCase {
         let matrix = model.buildMatrix
 
         // validate
-        XCTAssertEqual(matrix.values.keys.count, 32)
+        XCTAssertEqual(matrix.values.keys.count, 24)
         XCTAssertEqual(
             matrix.values[.init(swiftVersion: .v5_6, platform: .ios)]?.map(\.column.label),
             ["1.2.3", "2.0.0-b1", "main"]
@@ -141,7 +142,7 @@ class BuildIndexModelTests: AppTestCase {
         let matrix = model.buildMatrix
 
         // validate
-        XCTAssertEqual(matrix.values.keys.count, 32)
+        XCTAssertEqual(matrix.values.keys.count, 24)
         XCTAssertEqual(
             matrix.values[.init(swiftVersion: .v5_6, platform: .ios)]?.map(\.column.label),
             ["1.2.3", "main"]

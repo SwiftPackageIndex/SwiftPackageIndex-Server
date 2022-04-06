@@ -12,28 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
-
-import SnapshotTesting
-import XCTVapor
+import Fluent
+import SQLKit
 
 
-class WebpageSnapshotTestCase: SnapshotTestCase {
-    let defaultPrecision: Float = 1
+struct DeleteArmBuilds: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        guard let db = database as? SQLDatabase else {
+            fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
+        }
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-
-        SnapshotTesting.diffTool = "ksdiff"
-        // Uncomment the following line to record all snapshot tests at once
-        //        SnapshotTesting.isRecording = true
-
-        try XCTSkipIf((Environment.get("SKIP_SNAPSHOTS") ?? "false") == "true")
-        Current.date = { Date(timeIntervalSince1970: 0) }
-        TempWebRoot.cleanup()
+        // required for levenshtein distance in search
+        try await db.raw(#"DELETE FROM "builds" WHERE "platform" like '%-arm'"#).run()
     }
 
-    override class func setUp() {
-        TempWebRoot.setup()
+    func revert(on database: Database) async throws {
+        // There's nothing we can do to restore the previous state
     }
 }

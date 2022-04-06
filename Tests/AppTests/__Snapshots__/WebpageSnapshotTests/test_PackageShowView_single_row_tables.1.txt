@@ -188,20 +188,14 @@
                       </div>
                       <div class="column_labels">
                         <div>iOS</div>
-                        <div>macOS
-                          <small>(Intel)</small>
-                        </div>
-                        <div>macOS
-                          <small>(ARM)</small>
-                        </div>
+                        <div>macOS</div>
                         <div>Linux</div>
                         <div>tvOS</div>
                         <div>watchOS</div>
                       </div>
                       <div class="results">
                         <div class="compatible" title="Built successfully with iOS"></div>
-                        <div class="compatible" title="Built successfully with macOS (Intel)"></div>
-                        <div class="compatible" title="Built successfully with macOS (ARM)"></div>
+                        <div class="compatible" title="Built successfully with macOS"></div>
                         <div class="compatible" title="Built successfully with Linux"></div>
                         <div class="compatible" title="Built successfully with tvOS"></div>
                         <div class="compatible" title="Built successfully with watchOS"></div>

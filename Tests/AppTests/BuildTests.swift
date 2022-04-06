@@ -346,4 +346,29 @@ class BuildTests: AppTestCase {
         XCTAssertEqual(b.status, .triggered)
     }
 
+    func test_DeleteArmBuilds_migration() async throws {
+        // setup
+        let p = Package(url: "1")
+        try p.save(on: app.db).wait()
+        let v = try Version(package: p, latest: .defaultBranch)
+        try v.save(on: app.db).wait()
+        // save a Build with platform `macos-spm`
+        try Build(id: .id0, version: v, platform: .macosSpm, status: .triggered, swiftVersion: .v5_5).save(on: app.db).wait()
+        // save a Build with `macos-spm-arm` - we need to use raw SQL, because the platform enum
+        // does not exist anymore
+        try await (app.db as! SQLDatabase).raw(#"""
+             INSERT INTO "builds" ("id", "version_id", "platform", "status", "swift_version") VALUES (\#(bind: UUID.id1), \#(bind: v.id), 'macos-spm-arm', 'ok', '{"major": 5, "minor": 6, "patch": 0}')
+             """#).run()
+        let count = try await Build.query(on: app.db).count()
+        XCTAssertEqual(count, 2)
+
+
+        // MUT
+        try await DeleteArmBuilds().prepare(on: app.db)
+
+        // validate
+        let builds = try await Build.query(on: app.db).all()
+        XCTAssertEqual(builds.count, 1)
+        XCTAssertEqual(builds.first?.platform, .macosSpm)
+    }
 }

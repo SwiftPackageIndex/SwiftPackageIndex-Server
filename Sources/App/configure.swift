@@ -226,6 +226,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 045 - create fuzzystrmatch extension for search
         app.migrations.add(CreateExtensionFuzzyStrMatch())
     }
+    do {  // Migration 046 - delete `%-arm` builds
+        app.migrations.add(DeleteArmBuilds())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

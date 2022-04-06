@@ -208,10 +208,6 @@ class PackageCollectionTests: AppTestCase {
                           platform: .macosXcodebuild,
                           status: .ok,
                           swiftVersion: .v5_6).save(on: app.db).wait()
-                try Build(version: v,
-                          platform: .macosXcodebuildArm,
-                          status: .ok,
-                          swiftVersion: .v5_6).save(on: app.db).wait()
             }
         }
         let v = try XCTUnwrap(VersionResult.query(on: app.db,
