@@ -99,12 +99,8 @@ extension PackageShow.Model {
             }
         }
 
-        @available(*, deprecated)
         var note: String? {
-            switch self {
-                case .macos, .ios, .linux, .tvos, .watchos:
-                    return nil
-            }
+            nil
         }
     }
 
