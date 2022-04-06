@@ -142,6 +142,15 @@ extension PackageShow {
     
 }
 
+extension PackageShow.Model {
+    var gitHubOwnerUrl: String {
+        "https://github.com/\(repositoryOwner)"
+    }
+
+    var gitHubRepositoryUrl: String {
+        "https://github.com/\(repositoryOwner)/\(repositoryName)"
+    }
+}
 
 extension PackageShow.Model {
     static func makeModelVersion(packageUrl: String, version: App.Version) -> Version? {

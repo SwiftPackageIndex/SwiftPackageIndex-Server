@@ -74,9 +74,15 @@ enum PackageShow {
                         .class("package_title"),
                         .h2(.text(model.title)),
                         .small(
-                            .span(.text(model.repositoryOwner)),
-                            .text("/"),
-                            .span(.text(model.repositoryName))
+                            .a(
+                                .href(model.gitHubOwnerUrl),
+                                .text(model.repositoryOwner)
+                            ),
+                            .span("/"),
+                            .a(
+                                .href(model.gitHubRepositoryUrl),
+                                .text(model.repositoryName)
+                            )
                         )
                     ),
                     .spiPanel(

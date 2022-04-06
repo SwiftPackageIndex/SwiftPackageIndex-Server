@@ -26,20 +26,9 @@
   .package_title {
     display: flex;
     flex-direction: column;
-    align-items: baseline;
 
-    small {
-      color: var(--page-dimmed-text);
-
-      > span {
-        color: var(--page-text);
-      }
-
-      &::before {
-        content: '–';
-        margin: 0 2px 0 3px;
-        color: var(--page-dimmed-text);
-      }
+    span {
+      margin: 0 2px;
     }
   }
 
