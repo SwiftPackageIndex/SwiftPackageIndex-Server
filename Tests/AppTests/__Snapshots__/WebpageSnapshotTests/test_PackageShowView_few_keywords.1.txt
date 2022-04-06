@@ -143,7 +143,7 @@
                 <li class="libraries">3 libraries</li>
                 <li class="executables">1 executable</li>
                 <li class="keywords">
-                  <div data-controller="overflowing-list" data-overflowing-list-overflow-message-value="Show all 10 tags…" data-overflowing-list-overflow-height-value="52" data-overflowing-list-collapsed-value="true">
+                  <div data-controller="overflowing-list" data-overflowing-list-overflow-message-value="Show all 9 tags…" data-overflowing-list-overflow-height-value="52" data-overflowing-list-collapsed-value="true">
                     <ul data-overflowing-list-target="list" class="keywords">
                       <li>
                         <a href="/keywords/tag1">tag1</a>
@@ -171,9 +171,6 @@
                       </li>
                       <li>
                         <a href="/keywords/tag9">tag9</a>
-                      </li>
-                      <li>
-                        <a href="/keywords/tag10">tag10</a>
                       </li>
                     </ul>
                   </div>

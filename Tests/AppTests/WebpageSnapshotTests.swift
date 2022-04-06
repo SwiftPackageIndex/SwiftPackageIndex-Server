@@ -73,7 +73,7 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
 
     func test_PackageShowView_few_keywords() throws {
         var model = PackageShow.Model.mock
-        model.keywords = ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10"]
+        model.keywords = ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9"]
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
