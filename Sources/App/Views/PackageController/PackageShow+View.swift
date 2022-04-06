@@ -73,11 +73,15 @@ enum PackageShow {
                     .div(
                         .class("package_title"),
                         .h2(.text(model.title)),
-                        .p(
-                            .text("by "),
+                        .small(
                             .a(
-                                .href(SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
-                                .text(model.repositoryOwnerName)
+                                .href(model.gitHubOwnerUrl),
+                                .text(model.repositoryOwner)
+                            ),
+                            .span("/"),
+                            .a(
+                                .href(model.gitHubRepositoryUrl),
+                                .text(model.repositoryName)
                             )
                         )
                     ),
@@ -198,7 +202,7 @@ enum PackageShow {
                 .ul(
                     .li(
                         .a(
-                            .href(model.url),
+                            .href(model.gitHubRepositoryUrl),
                             "View on GitHub"
                         )
                     ),

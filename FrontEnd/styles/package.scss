@@ -24,8 +24,11 @@
   }
 
   .package_title {
-    p {
-      margin: 0;
+    display: flex;
+    flex-direction: column;
+
+    span {
+      margin: 0 2px;
     }
   }
 

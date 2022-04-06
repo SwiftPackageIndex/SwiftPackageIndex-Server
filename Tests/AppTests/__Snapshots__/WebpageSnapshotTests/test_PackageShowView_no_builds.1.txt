@@ -86,9 +86,11 @@
         <div class="two_column v_end">
           <div class="package_title">
             <h2>Alamofire</h2>
-            <p>by 
-              <a href="/Alamo">Alamofire</a>
-            </p>
+            <small>
+              <a href="https://github.com/Alamo">Alamo</a>
+              <span>/</span>
+              <a href="https://github.com/Alamo/Alamofire">Alamofire</a>
+            </small>
           </div>
           <div data-controller="modal-panel">
             <button data-modal-panel-target="button" data-action="click->modal-panel#show">Use this Package</button>
@@ -159,7 +161,7 @@
             <section class="sidebar_links">
               <ul>
                 <li>
-                  <a href="https://github.com/Alamofire/Alamofire.git">View on GitHub</a>
+                  <a href="https://github.com/Alamo/Alamofire">View on GitHub</a>
                 </li>
                 <li class="try_in_playground">
                   <a href="spi-playgrounds://open?dependencies=Alamo/Alamofire">Try in a Playground</a>

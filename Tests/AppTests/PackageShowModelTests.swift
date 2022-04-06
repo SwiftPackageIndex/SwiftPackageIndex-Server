@@ -45,6 +45,19 @@ class PackageShowModelTests: SnapshotTestCase {
         XCTAssertEqual(m?.title, "bar")
     }
 
+    func test_gitHubOwnerUrl() throws {
+        var model = PackageShow.Model.mock
+        model.repositoryOwner = "owner"
+        XCTAssertEqual(model.gitHubOwnerUrl, "https://github.com/owner")
+    }
+
+    func test_gitHubRepositoryUrl() throws {
+        var model = PackageShow.Model.mock
+        model.repositoryOwner = "owner"
+        model.repositoryName = "repository"
+        XCTAssertEqual(model.gitHubRepositoryUrl, "https://github.com/owner/repository")
+    }
+
     func test_history() throws {
         var model = PackageShow.Model.mock
         model.history = .init(
