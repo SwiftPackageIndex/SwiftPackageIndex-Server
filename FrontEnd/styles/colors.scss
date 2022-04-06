@@ -104,6 +104,8 @@
   --header-gradient-start: rgba(255, 255, 255, 0.2);
   --header-gradient-end: rgba(255, 255, 255, 0.05);
 
+  --breadcrumb: var(--light-grey);
+
   --announcement-background: var(--very-light-grey);
 
   --bordered-button-background: var(--very-very-light-grey);
@@ -184,6 +186,8 @@
     --header-background: var(--very-dark-blue);
     --header-gradient-start: rgba(255, 255, 255, 0.08);
     --header-gradient-end: rgba(255, 255, 255, 0.03);
+
+    --breadcrumb: var(--dark-grey);
 
     --announcement-background: var(--very-dark-grey);
 

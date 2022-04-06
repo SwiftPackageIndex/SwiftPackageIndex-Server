@@ -34,6 +34,13 @@ extension SearchShow {
             }
         }
 
+        override func breadcrumbs() -> [Breadcrumb] {
+            [
+                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: "Search Results for &ldquo;\(model.term)&rdquo;")
+            ]
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .section(

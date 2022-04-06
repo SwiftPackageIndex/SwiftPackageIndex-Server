@@ -36,6 +36,13 @@ enum AuthorShow {
             return "The Swift Package Index is indexing \(packagesClause) authored by \(model.ownerName)."
         }
 
+        override func breadcrumbs() -> [Breadcrumb] {
+            [
+                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: model.ownerName)
+            ]
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .h2(

@@ -78,6 +78,7 @@ class BuildIndexModelTests: AppTestCase {
             .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
+                                          ownerName: "Foo",
                                           repositoryName: "bar",
                                           packageName: "bar",
                                           buildGroups: [
@@ -128,6 +129,7 @@ class BuildIndexModelTests: AppTestCase {
             .init(id: id, swiftVersion: .init(5, 4, 0), platform: .tvos, status: .ok),
         ]
         let model = BuildIndex.Model.init(owner: "foo",
+                                          ownerName: "Foo",
                                           repositoryName: "bar",
                                           packageName: "bar",
                                           buildGroups: [

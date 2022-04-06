@@ -38,40 +38,40 @@ enum BuildShow {
             .comment(model.versionId.uuidString)
         }
 
+        override func breadcrumbs() -> [Breadcrumb] {
+            [
+                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: model.repositoryOwnerName, url: SiteURL.author(.value(model.repositoryOwner)).relativeURL()),
+                Breadcrumb(title: model.packageName, url: SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .none).relativeURL()),
+                Breadcrumb(title: "Build Results", url: SiteURL.package(.value(model.repositoryOwner), .value(model.repositoryName), .builds).relativeURL()),
+                Breadcrumb(title: "\(model.buildInfo.swiftVersion.longDisplayName) on \(model.buildInfo.platform.displayName)"),
+            ]
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .div(
                 .h2("Build Information"),
-                .div(
-                    .class("two_column"),
-                    .p(
-                        .strong(
-                            .class(model.buildInfo.status.cssClass),
-                            .text(model.buildInfo.status.description)
-                        ),
-                        .text(model.buildInfo.status.joiningClause),
-                        .a(
-                            .href(model.packageURL),
-                            .text(model.packageName)
-                        ),
-                        .text(" with "),
-                        .strong(.text(model.buildInfo.swiftVersion.longDisplayName)),
-                        .text(" for "),
-                        .strong(.text(model.buildInfo.platform.displayName)),
-                        .unwrap(model.buildInfo.xcodeVersion) {
-                            .group(
-                                .text(" using "),
-                                .strong(.text($0))
-                            )
-                        },
-                        .text(".")
+                .p(
+                    .strong(
+                        .class(model.buildInfo.status.cssClass),
+                        .text(model.buildInfo.status.description)
                     ),
-                    .p(
-                        .class("right"),
-                        .a(
-                            .href(model.buildsURL),
-                            "View all builds"
+                    .text(model.buildInfo.status.joiningClause),
+                    .a(
+                        .href(model.packageURL),
+                        .text(model.packageName)
+                    ),
+                    .text(" with "),
+                    .strong(.text(model.buildInfo.swiftVersion.longDisplayName)),
+                    .text(" for "),
+                    .strong(.text(model.buildInfo.platform.displayName)),
+                    .unwrap(model.buildInfo.xcodeVersion) {
+                        .group(
+                            .text(" using "),
+                            .strong(.text($0))
                         )
-                    )
+                    },
+                    .text(".")
                 ),
                 .h3("Build Command"),
                 .pre(

@@ -58,6 +58,15 @@ class MarkdownPage: PublicPage {
         "markdown"
     }
     
+    override func breadcrumbs() -> [Breadcrumb] {
+        guard let pageTitle = metadata[Metadata.pageTitle] else { return [] }
+
+        return [
+            Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+            Breadcrumb(title: pageTitle),
+        ]
+    }
+
     override func content() -> Node<HTML.BodyContext> {
         guard let html = html else {
             return .p("Markdown file not found!")

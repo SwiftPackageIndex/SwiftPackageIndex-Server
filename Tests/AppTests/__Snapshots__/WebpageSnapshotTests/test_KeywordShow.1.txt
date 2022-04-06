@@ -68,6 +68,16 @@
         </nav>
       </div>
     </header>
+    <nav class="breadcrumbs">
+      <div class="inner">
+        <ul>
+          <li>
+            <a href="/">Home</a>
+          </li>
+          <li>networking</li>
+        </ul>
+      </div>
+    </nav>
     <main>
       <div class="inner">
         <h2 class="trimmed">Packages for keyword “networking”</h2>

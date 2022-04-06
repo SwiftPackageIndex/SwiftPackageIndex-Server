@@ -12,16 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import App
+import Plot
 
-import Foundation
+struct Breadcrumb {
+    var title: String
+    var url: String? = nil
 
-extension MaintainerInfoIndex.Model {
-
-    static var mock: MaintainerInfoIndex.Model {
-        .init(packageName: "Example Package",
-              repositoryOwner: "example",
-              repositoryOwnerName: "Example Owner",
-              repositoryName: "package")
+    func listNode() -> Node<HTML.ListContext> {
+        .li(
+            .unwrap(url, {
+                .a(
+                    .href($0),
+                    .text(title)
+                )
+            }, else: .text(title))
+        )
     }
 }

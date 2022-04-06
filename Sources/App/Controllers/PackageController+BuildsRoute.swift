@@ -21,12 +21,14 @@ extension PackageController {
         struct PackageInfo: Equatable {
             var packageName: String?
             var repositoryOwner: String
+            var repositoryOwnerName: String?
             var repositoryName: String
 
             static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(PackageInfo)> {
                 Joined3<Package, Repository, Version>
                     .query(on: database, owner: owner, repository: repository, version: .defaultBranch)
                     .field(Repository.self, \.$owner)
+                    .field(Repository.self, \.$ownerName)
                     .field(Repository.self, \.$name)
                     .field(Version.self, \.$packageName)
                     .first()
@@ -39,6 +41,7 @@ extension PackageController {
                               }
                         return .init(packageName: model.version.packageName,
                                      repositoryOwner: repoOwner,
+                                     repositoryOwnerName: repo.ownerName,
                                      repositoryName: repoName)
                     }
             }

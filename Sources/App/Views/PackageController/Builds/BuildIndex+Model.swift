@@ -18,16 +18,19 @@ import Plot
 extension BuildIndex {
     struct Model {
         var owner: String
+        var ownerName: String
         var repositoryName: String
         var packageName: String
         var completedBuildCount: Int
         var buildMatrix: BuildMatrix
 
         internal init(owner: String,
+                      ownerName: String,
                       repositoryName: String,
                       packageName: String,
                       buildGroups: [BuildGroup]) {
             self.owner = owner
+            self.ownerName = ownerName
             self.repositoryName = repositoryName
             self.packageName = packageName
             self.completedBuildCount = buildGroups.reduce(0) { $0 + $1.builds.filter(\.isCompleted).count }
@@ -39,6 +42,7 @@ extension BuildIndex {
                 .compactMap(buildInfo.grouped(by:))
 
             self.init(owner: packageInfo.repositoryOwner,
+                      ownerName: packageInfo.repositoryOwnerName ?? packageInfo.repositoryOwner,
                       repositoryName: packageInfo.repositoryName,
                       packageName: packageInfo.packageName ?? packageInfo.repositoryName,
                       buildGroups: buildGroups)

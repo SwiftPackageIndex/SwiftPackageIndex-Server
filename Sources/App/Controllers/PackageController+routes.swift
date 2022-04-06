@@ -116,6 +116,7 @@ struct PackageController {
             .query(on: req.db, owner: owner, repository: repository, version: .defaultBranch)
             .field(Version.self, \.$packageName)
             .field(Repository.self, \.$owner)
+            .field(Repository.self, \.$ownerName)
             .field(Repository.self, \.$name)
             .first()
             .unwrap(or: Abort(.notFound))
@@ -127,6 +128,7 @@ struct PackageController {
                 return MaintainerInfoIndex.Model(
                     packageName: result.version.packageName ?? repositoryName,
                     repositoryOwner: repositoryOwner,
+                    repositoryOwnerName: result.repository.ownerName ?? repositoryOwner,
                     repositoryName: repositoryName
                 )
             }

@@ -33,6 +33,13 @@ enum BuildMonitorIndex {
             "See what the platform and Swift version compatibility build system for the Swift Package Index is processing. The package index constantly looks for changes in packages and, when found, builds every package against a comprehensive set of Swift version and platform combinations."
         }
 
+        override func breadcrumbs() -> [Breadcrumb] {
+            [
+                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: "Build System Monitor")
+            ]
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .h2("Recent Builds"),

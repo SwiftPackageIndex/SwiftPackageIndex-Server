@@ -18,6 +18,7 @@ extension BuildShow {
         var packageName: String
         var repositoryName: String
         var repositoryOwner: String
+        var repositoryOwnerName: String
         var buildInfo: BuildInfo
         var versionId: Version.Id
 
@@ -31,6 +32,7 @@ extension BuildShow {
             self.init(buildInfo: buildInfo,
                       packageName: result.version.packageName ?? repositoryName,
                       repositoryOwner: repositoryOwner,
+                      repositoryOwnerName: result.repository.ownerName ?? repositoryOwner,
                       repositoryName: repositoryName,
                       versionId: versionId)
         }
@@ -38,11 +40,13 @@ extension BuildShow {
         internal init(buildInfo: BuildInfo,
                       packageName: String,
                       repositoryOwner: String,
+                      repositoryOwnerName: String,
                       repositoryName: String,
                       versionId: Version.Id) {
             self.buildInfo = buildInfo
             self.packageName = packageName
             self.repositoryOwner = repositoryOwner
+            self.repositoryOwnerName = repositoryOwnerName
             self.repositoryName = repositoryName
             self.versionId = versionId
         }

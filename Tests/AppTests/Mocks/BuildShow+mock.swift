@@ -28,6 +28,7 @@ extension BuildShow.Model {
                              runner: .mac0),
             packageName: "Bar",
             repositoryOwner: "foo",
+            repositoryOwnerName: "Foo",
             repositoryName: "bar",
             versionId: UUID("cafecafe-cafe-cafe-cafe-cafecafecafe")!
         )

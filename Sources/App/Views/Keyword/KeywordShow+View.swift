@@ -35,6 +35,13 @@ enum KeywordShow {
             return "The Swift Package Index is indexing \(packagesClause) for \(model.keyword)."
         }
 
+        override func breadcrumbs() -> [Breadcrumb] {
+            [
+                Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+                Breadcrumb(title: model.keyword)
+            ]
+        }
+
         override func content() -> Node<HTML.BodyContext> {
             .group(
                 .h2(
