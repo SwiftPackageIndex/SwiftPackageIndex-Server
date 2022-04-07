@@ -12,13 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Fluent
 import SQLKit
 import XCTVapor
 @testable import App
 
+
+let _testSchema = TestSchema()
+
+
 class AppTestCase: XCTestCase {
+    @available(*, deprecated)
     var app: Application!
     let testQueue = DispatchQueue(label: "test-queue")
+
+    func db() async -> Database { await _testSchema.db() }
 
     func future<T>(_ value: T) -> EventLoopFuture<T> {
         app.eventLoopGroup.next().future(value)
@@ -30,11 +38,11 @@ class AppTestCase: XCTestCase {
 
     override func setUp() async throws {
         try await super.setUp()
-        app = try await setup(.testing)
+        app = try await _testSchema.setup(.testing, resetDb: true)
     }
     
     override func tearDown() async throws {
-        app.shutdown()
+        await _testSchema.shutdown()
         try await super.tearDown()
     }
 }

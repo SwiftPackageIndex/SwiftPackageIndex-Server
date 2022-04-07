@@ -22,61 +22,14 @@ import XCTest
 
 // MARK: - Test helpers
 
-private var _schemaCreated = false
 
-func setup(_ environment: Environment, resetDb: Bool = true) async throws -> Application {
-    let app = Application(environment)
-    let host = try configure(app)
+//private var _schemaCreated = false
 
-    // Ensure `.testing` refers to "postgres" or "localhost"
-    precondition(["localhost", "postgres", "host.docker.internal"].contains(host),
-                 ".testing must be a local db, was: \(host)")
-
-    app.logger.logLevel = Environment.get("LOG_LEVEL").flatMap(Logger.Level.init(rawValue:)) ?? .warning
-
-    if !_schemaCreated {
-        // ensure we create the schema when running the first test
-        try await app.autoMigrate()
-        _schemaCreated = true
-    }
-    if resetDb { try await _resetDb(app) }
-
-    // Always start with a baseline mock environment to avoid hitting live resources
-    Current = .mock(eventLoop: app.eventLoopGroup.next())
-
-    return app
-}
-
-
-private var tableNamesCache: [String]?
-
-func _resetDb(_ app: Application) async throws {
-    guard let db = app.db as? SQLDatabase else {
-        fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
-    }
-    
-    guard let tables = tableNamesCache else {
-        struct Row: Decodable { var table_name: String }
-        tableNamesCache = try await db.raw("""
-                SELECT table_name FROM
-                information_schema.tables
-                WHERE
-                  table_schema NOT IN ('pg_catalog', 'information_schema', 'public._fluent_migrations')
-                  AND table_schema NOT LIKE 'pg_toast%'
-                  AND table_name NOT LIKE '_fluent_%'
-                """)
-            .all(decoding: Row.self)
-            .map(\.table_name)
-        if tableNamesCache != nil {
-            try await _resetDb(app)
-        }
-        return
-    }
-    
-    for table in tables {
-        try await db.raw("TRUNCATE TABLE \(raw: table) CASCADE").run()
-    }
-}
+//@available(*, deprecated)
+//func setup(_ environment: Environment, resetDb: Bool = true) async throws -> Application {
+//    try await testSchema.setup(environment, resetDb: resetDb)
+//    return await testSchema.app
+//}
 
 
 func fixtureData(for fixture: String) throws -> Data {

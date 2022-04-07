@@ -29,8 +29,9 @@ public final class ErrorMiddleware: AsyncMiddleware {
             let isCritical = (statusCode >= 500)
 
             if isCritical {
+                let current = Current
                 Task.detached {
-                    try await Current.reportError(req.client, .critical, error).get()
+                    try await current.reportError(req.client, .critical, error).get()
                 }
                 Current.logger()?.critical("ErrorPage.View \(statusCode): \(error.localizedDescription)")
             } else {
