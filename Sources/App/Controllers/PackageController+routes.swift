@@ -150,12 +150,29 @@ extension PackageController {
                     .query(on: db, owner: owner, repository: repository).get()
                 self = .packageAvailable(model, schema)
             } catch let error as AbortError where error.status == .notFound {
-                // The package is not in the index, does it match a valid GitHub repository?
-                if try await Current.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)") == .notFound {
-                    self = .packageDoesNotExist
-                } else {
-                    // Otherwise, it's a missing package.
-                    self = .packageMissing(.init(owner: owner, repository: repository))
+                // When the package is not in the index, we check if it's available on GitHub.
+                // We use try? to avoid raising internel server errors from exceptions raised
+                // from this call.
+                let status = try? await Current.fetchHTTPStatusCode("https://github.com/\(owner)/\(repository)")
+                switch status {
+                    case .some(.notFound):
+                        // GitHub does not have the package
+                        self = .packageDoesNotExist
+                    case .some(.ok), .some(.permanentRedirect), .some(.temporaryRedirect):
+                        // The package is available on GitHub, we are therefore missing it
+                        self = .packageMissing(.init(owner: owner, repository: repository))
+                    case .some:
+                        // We're getting an unexpected response from GitHub (could be an
+                        // an auth error, for example) - treat this the same as the .none
+                        // case: avoid showing the missing package page when we're not sure
+                        // it can be added.
+                        self = .packageDoesNotExist
+                    case .none:
+                        // There was an error contacting GitHub - treat this unknown state
+                        // as if the package didn't exist on GitHub. We want to avoid showing
+                        // our missing package page unless we're certain the package can be
+                        // added.
+                        self = .packageDoesNotExist
                 }
             }
         }

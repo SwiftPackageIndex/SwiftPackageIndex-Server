@@ -50,6 +50,17 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+    func test_show_checkingGitHubRepository_error() throws {
+        // Make sure we don't throw an internal server error in case
+        // fetchHTTPStatusCode fails
+        Current.fetchHTTPStatusCode = { _ in throw FetchError() }
+
+        // MUT
+        try app.test(.GET, "/unknown/package") {
+            XCTAssertEqual($0.status, .notFound)
+        }
+    }
+
     func test_ShowModel_packageAvailable() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
@@ -89,6 +100,22 @@ class PackageController_routesTests: AppTestCase {
     func test_ShowModel_packageDoesNotExist() async throws {
         // setup
         Current.fetchHTTPStatusCode = { _ in .mock(.notFound) }
+
+        // MUT
+        let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
+
+        // validate
+        switch model {
+            case .packageAvailable, .packageMissing:
+                XCTFail("expected package not to exist")
+            case .packageDoesNotExist:
+                break
+        }
+    }
+
+    func test_ShowModel_fetchHTTPStatusCode_error() async throws {
+        // setup
+        Current.fetchHTTPStatusCode = { _ in throw FetchError() }
 
         // MUT
         let model = try await PackageController.ShowModel(db: app.db, owner: "owner", repository: "package")
@@ -170,6 +197,14 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+}
+
+
+private struct FetchError: Error {
+    init() {
+        // See https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/pull/1606#issuecomment-1075391125 as to why we're adding this delay
+        usleep(.milliseconds(100))
+    }
 }
 
 
