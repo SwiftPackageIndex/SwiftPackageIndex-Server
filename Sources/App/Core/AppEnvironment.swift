@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import AsyncHTTPClient
 import ShellOut
 import Vapor
 #if canImport(FoundationNetworking)
@@ -155,23 +156,14 @@ extension AppEnvironment {
 
 private enum Networking {
     static func fetchHTTPStatusCode(_ url: String) async throws -> HTTPStatus {
-        guard let url = URL(string: url)
-        else { throw AppError.genericError(nil, "Invalid URL \(url)") }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "HEAD"
-
-        // Work-around lack of a/a support in FoundationNetworking
-        // We need to use URLSession, because HEAD requests with Client are broken
-        return try await withCheckedThrowingContinuation { cont in
-            URLSession.shared.dataTask(with: request) { _, response, error in
-                if let response = response as? HTTPURLResponse {
-                    cont.resume(returning: .init(statusCode: response.statusCode))
-                } else {
-                    cont.resume(throwing: AppError.genericError(nil, "Expected a valid HTTPURLResponse"))
-                }
-            }.resume()
-        }
+        var config = HTTPClient.Configuration()
+        // We're forcing HTTP/1 due to a bug in Github's HEAD request handling
+        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1676
+        config.httpVersion = .http1Only
+        let client = HTTPClient(eventLoopGroupProvider: .createNew, configuration: config)
+        var req = HTTPClientRequest(url: url)
+        req.method = .HEAD
+        return try await client.execute(req, timeout: .seconds(2)).status
     }
 }
 
