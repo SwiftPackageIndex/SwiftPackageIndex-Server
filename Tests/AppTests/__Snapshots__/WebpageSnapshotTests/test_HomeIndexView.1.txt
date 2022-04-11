@@ -11,9 +11,9 @@
     <title>Swift Package Index</title>
     <meta name="twitter:title" content="Swift Package Index"/>
     <meta name="og:title" content="Swift Package Index"/>
-    <meta name="description" content="The Swift Package Index is the place to find the best Swift packages. Indexing 2,544 packages and 38,410 versions."/>
-    <meta name="twitter:description" content="The Swift Package Index is the place to find the best Swift packages. Indexing 2,544 packages and 38,410 versions."/>
-    <meta name="og:description" content="The Swift Package Index is the place to find the best Swift packages. Indexing 2,544 packages and 38,410 versions."/>
+    <meta name="description" content="The Swift Package Index is the place to find the best Swift packages. Indexing metadata from 2,544 packages packages."/>
+    <meta name="twitter:description" content="The Swift Package Index is the place to find the best Swift packages. Indexing metadata from 2,544 packages packages."/>
+    <meta name="og:description" content="The Swift Package Index is the place to find the best Swift packages. Indexing metadata from 2,544 packages packages."/>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:image" content="http://localhost:8080/images/logo.png"/>
     <meta name="og:image" content="http://localhost:8080/images/logo.png"/>
@@ -62,7 +62,7 @@
             <div title="Search"></div>
           </button>
         </form>
-        <small>Indexing 2,544 packages and 38,410 versions.</small>
+        <small>Indexing 2,544 packages</small>
       </div>
     </section>
     <main>

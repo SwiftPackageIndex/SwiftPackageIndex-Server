@@ -13,34 +13,41 @@
 // limitations under the License.
 
 import Fluent
-import Foundation
 import SQLKit
 
+struct RemoveVersionCountFromStats: AsyncMigration {
+    let dropSQL: SQLQueryString = "DROP MATERIALIZED VIEW stats"
 
-struct Stats: Decodable, Equatable {
-    static let schema = "stats"
-    
-    var packageCount: Int
-
-    enum CodingKeys: String, CodingKey {
-        case packageCount = "package_count"
-    }
-}
-
-extension Stats {
-    static func refresh(on database: Database) -> EventLoopFuture<Void> {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("REFRESH MATERIALIZED VIEW \(raw: Self.schema)").run()
+
+        try await db.raw(dropSQL).run()
+        try await db.raw(
+            """
+            -- v1
+            CREATE MATERIALIZED VIEW stats AS
+            SELECT
+            NOW() AS date,
+            (SELECT COUNT(*) FROM packages) AS package_count
+            """).run()
     }
-    
-    
-    static func fetch(on database: Database) -> EventLoopFuture<Stats?> {
+
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
-        return db.raw("SELECT * FROM \(raw: Self.schema)")
-            .first(decoding: Stats.self)
+
+        try await db.raw(dropSQL).run()
+        try await db.raw(
+            """
+            -- v0
+            CREATE MATERIALIZED VIEW stats AS
+            SELECT
+            NOW() AS date,
+            (SELECT COUNT(*) FROM packages) AS package_count,
+            (SELECT COUNT(*) FROM versions) AS version_count
+            """).run()
     }
 }

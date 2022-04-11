@@ -229,6 +229,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 046 - delete `%-arm` builds
         app.migrations.add(DeleteArmBuilds())
     }
+    do {  // Migration 047 - Remove `version_count` from `stats` materialized view.
+        app.migrations.add(RemoveVersionCountFromStats())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

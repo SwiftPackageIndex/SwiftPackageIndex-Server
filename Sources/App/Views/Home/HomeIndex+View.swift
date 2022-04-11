@@ -27,10 +27,12 @@ enum HomeIndex {
         }
         
         override func pageDescription() -> String? {
-            """
-            The Swift Package Index is the place to find the best Swift packages. \
-            \(model.statsDescription() ?? "")
-            """
+            let description = "The Swift Package Index is the place to find the best Swift packages."
+
+            guard let statsDescription = model.statsDescription()
+            else { return description }
+
+            return "\(description) Indexing metadata from \(statsDescription) packages."
         }
         
         override func postBody() -> Node<HTML.BodyContext> {
