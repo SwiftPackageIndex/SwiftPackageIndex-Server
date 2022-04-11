@@ -26,21 +26,23 @@ export class OverflowingListController extends Controller {
     if (this.collapsedValue) {
       // Immediately adjust the height of the potentially overflowing keyword list.
       this.listTarget.style.setProperty('max-height', `${this.overflowHeightValue}px`)
-
-      // If the collapsing hid any content, add a "show more" that expands it.
-      if (this.isOverflowing(this.listTarget)) {
-        const showMoreElement = document.createElement('a')
-        showMoreElement.dataset.overflowingListTarget = 'showMore'
-        showMoreElement.dataset.action = 'click->overflowing-list#expand'
-        showMoreElement.innerText = this.overflowMessageValue
-        showMoreElement.href = '#' // Needed to turn the cursor into a hand.
-        this.element.appendChild(showMoreElement)
-      }
     }
   }
 
   disconnect() {
     if (this.hasShowMoreTarget) this.showMoreTarget.remove()
+  }
+
+  addShowMoreLinkIfNeeded() {
+    // If the collapsing hid any content, add a "show more" that expands it.
+    if (this.isOverflowing(this.listTarget) && this.hasShowMoreTarget === false) {
+      const showMoreElement = document.createElement('a')
+      showMoreElement.dataset.overflowingListTarget = 'showMore'
+      showMoreElement.dataset.action = 'click->overflowing-list#expand'
+      showMoreElement.innerText = this.overflowMessageValue
+      showMoreElement.href = '#' // Needed to turn the cursor into a hand.
+      this.element.appendChild(showMoreElement)
+    }
   }
 
   expand(event) {

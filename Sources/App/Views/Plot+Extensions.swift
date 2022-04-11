@@ -64,6 +64,7 @@ extension Node where Context: HTML.BodyContext {
             .data(named: "overflowing-list-overflow-message-value", value: overflowMessage),
             .data(named: "overflowing-list-overflow-height-value", value: String(overflowHeight)),
             .data(named: "overflowing-list-collapsed-value", value: String(true)),
+            .data(named: "action", value: "turbo:load@document->overflowing-list#addShowMoreLinkIfNeeded"),
             .ul(
                 .data(named: "overflowing-list-target", value: "list"),
                 .unwrap(listClass) { .class($0) },
