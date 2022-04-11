@@ -47,12 +47,15 @@ extension HomeIndex.Model {
             let stats = stats,
             let packageCount = Self.numberFormatter.string(from: NSNumber(value: stats.packageCount))
         else { return nil }
-        return "Indexing \(packageCount) packages"
+        return "\(packageCount) packages"
     }
     
     func statsClause() -> Node<HTML.BodyContext>? {
         guard let description = statsDescription() else { return nil }
-        return .small(.text(description))
+        return .small(
+            .text("Indexing "),
+            .text(description)
+        )
     }
     
     func recentPackagesSection() -> Node<HTML.ListContext> {
