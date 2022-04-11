@@ -15,41 +15,39 @@
 import Fluent
 import SQLKit
 
-struct RemoveVersionCountFromStats: Migration {
+struct RemoveVersionCountFromStats: AsyncMigration {
     let dropSQL: SQLQueryString = "DROP MATERIALIZED VIEW stats"
 
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
+    func prepare(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        return db.raw(dropSQL).run()
-            .flatMap { db.raw(
-                """
-                -- v1
-                CREATE MATERIALIZED VIEW stats AS
-                SELECT
-                NOW() AS date,
-                (SELECT COUNT(*) FROM packages) AS package_count
-                """).run()
-            }
+        try await db.raw(dropSQL).run()
+        try await db.raw(
+            """
+            -- v1
+            CREATE MATERIALIZED VIEW stats AS
+            SELECT
+            NOW() AS date,
+            (SELECT COUNT(*) FROM packages) AS package_count
+            """).run()
     }
 
-    func revert(on database: Database) -> EventLoopFuture<Void> {
+    func revert(on database: Database) async throws {
         guard let db = database as? SQLDatabase else {
             fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
         }
 
-        return db.raw(dropSQL).run()
-            .flatMap { db.raw(
-                """
-                -- v0
-                CREATE MATERIALIZED VIEW stats AS
-                SELECT
-                NOW() AS date,
-                (SELECT COUNT(*) FROM packages) AS package_count,
-                (SELECT COUNT(*) FROM versions) AS version_count
-                """).run()
-            }
+        try await db.raw(dropSQL).run()
+        try await db.raw(
+            """
+            -- v0
+            CREATE MATERIALIZED VIEW stats AS
+            SELECT
+            NOW() AS date,
+            (SELECT COUNT(*) FROM packages) AS package_count,
+            (SELECT COUNT(*) FROM versions) AS version_count
+            """).run()
     }
 }
