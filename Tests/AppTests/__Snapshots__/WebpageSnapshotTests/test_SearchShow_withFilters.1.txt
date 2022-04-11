@@ -163,7 +163,7 @@
             <div>
               <section class="author_results">
                 <h4>Matching authors</h4>
-                <div data-controller="overflowing-list" data-overflowing-list-overflow-message-value="Show more authors…" data-overflowing-list-overflow-height-value="129" data-overflowing-list-collapsed-value="true">
+                <div data-controller="overflowing-list" data-overflowing-list-overflow-message-value="Show more authors…" data-overflowing-list-overflow-height-value="129" data-overflowing-list-collapsed-value="true" data-action="turbo:load@document->overflowing-list#addShowMoreLinkIfNeeded">
                   <ul data-overflowing-list-target="list">
                     <li>
                       <a href="/Apple">Apple</a>
@@ -179,7 +179,7 @@
               </section>
               <section class="keyword_results">
                 <h4>Matching keywords</h4>
-                <div data-controller="overflowing-list" data-overflowing-list-overflow-message-value="Show more keywords…" data-overflowing-list-overflow-height-value="260" data-overflowing-list-collapsed-value="true">
+                <div data-controller="overflowing-list" data-overflowing-list-overflow-message-value="Show more keywords…" data-overflowing-list-overflow-height-value="260" data-overflowing-list-collapsed-value="true" data-action="turbo:load@document->overflowing-list#addShowMoreLinkIfNeeded">
                   <ul data-overflowing-list-target="list" class="keywords">
                     <li>
                       <a href="/keywords/keyword1">keyword1</a>
