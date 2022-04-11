@@ -195,7 +195,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkg2.score, 25)
         
         // ensure stats, recent packages, and releases are refreshed
-        XCTAssertEqual(try Stats.fetch(on: app.db).wait(), .init(packageCount: 2, versionCount: 6))
+        XCTAssertEqual(try Stats.fetch(on: app.db).wait(), .init(packageCount: 2))
         XCTAssertEqual(try RecentPackage.fetch(on: app.db).wait().count, 2)
         XCTAssertEqual(try RecentRelease.fetch(on: app.db).wait().count, 2)
     }
