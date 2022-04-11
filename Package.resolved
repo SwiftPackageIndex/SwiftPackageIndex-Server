@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "3c06388997a1ee72e97bcd752aff47d5b64722f5",
-          "version": "1.23.2"
+          "revision": "63c13b1fcc5266d35df676a8e75bbb602497f12b",
+          "version": "1.23.4"
         }
       },
       {
@@ -141,8 +141,8 @@
         "repositoryURL": "https://github.com/vapor/sql-kit.git",
         "state": {
           "branch": null,
-          "revision": "9cc30f8cef132e91a07e36005612b37f918731fc",
-          "version": "3.16.0"
+          "revision": "afc74d888649f2b2a2f8cc7963be5eb179409610",
+          "version": "3.17.0"
         }
       },
       {
@@ -161,6 +161,15 @@
           "branch": null,
           "revision": "d3e04a9d4b3833363fb6192065b763310b156d54",
           "version": "1.3.1"
+        }
+      },
+      {
+        "package": "swift-case-paths",
+        "repositoryURL": "https://github.com/pointfreeco/swift-case-paths",
+        "state": {
+          "branch": null,
+          "revision": "241301b67d8551c26d8f09bd2c0e52cc49f18007",
+          "version": "0.8.0"
         }
       },
       {
@@ -258,7 +267,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "release/5.6",
-          "revision": "d53983abc7d1628a47ee26b24cbf35b06ac50f6e",
+          "revision": "376bed01fba16ea4cd9821793b0f153eb2d29f2f",
           "version": null
         }
       },
@@ -267,8 +276,8 @@
         "repositoryURL": "https://github.com/pointfreeco/swift-parsing.git",
         "state": {
           "branch": null,
-          "revision": "1d3aa2f359388b67c16000556830645382cd5c4f",
-          "version": "0.8.0"
+          "revision": "edb72e8022cc6fc7064eedace4d37e0df18a08f5",
+          "version": "0.9.0"
         }
       },
       {
@@ -285,7 +294,7 @@
         "repositoryURL": "https://github.com/apple/swift-tools-support-core.git",
         "state": {
           "branch": "release/5.6",
-          "revision": "107e570e3565920174d5a25bc3a0340b32d16042",
+          "revision": "f6c8048a76e280d0f14cc378b8b5c3cfb77c61fb",
           "version": null
         }
       },
@@ -303,8 +312,8 @@
         "repositoryURL": "https://github.com/scinfu/SwiftSoup.git",
         "state": {
           "branch": null,
-          "revision": "13ba661fd1146967270fca92ce8195b223631436",
-          "version": "2.3.8"
+          "revision": "41e7c263fb8c277e980ebcb9b0b5f6031d3d4886",
+          "version": "2.4.2"
         }
       },
       {
@@ -312,8 +321,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "5861bf9e2cff2c4cb0dcfb0c15ecfaa8bc5630e0",
-          "version": "4.55.3"
+          "revision": "a2c1e5d9903103e6f0c458e84e6bd11effd0e4a1",
+          "version": "4.55.4"
         }
       },
       {
