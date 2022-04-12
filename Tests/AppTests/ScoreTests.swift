@@ -25,83 +25,83 @@ class ScoreTests: AppTestCase {
                                            likeCount: 0,
                                            isArchived: false,
                                            numberOfDependencies: nil)),
-                       0)
+                       20)
         XCTAssertEqual(Score.compute(.init(licenseKind: .incompatibleWithAppStore,
                                            releaseCount: 0,
                                            likeCount: 0,
                                            isArchived: false,
                                            numberOfDependencies: nil)),
-                       3)
+                       23)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 0,
                                            likeCount: 0,
                                            isArchived: false,
                                            numberOfDependencies: nil)),
-                       10)
+                       30)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 10,
                                            likeCount: 0,
                                            isArchived: false,
                                            numberOfDependencies: nil)),
-                       20)
+                       40)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 10,
                                            likeCount: 50,
                                            isArchived: false,
                                            numberOfDependencies: nil)),
-                       30)
+                       50)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 10,
                                            likeCount: 50,
                                            isArchived: true,
                                            numberOfDependencies: nil)),
-                       20)
+                       30)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: nil)),
-                       67)
+                       87)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 4)),
-                       69)
+                       89)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2)),
-                       72)
+                       92)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().addingDays(-400))),
-                       72)
+                       92)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().addingDays(-300))),
-                       77)
+                       97)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().addingDays(-100))),
-                       82)
+                       102)
         XCTAssertEqual(Score.compute(.init(licenseKind: .compatibleWithAppStore,
                                            releaseCount: 20,
                                            likeCount: 20_000,
                                            isArchived: false,
                                            numberOfDependencies: 2,
                                            lastActivityAt: Current.date().addingDays(-10))),
-                       87)
+                       107)
     }
     
     func test_compute_package_versions() throws {
@@ -123,7 +123,7 @@ class ScoreTests: AppTestCase {
             .wait()
 
         // MUT
-        XCTAssertEqual(Score.compute(package: jpr, versions: versions), 62)
+        XCTAssertEqual(Score.compute(package: jpr, versions: versions), 82)
     }
 
 }

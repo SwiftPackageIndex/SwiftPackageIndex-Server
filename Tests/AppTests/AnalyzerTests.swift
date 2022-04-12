@@ -191,8 +191,8 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(targets.map(\.name), ["t1", "t1", "t1", "t2", "t2", "t2"])
         
         // validate score
-        XCTAssertEqual(pkg1.score, 15)
-        XCTAssertEqual(pkg2.score, 25)
+        XCTAssertEqual(pkg1.score, 35)
+        XCTAssertEqual(pkg2.score, 45)
         
         // ensure stats, recent packages, and releases are refreshed
         XCTAssertEqual(try Stats.fetch(on: app.db).wait(), .init(packageCount: 2))
