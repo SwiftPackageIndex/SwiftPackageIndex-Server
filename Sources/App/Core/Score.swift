@@ -28,7 +28,7 @@ enum Score {
         var score = 0
         
         // Is the package archived and no longer receiving updates?
-        if candidate.isArchived == false { score += 10 }
+        if candidate.isArchived == false { score += 20 }
         
         // Is the license open-source and compatible with the App Store?
         switch candidate.licenseKind {
