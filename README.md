@@ -16,20 +16,20 @@ We also want to express our heartfelt thanks to all our sponsors. Your contribut
 
 ### Corporate sponsors
 
-[![Stream logo](.readme-images/stream-logo.png)](https://getstream.io/chat/sdk/)
+[![Stream logo](.readme-images/stream-logo.png)](https://getstream.io/chat/sdk/)<br>
 Build real-time chat messaging in less time. Rapidly ship highly reliable chat in-app messaging with Stream's SDK. [Get started](https://getstream.io/chat/sdk/).
 
 ### Hosting sponsors
 
-[![MacStadium logo](.readme-images/macstadium-logo.png)](https://www.macstadium.com/)
+[![MacStadium logo](.readme-images/macstadium-logo.png)](https://www.macstadium.com/)<br>
 Create, build, test, or manage your iOS and macOS projects with simple, secure, and scalable Mac solutions. [Find out more](https://getstream.io/chat/sdk/).
 
-[![Microsoft Azure logo](.readme-images/azure-logo.png)](https://azure.microsoft.com/en-us/)
+[![Microsoft Azure logo](.readme-images/azure-logo.png)](https://azure.microsoft.com/en-us/)<br>
 Accelerate your move to the cloud and unify management of all your resources with Azure tools and guidance. [Sign up now](https://azure.microsoft.com/en-us/).
 
 ### Community sponsors
 
-[![Community sponsors](.readme-images/community-sponsors.png)](https://github.com/sponsors/SwiftPackageIndex)
+[![Community sponsors](.readme-images/community-sponsors.png)](https://github.com/sponsors/SwiftPackageIndex)<br>
 The support of this community means everything to us. Thank you to _everyone_ who sponsors this project via [GitHub sponsors](https://github.com/sponsors/SwiftPackageIndex).
 
 ## Contributing
