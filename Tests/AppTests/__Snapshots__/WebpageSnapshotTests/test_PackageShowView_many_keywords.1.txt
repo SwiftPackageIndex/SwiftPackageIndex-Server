@@ -497,9 +497,8 @@
               <a href="https://twitter.com/swiftpackages">Twitter</a>
             </li>
           </ul>
-          <small>Kindly hosted by
-            <a href="https://www.macstadium.com/">MacStadium</a>and
-            <a href="https://azure.microsoft.com/en-us/">Microsoft Azure</a>
+          <small>The Swift Package Index is entirely funded by community sponsorship. Thank you to 
+            <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship">all our sponsors for their generosity</a>.
           </small>
         </nav>
       </div>
