@@ -116,8 +116,16 @@ footer {
     }
   }
 
-  small a {
-    font-size: 12px;
+  small {
+    text-align: center;
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      margin-top: 10px;
+    }
+
+    a {
+      font-size: 12px;
+    }
   }
 
   ul {
