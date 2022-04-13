@@ -8,6 +8,30 @@ The [Swift Package Index](https://swiftpackageindex.com) is a search engine for 
 
 All participation in this project, whether contributing code, communicating in discussions or issues, or pull requests, is subject to our code of conduct. Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
+## Funding and Sponsorship
+
+The Swift Package Index is a community project, and we rely on external support and funding to keep it going. If you'd like to help, you can [sponsor the project today](https://github.com/sponsors/SwiftPackageIndex) to support ongoing feature development and essential maintenance. If your company would like to become a corporate sponsor, please [get in touch](mailto:swiftpackageindex@gmail.com).
+
+We also want to express our heartfelt thanks to all our sponsors. Your contributions make this project possible. ❤️
+
+### Corporate sponsors
+
+[![Stream logo](.readme-images/stream-logo.png)](https://getstream.io/chat/sdk/)
+Build real-time chat messaging in less time. Rapidly ship highly reliable chat in-app messaging with Stream's SDK. [Get started](https://getstream.io/chat/sdk/).
+
+### Hosting sponsors
+
+[![MacStadium logo](.readme-images/macstadium-logo.png)](https://www.macstadium.com/)
+Create, build, test, or manage your iOS and macOS projects with simple, secure, and scalable Mac solutions. [Find out more](https://getstream.io/chat/sdk/).
+
+[![Microsoft Azure logo](.readme-images/azure-logo.png)](https://azure.microsoft.com/en-us/)
+Accelerate your move to the cloud and unify management of all your resources with Azure tools and guidance. [Sign up now](https://azure.microsoft.com/en-us/).
+
+### Community sponsors
+
+[![Community sponsors](.readme-images/community-sponsors.png)](https://github.com/sponsors/SwiftPackageIndex)
+The support of this community means everything to us. Thank you to _everyone_ who sponsors this project via [GitHub sponsors](https://github.com/sponsors/SwiftPackageIndex).
+
 ## Contributing
 
 There are many ways to contribute to the Swift Package Index. Whether it's helping to promote the site, suggesting or discussing a new feature, reporting a bug if you find one, through to helping with bug fixing, or the design/development of the software, we'd love to have you as a contributor.
