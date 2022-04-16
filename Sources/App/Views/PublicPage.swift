@@ -373,16 +373,12 @@ class PublicPage {
                         )
                     ),
                     .small(
-                        .text("Kindly hosted by"),
+                        .text("The Swift Package Index is entirely funded by community sponsorship. Thank you to "),
                         .a(
-                            .href("https://www.macstadium.com/"),
-                            "MacStadium"
+                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship"),
+                            "all our sponsors for their generosity"
                         ),
-                        .text("and"),
-                        .a(
-                            .href("https://azure.microsoft.com/en-us/"),
-                            "Microsoft Azure"
-                        )
+                        .text(".")
                     )
                 )
             )
