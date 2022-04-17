@@ -17,7 +17,7 @@ We also want to express our heartfelt thanks to all our sponsors. Your contribut
 ### Corporate sponsors
 
 [![Stream logo](.readme-images/stream-logo.png)](https://getstream.io/chat/sdk/)<br>
-Build real-time chat messaging in less time. Rapidly ship highly reliable chat in-app messaging with Stream's SDK. [Get started](https://getstream.io/chat/sdk/).
+Build real-time chat messaging in less time. Rapidly ship highly reliable chat in-app messaging with Stream's SDK. [Get started](https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat).
 
 ### Hosting sponsors
 
