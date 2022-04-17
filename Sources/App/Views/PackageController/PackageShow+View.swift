@@ -20,6 +20,13 @@ enum PackageShow {
     
     class View: PublicPage {
         
+        private static let dateFormatter: DateFormatter = {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            
+            return formatter
+        }()
+        
         let model: Model
         let packageSchema: PackageSchema?
 
@@ -117,7 +124,8 @@ enum PackageShow {
                     .text("JavaScript must be enabled to load the README and Release Notes tabs.")
                 ),
                 readmeSection(),
-                releaseSection()
+                releaseSection(),
+                visibleMetadataSection()
             )
         }
 
@@ -140,7 +148,10 @@ enum PackageShow {
                     .hr(
                         .class("minor")
                     ),
-                    sidebarInfoForPackageAuthors()
+                    sidebarInfoForPackageAuthors(),
+                    .hr(
+                        .class("minor")
+                    )
                 )
             )
         }
@@ -255,6 +266,15 @@ enum PackageShow {
                     .text(".")
                 )
             )
+        }
+        func visibleMetadataSection() -> Node<HTML.BodyContext> {
+            .unwrap(packageSchema) {
+                .section(
+                    .hr(),
+                    .p(.small(.text("Published \(Self.dateFormatter.string(from:$0.datePublished)) - Last updated: \(Self.dateFormatter.string(from:$0.dateModified))")))
+                )
+            }
+            
         }
 
         func readmeSection() -> Node<HTML.BodyContext> {
