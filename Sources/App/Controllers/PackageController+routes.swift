@@ -90,18 +90,22 @@ struct PackageController {
             .map { PackageReleases.View(model: $0).document() }
     }
 
-    func builds(req: Request) throws -> EventLoopFuture<HTML> {
+    func builds(req: Request) async throws -> HTML {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
         else {
-            return req.eventLoop.future(error: Abort(.notFound))
+            throw Abort(.notFound)
         }
-        return BuildsRoute
-            .query(on: req.db, owner: owner, repository: repository)
-            .map(BuildIndex.Model.init(packageInfo:buildInfo:))
-            .unwrap(or: Abort(.notFound))
-            .map { BuildIndex.View(path: req.url.path, model: $0).document() }
+        
+        let (packageInfo, buildInfo) = try await BuildsRoute.query(on: req.db,
+                                                                   owner: owner,
+                                                                   repository: repository)
+
+        guard let model = BuildIndex.Model(packageInfo: packageInfo, buildInfo: buildInfo)
+        else { throw Abort(.notFound) }
+
+        return BuildIndex.View(path: req.url.path, model: model).document()
     }
 
     func maintainerInfo(req: Request) throws -> EventLoopFuture<HTML> {
@@ -147,7 +151,7 @@ extension PackageController {
         init(db: Database, owner: String, repository: String) async throws {
             do {
                 let (model, schema) = try await ShowRoute
-                    .query(on: db, owner: owner, repository: repository).get()
+                    .query(on: db, owner: owner, repository: repository)
                 self = .packageAvailable(model, schema)
             } catch let error as AbortError where error.status == .notFound {
                 // When the package is not in the index, we check if it's available on GitHub.

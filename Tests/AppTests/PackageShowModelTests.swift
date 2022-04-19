@@ -21,17 +21,17 @@ import SnapshotTesting
 class PackageShowModelTests: SnapshotTestCase {
     typealias PackageResult = PackageController.PackageResult
 
-    func test_init_no_packageName() throws {
+    func test_init_no_packageName() async throws {
         // Tests behaviour when we're lacking data
         // setup package without package name
         let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db).wait()
+        try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
         let version = try App.Version(package: pkg,
                                       latest: .defaultBranch,
                                       packageName: nil,
                                       reference: .branch("main"))
-        try version.save(on: app.db).wait()
-        let pr = try PackageResult.query(on: app.db, owner: "foo", repository: "bar").wait()
+        try await version.save(on: app.db)
+        let pr = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
 
         // MUT
         let m = PackageShow.Model(result: pr,
@@ -267,14 +267,14 @@ class PackageShowModelTests: SnapshotTestCase {
         }
     }
 
-    func test_languagePlatformInfo() throws {
+    func test_languagePlatformInfo() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg,
-                       defaultBranch: "default",
-                       name: "bar",
-                       owner: "foo").save(on: app.db).wait()
-        try [
+        try await Repository(package: pkg,
+                             defaultBranch: "default",
+                             name: "bar",
+                             owner: "foo").save(on: app.db)
+        try await [
             try App.Version(package: pkg, reference: .branch("branch")),
             try App.Version(package: pkg,
                             commitDate: daysAgo(1),
@@ -295,10 +295,10 @@ class PackageShowModelTests: SnapshotTestCase {
                             reference: .tag(.init(3, 0, 0, "beta")),
                             supportedPlatforms: [.macos("10.14"), .ios("13")],
                             swiftVersions: ["5", "5.2"].asSwiftVersions),
-        ].save(on: app.db).wait()
-        let pr = try PackageResult.query(on: app.db,
-                                         owner: "foo",
-                                         repository: "bar").wait()
+        ].save(on: app.db)
+        let pr = try await PackageResult.query(on: app.db,
+                                               owner: "foo",
+                                               repository: "bar")
 
         // MUT
         let lpInfo = PackageShow.Model

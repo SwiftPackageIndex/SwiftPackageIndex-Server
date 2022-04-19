@@ -21,32 +21,32 @@ class PackageController_ShowRouteTests: AppTestCase {
 
     typealias BuildDetails = (reference: Reference, platform: Build.Platform, swiftVersion: SwiftVersion, status: Build.Status)
 
-    func test_History_query() throws {
+    func test_History_query() async throws {
         // setup
         Current.date = {
             Date.init(timeIntervalSince1970: 1608000588)  // Dec 15, 2020
         }
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg,
-                       commitCount: 1433,
-                       defaultBranch: "default",
-                       firstCommitDate: .t0,
-                       name: "bar",
-                       owner: "foo").create(on: app.db).wait()
-        try (0..<10).forEach {
-            try Version(package: pkg,
-                        latest: .defaultBranch,
-                        reference: .branch("main")).create(on: app.db).wait()
-            try Version(package: pkg,
-                        latest: .release,
-                        reference: .tag(.init($0, 0, 0))).create(on: app.db).wait()
+        try await Repository(package: pkg,
+                             commitCount: 1433,
+                             defaultBranch: "default",
+                             firstCommitDate: .t0,
+                             name: "bar",
+                             owner: "foo").create(on: app.db)
+        for idx in (0..<10) {
+            try await Version(package: pkg,
+                              latest: .defaultBranch,
+                              reference: .branch("main")).create(on: app.db)
+            try await Version(package: pkg,
+                              latest: .release,
+                              reference: .tag(.init(idx, 0, 0))).create(on: app.db)
         }
         // add pre-release and default branch - these should *not* be counted as releases
-        try Version(package: pkg, reference: .branch("main")).create(on: app.db).wait()
-        try Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db).wait()
+        try await Version(package: pkg, reference: .branch("main")).create(on: app.db)
+        try await Version(package: pkg, reference: .tag(.init(2, 0, 0, "beta2"), "2.0.0beta2")).create(on: app.db)
 
         // MUT
-        let record = try XCTUnwrap(PackageController.History.query(on: app.db, owner: "foo", repository: "bar").wait())
+        let record = try await PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
 
         // validate
         XCTAssertEqual(
@@ -59,21 +59,21 @@ class PackageController_ShowRouteTests: AppTestCase {
         )
     }
 
-    func test_History_query_no_releases() throws {
+    func test_History_query_no_releases() async throws {
         // setup
         Current.date = {
             Date.init(timeIntervalSince1970: 1608000588)  // Dec 15, 2020
         }
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg,
-                       commitCount: 1433,
-                       defaultBranch: "default",
-                       firstCommitDate: .t0,
-                       name: "bar",
-                       owner: "foo").create(on: app.db).wait()
+        try await Repository(package: pkg,
+                             commitCount: 1433,
+                             defaultBranch: "default",
+                             firstCommitDate: .t0,
+                             name: "bar",
+                             owner: "foo").create(on: app.db)
 
         // MUT
-        let record = try XCTUnwrap(PackageController.History.query(on: app.db, owner: "foo", repository: "bar").wait())
+        let record = try await PackageController.History.query(on: app.db, owner: "foo", repository: "bar").unwrap()
 
         // validate
         XCTAssertEqual(
@@ -86,7 +86,7 @@ class PackageController_ShowRouteTests: AppTestCase {
         )
     }
 
-    func test_History_Record_history() throws {
+    func test_History_Record_historyModel() throws {
         Current.date = { .spiBirthday }
         do {  // all inputs set to non-nil values
             // setup
@@ -99,7 +99,7 @@ class PackageController_ShowRouteTests: AppTestCase {
             )
 
             // MUT
-            let hist = record.history()
+            let hist = record.historyModel()
 
             // validate
             XCTAssertEqual(
@@ -119,7 +119,7 @@ class PackageController_ShowRouteTests: AppTestCase {
                     firstCommitDate: .t0,
                     commitCount: 7,
                     releaseCount: 11
-                ).history()
+                ).historyModel()
             )
             XCTAssertNil(
                 PackageController.History.Record(
@@ -128,41 +128,41 @@ class PackageController_ShowRouteTests: AppTestCase {
                     firstCommitDate: nil,
                     commitCount: 7,
                     releaseCount: 11
-                ).history()
+                ).historyModel()
             )
         }
     }
 
-    func test_ProductCount_query() throws {
+    func test_ProductCount_query() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg,
-                       defaultBranch: "main",
-                       name: "bar",
-                       owner: "foo").create(on: app.db).wait()
+        try await Repository(package: pkg,
+                             defaultBranch: "main",
+                             name: "bar",
+                             owner: "foo").create(on: app.db)
         do {
             let v = try Version(package: pkg,
                                 latest: .defaultBranch,
                                 reference: .branch("main"))
-            try v.save(on: app.db).wait()
-            try Product(version: v, type: .executable, name: "e1")
-                .save(on: app.db).wait()
-            try Product(version: v, type: .library(.automatic), name: "l1")
-                .save(on: app.db).wait()
-            try Product(version: v, type: .library(.static), name: "l2")
-                .save(on: app.db).wait()
+            try await v.save(on: app.db)
+            try await Product(version: v, type: .executable, name: "e1")
+                .save(on: app.db)
+            try await Product(version: v, type: .library(.automatic), name: "l1")
+                .save(on: app.db)
+            try await Product(version: v, type: .library(.static), name: "l2")
+                .save(on: app.db)
         }
         do {  // decoy version
             let v = try Version(package: pkg,
                                 latest: .release,
                                 reference: .tag(1, 2, 3))
-            try v.save(on: app.db).wait()
-            try Product(version: v, type: .library(.automatic), name: "l3")
-                .save(on: app.db).wait()
+            try await v.save(on: app.db)
+            try await Product(version: v, type: .library(.automatic), name: "l3")
+                .save(on: app.db)
         }
 
         // MUT
-        let res = try PackageController.ProductCount.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let res = try await PackageController.ProductCount.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         XCTAssertEqual(res.filter(\.isExecutable).count, 1)
@@ -334,52 +334,52 @@ class PackageController_ShowRouteTests: AppTestCase {
         XCTAssertNil(res?.latest)
     }
 
-    func test_BuildInfo_query() throws {
+    func test_BuildInfo_query() async throws {
         // setup
         do {
             let pkg = try savePackage(on: app.db, "1".url)
-            try Repository(package: pkg,
-                           defaultBranch: "main",
-                           name: "bar",
-                           owner: "foo").save(on: app.db).wait()
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 name: "bar",
+                                 owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
                 (.branch("main"), .ios, .v5_5, .ok),
                 (.branch("main"), .tvos, .v5_4, .failed),
                 (.tag(1, 2, 3), .ios, .v5_5, .ok),
                 (.tag(2, 0, 0, "b1"), .ios, .v5_5, .failed),
             ]
-            try builds.forEach { b in
+            for b in builds {
                 let v = try App.Version(package: pkg,
                                         latest: b.reference.kind,
                                         packageName: "p1",
                                         reference: b.reference)
-                try v.save(on: app.db).wait()
-                try Build(version: v, platform: b.platform, status: b.status, swiftVersion: b.swiftVersion)
-                    .save(on: app.db).wait()
+                try await v.save(on: app.db)
+                try await Build(version: v, platform: b.platform, status: b.status, swiftVersion: b.swiftVersion)
+                    .save(on: app.db)
             }
         }
         do { // unrelated package and build
             let pkg = try savePackage(on: app.db, "2".url)
-            try Repository(package: pkg,
-                           defaultBranch: "main",
-                           name: "bar2",
-                           owner: "foo").save(on: app.db).wait()
+            try await Repository(package: pkg,
+                                 defaultBranch: "main",
+                                 name: "bar2",
+                                 owner: "foo").save(on: app.db)
             let builds: [BuildDetails] = [
                 (.branch("develop"), .ios, .v5_3, .ok),
             ]
-            try builds.forEach { b in
+            for b in builds {
                 let v = try App.Version(package: pkg,
                                         latest: b.reference.kind,
                                         packageName: "p1",
                                         reference: b.reference)
-                try v.save(on: app.db).wait()
-                try Build(version: v, platform: b.platform, status: b.status, swiftVersion: b.swiftVersion)
-                    .save(on: app.db).wait()
+                try await v.save(on: app.db)
+                try await Build(version: v, platform: b.platform, status: b.status, swiftVersion: b.swiftVersion)
+                    .save(on: app.db)
             }
         }
 
         // MUT
-        let res = try PackageController.BuildInfo.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let res = try await PackageController.BuildInfo.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         // just test reference names and some details for `latest`
@@ -398,16 +398,16 @@ class PackageController_ShowRouteTests: AppTestCase {
         XCTAssertEqual(res.swiftVersion?.beta?.referenceName, "2.0.0-b1")
     }
 
-    func test_ShowRoute_query() throws {
+    func test_ShowRoute_query() async throws {
         // ensure ShowRoute.query is wired up correctly (detailed tests are elsewhere)
         // setup
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg, name: "bar", owner: "foo")
-            .save(on: app.db).wait()
-        try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
+        try await Repository(package: pkg, name: "bar", owner: "foo")
+            .save(on: app.db)
+        try await Version(package: pkg, latest: .defaultBranch).save(on: app.db)
 
         // MUT
-        let (model, schema) = try PackageController.ShowRoute.query(on: app.db, owner: "foo", repository: "bar").wait()
+        let (model, schema) = try await PackageController.ShowRoute.query(on: app.db, owner: "foo", repository: "bar")
 
         // validate
         XCTAssertEqual(model.repositoryName, "bar")

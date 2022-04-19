@@ -21,15 +21,15 @@ class PackageShowTests: AppTestCase {
 
     typealias PackageResult = PackageController.PackageResult
 
-    func test_releaseInfo() throws {
+    func test_releaseInfo() async throws {
         // setup
         Current.date = { .t0 }
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg,
-                       defaultBranch: "default",
-                       name: "bar",
-                       owner: "foo").save(on: app.db).wait()
-        try [
+        try await Repository(package: pkg,
+                             defaultBranch: "default",
+                             name: "bar",
+                             owner: "foo").save(on: app.db)
+        try await [
             try Version(package: pkg,
                         latest: nil,
                         reference: .branch("branch")),
@@ -48,10 +48,10 @@ class PackageShowTests: AppTestCase {
                         commitDate: daysAgo(2),
                         latest: .preRelease,
                         reference: .tag(.init(3, 0, 0, "beta"))),
-        ].save(on: app.db).wait()
-        let pr = try PackageResult.query(on: app.db,
-                                         owner: "foo",
-                                         repository: "bar").wait()
+        ].save(on: app.db)
+        let pr = try await PackageResult.query(on: app.db,
+                                               owner: "foo",
+                                               repository: "bar")
 
         // MUT
         let info = PackageShow.releaseInfo(
@@ -67,16 +67,16 @@ class PackageShowTests: AppTestCase {
         XCTAssertEqual(info.latest?.date, "1 day ago")
     }
 
-    func test_releaseInfo_exclude_non_latest() throws {
+    func test_releaseInfo_exclude_non_latest() async throws {
         // Test to ensure that we don't include versions with `latest IS NULL`
         // setup
         Current.date = { .t0 }
         let pkg = try savePackage(on: app.db, "1")
-        try Repository(package: pkg,
-                       defaultBranch: "default",
-                       name: "bar",
-                       owner: "foo").save(on: app.db).wait()
-        try [
+        try await Repository(package: pkg,
+                             defaultBranch: "default",
+                             name: "bar",
+                             owner: "foo").save(on: app.db)
+        try await [
             try Version(package: pkg,
                         commitDate: daysAgo(1),
                         latest: .defaultBranch,
@@ -89,10 +89,10 @@ class PackageShowTests: AppTestCase {
                         commitDate: daysAgo(2),
                         latest: nil,
                         reference: .tag(.init(2, 0, 0, "beta"))),
-        ].save(on: app.db).wait()
-        let pr = try PackageResult.query(on: app.db,
-                                         owner: "foo",
-                                         repository: "bar").wait()
+        ].save(on: app.db)
+        let pr = try await PackageResult.query(on: app.db,
+                                               owner: "foo",
+                                               repository: "bar")
 
         // MUT
         let info = PackageShow.releaseInfo(
