@@ -37,7 +37,7 @@ jobs:
         name: Diff for HTML Changes
         run: git diff --name-only origin/main | grep .html$ | wc -l
       - name: Run Percy
-        if: steps.diff-includes-html-files.value != '0'
+        if: steps.diff-includes-html-files.value != 0
         run: npx @percy/cli snapshot ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
         # env:
         #   PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
