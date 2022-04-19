@@ -53,6 +53,17 @@ jobs:
           DATABASE_HOST: postgres
           DATABASE_PORT: '5432'
 
+  snapshots:
+    name: Snapshots
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Build Front-end
+        run: make build-front-end && cp -a ./Public/* ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
+      - name: Run Percy
+        run: npx @percy/cli ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
+
   # test-macos:
   #   name: Test macOS
   #   runs-on: macOS-latest
