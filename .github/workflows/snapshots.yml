@@ -32,4 +32,4 @@ jobs:
       - name: Exclude NoImageSnapshot Tests
         run: rm ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*_noImageSnapshots*.html
       - name: Percy
-        run: npx @percy/cli ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
+        run: npx @percy/cli snapshot ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
