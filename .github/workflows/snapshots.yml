@@ -33,3 +33,5 @@ jobs:
         run: rm ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*_noImageSnapshots*.html
       - name: Percy
         run: npx @percy/cli snapshot ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
