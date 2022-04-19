@@ -33,7 +33,7 @@ jobs:
         run: rm ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*_noImageSnapshots*.html
       - id: diff-includes-html-files
         name: Diff for HTML Changes
-        run: git diff --name-only main | grep .html$ | wc -l
+        run: git diff --name-only origin/main | grep .html$ | wc -l
       - name: Run Percy
         if: steps.diff-includes-html-files.value != '0'
         run: npx @percy/cli snapshot ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
