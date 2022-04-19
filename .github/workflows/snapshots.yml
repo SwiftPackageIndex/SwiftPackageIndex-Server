@@ -25,13 +25,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Build Front-end
+      - name: Build Front-End
         run: make build-front-end
-      - name: Copy Front-end
+      - name: Copy Front-End
         run: cp -a ./Public/* ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
       - name: Exclude NoImageSnapshot Tests
         run: rm ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*_noImageSnapshots*.html
-      - name: Percy
+      - id: diff-includes-html-files
+        name: Diff for HTML Changes
+        run: git diff --name-only main | grep .html$ | wc -l
+      - name: Run Percy
+        if: steps.diff-includes-html-files.value != '0'
         run: npx @percy/cli snapshot ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
