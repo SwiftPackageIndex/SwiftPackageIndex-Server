@@ -14,6 +14,7 @@
 
 @testable import App
 
+import Foundation
 import SnapshotTesting
 
 class SnapshotTestCase: AppTestCase {
