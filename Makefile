@@ -138,7 +138,7 @@ db-down-test:
 db-reset: db-down db-up migrate
 
 build-front-end:
-	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh node:16-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn build"
+	docker run --rm -v $$PWD:/host -w /host --entrypoint sh node:16-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn build"
 
 serve-front-end:
 	docker run --rm -it -v $$PWD:/host -w /host --entrypoint sh node:16-alpine -c "/usr/local/bin/yarn && /usr/local/bin/yarn serve"
