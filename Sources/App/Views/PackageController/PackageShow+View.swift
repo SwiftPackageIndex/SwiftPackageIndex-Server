@@ -271,7 +271,7 @@ enum PackageShow {
             .unwrap(packageSchema) {
                 .section(
                     .hr(),
-                    .p(.small(.text("Published \(Self.dateFormatter.string(from:$0.datePublished)) - Last updated: \(Self.dateFormatter.string(from:$0.dateModified))")))
+                    .p(.small(.text("First published: \(Self.dateFormatter.string(from:$0.datePublished)) - Last updated: \(Self.dateFormatter.string(from:$0.dateModified))")))
                 )
             }
             
