@@ -20,55 +20,18 @@ import XCTest
 import Plot
 import Ink
 
-
-extension CGSize {
-    static var desktop: Self { CGSize(width: 1200, height: 1500) }
-    static var mobile: Self { CGSize(width: 375, height: 2000) }
-}
-
-
-let configs: [(name: String, size: CGSize)] = [
-    ("desktop", .desktop),
-    ("mobile", .mobile)
-]
-
-
-class WebpageSnapshotTests: WebpageSnapshotTestCase {
+class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_HomeIndexView() throws {
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
         
         assertSnapshot(matching: page, as: .html)
-        
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
     
     func test_PackageShowView() throws {
         let page = { PackageShow.View(path: "", model: .mock, packageSchema: .mock).document() }
         
         assertSnapshot(matching: page, as: .html)
-        
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageShowView_few_keywords() throws {
@@ -77,18 +40,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageShowView_many_keywords() throws {
@@ -100,18 +51,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageShowView_emoji_summary() throws {
@@ -121,18 +60,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         
         assertSnapshot(matching: page, as: .html)
-        
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageShowView_open_source_license() throws {
@@ -142,18 +69,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageShowView_app_store_incompatible_license() throws {
@@ -163,18 +78,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageShowView_other_license() throws {
@@ -184,18 +87,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageShowView_no_license() throws {
@@ -205,18 +96,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
 
         let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
     
     func test_PackageShowView_no_authors_activity() throws {
@@ -228,18 +107,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         
         assertSnapshot(matching: page, as: .html)
-        
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageShowView_single_row_tables() throws {
@@ -275,18 +142,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
         
         assertSnapshot(matching: page, as: .html)
-        
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageShowView_no_builds() throws {
@@ -297,35 +152,11 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageShowView_missingPackage() throws {
         let page = { MissingPackage.View(path: "", model: .mock).document() }
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageReadmeView() throws {
@@ -333,18 +164,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { PackageReadme.View(model: model).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_PackageReadmeView_unparseableReadme() throws {
@@ -352,8 +171,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { PackageReadme.View(model: model).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        // Note: This snapshot test deliberately omits an image snapshot as the HTML being tested has no explicit styling.
     }
 
     func test_PackageReadmeView_noReadme() throws {
@@ -361,8 +178,6 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { PackageReadme.View(model: model).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        // Note: This snapshot test deliberately omits an image snapshot as the HTML being tested has no explicit styling.
     }
 
     func test_PackageReleasesView() throws {
@@ -370,72 +185,24 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { PackageReleases.View(model: model).document() }
         
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
     
     func test_PackageReleasesView_NoModel() throws {
         let page = { PackageReleases.View(model: nil).document() }
         
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_ErrorPageView() throws {
         let page = { ErrorPage.View(path: "", error: Abort(.notFound)).document() }
         
         assertSnapshot(matching: page, as: .html)
-        
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
     
     func test_MarkdownPage() throws {
         let page = { MarkdownPage(path: "", "privacy.md").document() }
         
         assertSnapshot(matching: page, as: .html)
-        
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
     
     func test_MarkdownPageStyling() throws {
@@ -445,110 +212,36 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { MarkdownPage(path: "", html: html).document() }
         
         assertSnapshot(matching: page, as: .html)
-        
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                var mutableSize = $0.size
-                mutableSize.height = 3000
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: mutableSize,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_BuildIndex() throws {
         let page = { BuildIndex.View(path: "", model: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_BuildShow() throws {
         let page = { BuildShow.View(path: "", model: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_BuildMonitorIndex() throws {
         let page = { BuildMonitorIndex.View(path: "", builds: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_MaintainerInfoIndex() throws {
         let page = { MaintainerInfoIndex.View(path: "", model: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
     
     func test_AuthorShow() throws {
         let page = { AuthorShow.View(path: "", model: .mock).document() }
         
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_SearchShow() throws {
@@ -622,54 +315,17 @@ class WebpageSnapshotTests: WebpageSnapshotTestCase {
         let page = { SearchShow.View(path: "", model: .mock(results: mockResults)).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
     
     func test_SearchShow_withFilters() throws {
         let page = { SearchShow.View(path: "", model: .mockWithFilter()).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
 
     func test_KeywordShow() throws {
         let page = { KeywordShow.View(path: "", model: .mock).document() }
 
         assertSnapshot(matching: page, as: .html)
-
-        #if os(macOS)
-        if runImageSnapshotTests {
-            configs.forEach {
-                assertSnapshot(matching: page,
-                               as: .image(precision: defaultPrecision,
-                                          size: $0.size,
-                                          baseURL: TempWebRoot.baseURL),
-                               named: $0.name)
-            }
-        }
-        #endif
     }
-
 }
