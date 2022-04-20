@@ -350,35 +350,39 @@
             </section>
           </section>
         </article>
-        <tab-bar>
+        <nav data-controller="tab-bar" data-action="popstate@window->tab-bar#setTabFromLocation">
           <ul>
-            <li id="readme" class="active" data-tab="readme">README</li>
-            <li id="releases" data-tab="releases">Release Notes</li>
+            <li id="readme" class="active" data-tab-bar-target="tab" data-action="click->tab-bar#updateTab">README</li>
+            <li id="releases" data-tab-bar-target="tab" data-action="click->tab-bar#updateTab">Release Notes</li>
           </ul>
-        </tab-bar>
-        <noscript>JavaScript must be enabled to load the README and Release Notes tabs.</noscript>
-        <turbo-frame id="readme_page" src="/Alamo/Alamofire/readme" data-tab-page="readme" class="tab_page">
-          <div class="min_height_spacer">
-            <div class="spinner">
-              <div class="rect1"></div>
-              <div class="rect2"></div>
-              <div class="rect3"></div>
-              <div class="rect4"></div>
-              <div class="rect5"></div>
-            </div>
-          </div>
-        </turbo-frame>
-        <turbo-frame id="releases_page" src="/Alamo/Alamofire/releases" data-tab-page="releases" class="tab_page hidden">
-          <div class="min_height_spacer">
-            <div class="spinner">
-              <div class="rect1"></div>
-              <div class="rect2"></div>
-              <div class="rect3"></div>
-              <div class="rect4"></div>
-              <div class="rect5"></div>
-            </div>
-          </div>
-        </turbo-frame>
+          <section data-controller="scroll-position-restoration" data-scroll-position-restoration-cache-key-value="cached-readme-height">
+            <turbo-frame id="readme_content" src="/Alamo/Alamofire/readme" data-controller="readme" data-action="turbo:frame-load->readme#fixReadmeAnchors turbo:frame-load->readme#navigateToAnchorFromLocation turbo:frame-load->scroll-position-restoration#persistHeightToCache" data-tab-bar-target="content">
+              <div>
+                <div class="spinner">
+                  <div class="rect1"></div>
+                  <div class="rect2"></div>
+                  <div class="rect3"></div>
+                  <div class="rect4"></div>
+                  <div class="rect5"></div>
+                </div>
+              </div>
+            </turbo-frame>
+          </section>
+          <section>
+            <turbo-frame id="releases_content" src="/Alamo/Alamofire/releases" data-tab-bar-target="content" class="hidden">
+              <div>
+                <div class="spinner">
+                  <div class="rect1"></div>
+                  <div class="rect2"></div>
+                  <div class="rect3"></div>
+                  <div class="rect4"></div>
+                  <div class="rect5"></div>
+                </div>
+              </div>
+            </turbo-frame>
+          </section>
+          <noscript>JavaScript must be enabled to load the README and Release Notes tabs.</noscript>
+        </nav>
         <section>
           <hr/>
           <p>
