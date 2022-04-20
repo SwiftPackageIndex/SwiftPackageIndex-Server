@@ -32,12 +32,12 @@ jobs:
       - name: Copy Front-End
         run: cp -a ./Public/* ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
       - name: Diff for HTML Changes
-        id: diff-includes-html-files
+        id: front-end-changes
         run: |
           filecount=$(git diff origin/main --shortstat "**.html" "**.css" "**.js" | awk '{print $1}')
           echo "::set-output name=matching-files::${filecount:-0}"
       - name: Run Percy
-        if: steps.diff-includes-html-files.outputs.matching-files != '0'
+        if: steps.front-end-changes.outputs.matching-files != '0'
         run: npx @percy/cli snapshot ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
