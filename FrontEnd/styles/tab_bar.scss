@@ -17,17 +17,12 @@
   Tab Bar Element
 ---------------------------------------------------------------------------- */
 
-tab-bar {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  background-color: var(--tab-bar-background);
-  box-shadow: inset 0 -3px var(--tab-bar-border);
-  padding-left: 10px;
-  display: block;
-
-  ul {
-    margin: 0;
+nav[data-controller='tab-bar'] {
+  > ul {
+    margin: 20px 0;
     padding: 0;
+    background-color: var(--tab-bar-background);
+    box-shadow: inset 0 -3px var(--tab-bar-border);
     list-style-type: none;
     display: flex;
     gap: 10px;
@@ -51,11 +46,4 @@ tab-bar {
 
 [data-tab-page].hidden {
   display: none;
-}
-
-.tab_page {
-  .min_height_spacer {
-    // Having a large gap here allows README pages to restore their scroll position on reload.
-    min-height: 10000px;
-  }
 }
