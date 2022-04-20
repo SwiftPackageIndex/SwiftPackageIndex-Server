@@ -1,0 +1,9 @@
+version: 2
+static:
+  files: '**/*.{html,htm}'
+  ignore: '**/*noImageSnapshots*.html'
+snapshot:
+  widths:
+    - 375
+    - 1280
+  minHeight: 1024

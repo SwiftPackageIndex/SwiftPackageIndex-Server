@@ -31,15 +31,13 @@ jobs:
         run: make build-front-end
       - name: Copy Front-End
         run: cp -a ./Public/* ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
-      - name: Exclude NoImageSnapshot Tests
-        run: rm ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*_noImageSnapshots*.html
-      - id: diff-includes-html-files
-        name: Diff for HTML Changes
+      - name: Diff for HTML Changes
+        id: diff-includes-html-files
         run: |
           filecount=$(git diff origin/main --shortstat "**.html" "**.css" "**.js" | awk '{print $1}')
           echo "::set-output name=matching-files::${filecount:-0}"
       - name: Run Percy
         if: steps.diff-includes-html-files.outputs.matching-files != '0'
-        run: npx @percy/cli snapshot ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
+        run: npx @percy/cli snapshot --verbose ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
