@@ -24,8 +24,6 @@ import { SPICopyableInput } from './scripts/copy_buttons.js'
 import { SPIPackageListNavigation } from './scripts/package_list_navigation.js'
 import { SPIPlaygroundsAppLinkFallback } from './scripts/playgrounds_app_link.js'
 import { SPISearchFilterSuggestions } from './scripts/search_filter_suggestions.js'
-import { SPITabBarElement } from './scripts/tab_bar_element.js'
-import { SPIWindowMonitor } from './scripts/window_monitor.js'
 
 new SPIAutofocus()
 new SPIBuildLogNavigation()
@@ -33,15 +31,5 @@ new SPICopyableInput()
 new SPIPackageListNavigation()
 new SPIPlaygroundsAppLinkFallback()
 new SPISearchFilterSuggestions()
-new SPIWindowMonitor()
-
-document.addEventListener('turbo:load', () => {
-  defineCustomElement('tab-bar', SPITabBarElement)
-})
-
-function defineCustomElement(elementName, klass) {
-  if (customElements.get(elementName)) return
-  customElements.define(elementName, klass)
-}
 
 //# sourceMappingURL=main.js.map

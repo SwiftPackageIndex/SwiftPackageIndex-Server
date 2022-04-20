@@ -43,10 +43,6 @@ extension Node where Context: HTML.BodyContext {
         }
     }
 
-    static func spiTabBar(_ nodes: Node<HTML.BodyContext>...) -> Self {
-        .element(named: "tab-bar", nodes: nodes)
-    }
-
     static func spiOverflowingList(overflowMessage: String,
                                    overflowHeight: Int,
                                    listClass: String? = nil,
