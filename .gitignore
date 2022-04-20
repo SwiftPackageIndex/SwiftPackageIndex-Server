@@ -21,6 +21,8 @@ Public/main.js
 Public/main.js.map
 Public/main.css
 Public/main.css.map
+Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*
+!Tests/AppTests/__Snapshots__/WebpageSnapshotTests/*.html
 
 .nova/
 /.vscode/
