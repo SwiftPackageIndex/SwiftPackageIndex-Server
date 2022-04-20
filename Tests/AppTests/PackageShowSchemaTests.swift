@@ -26,7 +26,7 @@ class PackageShowSchemaTests: SnapshotTestCase {
             licenseUrl: "License",
             version: "Version",
             repositoryUrl: "URL",
-            dateCreated: Date(timeIntervalSince1970: 0),
+            datePublished: Date(timeIntervalSince1970: 0),
             dateModified: Date(timeIntervalSinceReferenceDate: 0),
             keywords: ["foo", "bar", "baz"]
         )
@@ -40,7 +40,7 @@ class PackageShowSchemaTests: SnapshotTestCase {
         XCTAssertEqual(schema.version, "Version")
         XCTAssertEqual(schema.codeRepository, "URL")
         XCTAssertEqual(schema.url, "http://localhost:8080/Owner/Name")
-        XCTAssertEqual(schema.dateCreated, Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(schema.datePublished, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(schema.dateModified, Date(timeIntervalSinceReferenceDate: 0))
         XCTAssertEqual(schema.keywords, ["foo", "bar", "baz"])
         

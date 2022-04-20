@@ -27,7 +27,7 @@ extension PackageShow.PackageSchema {
             licenseUrl: "https://github.com/Alamofire/Alamofire/blob/master/LICENSE",
             version: "5.2.0",
             repositoryUrl: "https://github.com/Alamofire/Alamofire",
-            dateCreated: .init(timeIntervalSince1970: 0),
+            datePublished: .init(timeIntervalSince1970: 0),
             dateModified: .init(timeIntervalSinceReferenceDate: 0),
             keywords: ["foo", "bar", "baz"]
         )

@@ -20,7 +20,7 @@ extension PackageShow {
         enum CodingKeys: String, CodingKey {
             case context = "@context", type = "@type"
             case identifier, name, description, license, version,
-                 codeRepository, url, dateCreated, dateModified,
+                 codeRepository, url, datePublished, dateModified,
                  sourceOrganization, programmingLanguage, keywords
         }
         
@@ -34,7 +34,7 @@ extension PackageShow {
         let version: String?
         let codeRepository: String
         let url: String
-        let dateCreated: Date?
+        let datePublished: Date?
         let dateModified: Date?
         let sourceOrganization: OrganisationSchema
         let programmingLanguage: ComputerLanguageSchema
@@ -48,7 +48,7 @@ extension PackageShow {
             licenseUrl: String?,
             version: String?,
             repositoryUrl: String,
-            dateCreated: Date?,
+            datePublished: Date?,
             dateModified: Date?,
             keywords: [String]
         ) {
@@ -59,7 +59,7 @@ extension PackageShow {
             self.version = version
             self.codeRepository = repositoryUrl
             self.url = SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).absoluteURL()
-            self.dateCreated = dateCreated
+            self.datePublished = datePublished
             self.dateModified = dateModified
             self.sourceOrganization = OrganisationSchema(legalName: organisationName ?? repositoryOwner)
             self.programmingLanguage = ComputerLanguageSchema(name: "Swift", url: "https://swift.org/")
@@ -88,10 +88,16 @@ extension PackageShow {
                     releaseVersion: result.releaseVersion,
                     preReleaseVersion: result.preReleaseVersion).stable?.link.label,
                 repositoryUrl: package.url.droppingGitExtension,
-                dateCreated: repository.firstCommitDate,
-                dateModified: repository.lastCommitDate,
+                datePublished: repository.firstCommitDate,
+                dateModified: repository.lastActivityAt,
                 keywords: repository.keywords
             )
+        }
+        
+        var publicationDates: (datePublished: Date, dateModified: Date)? {
+            guard let datePublished = datePublished, let dateModified = dateModified
+            else { return nil }
+            return (datePublished, dateModified)
         }
     }
     
