@@ -38,6 +38,6 @@ jobs:
           echo "::set-output name=matching-files::${filecount:-0}"
       - name: Run Percy
         if: steps.diff-includes-html-files.outputs.matching-files != '0'
-        run: npx @percy/cli snapshot --verbose ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
+        run: npx @percy/cli snapshot ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
