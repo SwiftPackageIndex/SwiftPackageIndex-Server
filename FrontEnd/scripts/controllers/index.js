@@ -17,9 +17,11 @@ import { OverflowingListController } from './overflowing_list_controller.js'
 import { ModalPanelController } from './modal_panel_controller.js'
 import { ReadmeController } from './readme_controller.js'
 import { TabBarController } from './tab_bar_controller.js'
+import { ScrollPositionRestorationController } from './scroll_position_restoration_controller.js'
 
 const application = Application.start()
 application.register('overflowing-list', OverflowingListController)
 application.register('modal-panel', ModalPanelController)
 application.register('readme', ReadmeController)
 application.register('tab-bar', TabBarController)
+application.register('scroll-position-restoration', ScrollPositionRestorationController)

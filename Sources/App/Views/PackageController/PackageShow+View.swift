@@ -304,35 +304,36 @@ enum PackageShow {
         }
 
         func readmeSection() -> Node<HTML.BodyContext> {
-            .turboFrame(
-                id: "readme_content",
-                source: SiteURL.package(.value(model.repositoryOwner),
-                                        .value(model.repositoryName),
-                                        .readme).relativeURL(),
-                .data(named: "controller", value: "readme"),
-                .data(named: "action", value: """
+            .section(
+                .data(named: "controller", value: "scroll-position-restoration"),
+                .data(named: "scroll-position-restoration-cache-key-value", value: "cached-readme-height"),
+                .turboFrame(
+                    id: "readme_content",
+                    source: SiteURL.package(.value(model.repositoryOwner),
+                                            .value(model.repositoryName),
+                                            .readme).relativeURL(),
+                    .data(named: "controller", value: "readme"),
+                    .data(named: "action", value: """
                         turbo:frame-load->readme#fixReadmeAnchors \
-                        turbo:frame-load->readme#navigateToAnchorFromLocation
+                        turbo:frame-load->readme#navigateToAnchorFromLocation \
+                        turbo:frame-load->scroll-position-restoration#persistHeightToCache
                         """),
-                .data(named: "tab-bar-target", value: "content"),
-                .div(
-                    .class("min_height_spacer"),
-                    .spinner()
+                    .data(named: "tab-bar-target", value: "content"),
+                    .div(.spinner())
                 )
             )
         }
         
         func releaseSection() -> Node<HTML.BodyContext> {
-            .turboFrame(
-                id: "releases_content",
-                source: SiteURL.package(.value(model.repositoryOwner),
-                                        .value(model.repositoryName),
-                                        .releases).relativeURL(),
-                .data(named: "tab-bar-target", value: "content"),
-                .class("hidden"),
-                .div(
-                    .class("min_height_spacer"),
-                    .spinner()
+            .section(
+                .turboFrame(
+                    id: "releases_content",
+                    source: SiteURL.package(.value(model.repositoryOwner),
+                                            .value(model.repositoryName),
+                                            .releases).relativeURL(),
+                    .data(named: "tab-bar-target", value: "content"),
+                    .class("hidden"),
+                    .div(.spinner())
                 )
             )
         }
