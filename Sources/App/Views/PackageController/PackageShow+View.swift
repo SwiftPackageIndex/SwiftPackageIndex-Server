@@ -268,10 +268,10 @@ enum PackageShow {
             )
         }
         func visibleMetadataSection() -> Node<HTML.BodyContext> {
-            .unwrap(packageSchema) {
+            .unwrap(packageSchema?.publicationDates) {
                 .section(
                     .hr(),
-                    .p(.small(.text("First published: \(Self.dateFormatter.string(from:$0.datePublished)) - Last updated: \(Self.dateFormatter.string(from:$0.dateModified))")))
+                    .p(.small(.text("First published: \(Self.dateFormatter.string(from: $0.datePublished)) - Last updated: \(Self.dateFormatter.string(from: $0.dateModified))")))
                 )
             }
             

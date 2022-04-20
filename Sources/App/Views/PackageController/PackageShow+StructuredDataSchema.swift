@@ -34,8 +34,8 @@ extension PackageShow {
         let version: String?
         let codeRepository: String
         let url: String
-        let datePublished: Date
-        let dateModified: Date
+        let datePublished: Date?
+        let dateModified: Date?
         let sourceOrganization: OrganisationSchema
         let programmingLanguage: ComputerLanguageSchema
         let keywords: [String]
@@ -48,8 +48,8 @@ extension PackageShow {
             licenseUrl: String?,
             version: String?,
             repositoryUrl: String,
-            datePublished: Date,
-            dateModified: Date,
+            datePublished: Date?,
+            dateModified: Date?,
             keywords: [String]
         ) {
             self.identifier = "\(repositoryOwner)/\(repositoryName)"
@@ -71,9 +71,7 @@ extension PackageShow {
             let repository = result.repository
             guard
                 let repositoryOwner = repository.owner,
-                let repositoryName = repository.name,
-                let datePublished = repository.firstCommitDate,
-                let dateModified = repository.lastCommitDate
+                let repositoryName = repository.name
             else {
                 return nil
             }
@@ -90,10 +88,16 @@ extension PackageShow {
                     releaseVersion: result.releaseVersion,
                     preReleaseVersion: result.preReleaseVersion).stable?.link.label,
                 repositoryUrl: package.url.droppingGitExtension,
-                datePublished: datePublished,
-                dateModified: dateModified,
+                datePublished: repository.firstCommitDate,
+                dateModified: repository.lastActivityAt,
                 keywords: repository.keywords
             )
+        }
+        
+        var publicationDates: (datePublished: Date, dateModified: Date)? {
+            guard let datePublished = datePublished, let dateModified = dateModified
+            else { return nil }
+            return (datePublished, dateModified)
         }
     }
     
