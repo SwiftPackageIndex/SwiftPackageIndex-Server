@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SnapshotTesting
+@testable import App
 
+import Foundation
+import SnapshotTesting
 
 class SnapshotTestCase: AppTestCase {
 
-    override class func setUp() {
+    override func setUp() {
         super.setUp()
+
+        Current.date = { Date(timeIntervalSince1970: 0) }
 
         SnapshotTesting.isRecording = false
         SnapshotTesting.diffTool = "ksdiff"
