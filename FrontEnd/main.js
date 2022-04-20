@@ -23,7 +23,6 @@ import { SPIBuildLogNavigation } from './scripts/build_log_navigation.js'
 import { SPICopyableInput } from './scripts/copy_buttons.js'
 import { SPIPackageListNavigation } from './scripts/package_list_navigation.js'
 import { SPIPlaygroundsAppLinkFallback } from './scripts/playgrounds_app_link.js'
-import { SPIReadmeElement } from './scripts/readme_element.js'
 import { SPISearchFilterSuggestions } from './scripts/search_filter_suggestions.js'
 import { SPITabBarElement } from './scripts/tab_bar_element.js'
 import { SPIWindowMonitor } from './scripts/window_monitor.js'
@@ -37,7 +36,6 @@ new SPISearchFilterSuggestions()
 new SPIWindowMonitor()
 
 document.addEventListener('turbo:load', () => {
-  defineCustomElement('spi-readme', SPIReadmeElement)
   defineCustomElement('tab-bar', SPITabBarElement)
 })
 

@@ -288,6 +288,11 @@ enum PackageShow {
                         source: SiteURL.package(.value(model.repositoryOwner),
                                                 .value(model.repositoryName),
                                                 .readme).relativeURL(),
+                        .data(named: "controller", value: "readme"),
+                        .data(named: "action", value: """
+                        turbo:frame-load->readme#fixReadmeAnchors \
+                        turbo:frame-load->readme#navigateToAnchorFromLocation
+                        """),
                         .data(named: "tab-page", value: "readme"),
                         .class("tab_page"),
                         .div(

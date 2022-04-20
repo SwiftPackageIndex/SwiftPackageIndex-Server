@@ -43,10 +43,6 @@ extension Node where Context: HTML.BodyContext {
         }
     }
 
-    static func spiReadme(_ nodes: Node<HTML.BodyContext>...) -> Self {
-        .element(named: "spi-readme", nodes: nodes)
-    }
-    
     static func spiTabBar(_ nodes: Node<HTML.BodyContext>...) -> Self {
         .element(named: "tab-bar", nodes: nodes)
     }
