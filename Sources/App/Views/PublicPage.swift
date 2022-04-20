@@ -43,7 +43,7 @@ class PublicPage {
             metaNoIndex(),
             .viewport(.accordingToDevice, initialScale: 1),
             .meta(.charset(.utf8)),
-            .siteName("AAAAA The Swift Package Index"),
+            .siteName("The Swift Package Index"),
             .url(SiteURL.absoluteURL(path)),
             .title(title()),
             .description(description()),
