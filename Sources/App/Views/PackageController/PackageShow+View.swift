@@ -148,10 +148,7 @@ enum PackageShow {
                     .hr(
                         .class("minor")
                     ),
-                    sidebarInfoForPackageAuthors(),
-                    .hr(
-                        .class("minor")
-                    )
+                    sidebarInfoForPackageAuthors()
                 )
             )
         }
