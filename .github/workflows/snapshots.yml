@@ -33,12 +33,9 @@ jobs:
         run: cp -a ./Public/* ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
       - name: Diff for Front-End Changes
         id: front-end-changes
-        uses: tj-actions/changed-files@v18.7
-        with:
-          files: |
-            **.html
-            **.scss
-            **.js
+        run: |
+          filecount=$(git diff HEAD^ --shortstat "**.html" "**.scss" "**.js" | awk '{print $1}')
+          echo "::set-output name=matching-files::${filecount:-0}"
       - name: Run Percy
         if: steps.front-end-changes.outputs.any_modified == 'true'
         run: npx @percy/cli snapshot --verbose ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
