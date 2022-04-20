@@ -6,3 +6,4 @@ snapshot:
   widths:
     - 375
     - 1280
+  minHeight: 200
