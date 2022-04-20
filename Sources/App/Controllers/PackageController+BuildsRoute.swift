@@ -24,8 +24,8 @@ extension PackageController {
             var repositoryOwnerName: String?
             var repositoryName: String
 
-            static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(PackageInfo)> {
-                Joined3<Package, Repository, Version>
+            static func query(on database: Database, owner: String, repository: String) async throws -> PackageInfo {
+                let model = try await Joined3<Package, Repository, Version>
                     .query(on: database, owner: owner, repository: repository, version: .defaultBranch)
                     .field(Repository.self, \.$owner)
                     .field(Repository.self, \.$ownerName)
@@ -33,17 +33,15 @@ extension PackageController {
                     .field(Version.self, \.$packageName)
                     .first()
                     .unwrap(or: Abort(.notFound))
-                    .flatMapThrowing { model in
-                        let repo = model.repository
-                        guard let repoOwner = repo.owner,
-                              let repoName = repo.name else {
-                                  throw Abort(.notFound)
-                              }
-                        return .init(packageName: model.version.packageName,
-                                     repositoryOwner: repoOwner,
-                                     repositoryOwnerName: repo.ownerName,
-                                     repositoryName: repoName)
-                    }
+                let repo = model.repository
+                guard let repoOwner = repo.owner,
+                      let repoName = repo.name else {
+                    throw Abort(.notFound)
+                }
+                return .init(packageName: model.version.packageName,
+                             repositoryOwner: repoOwner,
+                             repositoryOwnerName: repo.ownerName,
+                             repositoryName: repoName)
             }
         }
 
@@ -55,8 +53,8 @@ extension PackageController {
             var platform: Build.Platform
             var status: Build.Status
 
-            static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<[BuildInfo]> {
-                Joined4<Build, Version, Package, Repository>
+            static func query(on database: Database, owner: String, repository: String) async throws -> [BuildInfo] {
+                try await Joined4<Build, Version, Package, Repository>
                     .query(on: database)
                     .filter(Version.self, \Version.$latest != nil)
                     .filter(Repository.self, \.$owner, .custom("ilike"), owner)
@@ -69,28 +67,30 @@ extension PackageController {
                     .field(Version.self, \.$packageName)
                     .field(Version.self, \.$reference)
                     .all()
-                    .flatMapThrowing { results in
-                        try results
-                            .compactMap { res -> BuildInfo? in
-                                let build = res.build
-                                let version = res.version
-                                guard let kind = version.latest else {
-                                          return nil
-                                      }
-                                return try BuildInfo(versionKind: kind,
-                                                     reference: version.reference,
-                                                     buildId: build.requireID(),
-                                                     swiftVersion: build.swiftVersion,
-                                                     platform: build.platform,
-                                                     status: build.status)
-                            }
+                    .compactMap { res -> BuildInfo? in
+                        let build = res.build
+                        let version = res.version
+                        guard let kind = version.latest else {
+                            return nil
+                        }
+                        return try BuildInfo(versionKind: kind,
+                                             reference: version.reference,
+                                             buildId: build.requireID(),
+                                             swiftVersion: build.swiftVersion,
+                                             platform: build.platform,
+                                             status: build.status)
                     }
             }
         }
 
-        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(PackageInfo, [BuildInfo])> {
-            PackageInfo.query(on: database, owner: owner, repository: repository)
-                .and(BuildInfo.query(on: database, owner: owner, repository: repository))
+        static func query(on database: Database, owner: String, repository: String) async throws -> (PackageInfo, [BuildInfo]) {
+            async let packageInfo = PackageInfo.query(on: database,
+                                                      owner: owner,
+                                                      repository: repository)
+            async let buildInfo = BuildInfo.query(on: database,
+                                                  owner: owner,
+                                                  repository: repository)
+            return try await (packageInfo, buildInfo)
         }
     }
 }

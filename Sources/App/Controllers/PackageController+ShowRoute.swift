@@ -27,35 +27,36 @@ extension PackageController {
         ///   - owner: repository owner
         ///   - repository: repository name
         /// - Returns: model structs
-        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<(model: PackageShow.Model, schema: PackageShow.PackageSchema)> {
-            PackageResult.query(on: database, owner: owner, repository: repository)
-                .and(History.query(on: database, owner: owner, repository: repository))
-                .and(ProductCount.query(on: database, owner: owner, repository: repository))
-                .and(BuildInfo.query(on: database, owner: owner, repository: repository))
-                .map {
-                    // This monster will go away when we switch to async/await,
-                    // leaving this in for now, it should be short-lived
-                    ($0.0.0.0, $0.0.0.1, $0.0.1, $0.1)
-                }
-                .map { (packageResult, historyResult, productTypes, buildInfo) -> (model: PackageShow.Model, schema: PackageShow.PackageSchema)? in
-                    guard
-                        let model = PackageShow.Model(
-                            result: packageResult,
-                            history: historyResult?.history(),
-                            productCounts: .init(
-                                libraries: productTypes.filter(\.isLibrary).count,
-                                executables: productTypes.filter(\.isExecutable).count),
-                            swiftVersionBuildInfo: buildInfo.swiftVersion,
-                            platformBuildInfo: buildInfo.platform
-                        ),
-                        let schema = PackageShow.PackageSchema(result: packageResult)
-                    else {
-                        return nil
-                    }
+        static func query(on database: Database, owner: String, repository: String) async throws -> (model: PackageShow.Model, schema: PackageShow.PackageSchema) {
+            async let packageResult = PackageResult.query(on: database,
+                                                          owner: owner,
+                                                          repository: repository)
+            async let historyRecord = History.query(on: database,
+                                                    owner: owner,
+                                                    repository: repository)
+            async let productTypes = ProductCount.query(on: database,
+                                                        owner: owner,
+                                                        repository: repository)
+            async let buildInfo = BuildInfo.query(on: database,
+                                                  owner: owner,
+                                                  repository: repository)
 
-                    return (model, schema)
-                }
-                .unwrap(or: Abort(.notFound))
+            guard
+                let model = try await PackageShow.Model(
+                    result: packageResult,
+                    history: historyRecord?.historyModel(),
+                    productCounts: .init(
+                        libraries: productTypes.filter(\.isLibrary).count,
+                        executables: productTypes.filter(\.isExecutable).count),
+                    swiftVersionBuildInfo: buildInfo.swiftVersion,
+                    platformBuildInfo: buildInfo.platform
+                ),
+                let schema = try await PackageShow.PackageSchema(result: packageResult)
+            else {
+                throw Abort(.notFound)
+            }
+
+            return (model, schema)
         }
     }
 
@@ -75,7 +76,7 @@ extension PackageController {
                 case releaseCount = "release_count"
             }
 
-            func history() -> PackageShow.Model.History? {
+            func historyModel() -> PackageShow.Model.History? {
                 guard let defaultBranch = defaultBranch,
                       let firstCommitDate = firstCommitDate else {
                     return nil
@@ -92,13 +93,13 @@ extension PackageController {
             }
         }
 
-        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Record?> {
+        static func query(on database: Database, owner: String, repository: String) async throws -> Record? {
             guard let db = database as? SQLDatabase else {
                 fatalError("Database must be an SQLDatabase ('as? SQLDatabase' must succeed)")
             }
             // This query cannot expressed in Fluent, because it doesn't support
             // GROUP BY clauses.
-            return db.raw(#"""
+            return try await db.raw(#"""
                 SELECT p.url, r.default_branch, r.first_commit_date, r.commit_count, count(v.reference) AS "release_count"
                 FROM packages p
                 JOIN repositories r ON r.package_id = p.id
@@ -115,12 +116,12 @@ extension PackageController {
     }
 
     enum ProductCount {
-        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<[ProductType]> {
-            Joined4<Package, Repository, Version, Product>
+        static func query(on database: Database, owner: String, repository: String) async throws -> [ProductType] {
+            try await Joined4<Package, Repository, Version, Product>
                 .query(on: database, owner: owner, repository: repository)
                 .field(Product.self, \.$type)
                 .all()
-                .mapEachCompact { $0.product.type }
+                .compactMap(\.product.type)
         }
     }
 
@@ -133,14 +134,14 @@ extension PackageController {
         var platform: ModelBuildInfo<PlatformResults>?
         var swiftVersion: ModelBuildInfo<SwiftVersionResults>?
 
-        static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-            BuildsRoute.BuildInfo.query(on: database, owner: owner, repository: repository)
-                .map { builds in
-                    Self.init(
-                        platform: platformBuildInfo(builds: builds),
-                        swiftVersion: swiftVersionBuildInfo(builds: builds)
-                    )
-                }
+        static func query(on database: Database, owner: String, repository: String) async throws -> Self {
+            let builds = try await BuildsRoute.BuildInfo.query(on: database,
+                                                               owner: owner,
+                                                               repository: repository)
+            return Self.init(
+                platform: platformBuildInfo(builds: builds),
+                swiftVersion: swiftVersionBuildInfo(builds: builds)
+            )
         }
 
         static func platformBuildInfo(

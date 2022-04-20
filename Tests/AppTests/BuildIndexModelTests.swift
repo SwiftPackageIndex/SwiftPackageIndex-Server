@@ -20,21 +20,21 @@ import XCTVapor
 
 class BuildIndexModelTests: AppTestCase {
 
-    func test_init_no_name() throws {
+    func test_init_no_name() async throws {
         // Tests behaviour when we're lacking data
         // setup package without package name
         let pkg = try savePackage(on: app.db, "1".url)
-        try Repository(package: pkg,
-                       defaultBranch: "main",
-                       forks: 42,
-                       license: .mit,
-                       name: "bar",
-                       owner: "foo",
-                       stars: 17,
-                       summary: "summary").save(on: app.db).wait()
+        try await Repository(package: pkg,
+                             defaultBranch: "main",
+                             forks: 42,
+                             license: .mit,
+                             name: "bar",
+                             owner: "foo",
+                             stars: 17,
+                             summary: "summary").save(on: app.db)
         try Version(package: pkg, latest: .defaultBranch).save(on: app.db).wait()
-        let (pkgInfo, buildInfo) = try PackageController.BuildsRoute
-            .query(on: app.db, owner: "foo", repository: "bar").wait()
+        let (pkgInfo, buildInfo) = try await PackageController.BuildsRoute
+            .query(on: app.db, owner: "foo", repository: "bar")
 
         // MUT
         let m = BuildIndex.Model(packageInfo: pkgInfo, buildInfo: buildInfo)

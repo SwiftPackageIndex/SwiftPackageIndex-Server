@@ -31,8 +31,8 @@ extension PackageController.PackageResult {
     var releaseVersion: ReleaseVersion? { relation3 }
     var preReleaseVersion: PreReleaseVersion? { relation4 }
 
-    static func query(on database: Database, owner: String, repository: String) -> EventLoopFuture<Self> {
-        Package.query(on: database)
+    static func query(on database: Database, owner: String, repository: String) async throws -> Self {
+        let model = try await Package.query(on: database)
             .join(Repository.self,
                   on: \Repository.$package.$id == \Package.$id,
                   method: .inner)
@@ -62,7 +62,7 @@ extension PackageController.PackageResult {
         // only slight gains.
             .first()
             .unwrap(or: Abort(.notFound))
-            .map(Self.init(model:))
+        return Self.init(model: model)
     }
 }
 
