@@ -34,11 +34,7 @@ enum PackageReadme {
             guard let readme = model.readme
             else { return blankReadmePlaceholder() }
 
-            return .group(
-                .spiReadme(
-                    .raw(readme)
-                )
-            )
+            return .group(.raw(readme))
         }
 
         func blankReadmePlaceholder() -> Node<HTML.BodyContext> {
