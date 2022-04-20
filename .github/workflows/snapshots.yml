@@ -35,7 +35,6 @@ jobs:
         id: front-end-changes
         uses: tj-actions/changed-files@v18.7
         with:
-          since_last_remote_commit: 'true'
           files: |
             **.html
             **.scss
