@@ -36,7 +36,7 @@ jobs:
       - id: diff-includes-html-files
         name: Diff for HTML Changes
         run: |
-          filecount=$(git diff origin/main --shortstat **.html | awk '{print $1}')
+          filecount=$(git diff origin/main --shortstat "**.html" "**.css" "**.js" | awk '{print $1}')
           echo "::set-output name=matching-files::${filecount:-0}"
       - name: Run Percy
         if: steps.diff-includes-html-files.outputs.matching-files != '0'
