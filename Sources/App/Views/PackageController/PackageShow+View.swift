@@ -23,6 +23,7 @@ enum PackageShow {
         private static let dateFormatter: DateFormatter = {
             let formatter = DateFormatter()
             formatter.dateStyle = .medium
+            formatter.locale = .init(identifier: "en_GB")
             
             return formatter
         }()
