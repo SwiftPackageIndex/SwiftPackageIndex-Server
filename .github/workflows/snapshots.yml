@@ -26,15 +26,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 2
       - name: Build Front-End
         run: make build-front-end
       - name: Copy Front-End
         run: cp -a ./Public/* ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
-      - name: Diff for HTML Changes
+      - name: Diff for Front-End Changes
         id: front-end-changes
         run: |
-          filecount=$(git diff origin/main --shortstat "**.html" "**.scss" "**.js" | awk '{print $1}')
+          filecount=$(git diff HEAD^ --shortstat "**.html" "**.scss" "**.js" | awk '{print $1}')
           echo "::set-output name=matching-files::${filecount:-0}"
       - name: Run Percy
         if: steps.front-end-changes.outputs.matching-files != '0'
