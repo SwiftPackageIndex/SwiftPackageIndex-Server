@@ -28,21 +28,21 @@ extension PackageController {
         ///   - repository: repository name
         /// - Returns: model structs
         static func query(on database: Database, owner: String, repository: String) async throws -> (model: PackageShow.Model, schema: PackageShow.PackageSchema) {
-            let packageResult = try await PackageResult.query(on: database,
-                                                              owner: owner,
-                                                              repository: repository)
-            let historyRecord = try await History.query(on: database,
+            async let packageResult = PackageResult.query(on: database,
+                                                          owner: owner,
+                                                          repository: repository)
+            async let historyRecord = History.query(on: database,
+                                                    owner: owner,
+                                                    repository: repository)
+            async let productTypes = ProductCount.query(on: database,
                                                         owner: owner,
                                                         repository: repository)
-            let productTypes = try await ProductCount.query(on: database,
-                                                            owner: owner,
-                                                            repository: repository)
-            let buildInfo = try await BuildInfo.query(on: database,
-                                                      owner: owner,
-                                                      repository: repository)
+            async let buildInfo = BuildInfo.query(on: database,
+                                                  owner: owner,
+                                                  repository: repository)
 
             guard
-                let model = PackageShow.Model(
+                let model = try await PackageShow.Model(
                     result: packageResult,
                     history: historyRecord?.historyModel(),
                     productCounts: .init(
@@ -51,7 +51,7 @@ extension PackageController {
                     swiftVersionBuildInfo: buildInfo.swiftVersion,
                     platformBuildInfo: buildInfo.platform
                 ),
-                let schema = PackageShow.PackageSchema(result: packageResult)
+                let schema = try await PackageShow.PackageSchema(result: packageResult)
             else {
                 throw Abort(.notFound)
             }
