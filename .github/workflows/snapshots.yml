@@ -31,13 +31,17 @@ jobs:
         run: make build-front-end
       - name: Copy Front-End
         run: cp -a ./Public/* ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
-      - name: Diff for HTML Changes
+      - name: Diff for Front-End Changes
         id: front-end-changes
-        run: |
-          filecount=$(git diff origin/main --shortstat "**.html" "**.scss" "**.js" | awk '{print $1}')
-          echo "::set-output name=matching-files::${filecount:-0}"
+        uses: tj-actions/changed-files@v18.7
+        with:
+          since_last_remote_commit: 'true'
+          files: |
+            **.html
+            **.scss
+            **.js
       - name: Run Percy
-        if: steps.front-end-changes.outputs.matching-files != '0'
+        if: steps.front-end-changes.outputs.any_modified == 'true'
         run: npx @percy/cli snapshot --verbose ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
