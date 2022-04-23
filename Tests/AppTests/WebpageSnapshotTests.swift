@@ -29,7 +29,9 @@ class WebpageSnapshotTests: SnapshotTestCase {
     }
     
     func test_PackageShowView() throws {
-        let page = { PackageShow.View(path: "", model: .mock, packageSchema: .mock).document() }
+        var model = PackageShow.Model.mock
+        model.homepageUrl = "https://swiftpackageindex.com/"
+        let page = { PackageShow.View(path: "", model: model, packageSchema: .mock).document() }
         
         assertSnapshot(matching: page, as: .html)
     }

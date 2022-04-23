@@ -43,6 +43,7 @@ extension PackageShow {
         var url: String
         var score: Int?
         var isArchived: Bool
+        var homepageUrl: String?
         
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -65,7 +66,8 @@ extension PackageShow {
                       title: String,
                       url: String,
                       score: Int? = nil,
-                      isArchived: Bool) {
+                      isArchived: Bool,
+                      homepageUrl: String? = nil) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
@@ -88,6 +90,7 @@ extension PackageShow {
             self.url = url
             self.score = score
             self.isArchived = isArchived
+            self.homepageUrl = homepageUrl
         }
         
         init?(result: PackageController.PackageResult,
@@ -134,7 +137,8 @@ extension PackageShow {
                 title: result.defaultBranchVersion.packageName ?? repositoryName,
                 url: result.package.url,
                 score: result.package.score,
-                isArchived: repository.isArchived
+                isArchived: repository.isArchived,
+                homepageUrl: repository.homepageUrl
             )
 
         }
