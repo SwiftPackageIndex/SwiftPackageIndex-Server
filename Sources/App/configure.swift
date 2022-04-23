@@ -232,6 +232,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 047 - Remove `version_count` from `stats` materialized view.
         app.migrations.add(RemoveVersionCountFromStats())
     }
+    do {  // Migration 048 - add repositories.homepage_url
+        app.migrations.add(UpdateRepositoryAddHomepageUrl())
+    }
 
     app.commands.use(AnalyzeCommand(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
