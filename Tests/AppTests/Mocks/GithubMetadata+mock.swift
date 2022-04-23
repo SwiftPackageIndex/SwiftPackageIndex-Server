@@ -20,6 +20,8 @@ import Foundation
 extension Github.Metadata {
     static let mock: Self = .init(defaultBranch: "main",
                                   forks: 1,
+                                  homepageUrl: nil,
+                                  isInOrganization: false,
                                   issuesClosedAtDates: [],
                                   license: .mit,
                                   openIssues: 3,
@@ -30,13 +32,14 @@ extension Github.Metadata {
                                   repositoryTopics: [],
                                   name: "packageName",
                                   stars: 2,
-                                  summary: "desc",
-                                  isInOrganization: false)
+                                  summary: "desc")
 
     static func mock(for packageUrl: String) -> Self {
         let (owner, name) = try! Github.parseOwnerName(url: packageUrl)
         return .init(defaultBranch: "main",
                      forks: packageUrl.count,
+                     homepageUrl: nil,
+                     isInOrganization: false,
                      issuesClosedAtDates: [],
                      license: .mit,
                      openIssues: 3,
@@ -47,12 +50,13 @@ extension Github.Metadata {
                      repositoryTopics: [],
                      name: name,
                      stars: packageUrl.count + 1,
-                     summary: "This is package " + packageUrl,
-                     isInOrganization: false)
+                     summary: "This is package " + packageUrl)
     }
 
     init(defaultBranch: String,
          forks: Int,
+         homepageUrl: String?,
+         isInOrganization: Bool,
          issuesClosedAtDates: [Date],
          license: License,
          openIssues: Int,
@@ -63,8 +67,7 @@ extension Github.Metadata {
          repositoryTopics: [String] = [],
          name: String,
          stars: Int,
-         summary: String,
-         isInOrganization: Bool
+         summary: String
     ) {
         let topics = repositoryTopics
             .map {
@@ -78,8 +81,10 @@ extension Github.Metadata {
                               defaultBranchRef: .init(name: defaultBranch),
                               description: summary,
                               forkCount: forks,
+                              homepageUrl: homepageUrl,
                               isArchived: false,
                               isFork: false,
+                              isInOrganization: isInOrganization,
                               licenseInfo: .init(name: license.fullName, key: license.rawValue),
                               mergedPullRequests: .init(closedAtDates: []),
                               name: name,
@@ -89,8 +94,7 @@ extension Github.Metadata {
                               releases: .init(nodes: releases),
                               repositoryTopics: .init(totalCount: topics.count,
                                                       nodes: topics),
-                              stargazerCount: stars,
-                              isInOrganization: isInOrganization)
+                              stargazerCount: stars)
         )
     }
 }

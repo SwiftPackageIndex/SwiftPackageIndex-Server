@@ -148,6 +148,8 @@ class IngestorTests: AppTestCase {
                         .success((jpr,
                                   .init(defaultBranch: "main",
                                         forks: 1,
+                                        homepageUrl: "https://swiftpackageindex.com/Alamofire/Alamofire",
+                                        isInOrganization: true,
                                         issuesClosedAtDates: [
                                             Date(timeIntervalSince1970: 0),
                                             Date(timeIntervalSince1970: 2),
@@ -173,8 +175,7 @@ class IngestorTests: AppTestCase {
                                         repositoryTopics: ["foo", "bar", "Bar", "baz"],
                                         name: "bar",
                                         stars: 2,
-                                        summary: "package desc",
-                                        isInOrganization: true),
+                                        summary: "package desc"),
                                   licenseInfo: .init(htmlUrl: "license url"),
                                   readmeInfo: .init(downloadUrl: "readme url", htmlUrl: "readme html url")))
                        ]
@@ -190,6 +191,7 @@ class IngestorTests: AppTestCase {
             .unwrap()
         XCTAssertEqual(repo.defaultBranch, "main")
         XCTAssertEqual(repo.forks, 1)
+        XCTAssertEqual(repo.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
         XCTAssertEqual(repo.isInOrganization, true)
         XCTAssertEqual(repo.keywords, ["bar", "baz", "foo"])
         XCTAssertEqual(repo.lastIssueClosedAt, Date(timeIntervalSince1970: 2))
@@ -342,6 +344,8 @@ class IngestorTests: AppTestCase {
             Github.Metadata.init(
                 defaultBranch: "main",
                 forks: 0,
+                homepageUrl: nil,
+                isInOrganization: false,
                 issuesClosedAtDates: [],
                 license: .mit,
                 openIssues: 0,
@@ -350,8 +354,7 @@ class IngestorTests: AppTestCase {
                 pullRequestsClosedAtDates: [],
                 name: "name",
                 stars: 0,
-                summary: "desc",
-                isInOrganization: false)
+                summary: "desc")
         }
         var reportedLevel: AppError.Level? = nil
         var reportedError: String? = nil

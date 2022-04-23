@@ -221,6 +221,7 @@ func insertOrUpdateRepository(on database: Database,
         .first() ?? Repository(packageId: pkgId)
     repo.defaultBranch = repository.defaultBranch
     repo.forks = repository.forkCount
+    repo.homepageUrl = repository.homepageUrl
     repo.isArchived = repository.isArchived
     repo.isInOrganization = repository.isInOrganization
     repo.keywords = Set(repository.topics.map { $0.lowercased() }).sorted()

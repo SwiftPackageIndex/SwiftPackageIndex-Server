@@ -120,6 +120,7 @@ class GithubTests: AppTestCase {
                        "networking")
         XCTAssertEqual(res.repository?.stargazerCount, 35831)
         XCTAssertEqual(res.repository?.isInOrganization, true)
+        XCTAssertEqual(res.repository?.homepageUrl, "https://swiftpackageindex.com/Alamofire/Alamofire")
         // derived properties
         XCTAssertEqual(res.repository?.lastIssueClosedAt,
                        iso8601.date(from: "2021-06-09T00:59:39Z"))
