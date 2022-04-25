@@ -239,7 +239,7 @@ enum PackageShow {
                         .li(
                             .a(
                                 .href(homepageUrl),
-                                "View Homepage"
+                                "Package Homepage"
                             )
                         )
                     }
