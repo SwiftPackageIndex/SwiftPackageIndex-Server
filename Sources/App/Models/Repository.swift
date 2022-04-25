@@ -56,6 +56,9 @@ final class Repository: Model, Content {
     
     @Field(key: "forks")
     var forks: Int
+    
+    @Field(key: "homepage_url")
+    var homepageUrl: String?
 
     @Field(key: "is_archived")
     var isArchived: Bool
@@ -129,6 +132,7 @@ final class Repository: Model, Content {
          firstCommitDate: Date? = nil,
          forks: Int = 0,
          forkedFrom: Repository? = nil,
+         homepageUrl: String? = nil,
          isArchived: Bool = false,
          isInOrganization: Bool = false,
          keywords: [String] = [],
@@ -159,6 +163,7 @@ final class Repository: Model, Content {
         if let forkId = forkedFrom?.id {
             self.$forkedFrom.id = forkId
         }
+        self.homepageUrl = homepageUrl
         self.isArchived = isArchived
         self.isInOrganization = isInOrganization
         self.keywords = keywords

@@ -234,7 +234,15 @@ enum PackageShow {
                                 .text(" and try again.")
                             )
                         )
-                    )
+                    ),
+                    .unwrap(model.homepageUrl) { homepageUrl in
+                        .li(
+                            .a(
+                                .href(homepageUrl),
+                                "Package Homepage"
+                            )
+                        )
+                    }
                 )
             )
         }

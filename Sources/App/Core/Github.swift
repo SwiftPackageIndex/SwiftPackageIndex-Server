@@ -232,8 +232,10 @@ extension Github {
                     }
                     description
                     forkCount
+                    homepageUrl
                     isArchived
                     isFork
+                    isInOrganization
                     licenseInfo {
                       name
                       key
@@ -280,7 +282,6 @@ extension Github {
                       }
                     }
                     stargazerCount
-                    isInOrganization
                   }
                 }
                 """)
@@ -293,8 +294,10 @@ extension Github {
             var defaultBranchRef: DefaultBranchRef?
             var description: String?
             var forkCount: Int
+            var homepageUrl: String?
             var isArchived: Bool
             var isFork: Bool
+            var isInOrganization: Bool
             var licenseInfo: LicenseInfo?
             var mergedPullRequests: IssueNodes
             var name: String
@@ -304,7 +307,6 @@ extension Github {
             var releases: ReleaseNodes
             var repositoryTopics: RepositoryTopicNodes
             var stargazerCount: Int
-            var isInOrganization: Bool
             // derived properties
             var defaultBranch: String? { defaultBranchRef?.name }
             var lastIssueClosedAt: Date? {
