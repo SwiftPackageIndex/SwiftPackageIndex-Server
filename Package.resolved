@@ -168,8 +168,8 @@
         "repositoryURL": "https://github.com/pointfreeco/swift-case-paths",
         "state": {
           "branch": null,
-          "revision": "241301b67d8551c26d8f09bd2c0e52cc49f18007",
-          "version": "0.8.0"
+          "revision": "ce9c0d897db8a840c39de64caaa9b60119cf4be8",
+          "version": "0.8.1"
         }
       },
       {
@@ -267,7 +267,7 @@
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
           "branch": "release/5.6",
-          "revision": "376bed01fba16ea4cd9821793b0f153eb2d29f2f",
+          "revision": "e399e87bd4a2984947e15edc3f6750d1f6fa5d6e",
           "version": null
         }
       },
@@ -276,8 +276,8 @@
         "repositoryURL": "https://github.com/pointfreeco/swift-parsing.git",
         "state": {
           "branch": null,
-          "revision": "edb72e8022cc6fc7064eedace4d37e0df18a08f5",
-          "version": "0.9.0"
+          "revision": "0eddb0ef923c7bcba6b655f1b3451d967b7e1607",
+          "version": "0.9.1"
         }
       },
       {
@@ -332,6 +332,15 @@
           "branch": null,
           "revision": "e32033ad3c68ebec1b761bc961be7bd56bad02f8",
           "version": "2.3.1"
+        }
+      },
+      {
+        "package": "xctest-dynamic-overlay",
+        "repositoryURL": "https://github.com/pointfreeco/xctest-dynamic-overlay",
+        "state": {
+          "branch": null,
+          "revision": "50a70a9d3583fe228ce672e8923010c8df2deddd",
+          "version": "0.2.1"
         }
       },
       {
