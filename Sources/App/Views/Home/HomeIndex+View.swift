@@ -43,12 +43,12 @@ enum HomeIndex {
             .group(
                 .p(
                     .class("announcement"),
-                    .text("Russia’s invasion of Ukraine is appalling. "),
+                    .text("Join us in celebrating "),
                     .a(
-                        .href("https://blog.swiftpackageindex.com/posts/we-support-ukraine/"),
-                        "We support Ukraine"
+                        .href("https://blog.swiftpackageindex.com/posts/two-years-of-the-swift-package-index/"),
+                        "two years of the Swift Package Index"
                     ),
-                    .text(". 🇺🇦")
+                    .text("! 🎂")
                 ),
                 .section(
                     .class("search home"),
