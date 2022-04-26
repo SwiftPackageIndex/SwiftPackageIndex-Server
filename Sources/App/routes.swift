@@ -56,6 +56,19 @@ func routes(_ app: Application) throws {
 
     do {  // package pages
         let packageController = PackageController()
+
+        do {  // temporary, hacky docc-proxy
+            app.get(":owner", ":repository", "documentation", use: packageController.documentation)
+            app.get(":owner", ":repository", "documentation", "**", use: packageController.documentation)
+            app.get(":owner", ":repository", "css", use: packageController.css)
+            app.get(":owner", ":repository", "css", "**", use: packageController.css)
+            app.get(":owner", ":repository", "data", use: packageController.data)
+            app.get(":owner", ":repository", "data", "**", use: packageController.data)
+            app.get(":owner", ":repository", "js", use: packageController.js)
+            app.get(":owner", ":repository", "js", "**", use: packageController.js)
+            app.get(":owner", ":repository", "theme-settings.json", use: packageController.themeSettings)
+        }
+
         app.get(SiteURL.package(.key, .key, .none).pathComponents,
                 use: packageController.show)
         app.get(SiteURL.package(.key, .key, .readme).pathComponents,
