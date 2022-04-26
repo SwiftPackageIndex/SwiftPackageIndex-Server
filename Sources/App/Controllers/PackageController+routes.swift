@@ -55,6 +55,70 @@ struct PackageController {
         }
     }
 
+    func documentation(req: Request) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            throw Abort(.notFound)
+        }
+        let rest = req.parameters.getCatchall().joined(separator: "/")
+
+        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/documentation/\(rest)")
+        return try await res.encodeResponse(for: req)
+    }
+
+    func css(req: Request) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            throw Abort(.notFound)
+        }
+        let rest = req.parameters.getCatchall().joined(separator: "/")
+
+        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/css/\(rest)")
+        return try await res.encodeResponse(for: req)
+    }
+
+    func data(req: Request) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            throw Abort(.notFound)
+        }
+        let rest = req.parameters.getCatchall().joined(separator: "/")
+
+        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/data/\(rest)")
+        return try await res.encodeResponse(for: req)
+    }
+
+    func js(req: Request) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            throw Abort(.notFound)
+        }
+        let rest = req.parameters.getCatchall().joined(separator: "/")
+
+        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/js/\(rest)")
+        return try await res.encodeResponse(for: req)
+    }
+
+    func themeSettings(req: Request) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository")
+        else {
+            throw Abort(.notFound)
+        }
+
+        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/theme-settings.json")
+        return try await res.encodeResponse(for: req)
+    }
+
     func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
         guard
             let owner = req.parameters.get("owner"),
