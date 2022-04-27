@@ -62,9 +62,9 @@ struct PackageController {
         else {
             throw Abort(.notFound)
         }
-        let rest = req.parameters.getCatchall().joined(separator: "/")
+        let remainder = req.parameters.getCatchall().joined(separator: "/")
 
-        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/documentation/\(rest)")
+        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/documentation/\(remainder)")
         return try await res.encodeResponse(for: req)
     }
 
@@ -75,9 +75,9 @@ struct PackageController {
         else {
             throw Abort(.notFound)
         }
-        let rest = req.parameters.getCatchall().joined(separator: "/")
+        let remainder = req.parameters.getCatchall().joined(separator: "/")
 
-        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/css/\(rest)")
+        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/css/\(remainder)")
         return try await res.encodeResponse(for: req)
     }
 
@@ -88,9 +88,9 @@ struct PackageController {
         else {
             throw Abort(.notFound)
         }
-        let rest = req.parameters.getCatchall().joined(separator: "/")
+        let remainder = req.parameters.getCatchall().joined(separator: "/")
 
-        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/data/\(rest)")
+        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/data/\(remainder)")
         return try await res.encodeResponse(for: req)
     }
 
@@ -101,9 +101,9 @@ struct PackageController {
         else {
             throw Abort(.notFound)
         }
-        let rest = req.parameters.getCatchall().joined(separator: "/")
+        let remainder = req.parameters.getCatchall().joined(separator: "/")
 
-        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/js/\(rest)")
+        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/js/\(remainder)")
         return try await res.encodeResponse(for: req)
     }
 
