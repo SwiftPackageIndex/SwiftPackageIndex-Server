@@ -104,14 +104,17 @@ class PublicPage {
                    ))
     }
     
-    /// The Google Tag Manager code to be inserted into the <head> element.
-    /// - Returns: A <script> containing the Google Tag Manager template code.
+    /// The Plausible analytics code to be inserted into the <head> element.
+    /// - Returns: A <script> containing the Plausible script tags.
     final func analyticsHead() -> Node<HTML.HeadContext> {
-        return .if(Environment.current == .production,
-                   .raw("""
-                    <script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script>
-                    <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-                    """))
+        return .if(Environment.current == .production, .raw(PublicPage.analyticsScriptTags))
+    }
+
+    static var analyticsScriptTags: String {
+        """
+        <script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script>
+        <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+        """
     }
 
     /// The full page title, including the site name.

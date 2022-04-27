@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+import Vapor
 import SwiftSoup
 
 // Note for PR: I'm not sure of the best place to put a utility like this
@@ -28,6 +28,9 @@ struct DocumentationPageProcessor {
             document = try SwiftSoup.parse(rawHtml)
             try document.head()?.append(self.stylesheetLink)
             try document.body()?.prepend(self.spiHeader)
+            if let analyticsScript = self.analyticsScript {
+                try document.head()?.append(analyticsScript)
+            }
         } catch {
             return nil
         }
@@ -37,6 +40,11 @@ struct DocumentationPageProcessor {
         """
         <link rel="stylesheet" href="/docc.css?\(ResourceReloadIdentifier.value)">
         """
+    }
+
+    var analyticsScript: String? {
+        guard Environment.current == .production else { return nil }
+        return PublicPage.analyticsScriptTags
     }
 
     var spiHeader: String {
