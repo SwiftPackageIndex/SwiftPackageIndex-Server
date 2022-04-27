@@ -26,11 +26,17 @@ struct DocumentationPageProcessor {
     init?(rawHtml: String) {
         do {
             document = try SwiftSoup.parse(rawHtml)
-            try document.head()?.append("<link rel=\"stylesheet\" href=\"/docc.css\">")
+            try document.head()?.append(self.stylesheetLink)
             try document.body()?.prepend(self.spiHeader)
         } catch {
             return nil
         }
+    }
+
+    var stylesheetLink: String {
+        """
+        <link rel="stylesheet" href="/docc.css?\(ResourceReloadIdentifier.value)">
+        """
     }
 
     var spiHeader: String {
