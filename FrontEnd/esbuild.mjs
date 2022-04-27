@@ -19,7 +19,7 @@ import { sassPlugin } from 'esbuild-sass-plugin'
 
 try {
   await esbuild.build({
-    entryPoints: ['FrontEnd/main.js', 'FrontEnd/main.scss'],
+    entryPoints: ['FrontEnd/main.js', 'FrontEnd/main.scss', 'FrontEnd/docc.scss'],
     outdir: 'Public',
     bundle: true,
     sourcemap: true,
