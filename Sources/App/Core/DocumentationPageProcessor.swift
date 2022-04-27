@@ -26,9 +26,27 @@ struct DocumentationPageProcessor {
     init?(rawHtml: String) {
         do {
             document = try SwiftSoup.parse(rawHtml)
+            try document.head()?.append("<link rel=\"stylesheet\" href=\"/docc.css\">")
+            try document.body()?.prepend(self.spiHeader)
         } catch {
             return nil
         }
+    }
+
+    var spiHeader: String {
+        """
+        <header class="spi">
+            <div class="inner">
+                <a href="/">
+                    <h1><img alt="Logo" src="/images/logo.svg">Swift Package Index</h1>
+                </a>
+                <form action="/search">
+                    <input id="query" name="query" type="search" placeholder="Search for packages" spellcheck="false" autocomplete="off" data-gramm="false">
+                    <button type="submit"></button>
+                </form>
+            </div>
+        </header>
+        """
     }
 
     var processedPage: String {

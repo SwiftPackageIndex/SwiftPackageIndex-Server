@@ -13,6 +13,106 @@
  * limitations under the License.
  */
 
-body {
-  background-color: red;
+@import 'styles/colors.scss';
+@import 'styles/images.scss';
+
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+span,
+div {
+  font-family: -apple-system, 'BlinkMacSystemFont', 'SF Hello', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial',
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji' !important;
+}
+
+header.spi {
+  position: sticky;
+  width: 100%;
+  color: var(--header-text);
+  background-color: var(--header-background);
+
+  .inner {
+    display: flex;
+    flex-direction: row;
+    margin: 0 auto;
+    max-width: 980px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 10px;
+  }
+
+  a {
+    padding: 3px;
+    font-size: 15px;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  h1 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 23px;
+    color: var(--header-text);
+
+    a:hover {
+      color: var(--header-link-highlight);
+    }
+
+    img {
+      margin-right: 10px;
+      max-width: 64px;
+    }
+  }
+
+  form {
+    display: grid;
+    grid-template-columns: auto 30px;
+    border: 1px var(--input-border) solid;
+    background-color: var(--input-background);
+
+    input[type='search'] {
+      padding: 5px;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--input-text);
+      background-color: var(--input-background);
+      border: none;
+      width: 100%;
+      -webkit-appearance: none;
+
+      &:focus {
+        outline: none;
+      }
+
+      &::-webkit-search-cancel-button {
+        -webkit-appearance: none; // remove the default "clear" button style.
+
+        height: 15px;
+        width: 15px;
+        background-image: var(--image-clear-search);
+        background-size: 15px;
+        background-repeat: no-repeat;
+        background-position: center center;
+      }
+    }
+
+    button {
+      margin: 0;
+      padding: 0;
+      border: none;
+      background-color: var(--input-background);
+      background-image: var(--image-magnifying-glass);
+      background-size: 14px;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+  }
 }
