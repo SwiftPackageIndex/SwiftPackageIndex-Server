@@ -48,9 +48,11 @@ header.spi {
     padding: 3px;
     font-size: 15px;
     font-weight: 600;
+    color: var(--header-text);
 
     &:hover {
       text-decoration: none;
+      color: var(--header-link-highlight);
     }
   }
 
@@ -59,11 +61,7 @@ header.spi {
     flex-direction: row;
     align-items: center;
     font-size: 23px;
-    color: var(--header-text);
-
-    a:hover {
-      color: var(--header-link-highlight);
-    }
+    color: inherit;
 
     img {
       margin-right: 10px;
