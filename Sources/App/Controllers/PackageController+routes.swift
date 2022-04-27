@@ -64,13 +64,15 @@ struct PackageController {
         }
         let remainder = req.parameters.getCatchall().joined(separator: "/")
 
-        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/documentation/\(remainder)")
+        let awsResponse = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/documentation/\(remainder)")
 
         // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
-        guard let body = res.body, let processor = DocumentationPageProcessor(rawHtml: body.asString())
-        else { return try await res.encodeResponse(for: req) }
+        guard let body = awsResponse.body, let processor = DocumentationPageProcessor(rawHtml: body.asString())
+        else { return try await awsResponse.encodeResponse(for: req) }
 
-        return try await processor.processedPage.encodeResponse(for: req)
+        let response = try await processor.processedPage.encodeResponse(status: .ok, headers: req.headers, for: req)
+        response.headers.replaceOrAdd(name: "content-type", value: "text/html")
+        return response
     }
 
     func css(req: Request) async throws -> Response {
