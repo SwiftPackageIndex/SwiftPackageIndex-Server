@@ -41,7 +41,7 @@ struct DocumentationPageProcessor {
                     <h1><img alt="Logo" src="/images/logo.svg">Swift Package Index</h1>
                 </a>
                 <form action="/search">
-                    <input id="query" name="query" type="search" placeholder="Search for packages" spellcheck="false" autocomplete="off" data-gramm="false">
+                    <input id="query" name="query" type="search" placeholder="Search Packages" spellcheck="false" autocomplete="off" data-gramm="false">
                     <button type="submit"></button>
                 </form>
             </div>
