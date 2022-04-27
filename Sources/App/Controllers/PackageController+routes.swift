@@ -68,11 +68,19 @@ struct PackageController {
 
         // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
         guard let body = awsResponse.body, let processor = DocumentationPageProcessor(rawHtml: body.asString())
-        else { return try await awsResponse.encodeResponse(for: req) }
+        else {
+            return try await awsResponse.encodeResponse(
+                status: .ok,
+                headers: req.headers.replacingOrAdding(name: .contentType, value: "text/html"),
+                for: req
+            )
+        }
 
-        let response = try await processor.processedPage.encodeResponse(status: .ok, headers: req.headers, for: req)
-        response.headers.replaceOrAdd(name: "content-type", value: "text/html")
-        return response
+        return try await processor.processedPage.encodeResponse(
+            status: .ok,
+            headers: req.headers.replacingOrAdding(name: .contentType, value: "text/html"),
+            for: req
+        )
     }
 
     func css(req: Request) async throws -> Response {
@@ -85,7 +93,11 @@ struct PackageController {
         let remainder = req.parameters.getCatchall().joined(separator: "/")
 
         let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/css/\(remainder)")
-        return try await res.encodeResponse(for: req)
+        return try await res.encodeResponse(
+            status: .ok,
+            headers: req.headers.replacingOrAdding(name: .contentType, value: "text/css"),
+            for: req
+        )
     }
 
     func data(req: Request) async throws -> Response {
@@ -111,7 +123,11 @@ struct PackageController {
         let remainder = req.parameters.getCatchall().joined(separator: "/")
 
         let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/js/\(remainder)")
-        return try await res.encodeResponse(for: req)
+        return try await res.encodeResponse(
+            status: .ok,
+            headers: req.headers.replacingOrAdding(name: .contentType, value: "application/javascript"),
+            for: req
+        )
     }
 
     func themeSettings(req: Request) async throws -> Response {
@@ -253,4 +269,13 @@ extension PackageController {
         }
     }
 
+}
+
+
+private extension HTTPHeaders {
+    func replacingOrAdding(name: Name, value: String) -> Self {
+        var headers = self
+        headers.replaceOrAdd(name: name, value: value)
+        return headers
+    }
 }
