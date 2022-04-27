@@ -16,23 +16,13 @@
 @import 'styles/colors.scss';
 @import 'styles/images.scss';
 
-body,
-h1,
-h2,
-h3,
-h4,
-p,
-span,
-div {
-  font-family: -apple-system, 'BlinkMacSystemFont', 'SF Hello', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial',
-    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji' !important;
-}
-
 header.spi {
   position: sticky;
   width: 100%;
   color: var(--header-text);
   background-color: var(--header-background);
+  font-family: -apple-system, 'BlinkMacSystemFont', 'SF Hello', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial',
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji' !important;
 
   .inner {
     display: flex;
