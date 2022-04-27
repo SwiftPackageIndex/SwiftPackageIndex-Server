@@ -92,6 +92,10 @@ header.spi {
         outline: none;
       }
 
+      &::placeholder {
+        color: var(--input-placeholder);
+      }
+
       &::-webkit-search-cancel-button {
         -webkit-appearance: none; // remove the default "clear" button style.
 
