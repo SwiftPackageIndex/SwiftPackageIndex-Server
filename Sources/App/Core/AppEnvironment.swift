@@ -161,6 +161,7 @@ private enum Networking {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1676
         config.httpVersion = .http1Only
         let client = HTTPClient(eventLoopGroupProvider: .createNew, configuration: config)
+        defer { try? client.syncShutdown() }
         var req = HTTPClientRequest(url: url)
         req.method = .HEAD
         return try await client.execute(req, timeout: .seconds(2)).status
