@@ -58,15 +58,15 @@ func routes(_ app: Application) throws {
         let packageController = PackageController()
 
         do {  // temporary, hacky docc-proxy
-            app.get(":owner", ":repository", "documentation", use: packageController.documentation)
-            app.get(":owner", ":repository", "documentation", "**", use: packageController.documentation)
-            app.get(":owner", ":repository", "css", use: packageController.css)
-            app.get(":owner", ":repository", "css", "**", use: packageController.css)
-            app.get(":owner", ":repository", "data", use: packageController.data)
-            app.get(":owner", ":repository", "data", "**", use: packageController.data)
-            app.get(":owner", ":repository", "js", use: packageController.js)
-            app.get(":owner", ":repository", "js", "**", use: packageController.js)
-            app.get(":owner", ":repository", "theme-settings.json", use: packageController.themeSettings)
+            app.get(":owner", ":repository", ":reference", "documentation", use: packageController.documentation)
+            app.get(":owner", ":repository", ":reference", "documentation", "**", use: packageController.documentation)
+            app.get(":owner", ":repository", ":reference", "css", use: packageController.css)
+            app.get(":owner", ":repository", ":reference", "css", "**", use: packageController.css)
+            app.get(":owner", ":repository", ":reference", "data", use: packageController.data)
+            app.get(":owner", ":repository", ":reference", "data", "**", use: packageController.data)
+            app.get(":owner", ":repository", ":reference", "js", use: packageController.js)
+            app.get(":owner", ":repository", ":reference", "js", "**", use: packageController.js)
+            app.get(":owner", ":repository", ":reference", "theme-settings.json", use: packageController.themeSettings)
         }
 
         app.get(SiteURL.package(.key, .key, .none).pathComponents,
