@@ -15,11 +15,6 @@
 import Vapor
 import SwiftSoup
 
-// Note for PR: I'm not sure of the best place to put a utility like this
-// but it needs extracting now so that Plot and SwiftSoup don't constantly
-// fight over their different definitions of Node and Element.
-// It's in Core for now, but we can move it.
-
 struct DocumentationPageProcessor {
     let document: Document
 
