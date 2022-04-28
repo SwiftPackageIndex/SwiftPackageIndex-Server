@@ -55,16 +55,30 @@ struct PackageController {
         }
     }
 
+    enum Fragment: String {
+        case documentation
+        case css
+        case data
+        case js
+    }
+
+    #warning("make bucket name configurable")
+    func awsURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) -> URI {
+        URI(string: "http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/\(reference)/\(fragment)/\(path)")
+    }
+
     func documentation(req: Request) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository")
+            let repository = req.parameters.get("repository"),
+            let reference = req.parameters.get("reference")
         else {
             throw Abort(.notFound)
         }
-        let remainder = req.parameters.getCatchall().joined(separator: "/")
 
-        let awsResponse = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/documentation/\(remainder)")
+        let path = req.parameters.getCatchall().joined(separator: "/")
+
+        let awsResponse = try await req.client.get(awsURL(owner: owner, repository: repository, reference: reference, fragment: .documentation, path: path))
 
         // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
         guard let body = awsResponse.body, let processor = DocumentationPageProcessor(rawHtml: body.asString())
@@ -86,13 +100,15 @@ struct PackageController {
     func css(req: Request) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository")
+            let repository = req.parameters.get("repository"),
+            let reference = req.parameters.get("reference")
         else {
             throw Abort(.notFound)
         }
-        let remainder = req.parameters.getCatchall().joined(separator: "/")
 
-        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/css/\(remainder)")
+        let path = req.parameters.getCatchall().joined(separator: "/")
+
+        let res = try await req.client.get(awsURL(owner: owner, repository: repository, reference: reference, fragment: .css, path: path))
         return try await res.encodeResponse(
             status: .ok,
             headers: req.headers.replacingOrAdding(name: .contentType, value: "text/css"),
@@ -103,26 +119,29 @@ struct PackageController {
     func data(req: Request) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository")
+            let repository = req.parameters.get("repository"),
+            let reference = req.parameters.get("reference")
         else {
             throw Abort(.notFound)
         }
-        let remainder = req.parameters.getCatchall().joined(separator: "/")
 
-        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/data/\(remainder)")
+        let path = req.parameters.getCatchall().joined(separator: "/")
+
+        let res = try await req.client.get(awsURL(owner: owner, repository: repository, reference: reference, fragment: .data, path: path))
         return try await res.encodeResponse(for: req)
     }
 
     func js(req: Request) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository")
+            let repository = req.parameters.get("repository"),
+            let reference = req.parameters.get("reference")
         else {
             throw Abort(.notFound)
         }
-        let remainder = req.parameters.getCatchall().joined(separator: "/")
+        let path = req.parameters.getCatchall().joined(separator: "/")
 
-        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/js/\(remainder)")
+        let res = try await req.client.get(awsURL(owner: owner, repository: repository, reference: reference, fragment: .js, path: path))
         return try await res.encodeResponse(
             status: .ok,
             headers: req.headers.replacingOrAdding(name: .contentType, value: "application/javascript"),
