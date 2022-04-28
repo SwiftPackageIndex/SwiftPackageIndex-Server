@@ -29,6 +29,12 @@ extension String {
         }
         return self
     }
+    
+    var trimmed: String? {
+        let trimmedString = trimmingCharacters(in: .whitespaces)
+        if trimmedString.isEmpty { return nil }
+        return trimmedString
+    }
 }
 
 

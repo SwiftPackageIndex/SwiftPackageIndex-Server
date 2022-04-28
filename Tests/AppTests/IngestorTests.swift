@@ -218,6 +218,47 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.summary, "package desc")
     }
     
+    func test_homePageEmptyString() async throws {
+        // setup
+        let pkg = try await savePackageAsync(on: app.db, "2")
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+        let metadata: [Result<(Joined<Package, Repository>,
+                               Github.Metadata, Github.License?,
+                               Github.Readme?),
+                       Error>] = [
+                        .failure(AppError.metadataRequestFailed(nil, .badRequest, "1")),
+                        .success((jpr,
+                                  .init(defaultBranch: "main",
+                                        forks: 1,
+                                        homepageUrl: "  ",
+                                        isInOrganization: true,
+                                        issuesClosedAtDates: [],
+                                        license: .mit,
+                                        openIssues: 1,
+                                        openPullRequests: 2,
+                                        owner: "foo",
+                                        pullRequestsClosedAtDates: [],
+                                        releases: [],
+                                        repositoryTopics: ["foo", "bar", "Bar", "baz"],
+                                        name: "bar",
+                                        stars: 2,
+                                        summary: "package desc"),
+                                  licenseInfo: .init(htmlUrl: "license url"),
+                                  readmeInfo: .init(downloadUrl: "readme url", htmlUrl: "readme html url")))
+                       ]
+        
+        // MUT
+        let res = await updateRepositories(on: app.db, metadata: metadata)
+        
+        // validate
+        XCTAssertEqual(res.map(\.isSuccess), [false, true])
+        let repo = try await Repository.query(on: app.db)
+            .filter(\.$package.$id == pkg.requireID())
+            .first()
+            .unwrap()
+        XCTAssertNil(repo.homepageUrl)
+    }
+    
     func test_updatePackage() async throws {
         // setup
         let pkgs = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1",
