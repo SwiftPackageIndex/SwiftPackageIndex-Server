@@ -19,6 +19,9 @@ x-shared: &shared
   environment:
     # set these variables via the environment or a `.env` file, which
     # docker-compose reads and uses to populate variables
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+    AWS_DOCS_BUCKET: ${AWS_DOCS_BUCKET}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     ALLOW_BUILD_TRIGGERS: ${ALLOW_BUILD_TRIGGERS}
     ALLOW_TWITTER_POSTS: ${ALLOW_TWITTER_POSTS}
     BUILD_TRIGGER_DOWNSCALING: ${BUILD_TRIGGER_DOWNSCALING}
