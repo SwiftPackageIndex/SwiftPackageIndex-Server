@@ -23,6 +23,7 @@ import FoundationNetworking
 struct AppEnvironment {
     var allowBuildTriggers: () -> Bool
     var allowTwitterPosts: () -> Bool
+    var awsDocsBucket: () -> String?
     var appVersion: () -> String?
     var builderToken: () -> String?
     var buildTriggerDownscaling: () -> Double
@@ -78,6 +79,7 @@ extension AppEnvironment {
                 .flatMap(\.asBool)
                 ?? Constants.defaultAllowTwitterPosts
         },
+        awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
         appVersion: { App.appVersion },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerDownscaling: {

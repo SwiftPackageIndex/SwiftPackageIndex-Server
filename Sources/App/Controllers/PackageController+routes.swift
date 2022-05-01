@@ -62,9 +62,12 @@ struct PackageController {
         case js
     }
 
-    #warning("make bucket name configurable")
-    func awsURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) -> URI {
-        URI(string: "http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/\(reference)/\(fragment)/\(path)")
+    func awsURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) throws -> URI {
+        guard let bucket = Current.awsDocsBucket() else {
+            throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
+        }
+
+        return URI(string: "http://\(bucket).s3.us-east-2.amazonaws.com/\(owner)/\(repository)/\(reference)/\(fragment)/\(path)")
     }
 
     func documentation(req: Request) async throws -> Response {
