@@ -39,6 +39,7 @@ class GitlabBuilderTests: XCTestCase {
     }
 
     func test_triggerBuild() throws {
+        Current.awsDocsBucket = { "docs-bucket" }
         Current.builderToken = { "builder token" }
         Current.gitlabPipelineToken = { "pipeline token" }
         Current.siteURL = { "http://example.com" }
@@ -58,6 +59,7 @@ class GitlabBuilderTests: XCTestCase {
                             ref: "main",
                             variables: [
                                 "API_BASEURL": "http://example.com/api",
+                                "AWS_DOCS_BUCKET": "docs-bucket",
                                 "BUILD_ID": buildId.uuidString,
                                 "BUILD_PLATFORM": "macos-spm",
                                 "BUILDER_TOKEN": "builder token",
