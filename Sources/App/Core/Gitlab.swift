@@ -54,7 +54,11 @@ extension Gitlab {
 
 extension Gitlab.Builder {
 
+#if DEBUG
+    static var branch = "main"
+#else
     static let branch = "main"
+#endif
 
     struct Response: Content, Codable {
         var webUrl: String
