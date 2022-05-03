@@ -221,6 +221,42 @@ class PackageController_routesTests: AppTestCase {
         )
     }
 
+    func test_documentation() throws {
+        // setup
+        Current.fetchDocumentation = { _, _ in .init(status: .ok, body: .init(string: "")) }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+            .save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/1.2.3/documentation") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
+            XCTAssertTrue($0.body.asString()
+                    .contains(#"<link rel="stylesheet" href="/docc.css?test">"#),
+                          "was: \($0.body.asString())")
+        }
+    }
+
+    func test_documentation_404() throws {
+        // Test conversion of any doc fetching errors into 404s
+        // setup
+        Current.fetchDocumentation = { _, _ in .init(status: .badRequest) }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+            .save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/1.2.3/documentation") {
+            XCTAssertEqual($0.status, .notFound)
+        }
+    }
+
 }
 
 

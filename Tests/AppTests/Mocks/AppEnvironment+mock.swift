@@ -14,6 +14,7 @@
 
 @testable import App
 
+import AsyncHTTPClient
 import NIO
 import Vapor
 
@@ -43,6 +44,7 @@ extension AppEnvironment {
             },
             date: Date.init,
             dbId: { "db-id" },
+            fetchDocumentation: { _, _ in .init(status: .ok) },
             fetchHTTPStatusCode: { _ in .ok },
             fetchPackageList: { _ in
                 ["https://github.com/finestructure/Gala",
