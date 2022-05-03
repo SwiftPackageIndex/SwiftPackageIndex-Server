@@ -15,6 +15,7 @@
 import Fluent
 import Plot
 import Vapor
+import SourceControl
 
 
 struct PackageController {
@@ -75,12 +76,16 @@ struct PackageController {
         }
     }
 
-    func awsURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) throws -> URI {
+    func awsDocumentationURL(owner: String, repository: String, path: String) throws -> URI {
         guard let bucket = Current.awsDocsBucket() else {
             throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
         }
 
-        return URI(string: "http://\(bucket).s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/\(reference)/\(fragment)/\(path)")
+        return URI(string: "http://\(bucket).s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/\(path)")
+    }
+
+    func awsDocumentationURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) throws -> URI {
+        try awsDocumentationURL(owner: owner, repository: repository, path: "\(reference)/\(fragment)/\(path)")
     }
 
     func documentation(req: Request, fragment: Fragment) async throws -> Response {
@@ -94,7 +99,7 @@ struct PackageController {
 
         let path = req.parameters.getCatchall().joined(separator: "/")
 
-        let url = try awsURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
+        let url = try awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         let res = try await req.client.get(url)
 
         switch fragment {
@@ -128,10 +133,6 @@ struct PackageController {
     }
 
     func themeSettings(req: Request) async throws -> Response {
-        guard let bucket = Current.awsDocsBucket() else {
-            throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
-        }
-
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -139,7 +140,8 @@ struct PackageController {
             throw Abort(.notFound)
         }
 
-        let res = try await req.client.get("http://\(bucket).s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/theme-settings.json")
+        let url = try awsDocumentationURL(owner: owner, repository: repository, path: "theme-settings.json")
+        let res = try await req.client.get(url)
         return try await res.encodeResponse(for: req)
     }
 
