@@ -58,14 +58,23 @@ func routes(_ app: Application) throws {
         let packageController = PackageController()
 
         do {  // temporary, hacky docc-proxy
-            app.get(":owner", ":repository", ":reference", "documentation", use: packageController.documentation)
-            app.get(":owner", ":repository", ":reference", "documentation", "**", use: packageController.documentation)
-            app.get(":owner", ":repository", ":reference", "css", use: packageController.css)
-            app.get(":owner", ":repository", ":reference", "css", "**", use: packageController.css)
-            app.get(":owner", ":repository", ":reference", "data", use: packageController.data)
-            app.get(":owner", ":repository", ":reference", "data", "**", use: packageController.data)
-            app.get(":owner", ":repository", ":reference", "js", use: packageController.js)
-            app.get(":owner", ":repository", ":reference", "js", "**", use: packageController.js)
+            app.get(":owner", ":repository", ":reference", "documentation") {
+                try await packageController.documentation(req: $0, fragment: .documentation)
+            }
+            app.get(":owner", ":repository", ":reference", "documentation", "**") { try await packageController.documentation(req: $0, fragment: .documentation)
+            }
+            app.get(":owner", ":repository", ":reference", "css") { try await packageController.documentation(req: $0, fragment: .css)
+            }
+            app.get(":owner", ":repository", ":reference", "css", "**") { try await packageController.documentation(req: $0, fragment: .css)
+            }
+            app.get(":owner", ":repository", ":reference", "data") { try await packageController.documentation(req: $0, fragment: .data)
+            }
+            app.get(":owner", ":repository", ":reference", "data", "**") { try await packageController.documentation(req: $0, fragment: .data)
+            }
+            app.get(":owner", ":repository", ":reference", "js") { try await packageController.documentation(req: $0, fragment: .js)
+            }
+            app.get(":owner", ":repository", ":reference", "js", "**") { try await packageController.documentation(req: $0, fragment: .js)
+            }
             app.get(":owner", ":repository", ":reference", "theme-settings.json", use: packageController.themeSettings)
         }
 
