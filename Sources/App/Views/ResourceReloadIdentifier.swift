@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import Vapor
 
 struct ResourceReloadIdentifier {
     static var value: String {
@@ -29,19 +30,16 @@ struct ResourceReloadIdentifier {
         }
     }
 
-    // This method is only called in a local development environment, so all paths
-    // can be relative to this source file.
     private static func modificationDate(forLocalResource resource: String) -> Date {
-        let relativePathToPublic = "../../../Public/"
-        let url = URL(fileURLWithPath: relativePathToPublic + resource,
-                      relativeTo: URL(fileURLWithPath: #file))
+        let pathToPublic = DirectoryConfiguration.detect().publicDirectory
+        let url = URL(fileURLWithPath: pathToPublic + resource)
 
         // Assume the file has been modified *now* if the file can't be found.
-        guard let attributes = try? Foundation.FileManager.default.attributesOfItem(atPath: url.path)
-        else { return Date() }
+        guard let attributes = try? Current.fileManager.attributesOfItem(atPath: url.path)
+        else { return Current.date() }
 
         // Also assume the file is modified now if the attribute doesn't exist.
         let modificationDate = attributes[FileAttributeKey.modificationDate] as? Date
-        return modificationDate ?? Date()
+        return modificationDate ?? Current.date()
     }
 }
