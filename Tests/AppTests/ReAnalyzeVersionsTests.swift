@@ -61,11 +61,11 @@ class ReAnalyzeVersionsTests: AppTestCase {
         }
         do {
             // run initial analysis and assert initial state for versions
-            try analyze(client: app.client,
-                        database: app.db,
-                        logger: app.logger,
-                        threadPool: app.threadPool,
-                        mode: .limit(10)).wait()
+            try Analyze.analyze(client: app.client,
+                                database: app.db,
+                                logger: app.logger,
+                                threadPool: app.threadPool,
+                                mode: .limit(10)).wait()
             let versions = try Version.query(on: app.db)
                 .with(\.$targets)
                 .all().wait()
@@ -93,11 +93,11 @@ class ReAnalyzeVersionsTests: AppTestCase {
             try r.save(on: app.db).wait()
         }
         do {  // assert running analysis again does not update existing versions
-            try analyze(client: app.client,
-                        database: app.db,
-                        logger: app.logger,
-                        threadPool: app.threadPool,
-                        mode: .limit(10)).wait()
+            try Analyze.analyze(client: app.client,
+                                database: app.db,
+                                logger: app.logger,
+                                threadPool: app.threadPool,
+                                mode: .limit(10)).wait()
             let versions = try Version.query(on: app.db)
                 .with(\.$targets)
                 .all().wait()
@@ -179,11 +179,11 @@ class ReAnalyzeVersionsTests: AppTestCase {
             }
             return ""
         }
-        try analyze(client: app.client,
-                    database: app.db,
-                    logger: app.logger,
-                    threadPool: app.threadPool,
-                    mode: .limit(10)).wait()
+        try Analyze.analyze(client: app.client,
+                            database: app.db,
+                            logger: app.logger,
+                            threadPool: app.threadPool,
+                            mode: .limit(10)).wait()
         try setAllVersionsUpdatedAt(app.db, updatedAt: .t0)
         do {
             let candidates = try Package

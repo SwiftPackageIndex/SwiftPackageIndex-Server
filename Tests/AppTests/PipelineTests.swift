@@ -175,11 +175,11 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - third stage
-        try await analyze(client: app.client,
-                          database: app.db,
-                          logger: app.logger,
-                          threadPool: app.threadPool,
-                          mode: .limit(10)).get()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  threadPool: app.threadPool,
+                                  mode: .limit(10)).get()
         
         do { // validate
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
@@ -216,11 +216,11 @@ class PipelineTests: AppTestCase {
         
         // MUT - analyze again
         let lastAnalysis = Current.date()
-        try await analyze(client: app.client,
-                          database: app.db,
-                          logger: app.logger,
-                          threadPool: app.threadPool,
-                          mode: .limit(10)).get()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  threadPool: app.threadPool,
+                                  mode: .limit(10)).get()
         
         do {  // validate - only new package moves to .ingestion stage
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
@@ -246,11 +246,11 @@ class PipelineTests: AppTestCase {
         }
         
         // MUT - re-run analysis to complete the sequence
-        try await analyze(client: app.client,
-                          database: app.db,
-                          logger: app.logger,
-                          threadPool: app.threadPool,
-                          mode: .limit(10)).get()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  threadPool: app.threadPool,
+                                  mode: .limit(10)).get()
         
         do {  // validate - only new package moves to .ingestion stage
             let packages = try await Package.query(on: app.db).sort(\.$url).all()

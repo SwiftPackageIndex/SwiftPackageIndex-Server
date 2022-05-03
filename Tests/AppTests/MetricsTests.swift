@@ -72,7 +72,7 @@ class MetricsTests: AppTestCase {
         try del.save(on: app.db).wait()
 
         // MUT
-        try applyVersionDelta(on: app.db, delta: .init(toAdd: new, toDelete: del)).wait()
+        try Analyze.applyVersionDelta(on: app.db, delta: .init(toAdd: new, toDelete: del)).wait()
 
         // validation
         XCTAssertEqual(AppMetrics.analyzeVersionsAddedCount?.get(.init("branch")),
@@ -115,7 +115,7 @@ class MetricsTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
 
         // MUT
-        try analyze(client: app.client, database: app.db, logger: app.logger, threadPool: app.threadPool, mode: .id(pkg.id!)).wait()
+        try Analyze.analyze(client: app.client, database: app.db, logger: app.logger, threadPool: app.threadPool, mode: .id(pkg.id!)).wait()
 
         // validation
         XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)

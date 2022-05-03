@@ -29,7 +29,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", -.hours(1), .branch("main"))
 
         // MUT
-        let res = throttle(lastestExistingVersion: old, incoming: [new])
+        let res = Analyze.throttle(lastestExistingVersion: old, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [old])
@@ -45,7 +45,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
         // MUT
-        let res = throttle(lastestExistingVersion: old, incoming: [new])
+        let res = Analyze.throttle(lastestExistingVersion: old, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [new])
@@ -61,7 +61,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .tag(2, 0, 0))
 
         // MUT
-        let res = throttle(lastestExistingVersion: old, incoming: [new])
+        let res = Analyze.throttle(lastestExistingVersion: old, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [new])
@@ -76,7 +76,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
         // MUT
-        let res = throttle(lastestExistingVersion: nil, incoming: [new])
+        let res = Analyze.throttle(lastestExistingVersion: nil, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [new])
@@ -92,7 +92,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha_new", .hours(-1), .branch("main"))
 
         // MUT
-        let res = throttle(lastestExistingVersion: old, incoming: [new])
+        let res = Analyze.throttle(lastestExistingVersion: old, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [old])
@@ -108,7 +108,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new = try makeVersion(pkg, "sha", .hours(-1), .branch("main-new"))
 
         // MUT
-        let res = throttle(lastestExistingVersion: old, incoming: [new])
+        let res = Analyze.throttle(lastestExistingVersion: old, incoming: [new])
 
         // validate
         XCTAssertEqual(res, [old])
@@ -128,8 +128,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new2 = try makeVersion(pkg, "sha_new2", .hours(-1), .branch("main"))
 
         // MUT
-        let res = throttle(lastestExistingVersion: old,
-                           incoming: [new0, new1, new2].shuffled())
+        let res = Analyze.throttle(lastestExistingVersion: old,
+                                   incoming: [new0, new1, new2].shuffled())
 
         // validate
         XCTAssertEqual(res, [old])
@@ -149,8 +149,8 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
         let new2 = try makeVersion(pkg, "sha_new2", .hours(-1), .branch("main"))
 
         // MUT
-        let res = throttle(lastestExistingVersion: old,
-                           incoming: [new0, new1, new2].shuffled())
+        let res = Analyze.throttle(lastestExistingVersion: old,
+                                   incoming: [new0, new1, new2].shuffled())
 
         // validate
         XCTAssertEqual(res, [new2])
@@ -174,11 +174,11 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             }
 
             // MUT
-            let res = try diffVersions(client: app.client,
-                                       logger: app.logger,
-                                       threadPool: app.threadPool,
-                                       transaction: app.db,
-                                       package: jpr).wait()
+            let res = try Analyze.diffVersions(client: app.client,
+                                               logger: app.logger,
+                                               threadPool: app.threadPool,
+                                               transaction: app.db,
+                                               package: jpr).wait()
 
             // validate
             XCTAssertEqual(res.toAdd, [])
@@ -195,11 +195,11 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             }
 
             // MUT
-            let res = try diffVersions(client: app.client,
-                                       logger: app.logger,
-                                       threadPool: app.threadPool,
-                                       transaction: app.db,
-                                       package: jpr).wait()
+            let res = try Analyze.diffVersions(client: app.client,
+                                               logger: app.logger,
+                                               threadPool: app.threadPool,
+                                               transaction: app.db,
+                                               package: jpr).wait()
 
             // validate
             XCTAssertEqual(res.toAdd.map(\.commit), ["sha_new2"])
@@ -216,13 +216,13 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
 
         // Little helper to simulate minimal version reconciliation
         func runVersionReconciliation() throws -> VersionDelta {
-            let delta = try diffVersions(client: app.client,
-                                         logger: app.logger,
-                                         threadPool: app.threadPool,
-                                         transaction: app.db,
-                                         package: jpr).wait()
+            let delta = try Analyze.diffVersions(client: app.client,
+                                                 logger: app.logger,
+                                                 threadPool: app.threadPool,
+                                                 transaction: app.db,
+                                                 package: jpr).wait()
             // apply the delta to ensure versions are in place for next cycle
-            try applyVersionDelta(on: app.db, delta: delta).wait()
+            try Analyze.applyVersionDelta(on: app.db, delta: delta).wait()
             return delta
         }
 
@@ -297,7 +297,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             let inc = try makeVersion(pkg, "sha-inc", .hours(-23), .branch("main"))
 
             // MUT
-            let res = throttle(lastestExistingVersion: ex, incoming: [inc])
+            let res = Analyze.throttle(lastestExistingVersion: ex, incoming: [inc])
 
             // validate
             XCTAssertEqual(res, [ex])
@@ -308,7 +308,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             let inc = try makeVersion(pkg, "sha-inc", .hours(-26), .branch("main"))
 
             // MUT
-            let res = throttle(lastestExistingVersion: ex, incoming: [inc])
+            let res = Analyze.throttle(lastestExistingVersion: ex, incoming: [inc])
 
             // validate
             XCTAssertEqual(res, [ex])
@@ -319,7 +319,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
             let inc = try makeVersion(pkg, "sha-inc", .hours(-28), .branch("main"))
 
             // MUT
-            let res = throttle(lastestExistingVersion: ex, incoming: [inc])
+            let res = Analyze.throttle(lastestExistingVersion: ex, incoming: [inc])
 
             // validate
             XCTAssertEqual(res, [inc])

@@ -117,7 +117,7 @@ class ScoreTests: AppTestCase {
         }
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
         // update versions
-        try updateLatestVersions(on: app.db, package: jpr).wait()
+        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
         let versions = try pkg.$versions.load(on: app.db)
             .map { pkg.versions }
             .wait()
