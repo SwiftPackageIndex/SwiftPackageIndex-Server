@@ -116,7 +116,6 @@ struct PackageController {
                     for: req
                 )
 
-
             case .css, .data, .js:
                 return try await res.encodeResponse(
                     status: .ok,
