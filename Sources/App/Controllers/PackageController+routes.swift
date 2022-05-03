@@ -69,7 +69,7 @@ struct PackageController {
                 case .data:
                     return "application/octet-stream"
                 case .documentation:
-                    return "text/html"
+                    return "text/html; charset=utf-8"
                 case .js:
                     return "application/javascript"
             }
@@ -88,7 +88,11 @@ struct PackageController {
         let path = req.parameters.getCatchall().joined(separator: "/")
 
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
-        let res = try await req.client.get(url)
+        let res = try await Current.fetchDocumentation(req.client, url)
+        guard (200..<399).contains(res.status.code) else {
+            // Convert anything that isn't a 2xx or 3xx into a 404
+            throw Abort(.notFound)
+        }
 
         switch fragment {
             case .documentation:
@@ -106,7 +110,8 @@ struct PackageController {
 
                 return try await processor.processedPage.encodeResponse(
                     status: .ok,
-                    headers: req.headers.replacingOrAdding(name: .contentType, value: "text/html"),
+                    headers: req.headers.replacingOrAdding(name: .contentType,
+                                                           value: fragment.contentType),
                     for: req
                 )
 
@@ -129,7 +134,7 @@ struct PackageController {
         }
 
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, path: "theme-settings.json")
-        let res = try await req.client.get(url)
+        let res = try await Current.fetchDocumentation(req.client, url)
         return try await res.encodeResponse(for: req)
     }
 
