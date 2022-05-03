@@ -177,10 +177,10 @@ func reAnalyzeVersions(client: Client,
                             before: cutoffDate)
             .flatMap { setUpdatedAt(on: tx, packageVersions: $0) }
             .flatMap { mergeReleaseInfo(on: tx, packageVersions: $0) }
-            .map { getPackageInfo(packageAndVersions: $0) }
-            .flatMap { updateVersions(on: tx, packageResults: $0) }
-            .flatMap { updateProducts(on: tx, packageResults: $0) }
-            .flatMap { updateTargets(on: tx, packageResults: $0) }
+            .map { Analyze.getPackageInfo(packageAndVersions: $0) }
+            .flatMap { Analyze.updateVersions(on: tx, packageResults: $0) }
+            .flatMap { Analyze.updateProducts(on: tx, packageResults: $0) }
+            .flatMap { Analyze.updateTargets(on: tx, packageResults: $0) }
     }
     .transform(to: ())
 }
@@ -194,11 +194,11 @@ func getExistingVersions(client: Client,
                          before cutoffDate: Date) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [Version]), Error>]> {
     EventLoopFuture.whenAllComplete(
         packages.map { pkg in
-            diffVersions(client: client,
-                         logger: logger,
-                         threadPool: threadPool,
-                         transaction: transaction,
-                         package: pkg)
+            Analyze.diffVersions(client: client,
+                                 logger: logger,
+                                 threadPool: threadPool,
+                                 transaction: transaction,
+                                 package: pkg)
                 .map {
                     (pkg, $0.toKeep.filter {
                         $0.updatedAt != nil && $0.updatedAt! < cutoffDate
@@ -236,7 +236,7 @@ func setUpdatedAt(on database: Database,
 func mergeReleaseInfo(on transaction: Database,
                       packageVersions: [Result<(Joined<Package, Repository>, [Version]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [Version]), Error>]> {
     packageVersions.whenAllComplete(on: transaction.eventLoop) { pkg, versions in
-        mergeReleaseInfo(on: transaction, package: pkg, versions: versions)
+        Analyze.mergeReleaseInfo(on: transaction, package: pkg, versions: versions)
             .map { (pkg, $0) }
     }
 }

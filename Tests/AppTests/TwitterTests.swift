@@ -178,7 +178,7 @@ class TwitterTests: AppTestCase {
         let v3 = try Version(package: pkg, packageName: "MyPackage", reference: .branch("main"))
         try v3.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        try updateLatestVersions(on: app.db, package: jpr).wait()
+        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
 
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
@@ -213,7 +213,7 @@ class TwitterTests: AppTestCase {
         let v2 = try Version(package: pkg, packageName: "MyPackage", reference: .tag(2, 0, 0))
         try v2.save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        try updateLatestVersions(on: app.db, package: jpr).wait()
+        try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
 
         Current.twitterCredentials = {
             .init(apiKey: ("key", "secret"), accessToken: ("key", "secret"))
@@ -278,11 +278,11 @@ class TwitterTests: AppTestCase {
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
 
         // MUT - analyze, triggering the tweet
-        try analyze(client: app.client,
-                    database: app.db,
-                    logger: app.logger,
-                    threadPool: app.threadPool,
-                    mode: .limit(10)).wait()
+        try Analyze.analyze(client: app.client,
+                            database: app.db,
+                            logger: app.logger,
+                            threadPool: app.threadPool,
+                            mode: .limit(10)).wait()
         do {
             let msg = try XCTUnwrap(message)
             XCTAssertTrue(msg.hasPrefix("📦 foo just added a new package, Mock"), "was \(msg)")
@@ -295,11 +295,11 @@ class TwitterTests: AppTestCase {
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
 
         // MUT - analyze, triggering tweets if any
-        try analyze(client: app.client,
-                    database: app.db,
-                    logger: app.logger,
-                    threadPool: app.threadPool,
-                    mode: .limit(10)).wait()
+        try Analyze.analyze(client: app.client,
+                            database: app.db,
+                            logger: app.logger,
+                            threadPool: app.threadPool,
+                            mode: .limit(10)).wait()
 
         // validate - there are no new tweets to send
         XCTAssertNil(message)
@@ -311,11 +311,11 @@ class TwitterTests: AppTestCase {
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
 
         // MUT - analyze again
-        try analyze(client: app.client,
-                    database: app.db,
-                    logger: app.logger,
-                    threadPool: app.threadPool,
-                    mode: .limit(10)).wait()
+        try Analyze.analyze(client: app.client,
+                            database: app.db,
+                            logger: app.logger,
+                            threadPool: app.threadPool,
+                            mode: .limit(10)).wait()
 
         // validate
         let msg = try XCTUnwrap(message)

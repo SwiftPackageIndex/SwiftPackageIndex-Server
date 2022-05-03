@@ -416,7 +416,7 @@ class ApiTests: AppTestCase {
         try Version(package: p, reference: .tag(.init(1, 2, 3))).save(on: app.db).wait()
         let jpr = try Package.fetchCandidate(app.db, id: p.id!).wait()
         // update versions
-        _ = try updateLatestVersions(on: app.db, package: jpr).wait()
+        _ = try Analyze.updateLatestVersions(on: app.db, package: jpr).wait()
 
         let owner = "foo"
         let repo = "bar"

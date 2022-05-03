@@ -236,7 +236,7 @@ public func configure(_ app: Application) throws -> String {
         app.migrations.add(UpdateRepositoryAddHomepageUrl())
     }
 
-    app.commands.use(AnalyzeCommand(), as: "analyze")
+    app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
     app.commands.use(DeleteBuildsCommand(), as: "delete-builds")
     app.commands.use(IngestCommand(), as: "ingest")
