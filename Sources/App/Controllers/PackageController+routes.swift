@@ -128,6 +128,10 @@ struct PackageController {
     }
 
     func themeSettings(req: Request) async throws -> Response {
+        guard let bucket = Current.awsDocsBucket() else {
+            throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
+        }
+
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository")
@@ -135,8 +139,7 @@ struct PackageController {
             throw Abort(.notFound)
         }
 
-#warning("fix url")
-        let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/theme-settings.json")
+        let res = try await req.client.get("http://\(bucket).s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/theme-settings.json")
         return try await res.encodeResponse(for: req)
     }
 
