@@ -15,7 +15,6 @@
 import Fluent
 import Plot
 import Vapor
-import SourceControl
 
 
 struct PackageController {
