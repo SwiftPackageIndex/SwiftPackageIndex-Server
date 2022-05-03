@@ -80,7 +80,7 @@ struct PackageController {
             throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
         }
 
-        return URI(string: "http://\(bucket).s3.us-east-2.amazonaws.com/\(owner)/\(repository)/\(reference)/\(fragment)/\(path)")
+        return URI(string: "http://\(bucket).s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/\(reference)/\(fragment)/\(path)")
     }
 
     func documentation(req: Request, fragment: Fragment) async throws -> Response {
@@ -94,7 +94,8 @@ struct PackageController {
 
         let path = req.parameters.getCatchall().joined(separator: "/")
 
-        let res = try await req.client.get(awsURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path))
+        let url = try awsURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
+        let res = try await req.client.get(url)
 
         switch fragment {
             case .documentation:
