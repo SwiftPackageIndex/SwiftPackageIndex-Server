@@ -82,7 +82,9 @@ func routes(_ app: Application) throws {
             app.get(":owner", ":repository", ":reference", "js", "**") {
                 try await packageController.documentation(req: $0, fragment: .js)
             }
-            app.get(":owner", ":repository", ":reference", "theme-settings.json", use: packageController.themeSettings)
+            app.get(":owner", ":repository", ":reference", "theme-settings.json") {
+                try await packageController.documentation(req: $0, fragment: .themeSettings)
+            }
         }
 
         app.get(SiteURL.package(.key, .key, .none).pathComponents,
