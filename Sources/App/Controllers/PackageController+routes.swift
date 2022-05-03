@@ -60,6 +60,19 @@ struct PackageController {
         case css
         case data
         case js
+
+        var contentType: String {
+            switch self {
+                case .documentation:
+                    return "text/html"
+                case .css:
+                    return "text/css"
+                case .data:
+                    return "application/octet-stream"
+                case .js:
+                    return "application/javascript"
+            }
+        }
     }
 
     func awsURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) throws -> URI {
@@ -70,7 +83,7 @@ struct PackageController {
         return URI(string: "http://\(bucket).s3.us-east-2.amazonaws.com/\(owner)/\(repository)/\(reference)/\(fragment)/\(path)")
     }
 
-    func documentation(req: Request) async throws -> Response {
+    func documentation(req: Request, fragment: Fragment) async throws -> Response {
         guard
             let owner = req.parameters.get("owner"),
             let repository = req.parameters.get("repository"),
@@ -81,75 +94,37 @@ struct PackageController {
 
         let path = req.parameters.getCatchall().joined(separator: "/")
 
-        let awsResponse = try await req.client.get(awsURL(owner: owner, repository: repository, reference: reference, fragment: .documentation, path: path))
+        let res = try await req.client.get(awsURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path))
 
-        // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
-        guard let body = awsResponse.body, let processor = DocumentationPageProcessor(rawHtml: body.asString())
-        else {
-            return try await awsResponse.encodeResponse(
-                status: .ok,
-                headers: req.headers.replacingOrAdding(name: .contentType, value: "text/html"),
-                for: req
-            )
+        switch fragment {
+            case .documentation:
+                // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
+                guard let body = res.body,
+                      let processor = DocumentationPageProcessor(rawHtml: body.asString())
+                else {
+                    return try await res.encodeResponse(
+                        status: .ok,
+                        headers: req.headers.replacingOrAdding(name: .contentType,
+                                                               value: fragment.contentType),
+                        for: req
+                    )
+                }
+
+                return try await processor.processedPage.encodeResponse(
+                    status: .ok,
+                    headers: req.headers.replacingOrAdding(name: .contentType, value: "text/html"),
+                    for: req
+                )
+
+
+            case .css, .data, .js:
+                return try await res.encodeResponse(
+                    status: .ok,
+                    headers: req.headers.replacingOrAdding(name: .contentType,
+                                                           value: fragment.contentType),
+                    for: req
+                )
         }
-
-        return try await processor.processedPage.encodeResponse(
-            status: .ok,
-            headers: req.headers.replacingOrAdding(name: .contentType, value: "text/html"),
-            for: req
-        )
-    }
-
-    func css(req: Request) async throws -> Response {
-        guard
-            let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository"),
-            let reference = req.parameters.get("reference")
-        else {
-            throw Abort(.notFound)
-        }
-
-        let path = req.parameters.getCatchall().joined(separator: "/")
-
-        let res = try await req.client.get(awsURL(owner: owner, repository: repository, reference: reference, fragment: .css, path: path))
-        return try await res.encodeResponse(
-            status: .ok,
-            headers: req.headers.replacingOrAdding(name: .contentType, value: "text/css"),
-            for: req
-        )
-    }
-
-    func data(req: Request) async throws -> Response {
-        guard
-            let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository"),
-            let reference = req.parameters.get("reference")
-        else {
-            throw Abort(.notFound)
-        }
-
-        let path = req.parameters.getCatchall().joined(separator: "/")
-
-        let res = try await req.client.get(awsURL(owner: owner, repository: repository, reference: reference, fragment: .data, path: path))
-        return try await res.encodeResponse(for: req)
-    }
-
-    func js(req: Request) async throws -> Response {
-        guard
-            let owner = req.parameters.get("owner"),
-            let repository = req.parameters.get("repository"),
-            let reference = req.parameters.get("reference")
-        else {
-            throw Abort(.notFound)
-        }
-        let path = req.parameters.getCatchall().joined(separator: "/")
-
-        let res = try await req.client.get(awsURL(owner: owner, repository: repository, reference: reference, fragment: .js, path: path))
-        return try await res.encodeResponse(
-            status: .ok,
-            headers: req.headers.replacingOrAdding(name: .contentType, value: "application/javascript"),
-            for: req
-        )
     }
 
     func themeSettings(req: Request) async throws -> Response {
@@ -160,6 +135,7 @@ struct PackageController {
             throw Abort(.notFound)
         }
 
+#warning("fix url")
         let res = try await req.client.get("http://spi-docs-test.s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/theme-settings.json")
         return try await res.encodeResponse(for: req)
     }
