@@ -57,35 +57,23 @@ struct PackageController {
     }
 
     enum Fragment: String {
-        case documentation
         case css
         case data
+        case documentation
         case js
 
         var contentType: String {
             switch self {
-                case .documentation:
-                    return "text/html"
                 case .css:
                     return "text/css"
                 case .data:
                     return "application/octet-stream"
+                case .documentation:
+                    return "text/html"
                 case .js:
                     return "application/javascript"
             }
         }
-    }
-
-    func awsDocumentationURL(owner: String, repository: String, path: String) throws -> URI {
-        guard let bucket = Current.awsDocsBucket() else {
-            throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
-        }
-
-        return URI(string: "http://\(bucket).s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/\(path)")
-    }
-
-    func awsDocumentationURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) throws -> URI {
-        try awsDocumentationURL(owner: owner, repository: repository, path: "\(reference)/\(fragment)/\(path)")
     }
 
     func documentation(req: Request, fragment: Fragment) async throws -> Response {
@@ -99,7 +87,7 @@ struct PackageController {
 
         let path = req.parameters.getCatchall().joined(separator: "/")
 
-        let url = try awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
+        let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
         let res = try await req.client.get(url)
 
         switch fragment {
@@ -140,7 +128,7 @@ struct PackageController {
             throw Abort(.notFound)
         }
 
-        let url = try awsDocumentationURL(owner: owner, repository: repository, path: "theme-settings.json")
+        let url = try Self.awsDocumentationURL(owner: owner, repository: repository, path: "theme-settings.json")
         let res = try await req.client.get(url)
         return try await res.encodeResponse(for: req)
     }
@@ -272,6 +260,21 @@ extension PackageController {
         }
     }
 
+}
+
+
+extension PackageController {
+    static func awsDocumentationURL(owner: String, repository: String, path: String) throws -> URI {
+        guard let bucket = Current.awsDocsBucket() else {
+            throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
+        }
+
+        return URI(string: "http://\(bucket).s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/\(path)")
+    }
+
+    static func awsDocumentationURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) throws -> URI {
+        try awsDocumentationURL(owner: owner, repository: repository, path: "\(reference)/\(fragment)/\(path)")
+    }
 }
 
 
