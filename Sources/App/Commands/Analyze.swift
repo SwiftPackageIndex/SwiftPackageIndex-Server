@@ -14,8 +14,9 @@
 
 import DependencyResolution
 import Fluent
-import Vapor
+import SPIManifest
 import ShellOut
+import Vapor
 
 
 enum Analyze {
@@ -81,7 +82,7 @@ extension Analyze {
         AppMetrics.analyzeVersionsDeletedCount?.set(0)
     }
 
-    
+
     static func trimCheckouts() throws {
         let checkoutDir = URL(
             fileURLWithPath: Current.fileManager.checkoutsDirectory(),

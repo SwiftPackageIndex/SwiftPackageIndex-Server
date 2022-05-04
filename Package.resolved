@@ -137,6 +137,15 @@
         }
       },
       {
+        "package": "SPIManifest",
+        "repositoryURL": "https://github.com/SwiftPackageIndex/SPIManifest",
+        "state": {
+          "branch": null,
+          "revision": "c987f87426978dbac79773e2b7c1e4887db17404",
+          "version": "0.1.1"
+        }
+      },
+      {
         "package": "sql-kit",
         "repositoryURL": "https://github.com/vapor/sql-kit.git",
         "state": {

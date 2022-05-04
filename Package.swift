@@ -25,7 +25,6 @@ let package = Package(
         .library(name: "DependencyResolution", targets: ["DependencyResolution"])
     ],
     dependencies: [
-        // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0-rc"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0-rc"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0-rc"),
@@ -37,6 +36,7 @@ let package = Package(
         .package(name: "SnapshotTesting",
                  url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
+        .package(url: "https://github.com/SwiftPackageIndex/SPIManifest", from: "0.1.0"),
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.2"),
         .package(name: "SwiftPM", url: "https://github.com/apple/swift-package-manager.git",
@@ -51,6 +51,7 @@ let package = Package(
             "Plot",
             "Ink",
             "SemanticVersion",
+            "SPIManifest",
             "ShellOut",
             "SwiftPrometheus",
             "OhhAuth",
