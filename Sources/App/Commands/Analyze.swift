@@ -605,12 +605,12 @@ extension Analyze {
     }
 
 
-    /// Get package info (manifests, resolved dependencies) for an array of `Package`s.
+    /// Get version info (manifests, resolved dependencies) for an array of `Package`s.
     /// - Parameters:
     ///   - logger: `Logger` object
     ///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
     /// - Returns: results future including the `Manifest`s
-    static func getPackageInfo(packageAndVersions: [Result<(Joined<Package, Repository>, [Version]), Error>]) -> [Result<(Joined<Package, Repository>, [(Version, Manifest, [ResolvedDependency]?)]), Error>] {
+    static func getPackageInfo(packageAndVersions: [Result<(Joined<Package, Repository>, [Version]), Error>]) -> [Result<(Joined<Package, Repository>, [(Version, PackageInfo)]), Error>] {
         packageAndVersions.map { result in
             result.flatMap { (pkg, versions) in
                 let m = versions.map { getPackageInfo(package: pkg, version: $0) }
@@ -640,12 +640,19 @@ extension Analyze {
     }
 
 
+    struct PackageInfo: Equatable {
+        var manifest: Manifest
+        var dependencies: [ResolvedDependency]?
+        //        var documentationTargets: [String]
+    }
+
+
     /// Get `Manifest` and `[ResolvedDepedency]` for a given `Package` at version `Version`.
     /// - Parameters:
     ///   - package: `Package` to analyse
     ///   - version: `Version` to check out
     /// - Returns: `Result` with `Manifest` data
-    static func getPackageInfo(package: Joined<Package, Repository>, version: Version) -> Result<(Version, Manifest, [ResolvedDependency]?), Error> {
+    static func getPackageInfo(package: Joined<Package, Repository>, version: Version) -> Result<(Version, PackageInfo), Error> {
         Result {
             // check out version in cache directory
             guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
@@ -658,7 +665,8 @@ extension Analyze {
                 let manifest = try dumpPackage(at: cacheDir)
                 let resolvedDependencies = getResolvedDependencies(Current.fileManager,
                                                                    at: cacheDir)
-                return (version, manifest, resolvedDependencies)
+                return (version, PackageInfo(manifest: manifest,
+                                             dependencies: resolvedDependencies))
             } catch let AppError.invalidRevision(_, msg) {
                 // re-package error to attach version.id
                 throw AppError.invalidRevision(version.id, msg)
@@ -673,22 +681,21 @@ extension Analyze {
     ///   - packageResults: results to process, containing the versions and their manifests
     /// - Returns: the input data for further processing, wrapped in a future
     static func updateVersions(on database: Database,
-                               packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest, [ResolvedDependency]?)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
+                               packageResults: [Result<(Joined<Package, Repository>, [(Version, PackageInfo)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
         packageResults.whenAllComplete(on: database.eventLoop) { (pkg, pkgInfo) in
             EventLoopFuture.andAllComplete(
-                pkgInfo.map { version, manifest, resolvedDependencies in
+                pkgInfo.map { version, info in
                     updateVersion(on: database,
                                   version: version,
-                                  manifest: manifest,
-                                  resolvedDependencies: resolvedDependencies)
+                                  packageInfo: info)
                 },
                 on: database.eventLoop
             )
             .transform(
                 to: (
                     pkg,
-                    pkgInfo.map { version, manifest, _ in
-                        (version, manifest)
+                    pkgInfo.map { version, info in
+                        (version, info.manifest)
                     }
                 )
             )
@@ -704,10 +711,10 @@ extension Analyze {
     /// - Returns: future
     static func updateVersion(on database: Database,
                               version: Version,
-                              manifest: Manifest,
-                              resolvedDependencies: [ResolvedDependency]?) -> EventLoopFuture<Void> {
+                              packageInfo: PackageInfo) -> EventLoopFuture<Void> {
+        let manifest = packageInfo.manifest
         version.packageName = manifest.name
-        if let resolvedDependencies = resolvedDependencies {
+        if let resolvedDependencies = packageInfo.dependencies {
             // Don't overwrite information provided by the build system unless it's a non-nil (i.e. valid) value
             version.resolvedDependencies = resolvedDependencies
         }

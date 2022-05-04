@@ -625,19 +625,19 @@ class AnalyzerTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try version.save(on: app.db).wait()
-        
+
         // MUT
-        let (v, m, d) = try Analyze.getPackageInfo(package: .init(model: pkg),
-                                                   version: version).get()
+        let (analyzedVersion, info) = try Analyze.getPackageInfo(package: .init(model: pkg),
+                                                                 version: version).get()
         
         // validation
         XCTAssertEqual(commands, [
             "git checkout \"0.4.2\" --quiet",
             "swift package dump-package"
         ])
-        XCTAssertEqual(v.id, version.id)
-        XCTAssertEqual(m.name, "SPI-Server")
-        XCTAssertEqual(d?.map(\.packageName), ["1"])
+        XCTAssertEqual(analyzedVersion.id, version.id)
+        XCTAssertEqual(info.manifest.name, "SPI-Server")
+        XCTAssertEqual(info.dependencies?.map(\.packageName), ["1"])
     }
 
     func test_getResolvedDependencies() throws {
@@ -688,12 +688,12 @@ class AnalyzerTests: AppTestCase {
             "swift package dump-package"
         ])
         XCTAssertEqual(results.map(\.isSuccess), [false, true])
-        let (_, versionsManifests) = try XCTUnwrap(results.last).get()
-        XCTAssertEqual(versionsManifests.count, 1)
-        let (v, m, d) = try XCTUnwrap(versionsManifests.first)
+        let (_, pkgInfo) = try XCTUnwrap(results.last).get()
+        XCTAssertEqual(pkgInfo.count, 1)
+        let (v, info) = try XCTUnwrap(pkgInfo.first)
         XCTAssertEqual(v, version)
-        XCTAssertEqual(m.name, "SPI-Server")
-        XCTAssertEqual(d?.map(\.packageName), ["1"])
+        XCTAssertEqual(info.manifest.name, "SPI-Server")
+        XCTAssertEqual(info.dependencies?.map(\.packageName), ["1"])
     }
     
     func test_updateVersion() throws {
@@ -714,8 +714,8 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
-                                      manifest: manifest,
-                                      resolvedDependencies: [dep]).wait()
+                                      packageInfo: .init(manifest: manifest,
+                                                         dependencies: [dep])).wait()
 
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!
@@ -748,8 +748,8 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
-                                      manifest: manifest,
-                                      resolvedDependencies: nil).wait()
+                                      packageInfo: .init(manifest: manifest,
+                                                         dependencies: nil)).wait()
 
         // read back and validate
         let v = try Version.query(on: app.db).first().wait()!
