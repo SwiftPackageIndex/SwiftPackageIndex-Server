@@ -59,7 +59,7 @@ struct DocumentationPageProcessor {
     }
 
     var header: String {
-        let navMenuItems: [NavMenuItem] = [.sponsorCTA, .addPackage, .blog, .faq, .searchLink]
+        let navMenuItems: [NavMenuItem] = [.addPackage, .blog, .faq, .searchLink]
 
         let breadcrumbs = [
             Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
