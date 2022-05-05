@@ -9,15 +9,41 @@
   <link rel="stylesheet" href="/docc.css?test">
  </head> 
  <body>
-  <header class="spi"> 
-   <div class="inner"> 
-    <a href="/"> <h1><img alt="Logo" src="/images/logo.svg">Swift Package Index</h1> </a> 
-    <form action="/search"> 
-     <input id="query" name="query" type="search" placeholder="Search Packages" spellcheck="false" autocomplete="off" data-gramm="false"> 
-     <button type="submit"></button> 
-    </form> 
-   </div> 
+  <header class="spi">
+   <div class="inner">
+    <a href="/"><h1><img src="/images/logo.svg" alt="Swift Package Index Logo">Swift Package Index</h1></a>
+    <nav class="menu">
+     <ul>
+      <li><a href="/add-a-package">Add a Package</a></li>
+      <li><a href="https://blog.swiftpackageindex.com">Blog</a></li>
+      <li><a href="/faq">FAQ</a></li>
+      <li><a href="/search">Package Search</a></li>
+     </ul>
+    </nav>
+    <nav class="breadcrumbs">
+     <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/owner">Owner Name</a></li>
+      <li><a href="/owner/package">Package Name</a></li>
+      <li>Documentation</li>
+     </ul>
+    </nav>
+   </div>
   </header> 
   <p>This is DocC content.</p>   
+  <footer class="spi">
+   <div class="inner">
+    <nav>
+     <ul>
+      <li><a href="https://blog.swiftpackageindex.com">Blog</a></li>
+      <li><a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">GitHub</a></li>
+      <li><a href="/privacy">Privacy and Cookies</a></li>
+      <li><a href="https://swiftpackageindex.statuspage.io">Uptime and System Status</a></li>
+      <li><a href="https://twitter.com/swiftpackages">Twitter</a></li>
+     </ul>
+     <small>The Swift Package Index is entirely funded by sponsorship. Thank you to <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship">all our sponsors for their generosity</a>.</small>
+    </nav>
+   </div>
+  </footer>
  </body>
 </html>
