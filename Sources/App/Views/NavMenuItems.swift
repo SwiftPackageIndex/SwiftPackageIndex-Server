@@ -20,6 +20,7 @@ enum NavMenuItem {
     case blog
     case faq
     case search
+    case searchLink
 
     func listNode() -> Node<HTML.ListContext> {
         switch self {
@@ -69,6 +70,13 @@ enum NavMenuItem {
                     .a(
                         .href(SiteURL.search.relativeURL()),
                         .title("Search")
+                    )
+                )
+            case .searchLink:
+                return .li(
+                    .a(
+                        .href(SiteURL.search.relativeURL()),
+                        .text("Search")
                     )
                 )
         }
