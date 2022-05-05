@@ -342,7 +342,7 @@ class PublicPage {
                         )
                     ),
                     .small(
-                        .text("The Swift Package Index is entirely funded by sponsorship. Thank you to "),
+                        .text("The Swift Package Index is entirely funded by community sponsorship. Thank you to "),
                         .a(
                             .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship"),
                             "all our sponsors for their generosity"
