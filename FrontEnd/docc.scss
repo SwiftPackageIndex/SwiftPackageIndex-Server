@@ -36,10 +36,10 @@ footer.spi {
   }
 
   a {
+    text-decoration: none;
     color: var(--header-text);
 
     &:hover {
-      text-decoration: none;
       color: var(--header-link-highlight);
     }
   }
