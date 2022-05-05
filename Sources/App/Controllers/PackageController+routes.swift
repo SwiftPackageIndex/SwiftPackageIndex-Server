@@ -97,8 +97,17 @@ struct PackageController {
         switch fragment {
             case .documentation:
                 // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
-                guard let body = res.body,
-                      let processor = DocumentationPageProcessor(rawHtml: body.asString())
+                guard let queryResult = try await Joined3<Package, Repository, Version>
+                    .query(on: req.db, owner: owner, repository: repository, version: .defaultBranch)
+                    .field(Version.self, \.$packageName)
+                    .field(Repository.self, \.$ownerName)
+                    .first(),
+                      let body = res.body,
+                      let processor = DocumentationPageProcessor(repositoryOwner: owner,
+                                                                 repositoryOwnerName: queryResult.repository.ownerName ?? owner,
+                                                                 repositoryName: repository,
+                                                                 packageName: queryResult.version.packageName ?? repository,
+                                                                 rawHtml: body.asString())
                 else {
                     return try await res.encodeResponse(
                         status: .ok,

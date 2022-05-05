@@ -16,9 +16,22 @@ import Vapor
 import SwiftSoup
 
 struct DocumentationPageProcessor {
-    let document: Document
+    let document: SwiftSoup.Document
+    let repositoryOwner: String
+    let repositoryOwnerName: String
+    let repositoryName: String
+    let packageName: String
 
-    init?(rawHtml: String) {
+    init?(repositoryOwner: String,
+          repositoryOwnerName: String,
+          repositoryName: String,
+          packageName: String,
+          rawHtml: String) {
+        self.repositoryOwner = repositoryOwner
+        self.repositoryOwnerName = repositoryOwnerName
+        self.repositoryName = repositoryName
+        self.packageName = packageName
+
         do {
             document = try SwiftSoup.parse(rawHtml)
             try document.head()?.append(self.stylesheetLink)
