@@ -13,36 +13,48 @@
  * limitations under the License.
  */
 
+$mobile-breakpoint: 740px;
+
 @import 'styles/colors.scss';
 @import 'styles/images.scss';
 
-header.spi {
-  position: sticky;
+header.spi,
+footer.spi {
   width: 100%;
+  position: sticky;
   color: var(--header-text);
   background-color: var(--header-background);
   font-family: -apple-system, 'BlinkMacSystemFont', 'SF Hello', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial',
     sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji' !important;
+  font-size: 16px;
+  line-height: 1.4;
 
   .inner {
-    display: flex;
-    flex-direction: row;
     margin: 0 auto;
     max-width: 980px;
-    align-items: center;
-    justify-content: space-between;
     padding: 20px 10px;
   }
 
   a {
-    padding: 3px;
-    font-size: 15px;
-    font-weight: 600;
     color: var(--header-text);
 
     &:hover {
       text-decoration: none;
       color: var(--header-link-highlight);
+    }
+  }
+}
+
+header.spi .inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media screen and (max-width: $mobile-breakpoint) {
+    grid-template-columns: 1fr;
+
+    a {
+      margin: 0 auto;
     }
   }
 
@@ -59,52 +71,115 @@ header.spi {
     }
   }
 
-  form {
-    display: grid;
-    grid-template-columns: auto 30px;
-    border: 1px var(--input-border) solid;
-    background-color: var(--input-background);
+  .menu {
+    display: flex;
+    align-items: center;
+    justify-self: end;
 
-    input[type='search'] {
-      padding: 5px;
+    @media screen and (max-width: $mobile-breakpoint) {
+      justify-self: center;
+    }
+
+    a {
+      padding: 3px;
       font-size: 15px;
       font-weight: 600;
-      line-height: 1.2;
-      color: var(--input-text);
-      background-color: var(--input-background);
-      border: none;
-      width: 100%;
-      -webkit-appearance: none;
-
-      &:focus {
-        outline: none;
-      }
-
-      &::placeholder {
-        color: var(--input-placeholder);
-      }
-
-      &::-webkit-search-cancel-button {
-        -webkit-appearance: none; // remove the default "clear" button style.
-
-        height: 15px;
-        width: 15px;
-        background-image: var(--image-clear-search);
-        background-size: 15px;
-        background-repeat: no-repeat;
-        background-position: center center;
-      }
     }
 
-    button {
+    ul {
       margin: 0;
       padding: 0;
-      border: none;
-      background-color: var(--input-background);
-      background-image: var(--image-magnifying-glass);
-      background-size: 14px;
-      background-repeat: no-repeat;
-      background-position: center center;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+
+      li {
+        margin: 0 3px;
+        list-style: none;
+      }
     }
+  }
+
+  .breadcrumbs {
+    grid-column-start: span 2;
+
+    @media screen and (max-width: $mobile-breakpoint) {
+      grid-column-start: unset;
+    }
+
+    ul {
+      display: flex;
+      gap: 20px;
+      padding: 0;
+      list-style: none;
+
+      @media screen and (max-width: $mobile-breakpoint) {
+        flex-direction: column;
+        gap: 0;
+      }
+
+      li {
+        position: relative;
+
+        a {
+          padding: 5px 0;
+          width: 100%;
+          height: 100%;
+        }
+
+        &:not(:first-child) {
+          &::before {
+            content: '';
+            position: absolute;
+            background-color: var(--breadcrumb-header);
+            top: calc(50% - 6px);
+            left: -16px;
+            width: 12px;
+            height: 12px;
+            clip-path: polygon(50% 0, 75% 50%, 50% 100%, 25% 100%, 50% 50%, 25% 0);
+          }
+
+          @media screen and (max-width: $mobile-breakpoint) {
+            margin-left: 20px;
+          }
+        }
+      }
+    }
+  }
+}
+
+footer.spi nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  a {
+    font-weight: 600;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    li {
+      margin: 0 5px;
+      list-style: none;
+    }
+
+    a {
+      padding: 3px;
+      font-size: 15px;
+    }
+  }
+
+  small {
+    font-size: 13px;
+    text-align: center;
   }
 }
