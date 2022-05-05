@@ -14,6 +14,7 @@
 
 import Vapor
 import SwiftSoup
+import Plot
 
 struct DocumentationPageProcessor {
     let document: SwiftSoup.Document
@@ -35,7 +36,8 @@ struct DocumentationPageProcessor {
         do {
             document = try SwiftSoup.parse(rawHtml)
             try document.head()?.append(self.stylesheetLink)
-            try document.body()?.prepend(self.spiHeader)
+            try document.body()?.prepend(self.header)
+            try document.body()?.append(self.footer)
             if let analyticsScript = self.analyticsScript {
                 try document.head()?.append(analyticsScript)
             }
@@ -45,9 +47,10 @@ struct DocumentationPageProcessor {
     }
 
     var stylesheetLink: String {
-        """
-        <link rel="stylesheet" href="/docc.css?\(ResourceReloadIdentifier.value)">
-        """
+        Plot.Node.link(
+            .rel(.stylesheet),
+            .href(SiteURL.stylesheets("docc").relativeURL() + "?" + ResourceReloadIdentifier.value)
+        ).render()
     }
 
     var analyticsScript: String? {
@@ -55,20 +58,97 @@ struct DocumentationPageProcessor {
         return PublicPage.analyticsScriptTags
     }
 
-    var spiHeader: String {
-        """
-        <header class="spi">
-            <div class="inner">
-                <a href="/">
-                    <h1><img alt="Logo" src="/images/logo.svg">Swift Package Index</h1>
-                </a>
-                <form action="/search">
-                    <input id="query" name="query" type="search" placeholder="Search Packages" spellcheck="false" autocomplete="off" data-gramm="false">
-                    <button type="submit"></button>
-                </form>
-            </div>
-        </header>
-        """
+    var header: String {
+        let navMenuItems: [NavMenuItem] = [.sponsorCTA, .addPackage, .blog, .faq, .searchLink]
+
+        let breadcrumbs = [
+            Breadcrumb(title: "Home", url: SiteURL.home.relativeURL()),
+            Breadcrumb(title: repositoryOwnerName, url: SiteURL.author(.value(repositoryOwner)).relativeURL()),
+            Breadcrumb(title: packageName, url: SiteURL.package(.value(repositoryOwner), .value(repositoryName), .none).relativeURL()),
+            Breadcrumb(title: "Documentation"),
+        ]
+
+        return Plot.Node.group(
+            .header(
+                .class("spi"),
+                .div(
+                    .class("inner"),
+                    .a(
+                        .href("/"),
+                        .h1(
+                            .img(
+                                .src("/images/logo.svg"),
+                                .alt("Swift Package Index Logo")
+                            ),
+                            .text("Swift Package Index")
+                        )
+                    ),
+                    .nav(
+                        .class("menu"),
+                        .ul(
+                            .group(navMenuItems.map { $0.listNode() })
+                        )
+                    ),
+                    .nav(
+                        .class("breadcrumbs"),
+                        .ul(
+                            .group(breadcrumbs.map { $0.listNode() })
+                        )
+                    )
+                )
+            )
+        ).render()
+    }
+
+    var footer: String {
+        return Plot.Node.footer(
+            .class("spi"),
+            .div(
+                .class("inner"),
+                .nav(
+                    .ul(
+                        .li(
+                            .a(
+                                .href(ExternalURL.projectBlog),
+                                "Blog"
+                            )
+                        ),
+                        .li(
+                            .a(
+                                .href(ExternalURL.projectGitHub),
+                                "GitHub"
+                            )
+                        ),
+                        .li(
+                            .a(
+                                .href(SiteURL.privacy.relativeURL()),
+                                "Privacy and Cookies"
+                            )
+                        ),
+                        .li(
+                            .a(
+                                .href("https://swiftpackageindex.statuspage.io"),
+                                "Uptime and System Status"
+                            )
+                        ),
+                        .li(
+                            .a(
+                                .href("https://twitter.com/swiftpackages"),
+                                "Twitter"
+                            )
+                        )
+                    ),
+                    .small(
+                        .text("The Swift Package Index is entirely funded by sponsorship. Thank you to "),
+                        .a(
+                            .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server#funding-and-sponsorship"),
+                            "all our sponsors for their generosity"
+                        ),
+                        .text(".")
+                    )
+                )
+            )
+        ).render()
     }
 
     var processedPage: String {
