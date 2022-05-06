@@ -18,9 +18,7 @@ import Plot
 import SnapshotTesting
 
 extension Snapshotting where Value == String, Format == String {
-    public static var html: Snapshotting {
-        Snapshotting<String, String>.init(pathExtension: "html", diffing: .lines) { $0 }
-    }
+  public static let html = Snapshotting(pathExtension: "html", diffing: .lines)
 }
 
 extension Snapshotting where Value == () -> HTML, Format == String {
