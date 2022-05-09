@@ -17,7 +17,7 @@
   Styles specific to the readme section of the page.
 ---------------------------------------------------------------------------- */
 
-spi-readme {
+[data-controller='readme'] {
   overflow: hidden;
 
   h1 {
@@ -94,22 +94,22 @@ spi-readme {
 }
 
 g-emoji {
-    font-family: Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
-    font-style: normal !important;
-    font-weight: 400;
-    line-height: 1;
-    vertical-align: -.075em;
-    margin-right: -10px;
+  font-family: Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+  font-style: normal !important;
+  font-weight: 400;
+  line-height: 1;
+  vertical-align: -0.075em;
+  margin-right: -10px;
 }
 
 @media (prefers-color-scheme: light) {
-  [href$="#gh-dark-mode-only"] {
+  [href$='#gh-dark-mode-only'] {
     display: none;
   }
 }
 
 @media (prefers-color-scheme: dark) {
-  [href$="#gh-light-mode-only"] {
+  [href$='#gh-light-mode-only'] {
     display: none;
   }
 }
