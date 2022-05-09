@@ -31,10 +31,20 @@ jobs:
         run: make build-front-end
       - name: Copy Front-End
         run: cp -a ./Public/* ./Tests/AppTests/__Snapshots__/WebpageSnapshotTests
+      - name: Determine Comparison Git Reference
+        id: determine-comparison-ref
+        run: |
+          branch=$(git branch --show-current)
+          echo $branch
+          if [ $branch == "main" ]; then
+            echo "::set-output name=comparison-ref::HEAD^"
+          else
+            echo "::set-output name=comparison-ref::origin/main"
+          fi
       - name: Diff for Front-End Changes
         id: front-end-changes
         run: |
-          filecount=$(git diff origin/main --shortstat "**.html" "**.scss" "**.js" ".percy.yml" ".github/workflows/snapshots.yml" | awk '{print $1}')
+          filecount=$(git diff ${{steps.determine-comparison-ref.outputs.comparison-ref}} --shortstat "**.html" "**.scss" "**.js" ".percy.yml" ".github/workflows/snapshots.yml" | awk '{print $1}')
           echo "::set-output name=matching-files::${filecount:-0}"
       - name: Run Percy
         if: steps.front-end-changes.outputs.matching-files != '0'
