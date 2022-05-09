@@ -17,8 +17,8 @@
   Tab Bar Element
 ---------------------------------------------------------------------------- */
 
-nav[data-controller='tab-bar'] {
-  > ul {
+section[data-controller='tab-bar'] {
+  ul.tab-list {
     margin: 20px 0;
     padding: 0 0 0 10px;
     background-color: var(--tab-bar-background);
@@ -42,8 +42,8 @@ nav[data-controller='tab-bar'] {
       }
     }
   }
-}
 
-[data-tab-page].hidden {
-  display: none;
+  [data-tab-bar-target='content']:not(.active) {
+    display: none;
+  }
 }

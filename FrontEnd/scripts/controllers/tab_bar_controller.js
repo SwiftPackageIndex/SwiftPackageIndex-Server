@@ -18,7 +18,17 @@ export class TabBarController extends Controller {
   static targets = ['tab', 'content']
 
   connect() {
-    this.setTabFromLocation()
+    // If the address bar has an anchor that matches a tab, set it active.
+    const tabIndex = this.tabTargets.findIndex((tabTarget) => {
+      // Strip the '#' character from the location anchor.
+      return tabTarget.id === window.location.hash.substring(1)
+    })
+    if (tabIndex >= 0) this.setIndex(tabIndex, false)
+
+    // If there's still no active tab, set the first tab active.
+    const activeTabElement = this.tabTargets.find((element) => element.classList.contains('active'))
+    const activeContentElement = this.contentTargets.find((element) => element.classList.contains('active'))
+    if (activeTabElement == null || activeContentElement == null) this.setIndex(0, false)
   }
 
   updateTab(event) {
@@ -30,7 +40,12 @@ export class TabBarController extends Controller {
     this.tabTargets.forEach((tabTarget, tabIndex) => {
       if (tabIndex === index) {
         tabTarget.classList.add('active')
-        if (pushHistory) this.setPageAnchor(tabTarget.id)
+        if (pushHistory) {
+          // Set the anchor in the address bar to the tab being selected.
+          const currentLocationUrl = new URL(window.location)
+          currentLocationUrl.hash = `#${tabTarget.id}`
+          window.history.pushState({}, '', currentLocationUrl)
+        }
       } else {
         tabTarget.classList.remove('active')
       }
@@ -38,24 +53,10 @@ export class TabBarController extends Controller {
 
     this.contentTargets.forEach((contentTarget, contentIndex) => {
       if (contentIndex === index) {
-        contentTarget.classList.remove('hidden')
+        contentTarget.classList.add('active')
       } else {
-        contentTarget.classList.add('hidden')
+        contentTarget.classList.remove('active')
       }
     })
-  }
-
-  setPageAnchor(id) {
-    const currentLocationUrl = new URL(window.location)
-    currentLocationUrl.hash = `#${id}`
-    window.history.pushState({}, '', currentLocationUrl)
-  }
-
-  setTabFromLocation() {
-    const tabIndex = this.tabTargets.findIndex((tabTarget) => {
-      // Strip the '#' character from the location anchor.
-      return tabTarget.id === window.location.hash.substring(1)
-    })
-    if (tabIndex >= 0) this.setIndex(tabIndex, false)
   }
 }

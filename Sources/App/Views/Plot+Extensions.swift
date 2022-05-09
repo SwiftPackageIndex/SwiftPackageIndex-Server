@@ -85,6 +85,42 @@ extension Node where Context: HTML.BodyContext {
         )
     }
 
+    static func spiTabBar(tabs: [TabMetadata],
+                          tabContent: [Node<HTML.BodyContext>]) -> Node<HTML.BodyContext> {
+        .section(
+            .data(named: "controller", value: "tab-bar"),
+            .data(named: "action", value: "popstate@window->tab-bar#setTabFromLocation"),
+            .nav(
+                .ul(
+                    .class("tab-list"),
+                    .forEach(tabs, { tab in
+                            .li(
+                                .id(tab.id),
+                                .data(named: "tab-bar-target", value: "tab"),
+                                .data(named: "action", value: "click->tab-bar#updateTab"),
+                                .text(tab.title)
+                            )
+                    })
+                )
+            ),
+            .forEach(tabContent, { tabNode in
+                    .section(
+                        .data(named: "tab-bar-target", value: "content"),
+                        tabNode
+                    )
+            }),
+            .noscript(.text("JavaScript must be enabled for the tab bar to be functional."))
+        )
+    }
+
+    static func spiTabBarTabTarget(tabId: String, isHidden: Bool = false) -> Node<HTML.BodyContext> {
+        .group(
+            .data(named: "tab-bar-target", value: tabId),
+            .if(isHidden, .class("hidden"))
+        )
+    }
+
+
     static func spinner() -> Self {
         .div(
             .class("spinner"),
@@ -219,4 +255,15 @@ extension Attribute where Context == HTML.InputContext {
     static func enableGrammarly(_ isEnabled: Bool) -> Attribute {
         .data(named: "gramm", value: String(isEnabled))
     }
+}
+
+extension Attribute where Context == HTML.BodyContext {
+}
+
+
+// Custom data types used by Plot extensions
+
+struct TabMetadata: Equatable {
+    let id: String
+    let title: String
 }

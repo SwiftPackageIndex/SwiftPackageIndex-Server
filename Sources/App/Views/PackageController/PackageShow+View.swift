@@ -120,7 +120,13 @@ enum PackageShow {
                     }
                 ),
                 detailsSection(),
-                tabBar(),
+                .spiTabBar(tabs: [
+                    TabMetadata(id: "readme", title: "README"),
+                    TabMetadata(id: "releases", title: "Release Notes")
+                ], tabContent: [
+                    readmeTabContent(),
+                    releasesTabContent(),
+                ]),
                 visibleMetadataSection()
             )
         }
@@ -278,63 +284,35 @@ enum PackageShow {
             
         }
 
-        func tabBar() -> Node<HTML.BodyContext> {
-            .nav(
-                .data(named: "controller", value: "tab-bar"),
-                .data(named: "action", value: "popstate@window->tab-bar#setTabFromLocation"),
-                .ul(
-                    .li(
-                        .id("readme"),
-                        .class("active"),
-                        .data(named: "tab-bar-target", value: "tab"),
-                        .data(named: "action", value: "click->tab-bar#updateTab"),
-                        "README"
-                    ),
-                    .li(
-                        .id("releases"),
-                        .data(named: "tab-bar-target", value: "tab"),
-                        .data(named: "action", value: "click->tab-bar#updateTab"),
-                        "Release Notes"
-                    )
-                ),
-                readmeSection(),
-                releaseSection(),
-                .noscript(.text("JavaScript must be enabled to load the README and Release Notes tabs."))
-            )
-        }
-
-        func readmeSection() -> Node<HTML.BodyContext> {
-            .section(
+        func readmeTabContent() -> Node<HTML.BodyContext> {
+            .turboFrame(
+                id: "readme_content",
+                source: SiteURL.package(.value(model.repositoryOwner),
+                                        .value(model.repositoryName),
+                                        .readme).relativeURL(),
+                .spiTabBarTabTarget(tabId: "readme"),
+                // This `turbo-frame` has *two* Stimulus controllers attached.
+                // First, a `ScrollPositionRestorationController`.
                 .data(named: "controller", value: "scroll-position-restoration"),
                 .data(named: "scroll-position-restoration-cache-key-value", value: "cached-readme-height"),
-                .turboFrame(
-                    id: "readme_content",
-                    source: SiteURL.package(.value(model.repositoryOwner),
-                                            .value(model.repositoryName),
-                                            .readme).relativeURL(),
-                    .data(named: "controller", value: "readme"),
-                    .data(named: "action", value: """
+                // Then, a `ReadmeController`.
+                .data(named: "controller", value: "readme"),
+                .data(named: "action", value: """
                         turbo:frame-load->readme#fixReadmeAnchors \
                         turbo:frame-load->readme#navigateToAnchorFromLocation \
                         turbo:frame-load->scroll-position-restoration#persistHeightToCache
                         """),
-                    .data(named: "tab-bar-target", value: "content"),
-                    .div(.spinner())
-                )
+                .div(.spinner())
             )
         }
         
-        func releaseSection() -> Node<HTML.BodyContext> {
-            .section(
-                .turboFrame(
-                    id: "releases_content",
-                    source: SiteURL.package(.value(model.repositoryOwner),
-                                            .value(model.repositoryName),
-                                            .releases).relativeURL(),
-                    .data(named: "tab-bar-target", value: "content"),
-                    .class("hidden"),
-                    .div(.spinner())
-                )
+        func releasesTabContent() -> Node<HTML.BodyContext> {
+            .turboFrame(
+                id: "releases_content",
+                source: SiteURL.package(.value(model.repositoryOwner),
+                                        .value(model.repositoryName),
+                                        .releases).relativeURL(),
+                .div(.spinner())
             )
         }
     }
