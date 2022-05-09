@@ -290,16 +290,10 @@ enum PackageShow {
                 source: SiteURL.package(.value(model.repositoryOwner),
                                         .value(model.repositoryName),
                                         .readme).relativeURL(),
-                // This `turbo-frame` has *two* Stimulus controllers attached.
-                // First, a `ScrollPositionRestorationController`.
-                .data(named: "controller", value: "scroll-position-restoration"),
-                .data(named: "scroll-position-restoration-cache-key-value", value: "cached-readme-height"),
-                // Then, a `ReadmeController`.
                 .data(named: "controller", value: "readme"),
                 .data(named: "action", value: """
                         turbo:frame-load->readme#fixReadmeAnchors \
-                        turbo:frame-load->readme#navigateToAnchorFromLocation \
-                        turbo:frame-load->scroll-position-restoration#persistHeightToCache
+                        turbo:frame-load->readme#navigateToAnchorFromLocation
                         """),
                 .div(.spinner())
             )
