@@ -290,7 +290,6 @@ enum PackageShow {
                 source: SiteURL.package(.value(model.repositoryOwner),
                                         .value(model.repositoryName),
                                         .readme).relativeURL(),
-                .spiTabBarTabTarget(tabId: "readme"),
                 // This `turbo-frame` has *two* Stimulus controllers attached.
                 // First, a `ScrollPositionRestorationController`.
                 .data(named: "controller", value: "scroll-position-restoration"),

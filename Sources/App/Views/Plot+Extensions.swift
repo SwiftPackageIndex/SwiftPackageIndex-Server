@@ -113,14 +113,6 @@ extension Node where Context: HTML.BodyContext {
         )
     }
 
-    static func spiTabBarTabTarget(tabId: String, isHidden: Bool = false) -> Node<HTML.BodyContext> {
-        .group(
-            .data(named: "tab-bar-target", value: tabId),
-            .if(isHidden, .class("hidden"))
-        )
-    }
-
-
     static func spinner() -> Self {
         .div(
             .class("spinner"),
