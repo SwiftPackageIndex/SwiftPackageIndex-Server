@@ -350,13 +350,15 @@
             </section>
           </section>
         </article>
-        <nav data-controller="tab-bar" data-action="popstate@window->tab-bar#setTabFromLocation">
-          <ul>
-            <li id="readme" class="active" data-tab-bar-target="tab" data-action="click->tab-bar#updateTab">README</li>
-            <li id="releases" data-tab-bar-target="tab" data-action="click->tab-bar#updateTab">Release Notes</li>
-          </ul>
-          <section data-controller="scroll-position-restoration" data-scroll-position-restoration-cache-key-value="cached-readme-height">
-            <turbo-frame id="readme_content" src="/Alamo/Alamofire/readme" data-controller="readme" data-action="turbo:frame-load->readme#fixReadmeAnchors turbo:frame-load->readme#navigateToAnchorFromLocation turbo:frame-load->scroll-position-restoration#persistHeightToCache" data-tab-bar-target="content">
+        <section data-controller="tab-bar" data-action="popstate@window->tab-bar#setTabFromLocation">
+          <nav>
+            <ul class="tab-list">
+              <li id="readme" data-tab-bar-target="tab" data-action="click->tab-bar#updateTab">README</li>
+              <li id="releases" data-tab-bar-target="tab" data-action="click->tab-bar#updateTab">Release Notes</li>
+            </ul>
+          </nav>
+          <section data-tab-bar-target="content">
+            <turbo-frame id="readme_content" src="/Alamo/Alamofire/readme" data-controller="readme" data-action="turbo:frame-load->readme#fixReadmeAnchors turbo:frame-load->readme#navigateToAnchorFromLocation">
               <div>
                 <div class="spinner">
                   <div class="rect1"></div>
@@ -368,8 +370,8 @@
               </div>
             </turbo-frame>
           </section>
-          <section>
-            <turbo-frame id="releases_content" src="/Alamo/Alamofire/releases" data-tab-bar-target="content" class="hidden">
+          <section data-tab-bar-target="content">
+            <turbo-frame id="releases_content" src="/Alamo/Alamofire/releases">
               <div>
                 <div class="spinner">
                   <div class="rect1"></div>
@@ -381,8 +383,8 @@
               </div>
             </turbo-frame>
           </section>
-          <noscript>JavaScript must be enabled to load the README and Release Notes tabs.</noscript>
-        </nav>
+          <noscript>JavaScript must be enabled for the tab bar to be functional.</noscript>
+        </section>
         <section>
           <hr/>
           <p>
