@@ -27,7 +27,7 @@ enum PackageReleases {
         }
 
         override func frameIdentifier() -> String {
-            "releases_page"
+            "releases_content"
         }
 
         override func frameContent() -> Node<HTML.BodyContext> {

@@ -120,12 +120,13 @@ enum PackageShow {
                     }
                 ),
                 detailsSection(),
-                tabBar(),
-                .noscript(
-                    .text("JavaScript must be enabled to load the README and Release Notes tabs.")
-                ),
-                readmeSection(),
-                releaseSection(),
+                .spiTabBar(tabs: [
+                    TabMetadata(id: "readme", title: "README"),
+                    TabMetadata(id: "releases", title: "Release Notes")
+                ], tabContent: [
+                    readmeTabContent(),
+                    releasesTabContent(),
+                ]),
                 visibleMetadataSection()
             )
         }
@@ -283,49 +284,28 @@ enum PackageShow {
             
         }
 
-        func readmeSection() -> Node<HTML.BodyContext> {
-            .turboFrame(id: "readme_page",
-                        source: SiteURL.package(.value(model.repositoryOwner),
-                                                .value(model.repositoryName),
-                                                .readme).relativeURL(),
-                        .data(named: "tab-page", value: "readme"),
-                        .class("tab_page"),
-                        .div(
-                            .class("min_height_spacer"),
-                            .spinner()
-                        )
+        func readmeTabContent() -> Node<HTML.BodyContext> {
+            .turboFrame(
+                id: "readme_content",
+                source: SiteURL.package(.value(model.repositoryOwner),
+                                        .value(model.repositoryName),
+                                        .readme).relativeURL(),
+                .data(named: "controller", value: "readme"),
+                .data(named: "action", value: """
+                        turbo:frame-load->readme#fixReadmeAnchors \
+                        turbo:frame-load->readme#navigateToAnchorFromLocation
+                        """),
+                .div(.spinner())
             )
         }
         
-        func releaseSection() -> Node<HTML.BodyContext> {
-            .turboFrame(id: "releases_page",
-                        source: SiteURL.package(.value(model.repositoryOwner),
-                                                .value(model.repositoryName),
-                                                .releases).relativeURL(),
-                        .data(named: "tab-page", value: "releases"),
-                        .class("tab_page hidden"),
-                        .div(
-                            .class("min_height_spacer"),
-                            .spinner()
-                        )
-            )
-        }
-        
-        func tabBar() -> Node<HTML.BodyContext> {
-            .spiTabBar(
-                .ul(
-                    .li(
-                        .id("readme"),
-                        .class("active"),
-                        .data(named: "tab", value: "readme"),
-                        "README"
-                    ),
-                    .li(
-                        .id("releases"),
-                        .data(named: "tab", value: "releases"),
-                        "Release Notes"
-                    )
-                )
+        func releasesTabContent() -> Node<HTML.BodyContext> {
+            .turboFrame(
+                id: "releases_content",
+                source: SiteURL.package(.value(model.repositoryOwner),
+                                        .value(model.repositoryName),
+                                        .releases).relativeURL(),
+                .div(.spinner())
             )
         }
     }
