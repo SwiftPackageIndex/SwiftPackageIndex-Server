@@ -249,10 +249,6 @@ extension Attribute where Context == HTML.InputContext {
     }
 }
 
-extension Attribute where Context == HTML.BodyContext {
-}
-
-
 // Custom data types used by Plot extensions
 
 struct TabMetadata: Equatable {
