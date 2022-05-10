@@ -20,6 +20,7 @@ enum Gitlab {
     static let baseURL = "https://gitlab.com/api/v4"
 
     enum Error: LocalizedError {
+        case missingConfiguration(String)
         case missingToken
         case requestFailed(HTTPStatus, URI)
     }
@@ -53,7 +54,11 @@ extension Gitlab {
 
 extension Gitlab.Builder {
 
+#if DEBUG
+    static var branch = "main"
+#else
     static let branch = "main"
+#endif
 
     struct Response: Content, Codable {
         var webUrl: String
@@ -73,6 +78,9 @@ extension Gitlab.Builder {
         guard let pipelineToken = Current.gitlabPipelineToken(),
               let builderToken = Current.builderToken()
         else { return client.eventLoop.future(error: Gitlab.Error.missingToken) }
+        guard let awsDocsBucket = Current.awsDocsBucket() else {
+            return client.eventLoop.future(error: Gitlab.Error.missingConfiguration("AWS_DOCS_BUCKET"))
+        }
 
         let uri: URI = .init(string: "\(projectURL)/trigger/pipeline")
         let req = client
@@ -82,6 +90,7 @@ extension Gitlab.Builder {
                     ref: branch,
                     variables: [
                         "API_BASEURL": SiteURL.apiBaseURL,
+                        "AWS_DOCS_BUCKET": awsDocsBucket,
                         "BUILD_ID": buildId.uuidString,
                         "BUILD_PLATFORM": platform.rawValue,
                         "BUILDER_TOKEN": builderToken,

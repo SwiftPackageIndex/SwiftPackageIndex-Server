@@ -55,6 +55,85 @@ struct PackageController {
         }
     }
 
+    enum Fragment: String {
+        case css
+        case data
+        case documentation
+        case js
+        case themeSettings
+
+        var contentType: String {
+            switch self {
+                case .css:
+                    return "text/css"
+                case .data, .themeSettings:
+                    return "application/octet-stream"
+                case .documentation:
+                    return "text/html; charset=utf-8"
+                case .js:
+                    return "application/javascript"
+            }
+        }
+    }
+
+    func documentation(req: Request, fragment: Fragment) async throws -> Response {
+        guard
+            let owner = req.parameters.get("owner"),
+            let repository = req.parameters.get("repository"),
+            let reference = req.parameters.get("reference")
+        else {
+            throw Abort(.notFound)
+        }
+
+        let path = req.parameters.getCatchall().joined(separator: "/")
+
+        let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
+        let res = try await Current.fetchDocumentation(req.client, url)
+        guard (200..<399).contains(res.status.code) else {
+            // Convert anything that isn't a 2xx or 3xx into a 404
+            throw Abort(.notFound)
+        }
+
+        switch fragment {
+            case .documentation:
+                // Try and parse the page and add our header, but fall back to the unprocessed page if it fails.
+                guard let queryResult = try await Joined3<Package, Repository, Version>
+                    .query(on: req.db, owner: owner, repository: repository, version: .defaultBranch)
+                    .field(Version.self, \.$packageName)
+                    .field(Repository.self, \.$ownerName)
+                    .first(),
+                      let body = res.body,
+                      let processor = DocumentationPageProcessor(repositoryOwner: owner,
+                                                                 repositoryOwnerName: queryResult.repository.ownerName ?? owner,
+                                                                 repositoryName: repository,
+                                                                 packageName: queryResult.version.packageName ?? repository,
+                                                                 rawHtml: body.asString())
+                else {
+                    return try await res.encodeResponse(
+                        status: .ok,
+                        headers: req.headers.replacingOrAdding(name: .contentType,
+                                                               value: fragment.contentType),
+                        for: req
+                    )
+                }
+
+                return try await processor.processedPage.encodeResponse(
+                    status: .ok,
+                    headers: req.headers.replacingOrAdding(name: .contentType,
+                                                           value: fragment.contentType),
+                    for: req
+                )
+
+            case .css, .data, .js, .themeSettings:
+                return try await res.encodeResponse(
+                    status: .ok,
+                    headers: req.headers.replacingOrAdding(name: .contentType,
+                                                           value: fragment.contentType),
+                    for: req
+                )
+        }
+    }
+
     func readme(req: Request) throws -> EventLoopFuture<Node<HTML.BodyContext>> {
         guard
             let owner = req.parameters.get("owner"),
@@ -182,4 +261,31 @@ extension PackageController {
         }
     }
 
+}
+
+
+extension PackageController {
+    static func awsDocumentationURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) throws -> URI {
+        guard let bucket = Current.awsDocsBucket() else {
+            throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
+        }
+
+        let baseURL = "http://\(bucket).s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/\(reference)"
+
+        switch fragment {
+            case .css, .data, .documentation, .js:
+                return URI(string: "\(baseURL)/\(fragment)/\(path)")
+            case .themeSettings:
+                return URI(string: "\(baseURL)/theme-settings.json")
+        }
+    }
+}
+
+
+private extension HTTPHeaders {
+    func replacingOrAdding(name: Name, value: String) -> Self {
+        var headers = self
+        headers.replaceOrAdd(name: name, value: value)
+        return headers
+    }
 }

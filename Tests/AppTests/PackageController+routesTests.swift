@@ -197,6 +197,180 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+    func test_awsDocumentationURL() throws {
+        Current.awsDocsBucket = { "docs-bucket" }
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(owner: "foo", repository: "bar", reference: "1.2.3", fragment: .css, path: "path").string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/css/path"
+        )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(owner: "foo", repository: "bar", reference: "1.2.3", fragment: .documentation, path: "path").string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/documentation/path"
+        )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(owner: "foo", repository: "bar", reference: "1.2.3", fragment: .data, path: "path").string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/data/path"
+        )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(owner: "foo", repository: "bar", reference: "1.2.3", fragment: .js, path: "path").string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/js/path"
+        )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(owner: "foo", repository: "bar", reference: "1.2.3", fragment: .themeSettings, path: "theme-settings.json").string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/theme-settings.json"
+        )
+    }
+
+    func test_documentation() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok, body: .init(string: "<p>\(uri.path)</p>"))
+        }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+            .save(on: app.db).wait()
+
+        // MUT
+        // test base url
+        try app.test(.GET, "/owner/package/1.2.3/documentation") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            XCTAssertTrue(
+                $0.body.asString().contains("<p>/owner/package/1.2.3/documentation/</p>"),
+                "was: \($0.body.asString())"
+            )
+            // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
+            XCTAssertTrue($0.body.asString()
+                    .contains(#"<link rel="stylesheet" href="/docc.css?test">"#),
+                          "was: \($0.body.asString())")
+        }
+
+        // test path a/b
+        try app.test(.GET, "/owner/package/1.2.3/documentation/a/b") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/html; charset=utf-8")
+            XCTAssertTrue(
+                $0.body.asString().contains("<p>/owner/package/1.2.3/documentation/a/b</p>"),
+                "was: \($0.body.asString())"
+            )
+            // Assert body includes the docc.css stylesheet link (as a test that our proxy header injection works)
+            XCTAssertTrue($0.body.asString()
+                    .contains(#"<link rel="stylesheet" href="/docc.css?test">"#),
+                          "was: \($0.body.asString())")
+        }
+    }
+
+    func test_documentation_404() throws {
+        // Test conversion of any doc fetching errors into 404s
+        // setup
+        Current.fetchDocumentation = { _, uri in .init(status: .badRequest) }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+            .save(on: app.db).wait()
+
+        // MUT
+        // test base url
+        try app.test(.GET, "/owner/package/1.2.3/documentation") {
+            XCTAssertEqual($0.status, .notFound)
+        }
+
+        // test path a/b
+        try app.test(.GET, "/owner/package/1.2.3/documentation/a/b") {
+            XCTAssertEqual($0.status, .notFound)
+        }
+    }
+
+    func test_documentation_css() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok, body: .init(string: uri.path))
+        }
+
+        // MUT
+        // test base url
+        try app.test(.GET, "/owner/package/1.2.3/js") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/")
+        }
+
+        // test path a/b
+        try app.test(.GET, "/owner/package/1.2.3/js/a/b") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/javascript")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/js/a/b")
+        }
+    }
+
+    func test_documentation_js() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok, body: .init(string: uri.path))
+        }
+
+        // MUT
+        // test base url
+        try app.test(.GET, "/owner/package/1.2.3/css") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/css")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/")
+        }
+
+        // test path a/b
+        try app.test(.GET, "/owner/package/1.2.3/css/a/b") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "text/css")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/css/a/b")
+        }
+    }
+
+    func test_documentation_data() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok, body: .init(string: uri.path))
+        }
+
+        // MUT
+        // test base url
+        try app.test(.GET, "/owner/package/1.2.3/data") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/data/")
+        }
+
+        // test path a/b
+        try app.test(.GET, "/owner/package/1.2.3/data/a/b") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/data/a/b")
+        }
+    }
+
+    func test_themeSettings() throws {
+        // setup
+        Current.fetchDocumentation = { _, uri in
+            // embed uri.path in the body as a simple way to test the requested url
+            .init(status: .ok,
+                  headers: ["content-type": "application/octet-stream"],
+                  body: .init(string: uri.path))
+        }
+
+        // MUT
+        try app.test(.GET, "/owner/package/1.2.3/theme-settings.json") {
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual($0.content.contentType?.description, "application/octet-stream")
+            XCTAssertEqual($0.body.asString(), "/owner/package/1.2.3/theme-settings.json")
+        }
+    }
+
 }
 
 

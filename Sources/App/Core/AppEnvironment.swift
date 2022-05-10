@@ -23,6 +23,7 @@ import FoundationNetworking
 struct AppEnvironment {
     var allowBuildTriggers: () -> Bool
     var allowTwitterPosts: () -> Bool
+    var awsDocsBucket: () -> String?
     var appVersion: () -> String?
     var builderToken: () -> String?
     var buildTriggerDownscaling: () -> Double
@@ -30,6 +31,7 @@ struct AppEnvironment {
     var collectionSigningPrivateKey: () -> Data?
     var date: () -> Date
     var dbId: () -> String?
+    var fetchDocumentation: (_ client: Client, _ url: URI) async throws -> ClientResponse
     var fetchHTTPStatusCode: (_ url: String) async throws -> HTTPStatus
     var fetchPackageList: (_ client: Client) async throws -> [URL]
     var fetchLicense: (_ client: Client, _ packageUrl: String) async -> Github.License?
@@ -78,6 +80,7 @@ extension AppEnvironment {
                 .flatMap(\.asBool)
                 ?? Constants.defaultAllowTwitterPosts
         },
+        awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
         appVersion: { App.appVersion },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerDownscaling: {
@@ -101,6 +104,7 @@ extension AppEnvironment {
         },
         date: Date.init,
         dbId: { Environment.get("DATABASE_ID") },
+        fetchDocumentation: { client, url in try await client.get(url) },
         fetchHTTPStatusCode: Networking.fetchHTTPStatusCode,
         fetchPackageList: liveFetchPackageList,
         fetchLicense: Github.fetchLicense(client:packageUrl:),

@@ -143,6 +143,7 @@ class BuildTests: AppTestCase {
                             ref: "main",
                             variables: [
                                 "API_BASEURL": "http://example.com/api",
+                                "AWS_DOCS_BUCKET": "awsDocsBucket",
                                 "BUILD_ID": buildId.uuidString,
                                 "BUILD_PLATFORM": "macos-xcodebuild",
                                 "BUILDER_TOKEN": "builder token",

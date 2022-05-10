@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import esbuild from 'esbuild'
-import { sassPlugin } from 'esbuild-sass-plugin'
+@testable import App
 
-try {
-  await esbuild.build({
-    entryPoints: ['FrontEnd/main.js', 'FrontEnd/main.scss', 'FrontEnd/docc.scss'],
-    outdir: 'Public',
-    bundle: true,
-    sourcemap: true,
-    minify: true,
-    watch: process.argv.includes('--watch'),
-    plugins: [sassPlugin()],
-  })
-} catch {
-  process.exit(1)
+import XCTest
+import Vapor
+
+class ResourceReloadIdentifierTests: AppTestCase {
+    func test_withAppVersion() throws {
+        Current.appVersion = { "1.2.3" }
+
+        XCTAssertEqual(ResourceReloadIdentifier.value, "1.2.3")
+    }
 }

@@ -332,4 +332,16 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         assertSnapshot(matching: page, as: .html)
     }
+
+    func test_DocC_Template() throws {
+        let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
+        let doccHtml = try String(contentsOfFile: doccTemplatePath)
+        let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
+                                                                 repositoryOwnerName: "Owner Name",
+                                                                 repositoryName: "package",
+                                                                 packageName: "Package Name",
+                                                                 rawHtml: doccHtml))
+
+        assertSnapshot(matching: processor.processedPage, as: .html)
+    }
 }

@@ -52,7 +52,7 @@ class PublicPage {
             .favicon(SiteURL.images("logo-small.png").relativeURL()),
             .link(
                 .rel(.stylesheet),
-                .href(SiteURL.stylesheets("main").relativeURL() + "?\(resourceReloadQueryString())"),
+                .href(SiteURL.stylesheets("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
                 .data(named: "turbolinks-track", value: "reload")
             ),
             .link(
@@ -86,7 +86,7 @@ class PublicPage {
                 .href(SiteURL.rssReleases.absoluteURL(parameters: [QueryParameter(key: "pre", value: "true")]))
             ),
             .script(
-                .src(SiteURL.javascripts("main").relativeURL() + "?\(resourceReloadQueryString())"),
+                .src(SiteURL.javascripts("main").relativeURL() + "?" + ResourceReloadIdentifier.value),
                 .data(named: "turbolinks-track", value: "reload"),
                 .defer()
             ),
@@ -104,50 +104,19 @@ class PublicPage {
                    ))
     }
     
-    /// The Google Tag Manager code to be inserted into the <head> element.
-    /// - Returns: A <script> containing the Google Tag Manager template code.
+    /// The Plausible analytics code to be inserted into the <head> element.
+    /// - Returns: A <script> containing the Plausible script tags.
     final func analyticsHead() -> Node<HTML.HeadContext> {
-        return .if(Environment.current == .production,
-                   .raw("""
-                    <script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script>
-                    <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-                    """))
+        return .if(Environment.current == .production, .raw(PublicPage.analyticsScriptTags))
     }
-    
-    /// A query string that will force resources to reload CSS/JS resources change.
-    /// - Returns: A string containing the query string.
-    final func resourceReloadQueryString() -> String {
-        
-        // This method is only called in a local development environment, so all paths
-        // can be relative to this source file.
-        func modificationDate(forLocalResource resource: String) -> Date {
-            let relativePathToPublic = "../../../Public/"
-            let url = URL(fileURLWithPath: relativePathToPublic + resource,
-                          relativeTo: URL(fileURLWithPath: #file))
-            
-            // Assume the file has been modified *now* if the file can't be found.
-            guard let attributes = try? Foundation.FileManager.default.attributesOfItem(atPath: url.path)
-            else { return Date() }
-            
-            // Also assume the file is modified now if the attribute doesn't exist.
-            let modificationDate = attributes[FileAttributeKey.modificationDate] as? Date
-            return modificationDate ?? Date()
-        }
-        
-        
-        // In staging or production appVersion will be set to a commit hash, or a tag name.
-        // It will only ever be nil when running in a local development environment.
-        if let appVersion = Current.appVersion() {
-            return appVersion
-        } else {
-            // Return the date of the most recently modified between the JavaScript and CSS resources.
-            let jsModificationDate = modificationDate(forLocalResource: "main.js")
-            let cssModificationDate = modificationDate(forLocalResource: "main.css")
-            let latestModificationDate = max(jsModificationDate, cssModificationDate)
-            return String(Int(latestModificationDate.timeIntervalSince1970))
-        }
+
+    static var analyticsScriptTags: String {
+        """
+        <script async defer data-domain="swiftpackageindex.com" src="https://plausible.io/js/plausible.outbound-links.js"></script>
+        <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+        """
     }
-    
+
     /// The full page title, including the site name.
     /// - Returns: A string with the fully formed page title, ready for use in a <title> element.
     final func title() -> String {

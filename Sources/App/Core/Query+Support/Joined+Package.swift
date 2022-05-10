@@ -23,7 +23,6 @@ extension Joined where M == Package, R == Repository {
     static func query(on database: Database) -> JoinedQueryBuilder<Joined> {
         query(on: database,
               join: \Repository.$package.$id == \Package.$id,
-              // TODO: review this properly
               method: .left)
     }
 

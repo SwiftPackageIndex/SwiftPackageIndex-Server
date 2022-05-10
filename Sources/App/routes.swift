@@ -56,6 +56,37 @@ func routes(_ app: Application) throws {
 
     do {  // package pages
         let packageController = PackageController()
+
+        do {  // temporary, hacky docc-proxy
+            app.get(":owner", ":repository", ":reference", "documentation") {
+                try await packageController.documentation(req: $0, fragment: .documentation)
+            }
+            app.get(":owner", ":repository", ":reference", "documentation", "**") {
+                try await packageController.documentation(req: $0, fragment: .documentation)
+            }
+            app.get(":owner", ":repository", ":reference", "css") {
+                try await packageController.documentation(req: $0, fragment: .css)
+            }
+            app.get(":owner", ":repository", ":reference", "css", "**") {
+                try await packageController.documentation(req: $0, fragment: .css)
+            }
+            app.get(":owner", ":repository", ":reference", "data") {
+                try await packageController.documentation(req: $0, fragment: .data)
+            }
+            app.get(":owner", ":repository", ":reference", "data", "**") {
+                try await packageController.documentation(req: $0, fragment: .data)
+            }
+            app.get(":owner", ":repository", ":reference", "js") {
+                try await packageController.documentation(req: $0, fragment: .js)
+            }
+            app.get(":owner", ":repository", ":reference", "js", "**") {
+                try await packageController.documentation(req: $0, fragment: .js)
+            }
+            app.get(":owner", ":repository", ":reference", "theme-settings.json") {
+                try await packageController.documentation(req: $0, fragment: .themeSettings)
+            }
+        }
+
         app.get(SiteURL.package(.key, .key, .none).pathComponents,
                 use: packageController.show)
         app.get(SiteURL.package(.key, .key, .readme).pathComponents,
