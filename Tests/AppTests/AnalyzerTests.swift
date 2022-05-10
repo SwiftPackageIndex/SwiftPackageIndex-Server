@@ -636,7 +636,7 @@ class AnalyzerTests: AppTestCase {
             "swift package dump-package"
         ])
         XCTAssertEqual(analyzedVersion.id, version.id)
-        XCTAssertEqual(info.manifest.name, "SPI-Server")
+        XCTAssertEqual(info.packageManifest.name, "SPI-Server")
         XCTAssertEqual(info.dependencies?.map(\.packageName), ["1"])
     }
 
@@ -692,7 +692,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(pkgInfo.count, 1)
         let (v, info) = try XCTUnwrap(pkgInfo.first)
         XCTAssertEqual(v, version)
-        XCTAssertEqual(info.manifest.name, "SPI-Server")
+        XCTAssertEqual(info.packageManifest.name, "SPI-Server")
         XCTAssertEqual(info.dependencies?.map(\.packageName), ["1"])
     }
     
@@ -714,7 +714,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
-                                      packageInfo: .init(manifest: manifest,
+                                      packageInfo: .init(packageManifest: manifest,
                                                          dependencies: [dep])).wait()
 
         // read back and validate
@@ -748,7 +748,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
-                                      packageInfo: .init(manifest: manifest,
+                                      packageInfo: .init(packageManifest: manifest,
                                                          dependencies: nil)).wait()
 
         // read back and validate

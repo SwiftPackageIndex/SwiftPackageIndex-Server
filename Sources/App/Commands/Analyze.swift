@@ -642,7 +642,7 @@ extension Analyze {
 
 
     struct PackageInfo: Equatable {
-        var manifest: Manifest
+        var packageManifest: Manifest
         var dependencies: [ResolvedDependency]?
         //        var documentationTargets: [String]
     }
@@ -666,7 +666,7 @@ extension Analyze {
                 let manifest = try dumpPackage(at: cacheDir)
                 let resolvedDependencies = getResolvedDependencies(Current.fileManager,
                                                                    at: cacheDir)
-                return (version, PackageInfo(manifest: manifest,
+                return (version, PackageInfo(packageManifest: manifest,
                                              dependencies: resolvedDependencies))
             } catch let AppError.invalidRevision(_, msg) {
                 // re-package error to attach version.id
@@ -696,7 +696,7 @@ extension Analyze {
                 to: (
                     pkg,
                     pkgInfo.map { version, info in
-                        (version, info.manifest)
+                        (version, info.packageManifest)
                     }
                 )
             )
@@ -713,7 +713,7 @@ extension Analyze {
     static func updateVersion(on database: Database,
                               version: Version,
                               packageInfo: PackageInfo) -> EventLoopFuture<Void> {
-        let manifest = packageInfo.manifest
+        let manifest = packageInfo.packageManifest
         version.packageName = manifest.name
         if let resolvedDependencies = packageInfo.dependencies {
             // Don't overwrite information provided by the build system unless it's a non-nil (i.e. valid) value
