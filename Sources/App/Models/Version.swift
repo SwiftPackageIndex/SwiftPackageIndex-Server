@@ -14,6 +14,7 @@
 
 import DependencyResolution
 import Fluent
+import SPIManifest
 import Vapor
 
 
@@ -22,30 +23,30 @@ typealias CommitHash = String
 
 final class Version: Model, Content {
     static let schema = "versions"
-    
+
     typealias Id = UUID
-    
+
     // managed fields
-    
+
     @ID(key: .id)
     var id: Id?
-    
+
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
-    
+
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
-    
+
     // reference fields
-    
+
     @Parent(key: "package_id")
     var package: Package
-    
+
     // data fields
-    
+
     @Field(key: "commit")
     var commit: CommitHash
-    
+
     @Field(key: "commit_date")
     var commitDate: Date
 
@@ -70,32 +71,35 @@ final class Version: Model, Content {
     @Field(key: "resolved_dependencies")
     var resolvedDependencies: [ResolvedDependency]?
 
+    @Field(key: "spi_manifest")
+    var spiManifest: SPIManifest.Manifest?
+
     // TODO: rename to minimumPlatformVersions?
     @Field(key: "supported_platforms")
     var supportedPlatforms: [Platform]
-    
+
     @Field(key: "swift_versions")
     var swiftVersions: [SwiftVersion]
-    
+
     @Field(key: "tools_version")
     var toolsVersion: String?
-    
+
     @Field(key: "url")
     var url: String?
 
     // relationships
-    
+
     @Children(for: \.$version)
     var builds: [Build]
-    
+
     @Children(for: \.$version)
     var products: [Product]
-    
+
     @Children(for: \.$version)
     var targets: [Target]
 
     init() { }
-    
+
     init(id: Id? = nil,
          package: Package,
          commit: CommitHash,
@@ -107,6 +111,7 @@ final class Version: Model, Content {
          releaseNotes: String? = nil,
          releaseNotesHTML: String? = nil,
          resolvedDependencies: [ResolvedDependency] = [],
+         spiManifest: SPIManifest.Manifest? = nil,
          supportedPlatforms: [Platform] = [],
          swiftVersions: [SwiftVersion] = [],
          toolsVersion: String? = nil,
@@ -122,6 +127,7 @@ final class Version: Model, Content {
         self.releaseNotes = releaseNotes
         self.releaseNotesHTML = releaseNotesHTML
         self.resolvedDependencies = resolvedDependencies
+        self.spiManifest = spiManifest
         self.supportedPlatforms = supportedPlatforms
         self.swiftVersions = swiftVersions
         self.toolsVersion = toolsVersion
@@ -142,8 +148,8 @@ extension Version: Equatable {
             return id1 == id2
         } else {
             return lhs.commit == rhs.commit
-                && lhs.commitDate == rhs.commitDate
-                && lhs.reference == rhs.reference
+            && lhs.commitDate == rhs.commitDate
+            && lhs.reference == rhs.reference
         }
     }
 }
@@ -173,11 +179,11 @@ extension Version {
         var reference: Reference
         var commit: CommitHash
     }
-    
+
     var immutableReference: ImmutableReference {
         return .init(reference: reference, commit: commit)
     }
-    
+
     static func diff(local: [Version.ImmutableReference],
                      incoming: [Version.ImmutableReference]) -> (toAdd: Set<Version.ImmutableReference>,
                                                                  toDelete: Set<Version.ImmutableReference>,
@@ -188,7 +194,7 @@ extension Version {
                 toDelete: local.subtracting(incoming),
                 toKeep: local.intersection(incoming))
     }
-    
+
     static func diff(local: [Version], incoming: [Version]) -> VersionDelta {
         let delta = diff(local: local.map(\.immutableReference),
                          incoming: incoming.map(\.immutableReference))

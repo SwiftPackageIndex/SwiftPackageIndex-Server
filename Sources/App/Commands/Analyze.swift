@@ -644,7 +644,7 @@ extension Analyze {
     struct PackageInfo: Equatable {
         var packageManifest: Manifest
         var dependencies: [ResolvedDependency]?
-        //        var documentationTargets: [String]
+        var spiManifest: SPIManifest.Manifest?
     }
 
 
@@ -663,11 +663,13 @@ extension Analyze {
             try Current.shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
 
             do {
-                let manifest = try dumpPackage(at: cacheDir)
+                let packageManifest = try dumpPackage(at: cacheDir)
                 let resolvedDependencies = getResolvedDependencies(Current.fileManager,
                                                                    at: cacheDir)
-                return (version, PackageInfo(packageManifest: manifest,
-                                             dependencies: resolvedDependencies))
+                let spiManifest = SPIManifest.Manifest.load(in: cacheDir)
+                return (version, PackageInfo(packageManifest: packageManifest,
+                                             dependencies: resolvedDependencies,
+                                             spiManifest: spiManifest))
             } catch let AppError.invalidRevision(_, msg) {
                 // re-package error to attach version.id
                 throw AppError.invalidRevision(version.id, msg)
@@ -722,6 +724,7 @@ extension Analyze {
         version.swiftVersions = manifest.swiftLanguageVersions?.compactMap(SwiftVersion.init) ?? []
         version.supportedPlatforms = manifest.platforms?.compactMap(Platform.init(from:)) ?? []
         version.toolsVersion = manifest.toolsVersion?.version
+        version.spiManifest = packageInfo.spiManifest
         return version.save(on: database)
     }
 

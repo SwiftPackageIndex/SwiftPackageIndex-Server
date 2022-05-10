@@ -235,6 +235,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 048 - add repositories.homepage_url
         app.migrations.add(UpdateRepositoryAddHomepageUrl())
     }
+    do {  // Migration 049 - add versions.spi_manifest
+        app.migrations.add(UpdateVersionAddSPIManifest())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
