@@ -606,7 +606,7 @@ extension Analyze {
     }
 
 
-    /// Get version info (manifests, resolved dependencies) for an array of `Package`s.
+    /// Get package info (manifests, resolved dependencies) for an array of `Package`s.
     /// - Parameters:
     ///   - logger: `Logger` object
     ///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
