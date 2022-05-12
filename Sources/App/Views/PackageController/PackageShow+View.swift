@@ -146,6 +146,10 @@ enum PackageShow {
                     .hr(
                         .class("minor")
                     ),
+                    sidebarDocumentation(),
+                    .hr(
+                        .class("minor")
+                    ),
                     sidebarVersions(),
                     .hr(
                         .class("minor")
@@ -246,6 +250,14 @@ enum PackageShow {
                     }
                 )
             )
+        }
+
+        func sidebarDocumentation() -> Node<HTML.BodyContext> {
+            .unwrap(model.documentationTargets) { targets in
+                    .ul(
+                        .forEach(targets, { .li(.text($0)) })
+                    )
+            }
         }
 
         func sidebarVersions() -> Node<HTML.BodyContext> {
