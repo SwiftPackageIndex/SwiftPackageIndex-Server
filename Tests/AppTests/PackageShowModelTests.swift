@@ -16,6 +16,7 @@
 
 import XCTVapor
 import SnapshotTesting
+import SPIManifest
 
 
 class PackageShowModelTests: SnapshotTestCase {
@@ -43,6 +44,35 @@ class PackageShowModelTests: SnapshotTestCase {
         // validate
         XCTAssertNotNil(m)
         XCTAssertEqual(m?.title, "bar")
+    }
+
+    func test_init_withSPIManifest() async throws {
+        let pkg = try savePackage(on: app.db, "1".url)
+        try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
+        let version = try App.Version(package: pkg,
+                                      commit: "12345",
+                                      commitDate: Current.date(),
+                                      latest: .defaultBranch,
+                                      packageName: "Package",
+                                      reference: .branch("main"),
+                                      spiManifest: try Manifest(yml:
+                                         """
+                                         version: 1
+                                         builder:
+                                           configs:
+                                           - documentation_targets: [Target1, Target2]
+                                         """))
+        try await version.save(on: app.db)
+        let pr = try await PackageResult.query(on: app.db, owner: "foo", repository: "bar")
+
+        // MUT
+        let model = PackageShow.Model(result: pr,
+                                      history: nil,
+                                      productCounts: .mock,
+                                      swiftVersionBuildInfo: nil,
+                                      platformBuildInfo: nil)
+
+        XCTAssertEqual(model?.documentationTargets, ["Target1", "Target2"])
     }
 
     func test_gitHubOwnerUrl() throws {
