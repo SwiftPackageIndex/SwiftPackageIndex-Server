@@ -257,7 +257,14 @@ enum PackageShow {
                     .group(
                         .h6("Documentation"),
                         .ul(
-                            .forEach(targets, { .li(.text($0)) })
+                            .forEach(targets, { target in
+                                    .li(
+                                        .a(
+                                            .href(model.relativeDocumentationURL(target: target)),
+                                            .text(target)
+                                        )
+                                    )
+                            })
                         )
                     )
             }
