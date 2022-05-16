@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/vapor/fluent-kit.git",
         "state": {
           "branch": null,
-          "revision": "6fc2804a4d8b3f8a66f2d4bb3e3789aac3abd53d",
-          "version": "1.23.5"
+          "revision": "8958da5e2aec8d56ad45c340683117a074e2885a",
+          "version": "1.25.0"
         }
       },
       {
@@ -69,8 +69,8 @@
         "repositoryURL": "https://github.com/vapor/multipart-kit.git",
         "state": {
           "branch": null,
-          "revision": "2dd9368a3c9580792b77c7ef364f3735909d9996",
-          "version": "4.5.1"
+          "revision": "0d55c35e788451ee27222783c7d363cb88092fab",
+          "version": "4.5.2"
         }
       },
       {
@@ -179,6 +179,15 @@
           "branch": null,
           "revision": "ce9c0d897db8a840c39de64caaa9b60119cf4be8",
           "version": "0.8.1"
+        }
+      },
+      {
+        "package": "swift-collections",
+        "repositoryURL": "https://github.com/apple/swift-collections.git",
+        "state": {
+          "branch": null,
+          "revision": "48254824bb4248676bf7ce56014ff57b142b77eb",
+          "version": "1.0.2"
         }
       },
       {
@@ -330,8 +339,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "b05266f863ee93eeff4b6d075364ccc8f81bbc1e",
-          "version": "4.57.0"
+          "revision": "102cfdad237ee8288249cfb22dffefb2a66f7f9a",
+          "version": "4.58.0"
         }
       },
       {
