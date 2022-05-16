@@ -253,7 +253,9 @@ enum PackageShow {
         }
 
         func sidebarDocumentation() -> Node<HTML.BodyContext> {
-            .unwrap(model.documentationTargets) { targets in
+            guard Environment.current != .production else { return .empty }
+
+            return .unwrap(model.documentationTargets) { targets in
                     .group(
                         .h6("Documentation"),
                         .ul(
