@@ -254,8 +254,11 @@ enum PackageShow {
 
         func sidebarDocumentation() -> Node<HTML.BodyContext> {
             .unwrap(model.documentationTargets) { targets in
-                    .ul(
-                        .forEach(targets, { .li(.text($0)) })
+                    .group(
+                        .h6("Documentation"),
+                        .ul(
+                            .forEach(targets, { .li(.text($0)) })
+                        )
                     )
             }
         }
