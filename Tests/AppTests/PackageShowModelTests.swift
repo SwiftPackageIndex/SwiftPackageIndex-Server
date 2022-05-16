@@ -341,6 +341,13 @@ class PackageShowModelTests: SnapshotTestCase {
             ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, branch: &quot;master&quot;)")
     }
 
+    func test_relativeDocumentationURL() throws {
+        // MUT
+        XCTAssertEqual(try PackageController.relativeDocumentationURL(owner: "foo", repository: "bar", target: "bazqux"),
+                       "/foo/bar/documentation/bazqux")
+        XCTAssertEqual(try PackageController.relativeDocumentationURL(owner: "Foo", repository: "Bar", target: "BazQux"),
+                       "/Foo/Bar/documentation/bazqux")
+    }
 }
 
 

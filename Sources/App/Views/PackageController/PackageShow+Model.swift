@@ -158,6 +158,10 @@ extension PackageShow.Model {
     var gitHubRepositoryUrl: String {
         "https://github.com/\(repositoryOwner)/\(repositoryName)"
     }
+
+    func relativeDocumentationURL(target: String) -> String {
+        return "/\(repositoryOwner)/\(repositoryName)/documentation/\(target.lowercased())"
+    }
 }
 
 extension PackageShow.Model {

@@ -371,14 +371,6 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
-    func test_relativeDocumentationURL() throws {
-        // MUT
-        XCTAssertEqual(try PackageController.relativeDocumentationURL(owner: "foo", repository: "bar", target: "bazqux"),
-                       "/foo/bar/documentation/bazqux")
-        XCTAssertEqual(try PackageController.relativeDocumentationURL(owner: "Foo", repository: "Bar", target: "BazQux"),
-                       "/Foo/Bar/documentation/bazqux")
-    }
-
 }
 
 

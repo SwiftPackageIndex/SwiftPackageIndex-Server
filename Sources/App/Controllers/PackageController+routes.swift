@@ -279,10 +279,6 @@ extension PackageController {
                 return URI(string: "\(baseURL)/theme-settings.json")
         }
     }
-
-    static func relativeDocumentationURL(owner: String, repository: String, target: String) throws -> String {
-        return "/\(owner)/\(repository)/documentation/\(target.lowercased())"
-    }
 }
 
 
