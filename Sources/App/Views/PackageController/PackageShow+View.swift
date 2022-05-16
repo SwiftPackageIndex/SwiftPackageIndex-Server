@@ -143,9 +143,6 @@ enum PackageShow {
                 ),
                 .section(
                     sidebarLinks(),
-                    .hr(
-                        .class("minor")
-                    ),
                     sidebarDocumentation(),
                     .hr(
                         .class("minor")
