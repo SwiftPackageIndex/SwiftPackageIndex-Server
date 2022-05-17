@@ -348,15 +348,15 @@ class PackageShowModelTests: SnapshotTestCase {
         model.repositoryName = "bar"
 
         // MUT
-        XCTAssertEqual(model.relativeDocumentationURL(target: "bazqux"),
-                       "/foo/bar/documentation/bazqux")
+        XCTAssertEqual(model.relativeDocumentationURL(reference: "main", target: "bazqux"),
+                       "/foo/bar/main/documentation/bazqux")
 
         model.repositoryOwner = "Foo"
         model.repositoryName = "Bar"
 
         // MUT
-        XCTAssertEqual(model.relativeDocumentationURL(target: "BazQux"),
-                       "/Foo/Bar/documentation/bazqux")
+        XCTAssertEqual(model.relativeDocumentationURL(reference: "Main", target: "BazQux"),
+                       "/Foo/Bar/Main/documentation/bazqux")
     }
 }
 

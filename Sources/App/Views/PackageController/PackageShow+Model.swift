@@ -16,6 +16,7 @@ import Foundation
 import Plot
 import Vapor
 import DependencyResolution
+import SPIManifest
 
 
 extension PackageShow {
@@ -44,7 +45,7 @@ extension PackageShow {
         var score: Int?
         var isArchived: Bool
         var homepageUrl: String?
-        var documentationTargets: [String]?
+        var documentationMetadata: DocumentationMetadata?
         
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -69,7 +70,7 @@ extension PackageShow {
                       score: Int? = nil,
                       isArchived: Bool,
                       homepageUrl: String? = nil,
-                      documentationTargets: [String]? = nil) {
+                      documentationMetadata: DocumentationMetadata? = nil) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
@@ -93,7 +94,7 @@ extension PackageShow {
             self.score = score
             self.isArchived = isArchived
             self.homepageUrl = homepageUrl
-            self.documentationTargets = documentationTargets
+            self.documentationMetadata = documentationMetadata
         }
         
         init?(result: PackageController.PackageResult,
@@ -142,9 +143,25 @@ extension PackageShow {
                 score: result.package.score,
                 isArchived: repository.isArchived,
                 homepageUrl: repository.homepageUrl,
-                documentationTargets: result.defaultBranchVersion.spiManifest?.allDocumentationTargets()
+                documentationMetadata: DocumentationMetadata(reference: result.repository.defaultBranch,
+                                                             targets: result.defaultBranchVersion.spiManifest?.allDocumentationTargets())
             )
 
+        }
+    }
+
+    struct DocumentationMetadata: Equatable {
+        let reference: String
+        let targets: [String]
+
+        init?(reference: String?, targets: [String]?) {
+            guard
+                let reference = reference,
+                let targets = targets
+            else { return nil }
+
+            self.reference = reference
+            self.targets = targets
         }
     }
     
@@ -159,8 +176,8 @@ extension PackageShow.Model {
         "https://github.com/\(repositoryOwner)/\(repositoryName)"
     }
 
-    func relativeDocumentationURL(target: String) -> String {
-        return "/\(repositoryOwner)/\(repositoryName)/documentation/\(target.lowercased())"
+    func relativeDocumentationURL(reference: String, target: String) -> String {
+        "/\(repositoryOwner)/\(repositoryName)/\(reference)/documentation/\(target.lowercased())"
     }
 }
 
