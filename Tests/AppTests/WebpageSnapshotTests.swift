@@ -111,6 +111,22 @@ class WebpageSnapshotTests: SnapshotTestCase {
         assertSnapshot(matching: page, as: .html)
     }
 
+    func test_PackageShowView_with_single_documentation_link() throws {
+        var model = PackageShow.Model.mock
+        model.documentationTargets = ["Target1"]
+        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+
+        assertSnapshot(matching: page, as: .html)
+    }
+
+    func test_PackageShowView_with_multiple_documentation_links() throws {
+        var model = PackageShow.Model.mock
+        model.documentationTargets = ["Target1", "Target2"]
+        let page = { PackageShow.View(path: "", model: model, packageSchema: nil).document() }
+
+        assertSnapshot(matching: page, as: .html)
+    }
+
     func test_PackageShowView_single_row_tables() throws {
         // Test display when all three significant version collapse to a single row
         var model = PackageShow.Model.mock

@@ -16,6 +16,7 @@
 
 import XCTVapor
 import SnapshotTesting
+import SPIManifest
 
 
 class PackageShowModelTests: SnapshotTestCase {
@@ -341,6 +342,22 @@ class PackageShowModelTests: SnapshotTestCase {
             ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, branch: &quot;master&quot;)")
     }
 
+    func test_relativeDocumentationURL() throws {
+        var model = PackageShow.Model.mock
+        model.repositoryOwner = "foo"
+        model.repositoryName = "bar"
+
+        // MUT
+        XCTAssertEqual(model.relativeDocumentationURL(target: "bazqux"),
+                       "/foo/bar/documentation/bazqux")
+
+        model.repositoryOwner = "Foo"
+        model.repositoryName = "Bar"
+
+        // MUT
+        XCTAssertEqual(model.relativeDocumentationURL(target: "BazQux"),
+                       "/Foo/Bar/documentation/bazqux")
+    }
 }
 
 

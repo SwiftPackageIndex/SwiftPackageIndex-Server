@@ -143,6 +143,7 @@ enum PackageShow {
                 ),
                 .section(
                     sidebarLinks(),
+                    sidebarDocumentation(),
                     .hr(
                         .class("minor")
                     ),
@@ -246,6 +247,26 @@ enum PackageShow {
                     }
                 )
             )
+        }
+
+        func sidebarDocumentation() -> Node<HTML.BodyContext> {
+            guard Environment.current != .production else { return .empty }
+
+            return .unwrap(model.documentationTargets) { targets in
+                    .group(
+                        .h6("Documentation"),
+                        .ul(
+                            .forEach(targets, { target in
+                                    .li(
+                                        .a(
+                                            .href(model.relativeDocumentationURL(target: target)),
+                                            .text(target)
+                                        )
+                                    )
+                            })
+                        )
+                    )
+            }
         }
 
         func sidebarVersions() -> Node<HTML.BodyContext> {
