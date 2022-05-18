@@ -127,8 +127,11 @@ struct PackageController {
             case .css, .data, .js, .themeSettings:
                 return try await res.encodeResponse(
                     status: .ok,
-                    headers: req.headers.replacingOrAdding(name: .contentType,
-                                                           value: fragment.contentType),
+                    headers: req.headers
+                        .replacingOrAdding(name: .contentType,
+                                           value: fragment.contentType)
+                        .replacingOrAdding(name: .cacheControl,
+                                           value: "no-transform"),
                     for: req
                 )
         }
