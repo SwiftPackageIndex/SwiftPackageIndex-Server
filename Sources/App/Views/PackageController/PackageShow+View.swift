@@ -252,14 +252,14 @@ enum PackageShow {
         func sidebarDocumentation() -> Node<HTML.BodyContext> {
             guard Environment.current != .production else { return .empty }
 
-            return .unwrap(model.documentationTargets) { targets in
+            return .unwrap(model.documentationMetadata) { metadata in
                     .group(
                         .h6("Documentation"),
                         .ul(
-                            .forEach(targets, { target in
+                            .forEach(metadata.targets, { target in
                                     .li(
                                         .a(
-                                            .href(model.relativeDocumentationURL(target: target)),
+                                            .href(model.relativeDocumentationURL(reference: metadata.reference, target: target)),
                                             .text(target)
                                         )
                                     )
