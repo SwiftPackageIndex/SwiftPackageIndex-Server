@@ -260,6 +260,7 @@ enum PackageShow {
                                     .li(
                                         .a(
                                             .href(model.relativeDocumentationURL(reference: metadata.reference, target: target)),
+                                            .data(named: "turbo", value: String(false)),
                                             .text(target)
                                         )
                                     )
