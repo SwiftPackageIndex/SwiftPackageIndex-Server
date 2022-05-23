@@ -143,7 +143,6 @@ enum PackageShow {
                 ),
                 .section(
                     sidebarLinks(),
-                    sidebarDocumentation(),
                     .hr(
                         .class("minor")
                     ),
@@ -244,30 +243,18 @@ enum PackageShow {
                                 "Package Homepage"
                             )
                         )
-                    }
+                    },
+                    .if(Environment.current != .production, .unwrap(model.documentationMetadata) { metadata in
+                            .li(
+                                .a(
+                                    .href(model.relativeDocumentationURL(reference: metadata.reference, target: metadata.defaultTarget)),
+                                    .data(named: "turbo", value: String(false)),
+                                    "Documentation"
+                                )
+                            )
+                    })
                 )
             )
-        }
-
-        func sidebarDocumentation() -> Node<HTML.BodyContext> {
-            guard Environment.current != .production else { return .empty }
-
-            return .unwrap(model.documentationMetadata) { metadata in
-                    .group(
-                        .h6("Documentation"),
-                        .ul(
-                            .forEach(metadata.targets, { target in
-                                    .li(
-                                        .a(
-                                            .href(model.relativeDocumentationURL(reference: metadata.reference, target: target)),
-                                            .data(named: "turbo", value: String(false)),
-                                            .text(target)
-                                        )
-                                    )
-                            })
-                        )
-                    )
-            }
         }
 
         func sidebarVersions() -> Node<HTML.BodyContext> {

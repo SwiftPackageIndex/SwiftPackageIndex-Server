@@ -144,7 +144,7 @@ extension PackageShow {
                 isArchived: repository.isArchived,
                 homepageUrl: repository.homepageUrl,
                 documentationMetadata: DocumentationMetadata(reference: result.repository.defaultBranch,
-                                                             targets: result.defaultBranchVersion.spiManifest?.allDocumentationTargets())
+                                                             defaultTarget: result.defaultBranchVersion.spiManifest?.allDocumentationTargets()?.first)
             )
 
         }
@@ -152,16 +152,16 @@ extension PackageShow {
 
     struct DocumentationMetadata: Equatable {
         let reference: String
-        let targets: [String]
+        let defaultTarget: String
 
-        init?(reference: String?, targets: [String]?) {
+        init?(reference: String?, defaultTarget: String?) {
             guard
                 let reference = reference,
-                let targets = targets
+                let defaultTarget = defaultTarget
             else { return nil }
 
             self.reference = reference
-            self.targets = targets
+            self.defaultTarget = defaultTarget
         }
     }
     
