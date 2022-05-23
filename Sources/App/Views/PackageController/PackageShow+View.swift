@@ -260,6 +260,7 @@ enum PackageShow {
         func sidebarVersions() -> Node<HTML.BodyContext> {
             .section(
                 .class("sidebar_versions"),
+                .ariaLabel("Versions"),
                 .ul(
                     model.stableReleaseMetadata(),
                     model.betaReleaseMetadata(),
