@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/vapor/async-kit.git",
         "state": {
           "branch": null,
-          "revision": "e2f741640364c1d271405da637029ea6a33f754e",
-          "version": "1.11.1"
+          "revision": "017dc7da68c1ec9f0f46fcd1a8002d14a5662732",
+          "version": "1.12.0"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/vapor/console-kit.git",
         "state": {
           "branch": null,
-          "revision": "75ea3b627d88221440b878e5dfccc73fd06842ed",
-          "version": "4.2.7"
+          "revision": "98d6e72ea7e756da9f87184c7239650223f95800",
+          "version": "4.3.0"
         }
       },
       {
@@ -114,8 +114,8 @@
         "repositoryURL": "https://github.com/vapor/routing-kit.git",
         "state": {
           "branch": null,
-          "revision": "5603b81ceb744b8318feab1e60943704977a866b",
-          "version": "4.3.1"
+          "revision": "9e181d685a3dec1eef1fc6dacf606af364f86d68",
+          "version": "4.5.0"
         }
       },
       {
@@ -339,8 +339,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "102cfdad237ee8288249cfb22dffefb2a66f7f9a",
-          "version": "4.58.0"
+          "revision": "ca823e66f8efd4dec7f5b996776d0ccc4cb34585",
+          "version": "4.60.0"
         }
       },
       {
