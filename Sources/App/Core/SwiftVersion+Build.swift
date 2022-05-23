@@ -19,7 +19,7 @@ extension SwiftVersion {
     static let v5_3: Self = .init(5, 3, 3)
     static let v5_4: Self = .init(5, 4, 0)
     static let v5_5: Self = .init(5, 5, 2)
-    static let v5_6: Self = .init(5, 6, 0)
+    static let v5_6: Self = .init(5, 6, 1)
 
     /// Currently supported swift versions for building
     static var allActive: [Self] {
@@ -37,7 +37,7 @@ extension SwiftVersion {
             case .v5_5:
                 return "Xcode 13.2.1"
             case .v5_6:
-                return "Xcode 13.3.0"
+                return "Xcode 13.3.1"
             default:
                 return nil
         }
