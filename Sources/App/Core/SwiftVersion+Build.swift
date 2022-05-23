@@ -27,7 +27,6 @@ extension SwiftVersion {
     }
 
     var xcodeVersion: String? {
-        // Match with https://gitlab.com/finestructure/swiftpackageindex-builder/-/blob/main/Sources/BuilderCore/SwiftVersion.swift#L41
         // NB: this is used for display purposes and not critical for compiler selection
         switch self {
             case .v5_3:
