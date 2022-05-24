@@ -360,4 +360,18 @@ class WebpageSnapshotTests: SnapshotTestCase {
 
         assertSnapshot(matching: processor.processedPage, as: .html)
     }
+
+    func test_DocCTemplate_multipleTargets() throws {
+        let doccTemplatePath = fixturesDirectory().appendingPathComponent("docc-template.html").path
+        let doccHtml = try String(contentsOfFile: doccTemplatePath)
+        let processor = try XCTUnwrap(DocumentationPageProcessor(repositoryOwner: "owner",
+                                                                 repositoryOwnerName: "Owner Name",
+                                                                 repositoryName: "package",
+                                                                 packageName: "Package Name",
+                                                                 targets: ["Target1", "Target2"],
+                                                                 reference: "main",
+                                                                 rawHtml: doccHtml))
+
+        assertSnapshot(matching: processor.processedPage, as: .html)
+    }
 }
