@@ -20,7 +20,6 @@ enum DocumentationErrorPage {
     final class View: PublicPage {
         let error: AbortError
 
-
         init(path: String, error: AbortError) {
             self.error = error
             super.init(path: path)
