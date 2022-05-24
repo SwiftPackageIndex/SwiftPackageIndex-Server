@@ -91,7 +91,9 @@ struct PackageController {
         let res = try await Current.fetchDocumentation(req.client, url)
         guard (200..<399).contains(res.status.code) else {
             // Convert anything that isn't a 2xx or 3xx into a 404
-            throw Abort(.notFound)
+            return DocumentationErrorPage.View(path: req.url.path, error: Abort(res.status))
+                .document()
+                .encodeResponse(for: req, status: .notFound)
         }
 
         switch fragment {

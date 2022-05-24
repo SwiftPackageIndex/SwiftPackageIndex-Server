@@ -264,7 +264,7 @@ class PackageController_routesTests: AppTestCase {
     }
 
     func test_documentation_404() throws {
-        // Test conversion of any doc fetching errors into 404s
+        // Test conversion of any doc fetching errors into 404s and ensure missing/bad documentation shows our documentation specific error page.
         // setup
         Current.fetchDocumentation = { _, uri in .init(status: .badRequest) }
         let pkg = try savePackage(on: app.db, "1")
@@ -277,11 +277,13 @@ class PackageController_routesTests: AppTestCase {
         // test base url
         try app.test(.GET, "/owner/package/1.2.3/documentation") {
             XCTAssertEqual($0.status, .notFound)
+            XCTAssert($0.body.asString().contains("Documentation for this package is not yet available"))
         }
 
         // test path a/b
         try app.test(.GET, "/owner/package/1.2.3/documentation/a/b") {
             XCTAssertEqual($0.status, .notFound)
+            XCTAssert($0.body.asString().contains("Documentation for this package is not yet available"))
         }
     }
 
