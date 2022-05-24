@@ -210,7 +210,13 @@ class WebpageSnapshotTests: SnapshotTestCase {
         
         assertSnapshot(matching: page, as: .html)
     }
-    
+
+    func test_DocumentationErrorPageView() throws {
+        let page = { DocumentationErrorPage.View(path: "", error: Abort(.notFound)).document() }
+
+        assertSnapshot(matching: page, as: .html)
+    }
+
     func test_MarkdownPage() throws {
         let page = { MarkdownPage(path: "", "privacy.md").document() }
         
