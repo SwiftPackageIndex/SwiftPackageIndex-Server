@@ -354,6 +354,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
+                                                                 targets: [],
+                                                                 reference: "main",
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
