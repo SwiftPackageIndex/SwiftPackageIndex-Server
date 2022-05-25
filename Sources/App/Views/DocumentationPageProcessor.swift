@@ -105,20 +105,23 @@ struct DocumentationPageProcessor {
                     )
                 ),
                 .if(targets.count > 1, .div(
-                    .class("inner targets"),
-                    .nav(
-                        .ul(
-                            .li(
-                                .text("Documentation for:")
-                            ),
-                            .forEach(targets, { target in
-                                    .li(
-                                        .a(
-                                            .href(relativeDocumentationURL(target: target)),
-                                            .text(target)
+                    .class("targets_wrap"),
+                    .div(
+                        .class("inner targets"),
+                        .nav(
+                            .ul(
+                                .li(
+                                    .text("Documentation for:")
+                                ),
+                                .forEach(targets, { target in
+                                        .li(
+                                            .a(
+                                                .href(relativeDocumentationURL(target: target)),
+                                                .text(target)
+                                            )
                                         )
-                                    )
-                            })
+                                })
+                            )
                         )
                     ))
                 )
