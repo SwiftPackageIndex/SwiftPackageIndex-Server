@@ -29,8 +29,8 @@ struct DocumentationPageProcessor {
           repositoryOwnerName: String,
           repositoryName: String,
           packageName: String,
-          targets: [String],
           reference: String,
+          targets: [String],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
