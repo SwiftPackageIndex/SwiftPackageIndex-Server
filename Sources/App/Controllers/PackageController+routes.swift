@@ -110,8 +110,8 @@ struct PackageController {
                                                                  repositoryOwnerName: queryResult.repository.ownerName ?? owner,
                                                                  repositoryName: repository,
                                                                  packageName: queryResult.version.packageName ?? repository,
-                                                                 targets: queryResult.version.spiManifest?.allDocumentationTargets() ?? [],
                                                                  reference: reference,
+                                                                 targets: queryResult.version.spiManifest?.allDocumentationTargets() ?? [],
                                                                  rawHtml: body.asString())
                 else {
                     return try await res.encodeResponse(

@@ -354,8 +354,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
-                                                                 targets: [],
                                                                  reference: "main",
+                                                                 targets: [],
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
@@ -368,8 +368,8 @@ class WebpageSnapshotTests: SnapshotTestCase {
                                                                  repositoryOwnerName: "Owner Name",
                                                                  repositoryName: "package",
                                                                  packageName: "Package Name",
-                                                                 targets: ["Target1", "Target2"],
                                                                  reference: "main",
+                                                                 targets: ["Target1", "Target2"],
                                                                  rawHtml: doccHtml))
 
         assertSnapshot(matching: processor.processedPage, as: .html)
