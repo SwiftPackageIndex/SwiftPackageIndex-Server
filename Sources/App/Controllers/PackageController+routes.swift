@@ -102,6 +102,7 @@ struct PackageController {
                 guard let queryResult = try await Joined3<Package, Repository, Version>
                     .query(on: req.db, owner: owner, repository: repository, version: .defaultBranch)
                     .field(Version.self, \.$packageName)
+                    .field(Version.self, \.$spiManifest)
                     .field(Repository.self, \.$ownerName)
                     .first(),
                       let body = res.body,
@@ -109,6 +110,8 @@ struct PackageController {
                                                                  repositoryOwnerName: queryResult.repository.ownerName ?? owner,
                                                                  repositoryName: repository,
                                                                  packageName: queryResult.version.packageName ?? repository,
+                                                                 reference: reference,
+                                                                 targets: queryResult.version.spiManifest?.allDocumentationTargets() ?? [],
                                                                  rawHtml: body.asString())
                 else {
                     return try await res.encodeResponse(

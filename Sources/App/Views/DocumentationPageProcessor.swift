@@ -22,16 +22,22 @@ struct DocumentationPageProcessor {
     let repositoryOwnerName: String
     let repositoryName: String
     let packageName: String
+    let reference: String
+    let targets: [String]
 
     init?(repositoryOwner: String,
           repositoryOwnerName: String,
           repositoryName: String,
           packageName: String,
+          reference: String,
+          targets: [String],
           rawHtml: String) {
         self.repositoryOwner = repositoryOwner
         self.repositoryOwnerName = repositoryOwnerName
         self.repositoryName = repositoryName
         self.packageName = packageName
+        self.reference = reference
+        self.targets = targets
 
         do {
             document = try SwiftSoup.parse(rawHtml)
@@ -72,7 +78,7 @@ struct DocumentationPageProcessor {
             .header(
                 .class("spi"),
                 .div(
-                    .class("inner"),
+                    .class("inner branding_and_menu"),
                     .a(
                         .href("/"),
                         .h1(
@@ -88,13 +94,33 @@ struct DocumentationPageProcessor {
                         .ul(
                             .group(navMenuItems.map { $0.listNode() })
                         )
-                    ),
+                    )
+                ),
+                .div(
+                    .class("inner breadcrumbs"),
                     .nav(
-                        .class("breadcrumbs"),
                         .ul(
                             .group(breadcrumbs.map { $0.listNode() })
                         )
                     )
+                ),
+                .if(targets.count > 1, .div(
+                    .class("inner targets"),
+                    .nav(
+                        .ul(
+                            .li(
+                                .text("Documentation for:")
+                            ),
+                            .forEach(targets, { target in
+                                    .li(
+                                        .a(
+                                            .href(relativeDocumentationURL(target: target)),
+                                            .text(target)
+                                        )
+                                    )
+                            })
+                        )
+                    ))
                 )
             )
         ).render()
@@ -157,5 +183,10 @@ struct DocumentationPageProcessor {
         } catch {
             return "An error occurred while rendering processed documentation."
         }
+    }
+
+    // Note: When this gets merged back with the refactored SiteURL, note that it's duplicated in `PackageShow.Model`.
+    func relativeDocumentationURL(target: String) -> String {
+        "/\(repositoryOwner)/\(repositoryName)/\(reference)/documentation/\(target.lowercased())"
     }
 }
