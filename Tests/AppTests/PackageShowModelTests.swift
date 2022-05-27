@@ -327,19 +327,41 @@ class PackageShowModelTests: SnapshotTestCase {
     func test_packageDependencyCodeSnippet() {
         XCTAssertEqual(
             PackageShow.Model.packageDependencyCodeSnippet(
-                ref: "6.0.0-b1",
-                url: "https://github.com/Alamofire/Alamofire/releases/tag/6.0.0-b1"),
+                ref: .tag(.init("6.0.0-b1")!),
+                packageURL: "https://github.com/Alamofire/Alamofire.git"
+            ),
             ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;6.0.0-b1&quot;)")
         XCTAssertEqual(
             PackageShow.Model.packageDependencyCodeSnippet(
-                ref: "5.5.0",
-                url: "https://github.com/Alamofire/Alamofire/releases/tag/5.5.0"),
-            ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.5.0&quot;)")
+                ref: .tag(.init("5.5.0")!),
+                packageURL: "https://github.com/Alamofire/Alamofire.git"
+            ),
+            ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;5.5.0&quot;)"
+        )
         XCTAssertEqual(
             PackageShow.Model.packageDependencyCodeSnippet(
-                ref: "master",
-                url: "https://github.com/Alamofire/Alamofire.git"),
-            ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, branch: &quot;master&quot;)")
+                ref: .branch("main"),
+                packageURL: "https://github.com/Alamofire/Alamofire.git"
+            ),
+            ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, branch: &quot;main&quot;)"
+        )
+    }
+
+    func test_packageDependencyCodeSnippets() {
+        XCTAssertEqual(
+            PackageShow.Model.packageDependencyCodeSnippets(
+                packageURL: "https://github.com/Alamofire/Alamofire.git",
+                defaultBranchReference: .branch("main"),
+                releaseReference: .tag(1, 2, 3),
+                preReleaseReference: nil
+            ),
+            [
+                .defaultBranch: .init(label: "main",
+                                      url:".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, branch: &quot;main&quot;)"),
+                .release: .init(label: "1.2.3",
+                                url: ".package(url: &quot;https://github.com/Alamofire/Alamofire.git&quot;, from: &quot;1.2.3&quot;)")
+            ]
+        )
     }
 
     func test_relativeDocumentationURL() throws {

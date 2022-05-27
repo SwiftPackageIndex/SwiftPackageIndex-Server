@@ -101,14 +101,14 @@ enum PackageShow {
                         .h4("When working with an Xcode project:"),
                         model.xcodeprojDependencyForm(packageUrl: model.url),
                         .h4("When working with a Swift Package Manager manifest:"),
-                        .unwrap(model.releases.stable, {
-                            model.spmDependencyForm(releaseLink: $0.link, cssClass: "stable")
+                        .unwrap(model.dependencyCodeSnippets[.release], {
+                            model.spmDependencyForm(link: $0, cssClass: "stable")
                         }),
-                        .unwrap(model.releases.beta, {
-                            model.spmDependencyForm(releaseLink: $0.link, cssClass: "beta")
+                        .unwrap(model.dependencyCodeSnippets[.preRelease], {
+                            model.spmDependencyForm(link: $0, cssClass: "beta")
                         }),
-                        .unwrap(model.releases.latest, {
-                            model.spmDependencyForm(releaseLink: $0.link, cssClass: "branch")
+                        .unwrap(model.dependencyCodeSnippets[.defaultBranch], {
+                            model.spmDependencyForm(link: $0, cssClass: "branch")
                         })
                     )
                 ),

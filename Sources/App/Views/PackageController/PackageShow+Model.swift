@@ -46,6 +46,7 @@ extension PackageShow {
         var isArchived: Bool
         var homepageUrl: String?
         var documentationMetadata: DocumentationMetadata?
+        var dependencyCodeSnippets: [SignificantReleases: Link]
         
         internal init(packageId: Package.Id,
                       repositoryOwner: String,
@@ -70,7 +71,8 @@ extension PackageShow {
                       score: Int? = nil,
                       isArchived: Bool,
                       homepageUrl: String? = nil,
-                      documentationMetadata: DocumentationMetadata? = nil) {
+                      documentationMetadata: DocumentationMetadata? = nil,
+                      dependencyCodeSnippets: [SignificantReleases: Link]) {
             self.packageId = packageId
             self.repositoryOwner = repositoryOwner
             self.repositoryOwnerName = repositoryOwnerName
@@ -95,6 +97,7 @@ extension PackageShow {
             self.isArchived = isArchived
             self.homepageUrl = homepageUrl
             self.documentationMetadata = documentationMetadata
+            self.dependencyCodeSnippets = dependencyCodeSnippets
         }
         
         init?(result: PackageController.PackageResult,
@@ -144,7 +147,12 @@ extension PackageShow {
                 isArchived: repository.isArchived,
                 homepageUrl: repository.homepageUrl,
                 documentationMetadata: DocumentationMetadata(reference: result.repository.defaultBranch,
-                                                             defaultTarget: result.defaultBranchVersion.spiManifest?.allDocumentationTargets()?.first)
+                                                             defaultTarget: result.defaultBranchVersion.spiManifest?.allDocumentationTargets()?.first),
+                dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
+                    packageURL: result.package.url,
+                    defaultBranchReference: result.defaultBranchVersion.model.reference,
+                    releaseReference: result.releaseVersion?.model.reference,
+                    preReleaseReference: result.preReleaseVersion?.model.reference)
             )
 
         }
@@ -464,32 +472,57 @@ extension PackageShow.Model {
                            valueToCopy: packageUrl)
     }
 
-    func spmDependencyForm(releaseLink: Link, cssClass: String) -> Node<HTML.BodyContext> {
+    func spmDependencyForm(link: Link, cssClass: String) -> Node<HTML.BodyContext> {
         .group(
             .p(
                 .span(
                     .class(cssClass),
-                    .text(releaseLink.label)
+                    .text(link.label)
                 )
             ),
             .copyableInputForm(buttonName: "Copy Code Snippet",
                                eventName: "Copy SPM Manifest Code Snippet Button",
-                               valueToCopy: Self.packageDependencyCodeSnippet(ref: releaseLink.label, url: releaseLink.url))
+                               valueToCopy: link.url)
         )
     }
 
-    static func packageDependencyCodeSnippet(ref: String, url: String) -> String {
-        let isSemVer = ref.contains(".")
-        if isSemVer {
-            // url: "https://github.com/Alamofire/Alamofire/releases/tag/5.5.0"
-            //  .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.5.0"),
-            let url = url.split(separator: "/", omittingEmptySubsequences: false)
-                .dropLast(3).joined(separator: "/") + ".git"
-            return ".package(url: &quot;\(url)&quot;, from: &quot;\(ref)&quot;)"
-        } else {
-            // url: "https://github.com/Alamofire/Alamofire.git"
-            return ".package(url: &quot;\(url)&quot;, branch: &quot;\(ref)&quot;)"
+    enum SignificantReleases: String {
+        case defaultBranch
+        case preRelease
+        case release
+    }
+
+    static func packageDependencyCodeSnippet(ref: App.Reference, packageURL: String) -> String {
+        switch ref {
+            case let .branch(branch):
+                return ".package(url: &quot;\(packageURL)&quot;, branch: &quot;\(branch)&quot;)"
+
+            case let .tag(version, _):
+                return ".package(url: &quot;\(packageURL)&quot;, from: &quot;\(version)&quot;)"
         }
+    }
+
+    static func packageDependencyCodeSnippets(packageURL: String,
+                                              defaultBranchReference: App.Reference?,
+                                              releaseReference: App.Reference?,
+                                              preReleaseReference: App.Reference?) -> [SignificantReleases: Link] {
+        var snippets = [SignificantReleases: Link]()
+        if let ref = defaultBranchReference {
+            snippets[.defaultBranch] = Link(label: "\(ref)",
+                                            url: packageDependencyCodeSnippet(ref: ref,
+                                                                              packageURL: packageURL))
+        }
+        if let ref = releaseReference {
+            snippets[.release] = Link(label: "\(ref)",
+                                      url: packageDependencyCodeSnippet(ref: ref,
+                                                                        packageURL: packageURL))
+        }
+        if let ref = preReleaseReference {
+            snippets[.preRelease] = Link(label: "\(ref)",
+                                         url: packageDependencyCodeSnippet(ref: ref,
+                                                                           packageURL: packageURL))
+        }
+        return snippets
     }
 
     static func groupBuildInfo<T>(_ buildInfo: BuildInfo<T>) -> [BuildStatusRow<T>] {
