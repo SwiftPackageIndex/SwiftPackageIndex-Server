@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/vapor/console-kit.git",
         "state": {
           "branch": null,
-          "revision": "98d6e72ea7e756da9f87184c7239650223f95800",
-          "version": "4.3.0"
+          "revision": "bd25f0f29620eb3aad4d7d21c08a10d5324d4894",
+          "version": "4.4.0"
         }
       },
       {
@@ -123,8 +123,8 @@
         "repositoryURL": "https://github.com/SwiftPackageIndex/SemanticVersion",
         "state": {
           "branch": null,
-          "revision": "a0ac209fcaa6fdbe7345c7a3582b17076b901482",
-          "version": "0.3.2"
+          "revision": "333efa81c1d1d2c0181aff18788b7d83d2cd5e82",
+          "version": "0.3.4"
         }
       },
       {
@@ -231,8 +231,8 @@
         "repositoryURL": "https://github.com/apple/swift-metrics.git",
         "state": {
           "branch": null,
-          "revision": "eadb828f878fed144387e3845866225bb7082c56",
-          "version": "2.3.0"
+          "revision": "1c1408bf8fc21be93713e897d2badf500ea38419",
+          "version": "2.3.1"
         }
       },
       {
@@ -339,8 +339,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "ca823e66f8efd4dec7f5b996776d0ccc4cb34585",
-          "version": "4.60.0"
+          "revision": "354fd15490b3de9c6cd3c6c71cd25a545a62f7b6",
+          "version": "4.60.2"
         }
       },
       {
