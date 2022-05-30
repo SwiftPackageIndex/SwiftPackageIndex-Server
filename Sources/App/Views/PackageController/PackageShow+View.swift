@@ -244,15 +244,15 @@ enum PackageShow {
                             )
                         )
                     },
-                    .if(Environment.current != .production, .unwrap(model.documentationMetadata) { metadata in
-                            .li(
-                                .a(
-                                    .href(model.relativeDocumentationURL(reference: metadata.reference, target: metadata.defaultTarget)),
-                                    .data(named: "turbo", value: String(false)),
-                                    "Documentation"
-                                )
+                    .unwrap(model.documentationMetadata) { metadata in
+                        .li(
+                            .a(
+                                .href(model.relativeDocumentationURL(reference: metadata.reference, target: metadata.defaultTarget)),
+                                .data(named: "turbo", value: String(false)),
+                                "Documentation"
                             )
-                    })
+                        )
+                    }
                 )
             )
         }
