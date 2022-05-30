@@ -126,7 +126,13 @@ extension PackageShow.Model {
             title: "Alamofire",
             url: "https://github.com/Alamofire/Alamofire.git",
             score: 10,
-            isArchived: false
+            isArchived: false,
+            dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
+                packageURL: "https://github.com/Alamofire/Alamofire.git",
+                defaultBranchReference: .branch("main"),
+                releaseReference: .tag(5, 2, 0),
+                preReleaseReference: .tag(5, 3, 0, "beta.1")
+            )
         )
     }
 }
