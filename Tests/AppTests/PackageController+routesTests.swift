@@ -200,23 +200,27 @@ class PackageController_routesTests: AppTestCase {
     func test_awsDocumentationURL() throws {
         Current.awsDocsBucket = { "docs-bucket" }
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(owner: "foo", repository: "bar", reference: "1.2.3", fragment: .css, path: "path").string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "Main", fragment: .documentation, path: "path").string,
+            "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/main/documentation/path"
+        )
+        XCTAssertEqual(
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .css, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/css/path"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(owner: "foo", repository: "bar", reference: "1.2.3", fragment: .documentation, path: "path").string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .documentation, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/documentation/path"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(owner: "foo", repository: "bar", reference: "1.2.3", fragment: .data, path: "path").string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .data, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/data/path"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(owner: "foo", repository: "bar", reference: "1.2.3", fragment: .js, path: "path").string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .js, path: "path").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/js/path"
         )
         XCTAssertEqual(
-            try PackageController.awsDocumentationURL(owner: "foo", repository: "bar", reference: "1.2.3", fragment: .themeSettings, path: "theme-settings.json").string,
+            try PackageController.awsDocumentationURL(owner: "Foo", repository: "Bar", reference: "1.2.3", fragment: .themeSettings, path: "theme-settings.json").string,
             "http://docs-bucket.s3-website.us-east-2.amazonaws.com/foo/bar/1.2.3/theme-settings.json"
         )
     }
