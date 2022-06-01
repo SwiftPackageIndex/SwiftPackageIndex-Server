@@ -89,12 +89,13 @@ struct PackageController {
         let path = req.parameters.getCatchall().joined(separator: "/")
 
         let url = try Self.awsDocumentationURL(owner: owner, repository: repository, reference: reference, fragment: fragment, path: path)
-        let res = try await Current.fetchDocumentation(req.client, url)
-        guard (200..<399).contains(res.status.code) else {
+        let awsResponse = try await Current.fetchDocumentation(req.client, url)
+        guard (200..<399).contains(awsResponse.status.code) else {
             // Convert anything that isn't a 2xx or 3xx into a 404
-            return DocumentationErrorPage.View(path: req.url.path, error: Abort(res.status))
-                .document()
-                .encodeResponse(for: req, status: .notFound)
+            return DocumentationErrorPage.View(path: req.url.path,
+                                               error: Abort(awsResponse.status))
+            .document()
+            .encodeResponse(for: req, status: .notFound)
         }
 
         switch fragment {
@@ -106,7 +107,7 @@ struct PackageController {
                     .field(Version.self, \.$spiManifest)
                     .field(Repository.self, \.$ownerName)
                     .first(),
-                      let body = res.body,
+                      let body = awsResponse.body,
                       let processor = DocumentationPageProcessor(repositoryOwner: owner,
                                                                  repositoryOwnerName: queryResult.repository.ownerName ?? owner,
                                                                  repositoryName: repository,
@@ -115,7 +116,7 @@ struct PackageController {
                                                                  targets: queryResult.version.spiManifest?.allDocumentationTargets() ?? [],
                                                                  rawHtml: body.asString())
                 else {
-                    return try await res.encodeResponse(
+                    return try await awsResponse.encodeResponse(
                         status: .ok,
                         headers: req.headers.replacingOrAdding(name: .contentType,
                                                                value: fragment.contentType),
@@ -131,7 +132,7 @@ struct PackageController {
                 )
 
             case .css, .data, .images, .js, .themeSettings:
-                return try await res.encodeResponse(
+                return try await awsResponse.encodeResponse(
                     status: .ok,
                     headers: req.headers
                         .replacingOrAdding(name: .contentType,
