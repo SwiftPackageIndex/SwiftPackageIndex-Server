@@ -114,6 +114,17 @@ extension PackageShow {
                 let packageId = result.package.id
             else { return nil }
 
+            #warning("temporary hotfix until #1770 is properly addressed")
+            let docTargetOverrides = [
+                "https://github.com/apple/swift-docc.git".lowercased() : "DocC",
+                "https://github.com/apple/swift-markdown.git".lowercased() : "Markdown",
+                "https://github.com/parse-community/Parse-Swift.git".lowercased() : "ParseSwift",
+            ]
+            let defaulDocTarget = docTargetOverrides[result.package.url.lowercased()]
+            ?? result.defaultBranchVersion.spiManifest?
+                .allDocumentationTargets()?
+                .first
+
             self.init(
                 packageId: packageId,
                 repositoryOwner: repositoryOwner,
@@ -146,8 +157,9 @@ extension PackageShow {
                 score: result.package.score,
                 isArchived: repository.isArchived,
                 homepageUrl: repository.homepageUrl,
-                documentationMetadata: DocumentationMetadata(reference: result.repository.defaultBranch,
-                                                             defaultTarget: result.defaultBranchVersion.spiManifest?.allDocumentationTargets()?.first),
+                documentationMetadata: DocumentationMetadata(
+                    reference: result.repository.defaultBranch,
+                    defaultTarget: defaulDocTarget),
                 dependencyCodeSnippets: Self.packageDependencyCodeSnippets(
                     packageURL: result.package.url,
                     defaultBranchReference: result.defaultBranchVersion.model.reference,
