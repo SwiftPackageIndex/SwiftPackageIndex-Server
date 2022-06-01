@@ -287,6 +287,21 @@ class PackageController_routesTests: AppTestCase {
         }
     }
 
+    func test_documentation_error() throws {
+        // Test behaviour when fetchDocumentation throws
+        Current.fetchDocumentation = { _, _ in throw Abort(.internalServerError) }
+        let pkg = try savePackage(on: app.db, "1")
+        try Repository(package: pkg, name: "package", owner: "owner")
+            .save(on: app.db).wait()
+        try Version(package: pkg, latest: .defaultBranch, packageName: "pkg")
+            .save(on: app.db).wait()
+
+        // MUT
+        try app.test(.GET, "/owner/package/1.2.3/documentation") {
+            XCTAssertEqual($0.status, .internalServerError)
+        }
+    }
+
     func test_documentation_css() throws {
         // setup
         Current.fetchDocumentation = { _, uri in
