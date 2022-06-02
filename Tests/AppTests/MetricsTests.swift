@@ -97,9 +97,6 @@ class MetricsTests: AppTestCase {
     }
 
     func test_ingestDurationSeconds() async throws {
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
-        try XCTSkipIf(true)
-
         // setup
         let pkg = try savePackage(on: app.db, "1")
 

@@ -38,9 +38,6 @@ class ErrorReportingTests: AppTestCase {
     }
     
     func test_Ingestor_error_reporting() async throws {
-        // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1623
-        try XCTSkipIf(true)
-
         // setup
         try savePackages(on: app.db, ["1", "2"], processingStage: .reconciliation)
         Current.fetchMetadata = { _, _ in throw AppError.invalidPackageUrl(nil, "foo") }
