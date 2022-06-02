@@ -116,6 +116,23 @@ func ingest(client: Client,
             packages: [Joined<Package, Repository>]) async throws {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
+
+    try await ingestFromGithub(client: client,
+                               database: database,
+                               logger: logger,
+                               packages: packages)
+
+    try await ingestFromS3(client: client,
+                           database: database,
+                           logger: logger,
+                           packages: packages)
+}
+
+
+func ingestFromGithub(client: Client,
+                      database: Database,
+                      logger: Logger,
+                      packages: [Joined<Package, Repository>]) async throws {
     // TODO: simplify the types in this chain by running the batches "vertically" instead of "horizontally"
     // i.e. instead of [package, data1, data2, ...] -> updatePackages(...)
     // run
@@ -127,13 +144,38 @@ func ingest(client: Client,
     // introduce any extra latency. Should check if we could make them batch, though.)
     let metadata = await fetchMetadata(client: client, packages: packages)
     let updates = await updateRepositories(on: database, metadata: metadata)
-    return try await updatePackages(client: client,
-                                    database: database,
-                                    logger: logger,
-                                    results: updates,
-                                    stage: .ingestion).get()
+    try await updatePackages(client: client,
+                             database: database,
+                             logger: logger,
+                             results: updates,
+                             stage: .ingestion).get()
 }
 
+
+func ingestFromS3(client: Client,
+                  database: Database,
+                  logger: Logger,
+                  packages: [Joined<Package, Repository>]) async throws {
+    // check for S3 bucket content
+    // add new field to versions
+    //   doc_archives text[]
+    // for each package
+    // - fetch versions where spi_manifest is not null and doc_archives is null (might need
+    //   processing but has not been processed)
+    // - if versions.documentation_targets is empty -> early out  *)
+    // - fetch doc archives per version (logic in spi-s3-check)
+    //       apple/swift-docc @ main - docc
+    //       apple/swift-docc @ main - swiftdocc
+    //       apple/swift-docc @ main - swiftdoccutilities
+    // - merge each ref with versions.doc_archives
+    // - cost saving:
+    //   - set to [] for refs we don't have archives for
+    //   - downside: if we generate those docs later we need to reset doc archives [] to NULL
+    // - save update versions.docArchives
+    //
+    // *) allow for exceptions like apple/swift-docc and apple/swift-markdown which don't have
+    //    spi manifest files
+}
 
 /// Fetch package metadata from hosting provider for a set of packages.
 /// - Parameters:

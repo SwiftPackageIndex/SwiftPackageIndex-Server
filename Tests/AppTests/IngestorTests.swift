@@ -20,8 +20,9 @@ import XCTest
 
 
 class IngestorTests: AppTestCase {
-    
+
     func test_ingest_basic() async throws {
+        // High level ingest test
         // setup
         Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
         let packages = ["https://github.com/finestructure/Gala",
@@ -30,10 +31,34 @@ class IngestorTests: AppTestCase {
             .map { Package(url: $0, processingStage: .reconciliation) }
         try await packages.save(on: app.db)
         let lastUpdate = Date()
-        
+
         // MUT
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
-        
+
+        // validate
+        // assert packages have been updated
+        (try await Package.query(on: app.db).all()).forEach {
+            XCTAssert($0.updatedAt != nil && $0.updatedAt! > lastUpdate)
+            XCTAssertEqual($0.status, .new)
+            XCTAssertEqual($0.processingStage, .ingestion)
+        }
+    }
+
+    func test_ingestFromGithub_basic() async throws {
+        // setup
+        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        let packages = ["https://github.com/finestructure/Gala",
+                        "https://github.com/finestructure/Rester",
+                        "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"]
+            .map { Package(url: $0, processingStage: .reconciliation) }
+        try await packages.save(on: app.db)
+        let lastUpdate = Date()
+
+        do {  // MUT
+            let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).get()
+            try await ingestFromGithub(client: app.client, database: app.db, logger: app.logger, packages: packages)
+        }
+
         // validate
         let repos = try await Repository.query(on: app.db).all()
         XCTAssertEqual(Set(repos.map(\.$package.id)), Set(packages.map(\.id)))
@@ -54,7 +79,7 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual($0.processingStage, .ingestion)
         }
     }
-    
+
     func test_fetchMetadata() async throws {
         // Test completion of all fetches despite early error
         // setup
