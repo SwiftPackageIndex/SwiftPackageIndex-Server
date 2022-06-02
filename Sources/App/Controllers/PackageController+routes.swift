@@ -280,7 +280,9 @@ extension PackageController {
             throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
         }
 
-        let baseURL = "http://\(bucket).s3-website.us-east-2.amazonaws.com/\(owner)/\(repository)/\(reference)"
+        let baseURLHost = "\(bucket).s3-website.us-east-2.amazonaws.com"
+        let baseURLPath = "\(owner.lowercased())/\(repository.lowercased())/\(reference.lowercased())"
+        let baseURL = "http://\(baseURLHost)/\(baseURLPath)"
 
         switch fragment {
             case .css, .data, .documentation, .images, .js:
