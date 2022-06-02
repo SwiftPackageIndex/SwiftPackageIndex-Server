@@ -116,16 +116,19 @@ func ingest(client: Client,
             packages: [Joined<Package, Repository>]) async throws {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
-
+    
     try await ingestFromGithub(client: client,
                                database: database,
                                logger: logger,
                                packages: packages)
-
-    try await ingestFromS3(client: client,
-                           database: database,
-                           logger: logger,
-                           packageIDs: packages.compactMap(\.model.id))
+    
+#warning("ingestFromS3 temporarily excluded from production")
+    if Environment.current != .production {
+        try await ingestFromS3(client: client,
+                               database: database,
+                               logger: logger,
+                               packageIDs: packages.compactMap(\.model.id))
+    }
 }
 
 
@@ -288,3 +291,8 @@ func ingestFromS3(client: Client,
     //    spi manifest files
 }
 
+
+/// Fetch versions for a given package that have an SPI manifest but no doc archives.
+func fetchDocArchiveCandidates() {
+
+}
