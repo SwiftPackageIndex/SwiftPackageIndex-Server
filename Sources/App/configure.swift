@@ -238,6 +238,12 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 049 - add versions.spi_manifest
         app.migrations.add(UpdateVersionAddSPIManifest())
     }
+    #warning("migration temporarily excluded from production")
+    if Environment.current != .production {
+        do {  // Migration 050 - add versions.doc_archives
+            app.migrations.add(UpdateVersionAddDocArchives())
+        }
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
