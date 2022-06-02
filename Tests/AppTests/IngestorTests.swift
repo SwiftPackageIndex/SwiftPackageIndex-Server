@@ -80,6 +80,22 @@ class IngestorTests: AppTestCase {
         }
     }
 
+    func test_ingestFromS3_basic() async throws {
+        // setup
+        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
+        let pkgID = UUID()
+        do {
+            let pkg = Package(id: pkgID, url: "https://github.com/foo/bar", processingStage: .reconciliation)
+            try await pkg.save(on: app.db)
+        }
+
+        do {  // MUT
+            try await ingestFromS3(client: app.client, database: app.db, logger: app.logger, packageIDs: [pkgID])
+        }
+
+        // validate
+    }
+
     func test_fetchMetadata() async throws {
         // Test completion of all fetches despite early error
         // setup

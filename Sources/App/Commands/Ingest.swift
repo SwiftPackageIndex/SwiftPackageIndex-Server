@@ -125,7 +125,7 @@ func ingest(client: Client,
     try await ingestFromS3(client: client,
                            database: database,
                            logger: logger,
-                           packages: packages)
+                           packageIDs: packages.compactMap(\.model.id))
 }
 
 
@@ -151,31 +151,6 @@ func ingestFromGithub(client: Client,
                              stage: .ingestion).get()
 }
 
-
-func ingestFromS3(client: Client,
-                  database: Database,
-                  logger: Logger,
-                  packages: [Joined<Package, Repository>]) async throws {
-    // check for S3 bucket content
-    // add new field to versions
-    //   doc_archives text[]
-    // for each package
-    // - fetch versions where spi_manifest is not null and doc_archives is null (might need
-    //   processing but has not been processed)
-    // - if versions.documentation_targets is empty -> early out  *)
-    // - fetch doc archives per version (logic in spi-s3-check)
-    //       apple/swift-docc @ main - docc
-    //       apple/swift-docc @ main - swiftdocc
-    //       apple/swift-docc @ main - swiftdoccutilities
-    // - merge each ref with versions.doc_archives
-    // - cost saving:
-    //   - set to [] for refs we don't have archives for
-    //   - downside: if we generate those docs later we need to reset doc archives [] to NULL
-    // - save update versions.docArchives
-    //
-    // *) allow for exceptions like apple/swift-docc and apple/swift-markdown which don't have
-    //    spi manifest files
-}
 
 /// Fetch package metadata from hosting provider for a set of packages.
 /// - Parameters:
@@ -286,3 +261,30 @@ func insertOrUpdateRepository(on database: Database,
 
     try await repo.save(on: database)
 }
+
+
+func ingestFromS3(client: Client,
+                  database: Database,
+                  logger: Logger,
+                  packageIDs: [Package.Id]) async throws {
+    // check for S3 bucket content
+    // add new field to versions
+    //   doc_archives text[]
+    // for each package
+    // - fetch versions where spi_manifest is not null and doc_archives is null (might need
+    //   processing but has not been processed)
+    // - if versions.documentation_targets is empty -> early out  *)
+    // - fetch doc archives per version (logic in spi-s3-check)
+    //       apple/swift-docc @ main - docc
+    //       apple/swift-docc @ main - swiftdocc
+    //       apple/swift-docc @ main - swiftdoccutilities
+    // - merge each ref with versions.doc_archives
+    // - cost saving:
+    //   - set to [] for refs we don't have archives for
+    //   - downside: if we generate those docs later we need to reset doc archives [] to NULL
+    // - save update versions.docArchives
+    //
+    // *) allow for exceptions like apple/swift-docc and apple/swift-markdown which don't have
+    //    spi manifest files
+}
+
