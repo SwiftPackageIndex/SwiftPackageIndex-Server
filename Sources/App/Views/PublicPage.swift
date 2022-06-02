@@ -169,6 +169,7 @@ class PublicPage {
             bodyComments(),
             stagingBanner(),
             header(),
+            announcementBanner(),
             preMain(),
             breadcrumbNode(),
             main(),
@@ -228,6 +229,18 @@ class PublicPage {
     /// - Returns: An array of `NavMenuItem` items used in `header`.
     func navMenuItems() -> [NavMenuItem] {
         [.sponsorCTA, .addPackage, .blog, .faq, .search]
+    }
+
+    func announcementBanner() -> Node<HTML.BodyContext> {
+        .p(
+            .class("announcement"),
+            .text("Join us in celebrating "),
+            .a(
+                .href("https://blog.swiftpackageindex.com/posts/two-years-of-the-swift-package-index/"),
+                "two years of the Swift Package Index"
+            ),
+            .text("! 🎂")
+        )
     }
 
     /// Optional content that will be inserted in between the page header and the main content for the page.

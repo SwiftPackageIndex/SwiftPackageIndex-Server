@@ -40,24 +40,13 @@ enum HomeIndex {
         }
         
         override func preMain() -> Node<HTML.BodyContext> {
-            .group(
-                .p(
-                    .class("announcement"),
-                    .text("Join us in celebrating "),
-                    .a(
-                        .href("https://blog.swiftpackageindex.com/posts/two-years-of-the-swift-package-index/"),
-                        "two years of the Swift Package Index"
-                    ),
-                    .text("! 🎂")
-                ),
-                .section(
-                    .class("search home"),
-                    .div(
-                        .class("inner"),
-                        .h3("The place to find Swift packages."),
-                        .searchForm(),
-                        .unwrap(model.statsClause()) { $0 }
-                    )
+            .section(
+                .class("search home"),
+                .div(
+                    .class("inner"),
+                    .h3("The place to find Swift packages."),
+                    .searchForm(),
+                    .unwrap(model.statsClause()) { $0 }
                 )
             )
         }
