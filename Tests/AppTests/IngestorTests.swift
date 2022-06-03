@@ -213,7 +213,7 @@ class IngestorTests: AppTestCase {
         let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).get()
 
         // MUT
-        try await ingestFromS3(client: app.client, database: app.db, logger: app.logger, packages: packages)
+        try await ingestFromS3(database: app.db, logger: app.logger, packages: packages)
 
         // validate
         let v2 = try await Version.find(.id2, on: app.db).unwrap()

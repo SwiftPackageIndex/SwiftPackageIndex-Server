@@ -125,10 +125,7 @@ func ingest(client: Client,
     
 #warning("ingestFromS3 temporarily excluded from production")
     if Environment.current != .production {
-        try await ingestFromS3(client: client,
-                               database: database,
-                               logger: logger,
-                               packages: packages)
+        try await ingestFromS3(database: database, logger: logger, packages: packages)
     }
 }
 
@@ -267,8 +264,12 @@ func insertOrUpdateRepository(on database: Database,
 }
 
 
-func ingestFromS3(client: Client,
-                  database: Database,
+/// Check S3 doc bucket for doc archive for a given package
+/// - Parameters:
+///   - database: `Database` object
+///   - logger: `Logger` object
+///   - packages: packages to be checked
+func ingestFromS3(database: Database,
                   logger: Logger,
                   packages: [Joined<Package, Repository>]) async throws {
     guard let awsAccessKeyId = Current.awsAccessKeyId(),
@@ -277,8 +278,6 @@ func ingestFromS3(client: Client,
 
     // check for S3 bucket content
 
-    // - fetch versions where spi_manifest is not null and doc_archives is null (might need
-    //   processing but has not been processed)
     let versions = try await fetchDocArchiveCandidates(database: database,
                                                        packageIDs: packages.compactMap(\.model.id))
     for pkg in packages {
