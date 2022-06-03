@@ -38,10 +38,10 @@ public enum S3DocArchives {
 
 
     public struct DocArchive: CustomStringConvertible, Equatable {
-        var owner: String
-        var repository: String
-        var ref: String
-        var product: String
+        public var owner: String
+        public var repository: String
+        public var ref: String
+        public var product: String
 
         public var description: String {
             "\(owner)/\(repository) @ \(ref) - \(product)"
@@ -64,6 +64,14 @@ public enum S3DocArchives {
         "index.html"
     }
 
+}
+
+
+extension Array where Element == S3DocArchives.DocArchive {
+    public func productsGroupedByRef() -> [String: [String]] {
+        Dictionary(grouping: self) { $0.ref }
+            .mapValues { $0.map(\.product) }
+    }
 }
 
 

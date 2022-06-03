@@ -15,6 +15,7 @@
 import XCTest
 
 @testable import App
+@testable import S3DocArchives
 
 import Fluent
 import SPIManifest
@@ -87,33 +88,33 @@ class IngestorTests: AppTestCase {
             let pkg = Package(id: .id0, url: "https://github.com/foo/bar1", processingStage: .reconciliation)
             try await pkg.save(on: app.db)
             // first version has a manifest but no doc archives (should be updated)
-            try await Version.init(id: .id2,
-                                   package: pkg,
-                                   commit: "commit",
-                                   commitDate: .t0,
-                                   docArchives: nil,
-                                   reference: .branch("main"),
-                                   spiManifest: .init(documentationTargets: ["target"]))
+            try await Version(id: .id2,
+                              package: pkg,
+                              commit: "commit",
+                              commitDate: .t0,
+                              docArchives: nil,
+                              reference: .branch("main"),
+                              spiManifest: .init(documentationTargets: ["target"]))
             .save(on: app.db)
             // second version has a manifest *and* a doc archive (should be ignored)
-            try await Version.init(package: pkg,
-                                   commit: "commit",
-                                   commitDate: .t0,
-                                   docArchives: ["archive"],
-                                   reference: .branch("main"),
-                                   spiManifest: .init(documentationTargets: ["target"]))
+            try await Version(package: pkg,
+                              commit: "commit",
+                              commitDate: .t0,
+                              docArchives: ["archive"],
+                              reference: .branch("main"),
+                              spiManifest: .init(documentationTargets: ["target"]))
             .save(on: app.db)
         }
         do {
             let pkg = Package(id: .id1, url: "https://github.com/foo/bar2", processingStage: .reconciliation)
             try await pkg.save(on: app.db)
             // version has no manifest and no archives (should be ignored)
-            try await Version.init(package: pkg,
-                                   commit: "commit",
-                                   commitDate: .t0,
-                                   docArchives: nil,
-                                   reference: .branch("main"),
-                                   spiManifest: nil)
+            try await Version(package: pkg,
+                              commit: "commit",
+                              commitDate: .t0,
+                              docArchives: nil,
+                              reference: .branch("main"),
+                              spiManifest: nil)
             .save(on: app.db)
         }
 
@@ -125,39 +126,68 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(versions.map(\.id), [.id2])
     }
 
+    func test_updateDocArchives() throws {
+        // setup
+        let pkg = Package(id: .id0, url: "https://github.com/foo/bar")
+        let archives: [S3DocArchives.DocArchive] = [
+            .init(owner: "foo", repository: "bar", ref: "main", product: "p1"),
+            .init(owner: "foo", repository: "bar", ref: "1.2.3", product: "p1"),
+            .init(owner: "foo", repository: "bar", ref: "1.2.3", product: "p2"),
+        ]
+        let versions = [
+            try Version(package: pkg,
+                        commit: "commit",
+                        commitDate: .t0,
+                        docArchives: nil,
+                        reference: .branch("main")),
+            try Version(package: pkg,
+                        commit: "commit",
+                        commitDate: .t0,
+                        docArchives: nil,
+                        reference: .tag(1, 2, 3)),
+        ]
+
+        // MUT
+        updateDocArchives(versions: versions, docArchives: archives)
+
+        // validate
+        XCTAssertEqual(versions[0].docArchives, ["p1"])
+        XCTAssertEqual(versions[1].docArchives, ["p1", "p2"])
+    }
+
     func test_ingestFromS3_basic() async throws {
         // setup
         let pkg1 = Package(id: .id0, url: "https://github.com/foo/bar1", processingStage: .reconciliation)
         do {
             try await pkg1.save(on: app.db)
             // first version has a manifest but no doc archives (should be updated)
-            try await Version.init(id: .id2,
-                                   package: pkg1,
-                                   commit: "commit",
-                                   commitDate: .t0,
-                                   docArchives: nil,
-                                   reference: .branch("main"),
-                                   spiManifest: .init(documentationTargets: ["target"]))
+            try await Version(id: .id2,
+                              package: pkg1,
+                              commit: "commit",
+                              commitDate: .t0,
+                              docArchives: nil,
+                              reference: .branch("main"),
+                              spiManifest: .init(documentationTargets: ["target"]))
             .save(on: app.db)
             // second version has a manifest *and* a doc archive (should be ignored)
-            try await Version.init(package: pkg1,
-                                   commit: "commit",
-                                   commitDate: .t0,
-                                   docArchives: ["archive"],
-                                   reference: .branch("main"),
-                                   spiManifest: .init(documentationTargets: ["target"]))
+            try await Version(package: pkg1,
+                              commit: "commit",
+                              commitDate: .t0,
+                              docArchives: ["archive"],
+                              reference: .branch("main"),
+                              spiManifest: .init(documentationTargets: ["target"]))
             .save(on: app.db)
         }
         let pkg2 = Package(id: .id1, url: "https://github.com/foo/bar2", processingStage: .reconciliation)
         do {
             try await pkg2.save(on: app.db)
             // version has no manifest and no archives (should be ignored)
-            try await Version.init(package: pkg2,
-                                   commit: "commit",
-                                   commitDate: .t0,
-                                   docArchives: nil,
-                                   reference: .branch("main"),
-                                   spiManifest: nil)
+            try await Version(package: pkg2,
+                              commit: "commit",
+                              commitDate: .t0,
+                              docArchives: nil,
+                              reference: .branch("main"),
+                              spiManifest: nil)
             .save(on: app.db)
         }
         let lastUpdate = Date()
@@ -188,7 +218,7 @@ class IngestorTests: AppTestCase {
 
         // MUT
         let res = await fetchMetadata(client: app.client, packages: packages)
-        
+
         // validate success
         // validate package
         XCTAssertEqual(
@@ -218,7 +248,7 @@ class IngestorTests: AppTestCase {
                 XCTFail("expected error")
         }
     }
-    
+
     func test_insertOrUpdateRepository() async throws {
         let pkg = try await savePackageAsync(on: app.db, "https://github.com/foo/bar")
         let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
@@ -243,7 +273,7 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(repos.map(\.summary), [.some("New description")])
         }
     }
-    
+
     func test_updateRepositories() async throws {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "2")
@@ -287,10 +317,10 @@ class IngestorTests: AppTestCase {
                                   licenseInfo: .init(htmlUrl: "license url"),
                                   readmeInfo: .init(downloadUrl: "readme url", htmlUrl: "readme html url")))
                        ]
-        
+
         // MUT
         let res = await updateRepositories(on: app.db, metadata: metadata)
-        
+
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
         let repo = try await Repository.query(on: app.db)
@@ -325,7 +355,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(repo.stars, 2)
         XCTAssertEqual(repo.summary, "package desc")
     }
-    
+
     func test_homePageEmptyString() async throws {
         // setup
         let pkg = try await savePackageAsync(on: app.db, "2")
@@ -354,10 +384,10 @@ class IngestorTests: AppTestCase {
                                   licenseInfo: .init(htmlUrl: "license url"),
                                   readmeInfo: .init(downloadUrl: "readme url", htmlUrl: "readme html url")))
                        ]
-        
+
         // MUT
         let res = await updateRepositories(on: app.db, metadata: metadata)
-        
+
         // validate
         XCTAssertEqual(res.map(\.isSuccess), [false, true])
         let repo = try await Repository.query(on: app.db)
@@ -366,7 +396,7 @@ class IngestorTests: AppTestCase {
             .unwrap()
         XCTAssertNil(repo.homepageUrl)
     }
-    
+
     func test_updatePackage() async throws {
         // setup
         let pkgs = try await savePackagesAsync(on: app.db, ["https://github.com/foo/1",
@@ -376,14 +406,14 @@ class IngestorTests: AppTestCase {
             .failure(AppError.metadataRequestFailed(try pkgs[0].model.requireID(), .badRequest, "1")),
             .success(pkgs[1])
         ]
-        
+
         // MUT
         try await updatePackages(client: app.client,
                                  database: app.db,
                                  logger: app.logger,
                                  results: results,
                                  stage: .ingestion).get()
-        
+
         // validate
         do {
             let pkgs = try await Package.query(on: app.db).sort(\.$url).all()
@@ -391,7 +421,7 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(pkgs.map(\.processingStage), [.ingestion, .ingestion])
         }
     }
-    
+
     func test_updatePackages_new() async throws {
         // Ensure newly ingested packages are passed on with status = new to fast-track
         // them into analysis
@@ -402,14 +432,14 @@ class IngestorTests: AppTestCase {
         try await pkgs.save(on: app.db).get()
         let results: [Result<Joined<Package, Repository>, Error>] = [ .success(.init(model: pkgs[0])),
                                                                       .success(.init(model: pkgs[1]))]
-        
+
         // MUT
         try await updatePackages(client: app.client,
                                  database: app.db,
                                  logger: app.logger,
                                  results: results,
                                  stage: .ingestion).get()
-        
+
         // validate
         do {
             let pkgs = try await Package.query(on: app.db).sort(\.$url).all()
@@ -417,7 +447,7 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual(pkgs.map(\.processingStage), [.ingestion, .ingestion])
         }
     }
-    
+
     func test_partial_save_issue() async throws {
         // Test to ensure futures are properly waited for and get flushed to the db in full
         // setup
@@ -427,13 +457,13 @@ class IngestorTests: AppTestCase {
 
         // MUT
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(testUrls.count))
-        
+
         // validate
         let repos = try await Repository.query(on: app.db).all()
         XCTAssertEqual(repos.count, testUrls.count)
         XCTAssertEqual(Set(repos.map(\.$package.id)), Set(packages.map(\.id)))
     }
-    
+
     func test_ingest_badMetadata() async throws {
         // setup
         let urls = ["https://github.com/foo/1",
@@ -448,10 +478,10 @@ class IngestorTests: AppTestCase {
             return .mock(for: pkg)
         }
         let lastUpdate = Date()
-        
+
         // MUT
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
-        
+
         // validate
         let repos = try await Repository.query(on: app.db).all()
         XCTAssertEqual(repos.count, 2)
@@ -468,7 +498,7 @@ class IngestorTests: AppTestCase {
             XCTAssert(pkg.updatedAt! > lastUpdate)
         }
     }
-    
+
     func test_ingest_unique_owner_name_violation() async throws {
         // Test error behaviour when two packages resolving to the same owner/name are ingested:
         //   - don't update package
@@ -505,10 +535,10 @@ class IngestorTests: AppTestCase {
             return self.future(())
         }
         let lastUpdate = Date()
-        
+
         // MUT
         try await ingest(client: app.client, database: app.db, logger: app.logger, mode: .limit(10))
-        
+
         // validate repositories (single element pointing to the ingested package)
         let repos = try await Repository.query(on: app.db).all()
         let ingested = try await Package.query(on: app.db)
@@ -516,7 +546,7 @@ class IngestorTests: AppTestCase {
             .first()
             .unwrap()
         XCTAssertEqual(repos.map(\.$package.id), [try ingested.requireID()])
-        
+
         // validate packages
         let reconciled = try await Package.query(on: app.db)
             .filter(\.$processingStage == .reconciliation)
@@ -534,7 +564,7 @@ class IngestorTests: AppTestCase {
         XCTAssertEqual(reportedLevel, .critical)
         XCTAssert(reportedError?.contains("duplicate key value violates unique constraint") ?? false)
     }
-    
+
     func test_issue_761_no_license() async throws {
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/761
         // setup

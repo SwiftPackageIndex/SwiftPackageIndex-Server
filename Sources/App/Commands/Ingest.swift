@@ -299,17 +299,17 @@ func ingestFromS3(client: Client,
         //       apple/swift-docc @ main - docc
         //       apple/swift-docc @ main - swiftdocc
         //       apple/swift-docc @ main - swiftdoccutilities
-        let docSets = try await S3DocArchives.fetch(prefix: prefix,
-                                                    awsBucketName: awsBucketName,
-                                                    awsAccessKeyId: awsAccessKeyId,
-                                                    awsSecretAccessKey: awsSecretAccessKey)
+        let archives = try await S3DocArchives.fetch(prefix: prefix,
+                                                     awsBucketName: awsBucketName,
+                                                     awsAccessKeyId: awsAccessKeyId,
+                                                     awsSecretAccessKey: awsSecretAccessKey)
 
         // - merge each ref with versions.doc_archives
-        // - cost saving:
-        //   - set to [] for refs we don't have archives for
-        //   - downside: if we generate those docs later we need to reset doc archives [] to NULL
+        updateDocArchives(versions: versions, docArchives: archives)
     }
+
     // - save update versions.docArchives
+    try await versions.save(on: database)
 }
 
 
@@ -325,4 +325,16 @@ func fetchDocArchiveCandidates(database: Database, packageIDs: [Package.Id]) asy
         .filter(\.$spiManifest != nil)
         .filter(\.$docArchives == nil)
         .all()
+}
+
+
+func updateDocArchives(versions: [Version], docArchives: [S3DocArchives.DocArchive]) {
+    let productsByRef = docArchives.productsGroupedByRef()
+
+    for v in versions {
+        // - cost saving:
+        //   - set to [] for refs we don't have archives for to prevent reprocessing
+        //   - downside: if we generate those docs later we need to reset doc archives [] to NULL
+        v.docArchives = productsByRef["\(v.reference)"] ?? []
+    }
 }

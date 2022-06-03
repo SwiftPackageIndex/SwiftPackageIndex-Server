@@ -27,6 +27,18 @@ class S3DocArchivesTests: XCTestCase {
         ])
     }
 
+    func test_productsGroupedByRef() {
+        let archives: [S3DocArchives.DocArchive] = [
+            .init(owner: "foo", repository: "bar", ref: "main", product: "p1"),
+            .init(owner: "foo", repository: "bar", ref: "1.2.3", product: "p1"),
+            .init(owner: "foo", repository: "bar", ref: "1.2.3", product: "p2"),
+        ]
+        XCTAssertEqual(archives.productsGroupedByRef(), [
+            "main": ["p1"],
+            "1.2.3": ["p1", "p2"],
+        ])
+    }
+
 }
 
 
