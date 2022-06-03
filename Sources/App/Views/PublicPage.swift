@@ -234,12 +234,12 @@ class PublicPage {
     func announcementBanner() -> Node<HTML.BodyContext> {
         .p(
             .class("announcement"),
-            .text("Join us in celebrating "),
+            .text("Do you maintain a package with DocC-compatible documentation? "),
             .a(
-                .href("https://blog.swiftpackageindex.com/posts/two-years-of-the-swift-package-index/"),
-                "two years of the Swift Package Index"
+                .href("https://blog.swiftpackageindex.com/posts/auto-generating-auto-hosting-and-auto-updating-docc-documentation/"),
+                "Let us build and host your docs"
             ),
-            .text("! 🎂")
+            .text("! 📚")
         )
     }
 
