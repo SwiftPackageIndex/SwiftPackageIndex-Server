@@ -276,13 +276,9 @@ func ingestFromS3(database: Database,
           let awsBucketName = Current.awsDocsBucket(),
           let awsSecretAccessKey = Current.awsSecretAccessKey() else { return }
 
-    // check for S3 bucket content
-
     let versions = try await fetchDocArchiveCandidates(database: database,
                                                        packageIDs: packages.compactMap(\.model.id))
     for pkg in packages {
-
-        // - if versions.documentation_targets is empty -> early out  (mind exceptions for overrides)
         let versions = versions
             .filter { $0.$package.id == pkg.model.id && $0.hasDocumentationTargets }
         guard !versions.isEmpty else { continue }
@@ -292,20 +288,14 @@ func ingestFromS3(database: Database,
 
         let prefix = "\(owner)/\(repository)".lowercased()
 
-        // - fetch doc archives per version (logic in spi-s3-check)
-        //       apple/swift-docc @ main - docc
-        //       apple/swift-docc @ main - swiftdocc
-        //       apple/swift-docc @ main - swiftdoccutilities
         let archives = try await Current.fetchS3DocArchives(prefix,
                                                             awsBucketName,
                                                             awsAccessKeyId,
                                                             awsSecretAccessKey)
 
-        // - merge each ref with versions.doc_archives
         updateDocArchives(versions: versions, docArchives: archives)
     }
 
-    // - save update versions.docArchives
     try await versions.save(on: database)
 }
 
