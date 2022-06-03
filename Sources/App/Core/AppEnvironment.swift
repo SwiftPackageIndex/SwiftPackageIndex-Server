@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import AsyncHTTPClient
+import S3DocArchives
 import ShellOut
 import Vapor
 #if canImport(FoundationNetworking)
@@ -39,6 +40,10 @@ struct AppEnvironment {
     var fetchLicense: (_ client: Client, _ packageUrl: String) async -> Github.License?
     var fetchMetadata: (_ client: Client, _ packageUrl: String) async throws -> Github.Metadata
     var fetchReadme: (_ client: Client, _ packageUrl: String) async -> Github.Readme?
+    var fetchS3DocArchives: (_ prefix: String,
+                             _ awsBucketName: String,
+                             _ awsAccessKeyId: String,
+                             _ awsSecretAccessKey: String) async throws -> [S3DocArchives.DocArchive]
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
@@ -114,6 +119,7 @@ extension AppEnvironment {
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),
         fetchReadme: Github.fetchReadme(client:packageUrl:),
+        fetchS3DocArchives: S3DocArchives.fetch(prefix:awsBucketName:awsAccessKeyId:awsSecretAccessKey:),
         fileManager: .live,
         getStatusCount: { client, status in
             Gitlab.Builder.getStatusCount(

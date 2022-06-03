@@ -276,9 +276,7 @@ func ingestFromS3(client: Client,
           let awsSecretAccessKey = Current.awsSecretAccessKey() else { return }
 
     // check for S3 bucket content
-    // add new field to versions
-    //   doc_archives text[]
-    // for each package
+
     // - fetch versions where spi_manifest is not null and doc_archives is null (might need
     //   processing but has not been processed)
     let versions = try await fetchDocArchiveCandidates(database: database,
@@ -299,10 +297,10 @@ func ingestFromS3(client: Client,
         //       apple/swift-docc @ main - docc
         //       apple/swift-docc @ main - swiftdocc
         //       apple/swift-docc @ main - swiftdoccutilities
-        let archives = try await S3DocArchives.fetch(prefix: prefix,
-                                                     awsBucketName: awsBucketName,
-                                                     awsAccessKeyId: awsAccessKeyId,
-                                                     awsSecretAccessKey: awsSecretAccessKey)
+        let archives = try await Current.fetchS3DocArchives(prefix,
+                                                            awsBucketName,
+                                                            awsAccessKeyId,
+                                                            awsSecretAccessKey)
 
         // - merge each ref with versions.doc_archives
         updateDocArchives(versions: versions, docArchives: archives)

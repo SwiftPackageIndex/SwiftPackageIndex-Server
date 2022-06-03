@@ -157,9 +157,25 @@ class IngestorTests: AppTestCase {
 
     func test_ingestFromS3_basic() async throws {
         // setup
+        struct UnknownPrefix: Error { var prefix: String }
+        Current.fetchS3DocArchives = { prefix, _, _, _ in
+            switch prefix {
+                case "foo/bar1":
+                    return [
+                        .init(owner: "foo", repository: "bar1", ref: "main", product: "p1"),
+                        .init(owner: "foo", repository: "bar1", ref: "main", product: "p2"),
+                        .init(owner: "foo", repository: "bar1", ref: "1.2.3", product: "p1"),
+                    ]
+                case "foo/bar2":
+                    return []
+                default:
+                    throw UnknownPrefix(prefix: prefix)
+            }
+        }
         let pkg1 = Package(id: .id0, url: "https://github.com/foo/bar1", processingStage: .reconciliation)
+        try await pkg1.save(on: app.db)
+        try await Repository(package: pkg1, name: "bar1", owner: "foo").save(on: app.db)
         do {
-            try await pkg1.save(on: app.db)
             // first version has a manifest but no doc archives (should be updated)
             try await Version(id: .id2,
                               package: pkg1,
@@ -170,19 +186,22 @@ class IngestorTests: AppTestCase {
                               spiManifest: .init(documentationTargets: ["target"]))
             .save(on: app.db)
             // second version has a manifest *and* a doc archive (should be ignored)
-            try await Version(package: pkg1,
+            try await Version(id: .id3,
+                              package: pkg1,
                               commit: "commit",
                               commitDate: .t0,
                               docArchives: ["archive"],
-                              reference: .branch("main"),
+                              reference: .tag(1, 2, 3),
                               spiManifest: .init(documentationTargets: ["target"]))
             .save(on: app.db)
         }
         let pkg2 = Package(id: .id1, url: "https://github.com/foo/bar2", processingStage: .reconciliation)
+        try await pkg2.save(on: app.db)
+        try await Repository(package: pkg2, name: "bar2", owner: "foo").save(on: app.db)
         do {
-            try await pkg2.save(on: app.db)
             // version has no manifest and no archives (should be ignored)
-            try await Version(package: pkg2,
+            try await Version(id: .id4,
+                              package: pkg2,
                               commit: "commit",
                               commitDate: .t0,
                               docArchives: nil,
@@ -197,6 +216,13 @@ class IngestorTests: AppTestCase {
         try await ingestFromS3(client: app.client, database: app.db, logger: app.logger, packages: packages)
 
         // validate
+        let v2 = try await Version.find(.id2, on: app.db).unwrap()
+        XCTAssert(try v2.updatedAt.unwrap() > lastUpdate)
+        XCTAssertEqual(v2.docArchives, ["p1", "p2"])
+        let v3 = try await Version.find(.id3, on: app.db).unwrap()
+        XCTAssert(try v3.updatedAt.unwrap() < lastUpdate)
+        let v4 = try await Version.find(.id4, on: app.db).unwrap()
+        XCTAssert(try v4.updatedAt.unwrap() < lastUpdate)
     }
 
     func test_fetchMetadata() async throws {
