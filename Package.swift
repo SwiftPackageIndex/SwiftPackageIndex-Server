@@ -35,6 +35,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-parsing.git", from: "0.7.1"),
         .package(name: "SnapshotTesting",
                  url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.7.2"),
+        .package(url: "https://github.com/soto-project/soto.git", from: "5.0.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion", from: "0.3.0"),
         .package(url: "https://github.com/SwiftPackageIndex/SPIManifest", from: "0.5.0"),
         .package(url: "https://github.com/handya/OhhAuth.git", from: "1.4.0"),
@@ -56,6 +57,8 @@ let package = Package(
             "SwiftPrometheus",
             "OhhAuth",
             "SwiftSoup",
+            .product(name: "Parsing", package: "swift-parsing"),
+            .product(name: "SotoS3", package: "soto"),
             .product(name: "SwiftPMPackageCollections", package: "SwiftPM")
         ]),
         .target(name: "DependencyResolution"),
@@ -65,7 +68,6 @@ let package = Package(
             dependencies: [
                 .target(name: "App"),
                 .product(name: "XCTVapor", package: "vapor"),
-                .product(name: "Parsing", package: "swift-parsing"),
                 "SnapshotTesting"
             ],
             exclude: ["__Snapshots__", "Fixtures"]

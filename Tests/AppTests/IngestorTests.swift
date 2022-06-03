@@ -127,16 +127,44 @@ class IngestorTests: AppTestCase {
 
     func test_ingestFromS3_basic() async throws {
         // setup
-        Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
-        let pkgID = UUID()
+        let pkg1 = Package(id: .id0, url: "https://github.com/foo/bar1", processingStage: .reconciliation)
         do {
-            let pkg = Package(id: pkgID, url: "https://github.com/foo/bar", processingStage: .reconciliation)
-            try await pkg.save(on: app.db)
+            try await pkg1.save(on: app.db)
+            // first version has a manifest but no doc archives (should be updated)
+            try await Version.init(id: .id2,
+                                   package: pkg1,
+                                   commit: "commit",
+                                   commitDate: .t0,
+                                   docArchives: nil,
+                                   reference: .branch("main"),
+                                   spiManifest: .init(documentationTargets: ["target"]))
+            .save(on: app.db)
+            // second version has a manifest *and* a doc archive (should be ignored)
+            try await Version.init(package: pkg1,
+                                   commit: "commit",
+                                   commitDate: .t0,
+                                   docArchives: ["archive"],
+                                   reference: .branch("main"),
+                                   spiManifest: .init(documentationTargets: ["target"]))
+            .save(on: app.db)
         }
+        let pkg2 = Package(id: .id1, url: "https://github.com/foo/bar2", processingStage: .reconciliation)
+        do {
+            try await pkg2.save(on: app.db)
+            // version has no manifest and no archives (should be ignored)
+            try await Version.init(package: pkg2,
+                                   commit: "commit",
+                                   commitDate: .t0,
+                                   docArchives: nil,
+                                   reference: .branch("main"),
+                                   spiManifest: nil)
+            .save(on: app.db)
+        }
+        let lastUpdate = Date()
+        let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).get()
 
-        do {  // MUT
-            try await ingestFromS3(client: app.client, database: app.db, logger: app.logger, packageIDs: [pkgID])
-        }
+        // MUT
+        try await ingestFromS3(client: app.client, database: app.db, logger: app.logger, packages: packages)
 
         // validate
     }

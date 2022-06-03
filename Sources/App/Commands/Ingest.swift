@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Vapor
 import Fluent
+import Vapor
 
 
 struct IngestCommand: CommandAsync {
@@ -127,7 +127,7 @@ func ingest(client: Client,
         try await ingestFromS3(client: client,
                                database: database,
                                logger: logger,
-                               packageIDs: packages.compactMap(\.model.id))
+                               packages: packages)
     }
 }
 
@@ -269,26 +269,46 @@ func insertOrUpdateRepository(on database: Database,
 func ingestFromS3(client: Client,
                   database: Database,
                   logger: Logger,
-                  packageIDs: [Package.Id]) async throws {
+                  packages: [Joined<Package, Repository>]) async throws {
+    guard let awsAccessKeyId = Current.awsAccessKeyId(),
+          let awsBucketName = Current.awsDocsBucket(),
+          let awsSecretAccessKey = Current.awsSecretAccessKey() else { return }
+
     // check for S3 bucket content
     // add new field to versions
     //   doc_archives text[]
     // for each package
     // - fetch versions where spi_manifest is not null and doc_archives is null (might need
     //   processing but has not been processed)
-    // - if versions.documentation_targets is empty -> early out  *)
-    // - fetch doc archives per version (logic in spi-s3-check)
-    //       apple/swift-docc @ main - docc
-    //       apple/swift-docc @ main - swiftdocc
-    //       apple/swift-docc @ main - swiftdoccutilities
-    // - merge each ref with versions.doc_archives
-    // - cost saving:
-    //   - set to [] for refs we don't have archives for
-    //   - downside: if we generate those docs later we need to reset doc archives [] to NULL
+    let versions = try await fetchDocArchiveCandidates(database: database,
+                                                       packageIDs: packages.compactMap(\.model.id))
+    for pkg in packages {
+
+        // - if versions.documentation_targets is empty -> early out  (mind exceptions for overrides)
+        let versions = versions
+            .filter { $0.$package.id == pkg.model.id && $0.hasDocumentationTargets }
+        guard !versions.isEmpty else { continue }
+
+        guard let owner = pkg.repository?.owner,
+              let repository = pkg.repository?.name else { continue }
+
+        let prefix = "\(owner)/\(repository)".lowercased()
+
+        // - fetch doc archives per version (logic in spi-s3-check)
+        //       apple/swift-docc @ main - docc
+        //       apple/swift-docc @ main - swiftdocc
+        //       apple/swift-docc @ main - swiftdoccutilities
+        let docSets = try await S3DocArchives.fetch(prefix: prefix,
+                                                    awsBucketName: awsBucketName,
+                                                    awsAccessKeyId: awsAccessKeyId,
+                                                    awsSecretAccessKey: awsSecretAccessKey)
+
+        // - merge each ref with versions.doc_archives
+        // - cost saving:
+        //   - set to [] for refs we don't have archives for
+        //   - downside: if we generate those docs later we need to reset doc archives [] to NULL
+    }
     // - save update versions.docArchives
-    //
-    // *) allow for exceptions like apple/swift-docc and apple/swift-markdown which don't have
-    //    spi manifest files
 }
 
 

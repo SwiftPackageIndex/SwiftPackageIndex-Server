@@ -23,7 +23,9 @@ import FoundationNetworking
 struct AppEnvironment {
     var allowBuildTriggers: () -> Bool
     var allowTwitterPosts: () -> Bool
+    var awsAccessKeyId: () -> String?
     var awsDocsBucket: () -> String?
+    var awsSecretAccessKey: () -> String?
     var appVersion: () -> String?
     var builderToken: () -> String?
     var buildTriggerDownscaling: () -> Double
@@ -80,7 +82,9 @@ extension AppEnvironment {
                 .flatMap(\.asBool)
                 ?? Constants.defaultAllowTwitterPosts
         },
+        awsAccessKeyId: { Environment.get("AWS_ACCESS_KEY_ID") },
         awsDocsBucket: { Environment.get("AWS_DOCS_BUCKET") },
+        awsSecretAccessKey: { Environment.get("AWS_SECRET_ACCESS_KEY") },
         appVersion: { App.appVersion },
         builderToken: { Environment.get("BUILDER_TOKEN") },
         buildTriggerDownscaling: {
