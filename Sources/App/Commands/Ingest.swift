@@ -293,6 +293,15 @@ func ingestFromS3(client: Client,
 
 
 /// Fetch versions for a given package that have an SPI manifest but no doc archives.
-func fetchDocArchiveCandidates() {
-
+func fetchDocArchiveCandidates(database: Database, packageIDs: [Package.Id]) async throws -> [Version] {
+    // select *
+    // from versions
+    // where package_id in ('7deb7e3d-778f-4121-9a1d-3b0e2aa2de45', '38d534bf-4be1-498e-b973-e7e885fc3a4e')
+    // and spi_manifest is not null
+    // and doc_archives is null
+    try await Version.query(on: database)
+        .filter(\.$package.$id ~~ packageIDs)
+        .filter(\.$spiManifest != nil)
+        .filter(\.$docArchives == nil)
+        .all()
 }

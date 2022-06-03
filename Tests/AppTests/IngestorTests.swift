@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import XCTest
+
 @testable import App
 
 import Fluent
+import SPIManifest
 import Vapor
-import XCTest
 
 
 class IngestorTests: AppTestCase {
@@ -78,6 +80,49 @@ class IngestorTests: AppTestCase {
             XCTAssertEqual($0.status, .new)
             XCTAssertEqual($0.processingStage, .ingestion)
         }
+    }
+
+    func test_fetchDocArchiveCandidates() async throws {
+        do {
+            let pkg = Package(id: .id0, url: "https://github.com/foo/bar1", processingStage: .reconciliation)
+            try await pkg.save(on: app.db)
+            // first version has a manifest but no doc archives (should be updated)
+            try await Version.init(id: .id2,
+                                   package: pkg,
+                                   commit: "commit",
+                                   commitDate: .t0,
+                                   docArchives: nil,
+                                   reference: .branch("main"),
+                                   spiManifest: .init(documentationTargets: ["target"]))
+            .save(on: app.db)
+            // second version has a manifest *and* a doc archive (should be ignored)
+            try await Version.init(package: pkg,
+                                   commit: "commit",
+                                   commitDate: .t0,
+                                   docArchives: ["archive"],
+                                   reference: .branch("main"),
+                                   spiManifest: .init(documentationTargets: ["target"]))
+            .save(on: app.db)
+        }
+        do {
+            let pkg = Package(id: .id1, url: "https://github.com/foo/bar2", processingStage: .reconciliation)
+            try await pkg.save(on: app.db)
+            // version has no manifest and no archives (should be ignored)
+            try await Version.init(package: pkg,
+                                   commit: "commit",
+                                   commitDate: .t0,
+                                   docArchives: nil,
+                                   reference: .branch("main"),
+                                   spiManifest: nil)
+            .save(on: app.db)
+        }
+
+        // MUT
+        let versions = try await fetchDocArchiveCandidates(database: app.db,
+                                                           packageIDs: [.id0, .id1])
+
+        // validate
+        XCTAssertEqual(versions.map(\.id), [.id2])
     }
 
     func test_ingestFromS3_basic() async throws {
@@ -486,3 +531,8 @@ class IngestorTests: AppTestCase {
 }
 
 
+private extension SPIManifest.Manifest {
+    init(documentationTargets: [String]) {
+        self.init(builder: .init(configs: [.init(documentationTargets: documentationTargets)]))
+    }
+}
