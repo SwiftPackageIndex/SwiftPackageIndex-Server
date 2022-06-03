@@ -22,7 +22,8 @@ let package = Package(
         .macOS(.v12)
     ],
     products: [
-        .library(name: "DependencyResolution", targets: ["DependencyResolution"])
+        .library(name: "DependencyResolution", targets: ["DependencyResolution"]),
+        .library(name: "S3DocArchives", targets: ["S3DocArchives"]),
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0-rc"),
@@ -45,10 +46,6 @@ let package = Package(
     ],
     targets: [
         .target(name: "App", dependencies: [
-            "DependencyResolution",
-            .product(name: "Fluent", package: "fluent"),
-            .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
-            .product(name: "Vapor", package: "vapor"),
             "Plot",
             "Ink",
             "SemanticVersion",
@@ -57,16 +54,27 @@ let package = Package(
             "SwiftPrometheus",
             "OhhAuth",
             "SwiftSoup",
+            .product(name: "Fluent", package: "fluent"),
+            .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
             .product(name: "Parsing", package: "swift-parsing"),
             .product(name: "SotoS3", package: "soto"),
-            .product(name: "SwiftPMPackageCollections", package: "SwiftPM")
+            .product(name: "SwiftPMPackageCollections", package: "SwiftPM"),
+            .product(name: "Vapor", package: "vapor"),
+            .target(name: "S3DocArchives"),
+            .target(name: "DependencyResolution"),
         ]),
         .target(name: "DependencyResolution"),
+        .target(name: "S3DocArchives",
+                dependencies: [
+                    .product(name: "Parsing", package: "swift-parsing"),
+                    .product(name: "SotoS3", package: "soto"),
+                ]),
         .executableTarget(name: "Run", dependencies: ["App"]),
         .testTarget(
             name: "AppTests",
             dependencies: [
                 .target(name: "App"),
+                .target(name: "S3DocArchives"),
                 .product(name: "XCTVapor", package: "vapor"),
                 "SnapshotTesting"
             ],
