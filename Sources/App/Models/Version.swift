@@ -14,6 +14,7 @@
 
 import DependencyResolution
 import Fluent
+import S3DocArchives
 import SPIManifest
 import Vapor
 
@@ -51,7 +52,7 @@ final class Version: Model, Content {
     var commitDate: Date
 
     @Field(key: "doc_archives")
-    var docArchives: [String]?
+    var docArchives: [DocArchive]?
 
     @Field(key: "latest")
     var latest: Kind?
@@ -107,7 +108,7 @@ final class Version: Model, Content {
          package: Package,
          commit: CommitHash,
          commitDate: Date,
-         docArchives: [String]? = nil,
+         docArchives: [DocArchive]? = nil,
          latest: Kind? = nil,
          packageName: String? = nil,
          publishedAt: Date? = nil,

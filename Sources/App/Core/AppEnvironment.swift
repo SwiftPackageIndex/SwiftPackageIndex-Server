@@ -43,7 +43,7 @@ struct AppEnvironment {
     var fetchS3DocArchives: (_ prefix: String,
                              _ awsBucketName: String,
                              _ awsAccessKeyId: String,
-                             _ awsSecretAccessKey: String) async throws -> [S3DocArchives.DocArchive]
+                             _ awsSecretAccessKey: String) async throws -> [DocArchive]
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>

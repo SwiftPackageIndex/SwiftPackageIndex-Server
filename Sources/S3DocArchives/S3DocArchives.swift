@@ -17,7 +17,7 @@ import Parsing
 import SotoS3
 
 
-public struct DocArchive: Equatable {
+public struct DocArchive: Codable, Equatable {
     public var path: Path
     public var title: String
 
@@ -26,6 +26,15 @@ public struct DocArchive: Equatable {
     internal init(path: Path, title: String) {
         self.path = path
         self.title = title
+    }
+
+    static func mock(_ owner: String = "foo",
+                     _ repository: String = "bar",
+                     _ ref: String = "ref",
+                     _ product: String = "product",
+                     _ title: String = "Product") -> Self {
+        .init(path: .init(owner: owner, repository: repository, ref: ref, product: product),
+              title: title)
     }
 #endif
 
@@ -64,7 +73,7 @@ public extension DocArchive {
 
 
 extension DocArchive {
-    public struct Path: Equatable {
+    public struct Path: Codable, Equatable {
         public var owner: String
         public var repository: String
         public var ref: String

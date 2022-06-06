@@ -315,13 +315,13 @@ func fetchDocArchiveCandidates(database: Database, packageIDs: [Package.Id]) asy
 }
 
 
-func updateDocArchives(versions: [Version], docArchives: [S3DocArchives.DocArchive]) {
-    let productsByRef = docArchives.map(\.path).productsGroupedByRef()
+func updateDocArchives(versions: [Version], docArchives: [DocArchive]) {
+    let archivesByRef = docArchives.archivesGroupedByRef()
 
     for v in versions {
         // - cost saving:
         //   - set to [] for refs we don't have archives for to prevent reprocessing
         //   - downside: if we generate those docs later we need to reset doc archives [] to NULL
-        v.docArchives = productsByRef["\(v.reference)"] ?? []
+        v.docArchives = archivesByRef["\(v.reference)"] ?? []
     }
 }

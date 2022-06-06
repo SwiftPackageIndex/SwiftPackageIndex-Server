@@ -13,10 +13,8 @@
 // limitations under the License.
 
 
-extension Array where Element == S3DocArchives.DocArchive.Path {
-    @available(*, deprecated)
-    public func productsGroupedByRef() -> [String: [String]] {
-        Dictionary(grouping: self) { $0.ref }
-            .mapValues { $0.map(\.product) }
+extension Array where Element == DocArchive {
+    public func archivesGroupedByRef() -> [String: [DocArchive]] {
+        Dictionary(grouping: self) { $0.path.ref }
     }
 }

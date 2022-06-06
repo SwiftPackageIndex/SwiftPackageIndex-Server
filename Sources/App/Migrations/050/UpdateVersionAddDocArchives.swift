@@ -17,7 +17,7 @@ import Fluent
 struct UpdateVersionAddDocArchives: AsyncMigration {
     func prepare(on database: Database) async throws {
         try await database.schema("versions")
-            .field("doc_archives", .array(of: .string))
+            .field("doc_archives", .array(of: .json))
             .update()
     }
 

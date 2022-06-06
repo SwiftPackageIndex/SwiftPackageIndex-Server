@@ -100,7 +100,7 @@ class IngestorTests: AppTestCase {
             try await Version(package: pkg,
                               commit: "commit",
                               commitDate: .t0,
-                              docArchives: ["archive"],
+                              docArchives: [.mock()],
                               reference: .branch("main"),
                               spiManifest: .init(documentationTargets: ["target"]))
             .save(on: app.db)
@@ -129,10 +129,10 @@ class IngestorTests: AppTestCase {
     func test_updateDocArchives() throws {
         // setup
         let pkg = Package(id: .id0, url: "https://github.com/foo/bar")
-        let archives: [S3DocArchives.DocArchive] = [
-            .archive("foo", "bar", "main", "p1", "P1"),
-            .archive("foo", "bar", "1.2.3", "p1", "P1"),
-            .archive("foo", "bar", "1.2.3", "p2", "P2"),
+        let archives: [DocArchive] = [
+            .mock("foo", "bar", "main", "p1", "P1"),
+            .mock("foo", "bar", "1.2.3", "p1", "P1"),
+            .mock("foo", "bar", "1.2.3", "p2", "P2"),
         ]
         let versions = [
             try Version(package: pkg,
@@ -151,21 +151,22 @@ class IngestorTests: AppTestCase {
         updateDocArchives(versions: versions, docArchives: archives)
 
         // validate
-        XCTAssertEqual(versions[0].docArchives, ["p1"])
-        XCTAssertEqual(versions[1].docArchives, ["p1", "p2"])
+        XCTAssertEqual(versions[0].docArchives, [archives[0]])
+        XCTAssertEqual(versions[1].docArchives, [archives[1], archives[2]])
     }
 
     func test_ingestFromS3_basic() async throws {
         // setup
         struct UnknownPrefix: Error { var prefix: String }
+        let archives: [DocArchive] = [
+            .mock("foo", "bar", "main", "p1", "P1"),
+            .mock("foo", "bar", "main", "p2", "P2"),
+            .mock("foo", "bar", "1.2.3", "p2", "P2"),
+        ]
         Current.fetchS3DocArchives = { prefix, _, _, _ in
             switch prefix {
                 case "foo/bar1":
-                    return [
-                        .archive("foo", "bar", "main", "p1", "P1"),
-                        .archive("foo", "bar", "main", "p2", "P2"),
-                        .archive("foo", "bar", "1.2.3", "p2", "P2"),
-                    ]
+                    return archives
                 case "foo/bar2":
                     return []
                 default:
@@ -190,7 +191,7 @@ class IngestorTests: AppTestCase {
                               package: pkg1,
                               commit: "commit",
                               commitDate: .t0,
-                              docArchives: ["archive"],
+                              docArchives: [.mock()],
                               reference: .tag(1, 2, 3),
                               spiManifest: .init(documentationTargets: ["target"]))
             .save(on: app.db)
@@ -218,7 +219,7 @@ class IngestorTests: AppTestCase {
         // validate
         let v2 = try await Version.find(.id2, on: app.db).unwrap()
         XCTAssert(try v2.updatedAt.unwrap() > lastUpdate)
-        XCTAssertEqual(v2.docArchives, ["p1", "p2"])
+        XCTAssertEqual(v2.docArchives, [archives[0], archives[1]])
         let v3 = try await Version.find(.id3, on: app.db).unwrap()
         XCTAssert(try v3.updatedAt.unwrap() < lastUpdate)
         let v4 = try await Version.find(.id4, on: app.db).unwrap()
@@ -618,13 +619,5 @@ class IngestorTests: AppTestCase {
 private extension SPIManifest.Manifest {
     init(documentationTargets: [String]) {
         self.init(builder: .init(configs: [.init(documentationTargets: documentationTargets)]))
-    }
-}
-
-
-private extension S3DocArchives.DocArchive {
-    static func archive(_ owner: String, _ repository: String, _ ref: String, _ product: String, _ title: String) -> Self {
-        .init(path: .init(owner: owner, repository: repository, ref: ref, product: product),
-              title: title)
     }
 }
