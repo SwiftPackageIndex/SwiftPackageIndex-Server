@@ -316,7 +316,7 @@ func fetchDocArchiveCandidates(database: Database, packageIDs: [Package.Id]) asy
 
 
 func updateDocArchives(versions: [Version], docArchives: [S3DocArchives.DocArchive]) {
-    let productsByRef = docArchives.productsGroupedByRef()
+    let productsByRef = docArchives.map(\.path).productsGroupedByRef()
 
     for v in versions {
         // - cost saving:

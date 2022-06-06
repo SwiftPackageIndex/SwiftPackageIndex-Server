@@ -130,9 +130,9 @@ class IngestorTests: AppTestCase {
         // setup
         let pkg = Package(id: .id0, url: "https://github.com/foo/bar")
         let archives: [S3DocArchives.DocArchive] = [
-            .init(owner: "foo", repository: "bar", ref: "main", product: "p1"),
-            .init(owner: "foo", repository: "bar", ref: "1.2.3", product: "p1"),
-            .init(owner: "foo", repository: "bar", ref: "1.2.3", product: "p2"),
+            .archive("foo", "bar", "main", "p1", "P1"),
+            .archive("foo", "bar", "1.2.3", "p1", "P1"),
+            .archive("foo", "bar", "1.2.3", "p2", "P2"),
         ]
         let versions = [
             try Version(package: pkg,
@@ -162,9 +162,9 @@ class IngestorTests: AppTestCase {
             switch prefix {
                 case "foo/bar1":
                     return [
-                        .init(owner: "foo", repository: "bar1", ref: "main", product: "p1"),
-                        .init(owner: "foo", repository: "bar1", ref: "main", product: "p2"),
-                        .init(owner: "foo", repository: "bar1", ref: "1.2.3", product: "p1"),
+                        .archive("foo", "bar", "main", "p1", "P1"),
+                        .archive("foo", "bar", "main", "p2", "P2"),
+                        .archive("foo", "bar", "1.2.3", "p2", "P2"),
                     ]
                 case "foo/bar2":
                     return []
@@ -618,5 +618,13 @@ class IngestorTests: AppTestCase {
 private extension SPIManifest.Manifest {
     init(documentationTargets: [String]) {
         self.init(builder: .init(configs: [.init(documentationTargets: documentationTargets)]))
+    }
+}
+
+
+private extension S3DocArchives.DocArchive {
+    static func archive(_ owner: String, _ repository: String, _ ref: String, _ product: String, _ title: String) -> Self {
+        .init(path: .init(owner: owner, repository: repository, ref: ref, product: product),
+              title: title)
     }
 }
