@@ -119,7 +119,7 @@ extension AppEnvironment {
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),
         fetchReadme: Github.fetchReadme(client:packageUrl:),
-        fetchS3DocArchives: DocArchive.fetch(prefix:awsBucketName:awsAccessKeyId:awsSecretAccessKey:),
+        fetchS3DocArchives: DocArchive.fetchAll(prefix:awsBucketName:awsAccessKeyId:awsSecretAccessKey:),
         fileManager: .live,
         getStatusCount: { client, status in
             Gitlab.Builder.getStatusCount(

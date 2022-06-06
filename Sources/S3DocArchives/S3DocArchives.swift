@@ -37,10 +37,10 @@ public struct DocArchive: Equatable {
 
 
 public extension DocArchive {
-    static func fetch(prefix: String,
-                      awsBucketName: String,
-                      awsAccessKeyId: String,
-                      awsSecretAccessKey: String) async throws -> [DocArchive] {
+    static func fetchAll(prefix: String,
+                         awsBucketName: String,
+                         awsAccessKeyId: String,
+                         awsSecretAccessKey: String) async throws -> [DocArchive] {
         let key = S3.StoreKey(bucket: awsBucketName, path: prefix)
         let client = AWSClient(credentialProvider: .static(accessKeyId: awsAccessKeyId,
                                                            secretAccessKey: awsSecretAccessKey),
