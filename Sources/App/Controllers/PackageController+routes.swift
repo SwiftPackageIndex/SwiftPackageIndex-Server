@@ -93,7 +93,7 @@ struct PackageController {
         guard (200..<399).contains(awsResponse.status.code) else {
             // Convert anything that isn't a 2xx or 3xx into a 404
             return try await DocumentationErrorPage.View(path: req.url.path,
-                                               error: Abort(awsResponse.status))
+                                                         error: Abort(awsResponse.status))
             .document()
             .encodeResponse(status: .notFound,
                             headers: req.headers.replacingOrAdding(name: .cacheControl,
