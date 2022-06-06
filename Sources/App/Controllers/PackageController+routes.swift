@@ -92,10 +92,13 @@ struct PackageController {
         let awsResponse = try await Current.fetchDocumentation(req.client, url)
         guard (200..<399).contains(awsResponse.status.code) else {
             // Convert anything that isn't a 2xx or 3xx into a 404
-            return DocumentationErrorPage.View(path: req.url.path,
+            return try await DocumentationErrorPage.View(path: req.url.path,
                                                error: Abort(awsResponse.status))
             .document()
-            .encodeResponse(for: req, status: .notFound)
+            .encodeResponse(status: .notFound,
+                            headers: req.headers.replacingOrAdding(name: .cacheControl,
+                                                                   value: "no-cache"),
+                            for: req)
         }
 
         switch fragment {

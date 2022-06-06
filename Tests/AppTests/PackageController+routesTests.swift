@@ -282,6 +282,7 @@ class PackageController_routesTests: AppTestCase {
         try app.test(.GET, "/owner/package/1.2.3/documentation") {
             XCTAssertEqual($0.status, .notFound)
             XCTAssert($0.body.asString().contains("Documentation for this package is not yet available"))
+            XCTAssert($0.headers.contains(name: .cacheControl))
         }
 
         // test path a/b
