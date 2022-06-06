@@ -43,7 +43,7 @@ struct AppEnvironment {
     var fetchS3DocArchives: (_ prefix: String,
                              _ awsBucketName: String,
                              _ awsAccessKeyId: String,
-                             _ awsSecretAccessKey: String) async throws -> [S3DocArchives.DocArchive]
+                             _ awsSecretAccessKey: String) async throws -> [DocArchive]
     var fileManager: FileManager
     var getStatusCount: (_ client: Client,
                          _ status: Gitlab.Builder.Status) -> EventLoopFuture<Int>
@@ -119,7 +119,7 @@ extension AppEnvironment {
         fetchLicense: Github.fetchLicense(client:packageUrl:),
         fetchMetadata: Github.fetchMetadata(client:packageUrl:),
         fetchReadme: Github.fetchReadme(client:packageUrl:),
-        fetchS3DocArchives: S3DocArchives.fetch(prefix:awsBucketName:awsAccessKeyId:awsSecretAccessKey:),
+        fetchS3DocArchives: DocArchive.fetchAll(prefix:awsBucketName:awsAccessKeyId:awsSecretAccessKey:),
         fileManager: .live,
         getStatusCount: { client, status in
             Gitlab.Builder.getStatusCount(

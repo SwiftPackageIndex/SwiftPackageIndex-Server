@@ -20,7 +20,7 @@ import XCTest
 class S3DocArchivesTests: XCTestCase {
 
     func test_parse() throws {
-        let docs = keys.compactMap { try? S3DocArchives.folder.parse($0) }
+        let docs = keys.compactMap { try? DocArchive.path.parse($0) }
         XCTAssertEqual(docs, [
             .init(owner: "apple", repository: "swift-docc", ref: "main", product: "docc"),
             .init(owner: "apple", repository: "swift-docc", ref: "main", product: "swiftdocc"),
@@ -28,14 +28,13 @@ class S3DocArchivesTests: XCTestCase {
     }
 
     func test_productsGroupedByRef() {
-        let archives: [S3DocArchives.DocArchive] = [
-            .init(owner: "foo", repository: "bar", ref: "main", product: "p1"),
-            .init(owner: "foo", repository: "bar", ref: "1.2.3", product: "p1"),
-            .init(owner: "foo", repository: "bar", ref: "1.2.3", product: "p2"),
-        ]
-        XCTAssertEqual(archives.productsGroupedByRef(), [
-            "main": ["p1"],
-            "1.2.3": ["p1", "p2"],
+        let mainP1 = DocArchive.mock("foo", "bar", "main", "p1", "P1")
+        let v123P1 = DocArchive.mock("foo", "bar", "1.2.3", "p1", "P1")
+        let v123P2 = DocArchive.mock("foo", "bar", "1.2.3", "p2", "P2")
+        let archives: [DocArchive] = [mainP1, v123P1, v123P2]
+        XCTAssertEqual(archives.archivesGroupedByRef(), [
+            "main": [mainP1],
+            "1.2.3": [v123P1, v123P2]
         ])
     }
 

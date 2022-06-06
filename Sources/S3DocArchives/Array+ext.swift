@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,18 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Fluent
 
-struct UpdateVersionAddDocArchives: AsyncMigration {
-    func prepare(on database: Database) async throws {
-        try await database.schema("versions")
-            .field("doc_archives", .array(of: .json))
-            .update()
-    }
-
-    func revert(on database: Database) async throws {
-        try await database.schema("versions")
-            .deleteField("doc_archives")
-            .update()
+extension Array where Element == DocArchive {
+    public func archivesGroupedByRef() -> [String: [DocArchive]] {
+        Dictionary(grouping: self) { $0.path.ref }
     }
 }
