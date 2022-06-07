@@ -67,6 +67,7 @@ extension IngestCommand {
     static func resetMetrics() {
         AppMetrics.ingestMetadataSuccessCount?.set(0)
         AppMetrics.ingestMetadataFailureCount?.set(0)
+        AppMetrics.ingestS3FetchCount?.set(0)
     }
 }
 
@@ -297,6 +298,7 @@ func ingestFromS3(database: Database,
 
         let prefix = "\(owner)/\(repository)".lowercased()
 
+        AppMetrics.ingestS3FetchCount?.inc()
         let archives = try await Current.fetchS3DocArchives(prefix,
                                                             awsBucketName,
                                                             awsAccessKeyId,

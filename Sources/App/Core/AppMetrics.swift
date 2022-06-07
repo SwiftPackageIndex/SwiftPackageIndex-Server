@@ -199,6 +199,10 @@ enum AppMetrics {
         gauge("spi_ingest_metadata_failure_count", EmptyLabels.self)
     }
 
+    static var ingestS3FetchCount: PromGauge<Int, EmptyLabels>? {
+        gauge("ingest_s3_fetch_count", EmptyLabels.self)
+    }
+
     static var packageCollectionGetTotal: PromCounter<Int, EmptyLabels>? {
         counter("spi_package_collection_get_total", EmptyLabels.self)
     }
