@@ -226,6 +226,62 @@ class IngestorTests: AppTestCase {
         XCTAssert(try v4.updatedAt.unwrap() < lastUpdate)
     }
 
+    func test_ingestFromS3_before_build_report() async throws {
+        // Test behaviour if a package is ingested after receiving an spi.yml but before the
+        // builder has finished processing and uploaded docs to S3.
+        // setup
+        struct UnknownPrefix: Error { var prefix: String }
+        Current.fetchS3DocArchives = { _, _, _, _ in
+            // initially there are not archives yet
+            []
+        }
+        do {
+            let pkg = Package(id: .id0, url: "https://github.com/foo/bar", processingStage: .reconciliation)
+            try await pkg.save(on: app.db)
+            try await Repository(package: pkg, name: "bar", owner: "foo").save(on: app.db)
+            // Version has gained an spiManifest, no archives yet
+            try await Version(id: .id1,
+                              package: pkg,
+                              commit: "commit",
+                              commitDate: .t0,
+                              docArchives: nil,
+                              reference: .branch("main"),
+                              spiManifest: .init(documentationTargets: ["target"]))
+            .save(on: app.db)
+        }
+        let lastUpdate = Date()
+
+        do {  // MUT
+            let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
+                .get()
+            try await ingestFromS3(database: app.db, logger: app.logger, packages: packages)
+        }
+
+        do {  // validate
+            let v = try await Version.find(.id1, on: app.db).unwrap()
+            XCTAssert(try v.updatedAt.unwrap() < lastUpdate)
+            XCTAssertEqual(v.docArchives, nil)
+        }
+
+        let archive: DocArchive = .mock("foo", "bar", "main", "p1", "P1")
+        Current.fetchS3DocArchives = { _, _, _, _ in
+            // now there's an archive
+            [archive]
+        }
+
+        do {  // MUT
+            let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
+                .get()
+            try await ingestFromS3(database: app.db, logger: app.logger, packages: packages)
+        }
+
+        do {  // validate
+            let v = try await Version.find(.id1, on: app.db).unwrap()
+            XCTAssert(try v.updatedAt.unwrap() > lastUpdate)
+            XCTAssertEqual(v.docArchives, [archive])
+        }
+    }
+
     func test_fetchMetadata() async throws {
         // Test completion of all fetches despite early error
         // setup

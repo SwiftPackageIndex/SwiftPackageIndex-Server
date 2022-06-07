@@ -20,7 +20,7 @@ import SotoS3
 public struct DocArchive: Codable, Equatable {
     public var path: Path
     public var title: String
-    
+
     init(s3: S3, in bucket: String, path: Path) async {
         self.path = path
         self.title = (try? await s3.getDocArchiveTitle(in: bucket, path: path)) ?? path.product
