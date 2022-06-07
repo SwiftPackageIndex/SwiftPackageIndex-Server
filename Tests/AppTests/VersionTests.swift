@@ -14,6 +14,7 @@
 
 @testable import App
 
+import SPIManifest
 import XCTVapor
 
 
@@ -170,6 +171,30 @@ class VersionTests: AppTestCase {
 
         // validate
         XCTAssertEqual(latest?.id, vid)
+    }
+
+    func test_hasDocumentationTargets() throws {
+        let manifestWithTargets = Manifest(
+            builder: .init(configs: [.init(documentationTargets: ["target"])])
+        )
+        let manifestWithoutTargets = Manifest(
+            builder: .init(configs: [.init(documentationTargets: [])])
+        )
+        let pkg = Package(id: .id0, url: "foo")
+        func version(_ manifest: SPIManifest.Manifest?, _ url: String) throws -> Version {
+            try Version(package: pkg,
+                        commit: "",
+                        commitDate: .t0,
+                        reference: .branch(""),
+                        spiManifest: manifest,
+                        url: url)
+        }
+
+        XCTAssertEqual(try version(manifestWithTargets, "").hasDocumentationTargets, true)
+        XCTAssertEqual(try version(manifestWithoutTargets, "").hasDocumentationTargets, false)
+        XCTAssertEqual(try version(nil, "").hasDocumentationTargets, false)
+        XCTAssertEqual(try version(nil, "https://github.com/apple/swift-docc/tree/main")
+            .hasDocumentationTargets, true)
     }
 
 }
