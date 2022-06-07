@@ -279,9 +279,11 @@ extension PackageController {
 
 extension PackageController {
     static func awsDocumentationURL(owner: String, repository: String, reference: String, fragment: Fragment, path: String) throws -> URI {
-        guard let bucket = Current.awsDocsBucket() else {
-            throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
-        }
+#warning("FIXME: temporary bucket override to point doc links at prod bucket")
+        let bucket = "spi-prod-docs"
+        //        guard let bucket = Current.awsDocsBucket() else {
+        //            throw AppError.envVariableNotSet("AWS_DOCS_BUCKET")
+        //        }
 
         let baseURLHost = "\(bucket).s3-website.us-east-2.amazonaws.com"
         let baseURLPath = "\(owner.lowercased())/\(repository.lowercased())/\(reference.lowercased())"
