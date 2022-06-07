@@ -275,7 +275,7 @@ func ingestFromS3(database: Database,
     guard let awsAccessKeyId = Current.awsAccessKeyId(),
           let awsBucketName = Current.awsDocsBucket(),
           let awsSecretAccessKey = Current.awsSecretAccessKey() else {
-        logger.error("AWS variable(s) unset.")
+        logger.critical("AWS variable(s) unset.")
         return
     }
 
