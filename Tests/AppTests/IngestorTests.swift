@@ -249,7 +249,7 @@ class IngestorTests: AppTestCase {
                               spiManifest: .init(documentationTargets: ["target"]))
             .save(on: app.db)
         }
-        let lastUpdate = Date()
+        var lastUpdate = Date()
 
         do {  // MUT
             let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
@@ -259,7 +259,7 @@ class IngestorTests: AppTestCase {
 
         do {  // validate
             let v = try await Version.find(.id1, on: app.db).unwrap()
-            XCTAssert(try v.updatedAt.unwrap() < lastUpdate)
+            XCTAssert(try v.updatedAt.unwrap() > lastUpdate)
             XCTAssertEqual(v.docArchives, nil)
         }
 
@@ -268,6 +268,7 @@ class IngestorTests: AppTestCase {
             // now there's an archive
             [archive]
         }
+        lastUpdate = Date()
 
         do {  // MUT
             let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
