@@ -274,7 +274,10 @@ func ingestFromS3(database: Database,
                   packages: [Joined<Package, Repository>]) async throws {
     guard let awsAccessKeyId = Current.awsAccessKeyId(),
           let awsBucketName = Current.awsDocsBucket(),
-          let awsSecretAccessKey = Current.awsSecretAccessKey() else { return }
+          let awsSecretAccessKey = Current.awsSecretAccessKey() else {
+        logger.error("AWS variable(s) unset.")
+        return
+    }
 
     let versions = try await fetchDocArchiveCandidates(database: database,
                                                        packageIDs: packages.compactMap(\.model.id))
