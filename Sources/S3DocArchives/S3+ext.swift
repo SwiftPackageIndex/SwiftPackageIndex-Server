@@ -24,13 +24,11 @@ extension S3 {
         var key: String
     }
 
-
     struct FileDescriptor {
         let file: File
         let modificationDate: Date
         let size: Int
     }
-
 
     struct StoreKey {
         let bucket: String
