@@ -134,6 +134,9 @@ func ingestFromGithub(client: Client,
                       database: Database,
                       logger: Logger,
                       packages: [Joined<Package, Repository>]) async throws {
+    let start = DispatchTime.now().uptimeNanoseconds
+    defer { AppMetrics.ingestDurationSeconds?.time(.init(stage: .github), since: start) }
+
     // TODO: simplify the types in this chain by running the batches "vertically" instead of "horizontally"
     // i.e. instead of [package, data1, data2, ...] -> updatePackages(...)
     // run
@@ -278,6 +281,9 @@ func ingestFromS3(database: Database,
         logger.critical("AWS variable(s) unset.")
         return
     }
+
+    let start = DispatchTime.now().uptimeNanoseconds
+    defer { AppMetrics.ingestDurationSeconds?.time(.init(stage: .s3), since: start) }
 
     let versions = try await fetchDocArchiveCandidates(database: database,
                                                        packageIDs: packages.compactMap(\.model.id))
