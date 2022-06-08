@@ -56,7 +56,7 @@ final class Build: Model, Content {
     var runnerId: String?
     
     @Field(key: "status")
-    var status: Build.Status
+    var status: Status
     
     @Field(key: "swift_version")
     var swiftVersion: SwiftVersion

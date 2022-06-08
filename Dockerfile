@@ -30,7 +30,6 @@ COPY . .
 
 # Compile with optimizations
 RUN swift build \
-    --enable-test-discovery \
     -c release \
     -Xswiftc -g
 

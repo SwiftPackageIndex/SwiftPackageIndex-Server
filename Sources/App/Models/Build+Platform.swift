@@ -73,3 +73,14 @@ extension Build.Platform: Comparable {
         }
     }
 }
+
+
+extension Build.Platform: LosslessStringConvertible {
+    init?(_ description: String) {
+        self.init(rawValue: description)
+    }
+
+    var description: String {
+        rawValue
+    }
+}
