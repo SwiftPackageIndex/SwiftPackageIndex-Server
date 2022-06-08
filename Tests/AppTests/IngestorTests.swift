@@ -28,11 +28,19 @@ class IngestorTests: AppTestCase {
         // High level ingest test
         // setup
         Current.fetchMetadata = { _, pkg in .mock(for: pkg) }
-        let packages = ["https://github.com/finestructure/Gala",
-                        "https://github.com/finestructure/Rester",
-                        "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server"]
-            .map { Package(url: $0, processingStage: .reconciliation) }
+        Current.fetchS3DocArchives = { _, _, _, _ in [.mock("foo", "bar", "main", "p1", "P1")] }
+        let packages = [(UUID.id0, "https://github.com/finestructure/Gala"),
+                        (.id1, "https://github.com/finestructure/Rester"),
+                        (.id2, "https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server")]
+            .map { Package(id: $0, url: $1, processingStage: .reconciliation) }
         try await packages.save(on: app.db)
+        try await Version(id: .id1,
+                          package: packages[2],
+                          commit: "commit",
+                          commitDate: .t0,
+                          docArchives: nil,
+                          reference: .branch("main"),
+                          spiManifest: .init(documentationTargets: ["target"])).save(on: app.db)
         let lastUpdate = Date()
 
         // MUT
@@ -175,7 +183,8 @@ class IngestorTests: AppTestCase {
         }
         let pkg1 = Package(id: .id0, url: "https://github.com/foo/bar1", processingStage: .reconciliation)
         try await pkg1.save(on: app.db)
-        try await Repository(package: pkg1, name: "bar1", owner: "foo").save(on: app.db)
+        // upper case owner to ensure we properly downcase the prefix
+        try await Repository(package: pkg1, name: "bar1", owner: "Foo").save(on: app.db)
         do {
             // first version has a manifest but no doc archives (should be updated)
             try await Version(id: .id2,
@@ -211,10 +220,9 @@ class IngestorTests: AppTestCase {
             .save(on: app.db)
         }
         let lastUpdate = Date()
-        let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).get()
 
         // MUT
-        try await ingestFromS3(database: app.db, logger: app.logger, packages: packages)
+        try await ingestFromS3(database: app.db, logger: app.logger, packageIDs: [.id0, .id1])
 
         // validate
         let v2 = try await Version.find(.id2, on: app.db).unwrap()
@@ -251,11 +259,8 @@ class IngestorTests: AppTestCase {
         }
         var lastUpdate = Date()
 
-        do {  // MUT
-            let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
-                .get()
-            try await ingestFromS3(database: app.db, logger: app.logger, packages: packages)
-        }
+        // MUT
+        try await ingestFromS3(database: app.db, logger: app.logger, packageIDs: [.id0])
 
         do {  // validate
             let v = try await Version.find(.id1, on: app.db).unwrap()
@@ -270,11 +275,8 @@ class IngestorTests: AppTestCase {
         }
         lastUpdate = Date()
 
-        do {  // MUT
-            let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
-                .get()
-            try await ingestFromS3(database: app.db, logger: app.logger, packages: packages)
-        }
+        // MUT
+        try await ingestFromS3(database: app.db, logger: app.logger, packageIDs: [.id0])
 
         do {  // validate
             let v = try await Version.find(.id1, on: app.db).unwrap()
