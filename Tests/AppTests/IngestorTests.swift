@@ -175,7 +175,8 @@ class IngestorTests: AppTestCase {
         }
         let pkg1 = Package(id: .id0, url: "https://github.com/foo/bar1", processingStage: .reconciliation)
         try await pkg1.save(on: app.db)
-        try await Repository(package: pkg1, name: "bar1", owner: "foo").save(on: app.db)
+        // upper case owner to ensure we properly downcase the prefix
+        try await Repository(package: pkg1, name: "bar1", owner: "Foo").save(on: app.db)
         do {
             // first version has a manifest but no doc archives (should be updated)
             try await Version(id: .id2,

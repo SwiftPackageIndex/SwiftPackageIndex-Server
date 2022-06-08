@@ -118,14 +118,16 @@ func ingest(client: Client,
             packages: [Joined<Package, Repository>]) async throws {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
-    
+
+    logger.debug("Ingesting from Github ...")
     try await ingestFromGithub(client: client,
                                database: database,
                                logger: logger,
                                packages: packages)
-    
+
 #warning("ingestFromS3 temporarily excluded from production")
     if Environment.current != .production {
+        logger.debug("Ingesting from S3 ...")
         try await ingestFromS3(database: database, logger: logger, packages: packages)
     }
 }
@@ -291,9 +293,12 @@ func ingestFromS3(database: Database,
 
     let versions = try await fetchDocArchiveCandidates(database: database,
                                                        packageIDs: packages.compactMap(\.model.id))
+    logger.debug("ingestFromS3 version candidates: \(versions.count)")
+
     for pkg in packages {
         let versions = versions
             .filter { $0.$package.id == pkg.model.id && $0.hasDocumentationTargets }
+        logger.debug("ingestFromS3 versions with doc targets: \(versions.count)")
         guard !versions.isEmpty else { continue }
 
         guard let owner = pkg.repository?.owner,
@@ -306,6 +311,7 @@ func ingestFromS3(database: Database,
                                                             awsBucketName,
                                                             awsAccessKeyId,
                                                             awsSecretAccessKey)
+        logger.debug("doc archives found: \(archives.count)")
 
         updateDocArchives(versions: versions, docArchives: archives)
     }
