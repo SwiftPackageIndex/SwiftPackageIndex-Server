@@ -301,8 +301,13 @@ func ingestFromS3(database: Database,
         logger.debug("ingestFromS3 versions with doc targets: \(versions.count)")
         guard !versions.isEmpty else { continue }
 
-        guard let owner = pkg.repository?.owner,
-              let repository = pkg.repository?.name else { continue }
+        let repo = try await Repository.query(on: database)
+            .filter(\.$package.$id == pkg.model.id!)
+            .field(\.$owner)
+            .field(\.$name)
+            .first()
+        guard let owner = repo?.owner,
+              let repository = repo?.name else { continue }
 
         let prefix = "\(owner)/\(repository)".lowercased()
 
