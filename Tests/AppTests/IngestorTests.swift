@@ -220,10 +220,9 @@ class IngestorTests: AppTestCase {
             .save(on: app.db)
         }
         let lastUpdate = Date()
-        let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10).get()
 
         // MUT
-        try await ingestFromS3(database: app.db, logger: app.logger, packages: packages)
+        try await ingestFromS3(database: app.db, logger: app.logger, packageIDs: [.id0, .id1])
 
         // validate
         let v2 = try await Version.find(.id2, on: app.db).unwrap()
@@ -260,11 +259,8 @@ class IngestorTests: AppTestCase {
         }
         var lastUpdate = Date()
 
-        do {  // MUT
-            let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
-                .get()
-            try await ingestFromS3(database: app.db, logger: app.logger, packages: packages)
-        }
+        // MUT
+        try await ingestFromS3(database: app.db, logger: app.logger, packageIDs: [.id0])
 
         do {  // validate
             let v = try await Version.find(.id1, on: app.db).unwrap()
@@ -279,11 +275,8 @@ class IngestorTests: AppTestCase {
         }
         lastUpdate = Date()
 
-        do {  // MUT
-            let packages = try await Package.fetchCandidates(app.db, for: .ingestion, limit: 10)
-                .get()
-            try await ingestFromS3(database: app.db, logger: app.logger, packages: packages)
-        }
+        // MUT
+        try await ingestFromS3(database: app.db, logger: app.logger, packageIDs: [.id0])
 
         do {  // validate
             let v = try await Version.find(.id1, on: app.db).unwrap()

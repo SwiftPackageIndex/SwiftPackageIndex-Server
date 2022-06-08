@@ -128,7 +128,9 @@ func ingest(client: Client,
 #warning("ingestFromS3 temporarily excluded from production")
     if Environment.current != .production {
         logger.debug("Ingesting from S3 ...")
-        try await ingestFromS3(database: database, logger: logger, packages: packages)
+        try await ingestFromS3(database: database,
+                               logger: logger,
+                               packageIDs: packages.compactMap(\.model.id))
     }
 }
 
@@ -277,7 +279,7 @@ func insertOrUpdateRepository(on database: Database,
 ///   - packages: packages to be checked
 func ingestFromS3(database: Database,
                   logger: Logger,
-                  packages: [Joined<Package, Repository>]) async throws {
+                  packageIDs: [Package.Id]) async throws {
 #warning("FIXME: temporary bucket override to point ingestion at prod bucket")
     let awsBucketName = "spi-prod-docs"
 
@@ -292,17 +294,17 @@ func ingestFromS3(database: Database,
     defer { AppMetrics.ingestDurationSeconds?.time(.init(stage: .s3), since: start) }
 
     let versions = try await fetchDocArchiveCandidates(database: database,
-                                                       packageIDs: packages.compactMap(\.model.id))
+                                                       packageIDs: packageIDs)
     logger.debug("ingestFromS3 version candidates: \(versions.count)")
 
-    for pkg in packages {
+    for pkgID in packageIDs {
         let versions = versions
-            .filter { $0.$package.id == pkg.model.id && $0.hasDocumentationTargets }
+            .filter { $0.$package.id == pkgID && $0.hasDocumentationTargets }
         logger.debug("ingestFromS3 versions with doc targets: \(versions.count)")
         guard !versions.isEmpty else { continue }
 
         let repo = try await Repository.query(on: database)
-            .filter(\.$package.$id == pkg.model.id!)
+            .filter(\.$package.$id == pkgID)
             .field(\.$owner)
             .field(\.$name)
             .first()
