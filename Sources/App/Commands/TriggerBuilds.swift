@@ -23,10 +23,21 @@ struct TriggerBuildsCommand: Command {
     struct Signature: CommandSignature {
         @Option(name: "limit", short: "l")
         var limit: Int?
+
         @Flag(name: "force", short: "f", help: "override pipeline capacity check and downscaling (--id only)")
         var force: Bool
-        @Option(name: "package-id", short: "p")
+
+        @Option(name: "package-id", short: "i")
         var packageId: Package.Id?
+
+        @Option(name: "platform", short: "p")
+        var platform: Build.Platform?
+
+        @Option(name: "swift-version", short: "s")
+        var swiftVersion: SwiftVersion?
+
+        @Option(name: "version-id", short: "v")
+        var versionId: Version.Id?
     }
 
     var help: String { "Trigger package builds" }
@@ -34,19 +45,37 @@ struct TriggerBuildsCommand: Command {
     enum Mode {
         case limit(Int)
         case packageId(Package.Id, force: Bool)
+        case triggerInfo(Version.Id, BuildPair)
     }
 
     func run(using context: CommandContext, signature: Signature) throws {
-        let limit = signature.limit ?? defaultLimit
-        let force = signature.force
         let logger = Logger(component: "trigger-builds")
 
         Self.resetMetrics()
 
-        let mode = signature.packageId
-            .map { Mode.packageId($0, force: force) } ?? .limit(limit)
-        if force, case .limit = mode {
-            logger.warning("--force has no effect when used with --limit")
+        let mode: Mode
+        switch (signature.limit, signature.packageId, signature.versionId) {
+            case let (.some(limit), .none, .none):
+                mode = .limit(limit)
+
+            case let (.none, .some(packageId), .none):
+                mode = .packageId(packageId, force: signature.force)
+
+            case let (.none, .none, .some(versionId)):
+                guard let platform = signature.platform,
+                      let swiftVersion = signature.swiftVersion else {
+                    printUsage(using: context)
+                    throw UsageError()
+                }
+                let buildPair = BuildPair(platform, swiftVersion)
+                mode = .triggerInfo(versionId, buildPair)
+
+            case (.none, .none, .none):
+                mode = .limit(defaultLimit)
+
+            default:
+                printUsage(using: context)
+                throw UsageError()
         }
 
         try triggerBuilds(on: context.application.db,
@@ -61,6 +90,13 @@ struct TriggerBuildsCommand: Command {
             logger.warning("\(error.localizedDescription)")
         }
     }
+
+    func printUsage(using context: CommandContext) {
+        var context = context
+        outputHelp(using: &context)
+    }
+
+    struct UsageError: Error { }
 }
 
 
@@ -102,8 +138,9 @@ func triggerBuilds(on database: Database,
                 .map {
                     AppMetrics.buildTriggerDurationSeconds?.time(since: start)
                 }
+
         case let .packageId(id, force):
-            logger.info("Triggering builds (id: \(id)) ...")
+            logger.info("Triggering builds (packageID: \(id)) ...")
             return triggerBuilds(on: database,
                                  client: client,
                                  logger: logger,
@@ -112,6 +149,19 @@ func triggerBuilds(on database: Database,
                 .map {
                     AppMetrics.buildTriggerDurationSeconds?.time(since: start)
                 }
+
+        case let .triggerInfo(versionId, buildPair):
+            logger.info("Triggering builds (versionID: \(versionId), \(buildPair)) ...")
+            guard let trigger = BuildTriggerInfo(versionId: versionId,
+                                                 pairs: [buildPair]) else {
+                logger.error("Failed to create trigger.")
+                return database.eventLoop.makeSucceededVoidFuture()
+            }
+            return triggerBuildsUnchecked(on: database,
+                                          client: client,
+                                          logger: logger,
+                                          triggers: [trigger])
+
     }
 }
 
@@ -268,6 +318,11 @@ struct BuildPair {
             }
         }
     }()
+}
+
+
+extension BuildPair: CustomStringConvertible {
+    var description: String { "\(platform) / \(swiftVersion)" }
 }
 
 
