@@ -180,6 +180,10 @@ enum ReAnalyzeVersions {
 
                 Analyze.mergeReleaseInfo(package: pkg, into: versions)
 
+                let docArchivesByRef = try await Analyze.getDocArchives(for: pkg,
+                                                                        versions: versions)?
+                    .archivesGroupedByRef() ?? [:]
+
                 for version in versions {
                     let pkgInfo: Analyze.PackageInfo
                     do {
@@ -188,7 +192,10 @@ enum ReAnalyzeVersions {
                         logger.warning("getPackageInfo failed: \(error.localizedDescription)")
                         continue
                     }
-                    try await Analyze.updateVersion(on: tx, version: version, packageInfo: pkgInfo).get()
+                    try await Analyze.updateVersion(on: tx,
+                                                    version: version,
+                                                    docArchivesByRef: docArchivesByRef,
+                                                    packageInfo: pkgInfo).get()
                     try await Analyze.recreateProducts(on: tx,
                                                        version: version,
                                                        manifest: pkgInfo.packageManifest)

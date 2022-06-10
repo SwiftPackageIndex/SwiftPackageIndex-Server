@@ -15,6 +15,7 @@
 import XCTest
 
 @testable import App
+@testable import S3DocArchives
 
 import DependencyResolution
 import Fluent
@@ -437,7 +438,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(repo?.firstCommitDate, .t0)
         XCTAssertEqual(repo?.lastCommitDate, .t1)
     }
-    
+
     func test_diffVersions() async throws {
         //setup
         Current.git.getTags = { _ in [.tag(1, 2, 3)] }
@@ -521,13 +522,15 @@ class AnalyzerTests: AppTestCase {
                         nil, nil])
     }
 
-    func test_getPackageInfo_package_version() throws {
+    func test_getPackageInfo() async throws {
         // Tests getPackageInfo(package:version:)
         // setup
-        var commands = [String]()
+        actor Validation {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, _ in
             self.testQueue.sync {
-                commands.append(cmd.string)
+                Validation.commands.append(cmd.string)
             }
             if cmd == .swiftDumpPackage {
                 return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
@@ -538,14 +541,16 @@ class AnalyzerTests: AppTestCase {
             Data.mockPackageResolved(for: "1")
         }
         let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
+        try await Repository(package: pkg, name: "1", owner: "foo").save(on: app.db)
         let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
         try version.save(on: app.db).wait()
+        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
 
         // MUT
-        let info = try Analyze.getPackageInfo(package: .init(model: pkg), version: version)
+        let info = try Analyze.getPackageInfo(package: jpr, version: version)
 
         // validation
-        XCTAssertEqual(commands, [
+        XCTAssertEqual(Validation.commands, [
             "git checkout \"0.4.2\" --quiet",
             "swift package dump-package"
         ])
@@ -570,7 +575,7 @@ class AnalyzerTests: AppTestCase {
         // setup
         let pkg = Package(id: UUID(), url: "1")
         try pkg.save(on: app.db).wait()
-        let version = try Version(package: pkg)
+        let version = try Version(package: pkg, reference: .branch("main"))
         let manifest = Manifest(name: "foo",
                                 platforms: [.init(platformName: .ios, version: "11.0"),
                                             .init(platformName: .macos, version: "10.10")],
@@ -591,6 +596,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
+                                      docArchivesByRef: ["main": [.mock()]],
                                       packageInfo: .init(packageManifest: manifest,
                                                          dependencies: [dep],
                                                          spiManifest: spiManifest)).wait()
@@ -604,6 +610,7 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(v.supportedPlatforms, [.ios("11.0"), .macos("10.10")])
         XCTAssertEqual(v.toolsVersion, "5.0.0")
         XCTAssertEqual(v.spiManifest, spiManifest)
+        XCTAssertEqual(v.docArchives, [.mock()])
     }
 
     func test_updateVersion_preserveDependencies() throws {
@@ -627,6 +634,7 @@ class AnalyzerTests: AppTestCase {
         // MUT
         _ = try Analyze.updateVersion(on: app.db,
                                       version: version,
+                                      docArchivesByRef: [:],
                                       packageInfo: .init(packageManifest: manifest,
                                                          dependencies: nil)).wait()
 
