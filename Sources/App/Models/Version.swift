@@ -14,7 +14,6 @@
 
 import DependencyResolution
 import Fluent
-import S3DocArchives
 import SPIManifest
 import Vapor
 
@@ -50,9 +49,6 @@ final class Version: Model, Content {
 
     @Field(key: "commit_date")
     var commitDate: Date
-
-    @Field(key: "doc_archives")
-    var docArchives: [DocArchive]?
 
     @Field(key: "latest")
     var latest: Kind?
@@ -108,7 +104,6 @@ final class Version: Model, Content {
          package: Package,
          commit: CommitHash,
          commitDate: Date,
-         docArchives: [DocArchive]? = nil,
          latest: Kind? = nil,
          packageName: String? = nil,
          publishedAt: Date? = nil,
@@ -125,7 +120,6 @@ final class Version: Model, Content {
         self.$package.id = try package.requireID()
         self.commit = commit
         self.commitDate = commitDate
-        self.docArchives = docArchives
         self.latest = latest
         self.packageName = packageName
         self.publishedAt = publishedAt
@@ -219,22 +213,5 @@ extension Array where Element == Version {
         filter(\.isBranch)
             .sorted { $0.commitDate < $1.commitDate }
             .last
-    }
-}
-
-
-extension Version {
-    var hasDocumentationTargets: Bool {
-        if let url = url?.lowercased() {
-            // Overrides for repositories without .spi.yml files which we artificially inject in the builder
-            // Don't include .git suffix in the check, because the url shape is
-            //   https://github.com/apple/swift-docc/tree/main
-            // Add a trailing '/' to avoid accidentally matching
-            //   https://github.com/apple/swift-docc-plugin/tree/main
-            // It's a bit of a hack but this whole thing is, the proper fix is upstreaming .spi.yml.
-            if url.contains("https://github.com/apple/swift-docc/") { return true }
-            if url.contains("https://github.com/apple/swift-markdown/") { return true }
-        }
-        return spiManifest?.allDocumentationTargets()?.isEmpty == false
     }
 }
