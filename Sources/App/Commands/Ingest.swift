@@ -118,19 +118,15 @@ func ingest(client: Client,
             packages: [Joined<Package, Repository>]) async throws {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
-
-    logger.debug("Ingesting from Github ...")
+    
     try await ingestFromGithub(client: client,
                                database: database,
                                logger: logger,
                                packages: packages)
-
+    
 #warning("ingestFromS3 temporarily excluded from production")
     if Environment.current != .production {
-        logger.debug("Ingesting from S3 ...")
-        try await ingestFromS3(database: database,
-                               logger: logger,
-                               packageIDs: packages.compactMap(\.model.id))
+        try await ingestFromS3(database: database, logger: logger, packages: packages)
     }
 }
 
@@ -279,7 +275,7 @@ func insertOrUpdateRepository(on database: Database,
 ///   - packages: packages to be checked
 func ingestFromS3(database: Database,
                   logger: Logger,
-                  packageIDs: [Package.Id]) async throws {
+                  packages: [Joined<Package, Repository>]) async throws {
 #warning("FIXME: temporary bucket override to point ingestion at prod bucket")
     let awsBucketName = "spi-prod-docs"
 
@@ -294,22 +290,14 @@ func ingestFromS3(database: Database,
     defer { AppMetrics.ingestDurationSeconds?.time(.init(stage: .s3), since: start) }
 
     let versions = try await fetchDocArchiveCandidates(database: database,
-                                                       packageIDs: packageIDs)
-    logger.debug("ingestFromS3 version candidates: \(versions.count)")
-
-    for pkgID in packageIDs {
+                                                       packageIDs: packages.compactMap(\.model.id))
+    for pkg in packages {
         let versions = versions
-            .filter { $0.$package.id == pkgID && $0.hasDocumentationTargets }
-        logger.debug("ingestFromS3 versions with doc targets: \(versions.count)")
+            .filter { $0.$package.id == pkg.model.id && $0.hasDocumentationTargets }
         guard !versions.isEmpty else { continue }
 
-        let repo = try await Repository.query(on: database)
-            .filter(\.$package.$id == pkgID)
-            .field(\.$owner)
-            .field(\.$name)
-            .first()
-        guard let owner = repo?.owner,
-              let repository = repo?.name else { continue }
+        guard let owner = pkg.repository?.owner,
+              let repository = pkg.repository?.name else { continue }
 
         let prefix = "\(owner)/\(repository)".lowercased()
 
@@ -318,7 +306,6 @@ func ingestFromS3(database: Database,
                                                             awsBucketName,
                                                             awsAccessKeyId,
                                                             awsSecretAccessKey)
-        logger.debug("doc archives found: \(archives.count)")
 
         updateDocArchives(versions: versions, docArchives: archives)
     }
