@@ -125,10 +125,13 @@ func ingest(client: Client,
                                logger: logger,
                                packages: packages)
 
-    logger.debug("Ingesting from S3 ...")
-    try await ingestFromS3(database: database,
-                           logger: logger,
-                           packageIDs: packages.compactMap(\.model.id))
+#warning("ingestFromS3 temporarily excluded from production")
+    if Environment.current != .production {
+        logger.debug("Ingesting from S3 ...")
+        try await ingestFromS3(database: database,
+                               logger: logger,
+                               packageIDs: packages.compactMap(\.model.id))
+    }
 }
 
 
