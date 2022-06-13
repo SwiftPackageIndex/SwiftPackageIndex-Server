@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Fluent
-import S3DocArchives
 import Vapor
+import Fluent
 
 
 struct IngestCommand: CommandAsync {
@@ -67,7 +66,6 @@ extension IngestCommand {
     static func resetMetrics() {
         AppMetrics.ingestMetadataSuccessCount?.set(0)
         AppMetrics.ingestMetadataFailureCount?.set(0)
-        AppMetrics.ingestS3FetchCount?.set(0)
     }
 }
 
@@ -118,27 +116,6 @@ func ingest(client: Client,
             packages: [Joined<Package, Repository>]) async throws {
     logger.debug("Ingesting \(packages.compactMap {$0.model.id})")
     AppMetrics.ingestCandidatesCount?.set(packages.count)
-
-    logger.debug("Ingesting from Github ...")
-    try await ingestFromGithub(client: client,
-                               database: database,
-                               logger: logger,
-                               packages: packages)
-
-    logger.debug("Ingesting from S3 ...")
-    try await ingestFromS3(database: database,
-                           logger: logger,
-                           packageIDs: packages.compactMap(\.model.id))
-}
-
-
-func ingestFromGithub(client: Client,
-                      database: Database,
-                      logger: Logger,
-                      packages: [Joined<Package, Repository>]) async throws {
-    let start = DispatchTime.now().uptimeNanoseconds
-    defer { AppMetrics.ingestDurationSeconds?.time(.init(stage: .github), since: start) }
-
     // TODO: simplify the types in this chain by running the batches "vertically" instead of "horizontally"
     // i.e. instead of [package, data1, data2, ...] -> updatePackages(...)
     // run
@@ -150,11 +127,11 @@ func ingestFromGithub(client: Client,
     // introduce any extra latency. Should check if we could make them batch, though.)
     let metadata = await fetchMetadata(client: client, packages: packages)
     let updates = await updateRepositories(on: database, metadata: metadata)
-    try await updatePackages(client: client,
-                             database: database,
-                             logger: logger,
-                             results: updates,
-                             stage: .ingestion).get()
+    return try await updatePackages(client: client,
+                                    database: database,
+                                    logger: logger,
+                                    results: updates,
+                                    stage: .ingestion).get()
 }
 
 
@@ -266,83 +243,4 @@ func insertOrUpdateRepository(on database: Database,
     repo.summary = repository.description
 
     try await repo.save(on: database)
-}
-
-
-/// Check S3 doc bucket for doc archive for a given package
-/// - Parameters:
-///   - database: `Database` object
-///   - logger: `Logger` object
-///   - packages: packages to be checked
-func ingestFromS3(database: Database,
-                  logger: Logger,
-                  packageIDs: [Package.Id]) async throws {
-#warning("FIXME: temporary bucket override to point ingestion at prod bucket")
-    let awsBucketName = "spi-prod-docs"
-
-    guard let awsAccessKeyId = Current.awsAccessKeyId(),
-          //          let awsBucketName = Current.awsDocsBucket(),
-          let awsSecretAccessKey = Current.awsSecretAccessKey() else {
-        logger.critical("AWS variable(s) unset.")
-        return
-    }
-
-    let start = DispatchTime.now().uptimeNanoseconds
-    defer { AppMetrics.ingestDurationSeconds?.time(.init(stage: .s3), since: start) }
-
-    let versions = try await fetchDocArchiveCandidates(database: database,
-                                                       packageIDs: packageIDs)
-    logger.debug("ingestFromS3 version candidates: \(versions.count)")
-
-    for pkgID in packageIDs {
-        let versions = versions
-            .filter { $0.$package.id == pkgID && $0.hasDocumentationTargets }
-        logger.debug("ingestFromS3 versions with doc targets: \(versions.count)")
-        guard !versions.isEmpty else { continue }
-
-        let repo = try await Repository.query(on: database)
-            .filter(\.$package.$id == pkgID)
-            .field(\.$owner)
-            .field(\.$name)
-            .first()
-        guard let owner = repo?.owner,
-              let repository = repo?.name else { continue }
-
-        let prefix = "\(owner)/\(repository)".lowercased()
-
-        AppMetrics.ingestS3FetchCount?.inc()
-        let archives = try await Current.fetchS3DocArchives(prefix,
-                                                            awsBucketName,
-                                                            awsAccessKeyId,
-                                                            awsSecretAccessKey)
-        logger.debug("doc archives found: \(archives.count)")
-
-        updateDocArchives(versions: versions, docArchives: archives)
-    }
-
-    try await versions.save(on: database)
-}
-
-
-/// Fetch versions for a given package that have an SPI manifest but no doc archives.
-func fetchDocArchiveCandidates(database: Database, packageIDs: [Package.Id]) async throws -> [Version] {
-    // select *
-    // from versions
-    // where package_id in ('7deb7e3d-778f-4121-9a1d-3b0e2aa2de45', '38d534bf-4be1-498e-b973-e7e885fc3a4e')
-    // and spi_manifest is not null
-    // and doc_archives is null
-    try await Version.query(on: database)
-        .filter(\.$package.$id ~~ packageIDs)
-        .filter(\.$spiManifest != nil)
-        .filter(\.$docArchives == nil)
-        .all()
-}
-
-
-func updateDocArchives(versions: [Version], docArchives: [DocArchive]) {
-    let archivesByRef = docArchives.archivesGroupedByRef()
-
-    for v in versions {
-        v.docArchives = archivesByRef["\(v.reference)"]
-    }
 }

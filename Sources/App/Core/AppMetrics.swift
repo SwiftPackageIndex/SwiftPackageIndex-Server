@@ -85,18 +85,6 @@ enum AppMetrics {
             init() {} // protocol requirement
             init(key: App.SearchFilter.Key) { self.key = key.rawValue }
         }
-
-        struct IngestDuration: MetricLabels {
-            var stage: String = ""
-
-            init() {}
-            init(stage: Stage) { self.stage = stage.rawValue }
-
-            enum Stage: String {
-                case github
-                case s3
-            }
-        }
     }
 
     static var analyzeCandidatesCount: PromGauge<Int, EmptyLabels>? {
@@ -187,8 +175,8 @@ enum AppMetrics {
         gauge("spi_ingest_candidates_count", EmptyLabels.self)
     }
 
-    static var ingestDurationSeconds: PromGauge<Double, Labels.IngestDuration>? {
-        gauge("spi_ingest_duration_seconds", Labels.IngestDuration.self)
+    static var ingestDurationSeconds: PromGauge<Double, EmptyLabels>? {
+        gauge("spi_ingest_duration_seconds", EmptyLabels.self)
     }
 
     static var ingestMetadataSuccessCount: PromGauge<Int, EmptyLabels>? {
@@ -197,10 +185,6 @@ enum AppMetrics {
 
     static var ingestMetadataFailureCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_ingest_metadata_failure_count", EmptyLabels.self)
-    }
-
-    static var ingestS3FetchCount: PromGauge<Int, EmptyLabels>? {
-        gauge("ingest_s3_fetch_count", EmptyLabels.self)
     }
 
     static var packageCollectionGetTotal: PromCounter<Int, EmptyLabels>? {
