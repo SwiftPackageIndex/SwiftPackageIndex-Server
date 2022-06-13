@@ -244,6 +244,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 051 - remove versions.doc_archives
         app.migrations.add(UpdateVersionRemoveDocArchives())
     }
+    do {  // Migration 053 - add versions.doc_archives again
+        app.migrations.add(UpdateVersionAddDocArchives2())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")
