@@ -71,15 +71,13 @@ let package = Package(
         ]),
         .testTarget(name: "AppTests",
             dependencies: [
-                .target(name: "App"),
                 .product(name: "XCTVapor", package: "vapor"),
+                .target(name: "App"),
+                .target(name: "S3DocArchives"),
                 "SnapshotTesting"
             ],
             exclude: ["__Snapshots__", "Fixtures"]
         ),
-        .testTarget(name: "S3DocArchivesTests", dependencies: [
-            .target(name: "S3DocArchives"),
-        ])
     ],
     swiftLanguageVersions: [.v5]
 )
