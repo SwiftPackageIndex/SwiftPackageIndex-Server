@@ -254,6 +254,8 @@ private extension PackageCollection.ProductType {
                 self = .library(.static)
             case .test:
                 self = .test
+            case .plugin:
+                self = .plugin
         }
     }
 }

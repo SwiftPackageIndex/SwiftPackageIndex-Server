@@ -131,6 +131,14 @@ extension Package {
 }
 
 
+extension Package {
+    enum ProductType: String, Codable {
+        case executable
+        case libary
+        case plugin
+    }
+}
+
 // MARK: - Versions & Releases
 
 extension Package {
