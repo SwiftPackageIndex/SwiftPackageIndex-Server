@@ -33,7 +33,8 @@ class SearchFilterTests: AppTestCase {
                             .lastCommit,
                             .license,
                             .platform,
-                            .stars
+                            .stars,
+                            .productType
                         ])
     }
 
@@ -410,6 +411,24 @@ class SearchFilterTests: AppTestCase {
         ) {
             XCTAssertEqual($0 as? SearchFilterError, .invalidValueType)
         }
+    }
+
+    func test_pluginFilter_single_value() throws {
+        // test single value happy path
+        let filter = try ProductTypeFilter(expression: .init(operator: .is,
+                                                                value: "executable"))
+        XCTAssertEqual(filter.key, .productType)
+        XCTAssertEqual(filter.predicate, .init(operator: .contains,
+                                               bindableValue: .value("executable"),
+                                               displayValue: "Executable"))
+
+        // test view representation
+        XCTAssertEqual(filter.viewModel.description, "product type(s) is Executable")
+
+        // test sql representation
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""product_type""#)
+        XCTAssertEqual(renderSQL(filter.sqlOperator), "@>")
+        XCTAssertEqual(binds(filter.rightHandSide), ["{executable}"])
     }
 
 }

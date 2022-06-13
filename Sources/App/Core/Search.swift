@@ -36,6 +36,7 @@ enum Search {
     static let lastCommitDate = SQLIdentifier("last_commit_date")
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
+    static let productType = SQLIdentifier("product_type")
 
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
@@ -82,6 +83,7 @@ enum Search {
         var lastActivityAt: Date?
         var summary: String?
         var keywords: [String]?
+        var productType: String?
         
         enum CodingKeys: String, CodingKey {
             case matchType = "match_type"
@@ -94,6 +96,7 @@ enum Search {
             case lastActivityAt = "last_activity_at"
             case summary
             case keywords
+            case productType = "product_type"
         }
         
         var packageURL: String? {
@@ -154,7 +157,7 @@ enum Search {
             .then(score, .descending)
             .then(packageName, .ascending)
 
-        let preamble = db
+        var preamble = db
             .select()
             .column(.package)
             .column(null, as: keyword)
@@ -171,6 +174,13 @@ enum Search {
             .column(keywords)
             .column(null, as: levenshteinDist)
             .from(searchView)
+
+//        if filters.contains(where: { f in
+//            f is ProductTypeFilter
+//        }) {
+//            preamble = preamble
+//                .join(<#T##table: SQLExpression##SQLExpression#>, method: <#T##SQLExpression#>, using: <#T##SQLExpression#>)
+//        }
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(repoOwner))
