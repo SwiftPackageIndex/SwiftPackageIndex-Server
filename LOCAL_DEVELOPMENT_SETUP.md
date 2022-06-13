@@ -84,7 +84,7 @@ There are three main background processes responsible for adding/removing packag
 The `ingest-loop.sh` script can serve as a simple way to run a full ingestion cycle:
 
 ```
-make reset                # Delete and re-creating the development and test databases.
+make db-reset                # Delete and re-creating the development and test databases.
 make reconcile            # Import all packages in the package list.
 ./scripts/ingest-loop.sh  # Ingest metadata for 100 packages, pause for 10 sec, and repeat.
 ```
