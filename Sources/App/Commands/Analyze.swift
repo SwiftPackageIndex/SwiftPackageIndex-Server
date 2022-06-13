@@ -80,6 +80,7 @@ enum Analyze {
 extension Analyze {
 
     static func resetMetrics() {
+        AppMetrics.analyzeS3FetchCount?.set(0)
         AppMetrics.analyzeTrimCheckoutsCount?.set(0)
         AppMetrics.buildThrottleCount?.set(0)
         AppMetrics.analyzeVersionsAddedCount?.set(0)

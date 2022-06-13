@@ -95,6 +95,10 @@ enum AppMetrics {
         gauge("spi_analyze_duration_seconds", EmptyLabels.self)
     }
 
+    static var analyzeS3FetchCount: PromGauge<Int, EmptyLabels>? {
+        gauge("spi_analyze_s3_fetch_count", EmptyLabels.self)
+    }
+
     static var analyzeTrimCheckoutsCount: PromGauge<Int, EmptyLabels>? {
         gauge("spi_analyze_trim_checkouts_count", EmptyLabels.self)
     }
