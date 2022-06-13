@@ -140,7 +140,7 @@ extension Analyze {
                                   database: database,
                                   logger: logger,
                                   threadPool: threadPool,
-                                  packages: [pkg]).get()
+                                  packages: [pkg])
 
             case .limit(let limit):
                 logger.info("Analyzing (limit: \(limit)) ...")
@@ -149,7 +149,7 @@ extension Analyze {
                                   database: database,
                                   logger: logger,
                                   threadPool: threadPool,
-                                  packages: packages).get()
+                                  packages: packages)
         }
     }
 
@@ -166,7 +166,7 @@ extension Analyze {
                         database: Database,
                         logger: Logger,
                         threadPool: NIOThreadPool,
-                        packages: [Joined<Package, Repository>]) -> EventLoopFuture<Void> {
+                        packages: [Joined<Package, Repository>]) async throws {
         AppMetrics.analyzeCandidatesCount?.set(packages.count)
         // get or create directory
         let checkoutDir = Current.fileManager.checkoutsDirectory()
@@ -179,54 +179,56 @@ extension Analyze {
                                                         attributes: nil)
             } catch {
                 let msg = "Failed to create checkouts directory: \(error.localizedDescription)"
-                return Current.reportError(client,
-                                           .critical,
-                                           AppError.genericError(nil, msg))
+                try await Current.reportError(client,
+                                              .critical,
+                                              AppError.genericError(nil, msg)).get()
+                return
             }
         }
 
-        let packages = refreshCheckouts(eventLoop: database.eventLoop,
-                                        logger: logger,
-                                        threadPool: threadPool,
-                                        packages: packages)
-            .flatMap { updateRepositories(on: database, packages: $0) }
+        let refreshedCheckouts = try await refreshCheckouts(eventLoop: database.eventLoop,
+                                                            logger: logger,
+                                                            threadPool: threadPool,
+                                                            packages: packages).get()
+        let updatedRepos = try await updateRepositories(on: database,
+                                                     packages: refreshedCheckouts).get()
 
-        let packageResults = packages.flatMap { packages in
-            database.transaction { tx in
-                diffVersions(client: client,
-                             logger: logger,
-                             threadPool: threadPool,
-                             transaction: tx,
-                             packages: packages)
-                .flatMap { mergeReleaseInfo(on: tx, packageDeltas: $0) }
-                .flatMap { applyVersionDelta(on: tx, packageDeltas: $0) }
-                .map { getPackageInfo(packageAndVersions: $0) }
-                .flatMap { updateVersions(on: tx, packageResults: $0) }
-                .flatMap { updateProducts(on: tx, packageResults: $0) }
-                .flatMap { updateTargets(on: tx, packageResults: $0) }
-                .flatMap { updateLatestVersions(on: tx, packageResults: $0) }
-                .flatMap { onNewVersions(client: client,
-                                         logger: logger,
-                                         transaction: tx,
-                                         packageResults: $0)}
-            }
-        }
+        // Run all the following updates in a db transaction
+        let packageResults = try await database.transaction { tx in
+            let versionDeltas = try await diffVersions(client: client,
+                                                       logger: logger,
+                                                       threadPool: threadPool,
+                                                       transaction: tx,
+                                                       packages: updatedRepos).get()
+            let withReleaseInfo = try await mergeReleaseInfo(on: tx,
+                                                             packageDeltas: versionDeltas).get()
+            let appliedDeltas = try await applyVersionDelta(on: tx,
+                                                            packageDeltas: withReleaseInfo).get()
+            let packageInfo = getPackageInfo(packageAndVersions: appliedDeltas)
+            let updatedVersions = try await updateVersions(on: tx,
+                                                           packageResults: packageInfo).get()
+            let updatedProducts = try await updateProducts(on: tx,
+                                                           packageResults: updatedVersions).get()
+            let updatedTargets = try await updateTargets(on: tx,
+                                                         packageResults: updatedProducts).get()
+            let updatedLatestVersions = try await updateLatestVersions(on: tx,
+                                                                       packageResults: updatedTargets).get()
+            return try await onNewVersions(client: client,
+                                           logger: logger,
+                                           transaction: tx,
+                                           packageResults: updatedLatestVersions).get()
+        }  // tx end
 
-        let statusOps = packageResults
-            .map(\.packages)
-            .flatMap { updatePackages(client: client,
-                                      database: database,
-                                      logger: logger,
-                                      results: $0,
-                                      stage: .analysis) }
+        try await updatePackages(client: client,
+                                 database: database,
+                                 logger: logger,
+                                 results: packageResults.packages,
+                                 stage: .analysis).get()
 
-        let materializedViewRefresh = statusOps
-            .flatMap { RecentPackage.refresh(on: database) }
-            .flatMap { RecentRelease.refresh(on: database) }
-            .flatMap { Search.refresh(on: database) }
-            .flatMap { Stats.refresh(on: database) }
-
-        return materializedViewRefresh
+        try await RecentPackage.refresh(on: database).get()
+        try await RecentRelease.refresh(on: database).get()
+        try await Search.refresh(on: database).get()
+        try await Stats.refresh(on: database).get()
     }
 
 
