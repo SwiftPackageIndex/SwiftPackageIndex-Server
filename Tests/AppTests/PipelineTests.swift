@@ -176,7 +176,7 @@ class PipelineTests: AppTestCase {
                                   database: app.db,
                                   logger: app.logger,
                                   threadPool: app.threadPool,
-                                  mode: .limit(10)).get()
+                                  mode: .limit(10))
         
         do { // validate
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
@@ -217,7 +217,7 @@ class PipelineTests: AppTestCase {
                                   database: app.db,
                                   logger: app.logger,
                                   threadPool: app.threadPool,
-                                  mode: .limit(10)).get()
+                                  mode: .limit(10))
         
         do {  // validate - only new package moves to .ingestion stage
             let packages = try await Package.query(on: app.db).sort(\.$url).all()
@@ -247,7 +247,7 @@ class PipelineTests: AppTestCase {
                                   database: app.db,
                                   logger: app.logger,
                                   threadPool: app.threadPool,
-                                  mode: .limit(10)).get()
+                                  mode: .limit(10))
         
         do {  // validate - only new package moves to .ingestion stage
             let packages = try await Package.query(on: app.db).sort(\.$url).all()

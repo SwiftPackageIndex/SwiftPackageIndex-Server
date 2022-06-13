@@ -58,7 +58,7 @@ class ErrorReportingTests: AppTestCase {
         XCTAssertEqual(reportedLevel, .error)
     }
     
-    func test_Analyzer_error_reporting() throws {
+    func test_Analyzer_error_reporting() async throws {
         // setup
         try savePackages(on: app.db, ["1", "2"].asGithubUrls.asURLs, processingStage: .ingestion)
         Current.fileManager.fileExists = { _ in true }
@@ -78,30 +78,30 @@ class ErrorReportingTests: AppTestCase {
         }
         
         // MUT
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  threadPool: app.threadPool,
+                                  mode: .limit(10))
         
         // validation
         XCTAssertNotNil(reportedError)
         XCTAssertEqual(reportedLevel, .error)
     }
     
-    func test_invalidPackageCachePath() throws {
+    func test_invalidPackageCachePath() async throws {
         // setup
         try savePackages(on: app.db, ["1", "2"], processingStage: .ingestion)
         
         // MUT
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  threadPool: app.threadPool,
+                                  mode: .limit(10))
         
         // validation
-        let packages = try Package.query(on: app.db).sort(\.$url).all().wait()
+        let packages = try await Package.query(on: app.db).sort(\.$url).all()
         XCTAssertEqual(packages.map(\.status), [.invalidCachePath, .invalidCachePath])
     }
     

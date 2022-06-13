@@ -22,7 +22,7 @@ import XCTest
 
 class ReAnalyzeVersionsTests: AppTestCase {
 
-    func test_reAnalyzeVersions() throws {
+    func test_reAnalyzeVersions() async throws {
         // Basic end-to-end test
         // setup
         // - package dump does not include toolsVersion, targets to simulate an "old version"
@@ -35,10 +35,10 @@ class ReAnalyzeVersionsTests: AppTestCase {
                                   "https://github.com/foo/1".url,
                                   processingStage: .ingestion)
         let repoId = UUID()
-        try Repository(id: repoId,
-                       package: pkg,
-                       defaultBranch: "main",
-                       releases: []).save(on: app.db).wait()
+        try await Repository(id: repoId,
+                             package: pkg,
+                             defaultBranch: "main",
+                             releases: []).save(on: app.db)
 
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
@@ -61,14 +61,14 @@ class ReAnalyzeVersionsTests: AppTestCase {
         }
         do {
             // run initial analysis and assert initial state for versions
-            try Analyze.analyze(client: app.client,
-                                database: app.db,
-                                logger: app.logger,
-                                threadPool: app.threadPool,
-                                mode: .limit(10)).wait()
-            let versions = try Version.query(on: app.db)
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      logger: app.logger,
+                                      threadPool: app.threadPool,
+                                      mode: .limit(10))
+            let versions = try await Version.query(on: app.db)
                 .with(\.$targets)
-                .all().wait()
+                .all()
             XCTAssertEqual(versions.map(\.toolsVersion), [nil, nil])
             XCTAssertEqual(versions.map { $0.targets.map(\.name) } , [[], []])
             XCTAssertEqual(versions.map(\.releaseNotes) , [nil, nil])
@@ -86,18 +86,18 @@ class ReAnalyzeVersionsTests: AppTestCase {
             }
             """#
             // also, update release notes to ensure mergeReleaseInfo is being called
-            let r = try XCTUnwrap(Repository.find(repoId, on: app.db).wait())
+            let r = try await Repository.find(repoId, on: app.db).unwrap()
             r.releases = [
                 .mock(description: "rel 1.2.3", tagName: "1.2.3")
             ]
             try r.save(on: app.db).wait()
         }
         do {  // assert running analysis again does not update existing versions
-            try Analyze.analyze(client: app.client,
-                                database: app.db,
-                                logger: app.logger,
-                                threadPool: app.threadPool,
-                                mode: .limit(10)).wait()
+            try await Analyze.analyze(client: app.client,
+                                      database: app.db,
+                                      logger: app.logger,
+                                      threadPool: app.threadPool,
+                                      mode: .limit(10))
             let versions = try Version.query(on: app.db)
                 .with(\.$targets)
                 .all().wait()
@@ -107,12 +107,12 @@ class ReAnalyzeVersionsTests: AppTestCase {
         }
 
         // MUT
-        try reAnalyzeVersions(client: app.client,
-                              database: app.db,
-                              logger: app.logger,
-                              threadPool: app.threadPool,
-                              before: Current.date(),
-                              limit: 10).wait()
+        try await reAnalyzeVersions(client: app.client,
+                                    database: app.db,
+                                    logger: app.logger,
+                                    threadPool: app.threadPool,
+                                    before: Current.date(),
+                                    limit: 10).get()
 
         // validate that re-analysis has now updated existing versions
         let versions = try Version.query(on: app.db)
@@ -156,7 +156,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
         XCTAssertEqual(res.map(\.model.url), ["1", "2"])
     }
 
-    func test_versionsUpdatedOnError() throws {
+    func test_versionsUpdatedOnError() async throws {
         // Test to ensure versions are updated even if processing throws errors.
         // This is to ensure our candidate selection shrinks and we don't
         // churn over and over on failing versions.
@@ -165,8 +165,8 @@ class ReAnalyzeVersionsTests: AppTestCase {
         let pkg = try savePackage(on: app.db,
                                   "https://github.com/foo/1".url,
                                   processingStage: .ingestion)
-        try Repository(package: pkg,
-                       defaultBranch: "main").save(on: app.db).wait()
+        try await Repository(package: pkg,
+                             defaultBranch: "main").save(on: app.db)
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
         Current.git.lastCommitDate = { _ in .t1 }
@@ -179,29 +179,29 @@ class ReAnalyzeVersionsTests: AppTestCase {
             }
             return ""
         }
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  threadPool: app.threadPool,
+                                  mode: .limit(10))
         try setAllVersionsUpdatedAt(app.db, updatedAt: .t0)
         do {
-            let candidates = try Package
-                .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).wait()
+            let candidates = try await Package
+                .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).get()
             XCTAssertEqual(candidates.count, 1)
         }
 
         // MUT
-        try reAnalyzeVersions(client: app.client,
-                              database: app.db,
-                              logger: app.logger,
-                              threadPool: app.threadPool,
-                              before: Current.date(),
-                              limit: 10).wait()
+        try await reAnalyzeVersions(client: app.client,
+                                    database: app.db,
+                                    logger: app.logger,
+                                    threadPool: app.threadPool,
+                                    before: Current.date(),
+                                    limit: 10).get()
 
         // validate
-        let candidates = try Package
-            .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).wait()
+        let candidates = try await Package
+            .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).get()
         XCTAssertEqual(candidates.count, 0)
     }
 

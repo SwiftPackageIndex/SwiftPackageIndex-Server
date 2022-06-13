@@ -21,7 +21,7 @@ import Vapor
 
 enum Analyze {
 
-    struct Command: Vapor.Command {
+    struct Command: CommandAsync {
         let defaultLimit = 1
 
         struct Signature: CommandSignature {
@@ -38,7 +38,7 @@ enum Analyze {
             case limit(Int)
         }
 
-        func run(using context: CommandContext, signature: Signature) throws {
+        func run(using context: CommandContext, signature: Signature) async {
             let limit = signature.limit ?? defaultLimit
 
             let client = context.application.client
@@ -49,20 +49,27 @@ enum Analyze {
             Analyze.resetMetrics()
 
             let mode = signature.id.map(Mode.id) ?? .limit(limit)
-            try analyze(client: client,
-                        database: db,
-                        logger: logger,
-                        threadPool: threadPool,
-                        mode: mode)
-            .wait()
-
-            try Analyze.trimCheckouts()
 
             do {
-                try AppMetrics.push(client: client,
-                                    logger: logger,
-                                    jobName: "analyze")
-                .wait()
+                try await analyze(client: client,
+                                  database: db,
+                                  logger: logger,
+                                  threadPool: threadPool,
+                                  mode: mode)
+            } catch {
+                logger.error("\(error.localizedDescription)")
+            }
+
+            do {
+                try Analyze.trimCheckouts()
+            } catch {
+                logger.error("\(error.localizedDescription)")
+            }
+
+            do {
+                try await AppMetrics.push(client: client,
+                                          logger: logger,
+                                          jobName: "analyze")
             } catch {
                 logger.warning("\(error.localizedDescription)")
             }
@@ -70,6 +77,7 @@ enum Analyze {
     }
 
 }
+
 
 extension Analyze {
 
@@ -120,36 +128,28 @@ extension Analyze {
                         database: Database,
                         logger: Logger,
                         threadPool: NIOThreadPool,
-                        mode: Analyze.Command.Mode) -> EventLoopFuture<Void> {
+                        mode: Analyze.Command.Mode) async throws {
         let start = DispatchTime.now().uptimeNanoseconds
+        defer { AppMetrics.analyzeDurationSeconds?.time(since: start) }
+
         switch mode {
             case .id(let id):
                 logger.info("Analyzing (id: \(id)) ...")
-                return Package.fetchCandidate(database, id: id)
-                    .map { [$0] }
-                    .flatMap {
-                        analyze(client: client,
-                                database: database,
-                                logger: logger,
-                                threadPool: threadPool,
-                                packages: $0)
-                    }
-                    .map {
-                        AppMetrics.analyzeDurationSeconds?.time(since: start)
-                    }
+                let pkg = try await Package.fetchCandidate(database, id: id).get()
+                try await analyze(client: client,
+                                  database: database,
+                                  logger: logger,
+                                  threadPool: threadPool,
+                                  packages: [pkg]).get()
+
             case .limit(let limit):
                 logger.info("Analyzing (limit: \(limit)) ...")
-                return Package.fetchCandidates(database, for: .analysis, limit: limit)
-                    .flatMap { analyze(client: client,
-                                       database: database,
-                                       logger: logger,
-                                       threadPool: threadPool,
-                                       packages: $0)
-                    }
-                    .map {
-                        AppMetrics.analyzeDurationSeconds?.time(since: start)
-                    }
-
+                let packages = try await Package.fetchCandidates(database, for: .analysis, limit: limit).get()
+                try await analyze(client: client,
+                                  database: database,
+                                  logger: logger,
+                                  threadPool: threadPool,
+                                  packages: packages).get()
         }
     }
 

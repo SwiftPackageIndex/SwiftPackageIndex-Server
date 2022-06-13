@@ -305,11 +305,11 @@ final class PackageTests: AppTestCase {
         }
 
         // run analysis to progress package through pipeline
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  threadPool: app.threadPool,
+                                  mode: .limit(10))
 
         // MUT & validate
         do {
@@ -332,11 +332,11 @@ final class PackageTests: AppTestCase {
             XCTAssertFalse(pkg.isNew)
         }
 
-        try Analyze.analyze(client: app.client,
-                            database: app.db,
-                            logger: app.logger,
-                            threadPool: app.threadPool,
-                            mode: .limit(10)).wait()
+        try await Analyze.analyze(client: app.client,
+                                  database: app.db,
+                                  logger: app.logger,
+                                  threadPool: app.threadPool,
+                                  mode: .limit(10))
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())
             XCTAssertFalse(pkg.isNew)
