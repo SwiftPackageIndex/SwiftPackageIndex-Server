@@ -852,18 +852,4 @@ extension Analyze {
 }
 
 
-@available(*, deprecated)
-private extension Array where Element == Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error> {
-    /// Helper to extract the nested `Package` results from the result tuple.
-    /// - Returns: unpacked array of `Result<Package, Error>`
-    var packages: [Result<Joined<Package, Repository>, Error>]  {
-        map { result in
-            result.map { pkg, _ in
-                pkg
-            }
-        }
-    }
-}
-
-
 extension App.FileManager: DependencyResolution.FileManager { }
