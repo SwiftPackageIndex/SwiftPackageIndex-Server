@@ -121,6 +121,21 @@ class SearchTests: AppTestCase {
         XCTAssertEqual(binds(b), ["a", "{ios,macos}", "a"])
     }
 
+    func test_packageMatchQuery_ProductTypeSearchFilter() throws {
+        for type in Package.ProductType.allCases {
+            let b = Search.packageMatchQueryBuilder(
+                on: app.db, terms: ["a"],
+                filters: [
+                    try ProductTypeSearchFilter(expression: .init(operator: .is, value: type.rawValue))
+                ]
+            )
+            XCTAssertEqual(renderSQL(b), """
+            SELECT 'package' AS "match_type", NULL AS "keyword", "package_id", "package_name", "repo_name", "repo_owner", "score", "summary", "stars", "license", "last_commit_date", "last_activity_at", "keywords", NULL AS "levenshtein_dist", "type" FROM "search" WHERE CONCAT_WS(' ', "package_name", COALESCE("summary", ''), "repo_name", "repo_owner", ARRAY_TO_STRING("keywords", ' ')) ~* $1 AND "repo_owner" IS NOT NULL AND "repo_name" IS NOT NULL AND ("type" @> $2) ORDER BY LOWER("package_name") = $3 DESC, "score" DESC, "package_name" ASC
+            """)
+            XCTAssertEqual(binds(b), ["a", "\(type.rawValue)", "a"])
+        }
+    }
+
     func test_packageMatchQuery_StarsSearchFilter() throws {
         let b = Search.packageMatchQueryBuilder(
             on: app.db, terms: ["a"],

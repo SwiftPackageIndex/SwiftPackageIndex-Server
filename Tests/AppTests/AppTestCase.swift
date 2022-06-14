@@ -65,6 +65,9 @@ extension AppTestCase {
                 case let bind as Set<Package.PlatformCompatibility>:
                     let s = bind.map(\.rawValue).sorted().joined(separator: ",")
                     result.append("{\(s)}")
+                case let bind as Set<Package.ProductType>:
+                    let s = bind.map(\.rawValue).sorted().joined(separator: ",")
+                    result.append("{\(s)}")
                 default:
                     result.append("\(bind)")
             }

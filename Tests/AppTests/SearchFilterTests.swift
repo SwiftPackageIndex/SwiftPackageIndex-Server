@@ -413,9 +413,9 @@ class SearchFilterTests: AppTestCase {
         }
     }
 
-    func test_pluginFilter_single_value() throws {
+    func test_productTypeFilter_single_value() throws {
         // test single value happy path
-        let filter = try ProductTypeFilter(expression: .init(operator: .is,
+        let filter = try ProductTypeSearchFilter(expression: .init(operator: .is,
                                                                 value: "executable"))
         XCTAssertEqual(filter.key, .productType)
         XCTAssertEqual(filter.predicate, .init(operator: .contains,
@@ -423,12 +423,39 @@ class SearchFilterTests: AppTestCase {
                                                displayValue: "Executable"))
 
         // test view representation
-        XCTAssertEqual(filter.viewModel.description, "product type(s) is Executable")
+        XCTAssertEqual(filter.viewModel.description, "product type is Executable")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""product_type""#)
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""type""#)
         XCTAssertEqual(renderSQL(filter.sqlOperator), "@>")
-        XCTAssertEqual(binds(filter.rightHandSide), ["{executable}"])
+        XCTAssertEqual(binds(filter.rightHandSide), ["executable"])
+    }
+
+    func test_productTypeFilter_case_insensitive() throws {
+        XCTAssertEqual(
+            try ProductTypeSearchFilter(expression: .init(operator: .is, value: "plugin")).bindableValue,
+            [.plugin]
+        )
+        XCTAssertEqual(
+            try ProductTypeSearchFilter(expression: .init(operator: .is, value: "PluGIN")).bindableValue,
+            [.plugin]
+        )
+    }
+
+    func test_productTypeFilter_error() throws {
+        // test error cases
+        XCTAssertThrowsError(try ProductTypeSearchFilter(
+            expression: .init(operator: .isNot, value: "foo"))
+        ) {
+            XCTAssertEqual($0 as? SearchFilterError, .unsupportedComparisonMethod)
+        }
+        for value in ["foo", "", ",", "MacOS X"] {
+            XCTAssertThrowsError(try ProductTypeSearchFilter(
+                expression: .init(operator: .is, value: value))
+            ) {
+                XCTAssertEqual($0 as? SearchFilterError, .invalidValueType, "expected exception for value: \(value)")
+            }
+        }
     }
 
 }
@@ -447,6 +474,16 @@ private extension PlatformSearchFilter {
             return nil
         }
         return value as? Set<Package.PlatformCompatibility>
+    }
+}
+
+
+private extension ProductTypeSearchFilter {
+    var bindableValue: Set<Package.ProductType>? {
+        guard case let .value(value) = predicate.bindableValue else {
+            return nil
+        }
+        return value as? Set<Package.ProductType>
     }
 }
 
@@ -486,6 +523,16 @@ extension SearchFilter.Predicate.BoundValue: Equatable {
         switch self {
             case .value(let value):
                 return (value as? Set<Package.PlatformCompatibility>)?
+                    .sorted { $0.rawValue < $1.rawValue }
+            case .array:
+                return nil
+        }
+    }
+
+    var asProductTypes: [Package.ProductType]? {
+        switch self {
+            case .value(let value):
+                return (value as? Set<Package.ProductType>)?
                     .sorted { $0.rawValue < $1.rawValue }
             case .array:
                 return nil
