@@ -153,7 +153,7 @@ extension Analyze {
         }
     }
 
-
+    
     /// Main analysis function. Updates repostory checkouts, runs package dump, reconciles versions and updates packages.
     /// - Parameters:
     ///   - client: `Client` object
@@ -172,18 +172,7 @@ extension Analyze {
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         logger.info("Checkout directory: \(checkoutDir)")
         if !Current.fileManager.fileExists(atPath: checkoutDir) {
-            logger.info("Creating checkouts directory at path: \(checkoutDir)")
-            do {
-                try Current.fileManager.createDirectory(atPath: checkoutDir,
-                                                        withIntermediateDirectories: false,
-                                                        attributes: nil)
-            } catch {
-                let msg = "Failed to create checkouts directory: \(error.localizedDescription)"
-                try await Current.reportError(client,
-                                              .critical,
-                                              AppError.genericError(nil, msg)).get()
-                return
-            }
+            try await createCheckoutsDirectory(client: client, logger: logger, path: checkoutDir)
         }
 
         let refreshedCheckouts = try await refreshCheckouts(eventLoop: database.eventLoop,
@@ -229,6 +218,24 @@ extension Analyze {
         try await RecentRelease.refresh(on: database).get()
         try await Search.refresh(on: database).get()
         try await Stats.refresh(on: database).get()
+    }
+
+
+    static func createCheckoutsDirectory(client: Client,
+                                         logger: Logger,
+                                         path: String) async throws {
+        logger.info("Creating checkouts directory at path: \(path)")
+        do {
+            try Current.fileManager.createDirectory(atPath: path,
+                                                    withIntermediateDirectories: false,
+                                                    attributes: nil)
+        } catch {
+            let msg = "Failed to create checkouts directory: \(error.localizedDescription)"
+            try await Current.reportError(client,
+                                          .critical,
+                                          AppError.genericError(nil, msg)).get()
+            return
+        }
     }
 
 
