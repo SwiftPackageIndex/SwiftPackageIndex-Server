@@ -220,7 +220,7 @@ extension Analyze {
                                                   package: package)
         let newVersions = versionDelta.toAdd
         mergeReleaseInfo(package: package, versions: newVersions)
-        try await applyVersionDelta(on: transaction, delta: versionDelta).get()
+        try await applyVersionDelta(on: transaction, delta: versionDelta)
         let versionPackageInfo = newVersions.compactMap {
             // TODO: clean this up by eliminating Result entirely
             try? getPackageInfo(package: package, version: $0).get()
@@ -530,33 +530,18 @@ extension Analyze {
     /// Saves and deletes the versions specified in the version delta parameter.
     /// - Parameters:
     ///   - transaction: transaction to run the save and delete in
-    ///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
-    /// - Returns: future with an array of each `Package` paired with its new `Version`s
-    static func applyVersionDelta(on transaction: Database,
-                           packageDeltas: [Result<(Joined<Package, Repository>, VersionDelta), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [Version]), Error>]> {
-        packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
-            applyVersionDelta(on: transaction, delta: delta)
-                .transform(to: (pkg, delta.toAdd))
-        }
-    }
-
-
-    /// Saves and deletes the versions specified in the version delta parameter.
-    /// - Parameters:
-    ///   - transaction: transaction to run the save and delete in
     ///   - delta: tuple containing the versions to add and remove
     /// - Returns: future
     static func applyVersionDelta(on transaction: Database,
-                                  delta: VersionDelta) -> EventLoopFuture<Void> {
-        let delete = delta.toDelete.delete(on: transaction)
-        let insert = delta.toAdd.create(on: transaction)
-        delta.toAdd.forEach {
-            AppMetrics.analyzeVersionsAddedCount?.inc(1, .init($0.reference))
-        }
+                                  delta: VersionDelta) async throws {
+        try await delta.toDelete.delete(on: transaction)
         delta.toDelete.forEach {
             AppMetrics.analyzeVersionsDeletedCount?.inc(1, .init($0.reference))
         }
-        return delete.flatMap { insert }
+        try await delta.toAdd.create(on: transaction)
+        delta.toAdd.forEach {
+            AppMetrics.analyzeVersionsAddedCount?.inc(1, .init($0.reference))
+        }
     }
 
 

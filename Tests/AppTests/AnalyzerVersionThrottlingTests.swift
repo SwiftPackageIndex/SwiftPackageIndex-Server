@@ -219,7 +219,7 @@ class AnalyzerVersionThrottlingTests: AppTestCase {
                                                        transaction: app.db,
                                                        package: jpr)
             // apply the delta to ensure versions are in place for next cycle
-            try Analyze.applyVersionDelta(on: app.db, delta: delta).wait()
+            try await Analyze.applyVersionDelta(on: app.db, delta: delta)
             return delta
         }
 
