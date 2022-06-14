@@ -1052,30 +1052,6 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(versions.map(\.latest), [.defaultBranch, .release, nil])
     }
 
-    func test_onNewVersions() throws {
-        // ensure that onNewVersions does not propagate errors
-        // setup
-        Current.twitterPostTweet = { _, _ in
-            // simulate failure (this is for good measure - our version will also raise an
-            // invalidMessage error, because it is missing a repository)
-            self.app.eventLoopGroup.future(error: Twitter.Error.missingCredentials)
-        }
-        let pkg = Package(url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
-        let version = try Version(package: pkg, packageName: "MyPackage", reference: .tag(1, 2, 3))
-        try version.save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        let packageResults: [Result<(Joined<Package, Repository>, [(Version, App.Manifest)]), Error>] = [
-            .success((jpr, [(version, .mock)]))
-        ]
-
-        // MUT & validation (no error thrown)
-        _ = try Analyze.onNewVersions(client: app.client,
-                                      logger: app.logger,
-                                      transaction: app.db,
-                                      packageResults: packageResults).wait()
-    }
-
     func test_issue_914() async throws {
         // Ensure we handle 404 repos properly
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/914

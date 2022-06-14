@@ -404,7 +404,6 @@ extension Analyze {
     /// - Parameters:
     ///   - client: `Client` object (for Rollbar error reporting)
     ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
     ///   - transaction: database transaction
     ///   - package: `Package` to reconcile
     /// - Returns: future with array of pair of new, outdated, and unchanged `Version`s
@@ -440,8 +439,6 @@ extension Analyze {
     /// - Parameters:
     ///   - client: `Client` object (for Rollbar error reporting)
     ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
-    ///   - transaction: database transaction
     ///   - package: `Package` to reconcile
     /// - Returns: future with incoming `Version`s
     static func getIncomingVersions(client: Client,
@@ -622,6 +619,7 @@ extension Analyze {
     ///   - database: database connection
     ///   - packageResults: results to process, containing the versions and their manifests
     /// - Returns: the input data for further processing, wrapped in a future
+    @available(*, deprecated)
     static func updateVersions(on database: Database,
                                packageResults: [Result<(Joined<Package, Repository>, [(Version, PackageInfo)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
         packageResults.whenAllComplete(on: database.eventLoop) { (pkg, pkgInfo) in
@@ -673,6 +671,7 @@ extension Analyze {
     ///   - database: database connection
     ///   - packageResults: results to process
     /// - Returns: the input data for further processing, wrapped in a future
+    @available(*, deprecated)
     static func updateProducts(on database: Database,
                                packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
         packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
@@ -733,6 +732,7 @@ extension Analyze {
     ///   - database: database connection
     ///   - packageResults: results to process
     /// - Returns: the input data for further processing, wrapped in a future
+    @available(*, deprecated)
     static func updateTargets(on database: Database,
                               packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
         packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
@@ -785,20 +785,6 @@ extension Analyze {
     }
 
 
-    /// Update the significant versions (stable, beta, latest) for an array of `Package`s (contained in `packageResults`).
-    /// - Parameters:
-    ///   - database: `Database` object
-    ///   - packageResults: packages to update
-    /// - Returns: the input data for further processing, wrapped in a future
-    static func updateLatestVersions(on database: Database,
-                              packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
-        packageResults.whenAllComplete(on: database.eventLoop) { pkg, versionsAndManifests in
-            updateLatestVersions(on: database, package: pkg)
-                .map { _ in (pkg, versionsAndManifests) }
-        }
-    }
-
-
     /// Update the significant versions (stable, beta, latest) for a given `Package`.
     /// - Parameters:
     ///   - database: `Database` object
@@ -845,27 +831,9 @@ extension Analyze {
     /// - Parameters:
     ///   - client: `Client` object for http requests
     ///   - logger: `Logger` object
-    ///   - transaction: database transaction
-    ///   - packageResults: array of `Package`s with their analysis results of `Version`s and `Manifest`s
-    /// - Returns: the packageResults that were passed in, for further processing
-    static func onNewVersions(client: Client,
-                              logger: Logger,
-                              transaction: Database,
-                              packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
-        packageResults.whenAllComplete(on: transaction.eventLoop) { pkg, versionsAndManifests in
-            let versions = versionsAndManifests.map { $0.0 }
-            return Twitter.postToFirehose(client: client,
-                                          database: transaction,
-                                          package: pkg,
-                                          versions: versions)
-            .flatMapError { error in
-                logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
-                return client.eventLoop.future()
-            }
-            .map { (pkg, versionsAndManifests) }
-        }
-    }
-
+    ///   - transaction: `Database` object representing the current transaction
+    ///   - package: package to update
+    ///   - versions: array of new `Versions`s
     static func onNewVersions(client: Client,
                               logger: Logger,
                               transaction: Database,
