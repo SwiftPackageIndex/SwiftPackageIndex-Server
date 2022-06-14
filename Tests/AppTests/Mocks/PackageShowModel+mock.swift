@@ -107,7 +107,7 @@ extension PackageShow.Model {
                     platforms: [.ios("13.0"), .macos("10.15"), .watchos("6.0"), .tvos("13.0")])),
             license: .mit,
             licenseUrl: nil,
-            productCounts: .init(libraries: 3, executables: 1),
+            productCounts: .init(libraries: 3, executables: 1, plugins: 0),
             releases: .init(stable: .init(date: "12 days ago",
                                           link: .init(label: "5.2.0",
                                                       url: "https://github.com/Alamofire/Alamofire/releases/tag/5.2.0")),

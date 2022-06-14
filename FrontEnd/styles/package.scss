@@ -112,6 +112,10 @@
         background-image: var(--image-prompt);
       }
 
+      li.plugins {
+        background-image: var(--image-plug);
+      }
+
       li.keywords {
         grid-column-start: span 2;
         background-image: var(--image-tag);
