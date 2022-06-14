@@ -244,8 +244,11 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 051 - remove versions.doc_archives
         app.migrations.add(UpdateVersionRemoveDocArchives())
     }
-    do {  // Migration 053 - add versions.doc_archives again
+    do {  // Migration 052 - add versions.doc_archives again
         app.migrations.add(UpdateVersionAddDocArchives2())
+    }
+    do {  // Migration 053 - adds products.type to search
+        app.migrations.add(UpdateSearchAddProductType())
     }
 
     app.commands.use(Analyze.Command(), as: "analyze")

@@ -17,16 +17,31 @@
 ///
 /// Examples:
 /// ```
-/// product:executable - The package exports executable product(s).
-/// product:library,plugin - The package exports library(ies) and plugin(s).
+/// type:executable - The package exports executable product(s).
+/// type:plugin - The package exports plugin product(s).
 /// ```
 
 import Foundation
+import SQLKit
 
-struct ProductTypeFilter: SearchFilterProtocol {
+enum FilterLiteral: String, Codable {
+    case null = "NULL"
+}
+
+struct ProductTypeSearchFilter: SearchFilterProtocol {
     static var key: SearchFilter.Key = .productType
 
     var predicate: SearchFilter.Predicate
+
+    var leftHandSide: SQLExpression {
+        return SQLRaw("\"\(Self.key)\"->>'\(productType.rawValue)'")
+    }
+
+    var rightHandSide: SQLExpression {
+        return SQLLiteral.null
+    }
+
+    private let productType: Package.ProductType
 
     init(expression: SearchFilter.Expression) throws {
         // We don't support `isNot`, because it's unlikely
@@ -36,22 +51,19 @@ struct ProductTypeFilter: SearchFilterProtocol {
             throw SearchFilterError.unsupportedComparisonMethod
         }
 
-        let values = expression.value
-            .split(separator: ",", omittingEmptySubsequences: true)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .map { $0.lowercased() }
-            .compactMap(Package.ProductType.init(rawValue:))
-        let value = Set(values)
+        // We support searching for a single type to lighten the load
+        // on the search and because it's somewhat niche use case to
+        // search for multiple product types
+        guard let queryProductType = Package.ProductType(rawValue: expression.value) else {
+            throw SearchFilterError.invalidValueType
+        }
 
-        guard !value.isEmpty else { throw SearchFilterError.invalidValueType }
+        productType = queryProductType
 
         self.predicate = .init(
-            operator: .contains,
-            bindableValue: .value(value),
-            displayValue: value
-                .map(\.displayDescription)
-                .sorted { $0.lowercased() < $1.lowercased() }
-                .pluralized()
+            operator: .jsonKeyExists,
+            bindableValue: .value(FilterLiteral.null),
+            displayValue: queryProductType.displayDescription
         )
     }
 }
@@ -62,7 +74,7 @@ private extension Package.ProductType {
         switch self {
             case .executable:
                 return "Executable"
-            case .libary:
+            case .library:
                 return "Library"
             case .plugin:
                 return "Plugin"

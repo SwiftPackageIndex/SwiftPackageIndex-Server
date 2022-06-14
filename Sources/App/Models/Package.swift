@@ -132,9 +132,9 @@ extension Package {
 
 
 extension Package {
-    enum ProductType: String, Codable {
+    enum ProductType: String, Codable, CaseIterable {
         case executable
-        case libary
+        case library
         case plugin
     }
 }
