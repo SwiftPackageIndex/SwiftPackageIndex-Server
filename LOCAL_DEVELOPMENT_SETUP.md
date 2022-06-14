@@ -36,7 +36,7 @@ Close the scheme editor, ensure that the "Run" scheme is selected in the Xcode t
 [ NOTICE ] Server starting on http://127.0.0.1:8080 [component: server]
 ```
 
-**Note:** When working on some features, it will be helpful to have a database with pre-populated data from the live system. Talk to us on Discord, and we'll supply you with a recent database dump that you can load with `./scripts/load-db.sh`.
+**Note:** When working locally, it's helpful to have a database with pre-populated data from the live system. [Talk to us on Discord](https://discord.gg/vQRb6KkYRw), and we'll supply you with a recent database dump that you can load with `./scripts/load-db.sh`.
 
 ### Setup the Front End
 
@@ -70,6 +70,8 @@ We check for the presence of some environment variables to control various aspec
 | GITHUB_WORKFLOW          | Enable/disable certain tests in a CI environment. |
 
 ## Reconciliation, Ingestion, and Analysis
+
+> **NOTE:** This section provides background information about how this system collects package metadata from various sources (The Package manifest, git repository for the package, and GitHub), but it is not necessary to run these commands for most local development. If you plan to work on this specific part of the system, or if you're curious, please read on. However, restoring a copy of a fully populated database is best if you want to run the system locally. If you would like a recent database dump, please [talk to us on Discord](https://discord.gg/vQRb6KkYRw), and we'll supply you with one that you can load with `./scripts/load-db.sh`.
 
 There are three main background processes responsible for adding/removing packages and keeping package metadata updated:
 
