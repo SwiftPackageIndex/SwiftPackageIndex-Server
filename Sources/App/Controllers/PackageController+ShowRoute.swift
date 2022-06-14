@@ -47,7 +47,8 @@ extension PackageController {
                     history: historyRecord?.historyModel(),
                     productCounts: .init(
                         libraries: productTypes.filter(\.isLibrary).count,
-                        executables: productTypes.filter(\.isExecutable).count),
+                        executables: productTypes.filter(\.isExecutable).count,
+                        plugins: productTypes.filter(\.isPlugin).count),
                     swiftVersionBuildInfo: buildInfo.swiftVersion,
                     platformBuildInfo: buildInfo.platform
                 ),
