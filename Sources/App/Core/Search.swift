@@ -36,7 +36,7 @@ enum Search {
     static let lastCommitDate = SQLIdentifier("last_commit_date")
     static let searchView = SQLIdentifier("search")
     static let summary = SQLIdentifier("summary")
-    static let productType = SQLIdentifier("product_type")
+    static let productType = SQLIdentifier("type")
 
     static let ilike = SQLRaw("ILIKE")
     static let null = SQLRaw("NULL")
@@ -44,6 +44,7 @@ enum Search {
     static let nullUUID = SQLRaw("NULL::UUID")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
     static let nullTextArray = SQLRaw("NULL::TEXT[]")
+    static let nullJSONB = SQLRaw("'{}'::jsonb")
 
     enum MatchType: String, Codable, Equatable {
         case author
@@ -157,7 +158,7 @@ enum Search {
             .then(score, .descending)
             .then(packageName, .ascending)
 
-        var preamble = db
+        let preamble = db
             .select()
             .column(.package)
             .column(null, as: keyword)
@@ -173,14 +174,8 @@ enum Search {
             .column(lastActivityAt)
             .column(keywords)
             .column(null, as: levenshteinDist)
+            .column(productType)
             .from(searchView)
-
-//        if filters.contains(where: { f in
-//            f is ProductTypeFilter
-//        }) {
-//            preamble = preamble
-//                .join(<#T##table: SQLExpression##SQLExpression#>, method: <#T##SQLExpression#>, using: <#T##SQLExpression#>)
-//        }
 
         return binds.reduce(preamble) { $0.where(haystack, contains, $1) }
             .where(isNotNull(repoOwner))
@@ -233,6 +228,8 @@ enum Search {
         select = select
             .column(SQLFunction("LEVENSHTEIN", args: keyword, SQLBind(mergedTerms)),
                     as: levenshteinDist)
+        select = select
+            .column(nullJSONB, as: productType)
         select = select
             .from(searchView)
         select = select
@@ -287,6 +284,8 @@ enum Search {
         select = select
             .column(SQLFunction("LEVENSHTEIN", args: repoOwner, SQLBind(mergedTerms)),
                     as: levenshteinDist)
+        select = select
+            .column(nullJSONB, as: productType)
         select = select
             .from(searchView)
         select = select

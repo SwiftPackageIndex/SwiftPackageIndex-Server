@@ -97,6 +97,15 @@ class QueryPerformanceTests: XCTestCase {
         try await assertQueryPerformance(query, expectedCost: 3900, variation: 150)
     }
 
+    func test_Search_query_productTypeFilter() async throws {
+        let filter = try ProductTypeSearchFilter(expression: .init(operator: .is, value: "plugin"))
+        let query = try Search.query(app.db, ["a"], filters: [filter],
+                                     page: 1, pageSize: Constants.resultsPageSize)
+            .unwrap()
+        // TODO: How should these numbers below be updated for this test? 
+        try await assertQueryPerformance(query, expectedCost: 3900, variation: 150)
+    }
+
     func test_Search_query_starsFilter() async throws {
         let filter = try StarsSearchFilter(expression: .init(operator: .greaterThan, value: "5"))
         let query = try Search.query(app.db, ["a"], filters: [filter],
