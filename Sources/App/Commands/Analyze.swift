@@ -221,6 +221,35 @@ extension Analyze {
     }
 
 
+    /// Main analysis function. Updates repostory checkouts, runs package dump, reconciles versions and updates packages.
+    /// - Parameters:
+    ///   - client: `Client` object
+    ///   - database: `Database` object
+    ///   - logger: `Logger` object
+    ///   - threadPool: `NIOThreadPool` (for running shell commands)
+    ///   - packages: packages to be analysed
+    /// - Returns: future
+    static func _analyze(client: Client,
+                        database: Database,
+                        logger: Logger,
+                        threadPool: NIOThreadPool,
+                        packages: [Joined<Package, Repository>]) async throws {
+        AppMetrics.analyzeCandidatesCount?.set(packages.count)
+
+        // get or create directory
+        let checkoutDir = Current.fileManager.checkoutsDirectory()
+        logger.info("Checkout directory: \(checkoutDir)")
+        if !Current.fileManager.fileExists(atPath: checkoutDir) {
+            try await createCheckoutsDirectory(client: client, logger: logger, path: checkoutDir)
+        }
+
+        #warning("parallelize via task group")
+        for pkg in packages {
+            try await refreshCheckout(logger: logger, package: pkg)
+        }
+    }
+
+
     static func createCheckoutsDirectory(client: Client,
                                          logger: Logger,
                                          path: String) async throws {
@@ -340,6 +369,36 @@ extension Analyze {
             }
         }
         .map { package }
+    }
+
+
+    static func refreshCheckout(logger: Logger, package: Joined<Package, Repository>) throws {
+        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+            throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
+        }
+
+        guard Current.fileManager.fileExists(atPath: cacheDir) else {
+            try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
+            return
+        }
+
+        do {
+            // attempt to fetch - if anything goes wrong we delete the directory
+            // and fall back to cloning
+            do {
+                try fetch(logger: logger,
+                          cacheDir: cacheDir,
+                          branch: package.repository?.defaultBranch ?? "master",
+                          url: package.model.url)
+            } catch {
+                logger.info("fetch failed: \(error.localizedDescription)")
+                logger.info("removing directory")
+                try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
+                try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
+            }
+        } catch {
+            throw AppError.analysisError(package.model.id, "refreshCheckout failed: \(error.localizedDescription)")
+        }
     }
 
 
