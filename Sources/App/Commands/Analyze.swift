@@ -243,30 +243,40 @@ extension Analyze {
             try await createCheckoutsDirectory(client: client, logger: logger, path: checkoutDir)
         }
 
-        // TODO: parallelize via task group
-        for pkg in packages {
-            try refreshCheckout(logger: logger, package: pkg)
-            try await updateRepository(on: database, package: pkg).get()
+        let packageResults = await withThrowingTaskGroup(
+            of: Joined<Package, Repository>.self,
+            returning: [Result<Joined<Package, Repository>, Error>].self
+        ) { group in
+            for pkg in packages {
+                group.addTask {
+                    try refreshCheckout(logger: logger, package: pkg)
+                    try await updateRepository(on: database, package: pkg).get()
 
-            let _ = try await database.transaction { tx in
-                try await analyze(client: client,
-                                  transaction: tx,
-                                  logger: logger,
-                                  threadPool: threadPool,
-                                  package: pkg)
+                    try await database.transaction {
+                        try await analyze(client: client,
+                                          transaction: $0,
+                                          logger: logger,
+                                          threadPool: threadPool,
+                                          package: pkg)
+                    }
+
+                    return pkg
+                }
             }
+
+            return await group.results()
         }
 
-//        try await updatePackages(client: client,
-//                                 database: database,
-//                                 logger: logger,
-//                                 results: packageResults.packages,
-//                                 stage: .analysis).get()
-//
-//        try await RecentPackage.refresh(on: database).get()
-//        try await RecentRelease.refresh(on: database).get()
-//        try await Search.refresh(on: database).get()
-//        try await Stats.refresh(on: database).get()
+        try await updatePackages(client: client,
+                                 database: database,
+                                 logger: logger,
+                                 results: packageResults,
+                                 stage: .analysis).get()
+
+        try await RecentPackage.refresh(on: database).get()
+        try await RecentRelease.refresh(on: database).get()
+        try await Search.refresh(on: database).get()
+        try await Stats.refresh(on: database).get()
 
         // TODO: remove deprecated array based functions
     }
@@ -1095,6 +1105,7 @@ extension Analyze {
 }
 
 
+@available(*, deprecated)
 private extension Array where Element == Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error> {
     /// Helper to extract the nested `Package` results from the result tuple.
     /// - Returns: unpacked array of `Result<Package, Error>`
