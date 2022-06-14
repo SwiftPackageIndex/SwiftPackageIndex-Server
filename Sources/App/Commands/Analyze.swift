@@ -243,10 +243,47 @@ extension Analyze {
             try await createCheckoutsDirectory(client: client, logger: logger, path: checkoutDir)
         }
 
-        #warning("parallelize via task group")
+        // TODO: parallelize via task group
         for pkg in packages {
-            try await refreshCheckout(logger: logger, package: pkg)
+            try refreshCheckout(logger: logger, package: pkg)
+            try await updateRepository(on: database, package: pkg).get()
+
+            let _ = try await database.transaction { tx in
+                let versionDelta = try await diffVersions(client: client,
+                                                          logger: logger,
+                                                          threadPool: threadPool,
+                                                          transaction: tx,
+                                                          package: pkg).get()
+                let newVersions = versionDelta.toAdd
+                mergeReleaseInfo(package: pkg, versions: newVersions)
+                try await applyVersionDelta(on: tx, delta: versionDelta).get()
+                let versionPackageInfo = newVersions.compactMap {
+                    // TODO: clean this up by eliminating Result entirely
+                    try? getPackageInfo(package: pkg, version: $0).get()
+                }
+                if versionPackageInfo.isEmpty {
+                    throw AppError.noValidVersions(pkg.model.id, pkg.model.url)
+                }
+                for (version, pkgInfo) in versionPackageInfo {
+                    // TODO: ensure we update all even if in case of early throws
+                    try await updateVersion(on: tx, version: version, packageInfo: pkgInfo).get()
+                    try await recreateProducts(on: tx,
+                                               version: version,
+                                               manifest: pkgInfo.packageManifest)
+                    try await recreateTargets(on: tx,
+                                              version: version,
+                                              manifest: pkgInfo.packageManifest)
+                }
+                try await updateLatestVersions(on: tx, package: pkg).get()
+                await onNewVersions(client: client,
+                                    logger: logger,
+                                    transaction: tx,
+                                    package: pkg,
+                                    versions: newVersions)
+            }
         }
+
+        // TODO: remove deprecated array based functions
     }
 
 
@@ -641,6 +678,27 @@ extension Analyze {
     }
 
 
+    static func mergeReleaseInfo(package: Joined<Package, Repository>, versions: [Version]) {
+        guard let releases = package.repository?.releases else { return }
+        let tagToRelease = Dictionary(
+            releases
+                .filter { !$0.isDraft }
+                .map { ($0.tagName, $0) },
+            uniquingKeysWith: { $1 }
+        )
+        versions.forEach { version in
+            guard let tagName = version.reference.tagName,
+                  let rel = tagToRelease[tagName] else {
+                return
+            }
+            version.publishedAt = rel.publishedAt
+            version.releaseNotes = rel.description
+            version.releaseNotesHTML = rel.descriptionHTML
+            version.url = rel.url
+        }
+    }
+
+
     /// Saves and deletes the versions specified in the version delta parameter.
     /// - Parameters:
     ///   - transaction: transaction to run the save and delete in
@@ -819,6 +877,12 @@ extension Analyze {
     }
 
 
+    static func recreateProducts(on database: Database, version: Version, manifest: Manifest) async throws {
+        try await deleteProducts(on: database, version: version).get()
+        try await createProducts(on: database, version: version, manifest: manifest).get()
+    }
+
+
     /// Delete `Product`s for a given `versionId`.
     /// - Parameters:
     ///   - database: database connection
@@ -870,6 +934,12 @@ extension Analyze {
             )
             .transform(to: (pkg, versionsAndManifests))
         }
+    }
+
+
+    static func recreateTargets(on database: Database, version: Version, manifest: Manifest) async throws {
+        try await deleteTargets(on: database, version: version).get()
+        try await createTargets(on: database, version: version, manifest: manifest).get()
     }
 
 
@@ -980,6 +1050,21 @@ extension Analyze {
                 return client.eventLoop.future()
             }
             .map { (pkg, versionsAndManifests) }
+        }
+    }
+
+    static func onNewVersions(client: Client,
+                              logger: Logger,
+                              transaction: Database,
+                              package: Joined<Package, Repository>,
+                              versions: [Version]) async {
+        do {
+            try await Twitter.postToFirehose(client: client,
+                                             database: transaction,
+                                             package: package,
+                                             versions: versions).get()
+        } catch {
+            logger.warning("Twitter.postToFirehose failed: \(error.localizedDescription)")
         }
     }
 
