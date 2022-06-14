@@ -183,28 +183,28 @@ extension Analyze {
                                                      packages: refreshedCheckouts).get()
 
         // Run all the following updates in a db transaction
-        let packageResults = try await database.transaction { tx -> [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>] in
+        let packageResults = try await database.transaction { transaction -> [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>] in
             let versionDeltas = try await diffVersions(client: client,
                                                        logger: logger,
                                                        threadPool: threadPool,
-                                                       transaction: tx,
+                                                       transaction: transaction,
                                                        packages: updatedRepos).get()
-            let withReleaseInfo = try await mergeReleaseInfo(on: tx,
+            let withReleaseInfo = try await mergeReleaseInfo(on: transaction,
                                                              packageDeltas: versionDeltas).get()
-            let appliedDeltas = try await applyVersionDelta(on: tx,
+            let appliedDeltas = try await applyVersionDelta(on: transaction,
                                                             packageDeltas: withReleaseInfo).get()
             let packageInfo = getPackageInfo(packageAndVersions: appliedDeltas)
-            let updatedVersions = try await updateVersions(on: tx,
+            let updatedVersions = try await updateVersions(on: transaction,
                                                            packageResults: packageInfo).get()
-            let updatedProducts = try await updateProducts(on: tx,
+            let updatedProducts = try await updateProducts(on: transaction,
                                                            packageResults: updatedVersions).get()
-            let updatedTargets = try await updateTargets(on: tx,
+            let updatedTargets = try await updateTargets(on: transaction,
                                                          packageResults: updatedProducts).get()
-            let updatedLatestVersions = try await updateLatestVersions(on: tx,
+            let updatedLatestVersions = try await updateLatestVersions(on: transaction,
                                                                        packageResults: updatedTargets).get()
             return try await onNewVersions(client: client,
                                            logger: logger,
-                                           transaction: tx,
+                                           transaction: transaction,
                                            packageResults: updatedLatestVersions).get()
         }  // tx end
 
@@ -249,41 +249,65 @@ extension Analyze {
             try await updateRepository(on: database, package: pkg).get()
 
             let _ = try await database.transaction { tx in
-                let versionDelta = try await diffVersions(client: client,
-                                                          logger: logger,
-                                                          threadPool: threadPool,
-                                                          transaction: tx,
-                                                          package: pkg).get()
-                let newVersions = versionDelta.toAdd
-                mergeReleaseInfo(package: pkg, versions: newVersions)
-                try await applyVersionDelta(on: tx, delta: versionDelta).get()
-                let versionPackageInfo = newVersions.compactMap {
-                    // TODO: clean this up by eliminating Result entirely
-                    try? getPackageInfo(package: pkg, version: $0).get()
-                }
-                if versionPackageInfo.isEmpty {
-                    throw AppError.noValidVersions(pkg.model.id, pkg.model.url)
-                }
-                for (version, pkgInfo) in versionPackageInfo {
-                    // TODO: ensure we update all even if in case of early throws
-                    try await updateVersion(on: tx, version: version, packageInfo: pkgInfo).get()
-                    try await recreateProducts(on: tx,
-                                               version: version,
-                                               manifest: pkgInfo.packageManifest)
-                    try await recreateTargets(on: tx,
-                                              version: version,
-                                              manifest: pkgInfo.packageManifest)
-                }
-                try await updateLatestVersions(on: tx, package: pkg).get()
-                await onNewVersions(client: client,
-                                    logger: logger,
-                                    transaction: tx,
-                                    package: pkg,
-                                    versions: newVersions)
+                try await analyze(client: client,
+                                  transaction: tx,
+                                  logger: logger,
+                                  threadPool: threadPool,
+                                  package: pkg)
             }
         }
 
+//        try await updatePackages(client: client,
+//                                 database: database,
+//                                 logger: logger,
+//                                 results: packageResults.packages,
+//                                 stage: .analysis).get()
+//
+//        try await RecentPackage.refresh(on: database).get()
+//        try await RecentRelease.refresh(on: database).get()
+//        try await Search.refresh(on: database).get()
+//        try await Stats.refresh(on: database).get()
+
         // TODO: remove deprecated array based functions
+    }
+
+
+    static func analyze(client: Client,
+                        transaction: Database,
+                        logger: Logger,
+                        threadPool: NIOThreadPool,
+                        package: Joined<Package, Repository>) async throws {
+        let versionDelta = try await diffVersions(client: client,
+                                                  logger: logger,
+                                                  threadPool: threadPool,
+                                                  transaction: transaction,
+                                                  package: package).get()
+        let newVersions = versionDelta.toAdd
+        mergeReleaseInfo(package: package, versions: newVersions)
+        try await applyVersionDelta(on: transaction, delta: versionDelta).get()
+        let versionPackageInfo = newVersions.compactMap {
+            // TODO: clean this up by eliminating Result entirely
+            try? getPackageInfo(package: package, version: $0).get()
+        }
+        if versionPackageInfo.isEmpty {
+            throw AppError.noValidVersions(package.model.id, package.model.url)
+        }
+        for (version, pkgInfo) in versionPackageInfo {
+            // TODO: ensure we update all even if in case of early throws
+            try await updateVersion(on: transaction, version: version, packageInfo: pkgInfo).get()
+            try await recreateProducts(on: transaction,
+                                       version: version,
+                                       manifest: pkgInfo.packageManifest)
+            try await recreateTargets(on: transaction,
+                                      version: version,
+                                      manifest: pkgInfo.packageManifest)
+        }
+        try await updateLatestVersions(on: transaction, package: package).get()
+        await onNewVersions(client: client,
+                            logger: logger,
+                            transaction: transaction,
+                            package: package,
+                            versions: newVersions)
     }
 
 
