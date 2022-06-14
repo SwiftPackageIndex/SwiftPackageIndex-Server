@@ -334,7 +334,7 @@ class AnalyzerTests: AppTestCase {
     }
 
     func test_continue_on_exception() async throws {
-        // Test to ensure exceptions don't break processing
+        // Test to ensure exceptions don't interrupt processing
         // setup
         let urls = ["https://github.com/foo/1", "https://github.com/foo/2"]
         let pkgs = try savePackages(on: app.db, urls.asURLs, processingStage: .ingestion)
@@ -391,7 +391,8 @@ class AnalyzerTests: AppTestCase {
         // which we intentionally broke. Command count must remain the same.
         XCTAssertEqual(Validation.commands.count, 32, "was: \(dump(Validation.commands))")
         // 2 packages with 2 tags + 1 default branch each -> 6 versions
-        XCTAssertEqual(try Version.query(on: app.db).count().wait(), 6)
+        let versionCount = try await Version.query(on: app.db).count()
+        XCTAssertEqual(versionCount, 6)
     }
 
     func test_refreshCheckout() throws {

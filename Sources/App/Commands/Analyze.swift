@@ -162,7 +162,8 @@ extension Analyze {
     ///   - threadPool: `NIOThreadPool` (for running shell commands)
     ///   - packages: packages to be analysed
     /// - Returns: future
-    static func analyze(client: Client,
+    @available(*, deprecated)
+    static func _analyze(client: Client,
                         database: Database,
                         logger: Logger,
                         threadPool: NIOThreadPool,
@@ -229,7 +230,7 @@ extension Analyze {
     ///   - threadPool: `NIOThreadPool` (for running shell commands)
     ///   - packages: packages to be analysed
     /// - Returns: future
-    static func _analyze(client: Client,
+    static func analyze(client: Client,
                         database: Database,
                         logger: Logger,
                         threadPool: NIOThreadPool,
@@ -252,13 +253,17 @@ extension Analyze {
                     try refreshCheckout(logger: logger, package: pkg)
                     try await updateRepository(on: database, package: pkg).get()
 
-                    try await database.transaction {
-                        try await analyze(client: client,
-                                          transaction: $0,
-                                          logger: logger,
-                                          threadPool: threadPool,
-                                          package: pkg)
+                    let result = try await database.transaction { tx in
+                        // Wrap in a Result to avoid throwing out of the transaction, causing a roll-back
+                        await Result {
+                            try await analyze(client: client,
+                                              transaction: tx,
+                                              logger: logger,
+                                              threadPool: threadPool,
+                                              package: pkg)
+                        }
                     }
+                    try result.get()
 
                     return pkg
                 }
@@ -289,9 +294,8 @@ extension Analyze {
                         package: Joined<Package, Repository>) async throws {
         let versionDelta = try await diffVersions(client: client,
                                                   logger: logger,
-                                                  threadPool: threadPool,
                                                   transaction: transaction,
-                                                  package: package).get()
+                                                  package: package)
         let newVersions = versionDelta.toAdd
         mergeReleaseInfo(package: package, versions: newVersions)
         try await applyVersionDelta(on: transaction, delta: versionDelta).get()
@@ -299,7 +303,7 @@ extension Analyze {
             // TODO: clean this up by eliminating Result entirely
             try? getPackageInfo(package: package, version: $0).get()
         }
-        if versionPackageInfo.isEmpty {
+        if !newVersions.isEmpty && versionPackageInfo.isEmpty {
             throw AppError.noValidVersions(package.model.id, package.model.url)
         }
         for (version, pkgInfo) in versionPackageInfo {
@@ -553,6 +557,7 @@ extension Analyze {
     ///   - transaction: database transaction
     ///   - package: `Package` to reconcile
     /// - Returns: future with array of pair of new, outdated, and unchanged `Version`s
+    @available(*, deprecated)
     static func diffVersions(client: Client,
                              logger: Logger,
                              threadPool: NIOThreadPool,
@@ -588,6 +593,42 @@ extension Analyze {
     }
 
 
+    /// Find new, outdated, and unchanged versions for a given `Package`, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
+    /// - Parameters:
+    ///   - client: `Client` object (for Rollbar error reporting)
+    ///   - logger: `Logger` object
+    ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
+    ///   - transaction: database transaction
+    ///   - package: `Package` to reconcile
+    /// - Returns: future with array of pair of new, outdated, and unchanged `Version`s
+    static func diffVersions(client: Client,
+                             logger: Logger,
+                             transaction: Database,
+                             package: Joined<Package, Repository>) async throws -> VersionDelta {
+        guard let pkgId = package.model.id else {
+            throw AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)")
+        }
+
+        let existing = try await Version.query(on: transaction)
+            .filter(\.$package.$id == pkgId)
+            .all()
+        let incoming = try await getIncomingVersions(client: client, logger: logger, package: package)
+
+        let throttled = throttle(
+            lastestExistingVersion: existing.latestBranchVersion,
+            incoming: incoming
+        )
+        let origDiff = Version.diff(local: existing, incoming: incoming)
+        let newDiff = Version.diff(local: existing, incoming: throttled)
+        let delta = origDiff.toAdd.count - newDiff.toAdd.count
+        if delta > 0 {
+            logger.info("throttled \(delta) incoming revisions")
+            AppMetrics.buildThrottleCount?.inc(delta)
+        }
+        return newDiff
+    }
+
+
     /// Get incoming versions (from git repository)
     /// - Parameters:
     ///   - client: `Client` object (for Rollbar error reporting)
@@ -596,6 +637,7 @@ extension Analyze {
     ///   - transaction: database transaction
     ///   - package: `Package` to reconcile
     /// - Returns: future with incoming `Version`s
+    @available(*, deprecated)
     static func getIncomingVersions(client: Client,
                                     logger: Logger,
                                     threadPool: NIOThreadPool,
@@ -637,6 +679,51 @@ extension Analyze {
                                    commitDate: revInfo.date,
                                    reference: ref,
                                    url: url)
+            }
+    }
+
+
+    /// Get incoming versions (from git repository)
+    /// - Parameters:
+    ///   - client: `Client` object (for Rollbar error reporting)
+    ///   - logger: `Logger` object
+    ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
+    ///   - transaction: database transaction
+    ///   - package: `Package` to reconcile
+    /// - Returns: future with incoming `Version`s
+    static func getIncomingVersions(client: Client,
+                                    logger: Logger,
+                                    package: Joined<Package, Repository>) async throws -> [Version] {
+        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+            throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
+        }
+        guard let pkgId = package.model.id else {
+            throw AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)")
+        }
+
+        let defaultBranch = package.repository?.defaultBranch
+            .map { Reference.branch($0) }
+
+        let tags: [Reference]
+        do {
+            tags = try Current.git.getTags(cacheDir)
+        } catch {
+            let appError = AppError.genericError(pkgId, "Git.tag failed: \(error.localizedDescription)")
+            logger.report(error: appError)
+            try? await Current.reportError(client, .error, appError).get()
+            tags = []
+        }
+
+        let references = [defaultBranch].compactMap { $0 } + tags
+        return try references
+            .map { ref in
+                let revInfo = try Current.git.revisionInfo(ref, cacheDir)
+                let url = package.model.versionUrl(for: ref)
+                    return try Version(package: package.model,
+                                       commit: revInfo.commit,
+                                       commitDate: revInfo.date,
+                                       reference: ref,
+                                       url: url)
             }
     }
 
