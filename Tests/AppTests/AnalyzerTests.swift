@@ -509,13 +509,10 @@ class AnalyzerTests: AppTestCase {
         let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
 
         // MUT
-        let res = try Analyze.mergeReleaseInfo(on: app.db,
-                                               package: jpr,
-                                               versions: versions)
-            .wait()
+        Analyze.mergeReleaseInfo(package: jpr, versions: versions)
 
         // validate
-        let sortedResults = res.sorted { $0.commitDate < $1.commitDate }
+        let sortedResults = versions.sorted { $0.commitDate < $1.commitDate }
         XCTAssertEqual(sortedResults.map(\.releaseNotes),
                        ["rel 1.2.3", "rel 2.0.0", nil, nil, "rel 2.3.0", nil, nil])
         XCTAssertEqual(sortedResults.map(\.url),

@@ -506,52 +506,6 @@ extension Analyze {
     }
 
 
-    /// Merge release details from `Repository.releases` into the list of added `Version`s in a package delta.
-    /// - Parameters:
-    ///   - transaction: transaction to run the save and delete in
-    ///   - packageDeltas: tuples containing the `Package` and its new and outdated `Version`s
-    /// - Returns: future with an array of each `Package` paired with its update package delta for further processing
-    static func mergeReleaseInfo(on transaction: Database,
-                                 packageDeltas: [Result<(Joined<Package, Repository>, VersionDelta), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, VersionDelta), Error>]> {
-        packageDeltas.whenAllComplete(on: transaction.eventLoop) { pkg, delta in
-            mergeReleaseInfo(on: transaction, package: pkg, versions: delta.toAdd)
-                .map { (pkg, .init(toAdd: $0,
-                                   toDelete: delta.toDelete,
-                                   toKeep: delta.toKeep)) }
-        }
-    }
-
-
-    /// Merge release details from `Repository.releases` into a given list of `Version`s.
-    /// - Parameters:
-    ///   - transaction: transaction to run the save and delete in
-    ///   - package: `Package` the `Version`s belong to
-    ///   - versions: list of `Verion`s to update
-    /// - Returns: update `Version`s
-    static func mergeReleaseInfo(on transaction: Database,
-                                 package: Joined<Package, Repository>,
-                                 versions: [Version]) -> EventLoopFuture<[Version]> {
-        guard let releases = package.repository?.releases else {
-            return transaction.eventLoop.future(versions)
-        }
-        let tagToRelease = Dictionary(releases
-            .filter { !$0.isDraft }
-            .map { ($0.tagName, $0) },
-                                      uniquingKeysWith: { $1 })
-        versions.forEach { version in
-            guard let tagName = version.reference.tagName,
-                  let rel = tagToRelease[tagName] else {
-                return
-            }
-            version.publishedAt = rel.publishedAt
-            version.releaseNotes = rel.description
-            version.releaseNotesHTML = rel.descriptionHTML
-            version.url = rel.url
-        }
-        return transaction.eventLoop.future(versions)
-    }
-
-
     static func mergeReleaseInfo(package: Joined<Package, Repository>, versions: [Version]) {
         guard let releases = package.repository?.releases else { return }
         let tagToRelease = Dictionary(
