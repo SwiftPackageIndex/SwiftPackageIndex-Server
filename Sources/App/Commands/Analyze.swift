@@ -194,7 +194,7 @@ extension Analyze {
                                                      packages: refreshedCheckouts).get()
 
         // Run all the following updates in a db transaction
-        let packageResults = try await database.transaction { tx in
+        let packageResults = try await database.transaction { tx -> [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>] in
             let versionDeltas = try await diffVersions(client: client,
                                                        logger: logger,
                                                        threadPool: threadPool,
