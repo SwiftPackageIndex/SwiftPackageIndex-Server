@@ -168,6 +168,7 @@ enum PackageShow {
                     model.starsListItem(),
                     model.librariesListItem(),
                     model.executablesListItem(),
+                    model.pluginsListItem(),
                     model.keywordsListItem()
                 )
             )

@@ -418,28 +418,17 @@ class SearchFilterTests: AppTestCase {
         let filter = try ProductTypeSearchFilter(expression: .init(operator: .is,
                                                                 value: "executable"))
         XCTAssertEqual(filter.key, .productType)
-        XCTAssertEqual(filter.predicate, .init(operator: .contains,
+        XCTAssertEqual(filter.predicate, .init(operator: .jsonKeyExists,
                                                bindableValue: .value("executable"),
                                                displayValue: "Executable"))
 
         // test view representation
-        XCTAssertEqual(filter.viewModel.description, "product type is Executable")
+        XCTAssertEqual(filter.viewModel.description, "type is Executable")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""type""#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "@>")
-        XCTAssertEqual(binds(filter.rightHandSide), ["executable"])
-    }
-
-    func test_productTypeFilter_case_insensitive() throws {
-        XCTAssertEqual(
-            try ProductTypeSearchFilter(expression: .init(operator: .is, value: "plugin")).bindableValue,
-            [.plugin]
-        )
-        XCTAssertEqual(
-            try ProductTypeSearchFilter(expression: .init(operator: .is, value: "PluGIN")).bindableValue,
-            [.plugin]
-        )
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""type"->>'executable'"#)
+        XCTAssertEqual(renderSQL(filter.sqlOperator), "IS NOT")
+        XCTAssertEqual(binds(filter.rightHandSide), [])
     }
 
     func test_productTypeFilter_error() throws {

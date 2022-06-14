@@ -34,6 +34,7 @@ extension PackageShow.Model {
     struct ProductCounts: Equatable {
         var libraries: Int
         var executables: Int
+        var plugins: Int
     }
     
     struct ReleaseInfo: Equatable {
