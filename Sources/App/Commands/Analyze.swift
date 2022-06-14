@@ -444,60 +444,6 @@ extension Analyze {
     ///   - transaction: database transaction
     ///   - package: `Package` to reconcile
     /// - Returns: future with incoming `Version`s
-    @available(*, deprecated)
-    static func getIncomingVersions(client: Client,
-                                    logger: Logger,
-                                    threadPool: NIOThreadPool,
-                                    transaction: Database,
-                                    package: Joined<Package, Repository>) -> EventLoopFuture<[Version]> {
-        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
-            return transaction.eventLoop.future(
-                error: AppError.invalidPackageCachePath(
-                    package.model.id,
-                    package.model.url
-                )
-            )
-        }
-        guard let pkgId = package.model.id else {
-            return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)"))
-        }
-
-        let defaultBranch = package.repository?.defaultBranch
-            .map { Reference.branch($0) }
-
-        let tags: EventLoopFuture<[Reference]> = threadPool.runIfActive(eventLoop: transaction.eventLoop) {
-            logger.info("listing tags for package \(package.model.url)")
-            return try Current.git.getTags(cacheDir)
-        }
-            .flatMapError {
-                let appError = AppError.genericError(pkgId, "Git.tag failed: \($0.localizedDescription)")
-                logger.report(error: appError)
-                return Current.reportError(client, .error, appError)
-                    .transform(to: [])
-            }
-
-        let references = tags.map { tags in [defaultBranch].compactMap { $0 } + tags }
-        return references
-            .flatMapEachThrowing { ref in
-                let revInfo = try Current.git.revisionInfo(ref, cacheDir)
-                let url = package.model.versionUrl(for: ref)
-                return try Version(package: package.model,
-                                   commit: revInfo.commit,
-                                   commitDate: revInfo.date,
-                                   reference: ref,
-                                   url: url)
-            }
-    }
-
-
-    /// Get incoming versions (from git repository)
-    /// - Parameters:
-    ///   - client: `Client` object (for Rollbar error reporting)
-    ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
-    ///   - transaction: database transaction
-    ///   - package: `Package` to reconcile
-    /// - Returns: future with incoming `Version`s
     static func getIncomingVersions(client: Client,
                                     logger: Logger,
                                     package: Joined<Package, Repository>) async throws -> [Version] {
