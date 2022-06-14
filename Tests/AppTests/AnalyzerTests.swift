@@ -478,39 +478,6 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(delta.toDelete, [])
     }
 
-    func test_diffVersions_package_list() throws {
-        //setup
-        Current.git.getTags = { _ in [.tag(1, 2, 3)] }
-        Current.git.revisionInfo = { ref, _ in .init(commit: "sha", date: .t0) }
-        Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
-        let pkgId = UUID()
-        do {
-            let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
-            try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        }
-        let pkg = try Package.fetchCandidate(app.db, id: pkgId).wait()
-        let packages: [Result<Joined<Package, Repository>, Error>] = [
-            // feed in one error to see it passed through
-            .failure(AppError.invalidPackageUrl(nil, "some reason")),
-            .success(pkg)
-        ]
-
-        // MUT
-        let results = try Analyze.diffVersions(client: app.client,
-                                               logger: app.logger,
-                                               threadPool: app.threadPool,
-                                               transaction: app.db,
-                                               packages: packages).wait()
-
-        // validate
-        XCTAssertEqual(results.count, 2)
-        XCTAssertEqual(results.map(\.isSuccess), [false, true])
-        let (_, delta) = try XCTUnwrap(results.last).get()
-        assertEquals(delta.toAdd, \.reference.description, ["main", "1.2.3"])
-        XCTAssertEqual(delta.toDelete, [])
-    }
-
     func test_mergeReleaseInfo() throws {
         // setup
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
