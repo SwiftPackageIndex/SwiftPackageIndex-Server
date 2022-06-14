@@ -452,12 +452,12 @@ extension Analyze {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
-        guard Current.fileManager.fileExists(atPath: cacheDir) else {
-            try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
-            return
-        }
-
         do {
+            guard Current.fileManager.fileExists(atPath: cacheDir) else {
+                try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
+                return
+            }
+
             // attempt to fetch - if anything goes wrong we delete the directory
             // and fall back to cloning
             do {
