@@ -83,8 +83,6 @@ extension Analyze {
 
     static func resetMetrics() {
         AppMetrics.analyzeTrimCheckoutsCount?.set(0)
-        AppMetrics.analyzeUpdateRepositorySuccessCount?.set(0)
-        AppMetrics.analyzeUpdateRepositoryFailureCount?.set(0)
         AppMetrics.buildThrottleCount?.set(0)
         AppMetrics.analyzeVersionsAddedCount?.set(0)
         AppMetrics.analyzeVersionsDeletedCount?.set(0)
@@ -179,7 +177,7 @@ extension Analyze {
             for pkg in packages {
                 group.addTask {
                     try refreshCheckout(logger: logger, package: pkg)
-                    try await updateRepository(on: database, package: pkg).get()
+                    try await updateRepository(on: database, package: pkg)
 
                     let result = try await database.transaction { tx in
                         // Wrap in a Result to avoid throwing out of the transaction, causing a roll-back
@@ -340,51 +338,24 @@ extension Analyze {
     }
 
 
-    /// Update the `Repository`s of a given set of `Package`s with git repository data (commit count, first commit date, etc).
-    /// - Parameters:
-    ///   - database: `Database` object
-    ///   - packages: `Package`s to update
-    /// - Returns: results future
-    static func updateRepositories(on database: Database,
-                                   packages: [Result<Joined<Package, Repository>, Error>]) -> EventLoopFuture<[Result<Joined<Package, Repository>, Error>]> {
-        let ops = packages.map { result -> EventLoopFuture<Joined<Package, Repository>> in
-            switch result {
-                case .success(let pkg):
-                    AppMetrics.analyzeUpdateRepositorySuccessCount?.inc()
-                    return updateRepository(on: database, package: pkg)
-                        .transform(to: pkg)
-                case .failure(let error):
-                    AppMetrics.analyzeUpdateRepositoryFailureCount?.inc()
-                    return database.eventLoop.future(error: error)
-            }
-        }
-        return EventLoopFuture.whenAllComplete(ops, on: database.eventLoop)
-    }
-
-
     /// Update the `Repository` of a given `Package` with git repository data (commit count, first commit date, etc).
     /// - Parameters:
     ///   - database: `Database` object
     ///   - package: `Package` to update
     /// - Returns: result future
-    static func updateRepository(on database: Database, package: Joined<Package, Repository>) -> EventLoopFuture<Void> {
+    static func updateRepository(on database: Database, package: Joined<Package, Repository>) async throws {
         guard let repo = package.repository else {
-            return database.eventLoop.future(
-                error: AppError.genericError(package.model.id, "updateRepository: no repository")
-            )
+            throw AppError.genericError(package.model.id, "updateRepository: no repository")
         }
         guard let gitDirectory = Current.fileManager.cacheDirectoryPath(for: package.model) else {
-            return database.eventLoop.future(
-                error: AppError.invalidPackageCachePath(package.model.id,
-                                                        package.model.url)
-            )
+            throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
         }
 
         repo.commitCount = (try? Current.git.commitCount(gitDirectory)) ?? 0
         repo.firstCommitDate = try? Current.git.firstCommitDate(gitDirectory)
         repo.lastCommitDate = try? Current.git.lastCommitDate(gitDirectory)
 
-        return repo.update(on: database)
+        try await repo.update(on: database)
     }
 
 
@@ -405,7 +376,6 @@ extension Analyze {
         packages.whenAllComplete(on: transaction.eventLoop) { pkg in
             diffVersions(client: client,
                          logger: logger,
-                         threadPool: threadPool,
                          transaction: transaction,
                          package: pkg)
             .map { (pkg, $0) }
@@ -413,47 +383,20 @@ extension Analyze {
     }
 
 
-    /// Find new, outdated, and unchanged versions for a given `Package`, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
-    /// - Parameters:
-    ///   - client: `Client` object (for Rollbar error reporting)
-    ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
-    ///   - transaction: database transaction
-    ///   - package: `Package` to reconcile
-    /// - Returns: future with array of pair of new, outdated, and unchanged `Version`s
+    // Bridge to new a/a variant, remove when caller `diffVersions -> ELF` is removed
     @available(*, deprecated)
     static func diffVersions(client: Client,
                              logger: Logger,
-                             threadPool: NIOThreadPool,
                              transaction: Database,
                              package: Joined<Package, Repository>) -> EventLoopFuture<VersionDelta> {
-        guard let pkgId = package.model.id else {
-            return transaction.eventLoop.future(error: AppError.genericError(nil, "PANIC: package id nil for package \(package.model.url)"))
+        let promise = transaction.eventLoop.makePromise(of: VersionDelta.self)
+        promise.completeWithTask {
+            try await diffVersions(client: client,
+                                   logger: logger,
+                                   transaction: transaction,
+                                   package: package)
         }
-
-        let existing = Version.query(on: transaction)
-            .filter(\.$package.$id == pkgId)
-            .all()
-        let incoming = getIncomingVersions(client: client,
-                                           logger: logger,
-                                           threadPool: threadPool,
-                                           transaction: transaction,
-                                           package: package)
-        return existing.and(incoming)
-            .map { existing, incoming in
-                let throttled = throttle(
-                    lastestExistingVersion: existing.latestBranchVersion,
-                    incoming: incoming
-                )
-                let origDiff = Version.diff(local: existing, incoming: incoming)
-                let newDiff = Version.diff(local: existing, incoming: throttled)
-                let delta = origDiff.toAdd.count - newDiff.toAdd.count
-                if delta > 0 {
-                    logger.info("throttled \(delta) incoming revisions")
-                    AppMetrics.buildThrottleCount?.inc(delta)
-                }
-                return newDiff
-            }
+        return promise.futureResult
     }
 
 

@@ -420,7 +420,7 @@ class AnalyzerTests: AppTestCase {
         assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
-    func test_updateRepository() throws {
+    func test_updateRepository() async throws {
         // setup
         Current.git.commitCount = { _ in 12 }
         Current.git.firstCommitDate = { _ in .t0 }
@@ -428,53 +428,21 @@ class AnalyzerTests: AppTestCase {
         Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
         let pkg = Package(id: .id0, url: "1".asGithubUrl.url)
         try pkg.save(on: app.db).wait()
-        try Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
+        try await Repository(id: .id1, package: pkg, defaultBranch: "main").save(on: app.db)
 
-        // MUT
-        try Analyze.updateRepository(on: app.db, package: jpr).wait()
+        do {  // MUT
+            let pkg = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
+            try await Analyze.updateRepository(on: app.db, package: pkg)
+        }
 
         // validate
-        let repo = try Repository.find(.id1, on: app.db).wait()
+        let repo = try await Repository.find(.id1, on: app.db)
         XCTAssertEqual(repo?.commitCount, 12)
         XCTAssertEqual(repo?.firstCommitDate, .t0)
         XCTAssertEqual(repo?.lastCommitDate, .t1)
     }
-
-    func test_updateRepositories() throws {
-        // setup
-        Current.git.commitCount = { _ in 12 }
-        Current.git.firstCommitDate = { _ in .t0 }
-        Current.git.lastCommitDate = { _ in .t1 }
-        Current.shell.run = { cmd, _ in throw TestError.unknownCommand }
-        let pkg = Package(id: UUID(), url: "1".asGithubUrl.url)
-        try pkg.save(on: app.db).wait()
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
-        let packages: [Result<Joined<Package, Repository>, Error>] = [
-            // feed in one error to see it passed through
-            .failure(AppError.invalidPackageUrl(nil, "some reason")),
-            .success(jpr)
-        ]
-
-        // MUT
-        let results: [Result<Joined<Package, Repository>, Error>] =
-        try Analyze.updateRepositories(on: app.db, packages: packages).wait()
-
-        // validate
-        XCTAssertEqual(results.count, 2)
-        XCTAssertEqual(results.map(\.isSuccess), [false, true])
-        // ensure results are persisted
-        let repo = try XCTUnwrap(Repository.query(on: app.db)
-                                    .filter(\.$package.$id == pkg.id!)
-                                    .first()
-                                    .wait())
-        XCTAssertEqual(repo.commitCount, 12)
-        XCTAssertEqual(repo.firstCommitDate, Date(timeIntervalSince1970: 0))
-        XCTAssertEqual(repo.lastCommitDate, Date(timeIntervalSince1970: 1))
-    }
-
-    func test_diffVersions() throws {
+    
+    func test_diffVersions() async throws {
         //setup
         Current.git.getTags = { _ in [.tag(1, 2, 3)] }
         Current.git.revisionInfo = { ref, _ in
@@ -487,16 +455,15 @@ class AnalyzerTests: AppTestCase {
         do {
             let pkg = Package(id: pkgId, url: "1".asGithubUrl.url)
             try pkg.save(on: app.db).wait()
-            try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
-        let pkg = try Package.fetchCandidate(app.db, id: pkgId).wait()
+        let pkg = try await Package.fetchCandidate(app.db, id: pkgId).get()
 
         // MUT
-        let delta = try Analyze.diffVersions(client: app.client,
-                                             logger: app.logger,
-                                             threadPool: app.threadPool,
-                                             transaction: app.db,
-                                             package: pkg).wait()
+        let delta = try await Analyze.diffVersions(client: app.client,
+                                                   logger: app.logger,
+                                                   transaction: app.db,
+                                                   package: pkg)
 
         // validate
         assertEquals(delta.toAdd, \.reference,

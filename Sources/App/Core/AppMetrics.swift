@@ -99,14 +99,6 @@ enum AppMetrics {
         gauge("spi_analyze_trim_checkouts_count", EmptyLabels.self)
     }
 
-    static var analyzeUpdateRepositorySuccessCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_analyze_update_repository_success_count", EmptyLabels.self)
-    }
-
-    static var analyzeUpdateRepositoryFailureCount: PromGauge<Int, EmptyLabels>? {
-        gauge("spi_analyze_update_repository_failure_count", EmptyLabels.self)
-    }
-
     static var analyzeVersionsAddedCount: PromGauge<Int, Labels.Version>? {
         gauge("spi_analyze_versions_added_count", Labels.Version.self)
     }

@@ -196,7 +196,6 @@ func getExistingVersions(client: Client,
         packages.map { pkg in
             Analyze.diffVersions(client: client,
                                  logger: logger,
-                                 threadPool: threadPool,
                                  transaction: transaction,
                                  package: pkg)
                 .map {
