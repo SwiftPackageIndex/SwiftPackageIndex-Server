@@ -517,16 +517,6 @@ extension SearchFilter.Predicate.BoundValue: Equatable {
                 return nil
         }
     }
-
-    var asProductTypes: [Package.ProductType]? {
-        switch self {
-            case .value(let value):
-                return (value as? Set<Package.ProductType>)?
-                    .sorted { $0.rawValue < $1.rawValue }
-            case .array:
-                return nil
-        }
-    }
 }
 
 
