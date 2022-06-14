@@ -395,49 +395,29 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(versionCount, 6)
     }
 
-    func test_refreshCheckout() throws {
+    func test_refreshCheckout() async throws {
         // setup
         let pkg = try savePackage(on: app.db, "1".asGithubUrl.url)
-        try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+        try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         Current.fileManager.fileExists = { _ in true }
-        var commands = [String]()
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, path in
             self.testQueue.sync {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
-                commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+                Validator.commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
             }
             return ""
         }
-        let jpr = try Package.fetchCandidate(app.db, id: pkg.id!).wait()
+        let jpr = try await Package.fetchCandidate(app.db, id: pkg.id!).get()
 
         // MUT
-        _ = try Analyze.refreshCheckout(eventLoop: app.eventLoopGroup.next(),
-                                        logger: app.logger,
-                                        threadPool: app.threadPool,
-                                        package: jpr).wait()
+        _ = try Analyze.refreshCheckout(logger: app.logger, package: jpr)
 
         // validate
-        assertSnapshot(matching: commands, as: .dump)
-    }
-
-    func test_refreshCheckout_continueOnError() throws {
-        // Test that processing continues on if a url in invalid
-        // setup - first URL is not a valid url
-        try savePackages(on: app.db, ["1", "2".asGithubUrl].asURLs, processingStage: .ingestion)
-        let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
-
-        // MUT
-        let res = try pkgs.flatMap {
-            Analyze.refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
-                                     logger: self.app.logger,
-                                     threadPool: self.app.threadPool,
-                                     packages: $0)
-        }.wait()
-
-        // validation
-        XCTAssertEqual(res.count, 2)
-        XCTAssertEqual(res.map(\.isSuccess), [false, true])
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
     func test_updateRepository() throws {
@@ -914,57 +894,60 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(try Product.query(on: app.db).count().wait(), 12)
     }
 
-    func test_issue_70() throws {
+    func test_issue_70() async throws {
         // Certain git commands fail when index.lock exists
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/70
         // setup
         try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = Package.fetchCandidates(app.db, for: .analysis, limit: 10)
+        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).get()
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { path in true }
 
-        var commands = [String]()
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, path in
             self.testQueue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "...")
-                commands.append(c)
+                Validator.commands.append(c)
             }
             return ""
         }
 
         // MUT
-        let res = try pkgs.flatMap {
-            Analyze.refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
-                                     logger: self.app.logger,
-                                     threadPool: self.app.threadPool,
-                                     packages: $0)
-        }.wait()
+        let res = pkgs.map { pkg in
+            Result {
+                try Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
+            }
+        }
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(matching: commands, as: .dump)
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
-    func test_issue_498() throws {
+    func test_issue_498() async throws {
         // git checkout can still fail despite git reset --hard + git clean
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/498
         // setup
         try savePackage(on: app.db, "1".asGithubUrl.url, processingStage: .ingestion)
-        let pkgs = try Package.fetchCandidates(app.db, for: .analysis, limit: 10).wait()
+        let pkgs = try await Package.fetchCandidates(app.db, for: .analysis, limit: 10).get()
 
         let checkoutDir = Current.fileManager.checkoutsDirectory()
         // claim every file exists, including our ficticious 'index.lock' for which
         // we want to trigger the cleanup mechanism
         Current.fileManager.fileExists = { path in true }
 
-        var commands = [String]()
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, path in
             self.testQueue.sync {
                 let c = cmd.string.replacingOccurrences(of: checkoutDir, with: "${checkouts}")
-                commands.append(c)
+                Validator.commands.append(c)
             }
             if cmd == .gitCheckout(branch: "master") {
                 throw TestError.simulatedCheckoutError
@@ -973,14 +956,15 @@ class AnalyzerTests: AppTestCase {
         }
 
         // MUT
-        let res = try Analyze.refreshCheckouts(eventLoop: self.app.eventLoopGroup.next(),
-                                               logger: self.app.logger,
-                                               threadPool: self.app.threadPool,
-                                               packages: pkgs).wait()
+        let res = pkgs.map { pkg in
+            Result {
+                try Analyze.refreshCheckout(logger: self.app.logger, package: pkg)
+            }
+        }
 
         // validation
         XCTAssertEqual(res.map(\.isSuccess), [true])
-        assertSnapshot(matching: commands, as: .dump)
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
     func test_dumpPackage_5_4() throws {
@@ -1047,35 +1031,34 @@ class AnalyzerTests: AppTestCase {
         }
     }
 
-    func test_issue_693() throws {
+    func test_issue_693() async throws {
         // Handle moved tags
         // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/693
         // setup
         do {
             let pkg = try savePackage(on: app.db, id: .id0, "1".asGithubUrl.url)
-            try Repository(package: pkg, defaultBranch: "main").save(on: app.db).wait()
+            try await Repository(package: pkg, defaultBranch: "main").save(on: app.db)
         }
-        let pkg = try Package.fetchCandidate(app.db, id: .id0).wait()
+        let pkg = try await Package.fetchCandidate(app.db, id: .id0).get()
         Current.fileManager.fileExists = { _ in true }
-        var commands = [String]()
+        actor Validator {
+            static var commands = [String]()
+        }
         Current.shell.run = { cmd, _ in
             self.testQueue.sync {
                 // mask variable checkout
                 let checkoutDir = Current.fileManager.checkoutsDirectory()
-                commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
+                Validator.commands.append(cmd.string.replacingOccurrences(of: checkoutDir, with: "..."))
             }
             if cmd == .gitFetch { throw TestError.simulatedFetchError }
             return ""
         }
 
         // MUT
-        _ = try Analyze.refreshCheckout(eventLoop: app.eventLoopGroup.next(),
-                                        logger: app.logger,
-                                        threadPool: app.threadPool,
-                                        package: pkg).wait()
+        _ = try Analyze.refreshCheckout(logger: app.logger, package: pkg)
 
         // validate
-        assertSnapshot(matching: commands, as: .dump)
+        assertSnapshot(matching: Validator.commands, as: .dump)
     }
 
     func test_updateLatestVersions() throws {

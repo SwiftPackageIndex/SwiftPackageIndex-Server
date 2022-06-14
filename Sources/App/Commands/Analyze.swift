@@ -139,7 +139,6 @@ extension Analyze {
                 try await analyze(client: client,
                                   database: database,
                                   logger: logger,
-                                  threadPool: threadPool,
                                   packages: [pkg])
 
             case .limit(let limit):
@@ -148,92 +147,21 @@ extension Analyze {
                 try await analyze(client: client,
                                   database: database,
                                   logger: logger,
-                                  threadPool: threadPool,
                                   packages: packages)
         }
     }
 
-    
-    /// Main analysis function. Updates repostory checkouts, runs package dump, reconciles versions and updates packages.
-    /// - Parameters:
-    ///   - client: `Client` object
-    ///   - database: `Database` object
-    ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running shell commands)
-    ///   - packages: packages to be analysed
-    /// - Returns: future
-    @available(*, deprecated)
-    static func _analyze(client: Client,
-                        database: Database,
-                        logger: Logger,
-                        threadPool: NIOThreadPool,
-                        packages: [Joined<Package, Repository>]) async throws {
-        AppMetrics.analyzeCandidatesCount?.set(packages.count)
-        // get or create directory
-        let checkoutDir = Current.fileManager.checkoutsDirectory()
-        logger.info("Checkout directory: \(checkoutDir)")
-        if !Current.fileManager.fileExists(atPath: checkoutDir) {
-            try await createCheckoutsDirectory(client: client, logger: logger, path: checkoutDir)
-        }
-
-        let refreshedCheckouts = try await refreshCheckouts(eventLoop: database.eventLoop,
-                                                            logger: logger,
-                                                            threadPool: threadPool,
-                                                            packages: packages).get()
-        let updatedRepos = try await updateRepositories(on: database,
-                                                     packages: refreshedCheckouts).get()
-
-        // Run all the following updates in a db transaction
-        let packageResults = try await database.transaction { transaction -> [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>] in
-            let versionDeltas = try await diffVersions(client: client,
-                                                       logger: logger,
-                                                       threadPool: threadPool,
-                                                       transaction: transaction,
-                                                       packages: updatedRepos).get()
-            let withReleaseInfo = try await mergeReleaseInfo(on: transaction,
-                                                             packageDeltas: versionDeltas).get()
-            let appliedDeltas = try await applyVersionDelta(on: transaction,
-                                                            packageDeltas: withReleaseInfo).get()
-            let packageInfo = getPackageInfo(packageAndVersions: appliedDeltas)
-            let updatedVersions = try await updateVersions(on: transaction,
-                                                           packageResults: packageInfo).get()
-            let updatedProducts = try await updateProducts(on: transaction,
-                                                           packageResults: updatedVersions).get()
-            let updatedTargets = try await updateTargets(on: transaction,
-                                                         packageResults: updatedProducts).get()
-            let updatedLatestVersions = try await updateLatestVersions(on: transaction,
-                                                                       packageResults: updatedTargets).get()
-            return try await onNewVersions(client: client,
-                                           logger: logger,
-                                           transaction: transaction,
-                                           packageResults: updatedLatestVersions).get()
-        }  // tx end
-
-        try await updatePackages(client: client,
-                                 database: database,
-                                 logger: logger,
-                                 results: packageResults.packages,
-                                 stage: .analysis).get()
-
-        try await RecentPackage.refresh(on: database).get()
-        try await RecentRelease.refresh(on: database).get()
-        try await Search.refresh(on: database).get()
-        try await Stats.refresh(on: database).get()
-    }
-
 
     /// Main analysis function. Updates repostory checkouts, runs package dump, reconciles versions and updates packages.
     /// - Parameters:
     ///   - client: `Client` object
     ///   - database: `Database` object
     ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running shell commands)
     ///   - packages: packages to be analysed
     /// - Returns: future
     static func analyze(client: Client,
                         database: Database,
                         logger: Logger,
-                        threadPool: NIOThreadPool,
                         packages: [Joined<Package, Repository>]) async throws {
         AppMetrics.analyzeCandidatesCount?.set(packages.count)
 
@@ -259,7 +187,6 @@ extension Analyze {
                             try await analyze(client: client,
                                               transaction: tx,
                                               logger: logger,
-                                              threadPool: threadPool,
                                               package: pkg)
                         }
                     }
@@ -282,15 +209,12 @@ extension Analyze {
         try await RecentRelease.refresh(on: database).get()
         try await Search.refresh(on: database).get()
         try await Stats.refresh(on: database).get()
-
-        // TODO: remove deprecated array based functions
     }
 
 
     static func analyze(client: Client,
                         transaction: Database,
                         logger: Logger,
-                        threadPool: NIOThreadPool,
                         package: Joined<Package, Repository>) async throws {
         let versionDelta = try await diffVersions(client: client,
                                                   logger: logger,
@@ -307,7 +231,6 @@ extension Analyze {
             throw AppError.noValidVersions(package.model.id, package.model.url)
         }
         for (version, pkgInfo) in versionPackageInfo {
-            // TODO: ensure we update all even if in case of early throws
             try await updateVersion(on: transaction, version: version, packageInfo: pkgInfo).get()
             try await recreateProducts(on: transaction,
                                        version: version,
@@ -340,25 +263,6 @@ extension Analyze {
                                           AppError.genericError(nil, msg)).get()
             return
         }
-    }
-
-
-    /// Refresh git checkouts (working copies) for a list of packages.
-    /// - Parameters:
-    ///   - eventLoop: `EventLoop` object
-    ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running shell commands)
-    ///   - packages: list of `Packages`
-    /// - Returns: future with `Result`s
-    static func refreshCheckouts(eventLoop: EventLoop,
-                                 logger: Logger,
-                                 threadPool: NIOThreadPool,
-                                 packages: [Joined<Package, Repository>]) -> EventLoopFuture<[Result<Joined<Package, Repository>, Error>]> {
-        let ops = packages.map { refreshCheckout(eventLoop: eventLoop,
-                                                 logger: logger,
-                                                 threadPool: threadPool,
-                                                 package: $0) }
-        return EventLoopFuture.whenAllComplete(ops, on: eventLoop)
     }
 
 
@@ -404,49 +308,8 @@ extension Analyze {
 
     /// Refresh git checkout (working copy) for a given package.
     /// - Parameters:
-    ///   - eventLoop: `EventLoop` object
     ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running shell commands)
     ///   - package: `Package` to refresh
-    /// - Returns: future
-    static func refreshCheckout(eventLoop: EventLoop,
-                                logger: Logger,
-                                threadPool: NIOThreadPool,
-                                package: Joined<Package, Repository>) -> EventLoopFuture<Joined<Package, Repository>> {
-        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
-            return eventLoop.future(
-                error: AppError.invalidPackageCachePath(package.model.id,
-                                                        package.model.url)
-            )
-        }
-        return threadPool.runIfActive(eventLoop: eventLoop) {
-            do {
-                guard Current.fileManager.fileExists(atPath: cacheDir) else {
-                    try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
-                    return
-                }
-
-                // attempt to fetch - if anything goes wrong we delete the directory
-                // and fall back to cloning
-                do {
-                    try fetch(logger: logger,
-                              cacheDir: cacheDir,
-                              branch: package.repository?.defaultBranch ?? "master",
-                              url: package.model.url)
-                } catch {
-                    logger.info("fetch failed: \(error.localizedDescription)")
-                    logger.info("removing directory")
-                    try Current.shell.run(command: .removeFile(from: cacheDir, arguments: ["-r", "-f"]))
-                    try clone(logger: logger, cacheDir: cacheDir, url: package.model.url)
-                }
-            } catch {
-                throw AppError.analysisError(package.model.id, "refreshCheckout failed: \(error.localizedDescription)")
-            }
-        }
-        .map { package }
-    }
-
-
     static func refreshCheckout(logger: Logger, package: Joined<Package, Repository>) throws {
         guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
             throw AppError.invalidPackageCachePath(package.model.id, package.model.url)
@@ -533,6 +396,7 @@ extension Analyze {
     ///   - transaction: database transaction
     ///   - packages: `Package`s to reconcile
     /// - Returns: results future with each `Package` and its pair of new and outdated `Version`s
+    @available(*, deprecated)
     static func diffVersions(client: Client,
                              logger: Logger,
                              threadPool: NIOThreadPool,
