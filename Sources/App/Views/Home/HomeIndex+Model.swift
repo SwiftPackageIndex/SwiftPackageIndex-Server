@@ -23,12 +23,29 @@ extension HomeIndex {
         var stats: Stats?
         var recentPackages: [DatedLink]
         var recentReleases: [Release]
-        
+
+        static var currentSponsors = [
+            SponsoredLink(sponsorName: "Stream", logoSource: "/images/sponsors/stream.svg", body: "Build real-time chat messaging in less time. Rapidly ship highly reliable chat in-app messaging with Stream's SDK.", cta: "Get Started", url: "https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat"),
+            SponsoredLink(sponsorName: "Runway", logoSource: "/images/sponsors/runway.svg", body: "Release faster and more reliably with Runway. Runway integrates with all of your tools, enabling end-to-end automation and seamless coordination across your team.", cta: "Try Runway for free", url: "https://www.runway.team/?utm_source=sponsorship&utm_medium=website&utm_campaign=swiftpackageindex&utm_content=may_2022")
+        ]
+
         struct Release: Equatable {
             var packageName: String
             var version: String
             var date: String
             var url: String
+        }
+
+        struct SponsoredLink {
+            let sponsorName: String
+            let logoSource: String
+            let body: String
+            let cta: String
+            let url: String
+        }
+
+        func sponsoredLink() -> SponsoredLink? {
+            Self.currentSponsors.randomElement()
         }
     }
 }
