@@ -278,7 +278,6 @@ class TwitterTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
         do {
             let msg = try XCTUnwrap(message)
@@ -295,7 +294,6 @@ class TwitterTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
 
         // validate - there are no new tweets to send
@@ -311,7 +309,6 @@ class TwitterTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
 
         // validate

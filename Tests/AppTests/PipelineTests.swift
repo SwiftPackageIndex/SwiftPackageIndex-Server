@@ -175,7 +175,6 @@ class PipelineTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
         
         do { // validate
@@ -216,7 +215,6 @@ class PipelineTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
         
         do {  // validate - only new package moves to .ingestion stage
@@ -246,7 +244,6 @@ class PipelineTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
         
         do {  // validate - only new package moves to .ingestion stage

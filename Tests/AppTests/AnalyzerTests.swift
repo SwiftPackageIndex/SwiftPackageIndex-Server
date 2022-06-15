@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Dave Verwer, Sven A. Schmidt, and other contributors.
+// Copyright 2020-2022 Dave Verwer, Sven A. Schmidt, and other contributors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -137,7 +137,6 @@ class AnalyzerTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
 
         // validation
@@ -279,7 +278,6 @@ class AnalyzerTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
 
         // validate versions
@@ -324,7 +322,6 @@ class AnalyzerTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
 
         // assert packages have been updated
@@ -383,7 +380,6 @@ class AnalyzerTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
 
         // validation (not in detail, this is just to ensure command count is as expected)
@@ -815,7 +811,6 @@ class AnalyzerTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
 
         // validation
@@ -1079,7 +1074,6 @@ class AnalyzerTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
 
         // validate

@@ -308,7 +308,6 @@ final class PackageTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
 
         // MUT & validate
@@ -335,7 +334,6 @@ final class PackageTests: AppTestCase {
         try await Analyze.analyze(client: app.client,
                                   database: app.db,
                                   logger: app.logger,
-                                  threadPool: app.threadPool,
                                   mode: .limit(10))
         do {
             let pkg = try XCTUnwrap(Package.query(on: app.db).first().wait())

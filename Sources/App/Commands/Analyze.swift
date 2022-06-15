@@ -44,7 +44,6 @@ enum Analyze {
             let client = context.application.client
             let db = context.application.db
             let logger = Logger(component: "analyze")
-            let threadPool = context.application.threadPool
 
             Analyze.resetMetrics()
 
@@ -54,7 +53,6 @@ enum Analyze {
                 try await analyze(client: client,
                                   database: db,
                                   logger: logger,
-                                  threadPool: threadPool,
                                   mode: mode)
             } catch {
                 logger.error("\(error.localizedDescription)")
@@ -125,7 +123,6 @@ extension Analyze {
     static func analyze(client: Client,
                         database: Database,
                         logger: Logger,
-                        threadPool: NIOThreadPool,
                         mode: Analyze.Command.Mode) async throws {
         let start = DispatchTime.now().uptimeNanoseconds
         defer { AppMetrics.analyzeDurationSeconds?.time(since: start) }

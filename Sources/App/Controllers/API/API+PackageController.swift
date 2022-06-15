@@ -93,7 +93,6 @@ extension API {
                     try await Analyze.analyze(client: req.application.client,
                                               database: req.application.db,
                                               logger: req.application.logger,
-                                              threadPool: req.application.threadPool,
                                               mode: .limit(limit))
                     return .init(status: "ok", rows: limit)
                 case .none:

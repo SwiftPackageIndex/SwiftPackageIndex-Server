@@ -113,7 +113,7 @@ class MetricsTests: AppTestCase {
         let pkg = try savePackage(on: app.db, "1")
 
         // MUT
-        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, threadPool: app.threadPool, mode: .id(pkg.id!))
+        try await Analyze.analyze(client: app.client, database: app.db, logger: app.logger, mode: .id(pkg.id!))
 
         // validation
         XCTAssert((AppMetrics.analyzeDurationSeconds?.get()) ?? 0 > 0)
