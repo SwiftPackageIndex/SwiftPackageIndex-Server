@@ -23,6 +23,8 @@ import Ink
 class WebpageSnapshotTests: SnapshotTestCase {
 
     func test_HomeIndexView() throws {
+        HomeIndex.Model.currentSponsors = [ .init(sponsorName: "Sample Sponsor", logoSource: "/images/logo.svg", body: "Sponsored tells everyone about the thing that you can use to do another thing you need to do!", cta: "Learn More", url: "https://example.com/sponsored/link") ]
+
         let page = { HomeIndex.View(path: "/", model: .mock).document() }
         
         assertSnapshot(matching: page, as: .html)
