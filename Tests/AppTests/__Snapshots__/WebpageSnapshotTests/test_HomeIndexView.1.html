@@ -26,7 +26,7 @@
     <link rel="alternate" type="application/rss+xml" title="Swift Package Index – Recent Pre-Releases" href="http://localhost:8080/releases.rss?pre=true"/>
     <script src="/main.js?test" data-turbolinks-track="reload" defer></script>
   </head>
-  <body>
+  <body class="home">
     <div class="staging">Staging / Development</div>
     <header>
       <div class="inner">
@@ -67,83 +67,102 @@
     </section>
     <main>
       <div class="inner">
-        <div class="scta">The Swift Package Index is an 
-          <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">open-source project</a> entirely funded by community donations. Please consider 
-          <a href="https://github.com/sponsors/SwiftPackageIndex">sponsoring the project</a>. 
-          <strong>Thank you!</strong>
-        </div>
-        <div class="recent">
-          <section class="recent_packages">
-            <h3>Recently Added</h3>
-            <ul>
-              <li>
-                <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago</small>
-              </li>
-              <li>
-                <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago</small>
-              </li>
-              <li>
-                <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago</small>
-              </li>
-              <li>
-                <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago</small>
-              </li>
-              <li>
-                <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago</small>
-              </li>
-              <li>
-                <a href="https://example.com/package">Package</a>
-                <small>Added 2 hours ago</small>
-              </li>
-            </ul>
+        <section class="two_column">
+          <section class="recent">
+            <div class="recent_packages">
+              <h3>Recently Added</h3>
+              <ul>
+                <li>
+                  <a href="https://example.com/package">Package</a>
+                  <small>Added 2 hours ago</small>
+                </li>
+                <li>
+                  <a href="https://example.com/package">Package</a>
+                  <small>Added 2 hours ago</small>
+                </li>
+                <li>
+                  <a href="https://example.com/package">Package</a>
+                  <small>Added 2 hours ago</small>
+                </li>
+                <li>
+                  <a href="https://example.com/package">Package</a>
+                  <small>Added 2 hours ago</small>
+                </li>
+                <li>
+                  <a href="https://example.com/package">Package</a>
+                  <small>Added 2 hours ago</small>
+                </li>
+                <li>
+                  <a href="https://example.com/package">Package</a>
+                  <small>Added 2 hours ago</small>
+                </li>
+              </ul>
+            </div>
+            <div class="recent_releases">
+              <h3>Recent Releases</h3>
+              <ul>
+                <li>
+                  <a href="https://example.com/package">Package 
+                    <small>1.0.0</small>
+                  </a>
+                  <small>Released 20 minutes ago</small>
+                </li>
+                <li>
+                  <a href="https://example.com/package">Package 
+                    <small>1.0.0</small>
+                  </a>
+                  <small>Released 20 minutes ago</small>
+                </li>
+                <li>
+                  <a href="https://example.com/package">Package 
+                    <small>1.0.0</small>
+                  </a>
+                  <small>Released 20 minutes ago</small>
+                </li>
+                <li>
+                  <a href="https://example.com/package">Package 
+                    <small>1.0.0</small>
+                  </a>
+                  <small>Released 20 minutes ago</small>
+                </li>
+                <li>
+                  <a href="https://example.com/package">Package 
+                    <small>1.0.0</small>
+                  </a>
+                  <small>Released 20 minutes ago</small>
+                </li>
+                <li>
+                  <a href="https://example.com/package">Package 
+                    <small>1.0.0</small>
+                  </a>
+                  <small>Released 20 minutes ago</small>
+                </li>
+              </ul>
+            </div>
           </section>
-          <section class="recent_releases">
-            <h3>Recent Releases</h3>
-            <ul>
-              <li>
-                <a href="https://example.com/package">Package 
-                  <small>1.0.0</small>
-                </a>
-                <small>Released 20 minutes ago</small>
-              </li>
-              <li>
-                <a href="https://example.com/package">Package 
-                  <small>1.0.0</small>
-                </a>
-                <small>Released 20 minutes ago</small>
-              </li>
-              <li>
-                <a href="https://example.com/package">Package 
-                  <small>1.0.0</small>
-                </a>
-                <small>Released 20 minutes ago</small>
-              </li>
-              <li>
-                <a href="https://example.com/package">Package 
-                  <small>1.0.0</small>
-                </a>
-                <small>Released 20 minutes ago</small>
-              </li>
-              <li>
-                <a href="https://example.com/package">Package 
-                  <small>1.0.0</small>
-                </a>
-                <small>Released 20 minutes ago</small>
-              </li>
-              <li>
-                <a href="https://example.com/package">Package 
-                  <small>1.0.0</small>
-                </a>
-                <small>Released 20 minutes ago</small>
-              </li>
-            </ul>
+          <section>
+            <div class="scta">
+              <p>The Swift Package Index is an 
+                <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server">open-source</a> project funded by community donations.
+              </p>
+              <p>Please consider 
+                <a href="https://github.com/sponsors/SwiftPackageIndex">sponsoring the project</a> to support the time we dedicate to it. 
+                <strong>Thank you!</strong>
+              </p>
+            </div>
+            <a href="https://example.com/sponsored/link">
+              <div class="ccta">
+                <img alt="Sample Sponsor logo" src="/images/logo.svg"/>
+                <p>Sponsored tells everyone about the thing that you can use to do another thing you need to do! 
+                  <span>Learn More</span>.
+                </p>
+              </div>
+            </a>
+            <small>Thanks so much to all of our generous supporters 
+              <a href="https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/README.md#funding-and-sponsorship">sponsoring this project</a>.
+            </small>
           </section>
-        </div>
+        </section>
       </div>
     </main>
     <footer>
