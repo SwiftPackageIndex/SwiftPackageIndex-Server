@@ -158,9 +158,8 @@ extension Version: Equatable {
 // MARK: - Branch related helpers/properties
 
 extension Version {
-    var isBranch: Bool {
-        reference.isBranch
-    }
+    var isBranch: Bool { reference.isBranch }
+    var isTag: Bool { reference.isTag }
 }
 
 
