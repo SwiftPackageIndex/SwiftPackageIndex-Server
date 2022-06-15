@@ -113,10 +113,10 @@ enum HomeIndex {
                                     )
                                 ),
                                 .small(
-                                    .text("Thanks so much to all of our generous supporters "),
+                                    .text("Thanks so much to all of our generous sponsors "),
                                     .a(
                                         .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/README.md#funding-and-sponsorship"),
-                                        .text("sponsoring this project")
+                                        .text("supporting this project")
                                     ),
                                     .text(".")
                                 )
