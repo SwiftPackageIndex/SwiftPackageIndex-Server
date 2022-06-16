@@ -44,7 +44,7 @@ enum Search {
     static let nullUUID = SQLRaw("NULL::UUID")
     static let nullTimestamp = SQLRaw("NULL::TIMESTAMP")
     static let nullTextArray = SQLRaw("NULL::TEXT[]")
-    static let nullJSONB = SQLRaw("'{}'::jsonb")
+    static let nullJSONB = SQLRaw("NULL::jsonb")
 
     enum MatchType: String, Codable, Equatable {
         case author

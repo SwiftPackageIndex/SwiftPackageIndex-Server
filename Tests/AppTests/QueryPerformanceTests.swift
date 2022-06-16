@@ -102,8 +102,7 @@ class QueryPerformanceTests: XCTestCase {
         let query = try Search.query(app.db, ["a"], filters: [filter],
                                      page: 1, pageSize: Constants.resultsPageSize)
             .unwrap()
-        // TODO: How should these numbers below be updated for this test? 
-        try await assertQueryPerformance(query, expectedCost: 3900, variation: 150)
+        try await assertQueryPerformance(query, expectedCost: 0, variation: 150)
     }
 
     func test_Search_query_starsFilter() async throws {
