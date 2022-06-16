@@ -25,8 +25,8 @@ extension HomeIndex {
         var recentReleases: [Release]
 
         static var currentSponsors = [
-            SponsoredLink(sponsorName: "Stream", logoSource: "/images/sponsors/stream.svg", darkLogoSource: "/images/sponsors/stream-white.svg", body: "Build real-time chat messaging in less time. Rapidly ship highly reliable chat in-app messaging with Stream's SDK.", cta: "Get Started", url: "https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat"),
-            SponsoredLink(sponsorName: "Runway", logoSource: "/images/sponsors/runway.svg", darkLogoSource: "/images/sponsors/runway-white.svg", body: "Release faster and more reliably with Runway. Runway integrates with all of your tools, enabling end-to-end automation and seamless coordination across your team.", cta: "Try Runway for free", url: "https://www.runway.team/?utm_source=sponsorship&utm_medium=website&utm_campaign=swiftpackageindex&utm_content=may_2022")
+            SponsoredLink(sponsorName: "Stream", logoSource: "/images/sponsors/stream.svg", darkLogoSource: "/images/sponsors/stream~dark.svg", body: "Build real-time chat messaging in less time. Rapidly ship highly reliable chat in-app messaging with Stream's SDK.", cta: "Get Started", url: "https://getstream.io/chat/sdk/swiftui/?utm_source=SwiftPackageIndex&utm_medium=Github_Repo_Content_Ad&utm_content=Developer&utm_campaign=SwiftPackageIndex_Apr2022_SwiftUIChat"),
+            SponsoredLink(sponsorName: "Runway", logoSource: "/images/sponsors/runway.svg", darkLogoSource: "/images/sponsors/runway~dark.svg", body: "Release faster and more reliably with Runway. Runway integrates with all of your tools, enabling end-to-end automation and seamless coordination across your team.", cta: "Try Runway for free", url: "https://www.runway.team/?utm_source=sponsorship&utm_medium=website&utm_campaign=swiftpackageindex&utm_content=may_2022")
         ]
 
         struct Release: Equatable {
