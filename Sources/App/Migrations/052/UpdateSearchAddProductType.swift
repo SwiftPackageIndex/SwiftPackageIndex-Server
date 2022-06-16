@@ -45,7 +45,7 @@ struct UpdateSearchAddProductType: Migration {
             FROM packages p
               JOIN repositories r ON r.package_id = p.id
               JOIN versions v ON v.package_id = p.id
-              JOIN products pr ON pr.version_id = v.id
+              LEFT JOIN products pr ON pr.version_id = v.id
             WHERE v.reference ->> 'branch' = r.default_branch
             """).run() }
     }
