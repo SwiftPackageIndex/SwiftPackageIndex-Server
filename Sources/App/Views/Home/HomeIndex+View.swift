@@ -98,9 +98,15 @@ enum HomeIndex {
                                     .href(sponsoredLink.url),
                                     .div(
                                         .class("ccta"),
-                                        .img(
-                                            .alt("\(sponsoredLink.sponsorName) logo"),
-                                            .src(sponsoredLink.logoSource)
+                                        .picture(
+                                            .source(
+                                                .srcset(sponsoredLink.darkLogoSource),
+                                                .media("(prefers-color-scheme: dark)")
+                                            ),
+                                            .img(
+                                                .alt("\(sponsoredLink.sponsorName) logo"),
+                                                .src(sponsoredLink.logoSource)
+                                            )
                                         ),
                                         .p(
                                             .text(sponsoredLink.body),
