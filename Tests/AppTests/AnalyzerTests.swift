@@ -566,49 +566,6 @@ class AnalyzerTests: AppTestCase {
         XCTAssertEqual(deps?.map(\.packageName), ["Foo"])
     }
 
-    func test_getPackageInfo_packageAndVersionsl() throws {
-        // Tests getPackageInfo(packageAndVersions:)
-        // setup
-        var commands = [String]()
-        Current.shell.run = { cmd, _ in
-            self.testQueue.sync {
-                commands.append(cmd.string)
-            }
-            if cmd == .swiftDumpPackage {
-                return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
-            }
-            return ""
-        }
-        Current.fileManager.contents = { _ in
-            Data.mockPackageResolved(for: "1")
-        }
-        let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
-        let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
-        try version.save(on: app.db).wait()
-
-        let packageAndVersions: [Result<(Joined<Package, Repository>, [Version]), Error>] = [
-            // feed in one error to see it passed through
-            .failure(AppError.invalidPackageUrl(nil, "some reason")),
-            .success((.init(model: pkg), [version]))
-        ]
-
-        // MUT
-        let results = Analyze.getPackageInfo(packageAndVersions: packageAndVersions)
-
-        // validation
-        XCTAssertEqual(commands, [
-            "git checkout \"0.4.2\" --quiet",
-            "swift package dump-package"
-        ])
-        XCTAssertEqual(results.map(\.isSuccess), [false, true])
-        let (_, pkgInfo) = try XCTUnwrap(results.last).get()
-        XCTAssertEqual(pkgInfo.count, 1)
-        let (v, info) = try XCTUnwrap(pkgInfo.first)
-        XCTAssertEqual(v, version)
-        XCTAssertEqual(info.packageManifest.name, "SPI-Server")
-        XCTAssertEqual(info.dependencies?.map(\.packageName), ["1"])
-    }
-
     func test_updateVersion() throws {
         // setup
         let pkg = Package(id: UUID(), url: "1")
