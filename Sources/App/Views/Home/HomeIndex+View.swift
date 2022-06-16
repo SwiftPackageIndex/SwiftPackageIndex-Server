@@ -34,6 +34,10 @@ enum HomeIndex {
 
             return "\(description) Indexing metadata from \(statsDescription) packages."
         }
+
+        override func bodyClass() -> String? {
+            "home"
+        }
         
         override func postBody() -> Node<HTML.BodyContext> {
             .structuredData(IndexSchema())
@@ -52,34 +56,72 @@ enum HomeIndex {
         }
         
         override func content() -> Node<HTML.BodyContext> {
-            .group(
-                .div(
-                    .class("scta"),
-                    .text("The Swift Package Index is an "),
-                    .a(
-                        .href(ExternalURL.projectGitHub),
-                        "open-source project"
-                    ),
-                    .text(" entirely funded by community donations. Please consider "),
-                    .a(
-                        .href(ExternalURL.projectSponsorship),
-                        "sponsoring the project"
-                    ),
-                    .text(". "),
-                    .strong("Thank you!")
-                ),
-                .div(
+            .section(
+                .class("two_column"),
+                .section(
                     .class("recent"),
-                    .section(
+                    .div(
                         .class("recent_packages"),
                         .h3("Recently Added"),
                         .ul(model.recentPackagesSection())
                     ),
-                    .section(
+                    .div(
                         .class("recent_releases"),
                         .h3("Recent Releases"),
                         .ul(model.recentReleasesSection())
                     )
+                ),
+                .section(
+                    .div(
+                        .class("scta"),
+                        .p(
+                            .text("The Swift Package Index is an "),
+                            .a(
+                                .href(ExternalURL.projectGitHub),
+                                "open-source"
+                            ),
+                            .text(" project funded by community donations.")
+                        ),
+                        .p(
+                            .text("Please consider "),
+                            .a(
+                                .href(ExternalURL.projectSponsorship),
+                                "sponsoring the project"
+                            ),
+                            .text(" to support the time we dedicate to it. "),
+                            .strong("Thank you!")
+                        )
+                    ),
+                    .unwrap(model.sponsoredLink(), { sponsoredLink in
+                            .group(
+                                .a(
+                                    .href(sponsoredLink.url),
+                                    .div(
+                                        .class("ccta"),
+                                        .img(
+                                            .alt("\(sponsoredLink.sponsorName) logo"),
+                                            .src(sponsoredLink.logoSource)
+                                        ),
+                                        .p(
+                                            .text(sponsoredLink.body),
+                                            .text(" "),
+                                            .span(
+                                                .text(sponsoredLink.cta)
+                                            ),
+                                            .text(".")
+                                        )
+                                    )
+                                ),
+                                .small(
+                                    .text("Thanks so much to all of our generous sponsors for "),
+                                    .a(
+                                        .href("https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/blob/main/README.md#funding-and-sponsorship"),
+                                        .text("supporting this project")
+                                    ),
+                                    .text(".")
+                                )
+                            )
+                    })
                 )
             )
         }
@@ -89,3 +131,4 @@ enum HomeIndex {
         }
     }
 }
+
