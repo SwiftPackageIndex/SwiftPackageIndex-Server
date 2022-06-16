@@ -28,9 +28,14 @@ extension PackageController {
         ///   - repository: repository name
         /// - Returns: model structs
         static func query(on database: Database, owner: String, repository: String) async throws -> (model: PackageShow.Model, schema: PackageShow.PackageSchema) {
-            async let packageResult = PackageResult.query(on: database,
-                                                          owner: owner,
-                                                          repository: repository)
+            let packageResult = try await PackageResult.query(on: database,
+                                                              owner: owner,
+                                                              repository: repository)
+            async let weightedKeywords = WeightedKeyword.query(
+                on: database, keywords: packageResult.repository.keywords
+            )
+                .map { PackageShow.Model.WeightedKeyword(keyword: $0.keyword,
+                                                         weight: $0.count) }
             async let historyRecord = History.query(on: database,
                                                     owner: owner,
                                                     repository: repository)
@@ -50,9 +55,10 @@ extension PackageController {
                         executables: productTypes.filter(\.isExecutable).count,
                         plugins: productTypes.filter(\.isPlugin).count),
                     swiftVersionBuildInfo: buildInfo.swiftVersion,
-                    platformBuildInfo: buildInfo.platform
+                    platformBuildInfo: buildInfo.platform,
+                    weightedKeywords: weightedKeywords
                 ),
-                let schema = try await PackageShow.PackageSchema(result: packageResult)
+                let schema = PackageShow.PackageSchema(result: packageResult)
             else {
                 throw Abort(.notFound)
             }
@@ -115,7 +121,7 @@ extension PackageController {
                 .first(decoding: Record.self)
         }
     }
-
+    
     enum ProductCount {
         static func query(on database: Database, owner: String, repository: String) async throws -> [ProductType] {
             try await Joined4<Package, Repository, Version, Product>

@@ -203,6 +203,7 @@ extension Analyze {
         try await RecentRelease.refresh(on: database).get()
         try await Search.refresh(on: database).get()
         try await Stats.refresh(on: database).get()
+        try await WeightedKeyword.refresh(on: database).get()
     }
 
 

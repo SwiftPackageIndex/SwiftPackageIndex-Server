@@ -39,7 +39,8 @@ class PackageShowModelTests: SnapshotTestCase {
                                   history: nil,
                                   productCounts: .mock,
                                   swiftVersionBuildInfo: nil,
-                                  platformBuildInfo: nil)
+                                  platformBuildInfo: nil,
+                                  weightedKeywords: [])
         
         // validate
         XCTAssertNotNil(m)

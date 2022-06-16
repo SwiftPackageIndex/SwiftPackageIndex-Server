@@ -250,6 +250,9 @@ public func configure(_ app: Application) throws -> String {
     do {  // Migration 053 - adds products.type to search
         app.migrations.add(UpdateSearchAddProductType())
     }
+    do {  // Migration 054 - create weighted_keywords view for counting keywords
+        app.migrations.add(CreateWeightedKeywords())
+    }
 
     app.commands.use(Analyze.Command(), as: "analyze")
     app.commands.use(CreateRestfileCommand(), as: "create-restfile")

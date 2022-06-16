@@ -53,4 +53,25 @@ class DefaultStringInterpolationTests: XCTestCase {
         XCTAssertEqual("\(date: now.addingTimeInterval(5), relativeTo: now)", "in less than a minute")
         XCTAssertEqual("\(date: now.addingTimeInterval(-5), relativeTo: now)", "less than a minute ago")
     }
+    
+    func test_kiloPostfixedQuantity_interpolation() throws {
+        XCTAssertEqual("\(kiloPostfixedQuantity: 1)", "1")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 10)", "10")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 100)", "100")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 1000)", "1.0k")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 1449)", "1.4k")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 1450)", "1.5k")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 1500)", "1.5k")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 9949)", "9.9k")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 9950)", "10.0k")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 9951)", "10.0k")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 10000)", "10.0k")
+        
+        XCTAssertEqual("\(kiloPostfixedQuantity: 12345)", "12.3k")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 54321)", "54.3k")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 123456)", "123.5k")
+        XCTAssertEqual("\(kiloPostfixedQuantity: 654321)", "654.3k")
+        
+        XCTAssertEqual("\(kiloPostfixedQuantity: 0)", "0")
+    }
 }

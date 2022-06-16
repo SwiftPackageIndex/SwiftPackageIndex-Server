@@ -121,6 +121,15 @@
       li.keywords {
         grid-column-start: span 2;
         background-image: var(--image-tag);
+        span.keyword-count {
+              border-radius: 8px;
+              padding: 1px;
+              background: var(--keyword-count-color);//#dfdfdf;
+              font-size: 8px;
+              color: var(--keyword-count-backgroundcolor);//#464646;
+              vertical-align: text-top;
+              margin-left: 3px;
+        }
       }
     }
 

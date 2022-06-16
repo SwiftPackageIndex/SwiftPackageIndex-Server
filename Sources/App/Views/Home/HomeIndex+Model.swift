@@ -63,17 +63,10 @@ extension HomeIndex {
 
 
 extension HomeIndex.Model {
-    static var numberFormatter: NumberFormatter = {
-        let f = NumberFormatter()
-        f.thousandSeparator = ","
-        f.numberStyle = .decimal
-        return f
-    }()
-    
     func statsDescription() -> String? {
         guard
             let stats = stats,
-            let packageCount = Self.numberFormatter.string(from: NSNumber(value: stats.packageCount))
+            let packageCount = NumberFormatter.spiDefault.string(from: NSNumber(value: stats.packageCount))
         else { return nil }
         return "\(packageCount) packages"
     }
