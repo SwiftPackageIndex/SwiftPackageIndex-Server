@@ -505,7 +505,7 @@ class AnalyzerTests: AppTestCase {
         let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
 
         // MUT
-        Analyze.mergeReleaseInfo(package: jpr, versions: versions)
+        Analyze.mergeReleaseInfo(package: jpr, into: versions)
 
         // validate
         let sortedResults = versions.sorted { $0.commitDate < $1.commitDate }
@@ -542,15 +542,13 @@ class AnalyzerTests: AppTestCase {
         try version.save(on: app.db).wait()
 
         // MUT
-        let (analyzedVersion, info) = try Analyze.getPackageInfo(package: .init(model: pkg),
-                                                                 version: version).get()
+        let info = try Analyze.getPackageInfo(package: .init(model: pkg), version: version)
 
         // validation
         XCTAssertEqual(commands, [
             "git checkout \"0.4.2\" --quiet",
             "swift package dump-package"
         ])
-        XCTAssertEqual(analyzedVersion.id, version.id)
         XCTAssertEqual(info.packageManifest.name, "SPI-Server")
         XCTAssertEqual(info.dependencies?.map(\.packageName), ["1"])
     }
@@ -566,49 +564,6 @@ class AnalyzerTests: AppTestCase {
 
         // validate
         XCTAssertEqual(deps?.map(\.packageName), ["Foo"])
-    }
-
-    func test_getPackageInfo_packageAndVersionsl() throws {
-        // Tests getPackageInfo(packageAndVersions:)
-        // setup
-        var commands = [String]()
-        Current.shell.run = { cmd, _ in
-            self.testQueue.sync {
-                commands.append(cmd.string)
-            }
-            if cmd == .swiftDumpPackage {
-                return #"{ "name": "SPI-Server", "products": [], "targets": [] }"#
-            }
-            return ""
-        }
-        Current.fileManager.contents = { _ in
-            Data.mockPackageResolved(for: "1")
-        }
-        let pkg = try savePackage(on: app.db, "https://github.com/foo/1")
-        let version = try Version(id: UUID(), package: pkg, reference: .tag(.init(0, 4, 2)))
-        try version.save(on: app.db).wait()
-
-        let packageAndVersions: [Result<(Joined<Package, Repository>, [Version]), Error>] = [
-            // feed in one error to see it passed through
-            .failure(AppError.invalidPackageUrl(nil, "some reason")),
-            .success((.init(model: pkg), [version]))
-        ]
-
-        // MUT
-        let results = Analyze.getPackageInfo(packageAndVersions: packageAndVersions)
-
-        // validation
-        XCTAssertEqual(commands, [
-            "git checkout \"0.4.2\" --quiet",
-            "swift package dump-package"
-        ])
-        XCTAssertEqual(results.map(\.isSuccess), [false, true])
-        let (_, pkgInfo) = try XCTUnwrap(results.last).get()
-        XCTAssertEqual(pkgInfo.count, 1)
-        let (v, info) = try XCTUnwrap(pkgInfo.first)
-        XCTAssertEqual(v, version)
-        XCTAssertEqual(info.packageManifest.name, "SPI-Server")
-        XCTAssertEqual(info.dependencies?.map(\.packageName), ["1"])
     }
 
     func test_updateVersion() throws {

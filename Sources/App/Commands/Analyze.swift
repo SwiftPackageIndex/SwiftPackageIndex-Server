@@ -215,17 +215,22 @@ extension Analyze {
                                                   logger: logger,
                                                   transaction: transaction,
                                                   package: package)
-        let newVersions = versionDelta.toAdd
-        mergeReleaseInfo(package: package, versions: newVersions)
+
         try await applyVersionDelta(on: transaction, delta: versionDelta)
-        let versionPackageInfo = newVersions.compactMap {
-            // TODO: clean this up by eliminating Result entirely
-            try? getPackageInfo(package: package, version: $0).get()
+
+        let newVersions = versionDelta.toAdd
+
+        mergeReleaseInfo(package: package, into: newVersions)
+
+        let versionsPkgInfo = newVersions.compactMap { version -> (Version, PackageInfo)? in
+            guard let pkgInfo = try? getPackageInfo(package: package, version: version) else { return nil }
+            return (version, pkgInfo)
         }
-        if !newVersions.isEmpty && versionPackageInfo.isEmpty {
+        if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
             throw AppError.noValidVersions(package.model.id, package.model.url)
         }
-        for (version, pkgInfo) in versionPackageInfo {
+
+        for (version, pkgInfo) in versionsPkgInfo {
             try await updateVersion(on: transaction, version: version, packageInfo: pkgInfo).get()
             try await recreateProducts(on: transaction,
                                        version: version,
@@ -234,7 +239,9 @@ extension Analyze {
                                       version: version,
                                       manifest: pkgInfo.packageManifest)
         }
+
         try await updateLatestVersions(on: transaction, package: package).get()
+
         await onNewVersions(client: client,
                             logger: logger,
                             transaction: transaction,
@@ -356,47 +363,6 @@ extension Analyze {
     }
 
 
-    /// Find new and outdated versions for a set of `Package`s, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
-    /// - Parameters:
-    ///   - client: `Client` object (for Rollbar error reporting)
-    ///   - logger: `Logger` object
-    ///   - threadPool: `NIOThreadPool` (for running `git tag` commands)
-    ///   - transaction: database transaction
-    ///   - packages: `Package`s to reconcile
-    /// - Returns: results future with each `Package` and its pair of new and outdated `Version`s
-    @available(*, deprecated)
-    static func diffVersions(client: Client,
-                             logger: Logger,
-                             threadPool: NIOThreadPool,
-                             transaction: Database,
-                             packages: [Result<Joined<Package, Repository>, Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, VersionDelta), Error>]> {
-        packages.whenAllComplete(on: transaction.eventLoop) { pkg in
-            diffVersions(client: client,
-                         logger: logger,
-                         transaction: transaction,
-                         package: pkg)
-            .map { (pkg, $0) }
-        }
-    }
-
-
-    // Bridge to new a/a variant, remove when caller `diffVersions -> ELF` is removed
-    @available(*, deprecated)
-    static func diffVersions(client: Client,
-                             logger: Logger,
-                             transaction: Database,
-                             package: Joined<Package, Repository>) -> EventLoopFuture<VersionDelta> {
-        let promise = transaction.eventLoop.makePromise(of: VersionDelta.self)
-        promise.completeWithTask {
-            try await diffVersions(client: client,
-                                   logger: logger,
-                                   transaction: transaction,
-                                   package: package)
-        }
-        return promise.futureResult
-    }
-
-
     /// Find new, outdated, and unchanged versions for a given `Package`, based on a comparison of their immutable references - the pair (`Reference`, `CommitHash`) of each version.
     /// - Parameters:
     ///   - client: `Client` object (for Rollbar error reporting)
@@ -500,7 +466,7 @@ extension Analyze {
     }
 
 
-    static func mergeReleaseInfo(package: Joined<Package, Repository>, versions: [Version]) {
+    static func mergeReleaseInfo(package: Joined<Package, Repository>, into versions: [Version]) {
         guard let releases = package.repository?.releases else { return }
         let tagToRelease = Dictionary(
             releases
@@ -539,25 +505,6 @@ extension Analyze {
     }
 
 
-    /// Get package info (manifests, resolved dependencies) for an array of `Package`s.
-    /// - Parameters:
-    ///   - logger: `Logger` object
-    ///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
-    /// - Returns: results future including the `Manifest`s
-    static func getPackageInfo(packageAndVersions: [Result<(Joined<Package, Repository>, [Version]), Error>]) -> [Result<(Joined<Package, Repository>, [(Version, PackageInfo)]), Error>] {
-        packageAndVersions.map { result in
-            result.flatMap { (pkg, versions) in
-                let m = versions.map { getPackageInfo(package: pkg, version: $0) }
-                let successes = m.compactMap { try? $0.get() }
-                if !versions.isEmpty && successes.isEmpty {
-                    return .failure(AppError.noValidVersions(pkg.model.id, pkg.model.url))
-                }
-                return .success((pkg, successes))
-            }
-        }
-    }
-
-
     /// Run `swift package dump-package` for a package at the given path.
     /// - Parameters:
     ///   - path: path to the pacakge
@@ -586,56 +533,25 @@ extension Analyze {
     ///   - package: `Package` to analyse
     ///   - version: `Version` to check out
     /// - Returns: `Result` with `Manifest` data
-    static func getPackageInfo(package: Joined<Package, Repository>, version: Version) -> Result<(Version, PackageInfo), Error> {
-        Result {
-            // check out version in cache directory
-            guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
-                throw AppError.invalidPackageCachePath(package.model.id,
-                                                       package.model.url)
-            }
-            try Current.shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
-
-            do {
-                let packageManifest = try dumpPackage(at: cacheDir)
-                let resolvedDependencies = getResolvedDependencies(Current.fileManager,
-                                                                   at: cacheDir)
-                let spiManifest = SPIManifest.Manifest.load(in: cacheDir)
-                return (version, PackageInfo(packageManifest: packageManifest,
-                                             dependencies: resolvedDependencies,
-                                             spiManifest: spiManifest))
-            } catch let AppError.invalidRevision(_, msg) {
-                // re-package error to attach version.id
-                throw AppError.invalidRevision(version.id, msg)
-            }
+    static func getPackageInfo(package: Joined<Package, Repository>, version: Version) throws -> PackageInfo {
+        // check out version in cache directory
+        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+            throw AppError.invalidPackageCachePath(package.model.id,
+                                                   package.model.url)
         }
-    }
+        try Current.shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
 
-
-    /// Update and save a given array of `Version` (as contained in `packageResults`) with data from the associated `Manifest`.
-    /// - Parameters:
-    ///   - database: database connection
-    ///   - packageResults: results to process, containing the versions and their manifests
-    /// - Returns: the input data for further processing, wrapped in a future
-    @available(*, deprecated)
-    static func updateVersions(on database: Database,
-                               packageResults: [Result<(Joined<Package, Repository>, [(Version, PackageInfo)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
-        packageResults.whenAllComplete(on: database.eventLoop) { (pkg, pkgInfo) in
-            EventLoopFuture.andAllComplete(
-                pkgInfo.map { version, info in
-                    updateVersion(on: database,
-                                  version: version,
-                                  packageInfo: info)
-                },
-                on: database.eventLoop
-            )
-            .transform(
-                to: (
-                    pkg,
-                    pkgInfo.map { version, info in
-                        (version, info.packageManifest)
-                    }
-                )
-            )
+        do {
+            let packageManifest = try dumpPackage(at: cacheDir)
+            let resolvedDependencies = getResolvedDependencies(Current.fileManager,
+                                                               at: cacheDir)
+            let spiManifest = SPIManifest.Manifest.load(in: cacheDir)
+            return PackageInfo(packageManifest: packageManifest,
+                               dependencies: resolvedDependencies,
+                               spiManifest: spiManifest)
+        } catch let AppError.invalidRevision(_, msg) {
+            // re-package error to attach version.id
+            throw AppError.invalidRevision(version.id, msg)
         }
     }
 
@@ -660,29 +576,6 @@ extension Analyze {
         version.toolsVersion = manifest.toolsVersion?.version
         version.spiManifest = packageInfo.spiManifest
         return version.save(on: database)
-    }
-
-
-    /// Update (delete and re-create) `Product`s from the `Manifest` data provided in `packageResults`.
-    /// - Parameters:
-    ///   - database: database connection
-    ///   - packageResults: results to process
-    /// - Returns: the input data for further processing, wrapped in a future
-    @available(*, deprecated)
-    static func updateProducts(on database: Database,
-                               packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
-        packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
-            EventLoopFuture.andAllComplete(
-                versionsAndManifests.map { version, manifest in
-                    deleteProducts(on: database, version: version)
-                        .flatMap {
-                            createProducts(on: database, version: version, manifest: manifest)
-                        }
-                },
-                on: database.eventLoop
-            )
-            .transform(to: (pkg, versionsAndManifests))
-        }
     }
 
 
@@ -721,29 +614,6 @@ extension Analyze {
                          targets: manifestProduct.targets)
         }
         .create(on: database)
-    }
-
-
-    /// Update (delete and re-create) `Target`s from the `Manifest` data provided in `packageResults`.
-    /// - Parameters:
-    ///   - database: database connection
-    ///   - packageResults: results to process
-    /// - Returns: the input data for further processing, wrapped in a future
-    @available(*, deprecated)
-    static func updateTargets(on database: Database,
-                              packageResults: [Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [(Version, Manifest)]), Error>]> {
-        packageResults.whenAllComplete(on: database.eventLoop) { (pkg, versionsAndManifests) in
-            EventLoopFuture.andAllComplete(
-                versionsAndManifests.map { version, manifest in
-                    deleteTargets(on: database, version: version)
-                        .flatMap {
-                            createTargets(on: database, version: version, manifest: manifest)
-                        }
-                },
-                on: database.eventLoop
-            )
-            .transform(to: (pkg, versionsAndManifests))
-        }
     }
 
 

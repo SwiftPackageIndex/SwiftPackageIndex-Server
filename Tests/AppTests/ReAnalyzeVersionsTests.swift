@@ -105,12 +105,11 @@ class ReAnalyzeVersionsTests: AppTestCase {
         }
 
         // MUT
-        try await reAnalyzeVersions(client: app.client,
-                                    database: app.db,
-                                    logger: app.logger,
-                                    threadPool: app.threadPool,
-                                    before: Current.date(),
-                                    limit: 10).get()
+        try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
+                                                      database: app.db,
+                                                      logger: app.logger,
+                                                      before: Current.date(),
+                                                      limit: 10)
 
         // validate that re-analysis has now updated existing versions
         let versions = try Version.query(on: app.db)
@@ -121,7 +120,7 @@ class ReAnalyzeVersionsTests: AppTestCase {
         XCTAssertEqual(versions.compactMap(\.releaseNotes) , ["rel 1.2.3"])
     }
 
-    func test_Package_fetchReAnalysisCandidates() throws {
+    func test_Package_fetchReAnalysisCandidates() async throws {
         // Three packages with two versions:
         // 1) both versions updated before cutoff -> candidate
         // 2) one version update before cutoff, one after -> candidate
@@ -129,26 +128,26 @@ class ReAnalyzeVersionsTests: AppTestCase {
         let cutoff = Date(timeIntervalSince1970: 2)
         do {
             let p = Package(url: "1")
-            try p.save(on: app.db).wait()
+            try await p.save(on: app.db)
             try createVersion(app.db, p, updatedAt: .t0)
             try createVersion(app.db, p, updatedAt: .t1)
         }
         do {
             let p = Package(url: "2")
-            try p.save(on: app.db).wait()
+            try await p.save(on: app.db)
             try createVersion(app.db, p, updatedAt: .t1)
             try createVersion(app.db, p, updatedAt: .t3)
         }
         do {
             let p = Package(url: "3")
-            try p.save(on: app.db).wait()
+            try await p.save(on: app.db)
             try createVersion(app.db, p, updatedAt: .t3)
             try createVersion(app.db, p, updatedAt: .t4)
         }
 
         // MUT
-        let res = try Package
-            .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).wait()
+        let res = try await Package
+            .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10)
 
         // validate
         XCTAssertEqual(res.map(\.model.url), ["1", "2"])
@@ -184,21 +183,20 @@ class ReAnalyzeVersionsTests: AppTestCase {
         try setAllVersionsUpdatedAt(app.db, updatedAt: .t0)
         do {
             let candidates = try await Package
-                .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).get()
+                .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10)
             XCTAssertEqual(candidates.count, 1)
         }
 
         // MUT
-        try await reAnalyzeVersions(client: app.client,
-                                    database: app.db,
-                                    logger: app.logger,
-                                    threadPool: app.threadPool,
-                                    before: Current.date(),
-                                    limit: 10).get()
+        try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
+                                                      database: app.db,
+                                                      logger: app.logger,
+                                                      before: Current.date(),
+                                                      limit: 10)
 
         // validate
         let candidates = try await Package
-            .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10).get()
+            .fetchReAnalysisCandidates(app.db, before: cutoff, limit: 10)
         XCTAssertEqual(candidates.count, 0)
     }
 
