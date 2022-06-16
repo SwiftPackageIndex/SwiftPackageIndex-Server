@@ -152,7 +152,10 @@
             </div>
             <a href="https://example.com/sponsored/link">
               <div class="ccta">
-                <img alt="Sample Sponsor logo" src="/images/logo.svg"/>
+                <picture>
+                  <source srcset="/images/logo.svg" media="(prefers-color-scheme: dark)"/>
+                  <img alt="Sample Sponsor logo" src="/images/logo.svg"/>
+                </picture>
                 <p>Sponsored links tell everyone about a thing that you can use to do another thing you need to do! 
                   <span>Learn More</span>.
                 </p>
