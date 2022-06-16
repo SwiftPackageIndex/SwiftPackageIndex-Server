@@ -423,12 +423,12 @@ class SearchFilterTests: AppTestCase {
                                                displayValue: "Executable"))
 
         // test view representation
-        XCTAssertEqual(filter.viewModel.description, "type is Executable")
+        XCTAssertEqual(filter.viewModel.description, "type contains Executable")
 
         // test sql representation
-        XCTAssertEqual(renderSQL(filter.leftHandSide), #""type"->>'executable'"#)
-        XCTAssertEqual(renderSQL(filter.sqlOperator), "IS NOT")
-        XCTAssertEqual(binds(filter.rightHandSide), [])
+        XCTAssertEqual(renderSQL(filter.leftHandSide), #""type""#)
+        XCTAssertEqual(renderSQL(filter.sqlOperator), "?")
+        XCTAssertEqual(binds(filter.rightHandSide), ["executable"])
     }
 
     func test_productTypeFilter_error() throws {
