@@ -251,7 +251,7 @@ public func configure(_ app: Application) throws -> String {
     app.commands.use(IngestCommand(), as: "ingest")
     app.commands.use(ReconcileCommand(), as: "reconcile")
     app.commands.use(TriggerBuildsCommand(), as: "trigger-builds")
-    app.commands.use(ReAnalyzeVersionsCommand(), as: "re-analyze-versions")
+    app.commands.use(ReAnalyzeVersions.Command(), as: "re-analyze-versions")
     
     // register routes
     try routes(app)

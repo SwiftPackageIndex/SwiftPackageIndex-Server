@@ -105,12 +105,12 @@ class ReAnalyzeVersionsTests: AppTestCase {
         }
 
         // MUT
-        try await reAnalyzeVersions(client: app.client,
-                                    database: app.db,
-                                    logger: app.logger,
-                                    threadPool: app.threadPool,
-                                    before: Current.date(),
-                                    limit: 10).get()
+        try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
+                                                      database: app.db,
+                                                      logger: app.logger,
+                                                      threadPool: app.threadPool,
+                                                      before: Current.date(),
+                                                      limit: 10).get()
 
         // validate that re-analysis has now updated existing versions
         let versions = try Version.query(on: app.db)
@@ -189,12 +189,12 @@ class ReAnalyzeVersionsTests: AppTestCase {
         }
 
         // MUT
-        try await reAnalyzeVersions(client: app.client,
-                                    database: app.db,
-                                    logger: app.logger,
-                                    threadPool: app.threadPool,
-                                    before: Current.date(),
-                                    limit: 10).get()
+        try await ReAnalyzeVersions.reAnalyzeVersions(client: app.client,
+                                                      database: app.db,
+                                                      logger: app.logger,
+                                                      threadPool: app.threadPool,
+                                                      before: Current.date(),
+                                                      limit: 10).get()
 
         // validate
         let candidates = try await Package
