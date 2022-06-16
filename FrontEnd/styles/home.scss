@@ -107,10 +107,12 @@
 .recent {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 10px;
 
   ul {
     padding: 0;
     max-width: 250px;
+    overflow: hidden;
   }
 
   li {
