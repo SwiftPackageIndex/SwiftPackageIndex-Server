@@ -180,15 +180,14 @@ enum ReAnalyzeVersions {
 
                 Analyze.mergeReleaseInfo(package: pkg, into: versions)
 
-                let versionsPkgInfo = versions.compactMap { version -> (Version, Analyze.PackageInfo)? in
-                    guard let pkgInfo = try? Analyze.getPackageInfo(package: pkg, version: version) else { return nil }
-                    return (version, pkgInfo)
-                }
-                if !versions.isEmpty && versionsPkgInfo.isEmpty {
-                    throw AppError.noValidVersions(pkg.model.id, pkg.model.url)
-                }
-
-                for (version, pkgInfo) in versionsPkgInfo {
+                for version in versions {
+                    let pkgInfo: Analyze.PackageInfo
+                    do {
+                        pkgInfo = try Analyze.getPackageInfo(package: pkg, version: version)
+                    } catch {
+                        logger.warning("getPackageInfo failed: \(error.localizedDescription)")
+                        continue
+                    }
                     try await Analyze.updateVersion(on: tx, version: version, packageInfo: pkgInfo).get()
                     try await Analyze.recreateProducts(on: tx,
                                                        version: version,
