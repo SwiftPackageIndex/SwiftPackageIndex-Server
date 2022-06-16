@@ -41,18 +41,15 @@ enum ReAnalyzeVersions {
             let client = context.application.client
             let db = context.application.db
             let logger = Logger(component: "re-analyze-versions")
-            let threadPool = context.application.threadPool
 
             if let id = signature.id {
                 logger.info("Re-analyzing versions (id: \(id)) ...")
                 do {
-                    try reAnalyzeVersions(client: client,
-                                          database: db,
-                                          logger: logger,
-                                          threadPool: threadPool,
-                                          versionsLastUpdatedBefore: Current.date(),
-                                          id: id)
-                    .wait()
+                    try await reAnalyzeVersions(client: client,
+                                                database: db,
+                                                logger: logger,
+                                                versionsLastUpdatedBefore: Current.date(),
+                                                id: id)
                 } catch {
                     logger.error("\(error.localizedDescription)")
                 }
@@ -69,13 +66,11 @@ enum ReAnalyzeVersions {
                                                limit - processed)
                     logger.info("Re-analyzing versions (batch: \(processed)..<\(processed + currentBatchSize) ...")
                     do {
-                        try reAnalyzeVersions(client: client,
-                                              database: db,
-                                              logger: logger,
-                                              threadPool: threadPool,
-                                              before: cutoffDate,
-                                              limit: currentBatchSize)
-                        .wait()
+                        try await reAnalyzeVersions(client: client,
+                                                    database: db,
+                                                    logger: logger,
+                                                    before: cutoffDate,
+                                                    limit: currentBatchSize)
                         processed += currentBatchSize
                     } catch {
                         logger.error("\(error.localizedDescription)")
@@ -108,17 +103,14 @@ enum ReAnalyzeVersions {
     static func reAnalyzeVersions(client: Client,
                                   database: Database,
                                   logger: Logger,
-                                  threadPool: NIOThreadPool,
                                   versionsLastUpdatedBefore cutOffDate: Date,
-                                  id: Package.Id) -> EventLoopFuture<Void> {
-        Package.fetchCandidate(database, id: id)
-            .map { [$0] }
-            .flatMap { reAnalyzeVersions(client: client,
-                                         database: database,
-                                         logger: logger,
-                                         threadPool: threadPool,
-                                         before: cutOffDate,
-                                         packages: $0) }
+                                  id: Package.Id) async throws {
+        let pkg = try await Package.fetchCandidate(database, id: id).get()
+        try await reAnalyzeVersions(client: client,
+                                    database: database,
+                                    logger: logger,
+                                    before: cutOffDate,
+                                    packages: [pkg])
     }
 
 
@@ -134,18 +126,16 @@ enum ReAnalyzeVersions {
     static func reAnalyzeVersions(client: Client,
                                   database: Database,
                                   logger: Logger,
-                                  threadPool: NIOThreadPool,
                                   before cutOffDate: Date,
-                                  limit: Int) -> EventLoopFuture<Void> {
-        Package.fetchReAnalysisCandidates(database,
-                                          before: cutOffDate,
-                                          limit: limit)
-        .flatMap { reAnalyzeVersions(client: client,
-                                     database: database,
-                                     logger: logger,
-                                     threadPool: threadPool,
-                                     before: cutOffDate,
-                                     packages: $0) }
+                                  limit: Int) async throws {
+        let pkgs = try await Package.fetchReAnalysisCandidates(database,
+                                                               before: cutOffDate,
+                                                               limit: limit)
+        try await reAnalyzeVersions(client: client,
+                                    database: database,
+                                    logger: logger,
+                                    before: cutOffDate,
+                                    packages: pkgs)
     }
 
 
@@ -161,9 +151,8 @@ enum ReAnalyzeVersions {
     static func reAnalyzeVersions(client: Client,
                                   database: Database,
                                   logger: Logger,
-                                  threadPool: NIOThreadPool,
                                   before cutoffDate: Date,
-                                  packages: [Joined<Package, Repository>]) -> EventLoopFuture<Void> {
+                                  packages: [Joined<Package, Repository>]) async throws {
         // Pick essentials parts of companion function `analyze` and run the for
         // re-analysis.
         //
@@ -178,69 +167,61 @@ enum ReAnalyzeVersions {
         // case by design, as `analyze` will only add or remove versions, ignoring
         // existing ones.
 
-        database.transaction { tx in
-            getExistingVersions(client: client,
-                                logger: logger,
-                                threadPool: threadPool,
-                                transaction: tx,
-                                packages: packages,
-                                before: cutoffDate)
-            .flatMap { setUpdatedAt(on: tx, packageVersions: $0) }
-            .map { results in
-                for result in results {
-                    if let (pkg, versions) = try? result.get() {
-                        Analyze.mergeReleaseInfo(package: pkg, into: versions)
-                    }
+        for pkg in packages {
+            try await database.transaction { tx in
+                let versions = try await getExistingVersions(client: client,
+                                                             logger: logger,
+                                                             transaction: tx,
+                                                             package: pkg,
+                                                             before: cutoffDate)
+                logger.info("updating \(versions.count) versions (id: \(pkg.model.id)) ...")
+
+                try await setUpdatedAt(on: tx, package: pkg, versions: versions)
+
+                Analyze.mergeReleaseInfo(package: pkg, into: versions)
+
+                let versionsPkgInfo = versions.compactMap { version -> (Version, Analyze.PackageInfo)? in
+                    guard let pkgInfo = try? Analyze.getPackageInfo(package: pkg, version: version) else { return nil }
+                    return (version, pkgInfo)
                 }
-                return results
+                if !versions.isEmpty && versionsPkgInfo.isEmpty {
+                    throw AppError.noValidVersions(pkg.model.id, pkg.model.url)
+                }
+
+                for (version, pkgInfo) in versionsPkgInfo {
+                    try await Analyze.updateVersion(on: tx, version: version, packageInfo: pkgInfo).get()
+                    try await Analyze.recreateProducts(on: tx,
+                                                       version: version,
+                                                       manifest: pkgInfo.packageManifest)
+                    try await Analyze.recreateTargets(on: tx,
+                                                      version: version,
+                                                      manifest: pkgInfo.packageManifest)
+                }
             }
-            .map { Analyze.getPackageInfo(packageAndVersions: $0) }
-            .flatMap { Analyze.updateVersions(on: tx, packageResults: $0) }
-            .flatMap { Analyze.updateProducts(on: tx, packageResults: $0) }
-            .flatMap { Analyze.updateTargets(on: tx, packageResults: $0) }
         }
-        .transform(to: ())
     }
 
 
     static func getExistingVersions(client: Client,
                                     logger: Logger,
-                                    threadPool: NIOThreadPool,
                                     transaction: Database,
-                                    packages: [Joined<Package, Repository>],
-                                    before cutoffDate: Date) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [Version]), Error>]> {
-        EventLoopFuture.whenAllComplete(
-            packages.map { pkg in
-                Analyze.diffVersions(client: client,
-                                     logger: logger,
-                                     transaction: transaction,
-                                     package: pkg)
-                .map {
-                    (pkg, $0.toKeep.filter {
-                        $0.updatedAt != nil && $0.updatedAt! < cutoffDate
-                    })
-                }
-                .map { pkg, versions in
-                    logger.info("updating \(versions.count) versions (id: \(pkg.model.id)) ...")
-                    return (pkg, versions)
-                }
-            },
-            on: transaction.eventLoop
-        )
+                                    package: Joined<Package, Repository>,
+                                    before cutoffDate: Date) async throws -> [Version] {
+        let delta = try await Analyze.diffVersions(client: client,
+                                                   logger: logger,
+                                                   transaction: transaction,
+                                                   package: package)
+        return delta.toKeep.filter {
+            $0.updatedAt != nil && $0.updatedAt! < cutoffDate
+        }
     }
 
 
-    static func setUpdatedAt(on database: Database,
-                             packageVersions: [Result<(Joined<Package, Repository>, [Version]), Error>]) -> EventLoopFuture<[Result<(Joined<Package, Repository>, [Version]), Error>]> {
-        packageVersions.whenAllComplete(on: database.eventLoop) { pkg, versions in
-            versions
-                .map { version -> Version in
-                    version.updatedAt = Current.date()
-                    return version
-                }
-                .save(on: database)
-                .map { (pkg, versions) }
+    static func setUpdatedAt(on database: Database, package: Joined<Package, Repository>, versions: [Version]) async throws {
+        for version in versions {
+            version.updatedAt = Current.date()
         }
+        try await versions.save(on: database)
     }
 
 }
@@ -250,8 +231,8 @@ extension Package {
     static func fetchReAnalysisCandidates(
         _ database: Database,
         before cutOffDate: Date,
-        limit: Int) -> EventLoopFuture<[Joined<Package, Repository>]> {
-            Joined.query(on: database)
+        limit: Int) async throws -> [Joined<Package, Repository>] {
+            try await Joined.query(on: database)
                 .join(Version.self, on: \Package.$id == \Version.$package.$id)
                 .filter(Version.self, \.$updatedAt < cutOffDate)
                 .fields(for: Package.self)
