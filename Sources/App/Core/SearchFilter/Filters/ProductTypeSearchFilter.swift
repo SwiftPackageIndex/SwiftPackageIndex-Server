@@ -24,24 +24,10 @@
 import Foundation
 import SQLKit
 
-enum FilterLiteral: String, Codable {
-    case null = "NULL"
-}
-
 struct ProductTypeSearchFilter: SearchFilterProtocol {
     static var key: SearchFilter.Key = .productType
 
     var predicate: SearchFilter.Predicate
-
-    var leftHandSide: SQLExpression {
-        return SQLRaw("\"\(Self.key)\"->>'\(productType.rawValue)'")
-    }
-
-    var rightHandSide: SQLExpression {
-        return SQLLiteral.null
-    }
-
-    private let productType: Package.ProductType
 
     init(expression: SearchFilter.Expression) throws {
         // We don't support `isNot`, because it's unlikely
@@ -54,16 +40,14 @@ struct ProductTypeSearchFilter: SearchFilterProtocol {
         // We support searching for a single type to lighten the load
         // on the search and because it's somewhat niche use case to
         // search for multiple product types
-        guard let queryProductType = Package.ProductType(rawValue: expression.value) else {
+        guard let value = Package.ProductType(rawValue: expression.value) else {
             throw SearchFilterError.invalidValueType
         }
 
-        productType = queryProductType
-
         self.predicate = .init(
             operator: .jsonKeyExists,
-            bindableValue: .value(FilterLiteral.null),
-            displayValue: queryProductType.displayDescription
+            bindableValue: .value(value.rawValue),
+            displayValue: value.displayDescription
         )
     }
 }

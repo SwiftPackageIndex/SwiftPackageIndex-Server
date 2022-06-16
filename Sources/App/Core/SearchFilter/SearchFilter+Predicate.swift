@@ -104,7 +104,7 @@ extension SearchFilter {
                 case .lessThanOrEqual:
                     return SQLBinaryOperator.lessThanOrEqual
                 case .jsonKeyExists:
-                    return SQLBinaryOperator.isNot
+                    return SQLRaw("?")
             }
         }
 
@@ -123,7 +123,7 @@ extension SearchFilter {
                 case .lessThanOrEqual:
                     return "is less than or equal to"
                 case .jsonKeyExists:
-                    return "is"
+                    return "contains"
             }
         }
 
