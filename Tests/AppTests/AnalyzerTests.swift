@@ -505,7 +505,7 @@ class AnalyzerTests: AppTestCase {
         let jpr = try Package.fetchCandidate(app.db, id: .id0).wait()
 
         // MUT
-        Analyze.mergeReleaseInfo(package: jpr, versions: versions)
+        Analyze.mergeReleaseInfo(package: jpr, into: versions)
 
         // validate
         let sortedResults = versions.sorted { $0.commitDate < $1.commitDate }
@@ -542,15 +542,13 @@ class AnalyzerTests: AppTestCase {
         try version.save(on: app.db).wait()
 
         // MUT
-        let (analyzedVersion, info) = try Analyze.getPackageInfo(package: .init(model: pkg),
-                                                                 version: version).get()
+        let info = try Analyze.getPackageInfo(package: .init(model: pkg), version: version)
 
         // validation
         XCTAssertEqual(commands, [
             "git checkout \"0.4.2\" --quiet",
             "swift package dump-package"
         ])
-        XCTAssertEqual(analyzedVersion.id, version.id)
         XCTAssertEqual(info.packageManifest.name, "SPI-Server")
         XCTAssertEqual(info.dependencies?.map(\.packageName), ["1"])
     }

@@ -179,7 +179,7 @@ func reAnalyzeVersions(client: Client,
             .map { results in
                 for result in results {
                     if let (pkg, versions) = try? result.get() {
-                        Analyze.mergeReleaseInfo(package: pkg, versions: versions)
+                        Analyze.mergeReleaseInfo(package: pkg, into: versions)
                     }
                 }
                 return results

@@ -215,17 +215,22 @@ extension Analyze {
                                                   logger: logger,
                                                   transaction: transaction,
                                                   package: package)
-        let newVersions = versionDelta.toAdd
-        mergeReleaseInfo(package: package, versions: newVersions)
+
         try await applyVersionDelta(on: transaction, delta: versionDelta)
-        let versionPackageInfo = newVersions.compactMap {
-            // TODO: clean this up by eliminating Result entirely
-            try? getPackageInfo(package: package, version: $0).get()
+
+        let newVersions = versionDelta.toAdd
+
+        mergeReleaseInfo(package: package, into: newVersions)
+
+        let versionsPkgInfo = newVersions.compactMap { version -> (Version, PackageInfo)? in
+            guard let pkgInfo = try? getPackageInfo(package: package, version: version) else { return nil }
+            return (version, pkgInfo)
         }
-        if !newVersions.isEmpty && versionPackageInfo.isEmpty {
+        if !newVersions.isEmpty && versionsPkgInfo.isEmpty {
             throw AppError.noValidVersions(package.model.id, package.model.url)
         }
-        for (version, pkgInfo) in versionPackageInfo {
+
+        for (version, pkgInfo) in versionsPkgInfo {
             try await updateVersion(on: transaction, version: version, packageInfo: pkgInfo).get()
             try await recreateProducts(on: transaction,
                                        version: version,
@@ -234,7 +239,9 @@ extension Analyze {
                                       version: version,
                                       manifest: pkgInfo.packageManifest)
         }
+
         try await updateLatestVersions(on: transaction, package: package).get()
+
         await onNewVersions(client: client,
                             logger: logger,
                             transaction: transaction,
@@ -500,7 +507,7 @@ extension Analyze {
     }
 
 
-    static func mergeReleaseInfo(package: Joined<Package, Repository>, versions: [Version]) {
+    static func mergeReleaseInfo(package: Joined<Package, Repository>, into versions: [Version]) {
         guard let releases = package.repository?.releases else { return }
         let tagToRelease = Dictionary(
             releases
@@ -544,11 +551,13 @@ extension Analyze {
     ///   - logger: `Logger` object
     ///   - packageAndVersions: `Result` containing the `Package` and the array of `Version`s to analyse
     /// - Returns: results future including the `Manifest`s
+    @available(*, deprecated)
     static func getPackageInfo(packageAndVersions: [Result<(Joined<Package, Repository>, [Version]), Error>]) -> [Result<(Joined<Package, Repository>, [(Version, PackageInfo)]), Error>] {
         packageAndVersions.map { result in
             result.flatMap { (pkg, versions) in
-                let m = versions.map { getPackageInfo(package: pkg, version: $0) }
-                let successes = m.compactMap { try? $0.get() }
+                let successes = versions.compactMap { version in
+                    (try? getPackageInfo(package: pkg, version: version)).map { (version, $0) }
+                }
                 if !versions.isEmpty && successes.isEmpty {
                     return .failure(AppError.noValidVersions(pkg.model.id, pkg.model.url))
                 }
@@ -586,27 +595,25 @@ extension Analyze {
     ///   - package: `Package` to analyse
     ///   - version: `Version` to check out
     /// - Returns: `Result` with `Manifest` data
-    static func getPackageInfo(package: Joined<Package, Repository>, version: Version) -> Result<(Version, PackageInfo), Error> {
-        Result {
-            // check out version in cache directory
-            guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
-                throw AppError.invalidPackageCachePath(package.model.id,
-                                                       package.model.url)
-            }
-            try Current.shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
+    static func getPackageInfo(package: Joined<Package, Repository>, version: Version) throws -> PackageInfo {
+        // check out version in cache directory
+        guard let cacheDir = Current.fileManager.cacheDirectoryPath(for: package.model) else {
+            throw AppError.invalidPackageCachePath(package.model.id,
+                                                   package.model.url)
+        }
+        try Current.shell.run(command: .gitCheckout(branch: version.reference.description), at: cacheDir)
 
-            do {
-                let packageManifest = try dumpPackage(at: cacheDir)
-                let resolvedDependencies = getResolvedDependencies(Current.fileManager,
-                                                                   at: cacheDir)
-                let spiManifest = SPIManifest.Manifest.load(in: cacheDir)
-                return (version, PackageInfo(packageManifest: packageManifest,
-                                             dependencies: resolvedDependencies,
-                                             spiManifest: spiManifest))
-            } catch let AppError.invalidRevision(_, msg) {
-                // re-package error to attach version.id
-                throw AppError.invalidRevision(version.id, msg)
-            }
+        do {
+            let packageManifest = try dumpPackage(at: cacheDir)
+            let resolvedDependencies = getResolvedDependencies(Current.fileManager,
+                                                               at: cacheDir)
+            let spiManifest = SPIManifest.Manifest.load(in: cacheDir)
+            return PackageInfo(packageManifest: packageManifest,
+                               dependencies: resolvedDependencies,
+                               spiManifest: spiManifest)
+        } catch let AppError.invalidRevision(_, msg) {
+            // re-package error to attach version.id
+            throw AppError.invalidRevision(version.id, msg)
         }
     }
 
